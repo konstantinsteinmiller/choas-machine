@@ -57,6 +57,7 @@ export const installGameSounds = (): void => {
   on('weapon', () => sfx('weapon'))
   // A quick strike is one sound; a takedown plays its own beats.
   on('strike', ({ kind }) => { if (kind === 'strike' || !killCamsEnabled.value) sfx('blade') })
+  on('salvage', ({ beat }) => { if (beat !== 'stop') sfx(beat === 'taken' ? 'lootDone' : 'loot') })
   on('grapple', ({ beat }) => sfx(beat === 'throw' ? 'hookThrow' : beat === 'bite' ? 'hookBite' : beat === 'recall' ? 'hookRecall' : 'land'))
   on('takedown', ({ beat }) => sfx(beat === 'stab' ? 'blade' : 'bladeOut', 0, beat === 'pull' ? 0.7 : 1))
   on('decoy', () => sfx('decoy'))
@@ -93,7 +94,8 @@ export const installGameSounds = (): void => {
 
   // ── The mission's beats ──
   on('objective', () => sfx('objective'))
-  on('extracting', () => sfx('extract'))
+  on('extracting', () => { sfx('extract'); sfx('bark') })
+  on('jump', () => sfx('boardJump'))
   on('extracted', () => playJingle('victory'))
 
   // ── What the HUD mirror says ──

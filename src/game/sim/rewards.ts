@@ -30,6 +30,11 @@ export interface MissionResult {
   bodiesFound: number
   /** The base reached full alert. */
   loud: boolean
+  /** Salvage carried out (what the piles were worth), and piles stripped. */
+  salvage?: number
+  piles?: number
+  /** The Commander, and his tank where there was one, went down. */
+  bossDown?: boolean
 }
 
 /** Seconds under which a clear earns the Swift medal, by threat level. */
@@ -72,8 +77,17 @@ export interface LevelRecord {
   medals: Record<MedalId, boolean>
 }
 
-/** Tech Scrap for clearing a level, before the bonuses. */
+/**
+ * Tech Scrap for clearing a level, before the bonuses: what a raid that took
+ * only the salvage it needed brings home (`salvageNeed` piles at about 45).
+ * Kept for the tests' and the tally's sake; the payout itself counts the
+ * salvage actually carried out.
+ */
 export const baseScrap = (level: number): number => 90 + 45 * (level - 1)
+/** The Commander's own scrap, for the raid that also took him down. */
+export const BOSS_SCRAP = 60
+/** Salvage carried home from a run whose result does not say (an old save's tally, a test). */
+const salvageOf = (r: MissionResult, level: number): number => r.salvage ?? baseScrap(level)
 
 /**
  * The payout for an extraction. `missions` is how many the player has
@@ -86,7 +100,8 @@ export const payout = (r: MissionResult, level: number, held: LevelRecord, missi
   const firstClear = held.clears === 0
   const earned = MEDAL_IDS.filter(m => medals[m]).length
   const scrap = Math.round(
-    baseScrap(level) * (1 + 0.2 * earned) + r.kills * 4 + r.headshots * 4 + (firstClear ? baseScrap(level) : 0)
+    // The salvage is the haul; a medal is worth a fifth of it on top.
+    salvageOf(r, level) * (1 + 0.2 * earned) + r.kills * 4 + r.headshots * 4 + (r.bossDown ? BOSS_SCRAP : 0) + (firstClear ? baseScrap(level) : 0)
   )
   const blueprints: WeaponId[] = [WEAPON_IDS[missions % WEAPON_IDS.length]!]
   if (medals.ghost) blueprints.push(WEAPON_IDS[(missions + 1) % WEAPON_IDS.length]!)
@@ -106,4 +121,5 @@ export const DEFEAT_KEEP = 0.3
 
 /** Tech Scrap kept when the mech goes down. */
 export const defeatScrap = (r: MissionResult, level: number): number =>
-  Math.round((baseScrap(level) * 0.5 + r.kills * 4 + r.headshots * 4) * DEFEAT_KEEP)
+  // A share of what was carried, and a little for turning up at all.
+  Math.round((baseScrap(level) * 0.25 + (r.salvage ?? baseScrap(level) * 0.25) + r.kills * 4 + r.headshots * 4) * DEFEAT_KEEP)

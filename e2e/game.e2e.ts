@@ -181,9 +181,24 @@ describe('the loop, and the save', () => {
   it('win → tally → base → upgrade → Forge → reload: everything comes back from one key', async () => {
     const g = await open()
     await waitPlaying(g)
-    // The target, then the pad.
+    // The Commander (for the bonus), then the salvage the raid needs, pile by
+    // pile with the real key, then the pad.
     await g.page.evaluate(() => { const m = window.__game.app.mode; m.kill(m.garrison.units.find((u: any) => u.kind === 'commander').id) })
-    await g.page.waitForFunction(() => window.__game.hud.objective === 'extract' && !window.__game.hud.cine, null, { timeout: 20_000 })
+    await g.page.waitForFunction(() => !window.__game.hud.cine, null, { timeout: 20_000 })
+    const need = await g.page.evaluate(() => window.__game.hud.salvageNeed)
+    expect(need).toBe(3)
+    for (let k = 0; k < need; k++) {
+      const pile = await g.page.evaluate(() => {
+        const m = window.__game.app.mode
+        const p = m.piles.filter((q: any) => !q.taken).sort((a: any, b: any) => a.y - b.y)[0]
+        return { x: p.x, y: p.y, z: p.z }
+      })
+      await teleport(g, pile.x + 0.6, pile.z)
+      await g.page.waitForFunction(() => window.__game.hud.loot, null, { timeout: 5_000 })
+      await g.page.keyboard.press('KeyE')
+      await g.page.waitForFunction((n: number) => window.__game.hud.salvageGot === n, k + 1, { timeout: 5_000 })
+    }
+    await g.page.waitForFunction(() => window.__game.hud.objective === 'extract', null, { timeout: 5_000 })
     const pad = await g.page.evaluate(() => { const e = window.__game.app.mode.fortress.extract; return { x: e.x, z: e.z } })
     await teleport(g, pad.x + 0.4, pad.z + 0.4)
     await g.page.waitForFunction(() => window.__game.flow.modal === 'rewards', null, { timeout: 30_000 })
@@ -196,7 +211,7 @@ describe('the loop, and the save', () => {
     await g.page.waitForSelector('[data-testid="rewards"] .rank-badge', { timeout: 15_000 })
 
     await g.page.click('[data-testid="btn-to-base"]', { force: true })
-    await g.page.waitForFunction(() => window.__game.flow.screen === 'base' && !window.__game.flow.loading, null, { timeout: 60_000 })
+    await g.page.waitForFunction(() => window.__game.flow.screen === 'base' && !window.__game.flow.loading && !window.__game.flow.curtain, null, { timeout: 60_000 })
     await g.page.waitForTimeout(600)
     expect(await g.page.locator('[data-testid="wallet-scrap"]').innerText()).toMatch(/\d/)
 

@@ -42,9 +42,11 @@ export default {
     'capture': 'Spustelėk ir tęsk',
     'metres': '{n} m',
     'objective': {
-      'target': 'Likviduokite vadą',
+      'salvage': 'Salvage',
       'extract': 'Pasiekite evakuacijos aikštelę'
-    }
+    },
+    'haul': 'Salvage {n} of {need}',
+    'loot': 'Strip the salvage'
   },
   'defeat': {
     'title': 'Mechas žlugo',

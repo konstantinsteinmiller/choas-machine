@@ -42,9 +42,11 @@ export default {
     'capture': 'जारी रखने के लिए क्लिक करें',
     'metres': '{n} मी',
     'objective': {
-      'target': 'कमांडर को खत्म करें',
+      'salvage': 'Salvage',
       'extract': 'निकासी पैड तक पहुँचें'
-    }
+    },
+    'haul': 'Salvage {n} of {need}',
+    'loot': 'Strip the salvage'
   },
   'defeat': {
     'title': 'मेक गिर गया',

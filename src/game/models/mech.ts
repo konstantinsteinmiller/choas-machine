@@ -148,6 +148,8 @@ export interface MechPose {
   air: number
   /** Seconds since its armor gave out; 0 while it stands. */
   down: number
+  /** 0 … 1 kneeling at a pile with both hands in it. */
+  loot: number
   /** A takedown: the free hand on the target, the blade arm cocked, the blade arm through. Each 0 … 1. */
   grab: number
   draw: number
@@ -156,7 +158,7 @@ export interface MechPose {
 
 export const restPose = (): MechPose => ({
   time: 0, stride: 0, speed: 0, crouch: 0, sprint: 0, aim: 0, aimPitch: 0, weapon: 'sniper', recoil: 0, spin: 0,
-  blade: 0, stab: 0, climb: 0, climbPhase: 0, cable: 0, air: 0, down: 0, grab: 0, draw: 0, plunge: 0
+  blade: 0, stab: 0, climb: 0, climbPhase: 0, cable: 0, air: 0, down: 0, loot: 0, grab: 0, draw: 0, plunge: 0
 })
 
 const HIDDEN = 0.001
@@ -298,6 +300,14 @@ export const poseMech = (rig: Rig, s: MechPose): void => {
   const armed = s.stab > 0 || td > 0 || s.grab > 0 || s.climb > 0.5 || s.cable > 0.5 ? null : s.weapon
   for (const w of ['sniper', 'minigun', 'rocket'] as const) scaleBone(rig, w, w === armed ? 1 : HIDDEN)
   rig.bones.minigunBarrels!.rotation.y = s.spin
+  if (s.loot > 0) {
+    // Rummaging: both arms down into the pile, working in turn.
+    const dig = Math.sin(s.time * 11)
+    pose(rig, 'shoulderL', lerp(rig.bones.shoulderL!.rotation.x, -1.1 + dig * 0.25, s.loot), 0, -0.2)
+    pose(rig, 'shoulderR', lerp(rig.bones.shoulderR!.rotation.x, -1.1 - dig * 0.25, s.loot), 0, 0.2)
+    pose(rig, 'foreL', -0.6 * s.loot, 0, 0)
+    pose(rig, 'foreR', -0.6 * s.loot, 0, 0)
+  }
   // Its lights: steady while it lives, a stutter as it goes, then almost out.
   const lit = s.down <= 0 ? 1 : s.down < MECH_KNEEL_S + 0.5 ? (Math.sin(s.down * 47) > 0 ? 1 : 0.2) : 0.12
   rig.glowMaterial.color.setScalar(lit)

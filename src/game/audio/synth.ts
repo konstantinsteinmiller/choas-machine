@@ -255,6 +255,19 @@ const RECIPES: Record<SfxName, (pan: number, g: number) => void> = {
     burst({ dur: 0.06, vol: 0.06 * g, type: 'bandpass', f0: 2600, q: 3, at: 0.06 })
   },
 
+  // ── Salvage: scrap shifted about, then the good part pocketed ──
+  loot: (_p, g) => {
+    burst({ dur: 0.5, vol: 0.06 * g, type: 'bandpass', f0: 2200, f1: 1400, q: 2.5 })
+    tone({ wave: 'p12', f0: 820, f1: 760, dur: 0.04, vol: 0.06 * g, at: 0.08 })
+    tone({ wave: 'p12', f0: 1100, f1: 990, dur: 0.04, vol: 0.05 * g, at: 0.27 })
+  },
+  lootDone: (_p, g) => {
+    tone({ wave: 'tri', f0: 523, dur: 0.08, vol: 0.12 * g })
+    tone({ wave: 'tri', f0: 784, dur: 0.1, vol: 0.12 * g, at: 0.07 })
+    tone({ wave: 'tri', f0: 1046, dur: 0.16, vol: 0.1 * g, at: 0.14 })
+    burst({ dur: 0.18, vol: 0.06 * g, type: 'highpass', f0: 5000, at: 0.05 })
+  },
+
   // ── The grappling hook: a line paid out, steel on stone, a winch ──
   hookThrow: (_p, g) => {
     burst({ dur: 0.22, vol: 0.1 * g, type: 'bandpass', f0: 900, f1: 3600, q: 1.2 })
@@ -348,6 +361,17 @@ const RECIPES: Record<SfxName, (pan: number, g: number) => void> = {
   extract: (_p, g) => {
     arp([67, 74, 79, 86, 91], 0.08, 'p25', 0.15 * g, 0.2)
     tone({ wave: 'saw', f0: 120, f1: 620, dur: 1.4, vol: 0.06 * g, exp: false })
+  },
+  // The jet board: a rising whoosh past, then the hop off it.
+  boardJump: (_p, g) => {
+    burst({ dur: 0.5, vol: 0.1 * g, type: 'bandpass', f0: 900, f1: 3200, q: 0.9 })
+    tone({ wave: 'tri', f0: 330, f1: 660, dur: 0.18, vol: 0.08 * g })
+  },
+  // The robo dog arrives: two happy electronic yips over its jets.
+  bark: (_p, g) => {
+    tone({ wave: 'p25', f0: 640, f1: 980, dur: 0.09, vol: 0.09 * g })
+    tone({ wave: 'p25', f0: 700, f1: 1100, dur: 0.11, vol: 0.09 * g, at: 0.15 })
+    burst({ dur: 1.1, vol: 0.07 * g, type: 'bandpass', f0: 500, f1: 1800, q: 0.8 })
   },
   dropIn: (_p, g) => {
     burst({ dur: 1.0, vol: 0.14 * g, type: 'bandpass', f0: 300, f1: 2400, q: 0.7 })

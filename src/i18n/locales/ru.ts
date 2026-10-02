@@ -42,9 +42,11 @@ export default {
     'capture': 'Нажмите, чтобы продолжить',
     'metres': '{n} м',
     'objective': {
-      'target': 'Устраните командира',
+      'salvage': 'Salvage',
       'extract': 'Доберитесь до точки эвакуации'
-    }
+    },
+    'haul': 'Salvage {n} of {need}',
+    'loot': 'Strip the salvage'
   },
   'defeat': {
     'title': 'Мех повержен',

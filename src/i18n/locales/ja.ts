@@ -42,9 +42,11 @@ export default {
     'capture': 'クリックで再開',
     'metres': '{n} m',
     'objective': {
-      'target': '司令官を倒せ',
+      'salvage': 'Salvage',
       'extract': '脱出パッドへ向かえ'
-    }
+    },
+    'haul': 'Salvage {n} of {need}',
+    'loot': 'Strip the salvage'
   },
   'defeat': {
     'title': 'メカ撃破',

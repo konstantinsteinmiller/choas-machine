@@ -8,8 +8,13 @@ import type { Fortress } from './fortress'
  * instead of a guard walking into a wall in a playtest.
  */
 
-/** The mech drops off anything; it climbs only by stairs, ladders and cables. */
-const MECH: MoveRule = { up: WALK.up, down: 100 }
+/**
+ * The mech drops off anything; it climbs by stairs, ladders and cables, pulls
+ * itself up onto anything waist-high, and takes any wall up to the hook's
+ * reach (`sim/grapple.ts` GRAPPLE_MAX) with the grappling hook.
+ */
+const HOOK_REACH = 9.5
+const MECH: MoveRule = { up: HOOK_REACH, down: 100 }
 
 export const validateFortress = (f: Fortress): string[] => {
   const g = f.grid
@@ -66,20 +71,26 @@ export const validateFortress = (f: Fortress): string[] => {
   // The mech can get from where it lands to where it leaves. It may drop off
   // ledges; climbing back up is what ladders are for, and a base that needs
   // one to be finished is a design choice the layout must make explicitly.
-  if (problems.length === 0 && !reachable(f, MECH)) {
+  if (problems.length === 0 && !reachable(f, MECH, f.extract.x, f.extract.z)) {
     problems.push('the extraction point cannot be reached from the insertion point')
+  }
+  // Every pile of salvage can be got to, and the mech can get out again from
+  // it: a raid that needs a pile nobody can reach cannot be finished.
+  for (const [i, p] of f.salvage.entries()) {
+    if (heightAt(g, p.x, p.z) === VOID) { problems.push(`salvage #${i} at ${at(p.x, p.z)} is off the island`); continue }
+    if (problems.length === 0 && !reachable(f, MECH, p.x, p.z)) problems.push(`salvage #${i} at ${at(p.x, p.z)} cannot be reached`)
   }
   return problems
 }
 
 /**
  * Flood from the insertion cell under `rule`, also riding ladders (both ways)
- * and cables (both ways); true when the extraction cell is reached.
+ * and cables (both ways); true when the cell at `(gx, gz)` is reached.
  */
-const reachable = (f: Fortress, rule: MoveRule): boolean => {
+const reachable = (f: Fortress, rule: MoveRule, gx: number, gz: number): boolean => {
   const g = f.grid
   const start = toCell(f.insert.z) * g.w + toCell(f.insert.x)
-  const goal = toCell(f.extract.z) * g.w + toCell(f.extract.x)
+  const goal = toCell(gz) * g.w + toCell(gx)
   const seen = new Uint8Array(g.w * g.d)
   const queue = [start]
   seen[start] = 1

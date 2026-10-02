@@ -18,13 +18,15 @@ export type SfxName =
   | 'blade' | 'bladeOut' | 'decoy' | 'decoyOut'
   // The grappling hook: thrown, biting into the wall top, reeling, recalled
   | 'hookThrow' | 'hookBite' | 'hookReel' | 'hookRecall'
+  // Salvage: rummaging in a pile, and the pile stripped
+  | 'loot' | 'lootDone'
   // What a round does
   | 'hit' | 'headshot' | 'tink' | 'ricochet' | 'kill' | 'wreck'
   // The base
   | 'suspicious' | 'spotted' | 'body' | 'alertUp' | 'alertDown' | 'alarm' | 'enemyShot' | 'whizz' | 'wake'
   | 'telegraph' | 'shell' | 'wave'
   // The mission's beats
-  | 'objective' | 'extract' | 'dropIn' | 'killcam' | 'lesson' | 'medal'
+  | 'objective' | 'extract' | 'dropIn' | 'boardJump' | 'bark' | 'killcam' | 'lesson' | 'medal'
   // The Command Base and the interface
   | 'buy' | 'forgeStart' | 'forgeDone' | 'denied' | 'uiClick' | 'uiOpen' | 'uiClose' | 'uiConfirm'
 

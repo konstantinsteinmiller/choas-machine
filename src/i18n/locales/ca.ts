@@ -42,9 +42,11 @@ export default {
     'capture': 'Clica per continuar',
     'metres': '{n} m',
     'objective': {
-      'target': 'Elimina el comandant',
+      'salvage': 'Salvage',
       'extract': 'Arriba a la plataforma d\'extracció'
-    }
+    },
+    'haul': 'Salvage {n} of {need}',
+    'loot': 'Strip the salvage'
   },
   'defeat': {
     'title': 'Mecha a terra',

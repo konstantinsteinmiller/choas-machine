@@ -42,9 +42,11 @@ export default {
     'capture': 'انقر للمتابعة',
     'metres': '{n} م',
     'objective': {
-      'target': 'أطح بالقائد',
+      'salvage': 'Salvage',
       'extract': 'اصل إلى منصة الإخلاء'
-    }
+    },
+    'haul': 'Salvage {n} of {need}',
+    'loot': 'Strip the salvage'
   },
   'defeat': {
     'title': 'تحطّم الميكا',

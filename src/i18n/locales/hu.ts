@@ -42,9 +42,11 @@ export default {
     'capture': 'Kattints a folytatáshoz',
     'metres': '{n} m',
     'objective': {
-      'target': 'Iktasd ki a parancsnokot',
+      'salvage': 'Salvage',
       'extract': 'Érj a kimentési platformra'
-    }
+    },
+    'haul': 'Salvage {n} of {need}',
+    'loot': 'Strip the salvage'
   },
   'defeat': {
     'title': 'A mech kiesett',

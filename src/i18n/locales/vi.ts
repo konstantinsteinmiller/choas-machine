@@ -42,9 +42,11 @@ export default {
     'capture': 'Nhấn để tiếp tục',
     'metres': '{n} m',
     'objective': {
-      'target': 'Hạ gục chỉ huy',
+      'salvage': 'Salvage',
       'extract': 'Đến bãi triệt thoái'
-    }
+    },
+    'haul': 'Salvage {n} of {need}',
+    'loot': 'Strip the salvage'
   },
   'defeat': {
     'title': 'Mech gục ngã',

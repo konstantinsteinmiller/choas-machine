@@ -42,9 +42,11 @@ export default {
     'capture': 'Κλικ για συνέχεια',
     'metres': '{n} μ.',
     'objective': {
-      'target': 'Εξουδετέρωσε τον διοικητή',
+      'salvage': 'Salvage',
       'extract': 'Φτάσε στην πλατφόρμα εκκένωσης'
-    }
+    },
+    'haul': 'Salvage {n} of {need}',
+    'loot': 'Strip the salvage'
   },
   'defeat': {
     'title': 'Το μεκ έπεσε',

@@ -42,9 +42,11 @@ export default {
     'capture': '點擊繼續',
     'metres': '{n} 公尺',
     'objective': {
-      'target': '擊敗指揮官',
+      'salvage': 'Salvage',
       'extract': '前往撤離點'
-    }
+    },
+    'haul': 'Salvage {n} of {need}',
+    'loot': 'Strip the salvage'
   },
   'defeat': {
     'title': '機甲倒下了',

@@ -42,9 +42,11 @@ export default {
     'capture': 'Klikni a pokračuj',
     'metres': '{n} m',
     'objective': {
-      'target': 'Vyřaď velitele',
+      'salvage': 'Salvage',
       'extract': 'Dojdi na evakuační plošinu'
-    }
+    },
+    'haul': 'Salvage {n} of {need}',
+    'loot': 'Strip the salvage'
   },
   'defeat': {
     'title': 'Mech je venku',

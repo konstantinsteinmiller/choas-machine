@@ -42,9 +42,11 @@ export default {
     'capture': 'Klik untuk lanjut',
     'metres': '{n} m',
     'objective': {
-      'target': 'Lumpuhkan Komandan',
+      'salvage': 'Salvage',
       'extract': 'Capai landasan ekstraksi'
-    }
+    },
+    'haul': 'Salvage {n} of {need}',
+    'loot': 'Strip the salvage'
   },
   'defeat': {
     'title': 'Mech tumbang',

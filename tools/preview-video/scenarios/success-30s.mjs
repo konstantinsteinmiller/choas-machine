@@ -92,6 +92,8 @@ export default {
     await vantage(ctx, boss.id, 26)
     await ctx.wait(120)
     await snipe(ctx, boss.id, 750)
+    // The salvage (stripped off camera): the way out is open.
+    await ctx.evaluate(() => window.__preview.takeSalvage())
     await logState(ctx, 'the target is down')
 
     // ── Out ── (the lift takes about five seconds: start it that far from the end)

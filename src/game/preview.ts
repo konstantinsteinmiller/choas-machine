@@ -164,6 +164,8 @@ const install = (): void => {
       }
       return false
     },
+    /** Strip the salvage the raid still needs, where it lies (opens the way out). */
+    takeSalvage: (): void => { mission()?.cheatSalvage() },
     /** The nearest defender the mech can see (-1 if none). */
     nearest: (): number => {
       const m = mission()

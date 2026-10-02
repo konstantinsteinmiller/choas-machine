@@ -42,9 +42,11 @@ export default {
     'capture': 'Klikšķini, lai turpinātu',
     'metres': '{n} m',
     'objective': {
-      'target': 'Likvidē komandieri',
+      'salvage': 'Salvage',
       'extract': 'Sasniedz evakuācijas laukumu'
-    }
+    },
+    'haul': 'Salvage {n} of {need}',
+    'loot': 'Strip the salvage'
   },
   'defeat': {
     'title': 'Mehs ir ticis',

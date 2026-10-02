@@ -42,9 +42,11 @@ export default {
     'capture': 'Klikk for å fortsette',
     'metres': '{n} m',
     'objective': {
-      'target': 'Ta ut sjefen',
+      'salvage': 'Salvage',
       'extract': 'Nå evakueringsplassen'
-    }
+    },
+    'haul': 'Salvage {n} of {need}',
+    'loot': 'Strip the salvage'
   },
   'defeat': {
     'title': 'Mechen er nede',

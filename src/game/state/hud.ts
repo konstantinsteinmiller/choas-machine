@@ -67,7 +67,13 @@ export const hud = reactive({
   /** A kill-cam is playing: the HUD stands down. */
   cine: false,
   /** What the mission wants next: the target dead, then the way out. */
-  objective: 'target' as 'target' | 'extract' | 'done',
+  objective: 'salvage' as 'salvage' | 'extract' | 'done',
+  /** Piles stripped, and how many the raid needs. */
+  salvageGot: 0,
+  salvageNeed: 0,
+  /** A pile within reach; and 0 … 1 of stripping one. */
+  loot: false,
+  looting: 0,
   /** The control lessons on screen (replaced only when they change). */
   hints: [] as HintView[]
 })

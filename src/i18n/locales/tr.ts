@@ -42,9 +42,11 @@ export default {
     'capture': 'Devam için tıkla',
     'metres': '{n} m',
     'objective': {
-      'target': 'Komutanı etkisiz hale getir',
+      'salvage': 'Salvage',
       'extract': 'Tahliye alanına ulaş'
-    }
+    },
+    'haul': 'Salvage {n} of {need}',
+    'loot': 'Strip the salvage'
   },
   'defeat': {
     'title': 'Mech yenildi',

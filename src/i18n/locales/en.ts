@@ -46,9 +46,11 @@ export default {
     'capture': 'Click to continue',
     'metres': '{n} m',
     'objective': {
-      'target': 'Take out the Commander',
+      'salvage': 'Salvage',
       'extract': 'Reach the extraction pad'
-    }
+    },
+    'haul': 'Salvage {n} of {need}',
+    'loot': 'Strip the salvage'
   },
   'defeat': {
     'title': 'Mech down',

@@ -42,9 +42,11 @@ export default {
     'capture': 'Klikni za nastavak',
     'metres': '{n} m',
     'objective': {
-      'target': 'Ukloni zapovjednika',
+      'salvage': 'Salvage',
       'extract': 'Dođi do platforme za evakuaciju'
-    }
+    },
+    'haul': 'Salvage {n} of {need}',
+    'loot': 'Strip the salvage'
   },
   'defeat': {
     'title': 'Mech je pao',

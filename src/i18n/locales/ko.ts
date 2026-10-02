@@ -42,9 +42,11 @@ export default {
     'capture': '클릭하여 계속',
     'metres': '{n}m',
     'objective': {
-      'target': '사령관을 처치하라',
+      'salvage': 'Salvage',
       'extract': '추출 지점에 도달하라'
-    }
+    },
+    'haul': 'Salvage {n} of {need}',
+    'loot': 'Strip the salvage'
   },
   'defeat': {
     'title': '메카 파괴',

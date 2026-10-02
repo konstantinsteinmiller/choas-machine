@@ -42,9 +42,11 @@ export default {
     'capture': 'คลิกเพื่อเล่นต่อ',
     'metres': '{n} ม.',
     'objective': {
-      'target': 'กำจัดผู้บัญชาการ',
+      'salvage': 'Salvage',
       'extract': 'ไปที่จุดอพยพ'
-    }
+    },
+    'haul': 'Salvage {n} of {need}',
+    'loot': 'Strip the salvage'
   },
   'defeat': {
     'title': 'เม็คล้มแล้ว',

@@ -42,9 +42,11 @@ export default {
     'capture': 'Кликни за продължение',
     'metres': '{n} м',
     'objective': {
-      'target': 'Елиминирай командира',
+      'salvage': 'Salvage',
       'extract': 'Стигни до площадката за евакуация'
-    }
+    },
+    'haul': 'Salvage {n} of {need}',
+    'loot': 'Strip the salvage'
   },
   'defeat': {
     'title': 'Мехът падна',

@@ -42,9 +42,11 @@ export default {
     'capture': 'Cliquez pour continuer',
     'metres': '{n} m',
     'objective': {
-      'target': 'Élimine le commandant',
+      'salvage': 'Salvage',
       'extract': 'Rejoins la zone d\'extraction'
-    }
+    },
+    'haul': 'Salvage {n} of {need}',
+    'loot': 'Strip the salvage'
   },
   'defeat': {
     'title': 'Mécha à terre',

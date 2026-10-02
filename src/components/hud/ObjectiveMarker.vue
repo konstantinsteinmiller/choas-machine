@@ -1,10 +1,10 @@
 <template lang="pug">
-  //- Where to go: a marker over the mission's objective (the Commander, then
-  //- the extraction pad). On screen it sits on the thing itself; off screen
+  //- Where to go: a marker over the mission's objective (the nearest pile of
+  //- salvage, then the extraction pad). On screen it sits on the thing itself; off screen
   //- it slides to the edge and points.
   div.objective(ref="el" :class="hud.objective" role="img" :aria-label="label")
     div.pin
-      GameIcon(:name="hud.objective === 'extract' ? 'up' : 'skull'")
+      GameIcon(:name="hud.objective === 'extract' ? 'up' : 'scrap'")
     div.arrow(ref="arrow")
     div.dist(ref="dist")
 </template>
@@ -25,7 +25,7 @@ const { t } = useI18n()
 const el = ref<HTMLElement | null>(null)
 const arrow = ref<HTMLElement | null>(null)
 const dist = ref<HTMLElement | null>(null)
-const label = computed(() => t(hud.objective === 'extract' ? 'hud.objective.extract' : 'hud.objective.target'))
+const label = computed(() => t(hud.objective === 'extract' ? 'hud.objective.extract' : 'hud.objective.salvage'))
 let off: (() => void) | null = null
 let sizer: ResizeObserver | null = null
 let unlisten: (() => void) | null = null

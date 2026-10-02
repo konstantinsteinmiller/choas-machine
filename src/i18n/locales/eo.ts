@@ -42,9 +42,11 @@ export default {
     'capture': 'Alklaku por daŭrigi',
     'metres': '{n} m',
     'objective': {
-      'target': 'Neŭtraligu la komandanton',
+      'salvage': 'Salvage',
       'extract': 'Atingu la evakuan platformon'
-    }
+    },
+    'haul': 'Salvage {n} of {need}',
+    'loot': 'Strip the salvage'
   },
   'defeat': {
     'title': 'Meĥo falis',

@@ -1,4 +1,5 @@
 import { CircleGeometry, Mesh, PerspectiveCamera, Vector3 } from 'three'
+import { buildRobodog, poseRobodog, DOG_STAND, BOARD_HOVER } from '../models/robodog'
 import { getRenderer } from '../engine/renderer'
 import { newScene, type GameMode } from '../engine/app'
 import { buildSky, type Sky } from '../world/sky'
@@ -69,6 +70,15 @@ export class ModelBench implements GameMode {
     if (all || which === 'mech') {
       const rig = buildMech()
       add(rig, 0, (t) => poseMech(rig, mechPose(t)))
+    }
+    if (all || which === 'robodog') {
+      // pose=run gallops; pose=fold lies down into the board and back up.
+      const rig = buildRobodog()
+      add(rig, 0, (t) => {
+        const fold = poseName === 'fold' ? 0.5 - 0.5 * Math.cos(t * 1.6) : poseName === 'board' ? 1 : 0
+        poseRobodog(rig, { time: t, stride: t * 12, run: poseName === 'run' ? 1 : 0, fold, thrust: 0.6 })
+        rig.root.position.y = DOG_STAND + (BOARD_HOVER - DOG_STAND) * fold
+      }, 2.4)
     }
     if (which === 'takedown') {
       // The blade from behind, both bodies, on the takedown's own clock:

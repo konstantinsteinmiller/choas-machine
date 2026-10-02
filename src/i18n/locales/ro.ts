@@ -42,9 +42,11 @@ export default {
     'capture': 'Click pentru a continua',
     'metres': '{n} m',
     'objective': {
-      'target': 'Elimină comandantul',
+      'salvage': 'Salvage',
       'extract': 'Ajunge la zona de extracție'
-    }
+    },
+    'haul': 'Salvage {n} of {need}',
+    'loot': 'Strip the salvage'
   },
   'defeat': {
     'title': 'Mech doborât',

@@ -42,9 +42,11 @@ export default {
     'capture': 'Kliknij, aby kontynuować',
     'metres': '{n} m',
     'objective': {
-      'target': 'Wyeliminuj dowódcę',
+      'salvage': 'Salvage',
       'extract': 'Dotrzyj do punktu ewakuacji'
-    }
+    },
+    'haul': 'Salvage {n} of {need}',
+    'loot': 'Strip the salvage'
   },
   'defeat': {
     'title': 'Mech padł',

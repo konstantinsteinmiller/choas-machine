@@ -56,6 +56,17 @@ export type DecorKind =
   | 'heap' | 'tires' | 'pipes' | 'crane' | 'generator' | 'girder' | 'tank' | 'spool' | 'stack' | 'cone'
 export interface Decor { kind: DecorKind; x: number; y: number; z: number; rot: number }
 
+/** A pile of salvage: where it lies, and how much it is worth. */
+export interface SalvageSpot {
+  x: number
+  y: number
+  z: number
+  /** Salvage it yields. */
+  amount: number
+  /** The big one (on the keep, by the Commander): drawn larger, worth more. */
+  big: boolean
+}
+
 export interface Fortress {
   id: string
   grid: Grid
@@ -65,6 +76,8 @@ export interface Fortress {
   extract: Point
   posts: Post[]
   decor: Decor[]
+  /** What the raid is for (`sim/salvage.ts`). */
+  salvage: SalvageSpot[]
 }
 
 const DIRS = { n: [0, -1], s: [0, 1], e: [1, 0], w: [-1, 0] } as const
@@ -76,6 +89,7 @@ export class FortressBuilder {
   private extractAt: Point | null = null
   private posts: Post[] = []
   private decor: Decor[] = []
+  private piles: SalvageSpot[] = []
 
   constructor(readonly id: string, w: number, d: number) {
     this.grid = makeGrid(w, d)
@@ -262,6 +276,14 @@ export class FortressBuilder {
     return this
   }
 
+  /** A pile of salvage on the cell's top. */
+  salvage(cx: number, cz: number, amount = 40, big = false): this {
+    const h = this.heightOf(cx, cz)
+    if (h === VOID) throw new Error(`[fortress ${this.id}] salvage at ${cx},${cz} is off the island`)
+    this.piles.push({ x: cellMid(cx), y: h, z: cellMid(cz), amount, big })
+    return this
+  }
+
   /**
    * Steel decking over the ground in a rectangle of cells (looks only).
    * `hazard`: with the warning paint of a gate or a pad.
@@ -331,7 +353,8 @@ export class FortressBuilder {
       insert: this.insertAt,
       extract: this.extractAt,
       posts: this.posts,
-      decor: this.decor
+      decor: this.decor,
+      salvage: this.piles
     }
   }
 }

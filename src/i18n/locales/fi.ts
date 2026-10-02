@@ -42,9 +42,11 @@ export default {
     'capture': 'Jatka klikkaamalla',
     'metres': '{n} m',
     'objective': {
-      'target': 'Kaada komentaja',
+      'salvage': 'Salvage',
       'extract': 'Pääse noutoalustalle'
-    }
+    },
+    'haul': 'Salvage {n} of {need}',
+    'loot': 'Strip the salvage'
   },
   'defeat': {
     'title': 'Mecha kaatui',

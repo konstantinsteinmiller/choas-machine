@@ -90,10 +90,15 @@ describe('the validator', () => {
     expect(validateFortress(f).some(p => p.includes('no walkable way'))).toBe(true)
   })
 
-  it('names an extraction the mech cannot reach, and accepts a ladder to it', () => {
-    const cutOff = (): FortressBuilder => small().fill(2, 2, 13, 5, WALL_H, CellKind.Ground).insert(8, 12).extract(8, 3)
+  it('names an extraction the mech cannot reach, and accepts a way up to it', () => {
+    // A plateau higher than the grappling hook reaches: nobody gets up there
+    // without a ladder.
+    const cutOff = (): FortressBuilder => small().fill(2, 2, 13, 5, 12, CellKind.Ground).insert(8, 12).extract(8, 3)
     expect(validateFortress(cutOff().build())).toEqual(['the extraction point cannot be reached from the insertion point'])
     expect(validateFortress(cutOff().ladder(8, 6, 'n').build())).toEqual([])
+    // A wall's height is the hook's: that is reachable as it is.
+    const walled = small().fill(2, 2, 13, 5, WALL_H, CellKind.Ground).insert(8, 12).extract(8, 3)
+    expect(validateFortress(walled.build())).toEqual([])
   })
 
   it('the mech may start high and drop in', () => {

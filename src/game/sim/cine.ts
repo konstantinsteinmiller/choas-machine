@@ -130,18 +130,20 @@ export const dropHeight = (k: number): number => {
  * (`follow`) once the mech has landed.
  */
 export const introCam = (
-  out: CinePose, k: number, px: number, py: number, pz: number, yaw: number, cx: number, cz: number, follow: CinePose
+  out: CinePose, k: number, px: number, py: number, pz: number, yaw: number, cx: number, cz: number, follow: CinePose,
+  /** How high above the perch the mech is now (it rides in; by default it falls). */
+  rise = dropHeight(k)
 ): CinePose => {
   const drift = (k - 0.5) * 0.5
   const a = yaw + Math.PI + drift
   // Wide: behind and above the perch.
   out.x = px + Math.sin(a) * 19
-  out.y = py + 10 + dropHeight(k) * 0.25
+  out.y = py + 10 + rise * 0.25
   out.z = pz + Math.cos(a) * 19
   // It watches the mech come down, then looks past it into the base.
   const look = smooth((k - DROP_LANDED) / 0.2)
   out.tx = lerp(px, lerp(px, cx, 0.35), look)
-  out.ty = lerp(py + 1.4 + dropHeight(k), py + 1, look)
+  out.ty = lerp(py + 1.4 + rise, py + 1, look)
   out.tz = lerp(pz, lerp(pz, cz, 0.35), look)
   out.fov = follow.fov * 0.92
   const settle = smooth((k - 0.66) / 0.34)
@@ -157,14 +159,18 @@ export const liftHeight = (k: number): number => {
 }
 
 /** The outro's camera: it backs away and rises as the mech is taken up. */
-export const outroCam = (out: CinePose, k: number, px: number, py: number, pz: number, yaw: number, fov: number): CinePose => {
+export const outroCam = (
+  out: CinePose, k: number, px: number, py: number, pz: number, yaw: number, fov: number,
+  /** How high the mech has been taken (by default, up a line). */
+  rise = liftHeight(k)
+): CinePose => {
   const a = yaw + Math.PI * 0.8 + k * 0.9
   const r = lerp(7, 15, smooth(k))
   out.x = px + Math.sin(a) * r
   out.y = py + lerp(2.2, 7, smooth(k))
   out.z = pz + Math.cos(a) * r
   out.tx = px
-  out.ty = py + 1.4 + liftHeight(k) * 0.8
+  out.ty = py + 1.4 + rise * 0.8
   out.tz = pz
   out.fov = fov * 0.9
   return out

@@ -58,8 +58,12 @@ export interface GameEvents {
   grapple: { beat: 'throw' | 'bite' | 'recall' | 'top'; heard: number }
   /** The takedown's beats: the blade springs out, goes in, comes back out. */
   takedown: { beat: 'draw' | 'stab' | 'pull'; id: number }
-  /** The objective moved on: the target is dead, the way out is open. */
+  /** The objective moved on: the salvage is in hand, the way out is open. */
   objective: { state: 'extract' }
+  /** The mech jumps off the board onto its perch. */
+  jump: Record<string, never>
+  /** A pile of salvage: started, given up, stripped (`amount` of it). */
+  salvage: { beat: 'start' | 'stop' | 'taken'; got: number; need: number; amount: number }
   /** The Commander is dead and the Goliath is waking. */
   finale: Record<string, never>
   /** The player asked for the control hints back (the "?" button). */

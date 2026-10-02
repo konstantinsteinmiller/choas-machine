@@ -42,9 +42,11 @@ export default {
     'capture': 'Davam üçün kliklə',
     'metres': '{n} m',
     'objective': {
-      'target': 'Komandiri aradan qaldır',
+      'salvage': 'Salvage',
       'extract': 'Təxliyə meydançasına çat'
-    }
+    },
+    'haul': 'Salvage {n} of {need}',
+    'loot': 'Strip the salvage'
   },
   'defeat': {
     'title': 'Meka məğlub oldu',

@@ -42,9 +42,11 @@ export default {
     'capture': 'Klik om verder te gaan',
     'metres': '{n} m',
     'objective': {
-      'target': 'Schakel de commandant uit',
+      'salvage': 'Salvage',
       'extract': 'Bereik het extractieplatform'
-    }
+    },
+    'haul': 'Salvage {n} of {need}',
+    'loot': 'Strip the salvage'
   },
   'defeat': {
     'title': 'Mech neergehaald',

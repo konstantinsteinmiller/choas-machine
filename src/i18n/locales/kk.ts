@@ -42,9 +42,11 @@ export default {
     'capture': 'Жалғастыру үшін басыңыз',
     'metres': '{n} м',
     'objective': {
-      'target': 'Қолбасшыны жойыңыз',
+      'salvage': 'Salvage',
       'extract': 'Эвакуация алаңына жетіңіз'
-    }
+    },
+    'haul': 'Salvage {n} of {need}',
+    'loot': 'Strip the salvage'
   },
   'defeat': {
     'title': 'Мех құлады',

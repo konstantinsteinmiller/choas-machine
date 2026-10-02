@@ -42,9 +42,11 @@ export default {
     'capture': 'Clique para continuar',
     'metres': '{n} m',
     'objective': {
-      'target': 'Elimine o Comandante',
+      'salvage': 'Salvage',
       'extract': 'Chegue à área de extração'
-    }
+    },
+    'haul': 'Salvage {n} of {need}',
+    'loot': 'Strip the salvage'
   },
   'defeat': {
     'title': 'Mech destruído',

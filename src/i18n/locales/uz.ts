@@ -42,9 +42,11 @@ export default {
     'capture': 'Davom etish uchun bosing',
     'metres': '{n} m',
     'objective': {
-      'target': 'Qo\'mondonni yo\'q qiling',
+      'salvage': 'Salvage',
       'extract': 'Evakuatsiya maydoniga yeting'
-    }
+    },
+    'haul': 'Salvage {n} of {need}',
+    'loot': 'Strip the salvage'
   },
   'defeat': {
     'title': 'Mech yiqildi',

@@ -10,6 +10,16 @@
 
     div.top-centre
       AlertMeter
+      //- The raid's haul: piles stripped of those it needs. Glyph and digits only.
+      div.haul(
+        v-if="hud.salvageNeed > 0"
+        :class="{ done: hud.salvageGot >= hud.salvageNeed }"
+        role="img"
+        :aria-label="t('hud.haul', { n: hud.salvageGot, need: hud.salvageNeed })"
+        data-testid="haul"
+      )
+        GameIcon(name="scrap")
+        span {{ hud.salvageGot }}/{{ hud.salvageNeed }}
 
     div.top-right
       //- The lessons, back on request.
@@ -31,6 +41,20 @@
         data-testid="btn-strike"
         @click="input.actQueued = true"
       )
+
+    //- A pile within reach: the same tap that strikes strips it. The ring
+    //- fills while the mech works.
+    div.strike.loot(v-if="(hud.loot || hud.looting > 0) && !hud.strike")
+      FHudButton(
+        icon="scrap"
+        tone="warn"
+        :attention="hud.looting === 0"
+        :aria-label="t('hud.loot')"
+        data-testid="btn-loot"
+        @click="input.actQueued = true"
+      )
+        template(#badge)
+          FHudBadge(v-if="hud.looting > 0" tone="warn") {{ Math.round(hud.looting * 100) }}%
 
     //- The hook's offer at the foot of a wall; once it is out, the same
     //- place takes it back (red while somebody up there is wondering).
@@ -118,6 +142,7 @@
 import { onUnmounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import FHudButton from '@/components/atoms/FHudButton.vue'
+import GameIcon from '@/components/icons/GameIcon.vue'
 import FHudBadge from '@/components/atoms/FHudBadge.vue'
 import Joystick from '@/components/hud/Joystick.vue'
 import AimHold from '@/components/hud/AimHold.vue'
@@ -171,6 +196,27 @@ onUnmounted(() => window.clearTimeout(closeTimer))
   position: absolute
   inset: 0
   pointer-events: none
+
+.haul
+  display: flex
+  align-items: center
+  justify-content: center
+  gap: 0.3em
+  margin-top: 0.35em
+  padding: 0.2em 0.7em
+  border-radius: 999px
+  background: var(--cm-glass-soft)
+  border: var(--cm-edge) solid rgba(255, 177, 74, 0.7)
+  color: #ffd27a
+  font-size: var(--cm-fs-s)
+  text-shadow: var(--cm-text-outline)
+  pointer-events: none
+  :deep(svg)
+    width: 1.15em
+    height: 1.15em
+  &.done
+    border-color: var(--cm-ok)
+    color: var(--cm-ok)
 
 .top-centre
   position: absolute

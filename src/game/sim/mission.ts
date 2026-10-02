@@ -30,6 +30,8 @@ import {
   type Garrison, type Target
 } from './garrison'
 import { GarrisonView } from './garrisonView'
+import { SALVAGE_EARSHOT, SALVAGE_S, makePiles, nearestPile, pileInReach, salvageNeed, type Pile } from './salvage'
+import { SalvageView } from '../world/salvageView'
 import {
   GRAPPLE_EARSHOT, cancelGrapple, canCancel, findGrapple, hookAt, startGrapple, stepGrapple, type GrappleRun, type GrappleSpot
 } from './grapple'
@@ -49,7 +51,8 @@ import {
   DROP_LANDED, blendPose, bulletAt, bulletCam, bulletFlightS, dropHeight, introCam, liftHeight, makeCinePose, orbitCam, outroCam,
   type CinePose
 } from './cine'
-import { buildDropship, type Dropship } from '../models/dropship'
+import { buildRobodog, poseRobodog, restDogPose, type DogPose } from '../models/robodog'
+import { introFrame, makeDogFrame, makeRiderFrame, outroFrame, RIDER_JUMP } from './robodog'
 import { killCamsEnabled } from '@/use/useKillCam'
 import { markSeen, profile, saveProfile } from '../state/profile'
 import { HINTS, coachHelp, coachUse, makeCoach, stepCoach, type Coach, type CoachContext, type HintId } from './coach'
@@ -99,7 +102,7 @@ interface StrikeRun {
 /** The scripted shot that is running, if one is. Timed in REAL seconds. */
 type Cine =
   /** The drop-in. */
-  | { kind: 'intro'; t: number; dur: number; landed: boolean }
+  | { kind: 'intro'; t: number; dur: number; landed: boolean; jumped: boolean }
   /** The takedown's own camera: it runs as long as the strike does. */
   | { kind: 'stab'; t: number; dur: number }
   /** The extraction. */
@@ -136,6 +139,11 @@ export interface MissionStats {
   bodiesFound: number
   /** The base reached full alert. */
   loud: boolean
+  /** Salvage carried out, and piles stripped. */
+  salvage: number
+  piles: number
+  /** The Commander (and his tank, where there is one) went down. */
+  bossDown: boolean
 }
 
 export type KillBy = WeaponId | 'blade'
@@ -150,14 +158,14 @@ export class Mission implements GameMode {
   readonly armor: Armor
   readonly decoys: Decoy[] = []
   readonly rockets: Rocket[] = []
-  readonly stats: MissionStats = { time: 0, shots: 0, hits: 0, headshots: 0, kills: 0, bladeKills: 0, spotted: 0, bodiesFound: 0, loud: false }
+  readonly stats: MissionStats = { time: 0, shots: 0, hits: 0, headshots: 0, kills: 0, bladeKills: 0, spotted: 0, bodiesFound: 0, loud: false, salvage: 0, piles: 0, bossDown: false }
   decoysLeft = DECOYS_PER_MISSION
   /** The threat level this mission is played at, 1 … 5. */
   readonly level: number
   /** What the mech is fitted with (the Armory, the Chassis Bay, the Forge). */
   readonly loadout: Loadout
   /** DEV: is a strike or a cutscene moving the mech right now (`game/preview.ts`)? */
-  get busy(): boolean { return !!this.strike || !!this.cine || !!this.grapple }
+  get busy(): boolean { return !!this.strike || !!this.cine || !!this.grapple || !!this.looting }
   /** DEV: the next kill gets the kill-cam (`game/preview.ts`). */
   forceKillcam = false
   /** The strike on offer right now. */
@@ -170,14 +178,21 @@ export class Mission implements GameMode {
   private downT = 0
   private tdPose = { grab: 0, draw: 0, plunge: 0, blade: 0 }
   /** What the mission wants next. */
-  objective: 'target' | 'extract' | 'done' = 'target'
+  objective: 'salvage' | 'extract' | 'done' = 'salvage'
   private cine: Cine | null = null
   private cinePose = makeCinePose()
   private followPose = makeCinePose()
   private killcam = makeKillCamState()
-  private ship!: Dropship
+  /** The ride in and out: the robo dog, which folds into a jet board. */
+  private dog!: Rig
+  private dogPose: DogPose = restDogPose()
+  private dogAt = makeDogFrame()
+  private riderAt = makeRiderFrame()
+  /** The mech's place relative to its own while it rides. */
+  private rideX = 0
+  private rideZ = 0
+  private riding = false
   private beacon!: Mesh
-  private line!: Mesh
   /** The grappling hook's line and its head. */
   private rope!: Mesh
   private hook!: Mesh
@@ -185,6 +200,13 @@ export class Mission implements GameMode {
   private hookSpot: GrappleSpot | null = null
   private grapple: GrappleRun | null = null
   private hookPos = { x: 0, y: 0, z: 0 }
+  /** The raid's salvage, how much of it is needed, and the pile being stripped. */
+  readonly piles: Pile[]
+  readonly salvageNeed: number
+  private salvageView!: SalvageView
+  private lootOffer: Pile | null = null
+  private looting: { pile: Pile; t: number } | null = null
+  private sparkleT = 0
   private ropeDir = new Vector3()
   /** How far above its feet the mech is drawn (the drop, the lift). */
   private lift = 0
@@ -229,6 +251,8 @@ export class Mission implements GameMode {
     const { x, z, facing } = fortress.insert
     this.level = level
     this.loadout = loadout
+    this.piles = makePiles(fortress.salvage)
+    this.salvageNeed = salvageNeed(level, this.piles.length)
     this.arsenal = makeArsenal(loadout.rockets, loadout.heatSeconds, loadout.coolRate)
     this.armor = makeArmor(loadout.armor)
     this.player = makePlayer(x, heightAt(g, x, z), z, facing)
@@ -262,8 +286,8 @@ export class Mission implements GameMode {
     m.strikeMark.renderOrder = 31
     m.strikeMark.visible = false
     await slice()
-    m.ship = buildDropship()
-    m.ship.group.visible = false
+    m.dog = buildRobodog()
+    m.dog.root.visible = false
     // The way out: a column of light on the pad, lit once the target is down.
     const column = new CylinderGeometry(1.5, 1.5, 1, 20, 1, true)
     column.translate(0, 0.5, 0)
@@ -273,20 +297,20 @@ export class Mission implements GameMode {
     m.beacon.position.set(fortress.extract.x, heightAt(fortress.grid, fortress.extract.x, fortress.extract.z), fortress.extract.z)
     m.beacon.scale.set(1, 40, 1)
     m.beacon.visible = false
-    // The grapple line: a unit rod, stretched between the ship and the mech.
+    // A unit rod, stretched from the mech's hand to the hook.
     const rod = new CylinderGeometry(0.035, 0.035, 1, 6)
     rod.translate(0, 0.5, 0)
-    m.line = new Mesh(rod, new MeshBasicMaterial({ color: PAL.glowCyan, toneMapped: false }))
-    m.line.visible = false
     // The hook's own line (thinner, steel) and a small three-pronged head.
     m.rope = new Mesh(rod, new MeshBasicMaterial({ color: '#d8ccff', toneMapped: false }))
     m.rope.visible = false
     m.hook = new Mesh(new ConeGeometry(0.16, 0.34, 3), new MeshBasicMaterial({ color: PAL.glowCyan, toneMapped: false }))
     m.hook.visible = false
     m.scene.add(m.rope, m.hook)
+    m.salvageView = new SalvageView(m.piles)
+    m.scene.add(m.salvageView.group)
     m.scene.add(
       m.mesh.group, m.decor.group, m.rig.root, m.shadow, m.garrisonView.group, m.fx.group, m.markers.root, m.strikeMark,
-      m.ship.group, m.beacon, m.line
+      m.dog.root, m.beacon
     )
     onProgress(1)
     m.place(1, 0)
@@ -303,7 +327,9 @@ export class Mission implements GameMode {
     vital.hitAge = 9
     mirror('armorLow', false)
     mirror('cine', false)
-    mirror('objective', 'target')
+    mirror('objective', 'salvage')
+    mirror('salvageGot', 0)
+    mirror('salvageNeed', this.salvageNeed)
     this.newCoach()
     this.lastYaw = this.cam.yaw
     this.lastPitch = this.cam.pitch
@@ -311,8 +337,8 @@ export class Mission implements GameMode {
     this.offHelp = on('help', () => coachHelp(this.coach))
     this.mirrorWeapons()
     // The drop-in: five seconds the first time, three once it has been seen.
-    this.cine = { kind: 'intro', t: 0, dur: profile.seen.includes('intro') ? 3 : 5, landed: false }
-    this.lift = dropHeight(0)
+    this.cine = { kind: 'intro', t: 0, dur: profile.seen.includes('intro') ? 3.4 : 5, landed: false, jumped: false }
+    this.lift = 1.6
   }
 
   resize(w: number, h: number): void {
@@ -349,6 +375,8 @@ export class Mission implements GameMode {
         this.stepStrike(dt)
       } else if (this.grapple) {
         this.stepHook(dt)
+      } else if (this.looting) {
+        this.stepLoot(dt)
       } else {
         const dir = stickToWorld(this.cam, i.moveX, i.moveY)
         const wasCrouched = p.crouched
@@ -383,6 +411,9 @@ export class Mission implements GameMode {
         }
         this.offer = findStrike(this.garrison, this.fortress.grid, p.x, p.y, p.z, this.cam.yaw, p.mode === 'ground')
         if (i.actQueued && this.offer) this.startStrike(this.offer)
+        // A pile within reach (and no blade on offer): the same key strips it.
+        this.lootOffer = p.mode === 'ground' && !this.offer && !this.strike ? pileInReach(this.piles, p.x, p.y, p.z) : null
+        if (i.actQueued && !this.offer && this.lootOffer && !this.strike) this.startLoot(this.lootOffer)
         // A wall too high to pull up onto, straight ahead: the hook can take it.
         this.hookSpot = p.mode === 'ground' && !this.strike ? findGrapple(this.fortress.grid, p.x, p.y, p.z, p.yaw) : null
         if (i.grappleQueued && this.hookSpot && !this.strike) this.throwHook(this.hookSpot)
@@ -440,6 +471,8 @@ export class Mission implements GameMode {
     mirror('grapple', !this.grapple && !!this.hookSpot && hud.phase === 'play')
     mirror('grappling', !this.grapple ? '' : canCancel(this.grapple) ? 'up' : 'over')
     mirror('grappleHeard', this.grapple?.heard ?? 0)
+    mirror('loot', !this.looting && !!this.lootOffer && hud.phase === 'play')
+    mirror('looting', this.looting ? Math.min(1, this.looting.t / SALVAGE_S) : 0)
     consumeEdges(i)
   }
 
@@ -769,6 +802,67 @@ export class Mission implements GameMode {
     else app.setTimeScale(1)
   }
 
+  // ─── Salvage ───────────────────────────────────────────────────────────────
+
+  private startLoot(pile: Pile): void {
+    const p = this.player
+    this.looting = { pile, t: 0 }
+    this.lootOffer = null
+    p.vx = p.vz = 0
+    p.speed01 = 0
+    p.yaw = headingTo(p.x, p.z, pile.x, pile.z)
+    emit('salvage', { beat: 'start', got: this.stats.piles, need: this.salvageNeed, amount: 0 })
+  }
+
+  private stepLoot(dt: number): void {
+    const l = this.looting!
+    const p = this.player
+    const i = this.input
+    p.px = p.x
+    p.py = p.y
+    p.pz = p.z
+    p.pyaw = p.yaw
+    // Walking away leaves the pile as it was.
+    if (Math.hypot(i.moveX, i.moveY) > 0.5) {
+      this.looting = null
+      emit('salvage', { beat: 'stop', got: this.stats.piles, need: this.salvageNeed, amount: 0 })
+      return
+    }
+    l.t += dt
+    // Sparks and clatter while it works: a little noise, close by.
+    if (Math.floor(l.t / 0.3) !== Math.floor((l.t - dt) / 0.3)) {
+      this.fx.particles.sparks(l.pile.x, l.pile.y + 0.5, l.pile.z, '#ffb14a', 5, 2.5, 0.2)
+      if (l.t < SALVAGE_S - 0.2) hearAt(this.garrison, l.pile.x, l.pile.z, SALVAGE_EARSHOT)
+    }
+    if (l.t < SALVAGE_S) return
+    // Stripped.
+    const pile = l.pile
+    pile.taken = true
+    this.looting = null
+    this.salvageView.take(pile.id)
+    this.stats.salvage += pile.amount
+    this.stats.piles++
+    this.fx.particles.riseRing(pile.x, pile.y + 0.2, pile.z, '#ffb14a', pile.big ? 1.3 : 0.9, 18)
+    haptic('reward')
+    mirror('salvageGot', this.stats.piles)
+    emit('salvage', { beat: 'taken', got: this.stats.piles, need: this.salvageNeed, amount: pile.amount })
+    if (this.objective === 'salvage' && this.stats.piles >= this.salvageNeed) this.openExtraction()
+  }
+
+  /** DEV: strip every pile the raid still needs, where they lie (tests, the preview recorder). */
+  cheatSalvage(): void {
+    for (const pile of this.piles) {
+      if (this.stats.piles >= this.salvageNeed) break
+      if (pile.taken) continue
+      pile.taken = true
+      this.salvageView.take(pile.id)
+      this.stats.salvage += pile.amount
+      this.stats.piles++
+    }
+    mirror('salvageGot', this.stats.piles)
+    if (this.objective === 'salvage' && this.stats.piles >= this.salvageNeed) this.openExtraction()
+  }
+
   // ─── The grappling hook ────────────────────────────────────────────────────
 
   private throwHook(spot: GrappleSpot): void {
@@ -870,10 +964,12 @@ export class Mission implements GameMode {
           id: e.id, kind: u.kind, by: this.killBy, head: this.killHead,
           dist: Math.hypot(u.x - this.player.x, u.z - this.player.z)
         })
-        const final = this.objective === 'target' && this.targetsLeft() === 0
-        if (final) this.openExtraction()
+        // The Commander (and his tank) are not the job any more, but their
+        // fall is still the raid's big moment: it always gets the camera.
+        const final = (u.kind === 'commander' || u.kind === 'goliath') && this.targetsLeft() === 0
+        if (final) this.stats.bossDown = true
         // The Commander is down and the tank is still asleep: not for long.
-        else if (u.kind === 'commander' && gar.units.some(o => o.kind === 'goliath' && o.state === 'dormant')) this.finaleT = 2.2
+        if (u.kind === 'commander' && gar.units.some(o => o.kind === 'goliath' && o.state === 'dormant')) this.finaleT = 2.2
         // The sniper's kill-cam was decided when the round was fired.
         if (this.killBy !== 'sniper' && !this.cine && hud.phase === 'play') {
           const info = { by: this.killBy, head: false, final, time: this.stats.time }
@@ -1062,11 +1158,11 @@ export class Mission implements GameMode {
   /** Would killing this unit complete the objective? */
   private isLastTarget(id: number): boolean {
     const u = this.garrison.units[id]!
-    return this.objective === 'target' && (u.kind === 'commander' || u.kind === 'goliath') && this.targetsLeft() === 1
+    return (u.kind === 'commander' || u.kind === 'goliath') && this.targetsLeft() === 1
   }
 
   private openExtraction(): void {
-    if (this.objective !== 'target') return
+    if (this.objective !== 'salvage') return
     this.objective = 'extract'
     this.beacon.visible = true
     mirror('objective', 'extract')
@@ -1091,6 +1187,7 @@ export class Mission implements GameMode {
   /** DEV cheat: the job is done, the line comes down now (`game/cheats.ts`). */
   cheatExtract(): void {
     if (hud.phase !== 'play') return
+    this.cheatSalvage()
     this.openExtraction()
     this.startOutro()
   }
@@ -1142,15 +1239,45 @@ export class Mission implements GameMode {
     mirror('cine', false)
     if (c.kind === 'intro') {
       this.lift = 0
-      this.ship.group.visible = false
+      this.rideX = this.rideZ = 0
+      this.riding = false
+      this.dog.root.visible = false
       markSeen('intro')
       setPhase('play')
       emit('deployed', {})
     } else if (c.kind === 'outro') {
-      this.line.visible = false
+      this.dog.root.visible = false
       setPhase('done')
       finishMission(this.stats)
       emit('extracted', {})
+    }
+  }
+
+  /** The mech rides (or hops off, or onto) the dog: where both are this frame. */
+  private ride(r: { dx: number; dy: number; dz: number; air: boolean }): void {
+    this.rideX = r.dx
+    this.lift = r.dy
+    this.rideZ = r.dz
+    this.riding = !r.air && (Math.abs(r.dy) > 0.05 || Math.hypot(r.dx, r.dz) > 0.05)
+    const d = this.dogAt
+    this.dog.root.visible = d.visible
+    this.dog.root.position.set(d.x, d.y, d.z)
+    this.dog.root.rotation.y = d.yaw
+    const s = this.dogPose
+    s.time = this.time
+    s.fold = d.fold
+    s.run = d.run
+    s.stride = d.stride
+    s.thrust = d.thrust
+    poseRobodog(this.dog, s)
+    // The jets: a flicker of exhaust under the board, and dust where it is low.
+    if (d.visible && d.thrust > 0.3 && Math.random() < 0.6) {
+      const back = d.fold > 0.5 ? 0 : 0.62
+      for (const side of [-1, 1]) {
+        const jx = d.x + Math.cos(d.yaw) * side * 0.52 - Math.sin(d.yaw) * back
+        const jz = d.z - Math.sin(d.yaw) * side * 0.52 - Math.cos(d.yaw) * back
+        this.fx.particles.emit({ x: jx, y: d.y - 0.45, z: jz, vy: -2.5 * d.fold, vx: -Math.sin(d.yaw) * 2 * (1 - d.fold), vz: -Math.cos(d.yaw) * 2 * (1 - d.fold), color: '#5fe9ff', size: 0.22, sizeEnd: 0.02, life: 0.3, drag: 2 })
+      }
     }
   }
 
@@ -1160,6 +1287,7 @@ export class Mission implements GameMode {
     if (!c) return
     if (c.kind === 'intro') {
       if (!c.landed) { c.landed = true; emit('land', { drop: 4 }) }
+      this.lift = this.rideX = this.rideZ = 0
     } else if (c.kind === 'bullet' && !c.hit) {
       this.landBullet(c)
     } else if (c.kind === 'stab') {
@@ -1186,43 +1314,33 @@ export class Mission implements GameMode {
     if (!flow.curtain && !flow.loading) c.t += dt
     const k = Math.min(1, c.t / c.dur)
     if (c.kind === 'intro') {
-      this.lift = dropHeight(k)
       const py = heightAt(f.grid, f.insert.x, f.insert.z)
-      introCam(out, k, f.insert.x, py, f.insert.z, f.insert.facing, this.centre.x, this.centre.z, follow)
-      // The ship hangs over the perch, lets the mech go, and leaves.
-      const leave = Math.max(0, k - DROP_LANDED)
-      this.ship.group.visible = k < 0.98
-      this.ship.group.position.set(
-        f.insert.x - Math.sin(f.insert.facing) * leave * 50, py + 17.5 + leave * leave * 90, f.insert.z - Math.cos(f.insert.facing) * leave * 50
-      )
-      this.ship.group.rotation.set(-leave * 0.5, f.insert.facing, Math.sin(this.time * 1.7) * 0.03)
+      // In on the jet board, standing on its deck; off with a hop onto the
+      // perch; the board peels away and climbs out of sight.
+      introFrame(this.dogAt, this.riderAt, k, f.insert.x, py, f.insert.z, f.insert.facing)
+      this.ride(this.riderAt)
+      introCam(out, k, f.insert.x, py, f.insert.z, f.insert.facing, this.centre.x, this.centre.z, follow, this.lift)
+      if (!c.jumped && k >= RIDER_JUMP) { c.jumped = true; emit('jump', {}) }
       if (!c.landed && k >= DROP_LANDED) {
         c.landed = true
         this.fx.rings.spawn(f.insert.x, py + 0.08, f.insert.z, 3.4, PAL.glowCyan, 0.55)
         this.fx.particles.sparks(f.insert.x, py + 0.2, f.insert.z, '#d9ccff', 16, 5, 0.2)
-        this.shake = Math.max(this.shake, 0.7)
+        this.shake = Math.max(this.shake, 0.45)
         haptic('blast')
-        emit('land', { drop: 16 })
+        emit('land', { drop: 4 })
       }
       if (k >= 1) this.endCine()
       return true
     }
     if (c.kind === 'outro') {
-      this.lift = liftHeight(k)
       const py = heightAt(f.grid, f.extract.x, f.extract.z)
-      outroCam(out, k, x, py, z, this.player.yaw, this.baseFov)
-      // The ship comes down over the pad, drops the line, and takes the mech up.
-      const down = Math.min(1, k / 0.3)
-      const shipY = py + 16 + (1 - down) * (1 - down) * 40 + Math.max(0, k - 0.45) * 26
-      this.ship.group.visible = true
-      this.ship.group.position.set(x, shipY, z)
-      this.ship.group.rotation.set(0, this.player.yaw, Math.sin(this.time * 1.7) * 0.03)
-      const top = shipY + 0.7
-      const bottom = py + this.lift + 2.2
-      const reach = Math.min(1, Math.max(0, (k - 0.12) / 0.18))
-      this.line.visible = reach > 0
-      this.line.position.set(x, top - (top - bottom) * reach, z)
-      this.line.scale.set(1, (top - bottom) * reach, 1)
+      // The dog gallops in on its jets, lies down into a board beside the
+      // mech, the mech hops on, and the board climbs away with it.
+      const ox = this.player.x
+      const oz = this.player.z
+      outroFrame(this.dogAt, this.riderAt, k, ox, py, oz, this.player.yaw)
+      this.ride(this.riderAt)
+      outroCam(out, k, ox + this.rideX * 0.55, py, oz + this.rideZ * 0.55, this.player.yaw, this.baseFov, this.lift)
       if (k >= 1) this.endCine()
       return true
     }
@@ -1362,7 +1480,7 @@ export class Mission implements GameMode {
     mirror('scoped', inside > 0.6)
 
     // The body.
-    this.rig.root.position.set(x, y + this.lift, z)
+    this.rig.root.position.set(x + this.rideX, y + this.lift, z + this.rideZ)
     this.rig.root.rotation.y = yaw
     this.rig.root.visible = inside < 0.6
     const striking = this.strike
@@ -1375,6 +1493,9 @@ export class Mission implements GameMode {
     s.crouch = this.armor.down ? Math.min(1, Math.max(p.crouch, this.downT / MECH_KNEEL_S)) : p.crouch
     s.down = this.armor.down ? Math.max(1e-3, this.downT) : 0
     s.sprint = p.mode === 'ground' ? p.sprint : 0
+    // Stripping a pile: down on one knee, both hands in the scrap.
+    s.loot = this.looting ? Math.min(1, this.looting.t / 0.2) * Math.min(1, (SALVAGE_S - this.looting.t) / 0.15 + 0.2) : 0
+    if (this.looting) s.crouch = Math.max(s.crouch, s.loot)
     s.aim = striking || this.armor.down ? 0 : this.cam.aim
     s.aimPitch = this.cam.pitch
     s.weapon = a.current
@@ -1397,8 +1518,20 @@ export class Mission implements GameMode {
     s.climb = p.mode === 'ladder' || p.mode === 'mantle' ? 1 : 0
     s.climbPhase = p.climbPhase
     s.cable = p.mode === 'cable' ? 1 : 0
-    s.air = p.mode === 'air' || this.lift > 0.05 ? 1 : 0
+    s.air = p.mode === 'air' || (this.lift > 0.05 && !this.riding) ? 1 : 0
+    // Surfing the board: knees bent, weight low.
+    if (this.riding) s.crouch = Math.max(s.crouch, 0.35)
     poseMech(this.rig, s)
+
+    // The piles still lying there glint now and then.
+    this.salvageView.update(dt, this.time)
+    this.sparkleT -= dt
+    if (this.sparkleT <= 0) {
+      this.sparkleT = 0.35
+      const open = this.piles.filter(q => !q.taken)
+      const q = open[Math.floor(this.time * 7) % Math.max(1, open.length)]
+      if (q) this.fx.particles.emit({ x: q.x + (Math.random() - 0.5) * 0.8, y: q.y + 0.7, z: q.z + (Math.random() - 0.5) * 0.8, vy: 1.2, color: '#ffd27a', size: 0.12, sizeEnd: 0.02, life: 0.8, drag: 1 })
+    }
 
     // The hook's line: from the mech's raised hand to the hook.
     const gr = this.grapple
@@ -1422,8 +1555,8 @@ export class Mission implements GameMode {
     }
 
     // A soft shadow on whatever is under the mech, fading with its height.
-    const floor = heightAt(g, x, z)
-    this.shadow.position.set(x, floor + 0.03, z)
+    const floor = heightAt(g, x + this.rideX, z + this.rideZ)
+    this.shadow.position.set(x + this.rideX, floor + 0.03, z + this.rideZ)
     this.shadow.visible = floor > -100
     const lift = Math.max(0, y + this.lift - floor)
     this.shadow.scale.setScalar(0.7 / (1 + lift * 0.25))
@@ -1461,14 +1594,10 @@ export class Mission implements GameMode {
       wy = heightAt(this.fortress.grid, e.x, e.z) + 1.2
       wz = e.z
       has = true
-    } else if (this.objective === 'target') {
-      // The nearest target still standing.
-      let best = Infinity
-      for (const u of this.garrison.units) {
-        if ((u.kind !== 'commander' && u.kind !== 'goliath') || u.state === 'dead') continue
-        const d = Math.hypot(u.x - x, u.z - z)
-        if (d < best) { best = d; wx = u.x; wy = u.y + SPECS[u.kind].height + 0.9; wz = u.z; has = true }
-      }
+    } else if (this.objective === 'salvage') {
+      // The nearest pile still lying there.
+      const p = nearestPile(this.piles, x, z)
+      if (p) { wx = p.x; wy = p.y + (p.big ? 2.2 : 1.6); wz = p.z; has = true }
     }
     waypoint.on = show && has && !hud.scoped
     if (!waypoint.on) return
@@ -1502,14 +1631,16 @@ export class Mission implements GameMode {
     this.offHelp?.()
     hud.hints = []
     app.setTimeScale(1)
-    this.ship.dispose()
+    this.dog.mesh.geometry.dispose()
+    this.dog.material.dispose()
+    this.dog.glowMaterial.dispose()
     this.beacon.geometry.dispose()
     ;(this.beacon.material as MeshBasicMaterial).dispose()
+    this.salvageView.dispose()
     this.hook.geometry.dispose()
     ;(this.hook.material as MeshBasicMaterial).dispose()
     ;(this.rope.material as MeshBasicMaterial).dispose()
-    this.line.geometry.dispose()
-    ;(this.line.material as MeshBasicMaterial).dispose()
+    this.rope.geometry.dispose()
     this.rig.mesh.geometry.dispose()
     this.rig.material.dispose()
     this.rig.glowMaterial.dispose()

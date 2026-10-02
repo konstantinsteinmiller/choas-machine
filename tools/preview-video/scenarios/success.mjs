@@ -68,6 +68,8 @@ export default {
     await vantage(ctx, boss.id, 26)
     await ctx.wait(120)
     await snipe(ctx, boss.id, 650)
+    // The salvage (stripped off camera): the way out is open.
+    await ctx.evaluate(() => window.__preview.takeSalvage())
     await logState(ctx, 'the target is down')
 
     // End in motion: the run for the beacon.
