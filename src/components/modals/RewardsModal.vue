@@ -22,6 +22,9 @@
           dd
             span.best(v-if="isBest") {{ t('rewards.newBest') }}
             | {{ fmt(score) }}
+      //- Where that puts the player in the world.
+      div.rank
+        RankBadge(:score="campaign")
       //- What goes into the wallet.
       div.loot
         div.item.scrap(:title="t('base.scrap')")
@@ -47,7 +50,8 @@ import { MEDAL_ICONS } from '@/components/base/medals'
 import { MEDAL_IDS } from '@/game/data/ids'
 import { flow, goBase } from '@/game/flow'
 import { profile } from '@/game/state/profile'
-import { levelKey } from '@/game/state/progress'
+import { campaignScore, levelKey } from '@/game/state/progress'
+import RankBadge from '@/components/atoms/RankBadge.vue'
 import { sfx } from '@/game/audio/sfx'
 import { haptic } from '@/use/useHaptics'
 import { formatAmount, formatClock } from '@/utils/formatAmount'
@@ -57,6 +61,8 @@ const open = computed(() => flow.modal === 'rewards')
 const pay = computed(() => flow.result)
 const run = computed(() => flow.run)
 const fmt = (n: number): string => formatAmount(n, locale.value)
+// Re-read when a result lands: the profile's best scores have just moved.
+const campaign = computed(() => (pay.value ? campaignScore() : 0))
 const isBest = computed(() => !!pay.value && pay.value.score > 0 && pay.value.score >= (profile.fortresses[levelKey(flow.level)]?.bestScore ?? 0))
 
 // ── The reveal: medals light in turn, then the numbers count up ──
@@ -171,6 +177,11 @@ const toBase = (): void => { void goBase() }
   margin-right: 0.6em
   color: var(--cm-pink-hi)
   font-size: var(--cm-fs-xs)
+.rank
+  display: flex
+  justify-content: center
+  // Holds its line whether or not there is a rank to show.
+  min-height: clamp(1.6rem, 6vmin, 2.2rem)
 .loot
   display: flex
   flex-wrap: wrap

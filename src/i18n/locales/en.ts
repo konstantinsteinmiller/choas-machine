@@ -101,6 +101,20 @@ export default {
     'climb': 'Climb',
     'help': 'Show controls'
   },
+  'leaderboard': {
+    'title': 'Leaderboard',
+    'rank': '#',
+    'player': 'Player',
+    'score': 'Score',
+    'flair': 'Level',
+    'empty': 'No runs posted yet. Be the first.',
+    'failed': 'Couldn\'t reach the leaderboard.',
+    'loading': 'Loading…',
+    'you': 'You',
+    'yourRank': 'You are #{n} of {total}',
+    'of': 'of {n} players',
+    'tabGlobal': 'Global'
+  },
   'pause': {
     'title': 'PAUSED',
     'resume': 'Resume',

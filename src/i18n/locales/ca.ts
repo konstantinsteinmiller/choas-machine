@@ -97,6 +97,20 @@ export default {
     'climb': 'Puja',
     'help': 'Mostra els controls'
   },
+  'leaderboard': {
+    'title': 'Classificació',
+    'rank': '#',
+    'player': 'Jugador',
+    'score': 'Punts',
+    'flair': 'Nivell',
+    'empty': 'Encara no hi ha partides. Sigues el primer.',
+    'failed': 'No s\'ha pogut accedir a la classificació.',
+    'loading': 'Carregant…',
+    'you': 'Tu',
+    'yourRank': 'Ets el #{n} de {total}',
+    'of': 'de {n} jugadors',
+    'tabGlobal': 'Global'
+  },
   'pause': {
     'title': 'PAUSA',
     'resume': 'Reprèn',

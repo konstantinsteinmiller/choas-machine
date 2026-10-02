@@ -97,6 +97,20 @@ export default {
     'climb': 'Urcă',
     'help': 'Arată comenzile'
   },
+  'leaderboard': {
+    'title': 'Clasament',
+    'rank': '#',
+    'player': 'Jucător',
+    'score': 'Scor',
+    'flair': 'Nivel',
+    'empty': 'Încă nu există rezultate. Fii primul.',
+    'failed': 'Nu s-a putut accesa clasamentul.',
+    'loading': 'Se încarcă…',
+    'you': 'Tu',
+    'yourRank': 'Ești #{n} din {total}',
+    'of': 'din {n} jucători',
+    'tabGlobal': 'Global'
+  },
   'pause': {
     'title': 'PAUZĂ',
     'resume': 'Continuă',

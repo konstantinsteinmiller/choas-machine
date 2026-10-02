@@ -97,6 +97,20 @@ export default {
     'climb': 'Wspinaj się',
     'help': 'Pokaż sterowanie'
   },
+  'leaderboard': {
+    'title': 'Ranking',
+    'rank': '#',
+    'player': 'Gracz',
+    'score': 'Wynik',
+    'flair': 'Poziom',
+    'empty': 'Nie ma jeszcze wyników. Bądź pierwszy.',
+    'failed': 'Nie udało się połączyć z rankingiem.',
+    'loading': 'Ładowanie…',
+    'you': 'Ty',
+    'yourRank': 'Jesteś #{n} z {total}',
+    'of': 'z {n} graczy',
+    'tabGlobal': 'Światowy'
+  },
   'pause': {
     'title': 'PAUZA',
     'resume': 'Wznów',

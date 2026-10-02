@@ -97,6 +97,20 @@ export default {
     'climb': 'Lipti',
     'help': 'Rodyti valdymą'
   },
+  'leaderboard': {
+    'title': 'Lyderių lentelė',
+    'rank': '#',
+    'player': 'Žaidėjas',
+    'score': 'Taškai',
+    'flair': 'Lygis',
+    'empty': 'Dar nėra rezultatų. Būk pirmas.',
+    'failed': 'Nepavyko pasiekti lyderių lentelės.',
+    'loading': 'Įkeliama…',
+    'you': 'Tu',
+    'yourRank': 'Esi #{n} iš {total}',
+    'of': 'iš {n} žaidėjų',
+    'tabGlobal': 'Pasaulinė'
+  },
   'pause': {
     'title': 'PAUZĖ',
     'resume': 'Tęsti',

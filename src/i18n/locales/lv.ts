@@ -97,6 +97,20 @@ export default {
     'climb': 'Kāpt',
     'help': 'Rādīt vadību'
   },
+  'leaderboard': {
+    'title': 'Līderu saraksts',
+    'rank': '#',
+    'player': 'Spēlētājs',
+    'score': 'Punkti',
+    'flair': 'Līmenis',
+    'empty': 'Vēl nav rezultātu. Esi pirmais.',
+    'failed': 'Neizdevās sasniegt līderu sarakstu.',
+    'loading': 'Ielādē…',
+    'you': 'Tu',
+    'yourRank': 'Tu esi #{n} no {total}',
+    'of': 'no {n} spēlētājiem',
+    'tabGlobal': 'Pasaules'
+  },
   'pause': {
     'title': 'PAUZE',
     'resume': 'Turpināt',

@@ -97,6 +97,20 @@ export default {
     'climb': 'Grimpu',
     'help': 'Montru regilojn'
   },
+  'leaderboard': {
+    'title': 'Rangotabelo',
+    'rank': '#',
+    'player': 'Ludanto',
+    'score': 'Poentoj',
+    'flair': 'Nivelo',
+    'empty': 'Ankoraŭ neniu ludo. Estu la unua.',
+    'failed': 'Ne eblis atingi la rangotabelon.',
+    'loading': 'Ŝargado…',
+    'you': 'Vi',
+    'yourRank': 'Vi estas #{n} el {total}',
+    'of': 'el {n} ludantoj',
+    'tabGlobal': 'Tutmonda'
+  },
   'pause': {
     'title': 'PAŬZITA',
     'resume': 'Daŭrigi',

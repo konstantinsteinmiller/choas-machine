@@ -171,6 +171,23 @@ const CSP_DIRECTIVES = [
  * vite.config.ts used to do inline; intended to be called from there at
  * `transformIndexHtml` time.
  */
+/**
+ * The leaderboard Worker's ORIGIN, or `null` when this build has none.
+ *
+ * ORIGIN ONLY, never the configured URL: a CSP source with a path is a
+ * path-prefix match and would silently narrow the policy. `URL.origin` throws
+ * on anything malformed, and a typo'd env var must not take the build down: a
+ * missing origin costs a leaderboard, a thrown build costs a release.
+ */
+const leaderboardOrigin = (raw: string | undefined): string | null => {
+  if (!raw) return null
+  try {
+    return new URL(raw).origin
+  } catch {
+    return null
+  }
+}
+
 export const buildCsp = (env: Record<string, string>): string => {
   const isGameDistribution = env.VITE_APP_GAME_DISTRIBUTION === 'true'
   const isGlitch = env.VITE_APP_GLITCH === 'true'
@@ -232,6 +249,9 @@ export const buildCsp = (env: Record<string, string>): string => {
       // open `https:` / `wss:` added below for ad-waterfall builds still
       // covers what's actually needed at runtime).
       ...(isYandex ? [] : CONNECT_BASE_EXTRA),
+      // Our own leaderboard Worker. Not on Yandex, whose moderators reject
+      // third-party storage endpoints found anywhere in the bundle.
+      ...(isYandex ? [] : [leaderboardOrigin(env.VITE_LEADERBOARD_URL)].filter((o): o is string => o !== null)),
       // GD / Playgama partner analytics / ad telemetry beacons.
       ...(adWaterfallBuild ? ['https:', 'wss:'] : [])
     ],

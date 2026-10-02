@@ -97,6 +97,20 @@ export default {
     'climb': 'Escalar',
     'help': 'Mostrar controles'
   },
+  'leaderboard': {
+    'title': 'Ranking',
+    'rank': '#',
+    'player': 'Jogador',
+    'score': 'Pontos',
+    'flair': 'Nível',
+    'empty': 'Nenhuma partida ainda. Seja o primeiro.',
+    'failed': 'Não foi possível acessar o ranking.',
+    'loading': 'Carregando…',
+    'you': 'Você',
+    'yourRank': 'Você é o #{n} de {total}',
+    'of': 'de {n} jogadores',
+    'tabGlobal': 'Global'
+  },
   'pause': {
     'title': 'PAUSADO',
     'resume': 'Continuar',

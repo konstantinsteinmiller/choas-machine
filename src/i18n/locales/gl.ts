@@ -97,6 +97,20 @@ export default {
     'climb': 'Subir',
     'help': 'Amosar controis'
   },
+  'leaderboard': {
+    'title': 'Clasificación',
+    'rank': '#',
+    'player': 'Xogador',
+    'score': 'Puntos',
+    'flair': 'Nivel',
+    'empty': 'Aínda non hai partidas. Sé o primeiro.',
+    'failed': 'Non se puido acceder á clasificación.',
+    'loading': 'Cargando…',
+    'you': 'Ti',
+    'yourRank': 'Es o #{n} de {total}',
+    'of': 'de {n} xogadores',
+    'tabGlobal': 'Global'
+  },
   'pause': {
     'title': 'PAUSA',
     'resume': 'Continuar',

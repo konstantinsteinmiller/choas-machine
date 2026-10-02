@@ -97,6 +97,20 @@ export default {
     'climb': 'Trepar',
     'help': 'Mostrar controles'
   },
+  'leaderboard': {
+    'title': 'Clasificación',
+    'rank': '#',
+    'player': 'Jugador',
+    'score': 'Puntos',
+    'flair': 'Nivel',
+    'empty': 'Aún no hay partidas. Sé el primero.',
+    'failed': 'No se pudo acceder a la clasificación.',
+    'loading': 'Cargando…',
+    'you': 'Tú',
+    'yourRank': 'Eres el #{n} de {total}',
+    'of': 'de {n} jugadores',
+    'tabGlobal': 'Global'
+  },
   'pause': {
     'title': 'PAUSA',
     'resume': 'Reanudar',

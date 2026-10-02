@@ -97,6 +97,20 @@ export default {
     'climb': 'Leo',
     'help': 'Hiện điều khiển'
   },
+  'leaderboard': {
+    'title': 'Bảng xếp hạng',
+    'rank': '#',
+    'player': 'Người chơi',
+    'score': 'Điểm',
+    'flair': 'Cấp',
+    'empty': 'Chưa có lượt chơi nào. Hãy là người đầu tiên.',
+    'failed': 'Không thể kết nối bảng xếp hạng.',
+    'loading': 'Đang tải…',
+    'you': 'Bạn',
+    'yourRank': 'Bạn xếp #{n} trong {total}',
+    'of': 'trong {n} người chơi',
+    'tabGlobal': 'Toàn cầu'
+  },
   'pause': {
     'title': 'TẠM DỪNG',
     'resume': 'Tiếp tục',

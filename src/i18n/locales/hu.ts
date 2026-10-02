@@ -97,6 +97,20 @@ export default {
     'climb': 'Mászás',
     'help': 'Irányítás megjelenítése'
   },
+  'leaderboard': {
+    'title': 'Ranglista',
+    'rank': '#',
+    'player': 'Játékos',
+    'score': 'Pont',
+    'flair': 'Szint',
+    'empty': 'Még nincs eredmény. Légy te az első.',
+    'failed': 'A ranglista nem érhető el.',
+    'loading': 'Betöltés…',
+    'you': 'Te',
+    'yourRank': 'Helyezésed: #{n} / {total}',
+    'of': '{n} játékosból',
+    'tabGlobal': 'Globális'
+  },
   'pause': {
     'title': 'SZÜNET',
     'resume': 'Folytatás',

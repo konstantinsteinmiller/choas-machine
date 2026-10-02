@@ -39,7 +39,9 @@
     "art:desk": "node tools/art-desk/server.mjs",
     "test": "vitest run",
     "test:watch": "vitest",
-    "art:logo": "node scripts/render-logo.mjs"
+    "art:logo": "node scripts/render-logo.mjs",
+    "leaderboard:snapshot": "node scripts/leaderboard-snapshot.mjs",
+    "leaderboard:seed": "node scripts/leaderboard-seed.mjs"
   },
   "dependencies": {
     "@playgama/bridge": "^2.2.0",

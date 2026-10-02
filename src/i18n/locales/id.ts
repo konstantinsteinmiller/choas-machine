@@ -97,6 +97,20 @@ export default {
     'climb': 'Panjat',
     'help': 'Tampilkan kontrol'
   },
+  'leaderboard': {
+    'title': 'Papan Peringkat',
+    'rank': '#',
+    'player': 'Pemain',
+    'score': 'Skor',
+    'flair': 'Level',
+    'empty': 'Belum ada permainan. Jadilah yang pertama.',
+    'failed': 'Tidak dapat menjangkau papan peringkat.',
+    'loading': 'Memuat…',
+    'you': 'Kamu',
+    'yourRank': 'Kamu #{n} dari {total}',
+    'of': 'dari {n} pemain',
+    'tabGlobal': 'Global'
+  },
   'pause': {
     'title': 'JEDA',
     'resume': 'Lanjutkan',

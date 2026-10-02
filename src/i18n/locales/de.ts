@@ -97,6 +97,20 @@ export default {
     'climb': 'Klettern',
     'help': 'Steuerung anzeigen'
   },
+  'leaderboard': {
+    'title': 'Bestenliste',
+    'rank': '#',
+    'player': 'Spieler',
+    'score': 'Punkte',
+    'flair': 'Level',
+    'empty': 'Noch keine Runs. Sei der Erste.',
+    'failed': 'Bestenliste nicht erreichbar.',
+    'loading': 'Lädt…',
+    'you': 'Du',
+    'yourRank': 'Du bist #{n} von {total}',
+    'of': 'von {n} Spielern',
+    'tabGlobal': 'Global'
+  },
   'pause': {
     'title': 'PAUSIERT',
     'resume': 'Fortsetzen',

@@ -97,6 +97,20 @@ export default {
     'climb': 'Chiqish',
     'help': 'Boshqaruvni koʻrsatish'
   },
+  'leaderboard': {
+    'title': 'Reyting',
+    'rank': '#',
+    'player': 'O\'yinchi',
+    'score': 'Ball',
+    'flair': 'Daraja',
+    'empty': 'Hozircha natija yo\'q. Birinchi bo\'ling.',
+    'failed': 'Reytingga ulanib bo\'lmadi.',
+    'loading': 'Yuklanmoqda…',
+    'you': 'Siz',
+    'yourRank': '{total} o\'yinchidan #{n}-o\'rindasiz',
+    'of': '{n} o\'yinchidan',
+    'tabGlobal': 'Jahon'
+  },
   'pause': {
     'title': 'PAUZA',
     'resume': 'Davom etish',

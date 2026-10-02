@@ -2,7 +2,8 @@ import { reactive } from 'vue'
 import { app, type GameMode } from './engine/app'
 import { setPhase } from './state/hud'
 import { isFreshProfile } from './state/profile'
-import { bankDefeat, bankMission, unlockedLevel } from './state/progress'
+import { bankDefeat, bankMission, campaignScore, highestCleared, unlockedLevel } from './state/progress'
+import { reportRun } from '@/use/useLeaderboard'
 import type { MissionResult, Payout } from './sim/rewards'
 
 /**
@@ -111,6 +112,9 @@ export const finishMission = (run: MissionResult): void => {
   flow.run = { ...run }
   flow.result = bankMission(run, flow.level)
   flow.modal = 'rewards'
+  // The board is a decoration on a game that works without it: the rewards
+  // screen is already up before the request leaves, and nothing waits on it.
+  void reportRun(campaignScore(), highestCleared(), { force: true })
 }
 
 /** The mech is down: bank the share that survives it. The mission opens the

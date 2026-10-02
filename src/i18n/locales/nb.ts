@@ -97,6 +97,20 @@ export default {
     'climb': 'Klatre',
     'help': 'Vis kontroller'
   },
+  'leaderboard': {
+    'title': 'Toppliste',
+    'rank': '#',
+    'player': 'Spiller',
+    'score': 'Poeng',
+    'flair': 'Nivå',
+    'empty': 'Ingen runder ennå. Bli den første.',
+    'failed': 'Kunne ikke nå topplisten.',
+    'loading': 'Laster…',
+    'you': 'Deg',
+    'yourRank': 'Du er #{n} av {total}',
+    'of': 'av {n} spillere',
+    'tabGlobal': 'Global'
+  },
   'pause': {
     'title': 'PAUSE',
     'resume': 'Fortsett',

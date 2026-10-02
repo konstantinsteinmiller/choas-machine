@@ -97,6 +97,20 @@ export default {
     'climb': 'Penji se',
     'help': 'Prikaži kontrole'
   },
+  'leaderboard': {
+    'title': 'Ljestvica',
+    'rank': '#',
+    'player': 'Igrač',
+    'score': 'Rezultat',
+    'flair': 'Razina',
+    'empty': 'Još nema rezultata. Budi prvi.',
+    'failed': 'Ljestvica nije dostupna.',
+    'loading': 'Učitavanje…',
+    'you': 'Ti',
+    'yourRank': 'Ti si #{n} od {total}',
+    'of': 'od {n} igrača',
+    'tabGlobal': 'Svjetska'
+  },
   'pause': {
     'title': 'PAUZA',
     'resume': 'Nastavi',

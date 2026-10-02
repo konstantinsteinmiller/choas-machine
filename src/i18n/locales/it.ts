@@ -97,6 +97,20 @@ export default {
     'climb': 'Arrampicati',
     'help': 'Mostra i controlli'
   },
+  'leaderboard': {
+    'title': 'Classifica',
+    'rank': '#',
+    'player': 'Giocatore',
+    'score': 'Punteggio',
+    'flair': 'Livello',
+    'empty': 'Ancora nessuna partita. Sii il primo.',
+    'failed': 'Impossibile raggiungere la classifica.',
+    'loading': 'Caricamento…',
+    'you': 'Tu',
+    'yourRank': 'Sei #{n} su {total}',
+    'of': 'su {n} giocatori',
+    'tabGlobal': 'Globale'
+  },
   'pause': {
     'title': 'IN PAUSA',
     'resume': 'Riprendi',

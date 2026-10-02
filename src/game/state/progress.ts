@@ -26,6 +26,23 @@ export const unlockedLevel = (): number => {
   return n
 }
 
+/**
+ * The CAMPAIGN SCORE: the player's best mission score at each threat level,
+ * added up. It only ever grows, which is what the leaderboard ranks on.
+ */
+export const campaignScore = (): number => {
+  let n = 0
+  for (let l = 1; l <= THREAT_LEVELS; l++) n += profile.fortresses[levelKey(l)]?.bestScore ?? 0
+  return n
+}
+
+/** The highest threat level cleared, 0 when none: the board's second column. */
+export const highestCleared = (): number => {
+  let n = 0
+  for (let l = 1; l <= THREAT_LEVELS; l++) if ((profile.fortresses[levelKey(l)]?.clears ?? 0) > 0) n = l
+  return n
+}
+
 /** The numbers the next mission plays with. */
 export const currentLoadout = (): Loadout => loadoutOf(profile.arsenal)
 

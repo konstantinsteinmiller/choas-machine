@@ -97,6 +97,20 @@ export default {
     'climb': '登る',
     'help': '操作を表示'
   },
+  'leaderboard': {
+    'title': 'ランキング',
+    'rank': '#',
+    'player': 'プレイヤー',
+    'score': 'スコア',
+    'flair': 'レベル',
+    'empty': 'まだ記録がありません。最初の一人になろう。',
+    'failed': 'ランキングに接続できませんでした。',
+    'loading': '読み込み中…',
+    'you': 'あなた',
+    'yourRank': '{total} 人中 #{n} 位',
+    'of': '{n} 人中',
+    'tabGlobal': '世界'
+  },
   'pause': {
     'title': 'ポーズ中',
     'resume': '再開',

@@ -97,6 +97,20 @@ export default {
     'climb': 'Dırman',
     'help': 'İdarəetməni göstər'
   },
+  'leaderboard': {
+    'title': 'Liderlər cədvəli',
+    'rank': '#',
+    'player': 'Oyunçu',
+    'score': 'Xal',
+    'flair': 'Səviyyə',
+    'empty': 'Hələ nəticə yoxdur. İlk sən ol.',
+    'failed': 'Liderlər cədvəlinə qoşulmaq mümkün olmadı.',
+    'loading': 'Yüklənir…',
+    'you': 'Sən',
+    'yourRank': 'Sən {total} oyunçudan #{n} yerdəsən',
+    'of': '{n} oyunçudan',
+    'tabGlobal': 'Qlobal'
+  },
   'pause': {
     'title': 'FASİLƏ',
     'resume': 'Davam et',

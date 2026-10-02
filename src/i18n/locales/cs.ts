@@ -97,6 +97,20 @@ export default {
     'climb': 'Lézt',
     'help': 'Zobrazit ovládání'
   },
+  'leaderboard': {
+    'title': 'Žebříček',
+    'rank': '#',
+    'player': 'Hráč',
+    'score': 'Skóre',
+    'flair': 'Úroveň',
+    'empty': 'Zatím žádné výsledky. Buď první.',
+    'failed': 'Žebříček se nepodařilo načíst.',
+    'loading': 'Načítání…',
+    'you': 'Ty',
+    'yourRank': 'Jsi #{n} z {total}',
+    'of': 'z {n} hráčů',
+    'tabGlobal': 'Světový'
+  },
   'pause': {
     'title': 'PAUZA',
     'resume': 'Pokračovat',

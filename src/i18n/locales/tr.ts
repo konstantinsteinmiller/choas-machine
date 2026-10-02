@@ -97,6 +97,20 @@ export default {
     'climb': 'Tırman',
     'help': 'Kontrolleri göster'
   },
+  'leaderboard': {
+    'title': 'Liderlik Tablosu',
+    'rank': '#',
+    'player': 'Oyuncu',
+    'score': 'Skor',
+    'flair': 'Seviye',
+    'empty': 'Henüz kayıtlı oyun yok. İlk sen ol.',
+    'failed': 'Liderlik tablosuna ulaşılamadı.',
+    'loading': 'Yükleniyor…',
+    'you': 'Sen',
+    'yourRank': '{total} oyuncu içinde #{n}. sıradasın',
+    'of': '{n} oyuncu içinde',
+    'tabGlobal': 'Dünya'
+  },
   'pause': {
     'title': 'DURAKLATILDI',
     'resume': 'Devam et',

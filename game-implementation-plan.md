@@ -113,7 +113,7 @@ three.js import, so it runs in Vitest and in a balance script.
   crossfade, loudness gate, `sound-todo.md`.
 - [x] **P12 Locales** — all new keys in the 39 shipped locales (agent drafts),
   parity test, RTL and CJK screenshots.
-- [ ] **P12b Leaderboard** — a Chaos Machine board on a NEW Worker and D1
+- [x] **P12b Leaderboard** (client + baked board done; **the live Worker is NOT deployed**, see the status log) — a Chaos Machine board on a NEW Worker and D1
   database (`leaderboard-badge` skill; the owner is logged into wrangler). The
   predecessor's Worker and ids are gone and must not be reused.
 - [ ] **P13 Platform and release checks** — ads without rewarded placements,
@@ -390,6 +390,30 @@ Answered by the owner (2026-10-02): G5 (one fortress), C1 (new remote), C2 (wran
   overlaps, nothing off screen); rewards screen at 320×658.
   As shipped by the predecessor: Arabic text runs right-to-left inside a
   left-to-right layout (the HUD does not mirror).
+- 2026-10-02 P12b: client done, Worker blocked. From the `leaderboard-badge`
+  templates: `worker/` (name `chaos-machine-leaderboard`, `MAX_SCORE` 500 000,
+  its own toolchain installed), `use/useLeaderboard.ts`, `usePlayerIdentity`,
+  `usePortalLeaderboard` (inert), RankBadge, LeaderboardModal, the snapshot
+  Vite plugin, CSP entry, 8 save keys, the suites (all green), 12 strings in
+  39 locales.
+  **Score = the campaign score** (sum of the best mission score at each threat
+  level; only ever grows). **Flair = highest level cleared.**
+  `scripts/leaderboard-seed.mjs` → `data/leaderboard-seed.json`: a MODELLED
+  board (2 400 players, a histogram, NO rows, so no invented names) baked
+  into every build that has no endpoint. With it the rank badge works
+  ("#1,322 of 2,400 players") on the rewards screen and in the base; the
+  table button only appears when a board has real rows.
+  **BLOCKED: `wrangler d1 create chaos-machine-leaderboard` → "System limit
+  reached: databases per account (10)".** Nothing was created on the account.
+  To finish once a slot is free (owner's call which database goes, or a paid
+  plan): `cd worker`, `npx wrangler d1 create chaos-machine-leaderboard`, put
+  the id in `wrangler.toml`, `npm run db:init`, `npm run deploy`,
+  `npx wrangler secret put SCORE_SECRET`, then `VITE_LEADERBOARD_URL` and
+  `VITE_LEADERBOARD_SECRET` in `.env` (keep them EMPTY in `.env.poki.local`,
+  `.env.yandex.local`, `.env.playgama`), `pnpm leaderboard:snapshot`, commit
+  the snapshot once the board has rows. `worker/SETUP.md` has every step.
+  Not started: Playgama's own hosted board (the skill's Phase 8 needs the
+  board created on the Playgama dashboard and its token: owner's action).
 
 ## Resume notes
 

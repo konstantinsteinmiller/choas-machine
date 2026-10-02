@@ -3,6 +3,7 @@ import { resolve, dirname } from 'node:path'
 import { readFileSync, writeFileSync, existsSync, mkdirSync, readdirSync } from 'node:fs'
 
 import { defineConfig, loadEnv, type Plugin } from 'vite'
+import { execFileSync } from 'node:child_process'
 
 // ─── Drop-in asset overrides ─────────────────────────────────────────────────
 //
@@ -115,6 +116,138 @@ import { PLAYGAMA_BRIDGE_CHUNK, PLAYGAMA_OUT_DIR } from './src/platforms/playgam
 import { devToolAliases, resolvePlatformPolicy } from './src/platforms/policy'
 
 // https://vite.dev/config/
+// ─── The baked leaderboard ───────────────────────────────────────────────────
+// Ships `data/leaderboard-snapshot.json` (or, on a build with no endpoint, the
+// modelled `data/leaderboard-seed.json`) as `virtual:leaderboard-snapshot`.
+// See the `leaderboard-badge` notes in game-implementation-plan.md.
+
+/**
+ * The SEEDED board, for builds that can never write to the real one.
+ *
+ * Poki forbids every external runtime request and Yandex rejects third-party
+ * storage URLs, so neither can post a score — their baked copy is not a stale
+ * view of a living board, it is the entire board for the life of the build.
+ * Seeding those from the live snapshot ranks their players against a 2 422-row
+ * sample of everyone who ever opened the game once, 56 % of whom never passed
+ * stage 2. `scripts/leaderboard-seed.mjs` builds a modelled retention curve
+ * instead; the file it writes is committed and deterministic.
+ */
+const SEED_FILE = resolve(
+  fileURLToPath(new URL('./data/leaderboard-seed.json', import.meta.url))
+)
+
+const SNAPSHOT_VIRTUAL_ID = 'virtual:leaderboard-snapshot'
+const SNAPSHOT_RESOLVED = '\0' + SNAPSHOT_VIRTUAL_ID
+const SNAPSHOT_FILE = resolve(
+  fileURLToPath(new URL('./data/leaderboard-snapshot.json', import.meta.url))
+)
+const SNAPSHOT_SCRIPT = resolve(
+  fileURLToPath(new URL('./scripts/leaderboard-snapshot.mjs', import.meta.url))
+)
+
+interface LeaderboardSnapshotFile {
+  /** When this process last pulled it off the Worker — the freshness clock. */
+  fetchedAt: number
+  updatedAt: number
+  total: number
+  entries: { rank: number; name: string; score: number; flair: number }[]
+  dist: [number, number][]
+}
+
+/** How recently the file must have been fetched for the build to accept it as
+ *  already current. Long enough that a `build:*` script's own refresh (and a
+ *  run of several portal builds back to back) costs the Worker ONE request. */
+const SNAPSHOT_FRESH_MS = 10 * 60_000
+
+const readSnapshotFile = (file: string): LeaderboardSnapshotFile | null => {
+  if (!existsSync(file)) return null
+  try {
+    const parsed = JSON.parse(readFileSync(file, 'utf-8')) as Partial<LeaderboardSnapshotFile>
+    if (!Array.isArray(parsed.entries) || !Array.isArray(parsed.dist)) return null
+    if (!(Number(parsed.total) > 0)) return null
+    return {
+      fetchedAt: Number(parsed.fetchedAt) || 0,
+      updatedAt: Number(parsed.updatedAt) || 0,
+      total: Number(parsed.total),
+      entries: parsed.entries,
+      dist: parsed.dist
+    }
+  } catch {
+    return null
+  }
+}
+
+/**
+ * @param seeded whether this build can never gain a real player (Poki, Yandex —
+ *   no endpoint, so no writes). Those bake the modelled board; every other
+ *   target bakes the real snapshot as the bottom rung of its offline ladder.
+ */
+const leaderboardSnapshotPlugin = (seeded: boolean): Plugin => ({
+  name: 'chaos-machine-leaderboard-snapshot',
+  buildStart() {
+    if (seeded) {
+      // Nothing to fetch: the seed is generated from a curve, committed, and
+      // deterministic. Re-running `pnpm leaderboard:seed` reproduces it byte for
+      // byte, so a build never needs to and never should.
+      const seed = readSnapshotFile(SEED_FILE)
+      if (seed) {
+        console.log(
+          `[leaderboard] baking the SEEDED board — ${seed.total} players / `
+          + `${seed.entries.length} rows, top stage ${seed.dist[0]?.[0] ?? 0}. `
+          + 'This build cannot post scores, so the board is modelled.'
+        )
+      } else {
+        console.warn(
+          `[leaderboard] no seed at ${SEED_FILE} — run \`pnpm leaderboard:seed\`. `
+          + 'This build has no leaderboard.'
+        )
+      }
+      return
+    }
+
+    // The `build:*` scripts refresh it themselves, so the file is usually
+    // seconds old by the time this runs. Refetching would be a second round
+    // trip for the same bytes — and building five portal targets in a row would
+    // be five. This hook is the SAFETY NET for anyone invoking `vite build
+    // --mode <x>` directly, which is why it stays.
+    const onDisk = readSnapshotFile(SNAPSHOT_FILE)
+    const fresh = onDisk !== null && Date.now() - onDisk.fetchedAt < SNAPSHOT_FRESH_MS
+    if (!fresh) {
+      try {
+        execFileSync(process.execPath, [SNAPSHOT_SCRIPT], { stdio: 'inherit', timeout: 60_000 })
+      } catch {
+        // Offline, or the Worker is down. The committed file stands in.
+        console.warn(
+          '[leaderboard] could not refresh the snapshot — building with the committed copy.'
+        )
+      }
+    }
+    const snap = readSnapshotFile(SNAPSHOT_FILE)
+    if (snap) {
+      console.log(
+        `[leaderboard] baking ${snap.total} players / ${snap.entries.length} rows `
+        + `(board of ${new Date(snap.updatedAt).toISOString().slice(0, 10)})`
+      )
+    } else {
+      // Not a build failure. A build WITH an endpoint still has its live
+      // board (`leaderboardEnabled` is true on `LIVE` alone); it only lacks the
+      // offline fallback, which is normal until a new board has players.
+      console.warn(
+        `[leaderboard] no usable snapshot at ${SNAPSHOT_FILE} — the live board still works; `
+        + 'this build just has no offline fallback yet (a new board with no players).'
+      )
+    }
+  },
+  resolveId(id) {
+    if (id === SNAPSHOT_VIRTUAL_ID) return SNAPSHOT_RESOLVED
+    return null
+  },
+  load(id) {
+    if (id !== SNAPSHOT_RESOLVED) return null
+    return `export default ${JSON.stringify(readSnapshotFile(seeded ? SEED_FILE : SNAPSHOT_FILE))}`
+  }
+})
+
 export default defineConfig(({ mode, command }) => {
   // Load env file based on `mode` in the current working directory.
   // The third parameter '' loads all env vars regardless of VITE_ prefix.
@@ -157,6 +290,11 @@ export default defineConfig(({ mode, command }) => {
 
   // Drop-in art/audio overrides (see `assetOverridesPlugin`).
   plugins.push(assetOverridesPlugin())
+
+  // The leaderboard: a build with no endpoint (Poki, Yandex, Playgama) bakes
+  // the modelled board; every other build bakes the last fetched one as its
+  // offline fallback.
+  plugins.push(leaderboardSnapshotPlugin(!env.VITE_LEADERBOARD_URL))
 
   // Only push the obfuscator if both conditions are met
   if (isProduction && shouldObfuscate) {

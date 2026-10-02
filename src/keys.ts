@@ -68,3 +68,27 @@ export const KEY_BINDINGS_KEY = 'cm_user_key_bindings'
 /** Keyboard layout: auto-detect on / off, the manual pick, the layout last
  *  detected from typing (`engine/keyLabels.ts`). */
 export const KB_LAYOUT_KEY = 'cm_user_keyboard_layout'
+
+// ─── The leaderboard ─────────────────────────────────────────────────────────
+
+/** The player's stable leaderboard id. Also mirrored to a standalone
+ *  localStorage key OUTSIDE this prefix — see `usePlayerIdentity`. */
+export const PLAYER_ID_KEY = 'cm_player_id'
+/** Tier 1 name: chosen by the player. Highest precedence, never overwritten. */
+export const PLAYER_NAME_KEY = 'cm_player_name'
+/** Tier 2: the last name a platform SDK gave us, REMEMBERED so an offline
+ *  session does not flip the row back to a generated name. */
+export const SDK_NAME_KEY = 'cm_sdk_name'
+/** Tier 3: the generated name, minted once and kept. */
+export const ANON_NAME_KEY = 'cm_anon_name'
+/** The name the row currently carries on the server. A mismatch is what
+ *  triggers the one relabel POST. */
+export const POSTED_NAME_KEY = 'cm_posted_name'
+/** The best campaign score the server has ACCEPTED. The whole write rule is
+ *  `score > this`, so it may only be set after a confirmed 200. */
+export const SUBMITTED_SCORE_KEY = 'cm_submitted_score'
+/** The best score a PORTAL's own board accepted (inert until a platform
+ *  registers an adapter: see `usePortalLeaderboard`). */
+export const PORTAL_POSTED_SCORE_KEY = 'cm_portal_posted_score'
+/** Whether the player already has a row on the portal's board. */
+export const PORTAL_JOINED_KEY = 'cm_portal_joined'

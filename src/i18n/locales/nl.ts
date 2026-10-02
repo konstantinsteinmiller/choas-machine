@@ -97,6 +97,20 @@ export default {
     'climb': 'Klimmen',
     'help': 'Besturing tonen'
   },
+  'leaderboard': {
+    'title': 'Ranglijst',
+    'rank': '#',
+    'player': 'Speler',
+    'score': 'Score',
+    'flair': 'Level',
+    'empty': 'Nog geen runs. Wees de eerste.',
+    'failed': 'Kan de ranglijst niet bereiken.',
+    'loading': 'Laden…',
+    'you': 'Jij',
+    'yourRank': 'Jij bent #{n} van {total}',
+    'of': 'van {n} spelers',
+    'tabGlobal': 'Wereldwijd'
+  },
   'pause': {
     'title': 'GEPAUZEERD',
     'resume': 'Hervatten',

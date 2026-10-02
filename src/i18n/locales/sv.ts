@@ -97,6 +97,20 @@ export default {
     'climb': 'Klättra',
     'help': 'Visa kontroller'
   },
+  'leaderboard': {
+    'title': 'Topplista',
+    'rank': '#',
+    'player': 'Spelare',
+    'score': 'Poäng',
+    'flair': 'Nivå',
+    'empty': 'Inga rundor än. Bli först.',
+    'failed': 'Kunde inte nå topplistan.',
+    'loading': 'Laddar…',
+    'you': 'Du',
+    'yourRank': 'Du är #{n} av {total}',
+    'of': 'av {n} spelare',
+    'tabGlobal': 'Global'
+  },
   'pause': {
     'title': 'PAUSAT',
     'resume': 'Fortsätt',

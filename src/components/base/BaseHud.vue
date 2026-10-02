@@ -5,6 +5,18 @@
     img.logo(src="/icons/icon.svg" :alt="t('gameName')" draggable="false")
     div.purse
       Wallet
+      //- The player's place on the board, and the way to the table itself
+      //- (a build that bakes a modelled board has a rank but no table).
+      div.board
+        RankBadge(:score="campaign")
+        FHudButton(
+          v-if="leaderboardEnabled && boardSize > 0"
+          icon="leaderboard"
+          tone="warn"
+          :aria-label="t('leaderboard.title')"
+          data-testid="btn-leaderboard"
+          @click="showBoard = true"
+        )
 
     div.panel
       nav.stations(:aria-label="t('gameName')")
@@ -22,6 +34,7 @@
       DeployPanel
 
     SystemCorner
+    LeaderboardModal(v-if="leaderboardEnabled" v-model="showBoard" :score="campaign")
     WorkshopModal(:open="shop !== null" :start="shop ?? 'armory'" @close="closeShop" @show="showWeapon")
 </template>
 
@@ -33,13 +46,19 @@ import Wallet from '@/components/base/Wallet.vue'
 import DeployPanel from '@/components/base/DeployPanel.vue'
 import WorkshopModal, { type WorkshopTab } from '@/components/base/WorkshopModal.vue'
 import SystemCorner from '@/components/hud/SystemCorner.vue'
+import FHudButton from '@/components/atoms/FHudButton.vue'
+import RankBadge from '@/components/atoms/RankBadge.vue'
+import LeaderboardModal from '@/components/organisms/LeaderboardModal.vue'
+import { boardSize, ensureBoard, leaderboardEnabled } from '@/use/useLeaderboard'
 import { app } from '@/game/engine/app'
 import { profile } from '@/game/state/profile'
-import { forgeRemaining, settleForge } from '@/game/state/progress'
+import { campaignScore, forgeRemaining, settleForge } from '@/game/state/progress'
 import type { WeaponId } from '@/game/data/ids'
 
 const { t } = useI18n()
 const shop = ref<WorkshopTab | null>(null)
+const showBoard = ref(false)
+const campaign = computed(() => campaignScore())
 
 /** The scene behind this screen, when it is the Command Base. */
 const stage = (): { weapon: WeaponId; present: number } | null => {
@@ -67,6 +86,8 @@ const now = ref(Date.now())
 let timer = 0
 onMounted(() => {
   settleForge()
+  // One read of the board per session; it never blocks the screen.
+  void ensureBoard()
   timer = window.setInterval(() => { now.value = Date.now() }, 1000)
 })
 onUnmounted(() => window.clearInterval(timer))
@@ -97,8 +118,20 @@ const forgeReady = computed(() => !!profile.forge && forgeRemaining(profile.forg
   position: absolute
   top: var(--cm-safe-top)
   right: var(--cm-safe-right)
+  display: flex
+  flex-direction: column
+  align-items: flex-end
+  gap: var(--gap)
   // Never under the logo on a narrow phone.
   max-width: calc(100% - var(--cm-safe-left) - var(--cm-safe-right) - clamp(2.4rem, 10vmin, 4rem) - var(--gap))
+
+.board
+  display: flex
+  align-items: center
+  gap: var(--gap)
+  // On the open sky the badge needs a ground of its own to be read.
+  :deep(.rank-badge)
+    background: var(--cm-glass)
 
 // Landscape: a column down the right, the mech to its left.
 .panel

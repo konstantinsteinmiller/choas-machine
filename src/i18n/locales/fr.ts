@@ -97,6 +97,20 @@ export default {
     'climb': 'Grimper',
     'help': 'Afficher les commandes'
   },
+  'leaderboard': {
+    'title': 'Classement',
+    'rank': '#',
+    'player': 'Joueur',
+    'score': 'Score',
+    'flair': 'Niveau',
+    'empty': 'Aucune partie pour l\'instant. Sois le premier.',
+    'failed': 'Impossible d\'accéder au classement.',
+    'loading': 'Chargement…',
+    'you': 'Toi',
+    'yourRank': 'Tu es #{n} sur {total}',
+    'of': 'sur {n} joueurs',
+    'tabGlobal': 'Mondial'
+  },
   'pause': {
     'title': 'PAUSE',
     'resume': 'Reprendre',

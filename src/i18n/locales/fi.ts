@@ -97,6 +97,20 @@ export default {
     'climb': 'Kiipeä',
     'help': 'Näytä ohjaimet'
   },
+  'leaderboard': {
+    'title': 'Tulostaulu',
+    'rank': '#',
+    'player': 'Pelaaja',
+    'score': 'Pisteet',
+    'flair': 'Taso',
+    'empty': 'Ei vielä tuloksia. Ole ensimmäinen.',
+    'failed': 'Tulostaulua ei tavoitettu.',
+    'loading': 'Ladataan…',
+    'you': 'Sinä',
+    'yourRank': 'Olet sijalla #{n}, pelaajia yhteensä {total}',
+    'of': '{n} pelaajasta',
+    'tabGlobal': 'Globaali'
+  },
   'pause': {
     'title': 'TAUKO',
     'resume': 'Jatka',

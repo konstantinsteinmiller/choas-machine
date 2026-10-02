@@ -97,6 +97,20 @@ export default {
     'climb': 'Klatre',
     'help': 'Vis kontroller'
   },
+  'leaderboard': {
+    'title': 'Rangliste',
+    'rank': '#',
+    'player': 'Spiller',
+    'score': 'Point',
+    'flair': 'Niveau',
+    'empty': 'Ingen runder endnu. Vær den første.',
+    'failed': 'Kunne ikke nå ranglisten.',
+    'loading': 'Indlæser…',
+    'you': 'Dig',
+    'yourRank': 'Du er #{n} af {total}',
+    'of': 'af {n} spillere',
+    'tabGlobal': 'Global'
+  },
   'pause': {
     'title': 'PAUSE',
     'resume': 'Fortsæt',

@@ -97,6 +97,20 @@ export default {
     'climb': '攀爬',
     'help': '顯示操作提示'
   },
+  'leaderboard': {
+    'title': '排行榜',
+    'rank': '#',
+    'player': '玩家',
+    'score': '分數',
+    'flair': '等級',
+    'empty': '還沒有成績。來當第一名吧。',
+    'failed': '無法連線至排行榜。',
+    'loading': '載入中…',
+    'you': '你',
+    'yourRank': '{total} 人中排名 #{n}',
+    'of': '共 {n} 名玩家',
+    'tabGlobal': '全球'
+  },
   'pause': {
     'title': '已暫停',
     'resume': '繼續',
