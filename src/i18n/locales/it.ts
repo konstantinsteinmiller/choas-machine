@@ -16,6 +16,12 @@ export default {
     'mute': 'Disattiva audio',
     'unmute': 'Attiva audio'
   },
+  'hud': {
+    'crouch': 'Accovacciati',
+    'stand': 'Alzati',
+    'cancel': 'Abbassa l\'arma',
+    'capture': 'Clicca per continuare'
+  },
   'pause': {
     'title': 'IN PAUSA',
     'resume': 'Riprendi',
@@ -48,16 +54,14 @@ export default {
       'right': 'Laterale destra',
       'turnLeft': 'Ruota a sinistra',
       'turnRight': 'Ruota a destra',
-      'slide': 'Scivolata',
-      'block': 'Parata',
-      'interact': 'Interagisci',
-      'beam': 'Teletrasporto',
-      'tank': 'Gel riparatore',
-      'weapon1': 'Arma speciale 1',
-      'weapon2': 'Arma speciale 2',
-      'weapon3': 'Arma in prestito',
-      'target': 'Cambia bersaglio',
-      'map': 'Mappa'
+      'crouch': 'Accovacciarsi',
+      'act': 'Colpisci / usa',
+      'decoy': 'Piazza esca',
+      'reload': 'Ricarica',
+      'weapon1': 'Fucile di precisione',
+      'weapon2': 'Minigun',
+      'weapon3': 'Lanciarazzi',
+      'cycle': 'Arma successiva'
     }
   },
   'saveStatus': {

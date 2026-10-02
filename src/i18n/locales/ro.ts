@@ -16,6 +16,12 @@ export default {
     'mute': 'Dezactivează sunetul',
     'unmute': 'Activează sunetul'
   },
+  'hud': {
+    'crouch': 'Ghemuiește-te',
+    'stand': 'Ridică-te',
+    'cancel': 'Coboară arma',
+    'capture': 'Click pentru a continua'
+  },
   'pause': {
     'title': 'PAUZĂ',
     'resume': 'Continuă',
@@ -48,16 +54,14 @@ export default {
       'right': 'Lateral dreapta',
       'turnLeft': 'Rotire stânga',
       'turnRight': 'Rotire dreapta',
-      'slide': 'Alunecare',
-      'block': 'Blocare',
-      'interact': 'Interacțiune',
-      'beam': 'Teleportare',
-      'tank': 'Gel Reparator',
-      'weapon1': 'Armă specială 1',
-      'weapon2': 'Armă specială 2',
-      'weapon3': 'Armă împrumutată',
-      'target': 'Schimbă ținta',
-      'map': 'Hartă'
+      'crouch': 'Ghemuit',
+      'act': 'Înjunghie / folosește',
+      'decoy': 'Plasează momeală',
+      'reload': 'Reîncarcă',
+      'weapon1': 'Pușcă de lunetist',
+      'weapon2': 'Minigun',
+      'weapon3': 'Lansator de rachete',
+      'cycle': 'Arma următoare'
     }
   },
   'saveStatus': {

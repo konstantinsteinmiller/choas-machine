@@ -16,6 +16,12 @@ export default {
     'mute': 'Bisukan',
     'unmute': 'Nyalakan suara'
   },
+  'hud': {
+    'crouch': 'Jongkok',
+    'stand': 'Berdiri',
+    'cancel': 'Turunkan senjata',
+    'capture': 'Klik untuk lanjut'
+  },
   'pause': {
     'title': 'JEDA',
     'resume': 'Lanjutkan',
@@ -48,16 +54,14 @@ export default {
       'right': 'Geser kanan',
       'turnLeft': 'Belok kiri',
       'turnRight': 'Belok kanan',
-      'slide': 'Meluncur',
-      'block': 'Tangkis',
-      'interact': 'Interaksi',
-      'beam': 'Teleportasi keluar',
-      'tank': 'Gel perbaikan',
-      'weapon1': 'Senjata khusus 1',
-      'weapon2': 'Senjata khusus 2',
-      'weapon3': 'Senjata pinjaman',
-      'target': 'Ganti target',
-      'map': 'Peta'
+      'crouch': 'Jongkok',
+      'act': 'Tikam / gunakan',
+      'decoy': 'Pasang umpan',
+      'reload': 'Isi ulang',
+      'weapon1': 'Senapan sniper',
+      'weapon2': 'Minigun',
+      'weapon3': 'Peluncur roket',
+      'cycle': 'Senjata berikutnya'
     }
   },
   'saveStatus': {

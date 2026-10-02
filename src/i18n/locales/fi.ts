@@ -16,6 +16,12 @@ export default {
     'mute': 'Mykistä',
     'unmute': 'Poista mykistys'
   },
+  'hud': {
+    'crouch': 'Kyyristy',
+    'stand': 'Nouse ylös',
+    'cancel': 'Laske ase',
+    'capture': 'Jatka klikkaamalla'
+  },
   'pause': {
     'title': 'TAUKO',
     'resume': 'Jatka',
@@ -48,16 +54,14 @@ export default {
       'right': 'Sivuaskel oikealle',
       'turnLeft': 'Käänny vasemmalle',
       'turnRight': 'Käänny oikealle',
-      'slide': 'Liu\'u',
-      'block': 'Suojaa',
-      'interact': 'Käytä',
-      'beam': 'Teleporttaa pois',
-      'tank': 'Korjausgeeli',
-      'weapon1': 'Erikoisase 1',
-      'weapon2': 'Erikoisase 2',
-      'weapon3': 'Lainattu ase',
-      'target': 'Vaihda kohdetta',
-      'map': 'Kartta'
+      'crouch': 'Kyyristy',
+      'act': 'Isku / käytä',
+      'decoy': 'Aseta houkute',
+      'reload': 'Lataa',
+      'weapon1': 'Tarkkuuskivääri',
+      'weapon2': 'Minigun',
+      'weapon3': 'Raketinheitin',
+      'cycle': 'Seuraava ase'
     }
   },
   'saveStatus': {

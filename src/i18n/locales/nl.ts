@@ -16,6 +16,12 @@ export default {
     'mute': 'Dempen',
     'unmute': 'Geluid aan'
   },
+  'hud': {
+    'crouch': 'Bukken',
+    'stand': 'Opstaan',
+    'cancel': 'Wapen laten zakken',
+    'capture': 'Klik om verder te gaan'
+  },
   'pause': {
     'title': 'GEPAUZEERD',
     'resume': 'Hervatten',
@@ -48,16 +54,14 @@ export default {
       'right': 'Zijwaarts rechts',
       'turnLeft': 'Links draaien',
       'turnRight': 'Rechts draaien',
-      'slide': 'Glijden',
-      'block': 'Blokkeren',
-      'interact': 'Gebruiken',
-      'beam': 'Wegstralen',
-      'tank': 'Reparatiegel',
-      'weapon1': 'Speciaal wapen 1',
-      'weapon2': 'Speciaal wapen 2',
-      'weapon3': 'Geleend wapen',
-      'target': 'Ander doelwit',
-      'map': 'Kaart'
+      'crouch': 'Bukken',
+      'act': 'Steken / gebruiken',
+      'decoy': 'Lokvogel plaatsen',
+      'reload': 'Herladen',
+      'weapon1': 'Sluipschuttersgeweer',
+      'weapon2': 'Minigun',
+      'weapon3': 'Raketwerper',
+      'cycle': 'Volgend wapen'
     }
   },
   'saveStatus': {

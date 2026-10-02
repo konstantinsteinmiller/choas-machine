@@ -16,6 +16,12 @@ export default {
     'mute': 'Silencia',
     'unmute': 'Activa el so'
   },
+  'hud': {
+    'crouch': 'Ajupir-se',
+    'stand': 'Aixecar-se',
+    'cancel': 'Baixar l\'arma',
+    'capture': 'Clica per continuar'
+  },
   'pause': {
     'title': 'PAUSA',
     'resume': 'Reprèn',
@@ -48,16 +54,14 @@ export default {
       'right': 'Desplaçament a la dreta',
       'turnLeft': 'Gira a l\'esquerra',
       'turnRight': 'Gira a la dreta',
-      'slide': 'Llisca',
-      'block': 'Bloqueja',
-      'interact': 'Interactua',
-      'beam': 'Teletransporta\'t',
-      'tank': 'Gel reparador',
-      'weapon1': 'Arma especial 1',
-      'weapon2': 'Arma especial 2',
-      'weapon3': 'Arma prestada',
-      'target': 'Canvia d\'objectiu',
-      'map': 'Mapa'
+      'crouch': 'Ajupir-se',
+      'act': 'Cop / utilitzar',
+      'decoy': 'Desplegar parany',
+      'reload': 'Recarregar',
+      'weapon1': 'Rifle franctirador',
+      'weapon2': 'Minigun',
+      'weapon3': 'Llançamíssils',
+      'cycle': 'Arma següent'
     }
   },
   'saveStatus': {

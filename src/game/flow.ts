@@ -24,36 +24,47 @@ export const flow = reactive({
   loadProgress: 0
 })
 
-type BaseFactory = (onProgress: (p01: number) => void) => Promise<GameMode>
-let baseFactory: BaseFactory | null = null
+type Progress = (p01: number) => void
+type ModeFactory = (onProgress: Progress) => Promise<GameMode>
+interface Factories { mission: ModeFactory; base: ModeFactory }
+let factories: Factories | null = null
 
-export const registerModeFactories = (base: BaseFactory): void => {
-  baseFactory = base
+export const registerModeFactories = (f: Factories): void => {
+  factories = f
 }
 
 /**
- * The first scene of a session, built behind the loader (`boot.ts`). Until
- * the campaign exists this is always the base.
+ * The first scene of a session, built behind the loader (`boot.ts`): the
+ * mission. A new player lands straight in the fortress; there is no menu in
+ * front of the game.
  */
-export const createBootMode = async (onProgress: (p01: number) => void = () => {}): Promise<GameMode> => {
-  if (!baseFactory) throw new Error('[flow] no mode factory registered')
-  const mode = await baseFactory(onProgress)
+export const createBootMode = async (onProgress: Progress = () => {}): Promise<GameMode> => {
+  if (!factories) throw new Error('[flow] no mode factories registered')
+  const mode = await factories.mission(onProgress)
   onProgress(1)
-  flow.screen = 'base'
-  setPhase('base')
+  flow.screen = 'mission'
+  setPhase('play')
   return mode
+}
+
+const swap = async (screen: Screen, factory: ModeFactory, phase: 'play' | 'base'): Promise<void> => {
+  flow.modal = ''
+  flow.loading = true
+  flow.loadProgress = 0
+  const mode = await factory((p) => { flow.loadProgress = p })
+  flow.loading = false
+  flow.screen = screen
+  setPhase(phase)
+  app.setMode(mode)
+  app.setWanted(true)
+}
+
+/** Drop into the fortress. */
+export const startMission = async (): Promise<void> => {
+  if (factories) await swap('mission', factories.mission, 'play')
 }
 
 /** Leave whatever is running for the Command Base. */
 export const goBase = async (): Promise<void> => {
-  if (!baseFactory) return
-  flow.modal = ''
-  flow.loading = true
-  flow.loadProgress = 0
-  const mode = await baseFactory((p) => { flow.loadProgress = p })
-  flow.loading = false
-  flow.screen = 'base'
-  setPhase('base')
-  app.setMode(mode)
-  app.setWanted(true)
+  if (factories) await swap('base', factories.base, 'base')
 }

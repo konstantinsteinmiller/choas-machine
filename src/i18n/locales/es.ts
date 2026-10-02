@@ -16,6 +16,12 @@ export default {
     'mute': 'Silenciar',
     'unmute': 'Activar sonido'
   },
+  'hud': {
+    'crouch': 'Agacharse',
+    'stand': 'Levantarse',
+    'cancel': 'Bajar arma',
+    'capture': 'Haz clic para continuar'
+  },
   'pause': {
     'title': 'PAUSA',
     'resume': 'Reanudar',
@@ -48,16 +54,14 @@ export default {
       'right': 'Desplazarse a la derecha',
       'turnLeft': 'Girar a la izquierda',
       'turnRight': 'Girar a la derecha',
-      'slide': 'Deslizar',
-      'block': 'Bloquear',
-      'interact': 'Interactuar',
-      'beam': 'Teletransportarse',
-      'tank': 'Gel reparador',
-      'weapon1': 'Arma especial 1',
-      'weapon2': 'Arma especial 2',
-      'weapon3': 'Arma prestada',
-      'target': 'Cambiar objetivo',
-      'map': 'Mapa'
+      'crouch': 'Agacharse',
+      'act': 'Apuñalar / usar',
+      'decoy': 'Colocar señuelo',
+      'reload': 'Recargar',
+      'weapon1': 'Rifle de francotirador',
+      'weapon2': 'Minigun',
+      'weapon3': 'Lanzacohetes',
+      'cycle': 'Siguiente arma'
     }
   },
   'saveStatus': {

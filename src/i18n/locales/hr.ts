@@ -16,6 +16,12 @@ export default {
     'mute': 'Isključi zvuk',
     'unmute': 'Uključi zvuk'
   },
+  'hud': {
+    'crouch': 'Čučni',
+    'stand': 'Ustani',
+    'cancel': 'Spusti oružje',
+    'capture': 'Klikni za nastavak'
+  },
   'pause': {
     'title': 'PAUZA',
     'resume': 'Nastavi',
@@ -48,16 +54,14 @@ export default {
       'right': 'Korak desno',
       'turnLeft': 'Okret lijevo',
       'turnRight': 'Okret desno',
-      'slide': 'Klizanje',
-      'block': 'Blok',
-      'interact': 'Radnja',
-      'beam': 'Teleport',
-      'tank': 'Gel za popravak',
-      'weapon1': 'Posebno oružje 1',
-      'weapon2': 'Posebno oružje 2',
-      'weapon3': 'Posuđeno oružje',
-      'target': 'Promijeni metu',
-      'map': 'Karta'
+      'crouch': 'Čučanj',
+      'act': 'Ubod / upotreba',
+      'decoy': 'Postavi mamac',
+      'reload': 'Napuni',
+      'weapon1': 'Snajper',
+      'weapon2': 'Minigun',
+      'weapon3': 'Bacač raketa',
+      'cycle': 'Sljedeće oružje'
     }
   },
   'saveStatus': {

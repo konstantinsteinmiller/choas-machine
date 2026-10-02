@@ -16,6 +16,12 @@ export default {
     'mute': 'Sesi kapat',
     'unmute': 'Sesi aç'
   },
+  'hud': {
+    'crouch': 'Çömel',
+    'stand': 'Ayağa kalk',
+    'cancel': 'Silahı indir',
+    'capture': 'Devam için tıkla'
+  },
   'pause': {
     'title': 'DURAKLATILDI',
     'resume': 'Devam et',
@@ -48,16 +54,14 @@ export default {
       'right': 'Sağa kay',
       'turnLeft': 'Sola dön',
       'turnRight': 'Sağa dön',
-      'slide': 'Kayma',
-      'block': 'Blok',
-      'interact': 'Etkileşim',
-      'beam': 'Işınlan',
-      'tank': 'Onarım jeli',
-      'weapon1': 'Özel silah 1',
-      'weapon2': 'Özel silah 2',
-      'weapon3': 'Ödünç silah',
-      'target': 'Hedef değiştir',
-      'map': 'Harita'
+      'crouch': 'Çömelme',
+      'act': 'Bıçakla / kullan',
+      'decoy': 'Yem yerleştir',
+      'reload': 'Doldur',
+      'weapon1': 'Keskin nişancı tüfeği',
+      'weapon2': 'Minigun',
+      'weapon3': 'Roketatar',
+      'cycle': 'Sonraki silah'
     }
   },
   'saveStatus': {

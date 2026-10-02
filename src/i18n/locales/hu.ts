@@ -16,6 +16,12 @@ export default {
     'mute': 'Némítás',
     'unmute': 'Hang be'
   },
+  'hud': {
+    'crouch': 'Guggolás',
+    'stand': 'Felállás',
+    'cancel': 'Fegyver le',
+    'capture': 'Kattints a folytatáshoz'
+  },
   'pause': {
     'title': 'SZÜNET',
     'resume': 'Folytatás',
@@ -48,16 +54,14 @@ export default {
       'right': 'Oldalazás jobbra',
       'turnLeft': 'Fordulás balra',
       'turnRight': 'Fordulás jobbra',
-      'slide': 'Csúszás',
-      'block': 'Védés',
-      'interact': 'Használat',
-      'beam': 'Teleport',
-      'tank': 'Javítózselé',
-      'weapon1': '1. különleges fegyver',
-      'weapon2': '2. különleges fegyver',
-      'weapon3': 'Kölcsönfegyver',
-      'target': 'Célpontváltás',
-      'map': 'Térkép'
+      'crouch': 'Guggolás',
+      'act': 'Szúrás / használat',
+      'decoy': 'Csali kihelyezése',
+      'reload': 'Újratöltés',
+      'weapon1': 'Mesterlövész puska',
+      'weapon2': 'Minigun',
+      'weapon3': 'Rakétavető',
+      'cycle': 'Következő fegyver'
     }
   },
   'saveStatus': {

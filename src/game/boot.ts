@@ -1,9 +1,10 @@
 import { getRenderer } from './engine/renderer'
-import { createInput } from './engine/input'
 import { afterPaint, createSlicer, yieldToBrowser, type Slice } from './engine/slicer'
 import type { Material, Mesh, Object3D } from 'three'
 import { bakeTextures, loadTextureOverrides } from './world/textures'
 import { FortressView, viewAngleFromUrl } from './scenes/fortressView'
+import { Mission } from './sim/mission'
+import { input } from './engine/inputState'
 import { buildProvingGround } from './data/fortresses/proving'
 import type { GameMode } from './engine/app'
 import { registerModeFactories, createBootMode } from './flow'
@@ -26,8 +27,6 @@ import { installSynth, loadSfxOverrides } from './audio/synth'
  *   for the prepared mode; a second build in the scene would run without the
  *   shader precompile and freeze the loader through both.
  */
-
-export const input = createInput()
 
 /**
  * Compile a scene's shader programs off the critical frame. `compileAsync`
@@ -89,13 +88,21 @@ const precompile = async (
   }
 }
 
-registerModeFactories(async (onProgress) => {
-  // DEV ONLY: the model bench. The `import.meta.env.DEV` guard folds the
-  // branch, and its chunk, out of every build.
-  if (import.meta.env.DEV && new URLSearchParams(window.location.search).get('bench') === 'models') {
-    return new (await import('./scenes/modelBench')).ModelBench(window.location.search)
-  }
-  return FortressView.create(buildProvingGround(), viewAngleFromUrl(window.location.search), createSlicer(12), onProgress)
+registerModeFactories({
+  mission: async (onProgress) => {
+    const search = window.location.search
+    // DEV ONLY: the model bench and the fortress turntable. The
+    // `import.meta.env.DEV` guard folds both branches out of every build.
+    if (import.meta.env.DEV && new URLSearchParams(search).get('bench') === 'models') {
+      return new (await import('./scenes/modelBench')).ModelBench(search)
+    }
+    const view = import.meta.env.DEV ? viewAngleFromUrl(search) : undefined
+    if (view) return FortressView.create(buildProvingGround(), view, createSlicer(12), onProgress)
+    return Mission.create(buildProvingGround(), input, createSlicer(12), onProgress)
+  },
+  // The Command Base is built in a later phase; until then the fortress on
+  // its turntable stands in for it.
+  base: (onProgress) => FortressView.create(buildProvingGround(), undefined, createSlicer(12), onProgress)
 })
 
 let prepared: GameMode | null = null

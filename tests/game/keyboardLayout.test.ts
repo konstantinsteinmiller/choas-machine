@@ -13,7 +13,7 @@ import {
   activeLayout, actionKeyLabel, classify, guessFromLanguage, keyboard, keyLabel, observeKey,
   setAutoLayout, setManualLayout, __resetKeyboardForTests
 } from '@/game/engine/keyLabels'
-import { attachInput, createInput, type Input } from '@/game/engine/input'
+import { attachInput, createInput, type Input, type InputHandle } from '@/game/engine/input'
 
 const press = (code: string, key: string) =>
   observeKey({ code, key, ctrlKey: false, altKey: false, metaKey: false })
@@ -28,7 +28,7 @@ describe('key bindings', () => {
     expect(primaryCode('forward')).toBe('KeyW')
     expect(codesFor('forward')).toEqual(['KeyW', 'ArrowUp'])
     for (const a of ACTIONS) expect(codesFor(a).length, a).toBeGreaterThan(0)
-    expect(actionForCode('KeyE')).toBe('interact')
+    expect(actionForCode('KeyE')).toBe('act')
     expect(actionForCode('Escape')).toBeNull()
     expect(bindingsChanged()).toBe(false)
   })
@@ -36,28 +36,28 @@ describe('key bindings', () => {
   it('rebinding onto another action\'s key swaps them: nothing is left unbound', () => {
     expect(bindKey('forward', 'KeyE')).toBe(true)
     expect(primaryCode('forward')).toBe('KeyE')
-    expect(primaryCode('interact')).toBe('KeyW')
+    expect(primaryCode('act')).toBe('KeyW')
     expect(actionForCode('KeyE')).toBe('forward')
-    expect(actionForCode('KeyW')).toBe('interact')
+    expect(actionForCode('KeyW')).toBe('act')
     for (const a of ACTIONS) expect(codesFor(a).length, a).toBeGreaterThan(0)
   })
 
   it('a rebinding that takes an alternate removes it from its old action', () => {
-    bindKey('beam', 'ArrowUp')
+    bindKey('decoy', 'ArrowUp')
     expect(codesFor('forward')).toEqual(['KeyW'])
-    expect(actionForCode('ArrowUp')).toBe('beam')
+    expect(actionForCode('ArrowUp')).toBe('decoy')
   })
 
   it('reserved keys are refused', () => {
     for (const c of ['Escape', 'F1', 'F2', 'MetaLeft', '']) {
       expect(isBindable(c), c).toBe(false)
-      expect(bindKey('slide', c)).toBe(false)
+      expect(bindKey('crouch', c)).toBe(false)
     }
-    expect(primaryCode('slide')).toBe('Space')
+    expect(primaryCode('crouch')).toBe('KeyC')
   })
 
   it('the HUD asks for a DEFAULT key and gets the key as bound now', () => {
-    bindKey('interact', 'KeyG')
+    bindKey('act', 'KeyG')
     expect(boundCode('KeyE')).toBe('KeyG')
     expect(boundCode('KeyW')).toBe('KeyW')
     expect(boundCode('MouseRight')).toBe('MouseRight')
@@ -66,7 +66,7 @@ describe('key bindings', () => {
 
   it('reset puts every default back', () => {
     bindKey('forward', 'KeyI')
-    bindKey('slide', 'KeyC')
+    bindKey('crouch', 'KeyX')
     expect(bindingsChanged()).toBe(true)
     resetBindings()
     for (const a of ACTIONS) expect(primaryCode(a)).toBe(DEFAULT_BINDINGS[a][0])
@@ -140,7 +140,7 @@ describe('layout detection', () => {
 describe('input follows the bindings', () => {
   let surface: HTMLDivElement
   let input: Input
-  let detach: () => void
+  let handle: InputHandle
   const key = (type: 'keydown' | 'keyup', code: string, k = '') =>
     window.dispatchEvent(new KeyboardEvent(type, { code, key: k, bubbles: true }))
 
@@ -148,21 +148,21 @@ describe('input follows the bindings', () => {
     surface = document.createElement('div')
     document.body.appendChild(surface)
     input = createInput()
-    detach = attachInput(surface, input, { fireMode: () => false, canLock: () => true })
+    handle = attachInput(surface, input, { canLock: () => true })
   })
   afterEach(() => {
-    detach()
+    handle.detach()
     surface.remove()
   })
 
   it('a rebound key drives the action, and the old key no longer does', () => {
-    bindKey('interact', 'KeyG')
+    bindKey('act', 'KeyG')
     key('keydown', 'KeyG', 'g')
-    expect(input.interactQueued).toBe(true)
-    input.interactQueued = false
+    expect(input.actQueued).toBe(true)
+    input.actQueued = false
     key('keyup', 'KeyG')
     key('keydown', 'KeyE', 'e')
-    expect(input.interactQueued).toBe(false)
+    expect(input.actQueued).toBe(false)
   })
 
   it('rebound movement moves', () => {

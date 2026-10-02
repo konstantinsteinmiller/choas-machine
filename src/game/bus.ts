@@ -15,6 +15,12 @@ export interface GameEvents {
   phase: { phase: Phase; prev: Phase }
   /** The simulation's time scale changed (slow motion in, or back to 1). */
   timeScale: { scale: number }
+  /** The mech landed from a drop of `drop` metres. */
+  land: { drop: number }
+  /** The mech took a way up or across: a ladder, a cable, a mantle. */
+  traverse: { kind: 'ladder' | 'cable' | 'mantle' }
+  /** The mech crouched or stood up. */
+  crouch: { crouched: boolean }
 }
 
 type Handler<K extends keyof GameEvents> = (payload: GameEvents[K]) => void

@@ -16,6 +16,12 @@ export default {
     'mute': '靜音',
     'unmute': '取消靜音'
   },
+  'hud': {
+    'crouch': '蹲下',
+    'stand': '站起',
+    'cancel': '放下武器',
+    'capture': '點擊繼續'
+  },
   'pause': {
     'title': '已暫停',
     'resume': '繼續',
@@ -48,16 +54,14 @@ export default {
       'right': '向右平移',
       'turnLeft': '向左轉',
       'turnRight': '向右轉',
-      'slide': '滑鏟',
-      'block': '格擋',
-      'interact': '互動',
-      'beam': '傳送撤離',
-      'tank': '修理凝膠',
-      'weapon1': '特殊武器 1',
-      'weapon2': '特殊武器 2',
-      'weapon3': '借來的武器',
-      'target': '切換目標',
-      'map': '地圖'
+      'crouch': '蹲下',
+      'act': '突刺 / 使用',
+      'decoy': '放置誘餌',
+      'reload': '換彈',
+      'weapon1': '狙擊槍',
+      'weapon2': '加特林',
+      'weapon3': '火箭筒',
+      'cycle': '下一把武器'
     }
   },
   'saveStatus': {

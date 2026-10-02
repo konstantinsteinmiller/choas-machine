@@ -16,6 +16,12 @@ export default {
     'mute': 'Ovozni o\'chirish',
     'unmute': 'Ovozni yoqish'
   },
+  'hud': {
+    'crouch': 'Cho\'kka tushish',
+    'stand': 'Turish',
+    'cancel': 'Qurolni tushirish',
+    'capture': 'Davom etish uchun bosing'
+  },
   'pause': {
     'title': 'PAUZA',
     'resume': 'Davom etish',
@@ -48,16 +54,14 @@ export default {
       'right': 'Oʻngga siljish',
       'turnLeft': 'Chapga burilish',
       'turnRight': 'Oʻngga burilish',
-      'slide': 'Sirpanish',
-      'block': 'Himoya',
-      'interact': 'Harakat',
-      'beam': 'Teleport',
-      'tank': 'Taʼmir geli',
-      'weapon1': 'Maxsus qurol 1',
-      'weapon2': 'Maxsus qurol 2',
-      'weapon3': 'Qarzga olingan qurol',
-      'target': 'Nishonni almashtirish',
-      'map': 'Xarita'
+      'crouch': 'Cho\'kka tushish',
+      'act': 'Sanchish / ishlatish',
+      'decoy': 'Yem qo\'yish',
+      'reload': 'Qayta o\'qlash',
+      'weapon1': 'Snayper miltig\'i',
+      'weapon2': 'Minigan',
+      'weapon3': 'Raketa uchirgich',
+      'cycle': 'Keyingi qurol'
     }
   },
   'saveStatus': {

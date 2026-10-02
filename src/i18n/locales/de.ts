@@ -16,6 +16,12 @@ export default {
     'mute': 'Stummschalten',
     'unmute': 'Ton an'
   },
+  'hud': {
+    'crouch': 'Ducken',
+    'stand': 'Aufstehen',
+    'cancel': 'Waffe senken',
+    'capture': 'Klicken zum Fortsetzen'
+  },
   'pause': {
     'title': 'PAUSIERT',
     'resume': 'Fortsetzen',
@@ -48,16 +54,14 @@ export default {
       'right': 'Rechts seitwärts',
       'turnLeft': 'Links drehen',
       'turnRight': 'Rechts drehen',
-      'slide': 'Rutschen',
-      'block': 'Blocken',
-      'interact': 'Interagieren',
-      'beam': 'Rausbeamen',
-      'tank': 'Reparaturgel',
-      'weapon1': 'Spezialwaffe 1',
-      'weapon2': 'Spezialwaffe 2',
-      'weapon3': 'Geliehene Waffe',
-      'target': 'Ziel wechseln',
-      'map': 'Karte'
+      'crouch': 'Ducken',
+      'act': 'Zustechen / benutzen',
+      'decoy': 'Köder platzieren',
+      'reload': 'Nachladen',
+      'weapon1': 'Scharfschützengewehr',
+      'weapon2': 'Minigun',
+      'weapon3': 'Raketenwerfer',
+      'cycle': 'Nächste Waffe'
     }
   },
   'saveStatus': {

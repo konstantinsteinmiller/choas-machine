@@ -1,34 +1,68 @@
 <template lang="pug">
   div.scene-root
     div.canvas-host(ref="canvasHost")
+    //- The gesture surface: every touch and click on the scene lands here.
+    div.input-surface(v-show="flow.screen === 'mission'" ref="surface")
     div.hud-layer
+      MissionHud(v-if="flow.screen === 'mission' && hud.phase === 'play'" @pause="openPause")
       SystemCorner(v-if="flow.screen === 'base'")
+    //- After a pause or an ad the mouse is free, and a browser only captures
+    //- it again on a click: the run waits under this veil for one.
+    button.relock(
+      v-if="relockVeil"
+      type="button"
+      :aria-label="t('hud.capture')"
+      @pointerdown.prevent.stop="relock"
+      @keydown.enter.prevent="relock"
+    )
+      GameIcon.relock-glyph(name="play")
+    PauseModal(@resume="onResume")
 </template>
 
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { app } from '@/game/engine/app'
 import { getRenderer } from '@/game/engine/renderer'
+import { attachInput, isPointerLocked, releasePointerLock, requestPointerLock, unlockedRecently, type InputHandle } from '@/game/engine/input'
+import { input, inputClock } from '@/game/engine/inputState'
+import { loadKeyboardLayout } from '@/game/engine/keyLabels'
 import { adoptBootMode } from '@/game/boot'
 import { flow } from '@/game/flow'
 import { hud } from '@/game/state/hud'
-import { isGamePaused, isAdShowing, isVisibilityHidden, isPlatformPaused } from '@/use/useGamePause'
+import { isGamePaused, isAdShowing, isVisibilityHidden, isPlatformPaused, acquireAppPause } from '@/use/useGamePause'
 import { isAnyModalOpen } from '@/use/useModalState'
 import { isGameplayLive, syncGameplayLifecycle } from '@/use/useGameplayLifecycle'
 import { startGameMusic } from '@/use/useSound'
 import { toggleGameMute } from '@/use/useGameMute'
+import { armNavigationGuard, disarmNavigationGuard } from '@/use/useBrowserGuard'
 import { registerGameCheats } from '@/game/cheats'
+import GameIcon from '@/components/icons/GameIcon.vue'
 import SystemCorner from '@/components/hud/SystemCorner.vue'
+import MissionHud from '@/components/hud/MissionHud.vue'
+import PauseModal from '@/components/modals/PauseModal.vue'
 
 /**
- * The one game view. Hosts the canvas and whichever UI the flow is in — the
- * mission HUD or the Command Base — plus every modal. Modals acquire the pause
- * gate (FModal → useModalState), and the loop is suspended while any pause
- * reason holds (ads, modals, platform pause, hidden tab).
+ * The one game view. Hosts the canvas, the gesture surface and whichever UI
+ * the flow is in — the mission HUD or the Command Base — plus every modal.
+ * Modals acquire the pause gate (FModal → useModalState), and the loop is
+ * suspended while any pause reason holds (ads, modals, platform pause, hidden
+ * tab).
  */
 registerGameCheats()
 
+const { t } = useI18n()
 const canvasHost = ref<HTMLElement | null>(null)
+const surface = ref<HTMLElement | null>(null)
+let inputHandle: InputHandle | null = null
+/** How long back / close stay guarded after the capture is LOST (ms). */
+const LOCK_LOSS_GRACE_MS = 2500
+
+const playLive = computed(() => flow.screen === 'mission' && hud.phase === 'play' && !flow.modal && !isGamePaused.value)
+
+const openPause = (): void => {
+  if (flow.screen === 'mission' && hud.phase === 'play' && !flow.modal) flow.modal = 'pause'
+}
 
 /** A key typed into a form field is text, not a game key. */
 const typing = (e: KeyboardEvent): boolean => {
@@ -44,12 +78,35 @@ const onKey = (e: KeyboardEvent) => {
   if (e.code === 'F2') {
     e.preventDefault()
     if (!e.repeat && !typing(e) && !isAdShowing.value) toggleGameMute()
+    return
   }
+  // While the mouse is captured, Esc belongs to the browser: it releases the
+  // capture, and the lost capture opens the pause menu (`onLockLost`). The
+  // same Esc must not then toggle the menu shut again.
+  if (e.code === 'Escape' && (isPointerLocked() || unlockedRecently())) return
+  if ((e.code === 'Escape' || e.code === 'KeyP') && !typing(e) && !e.repeat) openPause()
 }
 
 onMounted(async () => {
-  if (!canvasHost.value) return
+  if (!canvasHost.value || !surface.value) return
   app.attach(canvasHost.value)
+  inputHandle = attachInput(surface.value, input, {
+    // Capture the mouse only over live play: never under a modal or an ad.
+    canLock: () => playLive.value,
+    // Esc, alt-tab or a system dialog took the mouse back: pause, like every
+    // desktop game with a captured mouse.
+    onLockLost: () => openPause(),
+    // Browser gestures (a rocker gesture, gesture extensions) must not take
+    // the player off the page while captured; a lost capture keeps the guard
+    // a moment longer, since the stroke that broke it may still end.
+    onLockChange: (locked, asked) => {
+      if (locked) armNavigationGuard()
+      else if (playLive.value) armNavigationGuard(false)
+      else disarmNavigationGuard(asked ? 0 : LOCK_LOSS_GRACE_MS)
+    }
+  })
+  inputClock.tick = inputHandle.tick
+  void loadKeyboardLayout()
   app.setSuspended(isGamePaused.value)
   app.setWanted(true)
   // Music intent from the first frame; the context itself unlocks on the
@@ -57,7 +114,7 @@ onMounted(async () => {
   startGameMusic()
   window.addEventListener('keydown', onKey)
   if (import.meta.env.DEV) {
-    (window as unknown as Record<string, unknown>).__game = { app, flow, hud, render: () => getRenderer().info.render }
+    (window as unknown as Record<string, unknown>).__game = { app, flow, hud, input, render: () => getRenderer().info.render }
   }
   // The loader's prepared first scene. The scene never builds its own copy
   // while the loader is still priming (see `adoptBootMode`).
@@ -65,6 +122,55 @@ onMounted(async () => {
 })
 
 watch(isGamePaused, (p) => app.setSuspended(p))
+
+// The mouse is handed back whenever play stops for something else: a modal,
+// an ad, the base.
+watch(() => [isGamePaused.value, flow.screen] as const, ([paused, screen]) => {
+  if (paused || screen !== 'mission') releasePointerLock()
+})
+
+// Live play without a capture (refused or lost, a portal iframe without
+// `allow-pointer-lock`) still blocks on the right button, so a rocker gesture
+// can still go back: keep the history entry, without the close prompt.
+watch(playLive, (v) => {
+  if (v) {
+    if (!isPointerLocked()) armNavigationGuard(false)
+  } else if (!isPointerLocked()) disarmNavigationGuard()
+})
+
+// ── Getting the mouse back ──
+// A browser only captures the mouse on a user gesture in OUR document. The
+// Resume button is one (its click captures at once); Esc is not, and an ad's
+// close button is in the SDK's frame. So a mouse player who comes back to
+// live play after an ad meets a veil, with the simulation held under it,
+// until they click — never a mech walking with a camera that cannot turn.
+const relockVeil = ref(false)
+let relockRelease: (() => void) | null = null
+const onResume = (): void => {
+  if (input.device === 'mouse' && !input.lockRefused) requestPointerLock(input)
+}
+const relockOwed = ref(false)
+watch(isAdShowing, (v, prev) => {
+  if (!v && prev && flow.screen === 'mission') relockOwed.value = true
+})
+watch(() => [relockOwed.value, hud.phase, flow.modal, isAdShowing.value] as const, ([owed, ph, modal, ad]) => {
+  if (!owed || ph !== 'play' || modal || ad) return
+  relockOwed.value = false
+  if (input.device !== 'mouse' || input.lockRefused || isPointerLocked()) return
+  relockVeil.value = true
+  relockRelease = acquireAppPause()
+})
+const relock = (): void => {
+  relockVeil.value = false
+  relockRelease?.()
+  relockRelease = null
+  requestPointerLock(input)
+}
+watch(() => flow.screen, (sc) => {
+  if (sc === 'mission') return
+  relockOwed.value = false
+  if (relockVeil.value) relock()
+})
 
 // The portals' gameplay bracket (CrazyGames / Poki / Playgama). The rule is in
 // `isGameplayLive`; the Poki arm defers a start inside its 50 ms bad-event
@@ -82,6 +188,9 @@ watch(live, (v) => syncGameplayLifecycle(v), { immediate: true })
 
 onUnmounted(() => {
   syncGameplayLifecycle(false)
+  inputHandle?.detach()
+  inputClock.tick = () => {}
+  disarmNavigationGuard()
   window.removeEventListener('keydown', onKey)
   app.setWanted(false)
   app.detach()
@@ -102,10 +211,30 @@ onUnmounted(() => {
     width: 100%
     height: 100%
     touch-action: none
-// The HUD lets every press through to the canvas; each control takes its own
+.input-surface
+  position: absolute
+  inset: 0
+  touch-action: none
+  -webkit-user-select: none
+  user-select: none
+// The HUD lets every press through to the scene; each control takes its own
 // pointers back (`pointer-events: auto` in the control).
 .hud-layer
   position: absolute
   inset: 0
   pointer-events: none
+.relock
+  position: absolute
+  inset: 0
+  z-index: 40
+  display: grid
+  place-items: center
+  border: 0
+  background: rgba(10, 5, 24, 0.5)
+  color: var(--cm-text)
+  cursor: pointer
+.relock .relock-glyph
+  width: clamp(3.5rem, 16vmin, 6rem)
+  height: clamp(3.5rem, 16vmin, 6rem)
+  filter: drop-shadow(0 0 0.6rem rgba(255, 79, 182, 0.8))
 </style>

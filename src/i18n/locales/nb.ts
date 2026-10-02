@@ -16,6 +16,12 @@ export default {
     'mute': 'Slå av lyd',
     'unmute': 'Slå på lyd'
   },
+  'hud': {
+    'crouch': 'Huk deg',
+    'stand': 'Reis deg',
+    'cancel': 'Senk våpenet',
+    'capture': 'Klikk for å fortsette'
+  },
   'pause': {
     'title': 'PAUSE',
     'resume': 'Fortsett',
@@ -48,16 +54,14 @@ export default {
       'right': 'Sidesteg høyre',
       'turnLeft': 'Snu venstre',
       'turnRight': 'Snu høyre',
-      'slide': 'Skli',
-      'block': 'Blokker',
-      'interact': 'Bruk',
-      'beam': 'Teleporter',
-      'tank': 'Reparasjonsgel',
-      'weapon1': 'Spesialvåpen 1',
-      'weapon2': 'Spesialvåpen 2',
-      'weapon3': 'Lånt våpen',
-      'target': 'Bytt mål',
-      'map': 'Kart'
+      'crouch': 'Huk',
+      'act': 'Stikk / bruk',
+      'decoy': 'Plasser lokkemiddel',
+      'reload': 'Lad om',
+      'weapon1': 'Snikskytterrifle',
+      'weapon2': 'Minigun',
+      'weapon3': 'Rakettkaster',
+      'cycle': 'Neste våpen'
     }
   },
   'saveStatus': {

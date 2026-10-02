@@ -1,13 +1,17 @@
 import { reactive } from 'vue'
 import { emit } from '../bus'
+import type { WeaponId } from '../data/ids'
 
 /**
  * ─── The HUD mirror ──────────────────────────────────────────────────────────
  *
  * The one reactive object the simulation writes for the DOM to read. The sim
  * itself keeps plain fields and never touches Vue; it copies what the HUD
- * needs in here at a throttled rate, so a 60 Hz step never drives a 60 Hz
- * re-render.
+ * needs in here, and only when a value CHANGES, so a 60 Hz step never drives a
+ * 60 Hz re-render.
+ *
+ * Anything that moves every frame (the joystick knob, the hold ring) is not
+ * in here at all: those are written straight to the DOM by a HUD ticker.
  *
  * `phase` is also the contract with the platform layer: `isGameplayLive` and
  * the Playgama ready signal (`whenInteractive`) key off it.
@@ -26,7 +30,17 @@ import { emit } from '../bus'
 export type Phase = 'boot' | 'intro' | 'play' | 'outro' | 'dead' | 'done' | 'base'
 
 export const hud = reactive({
-  phase: 'boot' as Phase
+  phase: 'boot' as Phase,
+  /** Which controls to draw: the touch HUD or the desktop one. */
+  device: 'mouse' as 'touch' | 'mouse',
+  crouched: false,
+  /** The weapon is up. */
+  aiming: false,
+  /** The camera is in the mech's head, looking through the scope. */
+  scoped: false,
+  weapon: 'sniper' as WeaponId,
+  /** How the mech is getting about: decides which controls make sense. */
+  mode: 'ground' as 'ground' | 'ladder' | 'cable' | 'air' | 'mantle'
 })
 
 /** Move to another phase and tell the bus. A no-op if nothing changes. */
@@ -35,4 +49,24 @@ export const setPhase = (phase: Phase): void => {
   if (prev === phase) return
   hud.phase = phase
   emit('phase', { phase, prev })
+}
+
+/** Write a field of the mirror only when it changes. */
+export const mirror = <K extends keyof typeof hud>(key: K, value: (typeof hud)[K]): void => {
+  if (hud[key] !== value) hud[key] = value
+}
+
+// ─── HUD tickers: per-frame DOM writes, outside Vue ──────────────────────────
+
+const tickers = new Set<(dt: number) => void>()
+
+/** Run `fn` every rendered frame. Returns the function that stops it. */
+export const addHudTicker = (fn: (dt: number) => void): (() => void) => {
+  tickers.add(fn)
+  return () => { tickers.delete(fn) }
+}
+
+/** Called by the live mode once per rendered frame. */
+export const runHudTickers = (dt: number): void => {
+  for (const fn of tickers) fn(dt)
 }

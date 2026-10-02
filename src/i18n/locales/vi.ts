@@ -16,6 +16,12 @@ export default {
     'mute': 'Tắt tiếng',
     'unmute': 'Bật tiếng'
   },
+  'hud': {
+    'crouch': 'Cúi xuống',
+    'stand': 'Đứng dậy',
+    'cancel': 'Hạ vũ khí',
+    'capture': 'Nhấn để tiếp tục'
+  },
   'pause': {
     'title': 'TẠM DỪNG',
     'resume': 'Tiếp tục',
@@ -48,16 +54,14 @@ export default {
       'right': 'Sang phải',
       'turnLeft': 'Quay trái',
       'turnRight': 'Quay phải',
-      'slide': 'Trượt',
-      'block': 'Đỡ',
-      'interact': 'Tương tác',
-      'beam': 'Dịch chuyển về',
-      'tank': 'Gel sửa chữa',
-      'weapon1': 'Vũ khí đặc biệt 1',
-      'weapon2': 'Vũ khí đặc biệt 2',
-      'weapon3': 'Vũ khí mượn',
-      'target': 'Đổi mục tiêu',
-      'map': 'Bản đồ'
+      'crouch': 'Cúi xuống',
+      'act': 'Đâm / dùng',
+      'decoy': 'Đặt mồi nhử',
+      'reload': 'Nạp đạn',
+      'weapon1': 'Súng bắn tỉa',
+      'weapon2': 'Minigun',
+      'weapon3': 'Súng phóng tên lửa',
+      'cycle': 'Vũ khí kế tiếp'
     }
   },
   'saveStatus': {

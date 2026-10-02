@@ -16,6 +16,12 @@ export default {
     'mute': 'Silentigi',
     'unmute': 'Reaktivigi sonon'
   },
+  'hud': {
+    'crouch': 'Kaŝkaŭri',
+    'stand': 'Stariĝi',
+    'cancel': 'Mallevi armilon',
+    'capture': 'Alklaku por daŭrigi'
+  },
   'pause': {
     'title': 'PAŬZITA',
     'resume': 'Daŭrigi',
@@ -48,16 +54,14 @@ export default {
       'right': 'Flanken dekstren',
       'turnLeft': 'Turniĝi maldekstren',
       'turnRight': 'Turniĝi dekstren',
-      'slide': 'Gliti',
-      'block': 'Bloki',
-      'interact': 'Interagi',
-      'beam': 'Teleportiĝi',
-      'tank': 'Ripara Ĝelo',
-      'weapon1': 'Speciala armilo 1',
-      'weapon2': 'Speciala armilo 2',
-      'weapon3': 'Pruntita armilo',
-      'target': 'Ŝanĝi celon',
-      'map': 'Mapo'
+      'crouch': 'Kaŝkaŭri',
+      'act': 'Piki / uzi',
+      'decoy': 'Meti logaĵon',
+      'reload': 'Reŝargi',
+      'weapon1': 'Ŝtelpafila fusilo',
+      'weapon2': 'Minigun',
+      'weapon3': 'Raketlanĉilo',
+      'cycle': 'Sekva armilo'
     }
   },
   'saveStatus': {

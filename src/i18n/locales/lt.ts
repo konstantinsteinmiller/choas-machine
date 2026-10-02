@@ -16,6 +16,12 @@ export default {
     'mute': 'Išjungti garsą',
     'unmute': 'Įjungti garsą'
   },
+  'hud': {
+    'crouch': 'Pritūpti',
+    'stand': 'Atsistoti',
+    'cancel': 'Nuleisti ginklą',
+    'capture': 'Spustelėk ir tęsk'
+  },
   'pause': {
     'title': 'PAUZĖ',
     'resume': 'Tęsti',
@@ -48,16 +54,14 @@ export default {
       'right': 'Šonu į dešinę',
       'turnLeft': 'Sukti į kairę',
       'turnRight': 'Sukti į dešinę',
-      'slide': 'Slysti',
-      'block': 'Blokuoti',
-      'interact': 'Sąveika',
-      'beam': 'Teleportuotis',
-      'tank': 'Remonto gelis',
-      'weapon1': 'Specialusis ginklas 1',
-      'weapon2': 'Specialusis ginklas 2',
-      'weapon3': 'Pasiskolintas ginklas',
-      'target': 'Keisti taikinį',
-      'map': 'Žemėlapis'
+      'crouch': 'Pritūpimas',
+      'act': 'Durti / naudoti',
+      'decoy': 'Padėti masalą',
+      'reload': 'Perkrauti',
+      'weapon1': 'Snaiperio šautuvas',
+      'weapon2': 'Minigunas',
+      'weapon3': 'Raketsvaidis',
+      'cycle': 'Kitas ginklas'
     }
   },
   'saveStatus': {

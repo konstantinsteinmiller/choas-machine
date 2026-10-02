@@ -16,6 +16,12 @@ export default {
     'mute': '음소거',
     'unmute': '음소거 해제'
   },
+  'hud': {
+    'crouch': '앉기',
+    'stand': '일어서기',
+    'cancel': '무기 내리기',
+    'capture': '클릭하여 계속'
+  },
   'pause': {
     'title': '일시정지',
     'resume': '계속하기',
@@ -48,16 +54,14 @@ export default {
       'right': '오른쪽 이동',
       'turnLeft': '왼쪽 회전',
       'turnRight': '오른쪽 회전',
-      'slide': '슬라이딩',
-      'block': '막기',
-      'interact': '상호작용',
-      'beam': '귀환 전송',
-      'tank': '수리 젤',
-      'weapon1': '특수 무기 1',
-      'weapon2': '특수 무기 2',
-      'weapon3': '빌린 무기',
-      'target': '대상 전환',
-      'map': '지도'
+      'crouch': '앉기',
+      'act': '찌르기 / 사용',
+      'decoy': '미끼 설치',
+      'reload': '재장전',
+      'weapon1': '저격 소총',
+      'weapon2': '미니건',
+      'weapon3': '로켓 런처',
+      'cycle': '다음 무기'
     }
   },
   'saveStatus': {

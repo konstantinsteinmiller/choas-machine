@@ -10,7 +10,7 @@ import { KEY_BINDINGS_KEY } from '@/keys'
  * the defaults sit under the same fingers on every layout: the WASD block is
  * ZQSD on AZERTY and ,AOE on Dvorak without any remapping, which is how most
  * PC games handle it. The player can rebind each action's main key in Options
- * → Controls; the other defaults (arrows, Numpad, the second slide key) stay
+ * → Controls; the other defaults (arrows, Numpad, the second act key) stay
  * as alternates unless a rebinding takes them.
  *
  * What a key is CALLED on this keyboard is `keyLabels.ts`'s job.
@@ -21,10 +21,11 @@ import { KEY_BINDINGS_KEY } from '@/keys'
 
 export type Action =
   | 'forward' | 'back' | 'left' | 'right' | 'turnLeft' | 'turnRight'
-  | 'slide' | 'block' | 'interact' | 'beam' | 'tank'
-  | 'weapon1' | 'weapon2' | 'weapon3' | 'target' | 'map'
+  | 'crouch' | 'act' | 'decoy' | 'reload'
+  | 'weapon1' | 'weapon2' | 'weapon3' | 'cycle'
 
-/** Defaults: the first code is the action's main key, the rest alternates. */
+/** Defaults: the first code is the action's main key, the rest alternates.
+ *  No action sits on Ctrl: Ctrl+W, with W held for walking, closes the tab. */
 export const DEFAULT_BINDINGS: Readonly<Record<Action, readonly string[]>> = {
   forward: ['KeyW', 'ArrowUp'],
   back: ['KeyS', 'ArrowDown'],
@@ -32,16 +33,14 @@ export const DEFAULT_BINDINGS: Readonly<Record<Action, readonly string[]>> = {
   right: ['KeyD'],
   turnLeft: ['ArrowLeft'],
   turnRight: ['ArrowRight'],
-  slide: ['Space', 'KeyQ'],
-  block: ['ShiftLeft', 'ShiftRight'],
-  interact: ['KeyE', 'KeyF'],
-  beam: ['KeyB'],
-  tank: ['KeyH'],
+  crouch: ['KeyC', 'ShiftLeft'],
+  act: ['KeyE', 'KeyF'],
+  decoy: ['KeyQ'],
+  reload: ['KeyR'],
   weapon1: ['Digit1', 'Numpad1'],
   weapon2: ['Digit2', 'Numpad2'],
   weapon3: ['Digit3', 'Numpad3'],
-  target: ['Tab'],
-  map: ['KeyM']
+  cycle: ['Tab']
 }
 
 /** The order the Controls tab lists them in. */

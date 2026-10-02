@@ -16,6 +16,12 @@ export default {
     'mute': 'Slå lyden fra',
     'unmute': 'Slå lyden til'
   },
+  'hud': {
+    'crouch': 'Dukke sig',
+    'stand': 'Rejs dig',
+    'cancel': 'Sænk våbnet',
+    'capture': 'Klik for at fortsætte'
+  },
   'pause': {
     'title': 'PAUSE',
     'resume': 'Fortsæt',
@@ -48,16 +54,14 @@ export default {
       'right': 'Sidetrin højre',
       'turnLeft': 'Drej venstre',
       'turnRight': 'Drej højre',
-      'slide': 'Glid',
-      'block': 'Bloker',
-      'interact': 'Brug',
-      'beam': 'Teleportér',
-      'tank': 'Reparationsgel',
-      'weapon1': 'Specialvåben 1',
-      'weapon2': 'Specialvåben 2',
-      'weapon3': 'Lånt våben',
-      'target': 'Skift mål',
-      'map': 'Kort'
+      'crouch': 'Dukke sig',
+      'act': 'Stik / brug',
+      'decoy': 'Udsæt lokkedue',
+      'reload': 'Genlad',
+      'weapon1': 'Snigskytteriffel',
+      'weapon2': 'Minigun',
+      'weapon3': 'Raketkaster',
+      'cycle': 'Næste våben'
     }
   },
   'saveStatus': {

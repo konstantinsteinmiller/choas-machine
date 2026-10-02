@@ -16,6 +16,12 @@ export default {
     'mute': 'Wycisz',
     'unmute': 'Włącz dźwięk'
   },
+  'hud': {
+    'crouch': 'Kucnij',
+    'stand': 'Wstań',
+    'cancel': 'Opuść broń',
+    'capture': 'Kliknij, aby kontynuować'
+  },
   'pause': {
     'title': 'PAUZA',
     'resume': 'Wznów',
@@ -48,16 +54,14 @@ export default {
       'right': 'Krok w prawo',
       'turnLeft': 'Obrót w lewo',
       'turnRight': 'Obrót w prawo',
-      'slide': 'Wślizg',
-      'block': 'Blok',
-      'interact': 'Interakcja',
-      'beam': 'Teleportacja',
-      'tank': 'Żel naprawczy',
-      'weapon1': 'Broń specjalna 1',
-      'weapon2': 'Broń specjalna 2',
-      'weapon3': 'Pożyczona broń',
-      'target': 'Zmień cel',
-      'map': 'Mapa'
+      'crouch': 'Kucanie',
+      'act': 'Cios / użyj',
+      'decoy': 'Rozstaw przynętę',
+      'reload': 'Przeładuj',
+      'weapon1': 'Karabin snajperski',
+      'weapon2': 'Minigun',
+      'weapon3': 'Wyrzutnia rakiet',
+      'cycle': 'Następna broń'
     }
   },
   'saveStatus': {

@@ -20,6 +20,12 @@ export default {
     'mute': 'Mute',
     'unmute': 'Unmute'
   },
+  'hud': {
+    'crouch': 'Crouch',
+    'stand': 'Stand up',
+    'cancel': 'Lower weapon',
+    'capture': 'Click to continue'
+  },
   'pause': {
     'title': 'PAUSED',
     'resume': 'Resume',
@@ -52,16 +58,14 @@ export default {
       'right': 'Strafe right',
       'turnLeft': 'Turn left',
       'turnRight': 'Turn right',
-      'slide': 'Slide',
-      'block': 'Block',
-      'interact': 'Interact',
-      'beam': 'Beam out',
-      'tank': 'Repair Gel',
-      'weapon1': 'Special weapon 1',
-      'weapon2': 'Special weapon 2',
-      'weapon3': 'Borrowed weapon',
-      'target': 'Switch target',
-      'map': 'Map'
+      'crouch': 'Crouch',
+      'act': 'Strike / use',
+      'decoy': 'Deploy decoy',
+      'reload': 'Reload',
+      'weapon1': 'Sniper rifle',
+      'weapon2': 'Mini-gun',
+      'weapon3': 'Rocket launcher',
+      'cycle': 'Next weapon'
     }
   },
   'saveStatus': {

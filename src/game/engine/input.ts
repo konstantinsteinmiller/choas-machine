@@ -2,44 +2,41 @@
  * ─── Input → intents ─────────────────────────────────────────────────────────
  *
  * Raw pointer / keyboard events are folded into ONE mutable `Input` record the
- * sim reads once per step. Nothing here knows about enemies or the HUD — the
- * sim decides what a tap MEANS (fire vs. walk-to vs. interact); this layer only
- * reports that a tap happened and where.
+ * sim reads once per step. Nothing here knows about guards or the HUD — the
+ * sim decides what an action MEANS (a tap near a guard's back is a stab, by a
+ * ladder nothing); this layer only reports what the hands did.
  *
- * Touch model (Blades + a buster):
+ * Touch (GDD 5):
  *   • LEFT ~45 % of the screen: a floating joystick spawns under the thumb.
  *     A faint resting stick always sits low on the left (`joyHome*`, placed
  *     by the HUD): a press on it grabs the stick at its centre, so a player
  *     who never discovers "drag anywhere" still finds the movement control.
- *   • RIGHT side: press = shoot and start charging when a shot is wanted
- *     (`fireMode`); hold still to charge, release to fire the charge. The
- *     moment the press DRAGS it becomes a look instead: the charge is dropped
- *     (`fireCancelled`), never fired. Out of fire mode a drag looks and a
- *     short tap walks / interacts. (Deciding fire-vs-look at the press used
- *     to make a drag near any enemy a charge — the camera would not move.)
- *   • HUD buttons write straight into the record (`blockHeld`, `slideQueued`…),
- *     the FIRE button included — it fires whatever is in fire mode, so a crate
- *     or a barrel can be shot with no machine anywhere near.
+ *   • RIGHT side, one gesture decided by what the finger DOES, never at the
+ *     press:
+ *       – it travels            → a look drag (the camera turns);
+ *       – it lifts quickly      → a tap: the contextual action (`actQueued`);
+ *       – it stays put          → after `HOLD_MS` the weapon comes up
+ *                                 (`aimHeld`); moving the finger then aims,
+ *                                 and lifting it fires (`aimReleased`).
+ *     The HUD's cancel chip lowers the weapon without the shot.
+ *   • HUD buttons write straight into the record (`crouchQueued`, …).
  *   • On a phone or tablet (`touchFirst`) the device stays TOUCH whatever
  *     arrives: a mouse is treated as a finger (no capture, no mouse hints) and
  *     a keyboard only adds its keys. The touch HUD never swaps out mid-game.
  *
- * Desktop — a first-person shooter, so the mouse is CAPTURED (pointer lock):
- *   • The first click on the scene captures the mouse (that click fires
- *     nothing). Moving the mouse looks, the left button shoots (hold to
- *     charge, release to fire the charge), the right button blocks.
- *   • WASD moves (↑ / ↓ too), ← / → turn, Space slides (the dodge), 1/2 fire
- *     the special weapons, H drinks a tank, E interacts, B beams out, Tab
- *     switches target. Q still slides and Shift still blocks, untaught: the
- *     coach only ever SHOWS one input per action. Ctrl no longer slides —
- *     Ctrl+W, with W held for walking, closes the tab.
+ * Desktop — the mouse is CAPTURED (pointer lock):
+ *   • The first click on the scene captures the mouse (that click does nothing
+ *     else). Moving the mouse looks; the right button holds the weapon up, the
+ *     left button fires.
+ *   • WASD moves (↑ / ↓ too), ← / → turn, C crouches, E acts, Q drops a decoy,
+ *     1 / 2 / 3 draw a weapon, Tab draws the next one, R reloads.
  *   • Esc releases the capture (the browser owns that key while it is
  *     captured); the scene treats a lost capture as "pause".
  *   • Where the capture is refused (a sandboxed embed, an old browser), the
- *     mouse falls back to the touch model: drag to look, click to fire.
+ *     mouse falls back to the touch model: drag to look, hold to aim.
  *
  * Mouse buttons are read from MOUSE events, not pointer events: a second
- * button pressed while the first is held (block while charging) arrives as a
+ * button pressed while the first is held (fire while aiming) arrives as a
  * `pointermove`, never as a `pointerdown`, by the Pointer Events spec.
  */
 
@@ -56,28 +53,27 @@ export interface Input {
   /** Accumulated look delta in pixels since last consume. */
   lookDX: number
   lookDY: number
-  /** Screen-space taps since last consume (CSS px, relative to the surface). */
-  taps: Array<{ x: number; y: number }>
-  /** Fire button state (touch press on the right side, the left mouse button). */
+  /** The weapon is up: a touch held still on the right side, or the right
+   *  mouse button. */
+  aimHeld: boolean
+  aimPressed: boolean
+  /** The aim ended by letting go. On touch this is the shot. */
+  aimReleased: boolean
+  /** The aim ended WITHOUT a shot (the cancel chip, a lost capture). */
+  aimCancelled: boolean
+  /** The trigger: the left mouse button. Touch has none; it fires on release. */
   fireHeld: boolean
   firePressed: boolean
-  fireReleased: boolean
-  /** The press turned into a look drag: drop the charge without firing it. */
-  fireCancelled: boolean
-  /** Screen position of the current fire press (aim hint for free-aim). */
-  fireX: number
-  fireY: number
-  blockHeld: boolean
-  blockPressed: boolean
-  slideQueued: boolean
-  /** A special weapon's button: 1, 2 the slots, 3 the borrowed weapon. */
+  /** The contextual action: a tap on the right side, or the act key. */
+  actQueued: boolean
+  crouchQueued: boolean
+  decoyQueued: boolean
+  reloadQueued: boolean
+  /** Draw this weapon: 1 sniper, 2 minigun, 3 rockets. */
   weaponQueued: 0 | 1 | 2 | 3
-  tankQueued: boolean
-  interactQueued: boolean
-  beamQueued: boolean
-  swipe: -1 | 0 | 1
+  /** Draw the next weapon. */
+  cycleQueued: boolean
   pauseQueued: boolean
-  mapQueued: boolean
   /** Any fresh press on the scene this step — a touch, a mouse button, a key
    *  (not a modifier or F-key on its own). A cutscene's skip. */
   anyPressed: boolean
@@ -91,11 +87,19 @@ export interface Input {
   joyHomeX: number
   joyHomeY: number
   joyHomeR: number
+  /** The stick's travel in CSS px (half the drawn ring); set by the HUD. */
+  joyRadius: number
+  /** Where the right-side finger is, while it is down (surface px): the HUD
+   *  draws the hold ring there. */
+  holdX: number
+  holdY: number
+  /** 0 … 1 through the hold that raises the weapon; 0 when no finger is down. */
+  hold01: number
   /** True once the player has provided any real input (onboarding, Poki gate). */
   touched: boolean
   /** Last input device family, for control hints. */
   device: 'touch' | 'mouse'
-  /** Desktop: the mouse is captured — movement looks, the left button fires. */
+  /** Desktop: the mouse is captured — movement looks, the buttons aim and fire. */
   locked: boolean
   /** The capture is refused here (or unsupported): the mouse drags to look. */
   lockRefused: boolean
@@ -126,11 +130,12 @@ const lockSupported = (): boolean =>
   typeof HTMLElement !== 'undefined' && typeof HTMLElement.prototype.requestPointerLock === 'function'
 
 export const createInput = (): Input => ({
-  moveX: 0, moveY: 0, turn: 0, lookDX: 0, lookDY: 0, taps: [],
-  fireHeld: false, firePressed: false, fireReleased: false, fireCancelled: false, fireX: 0, fireY: 0,
-  blockHeld: false, blockPressed: false, slideQueued: false, weaponQueued: 0, tankQueued: false,
-  interactQueued: false, beamQueued: false, swipe: 0, pauseQueued: false, mapQueued: false, anyPressed: false,
-  joyActive: false, joyOriginX: 0, joyOriginY: 0, joyX: 0, joyY: 0, joyHomeX: 0, joyHomeY: 0, joyHomeR: 0,
+  moveX: 0, moveY: 0, turn: 0, lookDX: 0, lookDY: 0,
+  aimHeld: false, aimPressed: false, aimReleased: false, aimCancelled: false, fireHeld: false, firePressed: false,
+  actQueued: false, crouchQueued: false, decoyQueued: false, reloadQueued: false, weaponQueued: 0, cycleQueued: false,
+  pauseQueued: false, anyPressed: false,
+  joyActive: false, joyOriginX: 0, joyOriginY: 0, joyX: 0, joyY: 0, joyHomeX: 0, joyHomeY: 0, joyHomeR: 0, joyRadius: 56,
+  holdX: 0, holdY: 0, hold01: 0,
   // A phone never captures the mouse: there, a mouse is a finger.
   touched: false, device: guessDevice(), locked: false, lockRefused: !lockSupported() || touchFirst()
 })
@@ -139,31 +144,34 @@ export const createInput = (): Input => ({
  * Reset the one-shot edges after the sim consumed them.
  *
  * NOT the look deltas: those are applied by the mission's RENDER, which runs
- * after this every frame and zeroes them itself. Clearing them here threw the
- * drag away on every frame that ran a logic step — at 60 Hz nearly all of
- * them — so the camera only moved on the odd step-less frame and felt stuck.
+ * after this every frame and zeroes them itself. Clearing them here would
+ * throw the drag away on every frame that ran a logic step — at 60 Hz nearly
+ * all of them — and the camera would only move on the odd step-less frame.
  */
 export const consumeEdges = (i: Input): void => {
-  i.taps.length = 0
+  i.aimPressed = false
+  i.aimReleased = false
+  i.aimCancelled = false
   i.firePressed = false
-  i.fireReleased = false
-  i.fireCancelled = false
-  i.blockPressed = false
-  i.slideQueued = false
+  i.actQueued = false
+  i.crouchQueued = false
+  i.decoyQueued = false
+  i.reloadQueued = false
   i.weaponQueued = 0
-  i.tankQueued = false
-  i.interactQueued = false
-  i.beamQueued = false
-  i.swipe = 0
+  i.cycleQueued = false
   i.pauseQueued = false
-  i.mapQueued = false
   i.anyPressed = false
 }
 
+/** Lower the weapon without the shot (the HUD's cancel chip). */
+export const cancelAim = (i: Input): void => {
+  if (!i.aimHeld) return
+  i.aimHeld = false
+  i.aimCancelled = true
+  i.hold01 = 0
+}
+
 export interface InputOptions {
-  /** Whether a right-side press should be reported as a FIRE press (combat /
-   *  a target in sight) rather than as a look/tap gesture. Read per press. */
-  fireMode: () => boolean
   /** Whether capturing the mouse makes sense right now (a mission in play,
    *  nothing on top of it). Read on every click. */
   canLock?: () => boolean
@@ -171,13 +179,16 @@ export interface InputOptions {
   onLockLost?: () => void
   /** Every capture change: taken, or ended (`asked` = the game released it). */
   onLockChange?: (locked: boolean, asked: boolean) => void
-  /** Joystick radius in CSS px. */
-  joyRadius?: number
+  /** A clock in ms; tests pass their own. */
+  now?: () => number
 }
 
-const TAP_MAX_MS = 280
+/** A right-side press that lifts within this, having barely moved, is a tap. */
+export const TAP_MAX_MS = 260
 const TAP_MAX_MOVE = 14
-/** A fire press that travels this far becomes a look drag (px). */
+/** A press held this long, having barely moved, raises the weapon. */
+export const HOLD_MS = 220
+/** A press that travels this far before the hold completes is a look drag. */
 const DRAG_TO_LOOK_MOUSE = 10
 const DRAG_TO_LOOK_TOUCH = 16
 /** One captured mouse event moving further than this is a platform glitch
@@ -209,7 +220,7 @@ export const isPointerLocked = (): boolean =>
  *  with it is the release, not a second press). */
 export const unlockedRecently = (ms = 400): boolean => performance.now() - lastUnlockAt < ms
 
-/** Hand the mouse back (a modal, the hub, an ad). Not treated as "lost". */
+/** Hand the mouse back (a modal, the base, an ad). Not treated as "lost". */
 export const releasePointerLock = (): void => {
   if (!isPointerLocked()) return
   releasing = true
@@ -241,20 +252,26 @@ export const requestPointerLock = (input: Input): void => {
   }
 }
 
-export const attachInput = (surface: HTMLElement, input: Input, opts: InputOptions): (() => void) => {
+export interface InputHandle {
+  detach: () => void
+  /** Advance the hold timer. Called once per frame by the scene: a finger
+   *  resting still emits no events, so the hold cannot be an event. */
+  tick: () => void
+}
+
+export const attachInput = (surface: HTMLElement, input: Input, opts: InputOptions = {}): InputHandle => {
   const keys = new Set<string>()
-  const joyR = opts.joyRadius ?? 56
+  const now = opts.now ?? (() => performance.now())
   let joyId: number | null = null
   let lookId: number | null = null
-  let lookStartX = 0
-  let lookStartY = 0
-  let lookLastX = 0
-  let lookLastY = 0
-  let lookStartT = 0
-  let lookMoved = 0
-  let lookIsFire = false
-  /** Unlocked mouse fallback: a left-button press in progress. */
-  let mouseDrag = false
+  let gStartX = 0
+  let gStartY = 0
+  let gLastX = 0
+  let gLastY = 0
+  let gStartT = 0
+  /** What the right-side press has become: undecided, a look drag, or an aim. */
+  let gesture: 'none' | 'pending' | 'look' | 'aim' = 'none'
+  let gestureMouse = false
   let skipNextLook = false
   /** Last touch press: a touch also emits compatibility mouse events. */
   let lastTouchAt = -1e9
@@ -284,50 +301,66 @@ export const attachInput = (surface: HTMLElement, input: Input, opts: InputOptio
     input.moveY = l > 0 ? y / l : 0
   }
 
-  // ── The look / fire gesture shared by touch and the unlocked mouse ──
-  const gestureDown = (x: number, y: number) => {
-    lookStartX = lookLastX = x
-    lookStartY = lookLastY = y
-    lookStartT = performance.now()
-    lookMoved = 0
-    lookIsFire = opts.fireMode()
-    if (lookIsFire) {
-      input.fireHeld = true
-      input.firePressed = true
-      input.fireX = x
-      input.fireY = y
+  const raise = (): void => {
+    gesture = 'aim'
+    input.aimHeld = true
+    input.aimPressed = true
+    input.hold01 = 1
+  }
+
+  // ── The right-side gesture shared by touch and the unlocked mouse ──
+  const gestureDown = (x: number, y: number, mouse: boolean) => {
+    gStartX = gLastX = x
+    gStartY = gLastY = y
+    gStartT = now()
+    gesture = 'pending'
+    gestureMouse = mouse
+    input.holdX = x
+    input.holdY = y
+    input.hold01 = 0
+  }
+  const gestureMove = (x: number, y: number) => {
+    if (gesture === 'none') return
+    const dx = x - gLastX
+    const dy = y - gLastY
+    gLastX = x
+    gLastY = y
+    input.holdX = x
+    input.holdY = y
+    if (gesture === 'pending') {
+      if (Math.hypot(x - gStartX, y - gStartY) <= (gestureMouse ? DRAG_TO_LOOK_MOUSE : DRAG_TO_LOOK_TOUCH)) return
+      // It travels: a look. The travel so far counts, so the view does not
+      // lag the finger.
+      gesture = 'look'
+      input.hold01 = 0
+      input.lookDX += x - gStartX
+      input.lookDY += y - gStartY
+      return
+    }
+    // A look drag turns the camera; an aiming finger moves the reticle.
+    input.lookDX += dx
+    input.lookDY += dy
+  }
+  const gestureUp = () => {
+    const g = gesture
+    gesture = 'none'
+    input.hold01 = 0
+    if (g === 'aim') {
+      // The weapon may already be down (the cancel chip): then nothing fires.
+      if (input.aimHeld) {
+        input.aimHeld = false
+        input.aimReleased = true
+      }
+    } else if (g === 'pending' && now() - gStartT < TAP_MAX_MS && Math.hypot(gLastX - gStartX, gLastY - gStartY) < TAP_MAX_MOVE) {
+      input.actQueued = true
     }
   }
-  const gestureMove = (x: number, y: number, mouse: boolean) => {
-    const dx = x - lookLastX
-    const dy = y - lookLastY
-    lookLastX = x
-    lookLastY = y
-    lookMoved += Math.abs(dx) + Math.abs(dy)
-    if (lookIsFire && Math.hypot(x - lookStartX, y - lookStartY) > (mouse ? DRAG_TO_LOOK_MOUSE : DRAG_TO_LOOK_TOUCH)) {
-      // It is a drag after all: look, and drop the charge unfired. The
-      // travel so far counts, so the view does not lag the finger.
-      lookIsFire = false
-      input.fireHeld = false
-      input.fireCancelled = true
-      input.lookDX += x - lookStartX
-      input.lookDY += y - lookStartY
-    } else if (!lookIsFire) {
-      input.lookDX += dx
-      input.lookDY += dy
-    } else {
-      input.fireX = x
-      input.fireY = y
-    }
-  }
-  const gestureUp = (x: number, y: number) => {
-    const dt = performance.now() - lookStartT
-    if (lookIsFire) {
-      input.fireHeld = false
-      input.fireReleased = true
-    } else if (dt < TAP_MAX_MS && lookMoved < TAP_MAX_MOVE) {
-      input.taps.push({ x, y })
-    }
+  /** A finger held still sends no events: the scene's frame drives the hold. */
+  const tick = (): void => {
+    if (gesture !== 'pending') return
+    const k = (now() - gStartT) / HOLD_MS
+    input.hold01 = Math.min(1, Math.max(0, k))
+    if (k >= 1) raise()
   }
 
   // ── Touch / pen: pointer events ──
@@ -337,7 +370,7 @@ export const attachInput = (surface: HTMLElement, input: Input, opts: InputOptio
     input.touched = true
     input.device = 'touch'
     input.anyPressed = true
-    lastTouchAt = performance.now()
+    lastTouchAt = now()
     const r = rect()
     const x = e.clientX - r.left
     const y = e.clientY - r.top
@@ -359,7 +392,7 @@ export const attachInput = (surface: HTMLElement, input: Input, opts: InputOptio
     }
     if (lookId !== null) return
     lookId = e.pointerId
-    gestureDown(x, y)
+    gestureDown(x, y, false)
     try { surface.setPointerCapture(e.pointerId) } catch { /* ignore */ }
     e.preventDefault()
   }
@@ -370,7 +403,8 @@ export const attachInput = (surface: HTMLElement, input: Input, opts: InputOptio
     let dy = y - input.joyOriginY
     const l = Math.hypot(dx, dy)
     // Drag the origin along when the thumb overshoots, so the stick never
-    // "sticks" at the rim — the Brawl Stars / Blades floating-stick feel.
+    // "sticks" at the rim — the floating-stick feel.
+    const joyR = Math.max(24, input.joyRadius)
     if (l > joyR) {
       const k = (l - joyR) / l
       input.joyOriginX += dx * k
@@ -401,7 +435,7 @@ export const attachInput = (surface: HTMLElement, input: Input, opts: InputOptio
       return
     }
     if (e.pointerId === lookId) {
-      gestureMove(x, y, false)
+      gestureMove(x, y)
       e.preventDefault()
     }
   }
@@ -417,54 +451,41 @@ export const attachInput = (surface: HTMLElement, input: Input, opts: InputOptio
       return
     }
     if (e.pointerId === lookId) {
-      const r = rect()
-      gestureUp(e.clientX - r.left, e.clientY - r.top)
+      gestureUp()
       lookId = null
     }
   }
 
-  // ── Mouse: captured (FPS) or, where refused, drag-to-look ──
-  /** Mouse buttons holding block: 1 the middle, 2 the right. */
-  let blockButtons = 0
+  // ── Mouse: captured, or, where refused, the touch gesture ──
   const onMouseDown = (e: MouseEvent) => {
-    if (touchOnly || performance.now() - lastTouchAt < 900) return
+    if (touchOnly || now() - lastTouchAt < 900) return
     input.touched = true
     input.device = 'mouse'
     input.anyPressed = true
-    // The middle button (the wheel click) blocks too, untaught: an
-    // alternative for players whose right button fights a gesture browser.
-    // Its press is also what stops autoscroll.
-    if (e.button === 1 || e.button === 2) {
-      // The press is the game's: no menu, no in-page gesture (hold right +
-      // drag down opened a new tab in Opera mid-block). A gesture draws with
-      // a free cursor, so a free mouse is captured by this press too, as by a
-      // left click; unlike that one, it still blocks. Opera's own gestures
-      // never see this cancel: the navigation guard (`useBrowserGuard`) makes
-      // their back / close harmless while captured.
+    if (e.button === 2) {
+      // The press is the game's: no context menu, no in-page gesture. A free
+      // mouse is captured by this press too, as by a left click.
       e.preventDefault()
       if (!input.locked && !input.lockRefused && (opts.canLock?.() ?? false)) requestPointerLock(input)
-      blockButtons |= e.button === 1 ? 1 : 2
-      input.blockHeld = true
-      input.blockPressed = true
+      if (!input.aimHeld) {
+        input.aimHeld = true
+        input.aimPressed = true
+      }
       return
     }
     if (e.button !== 0) return
     if (input.locked) {
       input.fireHeld = true
       input.firePressed = true
-      const r = rect()
-      input.fireX = r.width / 2
-      input.fireY = r.height / 2
       return
     }
-    // Not captured yet: this click captures (and fires nothing).
+    // Not captured yet: this click captures (and does nothing else).
     if (!input.lockRefused && (opts.canLock?.() ?? false)) {
       requestPointerLock(input)
       return
     }
     const r = rect()
-    mouseDrag = true
-    gestureDown(e.clientX - r.left, e.clientY - r.top)
+    gestureDown(e.clientX - r.left, e.clientY - r.top, true)
   }
 
   const onMouseMove = (e: MouseEvent) => {
@@ -478,31 +499,28 @@ export const attachInput = (surface: HTMLElement, input: Input, opts: InputOptio
       input.lookDY += dy
       return
     }
-    if (!mouseDrag) return
+    if (gesture === 'none' || !gestureMouse) return
     const r = rect()
-    gestureMove(e.clientX - r.left, e.clientY - r.top, true)
+    gestureMove(e.clientX - r.left, e.clientY - r.top)
   }
 
   const onMouseUp = (e: MouseEvent) => {
     if (touchOnly) return
-    if (e.button === 1 || e.button === 2) {
-      // Block stays held while either blocking button still is.
-      blockButtons &= ~(e.button === 1 ? 1 : 2)
-      if (blockButtons === 0) input.blockHeld = false
+    if (e.button === 2) {
+      if (input.aimHeld) {
+        input.aimHeld = false
+        // On a desktop the trigger is the left button: letting the right one
+        // go lowers the weapon and fires nothing.
+        input.aimCancelled = true
+      }
       return
     }
     if (e.button !== 0) return
     if (input.locked) {
-      if (input.fireHeld) {
-        input.fireHeld = false
-        input.fireReleased = true
-      }
+      input.fireHeld = false
       return
     }
-    if (!mouseDrag) return
-    mouseDrag = false
-    const r = rect()
-    gestureUp(e.clientX - r.left, e.clientY - r.top)
+    if (gesture !== 'none' && gestureMouse) gestureUp()
   }
 
   const onLockChange = () => {
@@ -512,19 +530,15 @@ export const attachInput = (surface: HTMLElement, input: Input, opts: InputOptio
     if (locked) {
       lastLockAt = performance.now()
       skipNextLook = true
-      mouseDrag = false
+      gesture = 'none'
       input.device = 'mouse'
       opts.onLockChange?.(true, false)
       return
     }
     lastUnlockAt = performance.now()
-    // A held charge dies with the capture; the shield drops.
-    if (input.fireHeld) {
-      input.fireHeld = false
-      input.fireCancelled = true
-    }
-    input.blockHeld = false
-    blockButtons = 0
+    // The weapon comes down with the capture, and the trigger lets go.
+    input.fireHeld = false
+    cancelAim(input)
     const asked = releasing
     releasing = false
     opts.onLockChange?.(false, asked)
@@ -533,6 +547,11 @@ export const attachInput = (surface: HTMLElement, input: Input, opts: InputOptio
 
   const onLockError = () => {
     if (requestCounts && !isPointerLocked()) input.lockRefused = true
+  }
+
+  const onWheel = (e: WheelEvent) => {
+    if (touchOnly || !input.locked) return
+    if (e.deltaY !== 0) input.cycleQueued = true
   }
 
   const onKeyDown = (e: KeyboardEvent) => {
@@ -547,13 +566,17 @@ export const attachInput = (surface: HTMLElement, input: Input, opts: InputOptio
     if (!e.repeat && !NOT_A_PRESS.has(e.code)) input.anyPressed = true
     // Through the bindings (`keyBindings.ts`): physical keys, rebindable.
     switch (actionForCode(e.code)) {
-      case 'slide':
-        input.slideQueued = true
-        e.preventDefault()
+      case 'crouch':
+        input.crouchQueued = true
         break
-      case 'block':
-        input.blockHeld = true
-        input.blockPressed = true
+      case 'act':
+        input.actQueued = true
+        break
+      case 'decoy':
+        input.decoyQueued = true
+        break
+      case 'reload':
+        input.reloadQueued = true
         break
       case 'weapon1':
         input.weaponQueued = 1
@@ -564,21 +587,10 @@ export const attachInput = (surface: HTMLElement, input: Input, opts: InputOptio
       case 'weapon3':
         input.weaponQueued = 3
         break
-      case 'tank':
-        input.tankQueued = true
-        break
-      case 'interact':
-        input.interactQueued = true
-        break
-      case 'beam':
-        input.beamQueued = true
-        break
-      case 'target':
-        input.swipe = 1
+      case 'cycle':
+        input.cycleQueued = true
+        // Tab would walk the browser's focus out of the game.
         e.preventDefault()
-        break
-      case 'map':
-        input.mapQueued = true
         break
       case null:
         // Esc always pauses (it also ends a mouse capture); P too, unless a
@@ -586,12 +598,13 @@ export const attachInput = (surface: HTMLElement, input: Input, opts: InputOptio
         if (e.code === 'Escape' || e.code === 'KeyP') input.pauseQueued = true
         break
     }
+    // Space scrolls the page and presses a focused button; it is neither here.
+    if (e.code === 'Space') e.preventDefault()
     updateKeysMove()
   }
 
   const onKeyUp = (e: KeyboardEvent) => {
     keys.delete(e.code)
-    if (actionForCode(e.code) === 'block' && !held('block')) input.blockHeld = false
     updateKeysMove()
   }
 
@@ -600,16 +613,13 @@ export const attachInput = (surface: HTMLElement, input: Input, opts: InputOptio
     input.moveX = 0
     input.moveY = 0
     input.turn = 0
-    if (input.fireHeld) {
-      input.fireHeld = false
-      input.fireCancelled = true
-    }
-    input.blockHeld = false
-    blockButtons = 0
+    input.fireHeld = false
+    cancelAim(input)
     input.joyActive = false
     joyId = null
     lookId = null
-    mouseDrag = false
+    gesture = 'none'
+    input.hold01 = 0
   }
 
   const onContext = (e: Event) => e.preventDefault()
@@ -622,13 +632,14 @@ export const attachInput = (surface: HTMLElement, input: Input, opts: InputOptio
   document.addEventListener('mousemove', onMouseMove)
   window.addEventListener('mouseup', onMouseUp)
   surface.addEventListener('contextmenu', onContext)
+  surface.addEventListener('wheel', onWheel, { passive: true })
   document.addEventListener('pointerlockchange', onLockChange)
   document.addEventListener('pointerlockerror', onLockError)
   window.addEventListener('keydown', onKeyDown)
   window.addEventListener('keyup', onKeyUp)
   window.addEventListener('blur', onBlur)
 
-  return () => {
+  const detach = (): void => {
     releasePointerLock()
     if (lockEl === surface) lockEl = null
     surface.removeEventListener('pointerdown', onDown)
@@ -639,12 +650,14 @@ export const attachInput = (surface: HTMLElement, input: Input, opts: InputOptio
     document.removeEventListener('mousemove', onMouseMove)
     window.removeEventListener('mouseup', onMouseUp)
     surface.removeEventListener('contextmenu', onContext)
+    surface.removeEventListener('wheel', onWheel)
     document.removeEventListener('pointerlockchange', onLockChange)
     document.removeEventListener('pointerlockerror', onLockError)
     window.removeEventListener('keydown', onKeyDown)
     window.removeEventListener('keyup', onKeyUp)
     window.removeEventListener('blur', onBlur)
   }
+  return { detach, tick }
 }
 
 /** When the capture last engaged (ms, `performance.now()`); for tests / QA. */

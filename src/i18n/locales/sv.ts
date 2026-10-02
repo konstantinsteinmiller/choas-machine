@@ -16,6 +16,12 @@ export default {
     'mute': 'Stäng av ljudet',
     'unmute': 'Slå på ljudet'
   },
+  'hud': {
+    'crouch': 'Huka dig',
+    'stand': 'Res dig',
+    'cancel': 'Sänk vapnet',
+    'capture': 'Klicka för att fortsätta'
+  },
   'pause': {
     'title': 'PAUSAT',
     'resume': 'Fortsätt',
@@ -48,16 +54,14 @@ export default {
       'right': 'Sidsteg höger',
       'turnLeft': 'Vänd vänster',
       'turnRight': 'Vänd höger',
-      'slide': 'Glid',
-      'block': 'Blockera',
-      'interact': 'Använd',
-      'beam': 'Teleportera',
-      'tank': 'Reparationsgel',
-      'weapon1': 'Specialvapen 1',
-      'weapon2': 'Specialvapen 2',
-      'weapon3': 'Lånat vapen',
-      'target': 'Byt mål',
-      'map': 'Karta'
+      'crouch': 'Huka',
+      'act': 'Hugga / använd',
+      'decoy': 'Placera lockbete',
+      'reload': 'Ladda om',
+      'weapon1': 'Prickskyttegevär',
+      'weapon2': 'Minigun',
+      'weapon3': 'Raketgevär',
+      'cycle': 'Nästa vapen'
     }
   },
   'saveStatus': {

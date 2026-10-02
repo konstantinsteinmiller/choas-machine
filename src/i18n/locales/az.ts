@@ -16,6 +16,12 @@ export default {
     'mute': 'Səsi söndür',
     'unmute': 'Səsi aç'
   },
+  'hud': {
+    'crouch': 'Çömel',
+    'stand': 'Ayağa qalx',
+    'cancel': 'Silahı endir',
+    'capture': 'Davam üçün kliklə'
+  },
   'pause': {
     'title': 'FASİLƏ',
     'resume': 'Davam et',
@@ -48,16 +54,14 @@ export default {
       'right': 'Sağa yan addım',
       'turnLeft': 'Sola dön',
       'turnRight': 'Sağa dön',
-      'slide': 'Sürüşmə',
-      'block': 'Blok',
-      'interact': 'Qarşılıqlı əlaqə',
-      'beam': 'Teleport ol',
-      'tank': 'Təmir Geli',
-      'weapon1': 'Xüsusi silah 1',
-      'weapon2': 'Xüsusi silah 2',
-      'weapon3': 'Borc silah',
-      'target': 'Hədəfi dəyiş',
-      'map': 'Xəritə'
+      'crouch': 'Çömelmə',
+      'act': 'Zərbə / istifadə',
+      'decoy': 'Yem yerləşdir',
+      'reload': 'Doldur',
+      'weapon1': 'Snayper tüfəngi',
+      'weapon2': 'Minigan',
+      'weapon3': 'Raket atan',
+      'cycle': 'Növbəti silah'
     }
   },
   'saveStatus': {

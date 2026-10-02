@@ -83,7 +83,7 @@ three.js import, so it runs in Vitest and in a balance script.
   of sight; sky, haze, island; fortress lab route.
 - [x] **P3 Rigs** — mech (blade arm, sniper, minigun, launcher, weapon tiers),
   guard, Commander, drone, Enforcer, Goliath Tank; model lab entries.
-- [ ] **P4 The mech in play** — third-person controller and camera, crouch,
+- [x] **P4 The mech in play** — third-person controller and camera, crouch,
   cover, ladders, cables, drops, vault; touch + desktop action set, rebinding.
 - [ ] **P5 Stealth** — patrol routes, vision cones, detection meter,
   suspicious / alarmed states, body discovery, drones, base-wide Alert Level,
@@ -182,10 +182,8 @@ Answered by the owner (2026-10-02): G5 (one fortress), C1 (new remote), C2 (wran
 - **P3**: `models/gait.ts` + `motion.ts`, `props`, `exitDrone` are salvaged
   from `../mega-droid/src/game/models` (or `git show a10992d:<path>`) when the
   rigs are built.
-- **P4**: `engine/input.ts` and `keyBindings.ts` still carry Mega Droid's
-  action set (slide, block, tank, beam, weapon 1–3); `options.actions.*`
-  follows them. The coach glyph components (`InputGlyph`, `KeyCap`,
-  `CoachRing`, `Joystick`) come back from the predecessor with the new HUD.
+- **P10**: the coach glyph components (`InputGlyph`, `KeyCap`, `CoachRing`)
+  come back from the predecessor with the lessons.
 - **P8**: `FreezeOverlay`, `ExitSkip`, `BigBanner`, `ScreenFx`,
   `DamageMarkers`, `FloatingText`, `cineCam`, `freezeCam`, `killCam` are
   salvaged the same way.
@@ -250,6 +248,19 @@ Answered by the owner (2026-10-02): G5 (one fortress), C1 (new remote), C2 (wran
   Enforcer (dormant slump, glowing joints), Goliath Tank (turret, cannon, rear
   vents). Each is one skinned mesh plus an outline. Cover is 1.8 m and the
   crouched mech tops out at 1.65 m (tested). Bench: `?bench=models&m=…&pose=…`.
+- 2026-10-02 P4 done. `engine/input.ts` rewritten for this game: left stick
+  moves; right side decides by what the finger does (travels = look, lifts
+  fast = act, stays put = the weapon comes up, then moving aims and lifting
+  fires); desktop captures the mouse (move looks, right aims, left fires),
+  rebindable keys (crouch, act, decoy, reload, weapons, next weapon).
+  `sim/player.ts` (pure): walk, crouch (will not step off a high ledge),
+  ladders, cables, mantle onto low blocks, drops. `sim/camera.ts` (pure):
+  follow arm with wall collision, scope in the mech's eye, over-the-shoulder
+  for the loud weapons, look rate scaled by zoom. `sim/mission.ts` is the game
+  mode; the game boots straight into it on the proving ground. HUD: Joystick,
+  AimHold ring, MissionHud (pause, crouch, cancel), PauseModal. Browser pass
+  with real keyboard, mouse and touch input at 1280×720, 764×385, 320×658.
+  Not yet: the Command Base (a turntable stands in for it), any enemy.
 
 ## Resume notes
 

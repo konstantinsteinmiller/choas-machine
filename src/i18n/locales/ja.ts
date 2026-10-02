@@ -16,6 +16,12 @@ export default {
     'mute': 'ミュート',
     'unmute': 'ミュート解除'
   },
+  'hud': {
+    'crouch': 'しゃがむ',
+    'stand': '立つ',
+    'cancel': '武器を下ろす',
+    'capture': 'クリックで再開'
+  },
   'pause': {
     'title': 'ポーズ中',
     'resume': '再開',
@@ -48,16 +54,14 @@ export default {
       'right': '右へ移動',
       'turnLeft': '左を向く',
       'turnRight': '右を向く',
-      'slide': 'スライディング',
-      'block': 'ガード',
-      'interact': '調べる',
-      'beam': '転送で帰還',
-      'tank': '修理ジェル',
-      'weapon1': '特殊武器1',
-      'weapon2': '特殊武器2',
-      'weapon3': '借りた武器',
-      'target': 'ターゲット切替',
-      'map': 'マップ'
+      'crouch': 'しゃがむ',
+      'act': '攻撃 / 使用',
+      'decoy': 'デコイ設置',
+      'reload': 'リロード',
+      'weapon1': 'スナイパーライフル',
+      'weapon2': 'ミニガン',
+      'weapon3': 'ロケットランチャー',
+      'cycle': '次の武器'
     }
   },
   'saveStatus': {

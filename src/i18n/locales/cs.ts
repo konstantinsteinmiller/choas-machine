@@ -16,6 +16,12 @@ export default {
     'mute': 'Ztlumit',
     'unmute': 'Zapnout zvuk'
   },
+  'hud': {
+    'crouch': 'Skrčit se',
+    'stand': 'Vstát',
+    'cancel': 'Spustit zbraň',
+    'capture': 'Klikni a pokračuj'
+  },
   'pause': {
     'title': 'PAUZA',
     'resume': 'Pokračovat',
@@ -48,16 +54,14 @@ export default {
       'right': 'Úkrok vpravo',
       'turnLeft': 'Otočit vlevo',
       'turnRight': 'Otočit vpravo',
-      'slide': 'Skluz',
-      'block': 'Blok',
-      'interact': 'Akce',
-      'beam': 'Teleport',
-      'tank': 'Opravný gel',
-      'weapon1': 'Speciální zbraň 1',
-      'weapon2': 'Speciální zbraň 2',
-      'weapon3': 'Vypůjčená zbraň',
-      'target': 'Změnit cíl',
-      'map': 'Mapa'
+      'crouch': 'Dřep',
+      'act': 'Úder / použít',
+      'decoy': 'Nasadit návnadu',
+      'reload': 'Přebít',
+      'weapon1': 'Odstřelovačka',
+      'weapon2': 'Minigun',
+      'weapon3': 'Raketomet',
+      'cycle': 'Další zbraň'
     }
   },
   'saveStatus': {
