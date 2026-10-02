@@ -35,6 +35,7 @@ export default {
     'armor': 'Броня',
     'crouch': 'Пригнуться',
     'stand': 'Встать',
+    'sprint': 'Sprint',
     'cancel': 'Опустить оружие',
     'capture': 'Нажмите, чтобы продолжить',
     'metres': '{n} м',
@@ -144,6 +145,7 @@ export default {
       'right': 'Шаг вправо',
       'turnLeft': 'Поворот влево',
       'turnRight': 'Поворот вправо',
+      'sprint': 'Sprint',
       'crouch': 'Приседание',
       'act': 'Удар / действие',
       'decoy': 'Поставить приманку',
@@ -151,7 +153,8 @@ export default {
       'weapon1': 'Снайперская винтовка',
       'weapon2': 'Миниган',
       'weapon3': 'Ракетница',
-      'cycle': 'Следующее оружие'
+      'cycle': 'Следующее оружие',
+      'pause': 'Pause'
     }
   },
   'saveStatus': {

@@ -35,6 +35,7 @@ export default {
     'armor': 'Armadura',
     'crouch': 'Agacharse',
     'stand': 'Levantarse',
+    'sprint': 'Sprint',
     'cancel': 'Baixar a arma',
     'capture': 'Preme para continuar',
     'metres': '{n} m',
@@ -144,6 +145,7 @@ export default {
       'right': 'Desprazarse á dereita',
       'turnLeft': 'Xirar á esquerda',
       'turnRight': 'Xirar á dereita',
+      'sprint': 'Sprint',
       'crouch': 'Agacharse',
       'act': 'Apuñalar / usar',
       'decoy': 'Colocar reclamo',
@@ -151,7 +153,8 @@ export default {
       'weapon1': 'Rifle de francotirador',
       'weapon2': 'Minigun',
       'weapon3': 'Lanzamisiles',
-      'cycle': 'Seguinte arma'
+      'cycle': 'Seguinte arma',
+      'pause': 'Pause'
     }
   },
   'saveStatus': {

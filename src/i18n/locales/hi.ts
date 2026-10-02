@@ -35,6 +35,7 @@ export default {
     'armor': 'कवच',
     'crouch': 'झुकें',
     'stand': 'खड़े हों',
+    'sprint': 'Sprint',
     'cancel': 'हथियार नीचे करें',
     'capture': 'जारी रखने के लिए क्लिक करें',
     'metres': '{n} मी',
@@ -144,6 +145,7 @@ export default {
       'right': 'दाएँ सरकें',
       'turnLeft': 'बाएँ मुड़ें',
       'turnRight': 'दाएँ मुड़ें',
+      'sprint': 'Sprint',
       'crouch': 'झुकना',
       'act': 'वार / उपयोग',
       'decoy': 'डिकॉय लगाएँ',
@@ -151,7 +153,8 @@ export default {
       'weapon1': 'स्नाइपर राइफल',
       'weapon2': 'मिनीगन',
       'weapon3': 'रॉकेट लॉन्चर',
-      'cycle': 'अगला हथियार'
+      'cycle': 'अगला हथियार',
+      'pause': 'Pause'
     }
   },
   'saveStatus': {

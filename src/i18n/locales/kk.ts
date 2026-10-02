@@ -35,6 +35,7 @@ export default {
     'armor': 'Сауыт',
     'crouch': 'Бүгілу',
     'stand': 'Тұру',
+    'sprint': 'Sprint',
     'cancel': 'Қаруды түсіру',
     'capture': 'Жалғастыру үшін басыңыз',
     'metres': '{n} м',
@@ -144,6 +145,7 @@ export default {
       'right': 'Оңға жылжу',
       'turnLeft': 'Солға бұрылу',
       'turnRight': 'Оңға бұрылу',
+      'sprint': 'Sprint',
       'crouch': 'Бүгілу',
       'act': 'Шанышу / қолдану',
       'decoy': 'Жем қою',
@@ -151,7 +153,8 @@ export default {
       'weapon1': 'Снайпер мылтығы',
       'weapon2': 'Миниган',
       'weapon3': 'Ракета атқыш',
-      'cycle': 'Келесі қару'
+      'cycle': 'Келесі қару',
+      'pause': 'Pause'
     }
   },
   'saveStatus': {

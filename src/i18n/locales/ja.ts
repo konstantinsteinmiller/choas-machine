@@ -35,6 +35,7 @@ export default {
     'armor': '装甲',
     'crouch': 'しゃがむ',
     'stand': '立つ',
+    'sprint': 'Sprint',
     'cancel': '武器を下ろす',
     'capture': 'クリックで再開',
     'metres': '{n} m',
@@ -144,6 +145,7 @@ export default {
       'right': '右へ移動',
       'turnLeft': '左を向く',
       'turnRight': '右を向く',
+      'sprint': 'Sprint',
       'crouch': 'しゃがむ',
       'act': '攻撃 / 使用',
       'decoy': 'デコイ設置',
@@ -151,7 +153,8 @@ export default {
       'weapon1': 'スナイパーライフル',
       'weapon2': 'ミニガン',
       'weapon3': 'ロケットランチャー',
-      'cycle': '次の武器'
+      'cycle': '次の武器',
+      'pause': 'Pause'
     }
   },
   'saveStatus': {

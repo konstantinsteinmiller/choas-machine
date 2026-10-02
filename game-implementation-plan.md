@@ -506,6 +506,48 @@ Answered by the owner (2026-10-02): G5 (one fortress), C1 (new remote), C2 (wran
   owner's file, not committed): #1 ticked with its deferred note, retention
   items #2-#20 appended.
 
+## Round 2: the first playtest (2026-10-02)
+
+Thirteen asks, in `roadmap.md` as #21 to #33. Same rules as round 1: one
+writer, a gate and one commit per phase, systems before the content that uses
+them. Tick the roadmap item when its phase is committed.
+
+- [x] **R1 Controls** (#21 #22 #23): the crouch stands on the floor; sprint on
+  Shift (hold) and on the stick's rim; sprint is heard; the rebinding tab
+  gets the new actions and its loose ends fixed.
+- [ ] **R2 Animation engine** (#26): human gait and idles, blended states;
+  machines move like machines with weight.
+- [ ] **R3 Deaths and wreckage** (#27): staged deaths per kind and for the
+  mech; machines can burst into pieces that stay and are found.
+- [ ] **R4 The blade, choreographed** (#28): close-up, blade through, held
+  until it is pulled out, its own kill cam.
+- [ ] **R5 Grappling hook** (#25): over a wall from below; landing noise,
+  2 s of wondering, inspect; cancel to stay unnoticed.
+- [ ] **R6 The scrapyard fortress** (#24): bevelled level geometry, metal
+  plating, props kit, sweeping searchlights on towers, Bastion rebuilt.
+- [ ] **R7 Salvage and the way out** (#29 #30): salvage piles are the
+  objective; the robo dog that becomes a jet board.
+- [ ] **R8 Furnace and smithing** (#31): the upgrade minigame and its economy.
+- [ ] **R9 Interface look** (#32): futuristic and cute.
+- [ ] **R10 Lessons** (#33): wordless teaching for everything, old and new.
+- [ ] **R11 Regression**: e2e, clips, perf, documents.
+
+### Decisions (defaults taken; nobody was asked)
+
+| ID | Decision |
+| --- | --- |
+| D1 | Sprint: hold Shift (either). 1.45x run speed, not while aiming; it stands a crouched mech up. Touch: a sprint switch in the thumb's column that lets go with the stick (the rim of a floating stick is hit by accident too often for something this loud). A sprinting mech is HEARD within 9 m (guards turn to look, no alert raised by sound alone). Shift stops being the second crouch key. |
+| D2 | Rebinding already exists (Options, Controls; reachable from the pause menu). Round 2 adds sprint and grapple, makes pause (P) rebindable, and removes the dead help modal state. |
+| D3 | Wreckage: every machine kill bursts into rounded cubes (the Goliath always, Enforcers and drones 60 %); pieces stay for the mission and count as a body for patrols. Human bodies stay as before. |
+| D4 | Blade kill: about 2.4 s of choreography in slow time; the mech is safe during it (as during a kill cam today). A frontal strike on an alerted guard stays a quick strike without the close-up. |
+| D5 | Grapple: key G / a HUD chip that appears at the foot of a climbable wall (up to 9 m). The hook's landing is heard within 10 m: listeners wonder for 2 s, then walk to the spot. Pressing again within those 2 s recalls the hook and they shrug it off. |
+| D6 | Look: the game keeps its lilac / pink / cyan night; the fortress adds gunmetal, rust orange and hazard yellow. Searchlights are their own fixture on towers, sweeping between authored points; being lit works like a drone's spot. |
+| D7 | Objective: collect the salvage (3 of the 5 piles at level I, more per level), then extract. The Commander guards the mother lode on the keep; killing him is no longer required but still pays a bonus and the finale at level III+. |
+| D8 | Extraction: the beacon calls the robo dog; it runs in, folds into a jet board, the mech steps on and rides out. The dropship stays for the drop-in. |
+| D9 | Smithing: salvage becomes ingots in the furnace (hold the heat in the band), ingots become an upgrade at the anvil (hit the glowing marks in rhythm), quench. 8 to 20 s of waiting between steps, never more. Quality (1 to 3 stars) refunds ingots; a bad run never loses the upgrade. Replaces the Forge's hour-long timers and the buy buttons. |
+| D10 | UI: thicker rounded panels with cut corners, soft inner glow, sticker-like icons, small idle motion; still tokens, clamp sizing, no scale transforms. |
+- 2026-10-03 R1 done. The crouch: the hips are no longer lowered by a guessed number; each leg's reach is computed from its own angles and the hips sit where the longer leg meets the floor, so a foot is on the ground crouched, striding and between (tests sweep crouch x stride x speed). The squat is deeper (thigh 1.6, knee 2.65), the sole flat, the lowered rifle carried forward instead of trailing through the floor. Sprint: `sprint` action on Shift (held), 8.1 m/s against 5.6, stands a crouched mech up, off while aiming; a touch switch chip; a sprinting footfall is heard within 9 m (`hearAt`: listeners go to look, the alert meter does not move). Bindings: crouch keeps C only, `pause` (P) is an action now and rebindable, the dead help modal state is gone. Rebinding itself existed already (Options, Controls, also from the pause menu); the new actions appear in it. English strings only for now: the other 38 locales carry the English text until the R11 translation pass. Verified: 99 files / 1208 unit tests, 8 e2e, type-check clean, side-on screenshots of stand / crouch / crouch-walk / sprint.
+
 ## Resume notes
 
 - Dev server: `pnpm dev` (port 2196). Check the served `<title>` ("Chaos Machine") before

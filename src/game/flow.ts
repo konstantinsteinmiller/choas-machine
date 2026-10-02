@@ -21,7 +21,7 @@ import type { MissionResult, Payout } from './sim/rewards'
  */
 
 export type Screen = 'boot' | 'mission' | 'base'
-export type Modal = '' | 'pause' | 'controls' | 'rewards' | 'defeat'
+export type Modal = '' | 'pause' | 'rewards' | 'defeat'
 
 export const flow = reactive({
   screen: 'boot' as Screen,

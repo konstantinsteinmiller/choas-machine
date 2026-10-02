@@ -35,6 +35,7 @@ export default {
     'armor': 'Броня',
     'crouch': 'Пригнутися',
     'stand': 'Підвестися',
+    'sprint': 'Sprint',
     'cancel': 'Опустити зброю',
     'capture': 'Клацни, щоб продовжити',
     'metres': '{n} м',
@@ -144,6 +145,7 @@ export default {
       'right': 'Крок праворуч',
       'turnLeft': 'Поворот ліворуч',
       'turnRight': 'Поворот праворуч',
+      'sprint': 'Sprint',
       'crouch': 'Присідання',
       'act': 'Удар / дія',
       'decoy': 'Поставити приманку',
@@ -151,7 +153,8 @@ export default {
       'weapon1': 'Снайперська гвинтівка',
       'weapon2': 'Мініган',
       'weapon3': 'Ракетниця',
-      'cycle': 'Наступна зброя'
+      'cycle': 'Наступна зброя',
+      'pause': 'Pause'
     }
   },
   'saveStatus': {

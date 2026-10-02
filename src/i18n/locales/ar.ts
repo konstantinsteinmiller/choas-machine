@@ -35,6 +35,7 @@ export default {
     'armor': 'الدرع',
     'crouch': 'انحناء',
     'stand': 'وقوف',
+    'sprint': 'Sprint',
     'cancel': 'خفض السلاح',
     'capture': 'انقر للمتابعة',
     'metres': '{n} م',
@@ -144,6 +145,7 @@ export default {
       'right': 'تحرّك يمينًا',
       'turnLeft': 'استدر يسارًا',
       'turnRight': 'استدر يمينًا',
+      'sprint': 'Sprint',
       'crouch': 'انحناء',
       'act': 'طعن / استخدام',
       'decoy': 'نشر طُعم',
@@ -151,7 +153,8 @@ export default {
       'weapon1': 'بندقية قنص',
       'weapon2': 'ميني غن',
       'weapon3': 'قاذفة صواريخ',
-      'cycle': 'السلاح التالي'
+      'cycle': 'السلاح التالي',
+      'pause': 'Pause'
     }
   },
   'saveStatus': {

@@ -35,6 +35,7 @@ export default {
     'armor': 'Panser',
     'crouch': 'Dukke sig',
     'stand': 'Rejs dig',
+    'sprint': 'Sprint',
     'cancel': 'Sænk våbnet',
     'capture': 'Klik for at fortsætte',
     'metres': '{n} m',
@@ -144,6 +145,7 @@ export default {
       'right': 'Sidetrin højre',
       'turnLeft': 'Drej venstre',
       'turnRight': 'Drej højre',
+      'sprint': 'Sprint',
       'crouch': 'Dukke sig',
       'act': 'Stik / brug',
       'decoy': 'Udsæt lokkedue',
@@ -151,7 +153,8 @@ export default {
       'weapon1': 'Snigskytteriffel',
       'weapon2': 'Minigun',
       'weapon3': 'Raketkaster',
-      'cycle': 'Næste våben'
+      'cycle': 'Næste våben',
+      'pause': 'Pause'
     }
   },
   'saveStatus': {

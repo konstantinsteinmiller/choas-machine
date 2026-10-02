@@ -35,6 +35,7 @@ export default {
     'armor': 'Páncél',
     'crouch': 'Guggolás',
     'stand': 'Felállás',
+    'sprint': 'Sprint',
     'cancel': 'Fegyver le',
     'capture': 'Kattints a folytatáshoz',
     'metres': '{n} m',
@@ -144,6 +145,7 @@ export default {
       'right': 'Oldalazás jobbra',
       'turnLeft': 'Fordulás balra',
       'turnRight': 'Fordulás jobbra',
+      'sprint': 'Sprint',
       'crouch': 'Guggolás',
       'act': 'Szúrás / használat',
       'decoy': 'Csali kihelyezése',
@@ -151,7 +153,8 @@ export default {
       'weapon1': 'Mesterlövész puska',
       'weapon2': 'Minigun',
       'weapon3': 'Rakétavető',
-      'cycle': 'Következő fegyver'
+      'cycle': 'Következő fegyver',
+      'pause': 'Pause'
     }
   },
   'saveStatus': {

@@ -31,6 +31,7 @@ import { getRenderer } from '@/game/engine/renderer'
 import { attachInput, isPointerLocked, releasePointerLock, requestPointerLock, unlockedRecently, type InputHandle } from '@/game/engine/input'
 import { input, inputClock } from '@/game/engine/inputState'
 import { loadKeyboardLayout } from '@/game/engine/keyLabels'
+import { actionForCode } from '@/game/engine/keyBindings'
 import { adoptBootMode } from '@/game/boot'
 import { flow } from '@/game/flow'
 import { hud } from '@/game/state/hud'
@@ -97,7 +98,8 @@ const onKey = (e: KeyboardEvent) => {
   // capture, and the lost capture opens the pause menu (`onLockLost`). The
   // same Esc must not then toggle the menu shut again.
   if (e.code === 'Escape' && (isPointerLocked() || unlockedRecently())) return
-  if ((e.code === 'Escape' || e.code === 'KeyP') && !typing(e) && !e.repeat) openPause()
+  // Esc always; the pause KEY is whatever the player bound it to.
+  if ((e.code === 'Escape' || actionForCode(e.code) === 'pause') && !typing(e) && !e.repeat) openPause()
 }
 
 onMounted(async () => {

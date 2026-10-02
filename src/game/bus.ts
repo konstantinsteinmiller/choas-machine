@@ -18,7 +18,8 @@ export interface GameEvents {
   /** The simulation's time scale changed (slow motion in, or back to 1). */
   timeScale: { scale: number }
   /** A footfall of the mech. */
-  step: Record<string, never>
+  /** A footfall; `sprint` when it was a running one. */
+  step: { sprint: boolean }
   /** The mech landed from a drop of `drop` metres. */
   land: { drop: number }
   /** The mech took a way up or across: a ladder, a cable, a mantle. */

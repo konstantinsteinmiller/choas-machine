@@ -35,6 +35,7 @@ export default {
     'armor': '장갑',
     'crouch': '앉기',
     'stand': '일어서기',
+    'sprint': 'Sprint',
     'cancel': '무기 내리기',
     'capture': '클릭하여 계속',
     'metres': '{n}m',
@@ -144,6 +145,7 @@ export default {
       'right': '오른쪽 이동',
       'turnLeft': '왼쪽 회전',
       'turnRight': '오른쪽 회전',
+      'sprint': 'Sprint',
       'crouch': '앉기',
       'act': '찌르기 / 사용',
       'decoy': '미끼 설치',
@@ -151,7 +153,8 @@ export default {
       'weapon1': '저격 소총',
       'weapon2': '미니건',
       'weapon3': '로켓 런처',
-      'cycle': '다음 무기'
+      'cycle': '다음 무기',
+      'pause': 'Pause'
     }
   },
   'saveStatus': {

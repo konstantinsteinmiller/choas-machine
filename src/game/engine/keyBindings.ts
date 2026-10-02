@@ -21,8 +21,8 @@ import { KEY_BINDINGS_KEY } from '@/keys'
 
 export type Action =
   | 'forward' | 'back' | 'left' | 'right' | 'turnLeft' | 'turnRight'
-  | 'crouch' | 'act' | 'decoy' | 'reload'
-  | 'weapon1' | 'weapon2' | 'weapon3' | 'cycle'
+  | 'sprint' | 'crouch' | 'act' | 'decoy' | 'reload'
+  | 'weapon1' | 'weapon2' | 'weapon3' | 'cycle' | 'pause'
 
 /** Defaults: the first code is the action's main key, the rest alternates.
  *  No action sits on Ctrl: Ctrl+W, with W held for walking, closes the tab. */
@@ -33,14 +33,19 @@ export const DEFAULT_BINDINGS: Readonly<Record<Action, readonly string[]>> = {
   right: ['KeyD'],
   turnLeft: ['ArrowLeft'],
   turnRight: ['ArrowRight'],
-  crouch: ['KeyC', 'ShiftLeft'],
+  // Held. Shift is where every PC game puts it.
+  sprint: ['ShiftLeft', 'ShiftRight'],
+  crouch: ['KeyC'],
   act: ['KeyE', 'KeyF'],
   decoy: ['KeyQ'],
   reload: ['KeyR'],
   weapon1: ['Digit1', 'Numpad1'],
   weapon2: ['Digit2', 'Numpad2'],
   weapon3: ['Digit3', 'Numpad3'],
-  cycle: ['Tab']
+  cycle: ['Tab'],
+  // Escape always pauses as well (it also ends a mouse capture) and cannot
+  // be taken; this is the key that can.
+  pause: ['KeyP']
 }
 
 /** The order the Controls tab lists them in. */

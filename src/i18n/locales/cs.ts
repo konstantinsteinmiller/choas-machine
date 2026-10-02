@@ -35,6 +35,7 @@ export default {
     'armor': 'Pancíř',
     'crouch': 'Skrčit se',
     'stand': 'Vstát',
+    'sprint': 'Sprint',
     'cancel': 'Spustit zbraň',
     'capture': 'Klikni a pokračuj',
     'metres': '{n} m',
@@ -144,6 +145,7 @@ export default {
       'right': 'Úkrok vpravo',
       'turnLeft': 'Otočit vlevo',
       'turnRight': 'Otočit vpravo',
+      'sprint': 'Sprint',
       'crouch': 'Dřep',
       'act': 'Úder / použít',
       'decoy': 'Nasadit návnadu',
@@ -151,7 +153,8 @@ export default {
       'weapon1': 'Odstřelovačka',
       'weapon2': 'Minigun',
       'weapon3': 'Raketomet',
-      'cycle': 'Další zbraň'
+      'cycle': 'Další zbraň',
+      'pause': 'Pause'
     }
   },
   'saveStatus': {

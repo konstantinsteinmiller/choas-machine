@@ -35,6 +35,7 @@ export default {
     'armor': 'เกราะ',
     'crouch': 'ย่อตัว',
     'stand': 'ลุกขึ้น',
+    'sprint': 'Sprint',
     'cancel': 'ลดอาวุธ',
     'capture': 'คลิกเพื่อเล่นต่อ',
     'metres': '{n} ม.',
@@ -144,6 +145,7 @@ export default {
       'right': 'เลื่อนขวา',
       'turnLeft': 'หันซ้าย',
       'turnRight': 'หันขวา',
+      'sprint': 'Sprint',
       'crouch': 'ย่อตัว',
       'act': 'แทง / ใช้งาน',
       'decoy': 'วางตัวล่อ',
@@ -151,7 +153,8 @@ export default {
       'weapon1': 'ปืนสไนเปอร์',
       'weapon2': 'มินิกัน',
       'weapon3': 'เครื่องยิงจรวด',
-      'cycle': 'อาวุธถัดไป'
+      'cycle': 'อาวุธถัดไป',
+      'pause': 'Pause'
     }
   },
   'saveStatus': {

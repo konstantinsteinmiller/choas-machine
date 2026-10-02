@@ -35,6 +35,7 @@ export const hud = reactive({
   /** Which controls to draw: the touch HUD or the desktop one. */
   device: 'mouse' as 'touch' | 'mouse',
   crouched: false,
+  sprinting: false,
   /** The weapon is up. */
   aiming: false,
   /** The camera is in the mech's head, looking through the scope. */

@@ -35,6 +35,7 @@ export default {
     'armor': 'Panssari',
     'crouch': 'Kyyristy',
     'stand': 'Nouse ylös',
+    'sprint': 'Sprint',
     'cancel': 'Laske ase',
     'capture': 'Jatka klikkaamalla',
     'metres': '{n} m',
@@ -144,6 +145,7 @@ export default {
       'right': 'Sivuaskel oikealle',
       'turnLeft': 'Käänny vasemmalle',
       'turnRight': 'Käänny oikealle',
+      'sprint': 'Sprint',
       'crouch': 'Kyyristy',
       'act': 'Isku / käytä',
       'decoy': 'Aseta houkute',
@@ -151,7 +153,8 @@ export default {
       'weapon1': 'Tarkkuuskivääri',
       'weapon2': 'Minigun',
       'weapon3': 'Raketinheitin',
-      'cycle': 'Seuraava ase'
+      'cycle': 'Seuraava ase',
+      'pause': 'Pause'
     }
   },
   'saveStatus': {

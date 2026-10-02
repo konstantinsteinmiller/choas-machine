@@ -35,6 +35,7 @@ export default {
     'armor': 'Panser',
     'crouch': 'Huk deg',
     'stand': 'Reis deg',
+    'sprint': 'Sprint',
     'cancel': 'Senk våpenet',
     'capture': 'Klikk for å fortsette',
     'metres': '{n} m',
@@ -144,6 +145,7 @@ export default {
       'right': 'Sidesteg høyre',
       'turnLeft': 'Snu venstre',
       'turnRight': 'Snu høyre',
+      'sprint': 'Sprint',
       'crouch': 'Huk',
       'act': 'Stikk / bruk',
       'decoy': 'Plasser lokkemiddel',
@@ -151,7 +153,8 @@ export default {
       'weapon1': 'Snikskytterrifle',
       'weapon2': 'Minigun',
       'weapon3': 'Rakettkaster',
-      'cycle': 'Neste våpen'
+      'cycle': 'Neste våpen',
+      'pause': 'Pause'
     }
   },
   'saveStatus': {

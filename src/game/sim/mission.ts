@@ -26,7 +26,7 @@ import { makePlayer, stepPlayer, eyeHeight, angleDelta, type Player } from './pl
 import { makeCam, lookCam, stepCam, placeCam, stickToWorld, camForward, type Cam } from './camera'
 import { alertSegments } from './alert'
 import {
-  SPECS, drainEvents, headingTo, killUnit, damageUnit, makeGarrison, noiseAt, stepGarrison, alarmUnit,
+  SPECS, drainEvents, headingTo, killUnit, damageUnit, makeGarrison, noiseAt, hearAt, stepGarrison, alarmUnit,
   type Garrison, type Target
 } from './garrison'
 import { GarrisonView } from './garrisonView'
@@ -106,6 +106,8 @@ type Cine =
 const KILLCAM_SLOW = 0.16
 /** How near the pad the mech must be for the line to take it. */
 const EXTRACT_RADIUS = 1.9
+/** How far running feet are heard, in metres. */
+export const SPRINT_EARSHOT = 9
 
 /** What the mission remembers for the tally. */
 export interface MissionStats {
@@ -322,6 +324,7 @@ export class Mission implements GameMode {
           mx: dir.x,
           mz: dir.z,
           crouch: i.crouchQueued,
+          sprint: i.sprintHeld,
           aiming: this.weaponUp(),
           aimYaw: this.cam.yaw
         }, dt)
@@ -338,7 +341,9 @@ export class Mission implements GameMode {
         // A footfall each half stride.
         if (p.mode === 'ground' && p.speed01 > 0.2 && Math.floor(p.stride / Math.PI) !== this.lastStep) {
           this.lastStep = Math.floor(p.stride / Math.PI)
-          emit('step', {})
+          emit('step', { sprint: p.sprinting })
+          // Running feet carry: whoever is near turns to see what that was.
+          if (p.sprinting) hearAt(this.garrison, p.x, p.z, SPRINT_EARSHOT)
         }
         if (p.crouched !== wasCrouched) {
           emit('crouch', { crouched: p.crouched })
@@ -376,6 +381,7 @@ export class Mission implements GameMode {
     this.shake = Math.max(0, this.shake - dt * 2.2)
     mirror('device', i.device)
     mirror('crouched', p.crouched)
+    mirror('sprinting', p.sprinting)
     mirror('aiming', this.weaponUp())
     mirror('mode', p.mode)
     mirror('strike', this.strike ? '' : this.offer?.kind ?? '')
@@ -1158,6 +1164,7 @@ export class Mission implements GameMode {
     s.speed = p.mode === 'ground' ? p.speed01 : 0
     // Down: it folds where it stands.
     s.crouch = this.armor.down ? 1 : p.crouch
+    s.sprint = p.mode === 'ground' ? p.sprint : 0
     s.aim = striking ? 0 : this.cam.aim
     s.aimPitch = this.cam.pitch
     s.weapon = a.current

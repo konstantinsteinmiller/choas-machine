@@ -35,6 +35,7 @@ export default {
     'armor': 'Corazza',
     'crouch': 'Accovacciati',
     'stand': 'Alzati',
+    'sprint': 'Sprint',
     'cancel': 'Abbassa l\'arma',
     'capture': 'Clicca per continuare',
     'metres': '{n} m',
@@ -144,6 +145,7 @@ export default {
       'right': 'Laterale destra',
       'turnLeft': 'Ruota a sinistra',
       'turnRight': 'Ruota a destra',
+      'sprint': 'Sprint',
       'crouch': 'Accovacciarsi',
       'act': 'Colpisci / usa',
       'decoy': 'Piazza esca',
@@ -151,7 +153,8 @@ export default {
       'weapon1': 'Fucile di precisione',
       'weapon2': 'Minigun',
       'weapon3': 'Lanciarazzi',
-      'cycle': 'Arma successiva'
+      'cycle': 'Arma successiva',
+      'pause': 'Pause'
     }
   },
   'saveStatus': {

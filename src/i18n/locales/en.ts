@@ -39,6 +39,7 @@ export default {
     'armor': 'Armor',
     'crouch': 'Crouch',
     'stand': 'Stand up',
+    'sprint': 'Sprint',
     'cancel': 'Lower weapon',
     'capture': 'Click to continue',
     'metres': '{n} m',
@@ -148,6 +149,7 @@ export default {
       'right': 'Strafe right',
       'turnLeft': 'Turn left',
       'turnRight': 'Turn right',
+      'sprint': 'Sprint',
       'crouch': 'Crouch',
       'act': 'Strike / use',
       'decoy': 'Deploy decoy',
@@ -155,7 +157,8 @@ export default {
       'weapon1': 'Sniper rifle',
       'weapon2': 'Mini-gun',
       'weapon3': 'Rocket launcher',
-      'cycle': 'Next weapon'
+      'cycle': 'Next weapon',
+      'pause': 'Pause'
     }
   },
   'saveStatus': {

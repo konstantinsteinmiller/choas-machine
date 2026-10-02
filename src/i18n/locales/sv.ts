@@ -35,6 +35,7 @@ export default {
     'armor': 'Pansar',
     'crouch': 'Huka dig',
     'stand': 'Res dig',
+    'sprint': 'Sprint',
     'cancel': 'Sänk vapnet',
     'capture': 'Klicka för att fortsätta',
     'metres': '{n} m',
@@ -144,6 +145,7 @@ export default {
       'right': 'Sidsteg höger',
       'turnLeft': 'Vänd vänster',
       'turnRight': 'Vänd höger',
+      'sprint': 'Sprint',
       'crouch': 'Huka',
       'act': 'Hugga / använd',
       'decoy': 'Placera lockbete',
@@ -151,7 +153,8 @@ export default {
       'weapon1': 'Prickskyttegevär',
       'weapon2': 'Minigun',
       'weapon3': 'Raketgevär',
-      'cycle': 'Nästa vapen'
+      'cycle': 'Nästa vapen',
+      'pause': 'Pause'
     }
   },
   'saveStatus': {

@@ -35,6 +35,7 @@ export default {
     'armor': 'Pancerz',
     'crouch': 'Kucnij',
     'stand': 'Wstań',
+    'sprint': 'Sprint',
     'cancel': 'Opuść broń',
     'capture': 'Kliknij, aby kontynuować',
     'metres': '{n} m',
@@ -144,6 +145,7 @@ export default {
       'right': 'Krok w prawo',
       'turnLeft': 'Obrót w lewo',
       'turnRight': 'Obrót w prawo',
+      'sprint': 'Sprint',
       'crouch': 'Kucanie',
       'act': 'Cios / użyj',
       'decoy': 'Rozstaw przynętę',
@@ -151,7 +153,8 @@ export default {
       'weapon1': 'Karabin snajperski',
       'weapon2': 'Minigun',
       'weapon3': 'Wyrzutnia rakiet',
-      'cycle': 'Następna broń'
+      'cycle': 'Następna broń',
+      'pause': 'Pause'
     }
   },
   'saveStatus': {

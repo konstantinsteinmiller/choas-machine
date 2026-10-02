@@ -35,6 +35,7 @@ export default {
     'armor': 'Armor',
     'crouch': 'Jongkok',
     'stand': 'Berdiri',
+    'sprint': 'Sprint',
     'cancel': 'Turunkan senjata',
     'capture': 'Klik untuk lanjut',
     'metres': '{n} m',
@@ -144,6 +145,7 @@ export default {
       'right': 'Geser kanan',
       'turnLeft': 'Belok kiri',
       'turnRight': 'Belok kanan',
+      'sprint': 'Sprint',
       'crouch': 'Jongkok',
       'act': 'Tikam / gunakan',
       'decoy': 'Pasang umpan',
@@ -151,7 +153,8 @@ export default {
       'weapon1': 'Senapan sniper',
       'weapon2': 'Minigun',
       'weapon3': 'Peluncur roket',
-      'cycle': 'Senjata berikutnya'
+      'cycle': 'Senjata berikutnya',
+      'pause': 'Pause'
     }
   },
   'saveStatus': {

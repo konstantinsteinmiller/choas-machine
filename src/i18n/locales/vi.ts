@@ -35,6 +35,7 @@ export default {
     'armor': 'Giáp',
     'crouch': 'Cúi xuống',
     'stand': 'Đứng dậy',
+    'sprint': 'Sprint',
     'cancel': 'Hạ vũ khí',
     'capture': 'Nhấn để tiếp tục',
     'metres': '{n} m',
@@ -144,6 +145,7 @@ export default {
       'right': 'Sang phải',
       'turnLeft': 'Quay trái',
       'turnRight': 'Quay phải',
+      'sprint': 'Sprint',
       'crouch': 'Cúi xuống',
       'act': 'Đâm / dùng',
       'decoy': 'Đặt mồi nhử',
@@ -151,7 +153,8 @@ export default {
       'weapon1': 'Súng bắn tỉa',
       'weapon2': 'Minigun',
       'weapon3': 'Súng phóng tên lửa',
-      'cycle': 'Vũ khí kế tiếp'
+      'cycle': 'Vũ khí kế tiếp',
+      'pause': 'Pause'
     }
   },
   'saveStatus': {

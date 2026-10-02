@@ -35,6 +35,7 @@ export default {
     'armor': 'Zirh',
     'crouch': 'Cho\'kka tushish',
     'stand': 'Turish',
+    'sprint': 'Sprint',
     'cancel': 'Qurolni tushirish',
     'capture': 'Davom etish uchun bosing',
     'metres': '{n} m',
@@ -144,6 +145,7 @@ export default {
       'right': 'Oʻngga siljish',
       'turnLeft': 'Chapga burilish',
       'turnRight': 'Oʻngga burilish',
+      'sprint': 'Sprint',
       'crouch': 'Cho\'kka tushish',
       'act': 'Sanchish / ishlatish',
       'decoy': 'Yem qo\'yish',
@@ -151,7 +153,8 @@ export default {
       'weapon1': 'Snayper miltig\'i',
       'weapon2': 'Minigan',
       'weapon3': 'Raketa uchirgich',
-      'cycle': 'Keyingi qurol'
+      'cycle': 'Keyingi qurol',
+      'pause': 'Pause'
     }
   },
   'saveStatus': {

@@ -35,6 +35,7 @@ export default {
     'armor': 'Blindage',
     'crouch': 'S\'accroupir',
     'stand': 'Se relever',
+    'sprint': 'Sprint',
     'cancel': 'Baisser l\'arme',
     'capture': 'Cliquez pour continuer',
     'metres': '{n} m',
@@ -144,6 +145,7 @@ export default {
       'right': 'Pas latéral droit',
       'turnLeft': 'Tourner à gauche',
       'turnRight': 'Tourner à droite',
+      'sprint': 'Sprint',
       'crouch': 'S\'accroupir',
       'act': 'Frapper / utiliser',
       'decoy': 'Poser un leurre',
@@ -151,7 +153,8 @@ export default {
       'weapon1': 'Fusil de précision',
       'weapon2': 'Minigun',
       'weapon3': 'Lance-roquettes',
-      'cycle': 'Arme suivante'
+      'cycle': 'Arme suivante',
+      'pause': 'Pause'
     }
   },
   'saveStatus': {

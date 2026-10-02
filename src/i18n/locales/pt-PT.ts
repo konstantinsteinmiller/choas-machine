@@ -35,6 +35,7 @@ export default {
     'armor': 'Blindagem',
     'crouch': 'Agachar',
     'stand': 'Levantar',
+    'sprint': 'Sprint',
     'cancel': 'Baixar arma',
     'capture': 'Clica para continuar',
     'metres': '{n} m',
@@ -144,6 +145,7 @@ export default {
       'right': 'Mover para a direita',
       'turnLeft': 'Virar à esquerda',
       'turnRight': 'Virar à direita',
+      'sprint': 'Sprint',
       'crouch': 'Agachar',
       'act': 'Golpear / usar',
       'decoy': 'Largar isco',
@@ -151,7 +153,8 @@ export default {
       'weapon1': 'Espingarda sniper',
       'weapon2': 'Minigun',
       'weapon3': 'Lança-foguetes',
-      'cycle': 'Arma seguinte'
+      'cycle': 'Arma seguinte',
+      'pause': 'Pause'
     }
   },
   'saveStatus': {

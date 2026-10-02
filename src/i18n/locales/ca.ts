@@ -35,6 +35,7 @@ export default {
     'armor': 'Armadura',
     'crouch': 'Ajupir-se',
     'stand': 'Aixecar-se',
+    'sprint': 'Sprint',
     'cancel': 'Baixar l\'arma',
     'capture': 'Clica per continuar',
     'metres': '{n} m',
@@ -144,6 +145,7 @@ export default {
       'right': 'Desplaçament a la dreta',
       'turnLeft': 'Gira a l\'esquerra',
       'turnRight': 'Gira a la dreta',
+      'sprint': 'Sprint',
       'crouch': 'Ajupir-se',
       'act': 'Cop / utilitzar',
       'decoy': 'Desplegar parany',
@@ -151,7 +153,8 @@ export default {
       'weapon1': 'Rifle franctirador',
       'weapon2': 'Minigun',
       'weapon3': 'Llançamíssils',
-      'cycle': 'Arma següent'
+      'cycle': 'Arma següent',
+      'pause': 'Pause'
     }
   },
   'saveStatus': {

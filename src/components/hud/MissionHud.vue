@@ -74,6 +74,19 @@
       )
         template(#badge)
           FHudBadge(tone="cyan") {{ hud.decoys }}
+      //- A thumb has no Shift key: sprint is a switch here. It lets go by
+      //- itself when the stick does.
+      FHudButton(
+        v-if="hud.device === 'touch'"
+        icon="sprint"
+        tone="warn"
+        :active="hud.sprinting || input.sprintHeld"
+        :pressed="input.sprintHeld"
+        :is-disabled="hud.mode !== 'ground'"
+        :aria-label="t('hud.sprint')"
+        data-testid="btn-sprint"
+        @click="input.sprintHeld = !input.sprintHeld"
+      )
       FHudButton(
         :icon="hud.crouched ? 'stand' : 'crouch'"
         tone="violet"

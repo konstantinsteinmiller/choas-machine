@@ -35,6 +35,7 @@ export default {
     'armor': 'Zireh',
     'crouch': 'Çömel',
     'stand': 'Ayağa qalx',
+    'sprint': 'Sprint',
     'cancel': 'Silahı endir',
     'capture': 'Davam üçün kliklə',
     'metres': '{n} m',
@@ -144,6 +145,7 @@ export default {
       'right': 'Sağa yan addım',
       'turnLeft': 'Sola dön',
       'turnRight': 'Sağa dön',
+      'sprint': 'Sprint',
       'crouch': 'Çömelmə',
       'act': 'Zərbə / istifadə',
       'decoy': 'Yem yerləşdir',
@@ -151,7 +153,8 @@ export default {
       'weapon1': 'Snayper tüfəngi',
       'weapon2': 'Minigan',
       'weapon3': 'Raket atan',
-      'cycle': 'Növbəti silah'
+      'cycle': 'Növbəti silah',
+      'pause': 'Pause'
     }
   },
   'saveStatus': {

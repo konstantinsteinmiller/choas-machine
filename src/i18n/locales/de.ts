@@ -35,6 +35,7 @@ export default {
     'armor': 'Panzerung',
     'crouch': 'Ducken',
     'stand': 'Aufstehen',
+    'sprint': 'Sprint',
     'cancel': 'Waffe senken',
     'capture': 'Klicken zum Fortsetzen',
     'metres': '{n} m',
@@ -144,6 +145,7 @@ export default {
       'right': 'Rechts seitwärts',
       'turnLeft': 'Links drehen',
       'turnRight': 'Rechts drehen',
+      'sprint': 'Sprint',
       'crouch': 'Ducken',
       'act': 'Zustechen / benutzen',
       'decoy': 'Köder platzieren',
@@ -151,7 +153,8 @@ export default {
       'weapon1': 'Scharfschützengewehr',
       'weapon2': 'Minigun',
       'weapon3': 'Raketenwerfer',
-      'cycle': 'Nächste Waffe'
+      'cycle': 'Nächste Waffe',
+      'pause': 'Pause'
     }
   },
   'saveStatus': {

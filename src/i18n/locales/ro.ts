@@ -35,6 +35,7 @@ export default {
     'armor': 'Armură',
     'crouch': 'Ghemuiește-te',
     'stand': 'Ridică-te',
+    'sprint': 'Sprint',
     'cancel': 'Coboară arma',
     'capture': 'Click pentru a continua',
     'metres': '{n} m',
@@ -144,6 +145,7 @@ export default {
       'right': 'Lateral dreapta',
       'turnLeft': 'Rotire stânga',
       'turnRight': 'Rotire dreapta',
+      'sprint': 'Sprint',
       'crouch': 'Ghemuit',
       'act': 'Înjunghie / folosește',
       'decoy': 'Plasează momeală',
@@ -151,7 +153,8 @@ export default {
       'weapon1': 'Pușcă de lunetist',
       'weapon2': 'Minigun',
       'weapon3': 'Lansator de rachete',
-      'cycle': 'Arma următoare'
+      'cycle': 'Arma următoare',
+      'pause': 'Pause'
     }
   },
   'saveStatus': {

@@ -35,6 +35,7 @@ export default {
     'armor': '装甲',
     'crouch': '蹲下',
     'stand': '站起',
+    'sprint': 'Sprint',
     'cancel': '放下武器',
     'capture': '点击继续',
     'metres': '{n} 米',
@@ -144,6 +145,7 @@ export default {
       'right': '向右平移',
       'turnLeft': '向左转',
       'turnRight': '向右转',
+      'sprint': 'Sprint',
       'crouch': '蹲下',
       'act': '突刺 / 使用',
       'decoy': '放置诱饵',
@@ -151,7 +153,8 @@ export default {
       'weapon1': '狙击枪',
       'weapon2': '加特林',
       'weapon3': '火箭筒',
-      'cycle': '下一把武器'
+      'cycle': '下一把武器',
+      'pause': 'Pause'
     }
   },
   'saveStatus': {

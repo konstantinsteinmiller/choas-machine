@@ -35,6 +35,7 @@ export default {
     'armor': 'Zırh',
     'crouch': 'Çömel',
     'stand': 'Ayağa kalk',
+    'sprint': 'Sprint',
     'cancel': 'Silahı indir',
     'capture': 'Devam için tıkla',
     'metres': '{n} m',
@@ -144,6 +145,7 @@ export default {
       'right': 'Sağa kay',
       'turnLeft': 'Sola dön',
       'turnRight': 'Sağa dön',
+      'sprint': 'Sprint',
       'crouch': 'Çömelme',
       'act': 'Bıçakla / kullan',
       'decoy': 'Yem yerleştir',
@@ -151,7 +153,8 @@ export default {
       'weapon1': 'Keskin nişancı tüfeği',
       'weapon2': 'Minigun',
       'weapon3': 'Roketatar',
-      'cycle': 'Sonraki silah'
+      'cycle': 'Sonraki silah',
+      'pause': 'Pause'
     }
   },
   'saveStatus': {

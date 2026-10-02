@@ -35,6 +35,7 @@ export default {
     'armor': 'Bruņas',
     'crouch': 'Pietupties',
     'stand': 'Piecelties',
+    'sprint': 'Sprint',
     'cancel': 'Nolaist ieroci',
     'capture': 'Klikšķini, lai turpinātu',
     'metres': '{n} m',
@@ -144,6 +145,7 @@ export default {
       'right': 'Solis pa labi',
       'turnLeft': 'Pagrieziens pa kreisi',
       'turnRight': 'Pagrieziens pa labi',
+      'sprint': 'Sprint',
       'crouch': 'Pietupšanās',
       'act': 'Dūriens / lietot',
       'decoy': 'Novietot ēsmu',
@@ -151,7 +153,8 @@ export default {
       'weapon1': 'Snaipera šautene',
       'weapon2': 'Minigans',
       'weapon3': 'Raķešmetējs',
-      'cycle': 'Nākamais ierocis'
+      'cycle': 'Nākamais ierocis',
+      'pause': 'Pause'
     }
   },
   'saveStatus': {

@@ -35,6 +35,7 @@ export default {
     'armor': 'Pantser',
     'crouch': 'Bukken',
     'stand': 'Opstaan',
+    'sprint': 'Sprint',
     'cancel': 'Wapen laten zakken',
     'capture': 'Klik om verder te gaan',
     'metres': '{n} m',
@@ -144,6 +145,7 @@ export default {
       'right': 'Zijwaarts rechts',
       'turnLeft': 'Links draaien',
       'turnRight': 'Rechts draaien',
+      'sprint': 'Sprint',
       'crouch': 'Bukken',
       'act': 'Steken / gebruiken',
       'decoy': 'Lokvogel plaatsen',
@@ -151,7 +153,8 @@ export default {
       'weapon1': 'Sluipschuttersgeweer',
       'weapon2': 'Minigun',
       'weapon3': 'Raketwerper',
-      'cycle': 'Volgend wapen'
+      'cycle': 'Volgend wapen',
+      'pause': 'Pause'
     }
   },
   'saveStatus': {

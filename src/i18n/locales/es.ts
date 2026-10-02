@@ -35,6 +35,7 @@ export default {
     'armor': 'Blindaje',
     'crouch': 'Agacharse',
     'stand': 'Levantarse',
+    'sprint': 'Sprint',
     'cancel': 'Bajar arma',
     'capture': 'Haz clic para continuar',
     'metres': '{n} m',
@@ -144,6 +145,7 @@ export default {
       'right': 'Desplazarse a la derecha',
       'turnLeft': 'Girar a la izquierda',
       'turnRight': 'Girar a la derecha',
+      'sprint': 'Sprint',
       'crouch': 'Agacharse',
       'act': 'Apuñalar / usar',
       'decoy': 'Colocar señuelo',
@@ -151,7 +153,8 @@ export default {
       'weapon1': 'Rifle de francotirador',
       'weapon2': 'Minigun',
       'weapon3': 'Lanzacohetes',
-      'cycle': 'Siguiente arma'
+      'cycle': 'Siguiente arma',
+      'pause': 'Pause'
     }
   },
   'saveStatus': {

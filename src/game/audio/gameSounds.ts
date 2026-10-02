@@ -31,7 +31,7 @@ export const installGameSounds = (): void => {
   installed = true
 
   // ── The mech ──
-  on('step', () => sfx('step'))
+  on('step', ({ sprint }) => sfx('step', 0, sprint ? 1.5 : 1))
   on('land', ({ drop }) => { if (drop > 0.8) sfx('land', 0, Math.min(1.2, 0.5 + drop * 0.1)) })
   on('traverse', ({ kind }) => sfx(kind === 'cable' ? 'cable' : 'climb'))
   on('crouch', () => sfx('crouch'))

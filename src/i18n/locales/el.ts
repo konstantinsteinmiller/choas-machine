@@ -35,6 +35,7 @@ export default {
     'armor': 'Θωράκιση',
     'crouch': 'Σκύψε',
     'stand': 'Σηκώσου',
+    'sprint': 'Sprint',
     'cancel': 'Κατέβασε το όπλο',
     'capture': 'Κλικ για συνέχεια',
     'metres': '{n} μ.',
@@ -144,6 +145,7 @@ export default {
       'right': 'Πλάγια δεξιά',
       'turnLeft': 'Στροφή αριστερά',
       'turnRight': 'Στροφή δεξιά',
+      'sprint': 'Sprint',
       'crouch': 'Σκύψιμο',
       'act': 'Μαχαίρωμα / χρήση',
       'decoy': 'Τοποθέτηση δολώματος',
@@ -151,7 +153,8 @@ export default {
       'weapon1': 'Ελεύθερος σκοπευτής',
       'weapon2': 'Μίνιγκαν',
       'weapon3': 'Εκτοξευτής ρουκετών',
-      'cycle': 'Επόμενο όπλο'
+      'cycle': 'Επόμενο όπλο',
+      'pause': 'Pause'
     }
   },
   'saveStatus': {

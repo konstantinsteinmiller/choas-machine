@@ -35,6 +35,7 @@ export default {
     'armor': 'Šarvai',
     'crouch': 'Pritūpti',
     'stand': 'Atsistoti',
+    'sprint': 'Sprint',
     'cancel': 'Nuleisti ginklą',
     'capture': 'Spustelėk ir tęsk',
     'metres': '{n} m',
@@ -144,6 +145,7 @@ export default {
       'right': 'Šonu į dešinę',
       'turnLeft': 'Sukti į kairę',
       'turnRight': 'Sukti į dešinę',
+      'sprint': 'Sprint',
       'crouch': 'Pritūpimas',
       'act': 'Durti / naudoti',
       'decoy': 'Padėti masalą',
@@ -151,7 +153,8 @@ export default {
       'weapon1': 'Snaiperio šautuvas',
       'weapon2': 'Minigunas',
       'weapon3': 'Raketsvaidis',
-      'cycle': 'Kitas ginklas'
+      'cycle': 'Kitas ginklas',
+      'pause': 'Pause'
     }
   },
   'saveStatus': {

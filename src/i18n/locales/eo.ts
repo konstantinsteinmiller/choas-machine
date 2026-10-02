@@ -35,6 +35,7 @@ export default {
     'armor': 'Kiraso',
     'crouch': 'Kaŝkaŭri',
     'stand': 'Stariĝi',
+    'sprint': 'Sprint',
     'cancel': 'Mallevi armilon',
     'capture': 'Alklaku por daŭrigi',
     'metres': '{n} m',
@@ -144,6 +145,7 @@ export default {
       'right': 'Flanken dekstren',
       'turnLeft': 'Turniĝi maldekstren',
       'turnRight': 'Turniĝi dekstren',
+      'sprint': 'Sprint',
       'crouch': 'Kaŝkaŭri',
       'act': 'Piki / uzi',
       'decoy': 'Meti logaĵon',
@@ -151,7 +153,8 @@ export default {
       'weapon1': 'Ŝtelpafila fusilo',
       'weapon2': 'Minigun',
       'weapon3': 'Raketlanĉilo',
-      'cycle': 'Sekva armilo'
+      'cycle': 'Sekva armilo',
+      'pause': 'Pause'
     }
   },
   'saveStatus': {

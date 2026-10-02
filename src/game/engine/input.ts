@@ -97,6 +97,8 @@ export interface Input {
   hold01: number
   /** True once the player has provided any real input (onboarding, Poki gate). */
   touched: boolean
+  /** Sprint: the key is down, or the touch chip is switched on. */
+  sprintHeld: boolean
   /** Last input device family, for control hints. */
   device: 'touch' | 'mouse'
   /** Desktop: the mouse is captured — movement looks, the buttons aim and fire. */
@@ -132,6 +134,7 @@ const lockSupported = (): boolean =>
 export const createInput = (): Input => ({
   moveX: 0, moveY: 0, turn: 0, lookDX: 0, lookDY: 0,
   aimHeld: false, aimPressed: false, aimReleased: false, aimCancelled: false, fireHeld: false, firePressed: false,
+  sprintHeld: false,
   actQueued: false, crouchQueued: false, decoyQueued: false, reloadQueued: false, weaponQueued: 0, cycleQueued: false,
   pauseQueued: false, anyPressed: false,
   joyActive: false, joyOriginX: 0, joyOriginY: 0, joyX: 0, joyY: 0, joyHomeX: 0, joyHomeY: 0, joyHomeR: 0, joyRadius: 56,
@@ -296,6 +299,7 @@ export const attachInput = (surface: HTMLElement, input: Input, opts: InputOptio
     // ← / → TURN: the keyboard-only way to look around (a trackpad player
     // who never finds the drag still has one).
     input.turn = (held('turnRight') ? 1 : 0) - (held('turnLeft') ? 1 : 0)
+    input.sprintHeld = held('sprint')
     const l = Math.hypot(x, y)
     input.moveX = l > 0 ? x / l : 0
     input.moveY = l > 0 ? y / l : 0
@@ -445,6 +449,8 @@ export const attachInput = (surface: HTMLElement, input: Input, opts: InputOptio
     if (e.pointerId === joyId) {
       joyId = null
       input.joyActive = false
+      // The sprint switch lets go with the stick.
+      input.sprintHeld = false
       input.moveX = 0
       input.moveY = 0
       updateKeysMove()
@@ -569,6 +575,9 @@ export const attachInput = (surface: HTMLElement, input: Input, opts: InputOptio
       case 'crouch':
         input.crouchQueued = true
         break
+      case 'pause':
+        input.pauseQueued = true
+        break
       case 'act':
         input.actQueued = true
         break
@@ -593,9 +602,8 @@ export const attachInput = (surface: HTMLElement, input: Input, opts: InputOptio
         e.preventDefault()
         break
       case null:
-        // Esc always pauses (it also ends a mouse capture); P too, unless a
-        // rebinding gave it an action.
-        if (e.code === 'Escape' || e.code === 'KeyP') input.pauseQueued = true
+        // Esc always pauses (it also ends a mouse capture).
+        if (e.code === 'Escape') input.pauseQueued = true
         break
     }
     // Space scrolls the page and presses a focused button; it is neither here.
@@ -613,6 +621,7 @@ export const attachInput = (surface: HTMLElement, input: Input, opts: InputOptio
     input.moveX = 0
     input.moveY = 0
     input.turn = 0
+    input.sprintHeld = false
     input.fireHeld = false
     cancelAim(input)
     input.joyActive = false

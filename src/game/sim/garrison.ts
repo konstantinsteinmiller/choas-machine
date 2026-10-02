@@ -825,6 +825,23 @@ export const noiseAt = (gar: Garrison, target: Target, x: number, z: number, rad
 }
 
 /**
+ * A small sound at a point: running feet, a hook biting into a wall. Everyone
+ * in earshot who is not already busy goes to look. Nobody raises the alarm
+ * over a noise: the base's meter only moves for what somebody SAW. Returns
+ * how many heard it.
+ */
+export const hearAt = (gar: Garrison, x: number, z: number, radius: number): number => {
+  let n = 0
+  for (const u of gar.units) {
+    if (!isAlive(u) || u.state !== 'patrol' || u.kind === 'drone' || u.kind === 'goliath') continue
+    if (Math.hypot(u.x - x, u.z - z) > radius) continue
+    suspect(gar, u, x, z, false)
+    n++
+  }
+  return n
+}
+
+/**
  * A decoy lights up at a point: every human in range who can see it walks
  * over to look, without the base thinking anything of it.
  */

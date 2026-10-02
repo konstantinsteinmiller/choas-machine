@@ -347,6 +347,11 @@ export const ICON_PATHS: Record<GameIconName, string[]> = {
     'M5.5 6.5L12 12.2L18.5 6.5L20.3 8.6L12 15.9L3.7 8.6Z',
     'M4 18.6h16v2.6H4Z'
   ],
+  // Sprint: two chevrons leaning forward, the second chasing the first.
+  'sprint': [
+    'M3.6 5.2L7.4 5.2L13.4 12L7.4 18.8L3.6 18.8L9.6 12Z',
+    'M11.6 5.2L15.4 5.2L21.4 12L15.4 18.8L11.6 18.8L17.6 12Z'
+  ],
   // Stand: crouch's reflection through the chevron, over the same ground.
   'stand': [
     'M5.5 15.9L12 10.2L18.5 15.9L20.3 13.8L12 6.5L3.7 13.8Z',

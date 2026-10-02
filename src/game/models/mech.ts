@@ -124,6 +124,8 @@ export interface MechPose {
   speed: number
   /** 0 standing … 1 crouched. */
   crouch: number
+  /** 0 walking … 1 sprinting. */
+  sprint: number
   /** 0 weapon lowered … 1 aimed. */
   aim: number
   /** Aim up (+) or down (−), radians. */
@@ -147,12 +149,20 @@ export interface MechPose {
 }
 
 export const restPose = (): MechPose => ({
-  time: 0, stride: 0, speed: 0, crouch: 0, aim: 0, aimPitch: 0, weapon: 'sniper', recoil: 0, spin: 0,
+  time: 0, stride: 0, speed: 0, crouch: 0, sprint: 0, aim: 0, aimPitch: 0, weapon: 'sniper', recoil: 0, spin: 0,
   blade: 0, stab: 0, climb: 0, climbPhase: 0, cable: 0, air: 0
 })
 
 const HIDDEN = 0.001
 const lerp = (a: number, b: number, k: number): number => a + (b - a) * k
+
+/** The leg, as built in `buildMech`: hip joint to knee, knee to ankle. */
+const THIGH_LEN = 0.46
+const SHIN_LEN = 0.42
+const LEG_LEN = THIGH_LEN + SHIN_LEN
+/** A full crouch: a deep squat, knees forward, feet under the body. */
+const CROUCH_THIGH = 1.6
+const CROUCH_KNEE = 2.65
 
 /**
  * Put the rig in the pose the simulation describes. Every channel blends, so
@@ -164,31 +174,45 @@ export const poseMech = (rig: Rig, s: MechPose): void => {
   const lift = Math.cos(s.stride)
   const breathe = Math.sin(s.time * 2.1) * 0.012
 
-  // ── Body ──
-  const bob = Math.abs(Math.sin(s.stride)) * 0.05 * walk
-  nudge(rig, 'hips', 0, -0.72 * s.crouch - bob + s.air * 0.05, -0.12 * s.crouch)
-  pose(rig, 'hips', 0.06 * walk, 0, 0)
-  pose(rig, 'spine', 0.5 * s.crouch + 0.08 * walk - s.aimPitch * 0.25 * s.aim, 0, swing * 0.06 * walk)
-  nudge(rig, 'chest', 0, breathe, 0)
-  pose(rig, 'chest', 0.3 * s.crouch - s.aimPitch * 0.25 * s.aim, -swing * 0.1 * walk, 0)
-  pose(rig, 'head', -0.7 * s.crouch - s.aimPitch * 0.4 * s.aim, 0, Math.sin(s.time * 0.7) * 0.03 * (1 - s.aim))
-
-  // ── Legs ──
+  const run = s.sprint * walk
+  // ── Legs first: where the feet end up decides how high the hips ride ──
+  // The hips are not lowered by a number that hopes to match the legs. Each
+  // leg's reach is worked out from its own angles, and the hips sit exactly
+  // as high as the longer leg can reach the floor: the standing foot is ON
+  // the ground in a crouch, in a stride and in anything between.
+  const hipPitch = 0.06 * walk + 0.1 * run
+  let reach = 0
   for (const [tag, sign] of [['L', 1], ['R', -1]] as const) {
     const sw = swing * sign
     const li = lift * sign
-    const walkThigh = -sw * 0.62 * walk
-    const walkKnee = (0.3 + Math.max(0, li) * 0.75) * walk
-    const crouchThigh = -1.5 * s.crouch
-    const crouchKnee = 2.45 * s.crouch
+    const walkThigh = -sw * (0.62 + 0.2 * run) * walk
+    const walkKnee = (0.3 + Math.max(0, li) * (0.75 + 0.35 * run)) * walk
+    const crouchThigh = -CROUCH_THIGH * s.crouch
+    const crouchKnee = CROUCH_KNEE * s.crouch
     const climbThigh = -(0.5 + Math.sin(s.climbPhase * sign) * 0.5) * s.climb
     const climbKnee = (0.6 + Math.sin(s.climbPhase * sign) * 0.5) * s.climb
     const airThigh = -0.35 * s.air * (sign > 0 ? 1 : 0.4)
     const airKnee = 0.7 * s.air
-    pose(rig, `thigh${tag}`, walkThigh + crouchThigh + climbThigh + airThigh, 0, sign * -0.05 * s.cable)
-    pose(rig, `shin${tag}`, walkKnee + crouchKnee + climbKnee + airKnee, 0, 0)
-    pose(rig, `foot${tag}`, -(walkThigh + walkKnee) * 0.5 - (crouchThigh + crouchKnee) * 0.45, 0, 0)
+    const thigh = walkThigh + crouchThigh + climbThigh + airThigh
+    const knee = walkKnee + crouchKnee + climbKnee + airKnee
+    pose(rig, `thigh${tag}`, thigh, 0, sign * -0.05 * s.cable)
+    pose(rig, `shin${tag}`, knee, 0, 0)
+    // The sole stays flat in a crouch (it carries the weight) and rolls
+    // heel to toe in a stride.
+    pose(rig, `foot${tag}`, -(walkThigh + walkKnee) * 0.5 - (crouchThigh + crouchKnee), 0, 0)
+    // In the world the leg hangs from hips that lean into the stride.
+    reach = Math.max(reach, THIGH_LEN * Math.cos(hipPitch + thigh) + SHIN_LEN * Math.cos(hipPitch + thigh + knee))
   }
+
+  // ── Body ──
+  const grounded = (1 - s.climb) * (1 - s.air)
+  const sink = (LEG_LEN - reach) * grounded
+  nudge(rig, 'hips', 0, -sink + s.air * 0.05, -0.12 * s.crouch)
+  pose(rig, 'hips', hipPitch, 0, 0)
+  pose(rig, 'spine', 0.5 * s.crouch + (0.08 + 0.2 * s.sprint) * walk - s.aimPitch * 0.25 * s.aim, 0, swing * 0.06 * walk)
+  nudge(rig, 'chest', 0, breathe, 0)
+  pose(rig, 'chest', 0.3 * s.crouch - s.aimPitch * 0.25 * s.aim, -swing * (0.1 + 0.12 * run) * walk, 0)
+  pose(rig, 'head', -0.7 * s.crouch - 0.16 * run - s.aimPitch * 0.4 * s.aim, 0, Math.sin(s.time * 0.7) * 0.03 * (1 - s.aim))
 
   // ── Arms ──
   // Left arm: swings with the walk, comes up to steady the weapon, reaches on
@@ -196,23 +220,25 @@ export const poseMech = (rig: Rig, s: MechPose): void => {
   const hang = 1 - Math.max(s.aim, s.climb, s.cable)
   pose(
     rig, 'shoulderL',
-    swing * 0.5 * walk * hang - 1.15 * s.aim + s.aimPitch * s.aim - (1.9 + Math.sin(s.climbPhase) * 0.6) * s.climb - 0.3 * s.air,
+    swing * (0.5 + 0.4 * run) * walk * hang - 1.15 * s.aim + s.aimPitch * s.aim - (1.9 + Math.sin(s.climbPhase) * 0.6) * s.climb - 0.3 * s.air,
     -0.55 * s.aim,
     -1.35 * s.cable - 0.12 * hang
   )
-  pose(rig, 'foreL', -0.25 * hang - 0.9 * s.aim - 0.5 * s.climb, 0, 0)
+  pose(rig, 'foreL', -(0.25 + 0.9 * run) * hang - 0.9 * s.aim - 0.5 * s.climb, 0, 0)
 
   // Right arm: the weapon arm. A stab swings it forward and across.
   const thrust = s.stab > 0 ? Math.sin(Math.min(1, s.stab) * Math.PI) : 0
   const kick = s.recoil * (s.weapon === 'rocket' ? 0.3 : s.weapon === 'sniper' ? 0.18 : 0.05)
   pose(
     rig, 'shoulderR',
-    lerp(-swing * 0.5 * walk * hang - 0.15, -Math.PI / 2 + s.aimPitch + kick, s.aim)
+    // Lowered, the long rifle would trail on the floor: the arm carries it
+    // forward, more so in a crouch.
+    lerp(-swing * (0.5 + 0.4 * run) * walk * hang - 0.3 - 0.45 * s.crouch, -Math.PI / 2 + s.aimPitch + kick, s.aim)
       - (1.9 - Math.sin(s.climbPhase) * 0.6) * s.climb - 1.5 * thrust - 0.3 * s.air,
     0.5 * thrust,
     1.35 * s.cable + 0.12 * hang
   )
-  pose(rig, 'foreR', lerp(-0.35 * hang, -0.05, s.aim) - 0.5 * s.climb - 0.4 * thrust, 0, 0)
+  pose(rig, 'foreR', lerp(-(0.75 + 0.6 * s.crouch) * hang, -0.05, s.aim) - 0.5 * s.climb - 0.4 * thrust, 0, 0)
 
   // ── What is in the hand ──
   // The gun is put away for a stab, a climb and a cable walk.

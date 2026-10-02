@@ -35,6 +35,7 @@ export default {
     'armor': 'Oklop',
     'crouch': 'Čučni',
     'stand': 'Ustani',
+    'sprint': 'Sprint',
     'cancel': 'Spusti oružje',
     'capture': 'Klikni za nastavak',
     'metres': '{n} m',
@@ -144,6 +145,7 @@ export default {
       'right': 'Korak desno',
       'turnLeft': 'Okret lijevo',
       'turnRight': 'Okret desno',
+      'sprint': 'Sprint',
       'crouch': 'Čučanj',
       'act': 'Ubod / upotreba',
       'decoy': 'Postavi mamac',
@@ -151,7 +153,8 @@ export default {
       'weapon1': 'Snajper',
       'weapon2': 'Minigun',
       'weapon3': 'Bacač raketa',
-      'cycle': 'Sljedeće oružje'
+      'cycle': 'Sljedeće oružje',
+      'pause': 'Pause'
     }
   },
   'saveStatus': {
