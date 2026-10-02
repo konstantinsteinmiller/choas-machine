@@ -321,6 +321,12 @@ Answered by the owner (2026-10-02): G5 (one fortress), C1 (new remote), C2 (wran
   lock and grabbed the owner's mouse. Every probe page now runs
   `scratchpad/nolock.mjs` (an in-page stand-in for the lock) through
   `page.addInitScript`. The P13 Playwright fixtures must do the same.
+- **`roadmap.md` is the owner's file** (it appeared on 2026-10-02 with their
+  item #1: Gemini-painted cover images in every portal size, with and without
+  the logo). Never stage it: commits use
+  `git add -A -- . ':!.claude/settings.local.json' ':!roadmap.md'`.
+  P14 takes item #1 into the art pipeline; P16 APPENDS the retention roadmap
+  to that file as items #2…, leaving #1 as written.
 
 ## Resume notes
 
