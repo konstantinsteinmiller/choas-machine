@@ -111,7 +111,7 @@ three.js import, so it runs in Vitest and in a balance script.
     so the Armory, Chassis Bay and Forge have something to be used against
 - [x] **P11 Sound** — synthesised SFX set, stealth and chaos music loops with
   crossfade, loudness gate, `sound-todo.md`.
-- [ ] **P12 Locales** — all new keys in the 39 shipped locales (agent drafts),
+- [x] **P12 Locales** — all new keys in the 39 shipped locales (agent drafts),
   parity test, RTL and CJK screenshots.
 - [ ] **P12b Leaderboard** — a Chaos Machine board on a NEW Worker and D1
   database (`leaderboard-badge` skill; the owner is logged into wrangler). The
@@ -380,6 +380,16 @@ Answered by the owner (2026-10-02): G5 (one fortress), C1 (new remote), C2 (wran
   lists every name and how a recording replaces it.
   Not verified by ear: this machine's probes are headless and muted. Not done:
   positional pan / muffle (the synth supports both).
+- 2026-10-02 P12 done. Every key added in P4–P11 is in all 39 locale files
+  (merged per phase by `i18n-apply.mjs`, which also checks placeholders;
+  `tests/i18nParity.test.ts` holds it). New `tests/ui/fontCoverage.test.ts`
+  reads the font's character map: each language set in AngryBirds has every
+  letter it uses in the font, and each language moved to a system face is
+  there because it has letters the font lacks. Browser: base, workshop and
+  Forge measured in ar, ja, vi, fi, ru, de at 320×658 and 764×385 (no
+  overlaps, nothing off screen); rewards screen at 320×658.
+  As shipped by the predecessor: Arabic text runs right-to-left inside a
+  left-to-right layout (the HUD does not mirror).
 
 ## Resume notes
 
