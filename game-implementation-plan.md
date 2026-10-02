@@ -78,7 +78,7 @@ three.js import, so it runs in Vitest and in a balance script.
   event bus; global time scale; neon token layer; F-component rework (no
   collapse, FModal header/scroll/close fixes, relative units); angrybirds font;
   new glyphs; splash, logo, manifest placeholders.
-- [ ] **P2 Fortress world** — level format + builder; outdoor mesh (16 m
+- [x] **P2 Fortress world** — level format + builder; outdoor mesh (16 m
   chunks, frustum culling, instanced props); height-aware nav and A*; 3D line
   of sight; sky, haze, island; fortress lab route.
 - [ ] **P3 Rigs** — mech (blade arm, sniper, minigun, launcher, weapon tiers),
@@ -99,18 +99,23 @@ three.js import, so it runs in Vitest and in a balance script.
 - [ ] **P9 Loop and Command Base** — objectives, score, medals, rewards
   screen, Tech Scrap / Data Cores / Blueprints, holomap, Armory, Chassis Bay,
   Forge timers; first-launch flow; balance sim as a test.
-- [ ] **P10 Fortresses** — one sub-phase each:
-  - [ ] 10.1 Training Outpost (wordless lessons: move, look, scope, headshot,
-    crouch, blade, climb, cable, drop)
-  - [ ] 10.2 small — decoy lesson
-  - [ ] 10.3 small — forced alert, minigun lesson
-  - [ ] 10.4 small — first Enforcer, rocket lesson
-  - [ ] 10.5 – 10.8 medium, Commander targets
-  - [ ] 10.9, 10.10 large, Goliath Tank
+- [ ] **P10 The fortress** — ONE large base to start with (owner,
+  2026-10-02: "start with one fortress, we will add more later if the concept
+  works out and is fun"). It carries every mechanic of the GDD in one mission:
+  - [ ] 10.1 layout: perch, curtain wall, towers, cables, keep, garrison
+    (guards, sentries, drones, dormant Enforcers), the Commander, and the
+    Goliath Tank that wakes for the finale
+  - [ ] 10.2 the wordless lessons on a first run: move, look, scope, headshot,
+    crouch, blade, climb, cable, drop, decoy, weapon wheel
+  - [ ] 10.3 threat levels I–V of the same base (garrison size and toughness),
+    so the Armory, Chassis Bay and Forge have something to be used against
 - [ ] **P11 Sound** — synthesised SFX set, stealth and chaos music loops with
   crossfade, loudness gate, `sound-todo.md`.
 - [ ] **P12 Locales** — all new keys in the 39 shipped locales (agent drafts),
   parity test, RTL and CJK screenshots.
+- [ ] **P12b Leaderboard** — a Chaos Machine board on a NEW Worker and D1
+  database (`leaderboard-badge` skill; the owner is logged into wrangler). The
+  predecessor's Worker and ids are gone and must not be reused.
 - [ ] **P13 Platform and release checks** — ads without rewarded placements,
   gameplay bracket, mute / pause / language signals, forced-dark guard, cloud
   hydration reload proof, Playwright e2e suite, every platform build.
@@ -125,8 +130,8 @@ three.js import, so it runs in Vitest and in a balance script.
 
 | ID | Default in force |
 | --- | --- |
-| C1 | Branch `chaos-machine`, Mega Droid WIP dropped, no push |
-| C2 | Leaderboard + `worker/` removed, roadmap item |
+| C1 | Branch `chaos-machine`, Mega Droid WIP dropped. **Answered:** `origin` now points at the new repo |
+| C2 | Predecessor leaderboard removed. **Answered:** the owner logged into wrangler, so a new board is built in P12b |
 | C3 | Voice files, tooling and `vo-src` removed |
 | C4 | XP, skills, loot, jobs, NG+, boss weapons, comic, story removed |
 | C5 | No rewarded placement; interstitial after rewards; first-load ad on GameMonetize / GamePix only |
@@ -144,12 +149,12 @@ three.js import, so it runs in Vitest and in a balance script.
 | G2 | No jump; context traversal; crouch toggle |
 | G3 | Alert Level, 5 segments, drains when calm, full alert final |
 | G4 | Silent mech; 110° cone to ~22 m; detection meter |
-| G5 | 10 fortresses; small = clear all, medium = Commander, large = Goliath |
+| G5 | **Answered:** one fortress to start. Target: the Commander, then the Goliath Tank; five threat levels of the same base |
 | G6 | Bodies stay, no carrying |
 | G7 | Drone sighting raises alert and wakes one Enforcer |
 | G8 | Tech Scrap, Blueprints, Data Cores (earned only) |
 | G9 | Sniper 5-round magazine; minigun heat; rockets limited per mission |
-| G10 | Decoy at fortress 2, minigun at 3, rockets at 4 |
+| G10 | With one fortress: all gear from the start, each taught by its own lesson on first use |
 | G11 | Kill-cam 50 % / 20 %, first headshot and final kill always, 5 s gap, skippable, off switch |
 | G12 | Intro 5 s (3 s on replays), outro with tally |
 | G13 | Medals: Ghost, Marksman, Swift |
@@ -163,7 +168,7 @@ three.js import, so it runs in Vitest and in a balance script.
 | G21 | Synthesised SFX; stealth and chaos loops |
 | G22 | Flat-shaded low poly in lilac / pink / cyan; neon hologram UI |
 
-Answered by the owner: none yet.
+Answered by the owner (2026-10-02): G5 (one fortress), C1 (new remote), C2 (wrangler login for a new board).
 
 ## Deferred
 
@@ -225,6 +230,19 @@ Answered by the owner: none yet.
   with hard floors and no scale transforms. 60 glyphs (13 new). Dev kit page:
   `#/ui`. Gate: 73 test files / 760 tests, type-check clean, build OK, browser
   pass of `#/ui`, the modal and the base screen at 1280×720, 320×658, 764×385.
+- 2026-10-02 P2 done. `world/grid.ts` (pure): 2 m height cells, circle
+  movement with sliding, ray casting with face normals, 3D line of sight,
+  8-way A* and path smoothing. `world/fortress.ts`: the builder (island,
+  walls, gates, towers, cover, stairs, ladders, cables, posts, dressing) and
+  `world/validate.ts` (patrol loops walkable, ways up valid, extraction
+  reachable). `world/fortressMesh.ts`: flat-shaded vertex-coloured blocks in
+  16 m chunks with baked corner and foot shading, neon trims, ladders and
+  cables; `world/sky.ts`: gradient dome, haze 70–260 m, instanced far islands
+  and clouds; `world/decor.ts`: all props in two meshes. The proving ground
+  (`data/fortresses/proving.ts`) renders at 40 draw calls and 7.7k triangles
+  with the whole base in view, 22 calls through a narrow lens. The game boots
+  into `scenes/fortressView.ts` (`?view=az,el,dist[,fov]` pins the camera).
+  Gate: suite, type-check, build, browser pass at three sizes.
 
 ## Resume notes
 

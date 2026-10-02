@@ -24,7 +24,7 @@ export const flow = reactive({
   loadProgress: 0
 })
 
-type BaseFactory = () => GameMode
+type BaseFactory = (onProgress: (p01: number) => void) => Promise<GameMode>
 let baseFactory: BaseFactory | null = null
 
 export const registerModeFactories = (base: BaseFactory): void => {
@@ -37,7 +37,7 @@ export const registerModeFactories = (base: BaseFactory): void => {
  */
 export const createBootMode = async (onProgress: (p01: number) => void = () => {}): Promise<GameMode> => {
   if (!baseFactory) throw new Error('[flow] no mode factory registered')
-  const mode = baseFactory()
+  const mode = await baseFactory(onProgress)
   onProgress(1)
   flow.screen = 'base'
   setPhase('base')
@@ -45,11 +45,15 @@ export const createBootMode = async (onProgress: (p01: number) => void = () => {
 }
 
 /** Leave whatever is running for the Command Base. */
-export const goBase = (): void => {
+export const goBase = async (): Promise<void> => {
   if (!baseFactory) return
   flow.modal = ''
+  flow.loading = true
+  flow.loadProgress = 0
+  const mode = await baseFactory((p) => { flow.loadProgress = p })
+  flow.loading = false
   flow.screen = 'base'
   setPhase('base')
-  app.setMode(baseFactory())
+  app.setMode(mode)
   app.setWanted(true)
 }

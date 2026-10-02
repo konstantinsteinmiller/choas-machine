@@ -3,7 +3,8 @@ import { createInput } from './engine/input'
 import { afterPaint, createSlicer, yieldToBrowser, type Slice } from './engine/slicer'
 import type { Material, Mesh, Object3D } from 'three'
 import { bakeTextures, loadTextureOverrides } from './world/textures'
-import { StandbyMode } from './scenes/standby'
+import { FortressView, viewAngleFromUrl } from './scenes/fortressView'
+import { buildProvingGround } from './data/fortresses/proving'
 import type { GameMode } from './engine/app'
 import { registerModeFactories, createBootMode } from './flow'
 import { initProfile } from './state/profile'
@@ -88,7 +89,9 @@ const precompile = async (
   }
 }
 
-registerModeFactories(() => new StandbyMode())
+registerModeFactories((onProgress) =>
+  FortressView.create(buildProvingGround(), viewAngleFromUrl(window.location.search), createSlicer(12), onProgress)
+)
 
 let prepared: GameMode | null = null
 let primed: Promise<void> | null = null

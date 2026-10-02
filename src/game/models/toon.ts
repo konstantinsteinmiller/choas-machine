@@ -29,9 +29,9 @@ export const toonRamp = (): DataTexture => {
   return ramp
 }
 
-/** Outline colour: deep navy rather than black — black outlines read as
- *  "comic", navy reads as "shaded edge" and survives the bright palettes. */
-export const OUTLINE_COLOR = new Color('#141a33')
+/** Outline colour: deep ink purple rather than black — black outlines read as
+ *  "comic", ink reads as "shaded edge" and survives the bright palettes. */
+export const OUTLINE_COLOR = new Color('#1c1233')
 
 const toonCache = new Map<string, MeshToonMaterial>()
 

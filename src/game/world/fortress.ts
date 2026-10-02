@@ -1,0 +1,262 @@
+import { CELL, CellKind, VOID, cellMid, cellHeight, inGrid, makeGrid, type Grid } from './grid'
+
+/**
+ * ─── A fortress, as data ─────────────────────────────────────────────────────
+ *
+ * A fortress is authored with the builder below: an island, the structures on
+ * it, the ways up, and the posts of everything that guards it. The result is
+ * plain data: the mesh builder draws it, the simulation plays on it, and a
+ * test can walk every patrol route without a renderer.
+ *
+ * Authoring is in CELLS (whole numbers, x to the right, z toward the viewer),
+ * which keeps a layout readable as a map; everything in the result is in
+ * world metres.
+ */
+
+/** Heights the kit builds with, in metres. The mech stands about 2.2 tall and
+ *  crouches to 1.2, so cover hides it crouched and a wall hides it standing. */
+export const COVER_H = 1.4
+export const WALL_H = 4
+export const TOWER_H = 8
+/** Rise of one stair tread: under the step-up limit, so a patrol walks it. */
+export const TREAD_H = 0.5
+
+export interface Point { x: number; z: number }
+
+/** One stop on a patrol: where, how long to stand, and where to look then. */
+export interface Waypoint extends Point {
+  /** Seconds to stand here before moving on. */
+  wait: number
+  /** Heading while standing, in radians (0 looks along +z); absent = keep. */
+  look?: number
+}
+
+export type PostKind = 'guard' | 'sentry' | 'commander' | 'drone' | 'enforcer' | 'goliath'
+
+export interface Post {
+  kind: PostKind
+  x: number
+  z: number
+  /** Heading at rest, radians. */
+  facing: number
+  /** Guards, the commander and drones walk or fly this loop; others stand. */
+  route: Waypoint[]
+  /** Drones: height above the ground they fly at. */
+  altitude: number
+}
+
+export type DecorKind = 'lamp' | 'antenna' | 'barrel' | 'flag'
+export interface Decor { kind: DecorKind; x: number; y: number; z: number; rot: number }
+
+export interface Fortress {
+  id: string
+  grid: Grid
+  /** Where the mech lands: a perch overlooking the base. */
+  insert: Point & { facing: number }
+  /** Where the grapple line takes it out. */
+  extract: Point
+  posts: Post[]
+  decor: Decor[]
+}
+
+const DIRS = { n: [0, -1], s: [0, 1], e: [1, 0], w: [-1, 0] } as const
+export type Dir = keyof typeof DIRS
+
+export class FortressBuilder {
+  readonly grid: Grid
+  private insertAt: (Point & { facing: number }) | null = null
+  private extractAt: Point | null = null
+  private posts: Post[] = []
+  private decor: Decor[] = []
+
+  constructor(readonly id: string, w: number, d: number) {
+    this.grid = makeGrid(w, d)
+  }
+
+  private set(cx: number, cz: number, h: number, kind: CellKind): void {
+    if (!inGrid(this.grid, cx, cz)) throw new Error(`[fortress ${this.id}] cell ${cx},${cz} is off the grid`)
+    const i = cz * this.grid.w + cx
+    this.grid.h[i] = h
+    this.grid.kind[i] = kind
+  }
+
+  /** Height of a cell as built so far. */
+  heightOf(cx: number, cz: number): number {
+    return cellHeight(this.grid, cx, cz)
+  }
+
+  /**
+   * The island's ground: an ellipse inscribed in the grid, with a margin, its
+   * rim roughened so the outline does not read as a drawn circle.
+   */
+  island(margin = 1, roughness = 0.08): this {
+    const { w, d } = this.grid
+    const rx = w / 2 - margin
+    const rz = d / 2 - margin
+    for (let cz = 0; cz < d; cz++) {
+      for (let cx = 0; cx < w; cx++) {
+        const nx = (cx + 0.5 - w / 2) / rx
+        const nz = (cz + 0.5 - d / 2) / rz
+        const a = Math.atan2(nz, nx)
+        const wobble = 1 + roughness * (Math.sin(a * 5 + 1.3) + 0.6 * Math.sin(a * 9 + 0.4))
+        if (nx * nx + nz * nz <= wobble * wobble) this.set(cx, cz, 0, CellKind.Ground)
+      }
+    }
+    return this
+  }
+
+  /** Fill a rectangle of cells (inclusive corners) with one height and kind. */
+  fill(x0: number, z0: number, x1: number, z1: number, h: number, kind: CellKind = CellKind.Block): this {
+    for (let cz = Math.min(z0, z1); cz <= Math.max(z0, z1); cz++) {
+      for (let cx = Math.min(x0, x1); cx <= Math.max(x0, x1); cx++) this.set(cx, cz, h, kind)
+    }
+    return this
+  }
+
+  /** Open ground at a given height (a raised yard, a terrace). */
+  ground(x0: number, z0: number, x1: number, z1: number, h = 0): this {
+    return this.fill(x0, z0, x1, z1, h, CellKind.Ground)
+  }
+
+  /** A wall one cell thick along a straight line of cells. */
+  wall(x0: number, z0: number, x1: number, z1: number, h = WALL_H): this {
+    if (x0 !== x1 && z0 !== z1) throw new Error(`[fortress ${this.id}] a wall runs along one axis`)
+    return this.fill(x0, z0, x1, z1, h, CellKind.Block)
+  }
+
+  /** A gap in a wall, back down to the ground: a gate. */
+  gate(x0: number, z0: number, x1 = x0, z1 = z0): this {
+    return this.fill(x0, z0, x1, z1, 0, CellKind.Ground)
+  }
+
+  /** A square tower of `size` cells, its top a platform. */
+  tower(cx: number, cz: number, size = 2, h = TOWER_H): this {
+    return this.fill(cx, cz, cx + size - 1, cz + size - 1, h, CellKind.Block)
+  }
+
+  /** A chest-high cover block. */
+  cover(cx: number, cz: number, len = 1, dir: 'x' | 'z' = 'x'): this {
+    for (let i = 0; i < len; i++) this.set(cx + (dir === 'x' ? i : 0), cz + (dir === 'z' ? i : 0), COVER_H, CellKind.Cover)
+    return this
+  }
+
+  /**
+   * A flight of stairs: treads rising from the height of the cell behind the
+   * first one, in `dir`, until `toH` is reached. `width` cells wide, to the
+   * right of the direction of travel.
+   */
+  stairs(cx: number, cz: number, dir: Dir, toH: number, width = 1): this {
+    const [dx, dz] = DIRS[dir]
+    const fromH = Math.max(0, this.heightOf(cx - dx, cz - dz))
+    const treads = Math.ceil((toH - fromH) / TREAD_H - 1e-9)
+    for (let i = 0; i < treads; i++) {
+      const h = Math.min(toH, fromH + TREAD_H * (i + 1))
+      for (let k = 0; k < width; k++) this.set(cx + dx * i - dz * k, cz + dz * i + dx * k, h, CellKind.Stair)
+    }
+    return this
+  }
+
+  /** A ladder from the cell at its foot up the block next to it, in `dir`. */
+  ladder(cx: number, cz: number, dir: Dir): this {
+    const [dx, dz] = DIRS[dir]
+    const foot = this.heightOf(cx, cz)
+    const top = this.heightOf(cx + dx, cz + dz)
+    if (foot === VOID || top === VOID || top - foot < 1) {
+      throw new Error(`[fortress ${this.id}] ladder at ${cx},${cz} ${dir} climbs nothing`)
+    }
+    this.grid.ladders.push({ cx, cz, dx, dz })
+    return this
+  }
+
+  /** A cable between two cells, each of which must be a high point. */
+  cable(ax: number, az: number, bx: number, bz: number): this {
+    for (const [cx, cz] of [[ax, az], [bx, bz]] as const) {
+      if (this.heightOf(cx, cz) < WALL_H - 1e-6) {
+        throw new Error(`[fortress ${this.id}] cable end ${cx},${cz} is not on a wall or tower`)
+      }
+    }
+    this.grid.cables.push({ ax, az, bx, bz })
+    return this
+  }
+
+  /** A marked pad (painted on whatever is already there). */
+  private pad(cx: number, cz: number): void {
+    const h = this.heightOf(cx, cz)
+    if (h === VOID) throw new Error(`[fortress ${this.id}] pad at ${cx},${cz} is off the island`)
+    this.set(cx, cz, h, CellKind.Pad)
+  }
+
+  /** Where the mech lands. `facing` in radians, 0 looking along +z. */
+  insert(cx: number, cz: number, facing = 0): this {
+    this.pad(cx, cz)
+    this.insertAt = { x: cellMid(cx), z: cellMid(cz), facing }
+    return this
+  }
+
+  extract(cx: number, cz: number): this {
+    this.pad(cx, cz)
+    this.extractAt = { x: cellMid(cx), z: cellMid(cz) }
+    return this
+  }
+
+  private post(kind: PostKind, cells: ReadonlyArray<readonly [number, number, number?]>, facing: number, altitude = 0): this {
+    if (cells.length === 0) throw new Error(`[fortress ${this.id}] a ${kind} needs at least one cell`)
+    const route: Waypoint[] = cells.map(([cx, cz, wait]) => ({ x: cellMid(cx), z: cellMid(cz), wait: wait ?? 0 }))
+    this.posts.push({ kind, x: route[0]!.x, z: route[0]!.z, facing, route: route.length > 1 ? route : [], altitude })
+    return this
+  }
+
+  /** A guard walking a loop of cells: `[cx, cz, waitSeconds?]` each. */
+  guard(route: ReadonlyArray<readonly [number, number, number?]>, facing = 0): this {
+    return this.post('guard', route, facing)
+  }
+
+  /** A guard who stands and watches one way (a tower, a gate). */
+  sentry(cx: number, cz: number, facing: number): this {
+    return this.post('sentry', [[cx, cz]], facing)
+  }
+
+  /** The base commander: the target of a medium fortress. */
+  commander(route: ReadonlyArray<readonly [number, number, number?]>, facing = 0): this {
+    return this.post('commander', route, facing)
+  }
+
+  /** A surveillance drone flying a loop at `altitude` metres above the ground. */
+  drone(route: ReadonlyArray<readonly [number, number, number?]>, altitude = 6): this {
+    return this.post('drone', route, 0, altitude)
+  }
+
+  /** An Enforcer mech, dormant until the alarm. */
+  enforcer(cx: number, cz: number, facing = 0): this {
+    return this.post('enforcer', [[cx, cz]], facing)
+  }
+
+  /** The Goliath Tank: the target of a large fortress. */
+  goliath(cx: number, cz: number, facing = 0): this {
+    return this.post('goliath', [[cx, cz]], facing)
+  }
+
+  /** Dressing with no gameplay: a lamp, an antenna. Stands on the cell's top. */
+  prop(kind: DecorKind, cx: number, cz: number, rot = 0): this {
+    const h = this.heightOf(cx, cz)
+    if (h === VOID) throw new Error(`[fortress ${this.id}] ${kind} at ${cx},${cz} is off the island`)
+    this.decor.push({ kind, x: cellMid(cx), y: h, z: cellMid(cz), rot })
+    return this
+  }
+
+  build(): Fortress {
+    if (!this.insertAt) throw new Error(`[fortress ${this.id}] no insertion point`)
+    if (!this.extractAt) throw new Error(`[fortress ${this.id}] no extraction point`)
+    return {
+      id: this.id,
+      grid: this.grid,
+      insert: this.insertAt,
+      extract: this.extractAt,
+      posts: this.posts,
+      decor: this.decor
+    }
+  }
+}
+
+/** World size of a fortress's grid along x and z, in metres. */
+export const fortressSize = (f: Fortress): { x: number; z: number } => ({ x: f.grid.w * CELL, z: f.grid.d * CELL })

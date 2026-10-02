@@ -8,6 +8,7 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { app } from '@/game/engine/app'
+import { getRenderer } from '@/game/engine/renderer'
 import { adoptBootMode } from '@/game/boot'
 import { flow } from '@/game/flow'
 import { hud } from '@/game/state/hud'
@@ -56,7 +57,7 @@ onMounted(async () => {
   startGameMusic()
   window.addEventListener('keydown', onKey)
   if (import.meta.env.DEV) {
-    (window as unknown as Record<string, unknown>).__game = { app, flow, hud }
+    (window as unknown as Record<string, unknown>).__game = { app, flow, hud, render: () => getRenderer().info.render }
   }
   // The loader's prepared first scene. The scene never builds its own copy
   // while the loader is still priming (see `adoptBootMode`).
