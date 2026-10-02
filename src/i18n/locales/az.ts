@@ -17,6 +17,7 @@ export default {
     'unmute': 'Səsi aç'
   },
   'hud': {
+    'alert': 'Həyəcan səviyyəsi',
     'crouch': 'Çömel',
     'stand': 'Ayağa qalx',
     'cancel': 'Silahı endir',

@@ -17,6 +17,7 @@ export default {
     'unmute': 'Poista mykistys'
   },
   'hud': {
+    'alert': 'Hälytystaso',
     'crouch': 'Kyyristy',
     'stand': 'Nouse ylös',
     'cancel': 'Laske ase',

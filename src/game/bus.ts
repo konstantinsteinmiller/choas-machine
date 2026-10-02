@@ -1,3 +1,4 @@
+import type { PostKind } from './world/fortress'
 import type { Phase } from './state/hud'
 
 /**
@@ -21,6 +22,18 @@ export interface GameEvents {
   traverse: { kind: 'ladder' | 'cable' | 'mantle' }
   /** The mech crouched or stood up. */
   crouch: { crouched: boolean }
+  /** A defender is curious, is sure, or has given up looking. */
+  suspicious: { id: number; kind: PostKind }
+  spotted: { id: number; kind: PostKind }
+  calm: { id: number }
+  /** A defender found a body. */
+  body: { id: number; corpse: number }
+  /** A defender went down. */
+  kill: { id: number; kind: PostKind }
+  /** The alert meter lit or lost a segment. */
+  alert: { segments: number; prev: number }
+  /** The base went to full alert: the stealth phase is over. */
+  chaos: Record<string, never>
 }
 
 type Handler<K extends keyof GameEvents> = (payload: GameEvents[K]) => void

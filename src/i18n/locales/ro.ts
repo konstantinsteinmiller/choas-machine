@@ -17,6 +17,7 @@ export default {
     'unmute': 'Activează sunetul'
   },
   'hud': {
+    'alert': 'Nivel de alertă',
     'crouch': 'Ghemuiește-te',
     'stand': 'Ridică-te',
     'cancel': 'Coboară arma',

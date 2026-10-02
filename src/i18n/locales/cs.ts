@@ -17,6 +17,7 @@ export default {
     'unmute': 'Zapnout zvuk'
   },
   'hud': {
+    'alert': 'Úroveň poplachu',
     'crouch': 'Skrčit se',
     'stand': 'Vstát',
     'cancel': 'Spustit zbraň',

@@ -17,6 +17,7 @@ export default {
     'unmute': '取消静音'
   },
   'hud': {
+    'alert': '警戒等级',
     'crouch': '蹲下',
     'stand': '站起',
     'cancel': '放下武器',

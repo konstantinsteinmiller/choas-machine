@@ -17,6 +17,7 @@ export default {
     'unmute': 'تشغيل الصوت'
   },
   'hud': {
+    'alert': 'مستوى الإنذار',
     'crouch': 'انحناء',
     'stand': 'وقوف',
     'cancel': 'خفض السلاح',

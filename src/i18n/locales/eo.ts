@@ -17,6 +17,7 @@ export default {
     'unmute': 'Reaktivigi sonon'
   },
   'hud': {
+    'alert': 'Alarmnivelo',
     'crouch': 'Kaŝkaŭri',
     'stand': 'Stariĝi',
     'cancel': 'Mallevi armilon',

@@ -17,6 +17,7 @@ export default {
     'unmute': 'Ton an'
   },
   'hud': {
+    'alert': 'Alarmstufe',
     'crouch': 'Ducken',
     'stand': 'Aufstehen',
     'cancel': 'Waffe senken',

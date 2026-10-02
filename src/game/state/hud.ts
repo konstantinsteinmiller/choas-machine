@@ -40,7 +40,13 @@ export const hud = reactive({
   scoped: false,
   weapon: 'sniper' as WeaponId,
   /** How the mech is getting about: decides which controls make sense. */
-  mode: 'ground' as 'ground' | 'ladder' | 'cable' | 'air' | 'mantle'
+  mode: 'ground' as 'ground' | 'ladder' | 'cable' | 'air' | 'mantle',
+  /** Lit segments of the base's alert meter, 0 … 5. */
+  alert: 0,
+  /** Full alert: the stealth phase is over. */
+  chaos: false,
+  /** Somebody has eyes on the mech right now and the meter is climbing. */
+  watched: false
 })
 
 /** Move to another phase and tell the bus. A no-op if nothing changes. */
@@ -54,6 +60,21 @@ export const setPhase = (phase: Phase): void => {
 /** Write a field of the mirror only when it changes. */
 export const mirror = <K extends keyof typeof hud>(key: K, value: (typeof hud)[K]): void => {
   if (hud[key] !== value) hud[key] = value
+}
+
+// ─── Who is noticing the mech: per-frame, so outside Vue ─────────────────────
+
+export const MAX_THREATS = 4
+/**
+ * The few defenders closest to noticing the mech, for the arcs round the
+ * aim point. `angle` is the bearing from the camera's heading (radians,
+ * positive to the LEFT); `level` the detection meter; `hot` a sure sighting.
+ */
+export const threats = {
+  n: 0,
+  angle: new Float32Array(MAX_THREATS),
+  level: new Float32Array(MAX_THREATS),
+  hot: new Uint8Array(MAX_THREATS)
 }
 
 // ─── HUD tickers: per-frame DOM writes, outside Vue ──────────────────────────

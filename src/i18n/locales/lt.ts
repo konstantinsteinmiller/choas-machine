@@ -17,6 +17,7 @@ export default {
     'unmute': 'Įjungti garsą'
   },
   'hud': {
+    'alert': 'Pavojaus lygis',
     'crouch': 'Pritūpti',
     'stand': 'Atsistoti',
     'cancel': 'Nuleisti ginklą',

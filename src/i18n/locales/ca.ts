@@ -17,6 +17,7 @@ export default {
     'unmute': 'Activa el so'
   },
   'hud': {
+    'alert': 'Nivell d\'alerta',
     'crouch': 'Ajupir-se',
     'stand': 'Aixecar-se',
     'cancel': 'Baixar l\'arma',

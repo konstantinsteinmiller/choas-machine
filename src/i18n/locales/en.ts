@@ -21,6 +21,7 @@ export default {
     'unmute': 'Unmute'
   },
   'hud': {
+    'alert': 'Alert level',
     'crouch': 'Crouch',
     'stand': 'Stand up',
     'cancel': 'Lower weapon',

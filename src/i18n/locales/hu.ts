@@ -17,6 +17,7 @@ export default {
     'unmute': 'Hang be'
   },
   'hud': {
+    'alert': 'Riadószint',
     'crouch': 'Guggolás',
     'stand': 'Felállás',
     'cancel': 'Fegyver le',

@@ -17,6 +17,7 @@ export default {
     'unmute': 'Attiva audio'
   },
   'hud': {
+    'alert': 'Livello di allerta',
     'crouch': 'Accovacciati',
     'stand': 'Alzati',
     'cancel': 'Abbassa l\'arma',

@@ -17,6 +17,7 @@ export default {
     'unmute': 'Bật tiếng'
   },
   'hud': {
+    'alert': 'Mức báo động',
     'crouch': 'Cúi xuống',
     'stand': 'Đứng dậy',
     'cancel': 'Hạ vũ khí',

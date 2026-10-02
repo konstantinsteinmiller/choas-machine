@@ -17,6 +17,7 @@ export default {
     'unmute': 'ミュート解除'
   },
   'hud': {
+    'alert': '警戒レベル',
     'crouch': 'しゃがむ',
     'stand': '立つ',
     'cancel': '武器を下ろす',

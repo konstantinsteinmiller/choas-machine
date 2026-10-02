@@ -17,6 +17,7 @@ export default {
     'unmute': 'Geluid aan'
   },
   'hud': {
+    'alert': 'Alarmniveau',
     'crouch': 'Bukken',
     'stand': 'Opstaan',
     'cancel': 'Wapen laten zakken',

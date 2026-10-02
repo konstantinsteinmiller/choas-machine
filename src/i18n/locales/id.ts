@@ -17,6 +17,7 @@ export default {
     'unmute': 'Nyalakan suara'
   },
   'hud': {
+    'alert': 'Tingkat siaga',
     'crouch': 'Jongkok',
     'stand': 'Berdiri',
     'cancel': 'Turunkan senjata',

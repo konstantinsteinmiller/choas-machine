@@ -17,6 +17,7 @@ export default {
     'unmute': 'Ovozni yoqish'
   },
   'hud': {
+    'alert': 'Xavf darajasi',
     'crouch': 'Cho\'kka tushish',
     'stand': 'Turish',
     'cancel': 'Qurolni tushirish',

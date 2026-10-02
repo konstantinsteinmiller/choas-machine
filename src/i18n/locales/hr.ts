@@ -17,6 +17,7 @@ export default {
     'unmute': 'Uključi zvuk'
   },
   'hud': {
+    'alert': 'Razina uzbune',
     'crouch': 'Čučni',
     'stand': 'Ustani',
     'cancel': 'Spusti oružje',

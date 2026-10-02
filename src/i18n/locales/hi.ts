@@ -17,6 +17,7 @@ export default {
     'unmute': 'अनम्यूट करें'
   },
   'hud': {
+    'alert': 'अलर्ट स्तर',
     'crouch': 'झुकें',
     'stand': 'खड़े हों',
     'cancel': 'हथियार नीचे करें',

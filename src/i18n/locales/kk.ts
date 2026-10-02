@@ -17,6 +17,7 @@ export default {
     'unmute': 'Дыбысты қосу'
   },
   'hud': {
+    'alert': 'Дабыл деңгейі',
     'crouch': 'Бүгілу',
     'stand': 'Тұру',
     'cancel': 'Қаруды түсіру',

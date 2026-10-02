@@ -85,7 +85,7 @@ three.js import, so it runs in Vitest and in a balance script.
   guard, Commander, drone, Enforcer, Goliath Tank; model lab entries.
 - [x] **P4 The mech in play** — third-person controller and camera, crouch,
   cover, ladders, cables, drops, vault; touch + desktop action set, rebinding.
-- [ ] **P5 Stealth** — patrol routes, vision cones, detection meter,
+- [x] **P5 Stealth** — patrol routes, vision cones, detection meter,
   suspicious / alarmed states, body discovery, drones, base-wide Alert Level,
   HUD meter and detection markers.
 - [ ] **P6 Arsenal** — scope (first person, zoom, sway), hit-scan with head
@@ -261,6 +261,18 @@ Answered by the owner (2026-10-02): G5 (one fortress), C1 (new remote), C2 (wran
   AimHold ring, MissionHud (pause, crouch, cancel), PauseModal. Browser pass
   with real keyboard, mouse and touch input at 1280×720, 764×385, 320×658.
   Not yet: the Command Base (a turntable stands in for it), any enemy.
+- 2026-10-02 P5 done. `sim/perception.ts` (cone + two rays: head and chest,
+  so cover hides a crouched mech), `sim/alert.ts` (one meter for the base,
+  five HUD segments, full alert is permanent), `sim/garrison.ts` (pure:
+  patrol → suspicious → search → combat; body discovery; drones with a
+  searchlight; `noiseAt`, `lureTo`, `killUnit`, `damageUnit` for the weapons;
+  events queued on `gar.events`). One witness raises the alert by 35 and it
+  climbs 16/s while any defender still sees the mech; a second witness adds 8.
+  `sim/garrisonView.ts` draws the rigs, the cones (one mesh, draped on the
+  ground, dark behind cover), the searchlights and the ?/! marks. HUD:
+  AlertMeter, ThreatArcs. Guards do not shoot yet (P7); the simulation runs
+  under the loader until P8 gives the mission an intro phase.
+  Scratch probe: `probe.mjs <url> <out> <desktop|touch|touch-portrait> <scenario.mjs>`.
 
 ## Resume notes
 

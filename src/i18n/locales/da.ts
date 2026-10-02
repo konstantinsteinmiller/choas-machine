@@ -17,6 +17,7 @@ export default {
     'unmute': 'Slå lyden til'
   },
   'hud': {
+    'alert': 'Alarmniveau',
     'crouch': 'Dukke sig',
     'stand': 'Rejs dig',
     'cancel': 'Sænk våbnet',

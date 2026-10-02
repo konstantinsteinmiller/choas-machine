@@ -17,6 +17,7 @@ export default {
     'unmute': '음소거 해제'
   },
   'hud': {
+    'alert': '경계 수준',
     'crouch': '앉기',
     'stand': '일어서기',
     'cancel': '무기 내리기',

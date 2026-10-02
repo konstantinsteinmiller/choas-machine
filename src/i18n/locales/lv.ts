@@ -17,6 +17,7 @@ export default {
     'unmute': 'Ieslēgt skaņu'
   },
   'hud': {
+    'alert': 'Trauksmes līmenis',
     'crouch': 'Pietupties',
     'stand': 'Piecelties',
     'cancel': 'Nolaist ieroci',

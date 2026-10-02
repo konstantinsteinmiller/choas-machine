@@ -2,9 +2,13 @@
   div.mission-hud(:class="{ scoped: hud.scoped }")
     Joystick
     AimHold
+    ThreatArcs
     //- The aim point: where a shot goes. A dot while walking, hidden through
     //- the scope (the scope overlay draws its own reticle).
     div.reticle(v-show="!hud.scoped" :class="{ aiming: hud.aiming }" aria-hidden="true")
+
+    div.top-centre
+      AlertMeter
 
     div.top-right
       FHudButton(icon="pause" :aria-label="t('ui.pause')" data-testid="btn-pause" @click="emit('pause')")
@@ -36,6 +40,8 @@ import { useI18n } from 'vue-i18n'
 import FHudButton from '@/components/atoms/FHudButton.vue'
 import Joystick from '@/components/hud/Joystick.vue'
 import AimHold from '@/components/hud/AimHold.vue'
+import AlertMeter from '@/components/hud/AlertMeter.vue'
+import ThreatArcs from '@/components/hud/ThreatArcs.vue'
 import { hud } from '@/game/state/hud'
 import { input } from '@/game/engine/inputState'
 import { cancelAim } from '@/game/engine/input'
@@ -71,6 +77,12 @@ const { t } = useI18n()
   &.aiming
     opacity: 1
     background: var(--cm-pink)
+
+.top-centre
+  position: absolute
+  top: var(--cm-safe-top)
+  left: 50%
+  translate: -50% 0
 
 .top-right
   position: absolute

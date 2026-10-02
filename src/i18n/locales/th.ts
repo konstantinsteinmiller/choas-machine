@@ -17,6 +17,7 @@ export default {
     'unmute': 'เปิดเสียง'
   },
   'hud': {
+    'alert': 'ระดับการเตือนภัย',
     'crouch': 'ย่อตัว',
     'stand': 'ลุกขึ้น',
     'cancel': 'ลดอาวุธ',
