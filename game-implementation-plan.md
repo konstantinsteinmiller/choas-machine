@@ -116,7 +116,7 @@ three.js import, so it runs in Vitest and in a balance script.
 - [x] **P12b Leaderboard** (client + baked board done; **the live Worker is NOT deployed**, see the status log) — a Chaos Machine board on a NEW Worker and D1
   database (`leaderboard-badge` skill; the owner is logged into wrangler). The
   predecessor's Worker and ids are gone and must not be reused.
-- [ ] **P13 Platform and release checks** — ads without rewarded placements,
+- [x] **P13 Platform and release checks** (the full build matrix moves to P15) — ads without rewarded placements,
   gameplay bracket, mute / pause / language signals, forced-dark guard, cloud
   hydration reload proof, Playwright e2e suite, every platform build.
 - [ ] **P14 Pipelines** — art sheets + slicer + playground, compression,
@@ -414,6 +414,28 @@ Answered by the owner (2026-10-02): G5 (one fortress), C1 (new remote), C2 (wran
   the snapshot once the board has rows. `worker/SETUP.md` has every step.
   Not started: Playgama's own hosted board (the skill's Phase 8 needs the
   board created on the Playgama dashboard and its token: owner's action).
+- 2026-10-02 P13 done. Ads: the one break is on the way OFF a result screen
+  (`flow.leaveResults`: close the screen, interstitial if the pacing clock
+  allows, then the next scene), never on top of it; no rewarded placement
+  anywhere (a test greps the screens). `tests/platforms/resultAdOrder.test.ts`.
+  `scripts/portal-qa.mjs` adapted to this game (and given the pointer-lock
+  stand-in): **12/12 on the built GamePix bundle** (muted at boot → no music;
+  unmute → music; tab away freezes world and audio; menu freezes the world;
+  first-load interstitial requested).
+  **`pnpm test:e2e`** (new: `e2e/`, `vitest.e2e.config.ts`, playwright-core on
+  the system Chrome, its own dev server on a free port with hot reload off):
+  8 tests, all green: first launch (no menu, skippable drop-in), wordless
+  lessons and no overlapping controls at 320×658 and 764×385, stick and
+  look by touch, a silent scoped headshot, blade then minigun to full alert,
+  defeat and retry, the whole loop with a RELOAD (everything back from the one
+  `cmachine_state` key, opens in the base, next mission at the new level with
+  the upgrade fitted), the base and workshop in German on three screens.
+  Forced-dark guard: `color-scheme: dark only` is in place.
+  Not run here: the other portals' built bundles through portal-qa, and the
+  full platform build matrix (the machine's worker budget was taken by other
+  sessions most of the day): P15.
+  `scripts/boot-timeline.mjs` no longer waits on the predecessor's intro;
+  `perf-mission.mjs` and `xbrowser.mjs` still drive Mega Droid (P15).
 
 ## Resume notes
 

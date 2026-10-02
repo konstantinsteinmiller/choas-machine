@@ -193,7 +193,7 @@ const leaderboardSnapshotPlugin = (seeded: boolean): Plugin => ({
       if (seed) {
         console.log(
           `[leaderboard] baking the SEEDED board — ${seed.total} players / `
-          + `${seed.entries.length} rows, top stage ${seed.dist[0]?.[0] ?? 0}. `
+          + `${seed.entries.length} rows, top score ${seed.dist[0]?.[0] ?? 0}. `
           + 'This build cannot post scores, so the board is modelled.'
         )
       } else {

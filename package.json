@@ -39,6 +39,7 @@
     "art:desk": "node tools/art-desk/server.mjs",
     "test": "vitest run",
     "test:watch": "vitest",
+    "test:e2e": "vitest run --config vitest.e2e.config.ts",
     "art:logo": "node scripts/render-logo.mjs",
     "leaderboard:snapshot": "node scripts/leaderboard-snapshot.mjs",
     "leaderboard:seed": "node scripts/leaderboard-seed.mjs"

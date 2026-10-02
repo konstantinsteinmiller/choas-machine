@@ -118,6 +118,25 @@ if (window.crypto && typeof window.crypto.randomUUID !== 'function') {
   };
 }
 
+// The mouse stays the owner's. Even a headless Chrome takes the REAL pointer
+// lock from the OS when a page asks for it, and this game asks on the first
+// click on its scene. The lock is replaced by a stand-in that lives only in
+// the page: the game's captured-mouse path still runs, the OS is never asked.
+(function () {
+  var locked = null;
+  Object.defineProperty(Document.prototype, 'pointerLockElement', { configurable: true, get: function () { return locked; } });
+  Element.prototype.requestPointerLock = function () {
+    locked = this;
+    Promise.resolve().then(function () { document.dispatchEvent(new Event('pointerlockchange')); });
+    return Promise.resolve();
+  };
+  Document.prototype.exitPointerLock = function () {
+    if (!locked) return;
+    locked = null;
+    Promise.resolve().then(function () { document.dispatchEvent(new Event('pointerlockchange')); });
+  };
+})();
+
 // Media elements, tracked by CONSTRUCTOR — see trap 2 in the header.
 var RealAudio = window.Audio;
 window.Audio = function () {
@@ -490,9 +509,9 @@ const ev = async expr => {
   return r.result.value
 }
 
-/** Drag across the canvas the way a player steers, with real input events —
- *  the first-run tutorial is deliberately satisfied only by a real gesture,
- *  and until it is, the road does not move. See trap 3. */
+/** Drag across the scene the way a player looks about, with real input
+ *  events: the first gesture is what unlocks the audio context and (on Poki)
+ *  the first gameplayStart. See trap 3. */
 const steer = async () => {
   const box = JSON.parse(await ev(`(() => {
     const c = document.querySelector('canvas'); if (!c) return 'null';
@@ -530,12 +549,10 @@ try {
 
   let booted = false
   for (let i = 0; i < 160; i++) {
-    if (await ev('!!document.querySelector(".hud-layer, .hub")')) { booted = true; break }
-    // A fresh profile opens on the intro cutscene: press its skip glyph.
-    await ev('(() => { const b = document.querySelector(".cutscene-skip"); if (b) b.click(); return true })()')
+    if (await ev('!!document.querySelector(".hud-layer")')) { booted = true; break }
     await sleep(250)
   }
-  check('game booted into a mission or the hub', booted)
+  check('game booted into the mission or the Command Base', booted)
   if (!booted) {
     console.log('  body    : ' + await ev('document.body.innerText.slice(0,300)'))
     console.log('  console : ' + await ev('JSON.stringify(window.__qa.console.slice(-15))'))
@@ -661,9 +678,15 @@ try {
   check('return to tab → simulation RESUMES', back - hiddenEnd > 5, `rAF ${hiddenEnd} → ${back}`)
 
   // ── Menu entry ───────────────────────────────────────────────────────────
+  // A fresh profile is in the fortress, past its drop-in by now: the pause
+  // chip. A returning one is in the base: the settings cog. Found by test id
+  // first (the labels are translated), by label as the fallback.
+  const menuButton = `!!document.querySelector('[data-testid="btn-pause"], .system-corner button')`
+  for (let i = 0; i < 40 && !(await ev(menuButton)); i++) await sleep(250)
   const opened = await ev(`(() => {
+    const byId = document.querySelector('[data-testid="btn-pause"]');
     const btns = Array.from(document.querySelectorAll('button'));
-    const b = btns.find(x => /option|setting|pause/i.test(x.getAttribute('aria-label') || ''));
+    const b = byId || btns.find(x => /option|setting|pause/i.test(x.getAttribute('aria-label') || ''));
     if (!b) return 'no-button';
     b.click(); return 'clicked';
   })()`)

@@ -75,16 +75,6 @@ try {
     () => !document.querySelector('.loader') && performance.getEntriesByName('boot:adopted').length > 0,
     null, { timeout: 90000 }
   )
-  // A first launch plays the intro while the tutorial builds behind it: wait
-  // for that build, then report it against the beam (15 s into the intro),
-  // where the tutorial takes over. Later is covered by the beam overlay.
-  const intro = await page.evaluate(() => performance.getEntriesByName('boot:intro-start').length > 0)
-  if (intro) {
-    await page.waitForFunction(() => performance.getEntriesByName('boot:tutorial-built').length > 0, null, { timeout: 90000 })
-    const [s, b] = await page.evaluate(() => ['boot:intro-start', 'boot:tutorial-built'].map(n => performance.getEntriesByName(n)[0].startTime))
-    const d = (b - s) / 1000
-    console.log(`intro  tutorial built ${d.toFixed(1)} s into the intro (the beam is at 15.0 s): ${d <= 15 ? 'in time' : 'OVERRUNS — the beam overlay holds'}`)
-  }
   const r = await page.evaluate(() => {
     window.__done = true
     return {

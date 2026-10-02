@@ -19,7 +19,7 @@ import { useI18n } from 'vue-i18n'
 import FModal from '@/components/molecules/FModal.vue'
 import FButton from '@/components/atoms/FButton.vue'
 import GameIcon from '@/components/icons/GameIcon.vue'
-import { flow, goBase, startMission } from '@/game/flow'
+import { flow, leaveResults } from '@/game/flow'
 import { formatAmount } from '@/utils/formatAmount'
 
 /**
@@ -28,8 +28,8 @@ import { formatAmount } from '@/utils/formatAmount'
  */
 const { t, locale } = useI18n()
 const fmt = (n: number): string => formatAmount(n, locale.value)
-const retry = (): void => { void startMission() }
-const toBase = (): void => { void goBase() }
+const retry = (): void => { void leaveResults('retry') }
+const toBase = (): void => { void leaveResults('base') }
 </script>
 
 <style scoped lang="sass">

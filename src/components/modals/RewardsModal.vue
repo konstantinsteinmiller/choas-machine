@@ -48,7 +48,7 @@ import FButton from '@/components/atoms/FButton.vue'
 import GameIcon from '@/components/icons/GameIcon.vue'
 import { MEDAL_ICONS } from '@/components/base/medals'
 import { MEDAL_IDS } from '@/game/data/ids'
-import { flow, goBase } from '@/game/flow'
+import { flow, leaveResults } from '@/game/flow'
 import { profile } from '@/game/state/profile'
 import { campaignScore, levelKey } from '@/game/state/progress'
 import RankBadge from '@/components/atoms/RankBadge.vue'
@@ -112,7 +112,7 @@ watch(open, (o) => {
 }, { immediate: true })
 onUnmounted(clear)
 
-const toBase = (): void => { void goBase() }
+const toBase = (): void => { void leaveResults('base') }
 </script>
 
 <style scoped lang="sass">

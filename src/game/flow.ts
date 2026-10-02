@@ -4,6 +4,9 @@ import { setPhase } from './state/hud'
 import { isFreshProfile } from './state/profile'
 import { bankDefeat, bankMission, campaignScore, highestCleared, unlockedLevel } from './state/progress'
 import { reportRun } from '@/use/useLeaderboard'
+import { showMidgameAd } from '@/use/useAds'
+import { canShowInterstitial, markInterstitialShown } from '@/use/useAdGate'
+import { isAdShowing } from '@/use/useGamePause'
 import type { MissionResult, Payout } from './sim/rewards'
 
 /**
@@ -122,4 +125,48 @@ export const finishMission = (run: MissionResult): void => {
 export const failMission = (run: MissionResult): void => {
   flow.run = { ...run }
   flow.kept = bankDefeat(run, flow.level)
+}
+
+// ─── Leaving a result screen: the one ad break ───────────────────────────────
+
+/** Longest a result screen waits on an ad that some other placement started. */
+const AD_GATE_WAIT_MS = 8000
+
+const waitForAdGate = async (): Promise<void> => {
+  const t0 = Date.now()
+  while (isAdShowing.value && Date.now() - t0 < AD_GATE_WAIT_MS) {
+    await new Promise((r) => setTimeout(r, 100))
+  }
+}
+
+/** True from the button until the next scene is up, so a double tap asks for one ad. */
+let leaving = false
+
+/**
+ * The way off the rewards screen and the defeat screen: close it, play the
+ * interstitial if one is due, and only then go on (to the base, or back onto
+ * the perch).
+ *
+ * The screen closes FIRST, so an ad never opens on top of a result screen
+ * (portal QA). The mission stays frozen behind the ad: `showMidgameAd` raises
+ * `isAdShowing` before its first await, which suspends the loop and the
+ * audio. Every mission end offers this one break, won or lost; the shared
+ * pacing clock (`canShowInterstitial`) decides whether an ad actually runs.
+ * There are no rewarded placements in this game.
+ */
+export const leaveResults = async (next: 'base' | 'retry'): Promise<void> => {
+  if (leaving) return
+  leaving = true
+  flow.modal = ''
+  try {
+    if (canShowInterstitial()) {
+      markInterstitialShown()
+      await showMidgameAd()
+    }
+    await waitForAdGate()
+  } finally {
+    leaving = false
+    if (next === 'retry') void startMission()
+    else void goBase()
+  }
 }
