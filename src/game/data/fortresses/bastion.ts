@@ -27,8 +27,8 @@ import { FortressBuilder, WALL_H, TOWER_H, type Fortress } from '../../world/for
  *  - the postern in the inner wall, out of the main gate's sight;
  *  - or the gates, and the base's full attention.
  *
- * Levels: I a thin night watch and the Commander. II adds the sentries, the
- * second drone and the Enforcers. III adds the Goliath, which wakes when the
+ * Levels: I a thin night watch, one searchlight and the Commander. II adds
+ * the sentries, the second drone, the keep's searchlight and the Enforcers. III adds the Goliath, which wakes when the
  * Commander falls and must be destroyed too. IV and V add patrols and
  * reinforcements (and the garrison is tougher: `garrison.threatOf`).
  */
@@ -74,6 +74,8 @@ export const buildBastion = (level = 1): Fortress => {
   b.guard([[11, 27, 3], [11, 13, 2], [17, 13, 3]])
   b.commander([[21, 20, 4], [30, 20, 4], [30, 22, 4], [21, 22, 4]], Math.PI)
   b.drone([[12, 34], [39, 34], [39, 44], [12, 44]], 7)
+  // A searchlight on the south-east tower, sweeping the east half of the yard.
+  b.searchlight(43, 47, [[36, 42, 1.5], [31, 37, 1], [38, 34, 1.5], [33, 44, 1]])
 
   if (level >= 2) {
     // Eyes on the towers, a second drone over the north ward, and the machines.
@@ -81,14 +83,19 @@ export const buildBastion = (level = 1): Fortress => {
     b.guard([[26, 32, 4], [26, 28, 4]], Math.PI)
     b.drone([[12, 13], [40, 13], [40, 27], [12, 27]], 9)
     b.enforcer(29, 28, Math.PI).enforcer(34, 13, Math.PI * 0.5)
+    // The keep's own light, over the main gate and the road up to it.
+    b.searchlight(26, 24, [[25, 28, 1.2], [20, 27, 1.2], [26, 34, 1.5], [31, 27, 1.2]])
   }
   if (level >= 3) {
     // The Goliath: parked with its back to the north wall, facing the keep.
     b.goliath(22, 14, 0)
+    b.searchlight(8, 10, [[13, 14, 1.5], [18, 20, 1], [12, 24, 1.5], [16, 13, 1]])
   }
   if (level >= 4) {
     b.guard([[35, 25, 2], [35, 17, 2], [40, 17], [40, 25]])
     b.sentry(42, 10, Math.PI * 0.75)
+    b.searchlight(43, 10, [[38, 14, 1.5], [34, 20, 1], [39, 25, 1.5]])
+    b.searchlight(8, 47, [[14, 42, 1.5], [19, 36, 1], [12, 35, 1.5], [18, 44, 1]])
     b.guard([[24, 49, 4], [27, 49, 4]], 0)
   }
   if (level >= 5) {
@@ -102,11 +109,31 @@ export const buildBastion = (level = 1): Fortress => {
   if (level >= 2) b.reserve(25, 8).reserve(26, 8)
   if (level >= 4) b.reserve(25, 50, Math.PI).reserve(26, 50, Math.PI)
 
-  // ── Dressing ──
-  b.prop('lamp', 24, 46).prop('lamp', 27, 46).prop('lamp', 24, 31).prop('lamp', 27, 31)
-  b.prop('lamp', 11, 40).prop('lamp', 40, 40).prop('lamp', 13, 20).prop('lamp', 38, 20)
-  b.prop('antenna', 25, 21).prop('antenna', 43, 47).prop('flag', 9, 11).prop('flag', 43, 10).prop('flag', 19, 18)
+  // ── The scrapyard: what the base is built out of, lying about ──
+  // Decking: the road from the south gate through the main gate to the keep,
+  // the tank park's apron, and the extraction pad. Warning paint at the gates.
+  b.deck(24, 31, 27, 46).deck(24, 25, 27, 29).deck(20, 11, 31, 16).deck(22, 3, 29, 8)
+  b.deck(24, 46, 27, 48, true).deck(24, 29, 27, 31, true).deck(24, 9, 27, 11, true).deck(37, 29, 39, 31, true)
+  // Heaps of scrap: cover the yard did not have, and what the place is for.
+  b.heap(17, 38, 0.4).heap(34, 38, 2.1).heap(21, 33, 1.2).heap(30, 45, 0.7).heap(11, 42, 2.8).heap(40, 33, 1.9)
+  b.heap(14, 22, 0.3).heap(37, 23, 1.4).heap(17, 12, 2.2)
+  // The crane over the yard, the generators at the gates, fuel by the keep.
+  b.solid('crane', 13, 32, 2.4, Math.PI / 2)
+  b.solid('generator', 23, 45, 1.1, Math.PI / 2).solid('generator', 28, 32, 1.1, -Math.PI / 2).solid('generator', 33, 17, 1.1, Math.PI)
+  b.solid('tank', 35, 26, 1.7, Math.PI / 2).solid('tank', 12, 16, 1.7, 0)
+  b.solid('spool', 38, 42, 1.4, 0.6).solid('spool', 15, 29, 1.4, 1.9)
+  // Small things, against the walls where nobody walks.
+  b.prop('pipes', 10, 38, 0).prop('pipes', 41, 36, 0).prop('pipes', 10, 19, 0).prop('pipes', 30, 12, Math.PI / 2)
+  b.prop('tires', 41, 43, 0.5).prop('tires', 10, 33, 2).prop('tires', 41, 15, 1).prop('tires', 19, 28, 4)
+  b.prop('girder', 12, 46, Math.PI).prop('girder', 39, 46, Math.PI).prop('girder', 16, 29, Math.PI).prop('girder', 33, 11, 0)
   b.prop('barrel', 30, 41).prop('barrel', 16, 33).prop('barrel', 35, 13).prop('barrel', 28, 27).prop('barrel', 39, 22)
+  b.prop('barrel', 31, 41, 1).prop('barrel', 22, 34, 2).prop('barrel', 40, 28, 3)
+  b.prop('cone', 23, 48, 0).prop('cone', 28, 48, 0).prop('cone', 23, 32, 0).prop('cone', 28, 29, 0)
+  // Floodlights, masts and the furnace stacks on the keep.
+  b.prop('lamp', 24, 46, Math.PI).prop('lamp', 27, 46, Math.PI).prop('lamp', 24, 31, 0).prop('lamp', 27, 31, 0)
+  b.prop('lamp', 11, 40, Math.PI / 2).prop('lamp', 40, 40, -Math.PI / 2).prop('lamp', 13, 20, Math.PI / 2).prop('lamp', 38, 20, -Math.PI / 2)
+  b.prop('antenna', 25, 21).prop('antenna', 43, 47).prop('flag', 9, 11).prop('flag', 43, 10).prop('flag', 19, 18)
+  b.prop('stack', 20, 19).prop('stack', 31, 19).prop('stack', 31, 23)
 
   return b.build()
 }

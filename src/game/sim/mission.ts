@@ -26,7 +26,7 @@ import { makePlayer, stepPlayer, eyeHeight, angleDelta, type Player } from './pl
 import { makeCam, lookCam, stepCam, placeCam, stickToWorld, camForward, type Cam } from './camera'
 import { alertSegments } from './alert'
 import {
-  SPECS, drainEvents, headingTo, killUnit, damageUnit, makeGarrison, noiseAt, hearAt, wonderAt, voidNoise, stepGarrison, alarmUnit,
+  SPECS, drainEvents, headingTo, killUnit, damageUnit, makeGarrison, noiseAt, hearAt, wonderAt, voidNoise, stepGarrison, alarmUnit, isLight,
   type Garrison, type Target
 } from './garrison'
 import { GarrisonView } from './garrisonView'
@@ -1033,7 +1033,7 @@ export class Mission implements GameMode {
       if (u.state === 'dead' || u.state === 'reserve' || u.state === 'dormant') continue
       enemies = true
       if (u.detect > threat) threat = u.detect
-      if (u.kind !== 'drone' && u.state === 'patrol' && Math.hypot(u.x - p.x, u.z - p.z) < 24 && Math.abs(u.y - p.y) < 3) near = true
+      if (!isLight(u) && u.state === 'patrol' && Math.hypot(u.x - p.x, u.z - p.z) < 24 && Math.abs(u.y - p.y) < 3) near = true
     }
     c.enemies = enemies
     c.threat = threat

@@ -477,6 +477,55 @@ export const poseDrone = (rig: Rig, s: DronePose): void => {
   for (let i = 0; i < 4; i++) rig.bones[`rotor${i}`]!.rotation.y = s.spin * (i % 2 === 0 ? 1 : -1)
 }
 
+// ─── Searchlight ─────────────────────────────────────────────────────────────
+
+/** The lamp's lens: what a sniper puts out. Above the mast's foot, metres. */
+export const SEARCHLIGHT_LENS_R = 0.45
+
+/**
+ * A lamp on a mast. The rig's origin is the LAMP (it stands `SEARCHLIGHT_MAST`
+ * above whatever it is bolted to, and the mast hangs down from it), so the
+ * simulation's position for it is the thing a round has to hit.
+ */
+export const buildSearchlight = (): Rig => {
+  const b = new RigBuilder()
+  b.bone('mast', null, [0, 0, 0])
+  b.bone('yoke', 'mast', [0, 0, 0])
+  b.bone('lamp', 'yoke', [0, 0, 0])
+  // The mast and its foot, down to the tower top.
+  b.part('mast', rcyl(0.09, 1.9, 0.02, 8), PAL.steelDark, { p: [0, -1.25, 0] })
+  b.part('mast', rcyl(0.3, 0.16, 0.04, 10), PAL.steelDeep, { p: [0, -2.2, 0] })
+  b.part('mast', rbox(0.5, 0.1, 0.5, 0.4, 6, 4), PAL.hazard, { p: [0, -2.08, 0] })
+  // The yoke: two arms that hold the lamp and let it tip.
+  b.part('yoke', rcyl(0.16, 0.16, 0.04, 10), PAL.steelDeep, { p: [0, -0.34, 0] })
+  b.mirror((side) => {
+    b.part('yoke', rbox(0.08, 0.5, 0.14, 0.5, 6, 4), PAL.steelDeep, { p: [side * 0.42, -0.12, 0] })
+  })
+  // The lamp: a drum with a hooded lens.
+  b.part('lamp', rcyl(0.36, 0.62, 0.08, 14), PAL.steel, { r: [Math.PI / 2, 0, 0] })
+  b.part('lamp', rcyl(0.41, 0.14, 0.04, 14), PAL.steelDark, { p: [0, 0, 0.3], r: [Math.PI / 2, 0, 0] })
+  b.part('lamp', rcyl(0.33, 0.06, 0.02, 14), PAL.glowWhite, { p: [0, 0, 0.34], r: [Math.PI / 2, 0, 0], glow: true, outline: false })
+  b.part('lamp', rbox(0.3, 0.2, 0.2, 0.5, 6, 4), PAL.steelDark, { p: [0, 0.05, -0.36] })
+  b.part('lamp', sph(0.05, 6, 5), PAL.glowRed, { p: [0, 0.2, -0.36], glow: true, outline: false })
+  return b.build({ outline: 0.02, height: 0.8 })
+}
+
+export interface SearchlightPose {
+  time: number
+  /** Where the lamp points: round the mast, and down. Radians. */
+  yaw: number
+  pitch: number
+  /** 0 calm … 1 it has something: the lamp shakes on its yoke. */
+  alarm: number
+}
+
+export const poseSearchlight = (rig: Rig, s: SearchlightPose): void => {
+  // The rig's root already turns with the unit: the yoke only carries the
+  // wobble of an old motor, the lamp the tilt.
+  pose(rig, 'yoke', 0, s.yaw + Math.sin(s.time * 31) * 0.012 * s.alarm, 0)
+  pose(rig, 'lamp', s.pitch + Math.sin(s.time * 2.2) * 0.01 + Math.sin(s.time * 27) * 0.015 * s.alarm, 0, 0)
+}
+
 // ─── Enforcer mech ───────────────────────────────────────────────────────────
 
 export const ENFORCER_HEIGHT = 3.3

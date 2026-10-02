@@ -29,6 +29,13 @@ export const validateFortress = (f: Fortress): string[] => {
       if (p.altitude < 3) problems.push(`${name} flies lower than a wall`)
       continue
     }
+    if (p.kind === 'searchlight') {
+      if (p.route.length < 2) problems.push(`${name} has nowhere to sweep`)
+      for (const s of p.route) {
+        if (heightAt(g, s.x, s.z) === VOID) problems.push(`${name}: sweep point ${at(s.x, s.z)} is off the island`)
+      }
+      continue
+    }
     // A walker's loop: every stop reachable from the one before, and back.
     const stops = p.route
     for (let k = 0; k < stops.length; k++) {

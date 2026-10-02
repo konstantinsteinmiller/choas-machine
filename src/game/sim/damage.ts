@@ -27,13 +27,13 @@ const isHuman = (k: PostKind): boolean => k === 'guard' || k === 'sentry' || k =
 export const shotDamage = (weapon: WeaponId, kind: PostKind, zone: Zone, mul = 1): number => {
   const base = BASE_DAMAGE[weapon] * mul
   if (weapon === 'sniper') {
-    if (kind === 'drone') return KILL
+    if (kind === 'drone' || kind === 'searchlight') return KILL
     if (isHuman(kind)) return zone === 'head' ? KILL : base
     if (kind === 'enforcer') return zone === 'head' ? base * 2.5 : zone === 'joint' ? base * 1.5 : base * 0.6
     return zone === 'weak' ? base : base * 0.1
   }
   if (weapon === 'minigun') {
-    if (kind === 'drone') return base * 2
+    if (kind === 'drone' || kind === 'searchlight') return base * 2
     if (isHuman(kind)) return zone === 'head' ? base * 2 : base
     if (kind === 'enforcer') return zone === 'joint' ? base * 3 : zone === 'head' ? base : base * 0.5
     return zone === 'weak' ? base * 1.5 : base * 0.1

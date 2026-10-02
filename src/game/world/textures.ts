@@ -10,9 +10,9 @@ import { TEXTURE_FILES } from '../assets/overrides'
  * little grain — so one baked texture serves every sector. Baked once, at
  * boot, from the loader (see `boot.ts`), never lazily by the render loop.
  *
- * Floors and walls share ONE atlas (floor cell on the left half, wall cell on
- * the right) so a whole room's floor + walls is a single draw call. Every quad
- * spans exactly one cell, so no tiling across the atlas seam is ever needed.
+ * Every surface shares ONE atlas (four cells in a row: floor plate, wall
+ * plate, container side, blank), so a whole chunk of the fortress is a single
+ * draw call. Every quad spans exactly one cell, so nothing tiles across a seam.
  */
 
 let atlasTex: Texture | null = null
@@ -93,37 +93,119 @@ const drawFloor = (g: CanvasRenderingContext2D, ox: number) => {
   grain(g, ox, 0, S, S, 11, 10)
 }
 
-/** One wall cell: vertical seams, a mid band, a vent grille, soft top light. */
+/**
+ * One wall cell: a steel plate two metres square, as a scrapyard would weld
+ * it on. A bevelled rim, a row of rivets down each side, a stiffening rib
+ * across the middle, weld beads, and streaks where the rain runs off the
+ * rivets. Canvas y grows downward; v = 0 is the plate's BOTTOM after flipY.
+ */
 const drawWall = (g: CanvasRenderingContext2D, ox: number) => {
   const S = 256
   const grad = g.createLinearGradient(0, 0, 0, S)
-  grad.addColorStop(0, '#cfcfcf')
-  grad.addColorStop(1, '#f4f4f4')
+  grad.addColorStop(0, '#f2f2f2')
+  grad.addColorStop(1, '#d6d6d6')
   g.fillStyle = grad
   g.fillRect(ox, 0, S, S)
-  g.fillStyle = '#8c8c8c'
-  g.fillRect(ox, 0, 4, S)
+  // The rim: light along the top and left, dark along the bottom and right.
   g.fillStyle = '#ffffff'
-  g.fillRect(ox + 4, 0, 3, S)
-  // Mid band (canvas y grows downward; v = 0 is the wall BOTTOM after flipY)
-  g.fillStyle = '#b3b3b3'
-  g.fillRect(ox, S * 0.42, S, 18)
-  g.fillStyle = '#f7f7f7'
-  g.fillRect(ox, S * 0.42 + 14, S, 4)
-  // Vent grille, upper third
-  g.fillStyle = '#9d9d9d'
-  for (let i = 0; i < 5; i++) {
-    roundRectPath(g, ox + S * 0.3, S * 0.12 + i * 12, S * 0.4, 6, 3)
+  g.fillRect(ox, 0, S, 5)
+  g.fillRect(ox, 0, 5, S)
+  g.fillStyle = '#9c9c9c'
+  g.fillRect(ox, S - 6, S, 6)
+  g.fillRect(ox + S - 6, 0, 6, S)
+  g.strokeStyle = '#6f6f6f'
+  g.lineWidth = 2.5
+  g.strokeRect(ox + 1.25, 1.25, S - 2.5, S - 2.5)
+  // Streaks under where the rivets will be.
+  const rng = mulberry32(31)
+  for (let i = 0; i < 9; i++) {
+    const x = ox + 18 + rng() * (S - 36)
+    const y = 20 + rng() * 60
+    const len = 40 + rng() * 120
+    const streak = g.createLinearGradient(0, y, 0, y + len)
+    streak.addColorStop(0, 'rgba(120,120,120,0.34)')
+    streak.addColorStop(1, 'rgba(120,120,120,0)')
+    g.fillStyle = streak
+    g.fillRect(x, y, 3 + rng() * 5, len)
+  }
+  // The stiffening rib, a hand above the middle.
+  g.fillStyle = '#b8b8b8'
+  g.fillRect(ox + 8, S * 0.44, S - 16, 20)
+  g.fillStyle = '#fbfbfb'
+  g.fillRect(ox + 8, S * 0.44, S - 16, 4)
+  g.fillStyle = '#8e8e8e'
+  g.fillRect(ox + 8, S * 0.44 + 16, S - 16, 4)
+  // Rivets down both sides and along the rib.
+  const rivet = (x: number, y: number, r = 6): void => {
+    g.beginPath()
+    g.arc(ox + x, y, r, 0, Math.PI * 2)
+    g.fillStyle = '#8a8a8a'
+    g.fill()
+    g.beginPath()
+    g.arc(ox + x - r * 0.3, y - r * 0.3, r * 0.45, 0, Math.PI * 2)
+    g.fillStyle = '#fafafa'
     g.fill()
   }
-  // Lower panel
-  roundRectPath(g, ox + 26, S * 0.58, S - 52, S * 0.34, 18)
-  g.fillStyle = '#dcdcdc'
+  for (let k = 0; k < 6; k++) {
+    const y = 26 + k * ((S - 52) / 5)
+    rivet(20, y)
+    rivet(S - 20, y)
+  }
+  for (let k = 0; k < 4; k++) rivet(62 + k * 44, S * 0.44 + 10, 4.5)
+  // A welded patch, low on one side: scrap is mended with scrap.
+  g.fillStyle = '#c6c6c6'
+  roundRectPath(g, ox + 132, S * 0.66, 78, 56, 6)
   g.fill()
-  g.lineWidth = 3
-  g.strokeStyle = '#b0b0b0'
+  g.strokeStyle = '#7d7d7d'
+  g.lineWidth = 4
+  g.setLineDash([7, 4])
   g.stroke()
-  grain(g, ox, 0, S, S, 23, 8)
+  g.setLineDash([])
+  grain(g, ox, 0, S, S, 23, 12)
+}
+
+/**
+ * One crate / container side: corrugated steel between two rails, with
+ * corner posts. The colour comes from the vertex paint, so one cell serves
+ * the rust-red, the teal and the yellow containers alike.
+ */
+const drawCrate = (g: CanvasRenderingContext2D, ox: number) => {
+  const S = 256
+  g.fillStyle = '#e6e6e6'
+  g.fillRect(ox, 0, S, S)
+  // Corrugation: ridges lit on one flank, shaded on the other.
+  const ridge = S / 8
+  for (let k = 0; k < 8; k++) {
+    const x = ox + k * ridge
+    const grad = g.createLinearGradient(x, 0, x + ridge, 0)
+    grad.addColorStop(0, '#fcfcfc')
+    grad.addColorStop(0.45, '#e2e2e2')
+    grad.addColorStop(0.55, '#b4b4b4')
+    grad.addColorStop(1, '#d4d4d4')
+    g.fillStyle = grad
+    g.fillRect(x, 22, ridge, S - 44)
+  }
+  // Rails, top and bottom, and the posts.
+  g.fillStyle = '#9a9a9a'
+  g.fillRect(ox, 0, S, 22)
+  g.fillRect(ox, S - 22, S, 22)
+  g.fillRect(ox, 0, 12, S)
+  g.fillRect(ox + S - 12, 0, 12, S)
+  g.fillStyle = '#f6f6f6'
+  g.fillRect(ox, 0, S, 4)
+  g.fillRect(ox, S - 22, S, 3)
+  g.strokeStyle = '#666666'
+  g.lineWidth = 3
+  g.strokeRect(ox + 1.5, 1.5, S - 3, S - 3)
+  grain(g, ox, 0, S, S, 47, 10)
+}
+
+/** Nothing but a little grain: bare ground, cliffs, and every flat colour. */
+const drawBlank = (g: CanvasRenderingContext2D, ox: number) => {
+  const S = 256
+  g.fillStyle = '#f6f6f6'
+  g.fillRect(ox, 0, S, S)
+  grain(g, ox, 0, S, S, 5, 7)
 }
 
 // ─── Drop-in detail maps ─────────────────────────────────────────────────────
@@ -168,12 +250,20 @@ export const textureReference = (name: string): string | null => {
   return c.toDataURL('image/png')
 }
 
-/** Floor (u 0–0.5) + wall (u 0.5–1) atlas. */
+/**
+ * The level's detail atlas: four cells in a row, each a quarter of u.
+ * `fortressMesh.ts` maps every quad to exactly one cell (`ATLAS_CELL`).
+ */
+export const ATLAS_CELLS = ['floor', 'wall', 'crate', 'blank'] as const
+export type AtlasCell = (typeof ATLAS_CELLS)[number]
+
 export const levelAtlas = (): Texture => {
   if (atlasTex) return atlasTex
-  atlasTex = make(512, 256, (g) => {
+  atlasTex = make(1024, 256, (g) => {
     drawCell(g, 0, 'floor', drawFloor)
     drawCell(g, 256, 'wall', drawWall)
+    drawCrate(g, 512)
+    drawBlank(g, 768)
   })
   atlasTex.wrapS = atlasTex.wrapT = ClampToEdgeWrapping
   return atlasTex

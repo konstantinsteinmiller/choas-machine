@@ -65,15 +65,30 @@ export interface Grid {
   /** Top height per cell, row-major (`cz * w + cx`), or VOID. */
   h: Float32Array
   kind: Uint8Array
+  /** How each cell's top is DRESSED (`Surf`): looks only, never the rules. */
+  surf: Uint8Array
   ladders: Ladder[]
   cables: Cable[]
 }
+
+/**
+ * The dressing of a cell's top. The simulation never reads it.
+ * `Plate`: steel decking instead of bare ground. `Hazard`: decking with a
+ * warning border (gates, pads). `Heap`: a solid prop stands on the cell and
+ * draws it itself, so the mesh builder leaves the block out.
+ */
+export const Surf = { Bare: 0, Plate: 1, Hazard: 2, Heap: 3 } as const
+export type Surf = (typeof Surf)[keyof typeof Surf]
+
+export const cellSurf = (g: Grid, cx: number, cz: number): Surf =>
+  cx >= 0 && cz >= 0 && cx < g.w && cz < g.d ? (g.surf[cz * g.w + cx]! as Surf) : Surf.Bare
 
 export const makeGrid = (w: number, d: number): Grid => ({
   w,
   d,
   h: new Float32Array(w * d).fill(VOID),
   kind: new Uint8Array(w * d),
+  surf: new Uint8Array(w * d),
   ladders: [],
   cables: []
 })

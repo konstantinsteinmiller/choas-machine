@@ -8,12 +8,12 @@ import { Wreckage } from '../fx/wreckage'
 import type { PostKind } from '../world/fortress'
 import type { Rig } from '../models/kit'
 import {
-  buildDrone, buildEnforcer, buildGoliath, buildGuard, restGuardPose, poseDrone, poseEnforcer, poseGoliath, poseGuard,
+  buildDrone, buildEnforcer, buildGoliath, buildGuard, buildSearchlight, poseSearchlight, type SearchlightPose, restGuardPose, poseDrone, poseEnforcer, poseGoliath, poseGuard,
   type DronePose, type EnforcerPose, type GoliathPose, type GuardPose
 } from '../models/garrison'
 import { makeBlobShadow } from '../fx/markers'
 import { angleDelta } from './player'
-import { SPECS, SPOT_RADIUS, SUSPECT_AT, spotCentre, type Garrison, type Unit } from './garrison'
+import { SPECS, SPOT_RADIUS, SUSPECT_AT, spotCentre, type Garrison, type Unit , isLight } from './garrison'
 
 /**
  * ─── The garrison, drawn ─────────────────────────────────────────────────────
@@ -54,6 +54,7 @@ interface UnitView {
   drone: DronePose | null
   enforcer: EnforcerPose | null
   goliath: GoliathPose | null
+  lamp: SearchlightPose | null
   /** Eased 0 … 1 pose values. */
   aim: number
   wary: number
@@ -116,6 +117,7 @@ const markTexture = (bang: boolean): CanvasTexture => {
 const WRECKS: Partial<Record<PostKind, {
   count: number; size: [number, number]; half: [number, number, number]; lift: number; force: number; colors: readonly string[]
 }>> = {
+  searchlight: { count: 7, size: [0.1, 0.26], half: [0.3, 0.25, 0.3], lift: -0.1, force: 4, colors: [PAL.steel, PAL.steelDeep, PAL.steelDark, PAL.glowWhite] },
   drone: { count: 9, size: [0.1, 0.24], half: [0.3, 0.15, 0.3], lift: 0, force: 4.5, colors: [PAL.steel, PAL.steelDeep, PAL.steelDark, PAL.glowRed] },
   enforcer: { count: 26, size: [0.22, 0.62], half: [0.8, 1.4, 0.6], lift: 0.4, force: 6.5, colors: [PAL.steel, PAL.steel, PAL.steelDeep, PAL.steelDeep, PAL.steelDark, PAL.steelDark, PAL.glowYellow] },
   goliath: { count: 54, size: [0.35, 1.1], half: [1.9, 1.1, 2.9], lift: 0.5, force: 9, colors: [PAL.steel, PAL.steel, PAL.steelDeep, PAL.steelDeep, PAL.steelDark, PAL.steelDark, PAL.steelDark, PAL.hazard] }
@@ -149,19 +151,20 @@ export class GarrisonView {
     for (const u of gar.units) {
       const human = u.kind === 'guard' || u.kind === 'sentry' || u.kind === 'commander'
       const rig = u.kind === 'drone' ? buildDrone()
+        : u.kind === 'searchlight' ? buildSearchlight()
         : u.kind === 'enforcer' ? buildEnforcer()
           : u.kind === 'goliath' ? buildGoliath()
             : buildGuard(u.kind === 'commander')
       const shadow = makeBlobShadow(SPECS[u.kind].radius * 1.5)
       let mark: Sprite | null = null
-      if (human || u.kind === 'drone') {
+      if (human || isLight(u)) {
         mark = new Sprite(new SpriteMaterial({ map: q, transparent: true, depthTest: false, depthWrite: false, toneMapped: false }))
         mark.renderOrder = 30
         mark.visible = false
       }
       let spot: Mesh | null = null
       let beam: Mesh | null = null
-      if (u.kind === 'drone') {
+      if (isLight(u)) {
         spot = new Mesh(this.spotGeo, new MeshBasicMaterial({
           color: CALM.clone(), transparent: true, opacity: 0.22, depthWrite: false, toneMapped: false,
           polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2
@@ -170,7 +173,8 @@ export class GarrisonView {
         spot.scale.setScalar(SPOT_RADIUS)
         spot.renderOrder = 2
         beam = new Mesh(this.beamGeo, new MeshBasicMaterial({
-          color: CALM.clone(), transparent: true, opacity: 0.07, depthWrite: false, toneMapped: false
+          // A searchlight's beam is the brighter one: it is how you read where it is looking.
+          color: CALM.clone(), transparent: true, opacity: u.kind === 'searchlight' ? 0.12 : 0.07, depthWrite: false, toneMapped: false
         }))
         beam.renderOrder = 3
       }
@@ -180,6 +184,7 @@ export class GarrisonView {
         guard: human ? { ...restGuardPose(), seed: (u.seed * 0.618) % 1, proud: u.kind === 'commander' } : null,
         drone: u.kind === 'drone' ? { time: 0, spin: 0, pitch: 0, roll: 0, eyeYaw: 0, eyePitch: 0.5, alarm: 0, deadT: 0, landed: false } : null,
         enforcer: u.kind === 'enforcer' ? { time: 0, stride: 0, speed: 0, power: 0, aimYaw: 0, aimPitch: 0, recoilL: 0, recoilR: 0, deadT: 0 } : null,
+        lamp: u.kind === 'searchlight' ? { time: 0, yaw: 0, pitch: 0.6, alarm: 0 } : null,
         goliath: u.kind === 'goliath' ? { time: 0, turretYaw: 0, barrelPitch: 0, recoil: 0, rumble: 0, dead: 0 } : null,
         aim: 0, wary: 0, caution: 0, grip: 0, spin: 0, lastYaw: u.yaw, bank: 0, pop: 0, lastState: u.state, flash: 0, wrecked: false, landed: false
       }
@@ -407,6 +412,16 @@ export class GarrisonView {
         s.landed = v.landed
         if (dead && !v.landed) v.spin += dt * 20
         poseDrone(v.rig, s)
+      } else if (v.lamp) {
+        const s = v.lamp
+        const c = spotCentre(u)
+        const gy = heightAt(this.grid, c.x, c.z)
+        s.time = time + u.seed
+        // The root turns with the unit's yaw (toward its light): the lamp only tips.
+        s.yaw = 0
+        s.pitch = Math.atan2(y - (gy === VOID ? 0 : gy), Math.max(0.5, Math.hypot(c.x - x, c.z - z)))
+        s.alarm = Math.max(v.caution, hot ? 1 : 0)
+        poseSearchlight(v.rig, s)
       } else if (v.enforcer) {
         const s = v.enforcer
         s.time = time
@@ -432,7 +447,7 @@ export class GarrisonView {
 
       // The shadow, on whatever is under it.
       const floor = heightAt(this.grid, x, z)
-      v.shadow.visible = floor !== VOID
+      v.shadow.visible = floor !== VOID && u.kind !== 'searchlight'
       v.shadow.position.set(x, floor + 0.03, z)
 
       // The searchlight.
@@ -475,7 +490,7 @@ export class GarrisonView {
           m.map = this.textures[bang ? 1 : 0]!
           m.color.copy(bang ? HOT : WARY)
           m.opacity = bang || wary ? 1 : Math.min(1, 0.25 + u.detect / SUSPECT_AT)
-          const top = u.kind === 'drone' ? 0.7 : SPECS[u.kind].height + 0.55
+          const top = isLight(u) ? 0.8 : SPECS[u.kind].height + 0.55
           v.mark.position.set(x, y + top, z)
           // Keep it readable from sniping range: grow with distance.
           const d = Math.hypot(camX - x, camY - y, camZ - z)

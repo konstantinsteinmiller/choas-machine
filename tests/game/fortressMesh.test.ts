@@ -34,6 +34,8 @@ describe('the fortress mesh', () => {
   it('shares two materials across every chunk', async () => {
     const mesh = await buildFortressMesh(buildProvingGround())
     const mats = new Set(mesh.group.children.map(c => (c as Mesh).material))
+    // In Node there is no canvas to bake the detail atlas in, so the lit
+    // material is the plain vertex-colour one (`levelMaterial`).
     expect(mats).toEqual(new Set([toonVC(), glowVC()]))
   })
 
@@ -44,6 +46,7 @@ describe('the fortress mesh', () => {
       const n = g.attributes.position!.count
       expect(g.attributes.normal!.count).toBe(n)
       expect(g.attributes.color!.count).toBe(n)
+      expect(g.attributes.uv!.count).toBe(n)
       for (const v of g.attributes.position!.array as Float32Array) expect(Number.isNaN(v)).toBe(false)
     }
   })
@@ -64,12 +67,30 @@ describe('the fortress mesh', () => {
     // 64 tops + 32 rim edges × 2 quads.
     expect(base).toBe((64 + 32 * 2) * 2)
 
-    const walled = new FortressBuilder('wall', 8, 8)
-    walled.ground(0, 0, 7, 7).wall(3, 2, 3, 5).insert(1, 1).extract(6, 6)
-    const withWall = await buildFortressMesh(walled.build())
-    // The wall adds its exposed faces: two long sides of four cells and two
-    // ends; faces between wall cells are not drawn.
-    expect(tris(withWall.chunks[0]!)).toBe(base + (4 + 4 + 1 + 1) * 2)
+    // A lone steel pillar four metres high: a chamfered top (1 + 4 chamfer
+    // quads), two plates on each of its four faces, a rib on each face (it
+    // stands on an even cell), and two spikes leaning off each lip.
+    const pillar = new FortressBuilder('pillar', 8, 8)
+    pillar.ground(0, 0, 7, 7).fill(3, 3, 3, 3, 4).insert(1, 1).extract(6, 6)
+    const withPillar = await buildFortressMesh(pillar.build())
+    const quads = 1 + 4 + 4 * 2 + 4 * 3
+    const spikes = 4 * 2 * 2
+    // ...and the ground cell it stands on has no top of its own any more.
+    expect(tris(withPillar.chunks[0]!)).toBe(base - 2 + quads * 2 + spikes)
+  })
+
+  it('never draws a face between two cells of the same wall', async () => {
+    const run = async (len: number): Promise<number> => {
+      const b = new FortressBuilder('wall', 12, 8)
+      b.ground(0, 0, 11, 7).wall(2, 3, 2 + len - 1, 3).insert(1, 1).extract(10, 6)
+      return (await buildFortressMesh(b.build())).chunks.reduce((n, m) => n + tris(m), 0)
+    }
+    // One more cell of wall adds the same few faces each time (two long sides,
+    // rib or not), never an inner end.
+    const a = await run(4)
+    const b2 = await run(6)
+    const c = await run(8)
+    expect(c - b2).toBe(b2 - a)
   })
 
   it('lights a neon trim on structures and draws the ways up', async () => {

@@ -1,4 +1,4 @@
-import { CELL, CellKind, VOID, cellMid, cellHeight, inGrid, makeGrid, type Grid } from './grid'
+import { CELL, cellHeight, CellKind, cellKind, cellMid, inGrid, makeGrid, Surf, VOID, type Grid } from './grid'
 
 /**
  * ─── A fortress, as data ─────────────────────────────────────────────────────
@@ -20,6 +20,10 @@ export const WALL_H = 4
 export const TOWER_H = 8
 /** Rise of one stair tread: under the step-up limit, so a patrol walks it. */
 export const TREAD_H = 0.5
+/** A scrap heap: low enough to climb, high enough to hide a crouched mech. */
+export const HEAP_H = 1.5
+/** A searchlight's lamp stands this far above whatever it is mounted on. */
+export const SEARCHLIGHT_MAST = 2.3
 
 export interface Point { x: number; z: number }
 
@@ -31,7 +35,7 @@ export interface Waypoint extends Point {
   look?: number
 }
 
-export type PostKind = 'guard' | 'sentry' | 'commander' | 'drone' | 'enforcer' | 'goliath'
+export type PostKind = 'guard' | 'sentry' | 'commander' | 'drone' | 'searchlight' | 'enforcer' | 'goliath'
 
 export interface Post {
   kind: PostKind
@@ -47,7 +51,9 @@ export interface Post {
   reserve?: boolean
 }
 
-export type DecorKind = 'lamp' | 'antenna' | 'barrel' | 'flag'
+export type DecorKind =
+  | 'lamp' | 'antenna' | 'barrel' | 'flag'
+  | 'heap' | 'tires' | 'pipes' | 'crane' | 'generator' | 'girder' | 'tank' | 'spool' | 'stack' | 'cone'
 export interface Decor { kind: DecorKind; x: number; y: number; z: number; rot: number }
 
 export interface Fortress {
@@ -236,6 +242,66 @@ export class FortressBuilder {
   /** A surveillance drone flying a loop at `altitude` metres above the ground. */
   drone(route: ReadonlyArray<readonly [number, number, number?]>, altitude = 6): this {
     return this.post('drone', route, 0, altitude)
+  }
+
+  /**
+   * A searchlight on a mast, on top of whatever stands at `cx, cz`. Its beam
+   * sweeps the ground from one of `sweep`'s points to the next (each
+   * `[cx, cz, waitSeconds?]`), holding at each. What the light falls on, the
+   * base knows about.
+   */
+  searchlight(cx: number, cz: number, sweep: Array<[number, number, number?]>): this {
+    const top = this.heightOf(cx, cz)
+    if (top === VOID) throw new Error(`[fortress ${this.id}] searchlight at ${cx},${cz} is off the island`)
+    const route: Waypoint[] = sweep.map(([x, z, wait]) => ({ x: cellMid(x), z: cellMid(z), wait: wait ?? 1.2 }))
+    const first = route[0] ?? { x: cellMid(cx), z: cellMid(cz) + 6 }
+    this.posts.push({
+      kind: 'searchlight', x: cellMid(cx), z: cellMid(cz), facing: Math.atan2(first.x - cellMid(cx), first.z - cellMid(cz)),
+      route, altitude: top + SEARCHLIGHT_MAST
+    })
+    return this
+  }
+
+  /**
+   * Steel decking over the ground in a rectangle of cells (looks only).
+   * `hazard`: with the warning paint of a gate or a pad.
+   */
+  deck(x0: number, z0: number, x1: number, z1: number, hazard = false): this {
+    for (let cz = Math.min(z0, z1); cz <= Math.max(z0, z1); cz++) {
+      for (let cx = Math.min(x0, x1); cx <= Math.max(x0, x1); cx++) {
+        if (!inGrid(this.grid, cx, cz) || this.heightOf(cx, cz) === VOID) continue
+        if (cellKind(this.grid, cx, cz) !== CellKind.Ground) continue
+        this.grid.surf[cz * this.grid.w + cx] = hazard ? Surf.Hazard : Surf.Plate
+      }
+    }
+    return this
+  }
+
+  /**
+   * A heap of scrap: a cell wide, too high to see over crouched and low
+   * enough to climb. It is cover like a container is; the heap draws itself,
+   * so the mesh builder leaves the block underneath undrawn.
+   */
+  heap(cx: number, cz: number, rot = 0): this {
+    const base = this.heightOf(cx, cz)
+    if (base === VOID) throw new Error(`[fortress ${this.id}] heap at ${cx},${cz} is off the island`)
+    this.set(cx, cz, base + HEAP_H, CellKind.Cover)
+    this.grid.surf[cz * this.grid.w + cx] = Surf.Heap
+    this.decor.push({ kind: 'heap', x: cellMid(cx), y: base, z: cellMid(cz), rot })
+    return this
+  }
+
+  /**
+   * A prop the mech cannot walk through: the cell under it is raised to `h`
+   * (and left undrawn: the prop is what is seen).
+   */
+  solid(kind: DecorKind, cx: number, cz: number, h: number, rot = 0): this {
+    const base = this.heightOf(cx, cz)
+    if (base === VOID) throw new Error(`[fortress ${this.id}] ${kind} at ${cx},${cz} is off the island`)
+    this.set(cx, cz, base + h, CellKind.Cover)
+    this.grid.surf[cz * this.grid.w + cx] = Surf.Heap
+    this.decor.push({ kind, x: cellMid(cx), y: base, z: cellMid(cz), rot })
+    return this
   }
 
   /** An Enforcer mech, dormant until the alarm. */

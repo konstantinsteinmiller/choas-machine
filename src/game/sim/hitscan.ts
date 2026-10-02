@@ -131,7 +131,7 @@ const take = (t: number, zone: Zone): void => {
  *  leaves the zone in `bestZone`), or Infinity. */
 const hitUnit = (u: Unit, ox: number, oy: number, oz: number, dx: number, dy: number, dz: number, maxT: number): number => {
   bestT = maxT
-  if (u.kind === 'drone') {
+  if (u.kind === 'drone' || u.kind === 'searchlight') {
     take(raySphere(ox, oy, oz, dx, dy, dz, u.x, u.y, u.z, DRONE_R), 'body')
   } else if (u.kind === 'enforcer') {
     take(rayCylinder(ox, oy, oz, dx, dy, dz, u.x, u.z, 0.8, u.y + 1.15, u.y + 2.45), 'armor')

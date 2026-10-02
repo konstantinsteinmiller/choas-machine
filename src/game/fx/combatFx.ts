@@ -220,7 +220,7 @@ export class CombatFx {
 
   /** Something of the garrison goes down. */
   kill(x: number, y: number, z: number, kind: PostKind): void {
-    if (kind === 'drone') this.particles.orbBurst(x, y, z, PAL.glowRed, 0.7)
+    if (kind === 'drone' || kind === 'searchlight') this.particles.orbBurst(x, y, z, kind === 'drone' ? PAL.glowRed : '#e9fdff', 0.7)
     else if (kind === 'enforcer') this.particles.orbBurst(x, y + 1.8, z, PAL.glowYellow, 1.6)
     else if (kind === 'goliath') {
       this.explosion(x, y + 1.5, z, y)

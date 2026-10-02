@@ -75,6 +75,14 @@ export const toonVCInstanced = (): MeshToonMaterial => {
   return vcToonInstanced
 }
 
+/**
+ * The fortress's lit material: vertex colours times the level's detail
+ * atlas where there is a document to bake one in, plain vertex colours where
+ * there is not (the unit tests build levels in Node).
+ */
+export const levelMaterial = (atlas: () => Texture): MeshToonMaterial =>
+  typeof document === 'undefined' ? toonVC() : toonVCMap(atlas())
+
 const vcMapCache = new Map<Texture, MeshToonMaterial>()
 /** Vertex-coloured toon material with a detail texture (floors, walls). */
 export const toonVCMap = (map: Texture): MeshToonMaterial => {

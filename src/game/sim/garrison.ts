@@ -52,6 +52,8 @@ export const SPECS: Readonly<Record<PostKind, Spec>> = {
   sentry: { ...HUMAN, range: 30, half: 0.55, hp: 30 },
   commander: { ...HUMAN, range: 20, half: 0.96, hp: 60 },
   drone: { eye: 0, height: 0.5, radius: 0.45, walk: 2.6, look: 1.2, run: 3.6, range: 0, half: 0, hp: 20 },
+  // A lamp on a mast. The speeds are its BEAM's, across the ground.
+  searchlight: { eye: 0, height: 0.6, radius: 0.5, walk: 3.4, look: 5, run: 8, range: 0, half: 0, hp: 20 },
   enforcer: { eye: 2.9, height: 3.3, radius: 0.95, walk: 2.0, look: 2.0, run: 2.6, range: 30, half: 1.0, hp: 600 },
   goliath: { eye: 2.6, height: 3.0, radius: 2.6, walk: 1.4, look: 1.4, run: 1.8, range: 40, half: 1.2, hp: 3000 }
 }
@@ -178,6 +180,9 @@ export interface Unit {
   homeZ: number
   homeYaw: number
   altitude: number
+  /** A searchlight: where its beam is on the ground right now. */
+  spotX: number
+  spotZ: number
   /** Its own phase for idle sweeps, so no two guards move in step. */
   seed: number
   /** Machines: 0 powered down … 1 awake. Always 1 for the living. */
@@ -261,6 +266,8 @@ export type GarrisonEvent =
   | { type: 'shell'; id: number; x: number; y: number; z: number; damage: number }
 
 const isHuman = (u: Unit): boolean => u.kind === 'guard' || u.kind === 'sentry' || u.kind === 'commander'
+/** Sees by a light on the ground, not by eyes: a drone, a searchlight. */
+export const isLight = (u: { kind: PostKind }): boolean => u.kind === 'drone' || u.kind === 'searchlight'
 /** Still on its feet (or in the air) and part of the defence. */
 export const isAlive = (u: Unit): boolean => u.state !== 'dead' && u.state !== 'reserve'
 /** Has no idea: the state a blade needs. */
@@ -272,7 +279,8 @@ export const makeGarrison = (f: Fortress, level = 2): Garrison => {
   const threat = threatOf(level)
   const units: Unit[] = f.posts.map((p, id) => {
     const ground = heightAt(f.grid, p.x, p.z)
-    const y = p.kind === 'drone' ? p.altitude : ground
+    const y = p.kind === 'drone' || p.kind === 'searchlight' ? p.altitude : ground
+    const spot = p.route[0] ?? { x: p.x + Math.sin(p.facing) * 6, z: p.z + Math.cos(p.facing) * 6 }
     const mech = p.kind === 'enforcer' || p.kind === 'goliath'
     return {
       id, kind: p.kind, x: p.x, y, z: p.z, px: p.x, py: y, pz: p.z,
@@ -281,6 +289,7 @@ export const makeGarrison = (f: Fortress, level = 2): Garrison => {
       route: p.route, wp: p.route.length > 1 ? 1 : 0, wait: p.route[0]?.wait ?? 0,
       path: [], pathI: 0, repath: 0, bodyT: 0, hp: Math.round(SPECS[p.kind].hp * threat.hp), deadT: 0, fallDir: 1, huh: HUH_S, noise: 0, gripped: false, hold: 0, death: 'back', hitX: 0, hitZ: 0, found: false,
       stride: 0, speed01: 0, homeX: p.x, homeZ: p.z, homeYaw: p.facing, altitude: p.altitude,
+      spotX: spot.x, spotZ: spot.z,
       seed: (id * 2.399) % (Math.PI * 2),
       power: mech ? 0 : 1, fireT: 0, burst: 0, burstT: 0, shellT: 0, shellX: 0, shellZ: 0, recoil: 0
     }
@@ -353,14 +362,28 @@ const viewerOf = (u: Unit): Viewer => {
 }
 
 /** Where a drone's searchlight falls. */
-export const spotCentre = (u: Unit): { x: number; z: number } => ({
-  x: u.x + Math.sin(u.yaw) * SPOT_AHEAD,
-  z: u.z + Math.cos(u.yaw) * SPOT_AHEAD
-})
+export const spotCentre = (u: Unit): { x: number; z: number } => (u.kind === 'searchlight'
+  ? { x: u.spotX, z: u.spotZ }
+  : { x: u.x + Math.sin(u.yaw) * SPOT_AHEAD, z: u.z + Math.cos(u.yaw) * SPOT_AHEAD })
+
+/**
+ * Move a light across the ground by `(dx, dz)`: a drone flies with its light,
+ * a searchlight stays on its mast and swings.
+ */
+const moveSpot = (u: Unit, dx: number, dz: number): void => {
+  if (u.kind === 'searchlight') {
+    u.spotX += dx
+    u.spotZ += dz
+    u.yaw = headingTo(u.x, u.z, u.spotX, u.spotZ)
+  } else {
+    u.x += dx
+    u.z += dz
+  }
+}
 
 /** How much of something a unit can see: 0, 0.5 or 1. */
 const sight = (u: Unit, g: Grid, t: Seen): number => {
-  if (u.kind !== 'drone') return exposure(g, viewerOf(u), t)
+  if (!isLight(u)) return exposure(g, viewerOf(u), t)
   const c = spotCentre(u)
   if (Math.hypot(t.x - c.x, t.z - c.z) > SPOT_RADIUS) return 0
   let seen = 0
@@ -427,7 +450,7 @@ const patrol = (u: Unit, g: Grid, time: number, dt: number): void => {
   if (u.route.length < 2) {
     // A post with nowhere to go: watch, with a slow sweep of the head.
     const away = Math.hypot(u.homeX - u.x, u.homeZ - u.z)
-    if (away > 0.3 && u.kind !== 'drone') {
+    if (away > 0.3 && !isLight(u)) {
       if (u.path.length === 0 && !goTo(u, g, u.homeX, u.homeZ)) { u.homeX = u.x; u.homeZ = u.z }
       follow(u, g, SPECS[u.kind].walk, dt)
       u.look *= Math.max(0, 1 - dt * 4)
@@ -448,6 +471,24 @@ const patrol = (u: Unit, g: Grid, time: number, dt: number): void => {
   }
   u.look *= Math.max(0, 1 - dt * 4)
   const stop = u.route[u.wp]!
+  if (u.kind === 'searchlight') {
+    // The beam crosses the ground from one point of its sweep to the next.
+    const dx = stop.x - u.spotX
+    const dz = stop.z - u.spotZ
+    const dist = Math.hypot(dx, dz)
+    const step = SPECS.searchlight.walk * dt
+    if (dist <= step) {
+      u.spotX = stop.x
+      u.spotZ = stop.z
+      u.wait = stop.wait
+      u.wp = (u.wp + 1) % u.route.length
+    } else {
+      moveSpot(u, (dx / dist) * step, (dz / dist) * step)
+    }
+    u.yaw = headingTo(u.x, u.z, u.spotX, u.spotZ)
+    u.speed01 = 0
+    return
+  }
   if (u.kind === 'drone') {
     // Drones fly straight from stop to stop.
     const dx = stop.x - u.x
@@ -490,7 +531,7 @@ const investigate = (u: Unit, g: Grid, dt: number): void => {
         // Wondering: it heard something and does not know where. It looks
         // about where it stands; only afterwards does it go and see.
         u.look = Math.sin(u.t * 3.3 + u.seed) * 1.0
-        if (u.kind !== 'drone') u.yaw += Math.sin(u.t * 2.1 + u.seed) * 0.9 * dt
+        if (!isLight(u)) u.yaw += Math.sin(u.t * 2.1 + u.seed) * 0.9 * dt
       } else {
         // The double-take: stop and turn to it before taking a step.
         turnToward(u, face, dt)
@@ -498,18 +539,17 @@ const investigate = (u: Unit, g: Grid, dt: number): void => {
       }
       return
     }
-    if (u.kind === 'drone') {
-      // A drone swings its light onto the spot and holds there.
+    if (isLight(u)) {
+      // A light swings onto the spot and holds there.
       const c = spotCentre(u)
       const dx = u.seenX - c.x
       const dz = u.seenZ - c.z
       const dist = Math.hypot(dx, dz)
       if (dist > 0.4) {
-        const step = Math.min(dist, SPECS.drone.look * dt)
-        u.x += (dx / dist) * step
-        u.z += (dz / dist) * step
+        const step = Math.min(dist, SPECS[u.kind].look * dt)
+        moveSpot(u, (dx / dist) * step, (dz / dist) * step)
       }
-      turnToward(u, face, dt, 2)
+      if (u.kind === 'drone') turnToward(u, face, dt, 2)
       if (u.t > u.huh + (u.lured ? SCAN_LURED_S : SCAN_S)) enter(u, 'search')
       return
     }
@@ -531,7 +571,16 @@ const investigate = (u: Unit, g: Grid, dt: number): void => {
   // search: stand and sweep.
   stand(u)
   u.look = Math.sin(u.t * 1.9 + u.seed) * 1.1
-  if (u.kind !== 'drone') u.yaw += Math.sin(u.t * 0.8) * 0.5 * dt
+  if (!isLight(u)) u.yaw += Math.sin(u.t * 0.8) * 0.5 * dt
+  // A searchlight hunts in a small circle round where it last had something.
+  if (u.kind === 'searchlight') {
+    const tx = u.seenX + Math.cos(u.t * 1.4) * 3
+    const tz = u.seenZ + Math.sin(u.t * 1.4) * 3
+    const dx = tx - u.spotX
+    const dz = tz - u.spotZ
+    const d = Math.hypot(dx, dz)
+    if (d > 0.05) { const st = Math.min(d, SPECS.searchlight.look * dt); moveSpot(u, (dx / d) * st, (dz / d) * st) }
+  }
 }
 
 /** What the Goliath shoots at: the nearest decoy it can see, else the mech. */
@@ -567,7 +616,7 @@ const fight = (u: Unit, g: Grid, gar: Garrison, target: Target, dt: number): voi
   const spec = SPECS[u.kind]
   if (u.kind !== 'goliath') u.look *= Math.max(0, 1 - dt * 8)
   const dist = Math.hypot(u.seenX - u.x, u.seenZ - u.z)
-  if (u.kind === 'drone') {
+  if (isLight(u)) {
     // Keep the light on the mech.
     const c = spotCentre(u)
     const dx = u.seenX - c.x
@@ -575,10 +624,9 @@ const fight = (u: Unit, g: Grid, gar: Garrison, target: Target, dt: number): voi
     const d = Math.hypot(dx, dz)
     if (d > 0.3) {
       const step = Math.min(d, spec.run * dt)
-      u.x += (dx / d) * step
-      u.z += (dz / d) * step
+      moveSpot(u, (dx / d) * step, (dz / d) * step)
     }
-    turnToward(u, headingTo(u.x, u.z, u.seenX, u.seenZ), dt, 3)
+    if (u.kind === 'drone') turnToward(u, headingTo(u.x, u.z, u.seenX, u.seenZ), dt, 3)
     u.speed01 = 1
     if (u.sees) u.repath = 0
     else if (!gar.alert.chaos && (u.repath += dt) > DRONE_LOST_S) { u.repath = 0; enter(u, 'search') }
@@ -676,7 +724,7 @@ export const stepGarrison = (gar: Garrison, g: Grid, target: Target, dt: number)
     u.sees = exposed > 0
     if (u.sees) {
       const wary = u.state === 'suspicious' || u.state === 'search' ? WARY_GAIN : 1
-      const rate = u.kind === 'drone'
+      const rate = isLight(u)
         ? (exposed * (target.crouched ? 0.7 : 1)) / SPOT_NOTICE_S
         : noticeRate(Math.hypot(target.x - u.x, target.z - u.z), SPECS[u.kind].range, exposed, target.crouched)
       u.detect = Math.min(1, u.detect + rate * wary * gar.threat.notice * dt)
@@ -697,8 +745,8 @@ export const stepGarrison = (gar: Garrison, g: Grid, target: Target, dt: number)
       // mech the base already knows about adds little.
       const known = gar.units.some(o => o !== u && o.state === 'combat')
       // A drone's report sends a machine (plan G7).
-      if (u.kind === 'drone') wakeNearest(gar, target.x, target.z)
-      if (!known) raise(gar, u.kind === 'drone' ? 'drone' : 'seen', target)
+      if (isLight(u)) wakeNearest(gar, target.x, target.z)
+      if (!known) raise(gar, isLight(u) ? 'drone' : 'seen', target)
       else if (pressAlert(gar.alert, SECOND_WITNESS)) goChaos(gar, target)
     } else if (u.state === 'patrol' && u.detect >= SUSPECT_AT) {
       suspect(gar, u, u.seenX, u.seenZ, false)
@@ -811,7 +859,7 @@ export const killUnit = (gar: Garrison, id: number, fromX: number, fromZ: number
     // Its own number decides, so the same machine dies the same way in a replay.
     const roll = (((u.seed * 7.13 + u.id * 0.37) % 1) + 1) % 1
     const apart = u.kind === 'goliath' || how === 'blast' || roll < BURST_CHANCE
-    u.death = apart ? 'burst' : u.kind === 'drone' ? 'crash' : 'slump'
+    u.death = apart || u.kind === 'searchlight' ? 'burst' : u.kind === 'drone' ? 'crash' : 'slump'
   }
   u.hp = 0
   u.state = 'dead'
@@ -825,8 +873,10 @@ export const killUnit = (gar: Garrison, id: number, fromX: number, fromZ: number
   u.path = []
   // Wreckage is evidence like a body is: a patrol that sees a drone in
   // pieces on the ground knows somebody is in the base.
-  u.found = false
+  u.found = u.kind === 'searchlight'
   gar.events.push({ type: 'kill', id, death: u.death })
+  // A light that goes out is noticed: whoever is near wonders why.
+  if (u.kind === 'searchlight') wonderAt(gar, u.x, u.z, 14)
 }
 
 /**
@@ -889,7 +939,7 @@ export const noiseAt = (gar: Garrison, target: Target, x: number, z: number, rad
 export const hearAt = (gar: Garrison, x: number, z: number, radius: number): number => {
   let n = 0
   for (const u of gar.units) {
-    if (!isAlive(u) || u.state !== 'patrol' || u.kind === 'drone' || u.kind === 'goliath') continue
+    if (!isAlive(u) || u.state !== 'patrol' || isLight(u) || u.kind === 'goliath') continue
     if (Math.hypot(u.x - x, u.z - z) > radius) continue
     suspect(gar, u, x, z, false)
     n++
@@ -911,7 +961,7 @@ export const wonderAt = (gar: Garrison, x: number, z: number, radius: number): {
   const token = ++gar.noiseSeq
   let heard = 0
   for (const u of gar.units) {
-    if (!isAlive(u) || u.state !== 'patrol' || u.kind === 'goliath' || u.gripped) continue
+    if (!isAlive(u) || u.state !== 'patrol' || u.kind === 'goliath' || u.kind === 'searchlight' || u.gripped) continue
     if (Math.hypot(u.x - x, u.z - z) > radius) continue
     suspect(gar, u, x, z, false)
     u.huh = WONDER_S
