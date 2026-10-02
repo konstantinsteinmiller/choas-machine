@@ -170,6 +170,7 @@ export class Mission implements GameMode {
   private lastYaw = 0
   private lastPitch = 0
   private wasAiming = false
+  private lastStep = 0
   private offHelp: (() => void) | null = null
   private target: Target
   private mesh!: FortressMesh
@@ -329,6 +330,11 @@ export class Mission implements GameMode {
             if (e.type === 'ladder') this.learn('climb')
             else if (e.type === 'cable') this.learn('cable')
           }
+        }
+        // A footfall each half stride.
+        if (p.mode === 'ground' && p.speed01 > 0.2 && Math.floor(p.stride / Math.PI) !== this.lastStep) {
+          this.lastStep = Math.floor(p.stride / Math.PI)
+          emit('step', {})
         }
         if (p.crouched !== wasCrouched) {
           emit('crouch', { crouched: p.crouched })

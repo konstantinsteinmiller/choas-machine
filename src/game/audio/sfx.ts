@@ -1,34 +1,34 @@
 /**
  * SFX entry point. Every gameplay sound goes through `sfx(name, pan, gain)`;
- * the chiptune synthesizer behind it lands in the audio chunk. Until then this
- * is a registry the synth plugs into, so call sites are already final.
+ * the synthesizer behind it lands in the audio chunk. Until then this is a
+ * registry the synth plugs into, so call sites are already final.
  *
- * `muffle` (0..1) low-passes the sound: a source behind the listener
- * (`state/damageFeed.ts`), which a pan alone cannot tell from one in front.
+ * `muffle` (0..1) low-passes the sound: something far off, or behind a wall.
  */
 export type SfxName =
-  | 'shoot' | 'charge1' | 'charge2' | 'charge3' | 'chargeShot' | 'chargeShotBig' | 'hit' | 'hitHeavy' | 'crit' | 'tink'
-  | 'guardBreak' | 'explode' | 'enemyShot' | 'lob' | 'jump' | 'stomp' | 'dash' | 'bonk' | 'punch' | 'alert'
-  | 'hurt' | 'block' | 'parry' | 'guardCrack' | 'slide' | 'bolt' | 'heal' | 'energy' | 'door' | 'beamIn'
-  | 'beamOut' | 'levelUp' | 'chestOpen' | 'loot' | 'tank' | 'weapon' | 'denied' | 'uiClick' | 'uiOpen'
-  | 'objective' | 'bossIntro' | 'death' | 'locate' | 'bossWarn' | 'thunder'
-  | 'attrPick'
-  | 'trapHiss' | 'flameJet' | 'bladeWhoosh' | 'trapClick'
-  // The Sky Docks' wind tunnel (`sim/stages/wind.ts`)
-  | 'gust'
-  | 'borrowGet' | 'borrowSpent'
-  | 'droneArrive' | 'droneHum' | 'droneHumHi' | 'deckLand' | 'liftOff'
-  | 'whizz'
-  | 'fumble'
-  // The intro cutscene (`story/introScript.ts`)
-  | 'synthPulse' | 'tapeRewind' | 'relayChime' | 'vexGlitch' | 'relayOut' | 'alarm' | 'capsule' | 'freeze'
-  | 'heartbeat' | 'pipChirp' | 'bootUp' | 'uiClose'
+  // The mech
+  | 'step' | 'land' | 'crouch' | 'climb' | 'cable' | 'hurt' | 'armorLow' | 'down'
+  // The sniper: silenced, with a bolt to work
+  | 'sniper' | 'bolt' | 'reload' | 'reloadDone' | 'scopeIn' | 'scopeOut' | 'dry'
+  // The minigun and the launcher
+  | 'minigun' | 'overheat' | 'rocket' | 'explode' | 'weapon'
+  // The blade and the decoy
+  | 'blade' | 'bladeOut' | 'decoy' | 'decoyOut'
+  // What a round does
+  | 'hit' | 'headshot' | 'tink' | 'ricochet' | 'kill' | 'wreck'
+  // The base
+  | 'suspicious' | 'spotted' | 'body' | 'alertUp' | 'alertDown' | 'alarm' | 'enemyShot' | 'whizz' | 'wake'
+  | 'telegraph' | 'shell' | 'wave'
+  // The mission's beats
+  | 'objective' | 'extract' | 'dropIn' | 'killcam' | 'lesson' | 'medal'
+  // The Command Base and the interface
+  | 'buy' | 'forgeStart' | 'forgeDone' | 'denied' | 'uiClick' | 'uiOpen' | 'uiClose' | 'uiConfirm'
 
 type Player = (name: SfxName, pan: number, gain: number, muffle: number) => void
 let player: Player | null = null
 
 export const setSfxPlayer = (p: Player | null): void => { player = p }
 
-export const sfx = (name: SfxName | string, pan = 0, gain = 1, muffle = 0): void => {
-  player?.(name as SfxName, Math.max(-1, Math.min(1, pan)), gain, Math.max(0, Math.min(1, muffle)))
+export const sfx = (name: SfxName, pan = 0, gain = 1, muffle = 0): void => {
+  player?.(name, Math.max(-1, Math.min(1, pan)), gain, Math.max(0, Math.min(1, muffle)))
 }

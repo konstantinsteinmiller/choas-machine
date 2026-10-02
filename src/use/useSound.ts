@@ -37,7 +37,7 @@ let retrackSynth: (() => void) | null = null
 /** True while the synthesized score (not a drop-in file) is the music source. */
 let usingSynth = false
 /** Which part of the game is on screen — picks the synthesized track. */
-const gameTrack = ref<TrackId>('hub')
+const gameTrack = ref<TrackId>('stealth')
 const synthTrack = (): TrackId => gameTrack.value
 /** Start the game's music (sets the play intent). Safe to call repeatedly. */
 export const startGameMusic = (): void => {

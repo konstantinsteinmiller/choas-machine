@@ -13,6 +13,7 @@ import { CommandBase } from './scenes/commandBase'
 import { currentLoadout } from './state/progress'
 import { initProfile } from './state/profile'
 import { installSynth, loadSfxOverrides } from './audio/synth'
+import { installGameSounds } from './audio/gameSounds'
 
 /**
  * ─── Boot priming ────────────────────────────────────────────────────────────
@@ -124,6 +125,7 @@ export const primeGame = (onProgress: (p01: number) => void): Promise<void> => {
     performance.mark('boot:prime-start')
     initProfile()
     installSynth()
+    installGameSounds()
     // Drop-in files (only those that exist; see game/assets/overrides.ts).
     // SFX decode in the background; the detail maps must land before the
     // atlas bakes, and cost nothing when there are none.

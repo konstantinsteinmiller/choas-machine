@@ -8,23 +8,20 @@ import { mulberry32, type Rng } from '../world/rng'
  * AudioContext it is handed — the shared one in play, an OfflineAudioContext
  * when a tool renders it to measure loudness.
  *
- * Two families live here:
+ * Three songs, one per place the player can be (GDD 4):
  *
- *   - the CHIPTUNE area themes (hub + one per sector): pulse waves, a composer
- *     that writes each one from a progression, a mode and a seed. ~25-35 s a
- *     pass, so the sequencer plays them twice before rotating on.
- *   - the SCORED songs: `drift` (synthwave), `circuit` (lo-fi) and the `boss`
- *     fight. Detuned saw pads, FM keys, plucks, a real kit and a hall reverb —
- *     written out by hand, about a minute each. They exist because a
- *     25-second pulse-wave loop is the first thing a new player mutes.
+ *   - `stealth`: "Night Watch". Low synth pads and a slow pulse, almost no
+ *     drums: the base asleep, and the player's own breath.
+ *   - `chaos`: "Overload". The alarm has gone: 140 BPM, a driving kit, brass.
+ *   - `base`: "Neon Drift". Mid-tempo synthwave for the Command Base.
  *
- * The sequencer (`music.ts`) rotates area theme → drift → circuit about once a
- * minute, and swaps to `boss` for a Core Master fight.
+ * Detuned saw pads, FM keys, plucks, a real kit and a hall reverb, written
+ * out by hand: a 25-second pulse-wave loop is the first thing a new player
+ * mutes. The sequencer (`music.ts`) loops each and cross-fades between them.
  */
 
-export type TrackId = 'hub' | 'scrapyard' | 'blaze' | 'cryo' | 'volt' | 'gale' | 'magnet' | 'drill' | 'tide' | 'neon' | 'rotor' | 'fortress' | 'boss' | 'intro'
-/** A song: an area theme (by its track id), one of the two rotation songs, or the boss. */
-export type SongId = TrackId | 'drift' | 'circuit'
+export type TrackId = 'base' | 'stealth' | 'chaos'
+export type SongId = TrackId
 
 type Inst =
   | 'cLead' | 'cArp' | 'cBass' | 'cKick' | 'cSnare' | 'cHat'
@@ -688,158 +685,6 @@ class Score {
 
 const jitter = (rng: Rng, v: number, amt = 0.08): number => Math.max(0.05, Math.min(1, v * (1 - amt + rng() * amt * 2)))
 
-// ─── Chiptune area themes ───────────────────────────────────────────────────
-
-interface ChipSpec {
-  bpm: number
-  root: number
-  mode: number[]
-  progA: number[]
-  progB: number[]
-  seed: number
-  leadDuty: number
-  arpDuty: number
-  drums: 'drive' | 'half' | 'march'
-}
-
-const MINOR = [0, 2, 3, 5, 7, 8, 10]
-const DORIAN = [0, 2, 3, 5, 7, 9, 10]
-const MAJOR = [0, 2, 4, 5, 7, 9, 11]
-const LYDIAN = [0, 2, 4, 6, 7, 9, 11]
-const PHRYG = [0, 1, 3, 5, 7, 8, 10]
-
-type ChipId = Exclude<TrackId, 'boss' | 'intro'>
-
-const CHIP: Record<ChipId, ChipSpec> = {
-  hub: { bpm: 112, root: 48, mode: MAJOR, progA: [0, 5, 3, 4], progB: [5, 3, 0, 4], seed: 11, leadDuty: 0.25, arpDuty: 0.125, drums: 'half' },
-  scrapyard: { bpm: 150, root: 40, mode: MINOR, progA: [0, 5, 2, 6], progB: [3, 4, 0, 6], seed: 21, leadDuty: 0.25, arpDuty: 0.125, drums: 'drive' },
-  blaze: { bpm: 160, root: 45, mode: MINOR, progA: [0, 6, 5, 6], progB: [3, 4, 5, 4], seed: 32, leadDuty: 0.5, arpDuty: 0.25, drums: 'drive' },
-  cryo: { bpm: 144, root: 38, mode: DORIAN, progA: [0, 3, 0, 4], progB: [5, 3, 1, 4], seed: 43, leadDuty: 0.125, arpDuty: 0.25, drums: 'march' },
-  volt: { bpm: 168, root: 42, mode: MINOR, progA: [0, 2, 5, 4], progB: [3, 5, 6, 4], seed: 54, leadDuty: 0.25, arpDuty: 0.125, drums: 'drive' },
-  gale: { bpm: 150, root: 43, mode: LYDIAN, progA: [0, 1, 0, 4], progB: [5, 3, 1, 4], seed: 65, leadDuty: 0.25, arpDuty: 0.125, drums: 'march' },
-  // The Polarity Works: a driving minor groove that swings between two
-  // poles (the progression rocks i ↔ ♭VI), square lead.
-  magnet: { bpm: 156, root: 41, mode: MINOR, progA: [0, 5, 0, 5], progB: [3, 6, 4, 4], seed: 87, leadDuty: 0.5, arpDuty: 0.125, drums: 'drive' },
-  // The Deep Mine: a marching phrygian dig, low and steady, the arp in
-  // wide duty for a hollow, tunnel-ish ring.
-  drill: { bpm: 146, root: 38, mode: PHRYG, progA: [0, 1, 0, 4], progB: [3, 4, 1, 0], seed: 98, leadDuty: 0.25, arpDuty: 0.5, drums: 'march' },
-  // The Tidewater Locks: a rolling dorian swell in half time, a thin
-  // lead over a mid arp, like light on water.
-  tide: { bpm: 138, root: 43, mode: DORIAN, progA: [0, 3, 4, 3], progB: [5, 4, 1, 4], seed: 109, leadDuty: 0.125, arpDuty: 0.25, drums: 'half' },
-  // Blackout Boulevard: a fast synth-wave drive in minor, a wide square
-  // lead and a fizzing narrow arp.
-  neon: { bpm: 164, root: 45, mode: MINOR, progA: [0, 5, 3, 6], progB: [0, 5, 6, 4], seed: 120, leadDuty: 0.5, arpDuty: 0.125, drums: 'drive' },
-  // The Rotor Run: the fastest of them, a bright lydian chase, the lead
-  // pushing up a fourth.
-  rotor: { bpm: 168, root: 40, mode: LYDIAN, progA: [0, 1, 4, 1], progB: [5, 4, 1, 0], seed: 131, leadDuty: 0.25, arpDuty: 0.125, drums: 'drive' },
-  fortress: { bpm: 162, root: 36, mode: PHRYG, progA: [0, 1, 0, 6], progB: [5, 3, 1, 0], seed: 76, leadDuty: 0.5, arpDuty: 0.25, drums: 'drive' }
-}
-
-const RHYTHMS = [
-  'x..x..x.x.x.x...',
-  'x.x.x..xx.x.x...',
-  'x...x.x.x..xx.x.',
-  'x.xx..x.x.x..x..',
-  'x..xx.x...x.x.x.'
-]
-
-const scaleNote = (spec: ChipSpec, degree: number, octave: number): number => {
-  const n = spec.mode.length
-  const oct = Math.floor(degree / n)
-  const d = ((degree % n) + n) % n
-  return spec.root + 12 * (octave + oct) + spec.mode[d]!
-}
-
-/** One 4-bar section of an area theme, written into `S` from `bar0`. */
-const composeChip = (S: Score, bar0: number, spec: ChipSpec, prog: number[], rng: Rng, variant: number): void => {
-  const rhythm = RHYTHMS[Math.floor(rng() * RHYTHMS.length)]!
-  // A 2-bar motif, then its answer (repeat with a sequence up / cadence)
-  let deg = prog[0]! + 7 * 2
-  const motif: Array<{ step: number; deg: number; len: number }> = []
-  for (let s = 0; s < 32; s++) {
-    if (rhythm[s % 16] !== 'x') continue
-    const chordRoot = prog[Math.floor(s / 16)]!
-    if (s % 4 === 0) {
-      // snap to the nearest chord tone
-      const tones = [chordRoot, chordRoot + 2, chordRoot + 4].map(t => t + 14)
-      deg = tones.reduce((a, b) => (Math.abs(b - deg) < Math.abs(a - deg) ? b : a))
-    } else {
-      deg += Math.round((rng() - 0.5) * 4)
-    }
-    let len = 1
-    for (let k = s + 1; k < 32 && rhythm[k % 16] !== 'x'; k++) len++
-    motif.push({ step: s, deg, len: Math.min(len, 4) })
-  }
-  const at = (step: number, i: Inst, m: number, len: number, p?: number): void =>
-    S.add(bar0 + Math.floor(step / 16), step % 16, i, m, len, 1, p)
-  // Lead sits an octave above the arpeggio so the two never mask each other.
-  for (const m of motif) at(m.step, 'cLead', scaleNote(spec, m.deg, 1), m.len, spec.leadDuty)
-  const lift = variant === 1 ? 1 : variant === 2 ? -1 : 2
-  for (const m of motif) {
-    const d = m.step >= 24 && m === motif[motif.length - 1] ? prog[3]! + 14 : m.deg + lift
-    at(m.step + 32, 'cLead', scaleNote(spec, d, 1), m.len, spec.leadDuty)
-  }
-  for (let bar = 0; bar < 4; bar++) {
-    const r = prog[bar]!
-    for (let e = 0; e < 8; e++) {
-      const walk = e === 7 && rng() < 0.5 ? scaleNote(spec, r + 4, 0) : scaleNote(spec, r, e % 2)
-      at(bar * 16 + e * 2, 'cBass', walk, 2)
-    }
-    const chord = [r, r + 2, r + 4, r + 7]
-    const order = variant === 2 ? [3, 2, 1, 0, 2, 1] : [0, 1, 2, 3, 2, 1]
-    for (let k = 0; k < 16; k++) at(bar * 16 + k, 'cArp', scaleNote(spec, chord[order[k % order.length]!]!, 2), 1, spec.arpDuty)
-    for (let k = 0; k < 16; k++) {
-      const s = bar * 16 + k
-      let kick = false
-      let snare = false
-      let hat = false
-      if (spec.drums === 'drive') {
-        kick = k === 0 || k === 8 || (k === 10 && rng() < 0.4) || (k === 6 && bar % 2 === 1)
-        snare = k === 4 || k === 12
-        hat = k % 2 === 0
-      } else if (spec.drums === 'march') {
-        kick = k === 0 || k === 6 || k === 8
-        snare = k === 4 || k === 12 || (k === 14 && bar === 3)
-        hat = k % 2 === 0 || k === 15
-      } else {
-        kick = k === 0
-        snare = k === 8
-        hat = k % 4 === 2
-      }
-      if (kick) at(s, 'cKick', 0, 1)
-      if (snare) at(s, 'cSnare', 0, 1)
-      if (hat) at(s, 'cHat', 0, 1)
-    }
-  }
-}
-
-const chipSong = (id: ChipId): Song => {
-  const spec = CHIP[id]
-  const S = new Score(16)
-  const rng = mulberry32(spec.seed)
-  composeChip(S, 0, spec, spec.progA, rng, 0)
-  composeChip(S, 4, spec, spec.progA, mulberry32(spec.seed), 1)
-  composeChip(S, 8, spec, spec.progB, rng, 2)
-  composeChip(S, 12, spec, spec.progA, mulberry32(spec.seed), 1)
-  return {
-    id,
-    bpm: spec.bpm,
-    bars: 16,
-    loopBar: 0,
-    swing: 0,
-    gain: 0.7,
-    reverb: { seconds: 1.2, decay: 3 },
-    // The pulse lead is what grates after a minute: take the fizz off the top
-    // and give it a little room, without changing the notes.
-    chans: {
-      chip: { lp: 4200, send: 0.12 },
-      chipBass: { lp: 2500 },
-      chipDrums: { lp: 7000, send: 0.05 }
-    },
-    steps: S.steps
-  }
-}
-
 // ─── "Neon Drift" — synthwave, 100 BPM, A minor ─────────────────────────────
 // intro 4 · A 8 · B (chorus) 8 · outro 4 = 24 bars, 57.6 s.
 
@@ -929,7 +774,7 @@ const drift = (): Song => {
     }
   }
   return {
-    id: 'drift',
+    id: 'base',
     bpm: 100,
     bars: 24,
     loopBar: 0,
@@ -954,105 +799,7 @@ const drift = (): Song => {
   }
 }
 
-// ─── "Deep Circuit" — lo-fi, 84 BPM, swung, C major / D dorian ──────────────
-// intro 4 · A 8 · B 8 = 20 bars, 57.1 s.
-
-const circuit = (): Song => {
-  const S = new Score(20)
-  const rng = mulberry32(777)
-  const V: Record<string, [number[], number]> = {
-    Dm9: [[53, 57, 60, 64], note('D3')],
-    G13: [[53, 59, 64, 69], note('G2')],
-    Cmaj9: [[52, 55, 59, 62], note('C3')],
-    Am9: [[55, 59, 60, 64], note('A2')],
-    Fmaj9: [[57, 60, 64, 67], note('F2')],
-    Em7: [[55, 59, 62, 64], note('E2')],
-    Fm9: [[56, 60, 63, 67], note('F2')],
-    A7: [[55, 61, 64, 69], note('A2')],
-    G7sus: [[53, 60, 62, 67], note('G2')]
-  }
-  const prog = ('Dm9 G13 Cmaj9 Am9  Dm9 G13 Cmaj9 Am9 Fmaj9 Em7 Dm9 G7sus  ' +
-    'Fmaj9 Fm9 Em7 A7 Dm9 G13 Cmaj9 Cmaj9').split(/\s+/)
-  const bellA = ['E5:0:4 G5:4:12', 'D5:0:4 G5:4:12', 'C5:0:4 F5:4:8 E5:12:4', 'D5:0:16']
-  const bellB = [
-    'E5:0:4 G5:4:4 A5:8:8',
-    'G5:0:4 Ab5:4:4 G5:8:4 Eb5:12:4',
-    'D5:0:6 E5:6:2 G5:8:8',
-    'E5:0:4 C#5:4:4 A4:8:8',
-    'F5:0:4 E5:4:2 D5:6:2 C5:8:4 A4:12:4',
-    'B4:0:6 D5:6:2 E5:8:8',
-    'D5:0:4 E5:4:4 G5:8:4 B5:12:4',
-    'D6:0:12'
-  ]
-  for (let bar = 0; bar < 20; bar++) {
-    const [voicing, root] = V[prog[bar]!]!
-    const next = V[prog[(bar + 1) % 20]!]![1]
-    const sec = bar < 4 ? 'intro' : bar < 12 ? 'A' : 'B'
-    const k = sec === 'A' ? bar - 4 : sec === 'B' ? bar - 12 : bar
-    const last = bar === 19
-
-    // Keys, strummed a hair: a held chord, then a lighter push on the "and" of 3.
-    voicing.forEach((m, j) => {
-      const strum = j * 0.014
-      if (sec === 'intro' || last) S.add(bar, 0, 'keys', m, 16, jitter(rng, 0.6), strum)
-      else {
-        S.add(bar, 0, 'keys', m, 10, jitter(rng, 0.75), strum)
-        S.add(bar, 10, 'keys', m, 5, jitter(rng, 0.5), strum)
-      }
-    })
-
-    // Dust under everything.
-    for (let s = 0; s < 16; s++) if (rng() < 0.2) S.add(bar, s, 'crackle', 0, 1, 0.4 + rng() * 0.6)
-
-    if (sec === 'intro') {
-      if (k >= 2) for (let s = 0; s < 16; s += 2) S.add(bar, s, 'hat', 0, 1, jitter(rng, s % 4 === 0 ? 0.28 : 0.18))
-      continue
-    }
-
-    // Bass: root, a fifth on the "and" of 3, a chromatic step into the next chord.
-    S.add(bar, 0, 'sub', root, 6, 0.95)
-    if (!last) {
-      S.add(bar, 10, 'sub', root + 7, 3, 0.6)
-      S.add(bar, 14, 'sub', next - 1, 2, 0.5)
-    }
-
-    // Boom-bap kit; the last bar of A drops out for a breath, the song's last bar just lands.
-    const breakBar = bar === 11
-    S.add(bar, 0, 'lkick', 0, 1, 1)
-    if (!last) {
-      if (!breakBar) S.add(bar, 7, 'lkick', 0, 1, 0.55)
-      if (!breakBar) S.add(bar, 10, 'lkick', 0, 1, 0.8)
-      S.add(bar, 4, 'lsnare', 0, 1, 0.85)
-      if (!breakBar) S.add(bar, 12, 'lsnare', 0, 1, 0.9)
-      for (let s = 0; s < 16; s += 2) S.add(bar, s, 'hat', 0, 1, jitter(rng, s % 4 === 0 ? 0.4 : 0.26))
-      for (let s = 1; s < 16; s += 2) if (rng() < 0.25) S.add(bar, s, 'hat', 0, 1, 0.12)
-    }
-
-    if (sec === 'A' && k >= 4) S.line(bar, 'bell', bellA[k - 4]!, 0.6)
-    if (sec === 'B') S.line(bar, 'bell', bellB[k]!, 0.75)
-  }
-  return {
-    id: 'circuit',
-    bpm: 84,
-    bars: 20,
-    loopBar: 0,
-    swing: 0.2,
-    gain: 0.89,
-    reverb: { seconds: 1.8, decay: 3 },
-    chans: {
-      keys: { lp: 3200, send: 0.25 },
-      bell: { send: 0.45, pan: 0.2 },
-      sub: {},
-      kick: { lp: 3000 },
-      snare: { lp: 4500, send: 0.2 },
-      hat: { lp: 8000, pan: -0.25 },
-      crackle: { pan: 0.15 }
-    },
-    steps: S.steps
-  }
-}
-
-// ─── "Overload" — the Core Master fight, 140 BPM, D minor ───────────────────
+// ─── "Overload" — the base on full alert, 140 BPM, D minor ───────────────────
 // intro 4 (once) · A 8 · B 8 · C (breakdown + build) 8 · A' 4 = 32 bars, 55 s;
 // repeats from A, so a long fight never hears the intro twice.
 
@@ -1159,12 +906,12 @@ const boss = (): Song => {
     }
   }
   return {
-    id: 'boss',
+    id: 'chaos',
     bpm: 140,
     bars: 32,
     loopBar: 4,
     swing: 0,
-    gain: 0.67,
+    gain: 0.6,
     reverb: { seconds: 2.8, decay: 2.2 },
     chans: {
       str: { pan: -0.2, send: 0.2 },
@@ -1183,332 +930,79 @@ const boss = (): Song => {
   }
 }
 
-// ─── "Wake-Up Call" — the intro cutscene's score ────────────────────────────
-//
-// 150 BPM, so one 16th is exactly 0.1 s and every beat of the cutscene
-// (`story/introScript.ts`) has a step: step = seconds × 10. It is scored to
-// the picture, not looped as a theme. Each shot is a section of its own,
-// written to the shot's length — the sections breathe with the picture
-// rather than being stretched — and the hits sit on the cutscene's beats:
-//
-//   0–32     cold open, the run: full band in E minor, the chip hero riff
-//   32–56    the slide in slow motion: the band drops to half time, the riff
-//            at half speed over a choir
-//   56–80    the charge: a riser, a 16th bass pedal, a snare roll; the
-//            release (a hit, 80)
-//   80–225   the showcase: the band plays on at full tilt, a hit on each
-//            move (the shot lands 82, the parry 100, the volley's blocks
-//            134/140/146, drone 2 down 154, the ring 162 and the slide under
-//            it 170, the finish 182, the gel's bell burst 196), the hero riff
-//            on top — then silence on the freeze (225)
-//
-//   Everything from the rewind on sits SHOW_STEPS (144 = 9 bars, the
-//   script's SHOW × 10) later than its time below; the steps are written as
-//   they were before the showcase:
-//
-//   92–108   the rewind: a crackle
-//   110–146  the valley: G major, then C, a bright pad and a plucked
-//            arpeggio; a bell on each relay chime (118, 127, 136)
-//   146–194  the Red Signal: a hit on the Spire's flash (146), Vex's motif
-//            (three falling square notes, low brass under them) as his face
-//            comes on (150) and again as the ring rolls (174); an E-phrygian
-//            choir and string ostinato, taiko, a snare roll into…
-//   194–210  Blaze's cut-in: a hit (194), a tritone brass stab, a second hit
-//            as his eyes lock red (203)
-//   210–310  the lab: a pulsing bass under the alarm; it thins for the Atlas
-//            disc's close-up (244–260, bells, the disc clicks home on 255);
-//            a riser and a snare roll into the lever (284): hit, crash;
-//            brass on the way down
-//   310–360  safe mode: it all drops away to a cold pad and icy bells; the
-//            frost glitters (327–342); a low heartbeat from 344, every 1.3 s
-//            like the capsule's light
-//   360–490  the wake-up: the dark pad, keys as the view sharpens (390);
-//            the HUD boots (412) and the arpeggio climbs, a half-time kick;
-//            the hologram (444); the hero riff returns softly (460), a riser
-//   490–548  the beam: the full band, the riff at its top; the column rises
-//            (522) on a D chord, a snare roll and toms
-//   548      the flash: the whole band on one E-major chord, ringing out
-//   576–592  a groove bar to hold on, should anything hold (the loop)
-//
-// Its `gain` is matched to the other songs with tools/music-render.mjs.
+// ─── "Night Watch" — the stealth phase, 76 BPM, A minor ─────────────────────
+// 32 bars, 101 s. A sub pulse like a heartbeat, a pad that moves one chord
+// every two bars, a muted arpeggio that only half appears, a bell now and
+// then. No kick, no snare: nothing in it says "fight".
 
-const intro = (): Song => {
-  const S = new Score(46)
-  const rng = mulberry32(1700)
-  /** From the rewind on, every step lands this much later (the showcase). */
-  let off = 0
-  /** Add at an absolute 16th (0.1 s each). */
-  const at = (step: number, i: Inst, m: number | string, len: number, v: number, p?: number): void =>
-    S.add(0, step + off, i, typeof m === 'string' ? note(m) : m, len, v, p)
-  /** A melody written as "E5:0:6 D5:6:2" (note:step:length), from `from`. */
-  const line = (from: number, i: Inst, text: string, v: number, octave = 0): void => {
-    for (const tok of text.trim().split(/\s+/)) {
-      const [n, st, l] = tok.split(':')
-      at(from + Number(st), i, note(n!) + 12 * octave, Number(l), v)
+const stealth = (): Song => {
+  const S = new Score(32)
+  const rng = mulberry32(733)
+  const CH: Record<string, [string[], string]> = {
+    Am: [['A3', 'C4', 'E4'], 'A1'],
+    F: [['F3', 'A3', 'C4'], 'F1'],
+    Dm: [['D3', 'F3', 'A3'], 'D2'],
+    Em: [['E3', 'G3', 'B3'], 'E1'],
+    G: [['D3', 'G3', 'B3'], 'G1'],
+    C: [['E3', 'G3', 'C4'], 'C2']
+  }
+  // One chord every two bars; the last line turns round on the dominant minor.
+  const prog = 'Am Am F F Dm Dm Em Em  Am Am F F C C G G  Am Am F F Dm Dm Em Em  F F G G Am Am Em Em'.split(/\s+/)
+  const bells = ['E5:0:8', 'C5:8:8', 'A4:0:12', 'B4:4:8', 'E5:0:6 D5:8:8', 'C5:0:12', 'G4:4:8', 'A4:0:16']
+  for (let bar = 0; bar < 32; bar++) {
+    const [tones, rootName] = CH[prog[bar]!]!
+    const t = tones.map(note)
+    const root = note(rootName)
+    const part = Math.floor(bar / 8)
+    const first = bar % 2 === 0
+
+    // The pad: struck on the chord change, held for both bars.
+    if (first) for (const m of t) S.add(bar, 0, 'pad', m, 32, part === 1 ? 0.7 : 0.55)
+
+    // The heartbeat: two soft subs a bar, a third when the line lifts.
+    S.add(bar, 0, 'sub', root + 12, 6, 0.8)
+    S.add(bar, 8, 'sub', root + 12, 4, 0.55)
+    if (part === 1 || part === 3) S.add(bar, 13, 'sub', root + 19, 2, 0.4)
+
+    // The arpeggio: present from the second part, dark, never on every step.
+    if (part >= 1) {
+      const arp = [t[0]! + 12, t[1]! + 12, t[2]! + 12, t[1]! + 12]
+      const bright = part === 1 ? 0.18 : part === 2 ? 0.26 : 0.34
+      for (let st = 0; st < 16; st += 2) {
+        if (rng() < 0.22) continue
+        S.add(bar, st, 'pluck', arp[(st / 2) % 4]!, 2, jitter(rng, st % 8 === 0 ? 0.5 : 0.32), bright)
+      }
     }
+
+    // A tick of a hat, like a clock, in the outer parts; a held breath in the middle.
+    if (part !== 2) for (const st of [4, 12]) S.add(bar, st, 'hat', 0, 1, jitter(rng, 0.2))
+    if (part === 3) for (const st of [2, 6, 10, 14]) S.add(bar, st, 'hat', 0, 1, jitter(rng, 0.14))
+
+    // The bell: one phrase every other bar from the second part on.
+    if (part >= 1 && first) S.line(bar, 'bell', bells[(bar / 2) % bells.length]!, part === 3 ? 0.5 : 0.38)
+
+    // Vinyl dust under all of it, and a slow swell into each new part.
+    if (bar % 4 === 0) S.add(bar, 0, 'crackle', 0, 64, 0.35)
+    if (bar % 8 === 7) S.add(bar, 0, 'riser', 0, 16, 0.25)
   }
-  const kit = (from: number, to: number, o: { kick?: number; snare?: 8 | 16; hats?: 8 | 16; v?: number } = {}): void => {
-    const v = o.v ?? 1
-    for (let s = from; s < to; s++) {
-      const b = s - from
-      if (o.kick && b % o.kick === 0) at(s, 'kick', 0, 1, 0.95 * v)
-      // Backbeat every 8 16ths; half time (the slow motion) every 16.
-      if (o.snare && b % o.snare === o.snare / 2) { at(s, 'snare', 0, 1, 0.85 * v); at(s, 'clap', 0, 1, 0.4 * v) }
-      if (o.hats === 16) at(s, 'hat', 0, 1, jitter(rng, (b % 2 ? 0.22 : 0.34) * v))
-      if (o.hats === 8 && b % 2 === 0) at(s, 'hat', 0, 1, jitter(rng, 0.3 * v))
-    }
-  }
-  const bassLine = (from: number, notes: string[], step = 2, v = 0.9): void => {
-    notes.forEach((n, j) => at(from + j * step, 'bass', n, step, jitter(rng, j % 4 === 0 ? v : v * 0.8, 0.05)))
-  }
-  const chord = (step: number, i: Inst, notes: string[], len: number, v: number): void => {
-    for (const n of notes) at(step, i, n, len, v)
-  }
-  /** A snare roll that tightens from 8ths to 16ths and swells. */
-  const roll = (from: number, to: number, v0: number, v1: number): void => {
-    const half = from + Math.floor((to - from) / 2)
-    for (let s = from; s < to; s += s < half ? 2 : 1) at(s, 'snare', 0, 1, v0 + ((v1 - v0) * (s - from)) / (to - from))
-  }
-
-  // ── 0–32 · Cold open: the run ──
-  at(0, 'hit', 0, 1, 0.85)
-  at(0, 'crash', 0, 1, 0.8)
-  kit(0, 32, { kick: 4, snare: 8, hats: 16 })
-  bassLine(0, ['E2', 'E2', 'E3', 'E2', 'G2', 'E2', 'A2', 'B2', 'C3', 'C3', 'C4', 'C3', 'D3', 'D3', 'D4', 'D3'])
-  const riff = 'E5:0:2 G5:2:2 A5:4:2 B5:6:3 A5:9:1 G5:10:2 E5:12:4 D5:16:2 E5:18:2 G5:20:2 A5:22:3 B5:25:1 G5:26:2 E5:28:4'
-  S.line(0, 'cLead', riff, 0.75)
-  S.line(0, 'lead', riff, 0.45, -1)
-
-  // ── 32–56 · The slide, in slow motion: half time ──
-  at(32, 'crash', 0, 1, 0.55)
-  at(32, 'bkick', 0, 1, 0.8)
-  kit(32, 56, { kick: 16, snare: 16, hats: 8, v: 0.8 })
-  at(32, 'bass', 'E2', 8, 0.85)
-  at(40, 'bass', 'C3', 8, 0.8)
-  at(48, 'bass', 'D3', 8, 0.8)
-  chord(32, 'choir', ['E3', 'G3', 'B3'], 24, 0.4)
-  const slow = 'E5:32:4 G5:36:4 A5:40:4 B5:44:6 A5:50:2 G5:52:4'
-  S.line(0, 'cLead', slow, 0.7)
-  S.line(0, 'lead', slow, 0.45, -1)
-
-  // ── 56–80 · The charge, and the release (80); the freeze cuts it all at 81 ──
-  kit(56, 80, { kick: 4, hats: 16, v: 0.85 })
-  for (let s = 56; s < 80; s++) at(s, 'bass', 'E2', 1, jitter(rng, 0.5 + 0.018 * (s - 56), 0.05))
-  chord(56, 'choir', ['E3', 'B3', 'E4'], 24, 0.4)
-  at(56, 'riser', 0, 24, 0.8)
-  roll(60, 80, 0.3, 0.75)
-  at(80, 'hit', 0, 1, 1)
-  at(80, 'crash', 0, 1, 0.7)
-  at(80, 'bkick', 0, 1, 1)
-
-  // ── 80–225 · The showcase: the band plays on, a hit on every move ──
-  kit(88, 224, { kick: 4, snare: 8, hats: 16, v: 0.9 })
-  for (const from of [88, 120, 152, 184]) {
-    bassLine(from, ['E2', 'E2', 'E3', 'E2', 'G2', 'E2', 'A2', 'B2', 'C3', 'C3', 'C4', 'C3', 'D3', 'D3', 'D4', 'D3'], 2, 0.85)
-  }
-  for (let s = 216; s < 225; s++) at(s, 'bass', 'E2', 1, jitter(rng, 0.7, 0.05))
-  // The shot lands: the Trooper staggers.
-  at(82, 'hit', 0, 1, 0.8)
-  at(82, 'bkick', 0, 1, 0.9)
-  chord(82, 'choir', ['E3', 'B3', 'E4'], 18, 0.35)
-  // The dive and the parry.
-  at(90, 'riser', 0, 10, 0.5)
-  at(100, 'hit', 0, 1, 0.9)
-  at(100, 'crash', 0, 1, 0.75)
-  line(88, 'cLead', riff, 0.6)
-  line(88, 'lead', riff, 0.4, -1)
-  // The volley: a taiko under each block, the answer's hit.
-  for (const s of [134, 140, 146]) { at(s, 'taiko', 40, 1, 0.85); at(s, 'bkick', 0, 1, 0.7) }
-  chord(126, 'brass', ['E3', 'G3', 'B3'], 6, 0.5)
-  at(154, 'hit', 0, 1, 0.75)
-  at(154, 'crash', 0, 1, 0.6)
-  // The ring rolls out; the slide under it; the finish.
-  at(152, 'riser', 0, 18, 0.7)
-  at(162, 'taiko', 40, 1, 0.9)
-  roll(162, 170, 0.35, 0.8)
-  at(170, 'hit', 0, 1, 0.85)
-  chord(170, 'brass', ['C3', 'E3', 'G3'], 8, 0.6)
-  at(182, 'hit', 0, 1, 1)
-  at(182, 'crash', 0, 1, 0.85)
-  at(182, 'bkick', 0, 1, 1)
-  // The gel: a bell burst climbing, the choir in E major; the hero riff at
-  // the top into the freeze.
-  for (const [s, n] of [[190, 'B5'], [192, 'E6'], [194, 'G#6'], [196, 'B6']] as const) at(s, 'bell', n, 4, 0.42)
-  chord(196, 'choir', ['E3', 'G#3', 'B3', 'E4'], 28, 0.5)
-  line(200, 'cLead', 'E5:0:2 G5:2:2 A5:4:2 B5:6:3 D6:9:1 E6:10:6 D6:16:2 B5:18:2 E6:20:4', 0.75)
-  line(200, 'lead', 'E5:0:2 G5:2:2 A5:4:2 B5:6:3 D6:9:1 E6:10:6 D6:16:2 B5:18:2 E6:20:4', 0.45, -1)
-
-  // From the rewind on: 144 steps (9 bars) later than written.
-  off = 144
-  // ── 92–108 · The rewind ──
-  at(92, 'crackle', 0, 16, 0.55)
-
-  // ── 110–146 · The valley, before ──
-  chord(110, 'pad', ['G3', 'B3', 'D4', 'G4'], 18, 0.5)
-  chord(128, 'pad', ['C4', 'E4', 'G4', 'D5'], 18, 0.48)
-  at(110, 'sub', 'G1', 18, 0.6)
-  at(128, 'sub', 'C2', 18, 0.55)
-  const arp = ['G4', 'B4', 'D5', 'G5', 'D5', 'B4', 'G4', 'D5']
-  const arpC = ['C5', 'E5', 'G5', 'D6', 'G5', 'E5', 'C5', 'G5']
-  for (let s = 110; s < 146; s += 2) {
-    const j = (s - 110) / 2
-    at(s, 'pluck', (s < 128 ? arp : arpC)[j % 8]!, 2, jitter(rng, 0.38 + j * 0.004, 0.06))
-  }
-  at(118, 'bell', 'G5', 4, 0.4)
-  at(127, 'bell', 'D6', 4, 0.3)
-  at(136, 'bell', 'B5', 4, 0.3)
-
-  // ── 146–194 · The Red Signal ──
-  at(146, 'hit', 0, 1, 0.9)
-  at(146, 'bkick', 0, 1, 0.9)
-  at(146, 'sub', 'E1', 48, 0.75)
-  // Vex's motif: three falling square notes, low brass under them — as his
-  // face comes on, and again as his ring rolls over the valley.
-  for (const [s0, v] of [[150, 0.9], [174, 0.8]] as const) {
-    at(s0, 'cLead', 'E5', 3, v, 0.5)
-    at(s0 + 3, 'cLead', 'C5', 3, v, 0.5)
-    at(s0 + 6, 'cLead', 'A#4', 8, v, 0.5)
-    at(s0, 'brass', 'E3', 3, v * 0.78)
-    at(s0 + 3, 'brass', 'C3', 3, v * 0.78)
-    at(s0 + 6, 'brass', 'A#2', 8, v * 0.83)
-  }
-  chord(158, 'choir', ['E3', 'G3', 'B3', 'F4'], 36, 0.5)
-  for (let s = 158; s < 194; s += 2) at(s, 'str', (s / 2) % 4 === 3 ? 'F2' : 'E2', 2, 0.5 + (s - 158) * 0.007)
-  for (const s of [158, 166, 174, 178, 182, 186, 188, 190, 192]) at(s, 'taiko', 40, 1, 0.8)
-  for (const s of [158, 166, 174, 182, 190]) at(s, 'lkick', 0, 1, 0.8)
-  roll(186, 194, 0.35, 0.7)
-  // ── 194–210 · Blaze Master's cut-in ──
-  at(194, 'hit', 0, 1, 0.8)
-  at(194, 'taiko', 40, 1, 0.9)
-  chord(194, 'brass', ['A#2', 'E3'], 6, 0.7)
-  for (let s = 194; s < 210; s += 2) at(s, 'bass', 'E2', 2, jitter(rng, 0.7, 0.05))
-  at(203, 'hit', 0, 1, 0.7)
-  at(203, 'lkick', 0, 1, 0.85)
-  chord(203, 'brass', ['E2', 'A#2'], 7, 0.75)
-  for (const s of [198, 206]) at(s, 'taiko', 40, 1, 0.7)
-
-  // ── 210–310 · The lab ──
-  chord(210, 'choir', ['E3', 'G3', 'B3'], 34, 0.45)
-  chord(244, 'choir', ['C3', 'E3', 'G3', 'B3'], 16, 0.4)
-  chord(260, 'choir', ['E3', 'G3', 'B3'], 24, 0.45)
-  for (let s = 210; s < 284; s++) {
-    // Under the disc's close-up it thins to 8ths.
-    if (s >= 244 && s < 260 && s % 2) continue
-    at(s, 'bass', Math.floor((s - 210) / 8) % 2 ? 'F2' : 'E2', 1, jitter(rng, s % 4 === 1 ? 0.85 : 0.55, 0.05))
-  }
-  kit(210, 244, { kick: 4, hats: 8, v: 0.85 })
-  kit(244, 260, { hats: 8, v: 0.5 })
-  kit(260, 284, { kick: 4, hats: 8, v: 0.85 })
-  for (let s = 214; s < 268; s += 8) if (s < 244 || s >= 260) at(s, 'snare', 0, 1, 0.7)
-  // The Atlas disc: bells climbing to it clicking home (255).
-  for (const [s, n] of [[246, 'B5'], [249, 'E6'], [252, 'F#6'], [255, 'B6']] as const) at(s, 'bell', n, 4, 0.4)
-  chord(255, 'pluck', ['E5', 'B5', 'E6'], 3, 0.4)
-  at(268, 'riser', 0, 16, 0.85)
-  roll(276, 284, 0.4, 0.9)
-  // The lever: hit, crash, and the weight coming down.
-  at(284, 'hit', 0, 1, 1)
-  at(284, 'crash', 0, 1, 0.85)
-  at(284, 'bkick', 0, 1, 1)
-  at(284, 'taiko', 40, 1, 0.9)
-  chord(284, 'brass', ['C3', 'E3', 'G3'], 8, 0.7)
-  chord(292, 'brass', ['B2', 'D#3', 'F#3'], 8, 0.7)
-  at(284, 'sub', 'C2', 8, 0.6)
-  at(292, 'sub', 'B1', 8, 0.6)
-  for (const [s, v] of [[290, 0.75], [298, 0.6], [306, 0.45]] as const) at(s, 'lkick', 0, 1, v)
-
-  // ── 310–360 · Safe mode: it all drops away ──
-  chord(310, 'pad', ['E3', 'B3', 'F#4', 'G4'], 50, 0.42)
-  for (const [s, n] of [[314, 'B5'], [320, 'G5'], [326, 'F#5'], [338, 'E5'], [348, 'D5'], [354, 'B4']] as const) at(s, 'bell', n, 4, 0.4)
-  // The frost: icy glitter up the glass.
-  const ice = ['E6', 'F#6', 'B6', 'G6', 'E7']
-  for (let s = 327; s < 342; s += 3) at(s, 'bell', ice[((s - 327) / 3) % ice.length]!, 2, jitter(rng, 0.22))
-  // The capsule's heartbeat, every 1.3 s from 34.4 s, on into the dark.
-  for (let s = 344; s < 412; s += 13) at(s, 'lkick', 0, 1, 0.35)
-
-  // ── 360–490 · The wake-up ──
-  chord(360, 'pad', ['E3', 'G3', 'B3', 'D4'], 52, 0.36)
-  chord(412, 'pad', ['C3', 'E3', 'G3', 'B3'], 32, 0.34)
-  chord(444, 'pad', ['E3', 'G3', 'B3', 'F#4'], 46, 0.34)
-  at(360, 'sub', 'E1', 52, 0.4)
-  at(390, 'keys', 'B4', 4, 0.35)
-  at(394, 'keys', 'G4', 6, 0.3)
-  // The HUD boots: the arpeggio climbs, in 8ths, then 16ths once the
-  // hologram is up, an octave higher for the riff.
-  const rise = ['E4', 'G4', 'B4', 'E5']
-  for (let s = 412; s < 490; s += s < 444 ? 2 : 1) {
-    const oct = s >= 464 ? 12 : 0
-    at(s, 'pluck', note(rise[Math.floor((s - 412) / (s < 444 ? 2 : 1)) % 4]!) + oct, 1, Math.min(0.55, 0.25 + (s - 412) * 0.004))
-  }
-  for (let s = 422; s < 490; s += 8) at(s, 'kick', 0, 1, 0.7)
-  for (let s = 422; s < 490; s += 4) at(s, 'bass', s % 8 === 6 ? 'E2' : 'E3', 3, 0.65)
-  for (let s = 444; s < 490; s += 2) at(s, 'hat', 0, 1, 0.24)
-  for (const s of [474, 478, 482, 486]) at(s, 'snare', 0, 1, 0.5)
-  line(0, 'cLead', 'E5:460:2 G5:462:2 A5:464:4 B5:468:2 A5:470:2 G5:472:4 D5:476:2 E5:478:2 G5:480:2 A5:482:4 B5:486:4', 0.5)
-  at(466, 'riser', 0, 24, 0.9)
-
-  // ── 490–548 · The beam ──
-  kit(490, 522, { kick: 4, snare: 8, hats: 16 })
-  bassLine(490, ['C3', 'C3', 'C4', 'C3', 'D3', 'D3', 'D4', 'D3', 'C3', 'C3', 'C4', 'C3', 'D3', 'D3', 'D4', 'D3'])
-  const top = 'E5:490:2 G5:492:2 A5:494:2 B5:496:2 D6:498:3 B5:501:1 E6:502:4 D6:506:2 B5:508:2 A5:510:2 B5:512:2 D6:514:3 E6:517:5'
-  line(0, 'cLead', top, 0.85)
-  line(0, 'lead', top, 0.5, -1)
-  chord(490, 'choir', ['C4', 'E4', 'G4'], 16, 0.45)
-  chord(506, 'choir', ['D4', 'F#4', 'A4'], 16, 0.5)
-  // The column rises: a D chord swelling under a riser, the roll, the toms.
-  kit(522, 540, { kick: 4, hats: 16, v: 0.9 })
-  for (let s = 522; s < 548; s += 2) at(s, 'bass', s % 4 ? 'D3' : 'D2', 2, 0.75)
-  chord(522, 'choir', ['D4', 'F#4', 'A4', 'D5'], 26, 0.5)
-  at(522, 'riser', 0, 26, 0.9)
-  roll(532, 548, 0.45, 0.95)
-  ;[57, 55, 52, 50].forEach((m, j) => at(544 + j, 'tom', m, 1, 0.7 + 0.07 * j))
-  for (const s of [540, 542, 544, 546]) at(s, 'kick', 0, 1, 0.9)
-
-  // ── 548 · The flash: one E-major chord, the whole band ──
-  at(548, 'hit', 0, 1, 1)
-  at(548, 'crash', 0, 1, 1)
-  at(548, 'bkick', 0, 1, 1)
-  chord(548, 'choir', ['E3', 'G#3', 'B3', 'E4'], 22, 0.75)
-  chord(548, 'brass', ['E2', 'B2', 'E3'], 22, 0.8)
-  at(548, 'sub', 'E1', 22, 0.8)
-  at(548, 'cLead', 'E6', 12, 0.6)
-
-  // ── 576–592 · A groove to hold on (the loop) ──
-  kit(576, 592, { kick: 4, hats: 8, v: 0.8 })
-  bassLine(576, ['E2', 'E2', 'E3', 'E2', 'G2', 'E2', 'A2', 'B2'], 2, 0.75)
-  chord(576, 'pad', ['E3', 'G3', 'B3'], 16, 0.35)
-
   return {
-    id: 'intro',
-    bpm: 150,
-    bars: 46,
-    loopBar: 45,
+    id: 'stealth',
+    bpm: 76,
+    bars: 32,
+    loopBar: 0,
     swing: 0,
-    // Its loud sections (cold open, beam) sit at the boss fight's level; the
-    // whole pass, quiet shots included, at the Scrapyard's it hands over to.
-    gain: 0.5,
-    reverb: { seconds: 2.4, decay: 2.3 },
+    // Measured: about 3 dB under the base theme, 5 under the alarm. Quiet on
+    // purpose, but not so quiet that the alarm arrives as a jump scare.
+    gain: 0.95,
+    reverb: { seconds: 3.4, decay: 2.2 },
     chans: {
-      chip: { send: 0.25, pan: 0.05 },
-      lead: { send: 0.35, pan: -0.1, lp: 2600 },
-      bass: {},
+      pad: { send: 0.5, lp: 1300 },
       sub: {},
-      pad: { send: 0.4, lp: 2000 },
-      pluck: { send: 0.3, pan: 0.2 },
-      bell: { send: 0.5, pan: -0.15 },
-      brass: { pan: 0.1, send: 0.3 },
-      choir: { send: 0.5 },
-      str: { pan: -0.2, send: 0.2 },
-      kick: { send: 0.05 },
-      lkick: { send: 0.1 },
-      snare: { send: 0.35, pan: 0.05 },
-      clap: { send: 0.3, pan: -0.1 },
-      hat: { pan: 0.3, send: 0.08 },
-      taiko: { send: 0.28 },
-      tom: { send: 0.3 },
-      hit: { send: 0.5 },
-      crash: { send: 0.3 },
-      riser: { send: 0.4 },
-      crackle: { send: 0.2 }
+      pluck: { send: 0.45, pan: 0.25, lp: 1800 },
+      bell: { send: 0.65, pan: -0.2 },
+      hat: { pan: 0.35, send: 0.2 },
+      crackle: { send: 0.1 },
+      riser: { send: 0.5 }
     },
     steps: S.steps
   }
@@ -1522,7 +1016,7 @@ const cache = new Map<SongId, Song>()
 export const getSong = (id: SongId): Song => {
   const hit = cache.get(id)
   if (hit) return hit
-  const s = id === 'drift' ? drift() : id === 'circuit' ? circuit() : id === 'boss' ? boss() : id === 'intro' ? intro() : chipSong(id)
+  const s = id === 'base' ? drift() : id === 'chaos' ? boss() : stealth()
   cache.set(id, s)
   return s
 }
@@ -1532,7 +1026,7 @@ export const songSeconds = (s: Song): number => (s.bars * 16 * 60) / s.bpm / 4
 
 /** Result-screen fanfares, on the chiptune voices. */
 export const playJingleNotes = (ctx: BaseAudioContext, dest: AudioNode, kind: 'victory' | 'defeat'): Out => {
-  const o = makeOut(ctx, dest, { ...getSong('hub'), gain: 1 })
+  const o = makeOut(ctx, dest, { ...getSong('base'), gain: 1 })
   const t0 = ctx.currentTime + 0.05
   const notes = kind === 'victory'
     ? [[72, 0], [76, 0.12], [79, 0.24], [84, 0.36], [79, 0.6], [84, 0.72], [88, 0.84]]

@@ -12,32 +12,21 @@ export type { TrackId, SongId }
  * `songs.ts`. Because it runs on the shared context, the ad / pause / mute
  * gates silence it automatically.
  *
- * THE ROTATION. The game asks for music by AREA (`playMusic('hub' | sector |
- * 'boss')`). Outside a boss fight the sequencer does not loop that area's theme
- * forever — a 25-second pulse-wave loop on repeat is what gets the music muted
- * in the first minute. It rotates instead:
- *
- *     area theme  →  "Neon Drift" (synthwave)  →  "Deep Circuit" (lo-fi)  → …
- *
- * moving on at the end of a pass once the current song has played
- * `ROTATE_AFTER_S` (the chip themes play twice, the scored songs once). The
- * rotation position is kept across areas: a song that is playing carries on
- * through a hub → mission change, and only slot 0 follows the area.
- *
- * A Core Master fight interrupts the rotation with its own song and loops it
- * (skipping the intro on repeats) for as long as the fight lasts.
+ * Each place has ONE song and loops it (`stealth`, `chaos`, `base`): a change
+ * of place cross-fades the outgoing song's tail under the incoming one, which
+ * is how the stealth phase tips into the chaos phase without a cut.
  */
 
-/** Songs 2 and 3 of the rotation; song 1 is the area's own theme. */
-const ROTATION: readonly SongId[] = ['drift', 'circuit']
+/** No rotation in this game: every area loops its own song. The machinery
+ *  stays (it is what a handover is built on); the list is empty. */
+const ROTATION: readonly SongId[] = []
 export const ROTATION_SIZE = ROTATION.length + 1
 /** A song keeps playing whole passes until it has run at least this long. */
 export const ROTATE_AFTER_S = 45
 /** The first music of the session fades in gently rather than arriving at full level. */
 export const FIRST_FADE_S = 4
-/** Songs that loop and never rotate: the boss fight, and the intro cutscene's
- *  score (scored to the picture, `story/introScript.ts`). */
-const OWN_SONG = (id: TrackId | SongId | null): boolean => id === 'boss' || id === 'intro'
+/** Songs that loop and never rotate: here, all of them. */
+const OWN_SONG = (id: TrackId | SongId | null): boolean => id !== null
 
 /**
  * Where a song should START, in seconds, if not at its top: the intro's score
@@ -130,7 +119,7 @@ const endOfPass = (): void => {
   if (!song || !out) return
   if (shouldRotate(area, playing, played)) {
     slot = (slot + 1) % ROTATION_SIZE
-    const next = songFor(area ?? 'hub', slot)
+    const next = songFor(area ?? 'base', slot)
     if (MUSIC_FILES.has(next)) {
       stopMusic(0.8)
       begin(next)
@@ -245,7 +234,7 @@ const startFileSong = (id: SongId, url: string, fadeIn: number): boolean => {
       if (shouldRotate(area, playing, filePlayed)) {
         slot = (slot + 1) % ROTATION_SIZE
         stopMusic(0.05)
-        begin(songFor(area ?? 'hub', slot))
+        begin(songFor(area ?? 'base', slot))
       } else {
         f.el.currentTime = 0
         f.el.play().catch(() => { /* the gates retry */ })
@@ -258,7 +247,7 @@ const startFileSong = (id: SongId, url: string, fadeIn: number): boolean => {
 /** Start a song from a file if one was dropped in, else compose it. */
 const begin = (id: SongId): void => {
   // The intro's score opens on a hit: no gentle first-of-session fade.
-  const fadeIn = id === 'intro' ? 0.04 : everStarted ? 0.35 : FIRST_FADE_S
+  const fadeIn = everStarted ? 0.35 : FIRST_FADE_S
   everStarted = true
   const url = MUSIC_FILES.get(id)
   if (url && startFileSong(id, url, fadeIn)) return
@@ -274,7 +263,8 @@ export const playMusic = (id: TrackId): void => {
   }
   area = id
   if (isMusicRunning() && keepsPlaying(id, playing, slot)) return
-  stopMusic(0.15)
+  // The outgoing song's tail runs on under the first bars of the new one.
+  stopMusic(HANDOVER_FADE_S)
   begin(songFor(id, slot))
 }
 
@@ -297,7 +287,7 @@ export const stopMusic = (fade = 0.25): void => {
 }
 
 export const isMusicRunning = (): boolean => timer !== null || fileEl !== null
-/** The song playing now (an area theme, `drift`, `circuit` or `boss`). */
+/** The song playing now. */
 export const currentMusic = (): SongId | null => playing
 
 /** Short fanfares (not looped). */

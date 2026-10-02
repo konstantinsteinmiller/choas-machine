@@ -96,7 +96,7 @@ const cost = computed(() => skipCost(left.value))
 const build = (w: WeaponId): void => {
   if (!startForge(w)) return
   now.value = Date.now()
-  sfx('uiConfirm')
+  sfx('forgeStart')
   haptic('tap')
   emit('focus', w)
 }
@@ -108,7 +108,7 @@ const skip = (): void => {
 const claim = (): void => {
   const w = job.value?.weapon
   if (!claimForge()) return
-  sfx('uiConfirm')
+  sfx('forgeDone')
   haptic('reward')
   if (w) emit('focus', w)
 }

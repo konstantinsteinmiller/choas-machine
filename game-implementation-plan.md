@@ -109,7 +109,7 @@ three.js import, so it runs in Vitest and in a balance script.
     crouch, blade, climb, cable, drop, decoy, weapon wheel
   - [x] 10.3 threat levels I–V of the same base (garrison size and toughness),
     so the Armory, Chassis Bay and Forge have something to be used against
-- [ ] **P11 Sound** — synthesised SFX set, stealth and chaos music loops with
+- [x] **P11 Sound** — synthesised SFX set, stealth and chaos music loops with
   crossfade, loudness gate, `sound-todo.md`.
 - [ ] **P12 Locales** — all new keys in the 39 shipped locales (agent drafts),
   parity test, RTL and CJK screenshots.
@@ -365,6 +365,21 @@ Answered by the owner (2026-10-02): G5 (one fortress), C1 (new remote), C2 (wran
   Dev URL: `?level=3`, `?fort=proving`, `?view=az,el,dist`.
   Draw calls at the perch: 124 (71k triangles) — P15's first target.
   Not yet seen in a browser: a full no-cheat playthrough by hand.
+- 2026-10-02 P11 done. `audio/sfx.ts` + the recipes in `audio/synth.ts` are
+  this game's own set (61 names: the mech, the three weapons, the blade and
+  decoy, what a round does, the base, mission beats, the interface); the
+  predecessor's list is gone. `minigunHum` is one voice pitched by the
+  barrels. `audio/gameSounds.ts` is the only place events become sounds and
+  the music follows the place (`stealth` → `chaos` on full alert → `base`).
+  `audio/songs.ts`: the chiptune composer, the lo-fi song and the
+  predecessor's intro score are gone (1,544 → 1,036 lines); "Night Watch"
+  (stealth, 76 BPM, no drums) is new; "Overload" is the chaos theme, "Neon
+  Drift" the base's. Each loops; a change hands over with a 2.5 s tail.
+  Loudness (offline render, scratch `loudness.mjs`): stealth −23 dB, base
+  −19.9, chaos −19.5 (its peak was over 0 dBFS; trimmed). `sound-todo.md`
+  lists every name and how a recording replaces it.
+  Not verified by ear: this machine's probes are headless and muted. Not done:
+  positional pan / muffle (the synth supports both).
 
 ## Resume notes
 

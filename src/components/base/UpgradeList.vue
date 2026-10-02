@@ -61,7 +61,7 @@ const value = (id: TrackId, lvl: number): string => {
 
 const buy = (id: TrackId): void => {
   if (!buyTrack(id)) return
-  sfx('uiConfirm')
+  sfx('buy')
   haptic('reward')
   emit('focus', id)
 }
