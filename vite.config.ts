@@ -676,6 +676,9 @@ export default defineConfig(({ mode, command }) => {
   // the import resolves to a valid chunk. No chunk deletion, no 404.
 
   return {
+    // The preview recorder runs a dev server of its own beside `pnpm dev`:
+    // each keeps its own dependency cache, so neither rewrites the other's.
+    cacheDir: process.env.VITE_CACHE_DIR || 'node_modules/.vite',
     base: '/',
     server: {
       port: 2196

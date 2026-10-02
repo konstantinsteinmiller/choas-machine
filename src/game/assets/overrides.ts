@@ -25,4 +25,13 @@ const byName = (files: string[], dir: string): Map<string, string> => {
 
 export const SFX_FILES = byName(overrides.sfx, 'audio/sfx')
 export const MUSIC_FILES = byName(overrides.music, 'audio/music')
-export const TEXTURE_FILES = byName(overrides.textures, 'images/textures')
+/**
+ * `?art=off` plays without the painted drop-ins, in any build: the way to see
+ * a painting against the drawing it replaced (open two tabs), and to tell a
+ * broken painting from a broken game.
+ */
+const ART_OFF = ((): boolean => {
+  try { return new URLSearchParams(window.location.search).get('art') === 'off' } catch { return false }
+})()
+
+export const TEXTURE_FILES = byName(ART_OFF ? [] : overrides.textures, 'images/textures')

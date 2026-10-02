@@ -119,7 +119,7 @@ three.js import, so it runs in Vitest and in a balance script.
 - [x] **P13 Platform and release checks** (the full build matrix moves to P15) — ads without rewarded placements,
   gameplay bracket, mute / pause / language signals, forced-dark guard, cloud
   hydration reload proof, Playwright e2e suite, every platform build.
-- [ ] **P14 Pipelines** — art sheets + slicer + playground, compression,
+- [x] **P14 Pipelines** — art sheets + slicer + playground, compression,
   preview-video scenarios and capture seams, `deploy:poki` reset to this game.
 - [ ] **P15 Performance and layout sweep** — throttled A/B into
   `PERF-LEDGER.md`, boot timeline, 320×658 portrait and 764×385 landscape.
@@ -195,8 +195,6 @@ Answered by the owner (2026-10-02): G5 (one fortress), C1 (new remote), C2 (wran
   `combat.slide`) go with their last users.
 - **P13 / P15**: `scripts/perf-mission.mjs`, `xbrowser.mjs`, `portal-qa.mjs`,
   `perf-builds.mjs` still drive Mega Droid's first mission.
-- **P14**: `tools/preview-video` is still configured for a third game
-  (title, port 2067); `tools/art-desk` has no slicer or sheets yet.
 - GameDistribution: build script and env file removed; the dormant provider
   arm stays in the platform layer behind its flag (never set).
 - `.env` keeps an unused `VITE_GEMINI_API_KEY`; a `VITE_`-prefixed secret is
@@ -436,6 +434,45 @@ Answered by the owner (2026-10-02): G5 (one fortress), C1 (new remote), C2 (wran
   sessions most of the day): P15.
   `scripts/boot-timeline.mjs` no longer waits on the predecessor's intro;
   `perf-mission.mjs` and `xbrowser.mjs` still drive Mega Droid (P15).
+- 2026-10-02 P14 done.
+  **The seam.** `src/game/preview.ts` publishes `window.__preview` on a dev
+  server under `?preview=1` (one dynamic import inside a DEV branch: a
+  production bundle does not contain the module; a test pins that, and the
+  built bundle was grepped). It moves the mech, finds a vantage with the
+  shot's own ray-cast, tracks a head with the camera, holds the trigger, pins
+  defenders, replaces the camera, and reports state. It decides no outcome.
+  **Clips.** `tools/preview-video`: config for this game (port 2197, own
+  Vite cache via `VITE_CACHE_DIR`, pretend pointer lock) and four scenarios
+  (success, fail, success-30s, fail-30s) on `_drive.mjs`. All 14 clips
+  recorded at full quality in `preview-videos/` (not committed): 10 s and
+  30 s in both orientations, CrazyGames 16 s (16:9 and 2:3), Poki 5 s square
+  at 60 fps. Upload copies 1.9 to 13.1 MB. Verdicts read from the log: every
+  success clip ends "objective extract", every fail clip "phase dead" except
+  Poki's 5 s fail (armor 6 %, still standing: too short to die in).
+  Two traps found on the way: a strike keeps moving the mech for a moment
+  after the kill, so restaging must wait for `busy` to clear; and the guards'
+  line of sight sees over walls a round does not, so a vantage is checked
+  with `castShot`.
+  **Covers (roadmap #1).** `src/game/art/promotionSheet.ts` +
+  `tools/art-promotion.mjs` (`pnpm art:promotion`): plates are screenshots of
+  the game's own models (director's camera, pinned defenders, interface
+  hidden); four scenarios painted once each at 1:1 through the Art Desk's
+  Gemini window and compared at 250 px; `ambush` ships (`COVER_PICK`), `scope`
+  is the runner-up. All seven aspect families of `ambush` painted: 19 cover
+  files (every size in the roadmap item, with / without logo, the formats it
+  names) + `logo-512.png` in `src/assets/promotion/`, 3.1 MB → 1.1 MB after
+  compression. 15 generations in all (4 scenarios, 6 families, 5 re-rolls:
+  the Commander painted as the victim, a logo over a face, a framed poster
+  twice, a junk foreground). The tool now cuts a painted frame off and says
+  so. The pick is a judgement against a checklist, not a measured CTR.
+  **Drop-in art.** `src/game/art/artSheet.ts` (the two detail maps),
+  `pnpm art:prompts [--references]`, `pnpm slice-sheets` (refuses a wrong
+  shape or an unknown name, parks a painting whose reference was redrawn),
+  `?art=off`. The slicer was exercised on all four cases. Nothing painted:
+  the fortress keeps its procedural maps.
+  **Compression** and **deploy:poki** were already this game's (no ids).
+  Not done: a flag to hide the "?" / "!" marks in a clip; `scope` in the
+  other six aspects; painted detail maps.
 
 ## Resume notes
 

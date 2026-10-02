@@ -59,6 +59,10 @@ import RewardsModal from '@/components/modals/RewardsModal.vue'
  * tab).
  */
 registerGameCheats()
+// The preview-video recorder's handle: dev server and `?preview=1` only. A
+// dynamic import inside a DEV branch, so a production bundle never carries
+// the module at all.
+if (import.meta.env.DEV) void import('@/game/preview').then(m => m.installPreview())
 
 const { t } = useI18n()
 const canvasHost = ref<HTMLElement | null>(null)

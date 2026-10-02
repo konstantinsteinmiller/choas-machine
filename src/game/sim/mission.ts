@@ -39,7 +39,7 @@ import { stepFire } from './chaos'
 import { hurtArmor, makeArmor, stepArmor, type Armor } from './armor'
 import { flow, finishMission, failMission } from '../flow'
 import { BASE_LOADOUT, type Loadout } from '../data/upgrades'
-import { makeKillCamState, wantsKillCam } from './killcam'
+import { makeKillCamState, wantsKillCam, type KillInfo } from './killcam'
 import {
   DROP_LANDED, blendPose, bulletAt, bulletCam, bulletFlightS, dropHeight, introCam, liftHeight, makeCinePose, orbitCam, outroCam,
   type CinePose
@@ -140,6 +140,10 @@ export class Mission implements GameMode {
   readonly level: number
   /** What the mech is fitted with (the Armory, the Chassis Bay, the Forge). */
   readonly loadout: Loadout
+  /** DEV: is a strike or a cutscene moving the mech right now (`game/preview.ts`)? */
+  get busy(): boolean { return !!this.strike || !!this.cine }
+  /** DEV: the next kill gets the kill-cam (`game/preview.ts`). */
+  forceKillcam = false
   /** The strike on offer right now. */
   offer: Strike | null = null
   private strike: StrikeRun | null = null
@@ -510,7 +514,7 @@ export class Mission implements GameMode {
       // it has not landed yet, and the camera rides it in.
       if (w === 'sniper' && u.hp - damage <= 0) {
         const final = this.isLastTarget(u.id)
-        if (wantsKillCam(this.killcam, { by: 'sniper', head, final, time: this.stats.time }, Math.random(), killCamsEnabled.value)) {
+        if (this.rollKillcam({ by: 'sniper', head, final, time: this.stats.time })) {
           const dist = Math.hypot(h.x - ox, h.y - oy, h.z - oz)
           this.cine = {
             kind: 'bullet', t: 0, dur: bulletFlightS(dist), hit: false,
@@ -686,7 +690,7 @@ export class Mission implements GameMode {
         // The sniper's kill-cam was decided when the round was fired.
         if (this.killBy !== 'sniper' && !this.cine && hud.phase === 'play') {
           const info = { by: this.killBy, head: false, final, time: this.stats.time }
-          if (wantsKillCam(this.killcam, info, Math.random(), killCamsEnabled.value)) {
+          if (this.rollKillcam(info)) {
             // The blade and the last kill get the camera; a burst or a blast
             // in the middle of a fight only gets the slow beat.
             if (this.killBy === 'blade' || final) {
@@ -878,6 +882,28 @@ export class Mission implements GameMode {
     this.beacon.visible = true
     mirror('objective', 'extract')
     emit('objective', { state: 'extract' })
+  }
+
+  /** Ask the director whether this kill is shown. */
+  private rollKillcam(info: KillInfo): boolean {
+    if (this.forceKillcam) {
+      // The preview recorder's call: this one is shown, whatever the dice say.
+      this.forceKillcam = false
+      return wantsKillCam(this.killcam, { ...info, final: true }, 0, true)
+    }
+    return wantsKillCam(this.killcam, info, Math.random(), killCamsEnabled.value)
+  }
+
+  /** End the drop-in now (the preview recorder, which opens on the action). */
+  endIntro(): void {
+    if (this.cine?.kind === 'intro') this.skipCine()
+  }
+
+  /** DEV cheat: the job is done, the line comes down now (`game/cheats.ts`). */
+  cheatExtract(): void {
+    if (hud.phase !== 'play') return
+    this.openExtraction()
+    this.startOutro()
   }
 
   private startOutro(): void {

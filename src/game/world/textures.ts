@@ -153,6 +153,21 @@ const drawCell = (g: CanvasRenderingContext2D, ox: number, name: 'floor' | 'wall
   else draw(g, ox)
 }
 
+/**
+ * The procedural drawing of one cell, as a PNG data URL: the reference a
+ * painting of it is made from (`pnpm art:prompts --references`). Always the
+ * drawing, never a drop-in: a reference that is a painting of itself drifts
+ * one generation further from the drawing with every re-roll.
+ */
+export const textureReference = (name: string): string | null => {
+  const draw = name === 'floor' ? drawFloor : name === 'wall' ? drawWall : null
+  if (!draw) return null
+  const c = document.createElement('canvas')
+  c.width = c.height = 256
+  draw(c.getContext('2d', { willReadFrequently: true })!, 0)
+  return c.toDataURL('image/png')
+}
+
 /** Floor (u 0–0.5) + wall (u 0.5–1) atlas. */
 export const levelAtlas = (): Texture => {
   if (atlasTex) return atlasTex
