@@ -18,6 +18,11 @@ export default {
   },
   'hud': {
     'alert': 'Mức báo động',
+    'strike': 'Đâm',
+    'decoy': 'Mồi nhử',
+    'weapons': 'Vũ khí',
+    'ammo': 'Đạn dược',
+    'heat': 'Nhiệt vũ khí',
     'crouch': 'Cúi xuống',
     'stand': 'Đứng dậy',
     'cancel': 'Hạ vũ khí',

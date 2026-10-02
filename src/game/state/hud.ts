@@ -46,8 +46,19 @@ export const hud = reactive({
   /** Full alert: the stealth phase is over. */
   chaos: false,
   /** Somebody has eyes on the mech right now and the meter is climbing. */
-  watched: false
+  watched: false,
+  /** Rounds in hand: the magazine, or rockets left; −1 for the minigun. */
+  ammo: 5,
+  reloading: false,
+  overheated: false,
+  decoys: 0,
+  /** The blade's offer right now, or '' when there is none. */
+  strike: '' as '' | 'backstab' | 'drop' | 'strike'
 })
+
+/** The weapon's gauges: they move every frame, so the HUD reads them from a
+ *  ticker, not through Vue. */
+export const gun = { heat: 0, spool: 0 }
 
 /** Move to another phase and tell the bus. A no-op if nothing changes. */
 export const setPhase = (phase: Phase): void => {

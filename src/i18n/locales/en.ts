@@ -22,6 +22,11 @@ export default {
   },
   'hud': {
     'alert': 'Alert level',
+    'strike': 'Strike',
+    'decoy': 'Decoy',
+    'weapons': 'Weapons',
+    'ammo': 'Ammunition',
+    'heat': 'Weapon heat',
     'crouch': 'Crouch',
     'stand': 'Stand up',
     'cancel': 'Lower weapon',

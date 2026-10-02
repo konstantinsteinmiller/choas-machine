@@ -18,6 +18,11 @@ export default {
   },
   'hud': {
     'alert': 'Alarmnivelo',
+    'strike': 'Frapi',
+    'decoy': 'Logilo',
+    'weapons': 'Armiloj',
+    'ammo': 'Municio',
+    'heat': 'Varmo de armilo',
     'crouch': 'Kaŝkaŭri',
     'stand': 'Stariĝi',
     'cancel': 'Mallevi armilon',

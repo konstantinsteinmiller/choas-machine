@@ -18,6 +18,11 @@ export default {
   },
   'hud': {
     'alert': 'Alarm seviyesi',
+    'strike': 'Saplama',
+    'decoy': 'Yem',
+    'weapons': 'Silahlar',
+    'ammo': 'Cephane',
+    'heat': 'Silah ısısı',
     'crouch': 'Çömel',
     'stand': 'Ayağa kalk',
     'cancel': 'Silahı indir',

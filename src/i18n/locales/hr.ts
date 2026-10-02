@@ -18,6 +18,11 @@ export default {
   },
   'hud': {
     'alert': 'Razina uzbune',
+    'strike': 'Udarac',
+    'decoy': 'Mamac',
+    'weapons': 'Oružje',
+    'ammo': 'Streljivo',
+    'heat': 'Zagrijanost oružja',
     'crouch': 'Čučni',
     'stand': 'Ustani',
     'cancel': 'Spusti oružje',

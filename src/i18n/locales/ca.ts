@@ -18,6 +18,11 @@ export default {
   },
   'hud': {
     'alert': 'Nivell d\'alerta',
+    'strike': 'Cop',
+    'decoy': 'Parany',
+    'weapons': 'Armes',
+    'ammo': 'Munició',
+    'heat': 'Calor de l\'arma',
     'crouch': 'Ajupir-se',
     'stand': 'Aixecar-se',
     'cancel': 'Baixar l\'arma',

@@ -18,6 +18,11 @@ export default {
   },
   'hud': {
     'alert': 'Hälytystaso',
+    'strike': 'Isku',
+    'decoy': 'Houkutin',
+    'weapons': 'Aseet',
+    'ammo': 'Ammukset',
+    'heat': 'Aseen kuumuus',
     'crouch': 'Kyyristy',
     'stand': 'Nouse ylös',
     'cancel': 'Laske ase',

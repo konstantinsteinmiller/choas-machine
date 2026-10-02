@@ -18,6 +18,11 @@ export default {
   },
   'hud': {
     'alert': 'Larmnivå',
+    'strike': 'Hugg',
+    'decoy': 'Lockbete',
+    'weapons': 'Vapen',
+    'ammo': 'Ammunition',
+    'heat': 'Vapenvärme',
     'crouch': 'Huka dig',
     'stand': 'Res dig',
     'cancel': 'Sänk vapnet',

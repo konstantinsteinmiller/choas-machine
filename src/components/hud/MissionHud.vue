@@ -1,11 +1,9 @@
 <template lang="pug">
-  div.mission-hud(:class="{ scoped: hud.scoped }")
+  div.mission-hud
+    Reticle
     Joystick
     AimHold
     ThreatArcs
-    //- The aim point: where a shot goes. A dot while walking, hidden through
-    //- the scope (the scope overlay draws its own reticle).
-    div.reticle(v-show="!hud.scoped" :class="{ aiming: hud.aiming }" aria-hidden="true")
 
     div.top-centre
       AlertMeter
@@ -13,7 +11,22 @@
     div.top-right
       FHudButton(icon="pause" :aria-label="t('ui.pause')" data-testid="btn-pause" @click="emit('pause')")
 
-    //- The right thumb's cluster, above where it rests.
+    div.bottom-centre(v-show="!hud.scoped || hud.reloading")
+      AmmoStrip
+
+    //- The blade's offer: big, pink and under the right thumb's reach. A tap
+    //- anywhere on the right does the same; this is the picture of it.
+    div.strike(v-if="hud.strike")
+      FHudButton(
+        icon="blade"
+        tone="pink"
+        attention
+        :aria-label="t('hud.strike')"
+        data-testid="btn-strike"
+        @click="input.actQueued = true"
+      )
+
+    //- The right thumb's column, above where it rests.
     div.actions
       FHudButton(
         v-if="hud.aiming && hud.device === 'touch'"
@@ -23,6 +36,36 @@
         data-testid="btn-cancel"
         @click="cancelAim(input)"
       )
+      div.weapons
+        //- The wheel: the other weapons fan out beside the one in hand.
+        template(v-if="wheelOpen")
+          FHudButton(
+            v-for="(w, n) in WEAPON_IDS"
+            :key="w"
+            :icon="w"
+            :tone="TONES[w]"
+            :active="hud.weapon === w"
+            :aria-label="t(`options.actions.weapon${n + 1}`)"
+            :data-testid="`btn-weapon-${w}`"
+            @click="pick(n)"
+          )
+        FHudButton(
+          v-else
+          :icon="hud.weapon"
+          :tone="TONES[hud.weapon]"
+          :aria-label="t('hud.weapons')"
+          data-testid="btn-weapons"
+          @click="wheelOpen = true"
+        )
+      FHudButton(
+        icon="decoy"
+        :is-disabled="hud.decoys <= 0 || hud.mode !== 'ground'"
+        :aria-label="t('hud.decoy')"
+        data-testid="btn-decoy"
+        @click="input.decoyQueued = true"
+      )
+        template(#badge)
+          FHudBadge(tone="cyan") {{ hud.decoys }}
       FHudButton(
         :icon="hud.crouched ? 'stand' : 'crouch'"
         tone="violet"
@@ -36,15 +79,20 @@
 </template>
 
 <script setup lang="ts">
+import { onUnmounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import FHudButton from '@/components/atoms/FHudButton.vue'
+import FHudBadge from '@/components/atoms/FHudBadge.vue'
 import Joystick from '@/components/hud/Joystick.vue'
 import AimHold from '@/components/hud/AimHold.vue'
 import AlertMeter from '@/components/hud/AlertMeter.vue'
 import ThreatArcs from '@/components/hud/ThreatArcs.vue'
+import Reticle from '@/components/hud/Reticle.vue'
+import AmmoStrip from '@/components/hud/AmmoStrip.vue'
 import { hud } from '@/game/state/hud'
 import { input } from '@/game/engine/inputState'
 import { cancelAim } from '@/game/engine/input'
+import { WEAPON_IDS, type WeaponId } from '@/game/data/ids'
 
 /**
  * The mission's HUD. The layer lets every press through to the scene under
@@ -54,29 +102,30 @@ import { cancelAim } from '@/game/engine/input'
  */
 const emit = defineEmits<{ (e: 'pause'): void }>()
 const { t } = useI18n()
+
+const TONES: Record<WeaponId, 'cyan' | 'warn' | 'danger'> = { sniper: 'cyan', minigun: 'warn', rocket: 'danger' }
+
+// ── The weapon wheel ──
+const wheelOpen = ref(false)
+let closeTimer = 0
+const pick = (n: number): void => {
+  input.weaponQueued = (n + 1) as 1 | 2 | 3
+  wheelOpen.value = false
+}
+// An open wheel nobody picks from folds away again.
+watch(wheelOpen, (open) => {
+  window.clearTimeout(closeTimer)
+  if (open) closeTimer = window.setTimeout(() => { wheelOpen.value = false }, 3500)
+})
+onUnmounted(() => window.clearTimeout(closeTimer))
 </script>
 
 <style scoped lang="sass">
 .mission-hud
+  --gap: clamp(0.4rem, 1.8vmin, 0.8rem)
   position: absolute
   inset: 0
   pointer-events: none
-
-.reticle
-  position: absolute
-  left: 50%
-  top: 50%
-  width: clamp(0.35rem, 1.2vmin, 0.55rem)
-  height: clamp(0.35rem, 1.2vmin, 0.55rem)
-  translate: -50% -50%
-  border-radius: 50%
-  background: var(--cm-text)
-  box-shadow: 0 0 0 var(--cm-edge) rgba(21, 12, 43, 0.7)
-  opacity: 0.55
-  transition: opacity 120ms ease-out, background-color 120ms ease-out
-  &.aiming
-    opacity: 1
-    background: var(--cm-pink)
 
 .top-centre
   position: absolute
@@ -89,7 +138,13 @@ const { t } = useI18n()
   top: var(--cm-safe-top)
   right: var(--cm-safe-right)
   display: flex
-  gap: clamp(0.3rem, 1.4vmin, 0.6rem)
+  gap: var(--gap)
+
+.bottom-centre
+  position: absolute
+  bottom: var(--cm-safe-bottom)
+  left: 50%
+  translate: -50% 0
 
 .actions
   position: absolute
@@ -98,5 +153,18 @@ const { t } = useI18n()
   display: flex
   flex-direction: column
   align-items: flex-end
-  gap: clamp(0.4rem, 1.8vmin, 0.8rem)
+  gap: var(--gap)
+
+.weapons
+  display: flex
+  flex-direction: row-reverse
+  gap: var(--gap)
+
+// Left of the action column, level with its middle: where the thumb comes
+// from, and never under the column itself.
+.strike
+  position: absolute
+  right: calc(var(--cm-safe-right) + var(--cm-chip) + var(--gap) * 2)
+  bottom: calc(var(--cm-safe-bottom) + var(--cm-chip) * 1.2)
+  --cm-chip: clamp(3.2rem, 14vmin, 4.6rem)
 </style>

@@ -18,6 +18,11 @@ export default {
   },
   'hud': {
     'alert': 'Nivel de alertă',
+    'strike': 'Lovitură',
+    'decoy': 'Momeală',
+    'weapons': 'Arme',
+    'ammo': 'Muniție',
+    'heat': 'Căldura armei',
     'crouch': 'Ghemuiește-te',
     'stand': 'Ridică-te',
     'cancel': 'Coboară arma',

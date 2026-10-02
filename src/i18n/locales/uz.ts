@@ -18,6 +18,11 @@ export default {
   },
   'hud': {
     'alert': 'Xavf darajasi',
+    'strike': 'Zarba',
+    'decoy': 'Yem',
+    'weapons': 'Qurollar',
+    'ammo': 'O\'q-dorilar',
+    'heat': 'Qurol qizishi',
     'crouch': 'Cho\'kka tushish',
     'stand': 'Turish',
     'cancel': 'Qurolni tushirish',

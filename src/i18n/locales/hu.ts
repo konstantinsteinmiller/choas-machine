@@ -18,6 +18,11 @@ export default {
   },
   'hud': {
     'alert': 'Riadószint',
+    'strike': 'Szúrás',
+    'decoy': 'Csali',
+    'weapons': 'Fegyverek',
+    'ammo': 'Lőszer',
+    'heat': 'Fegyver hőmérséklete',
     'crouch': 'Guggolás',
     'stand': 'Felállás',
     'cancel': 'Fegyver le',

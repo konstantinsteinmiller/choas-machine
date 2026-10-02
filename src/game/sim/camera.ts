@@ -19,12 +19,14 @@ import type { WeaponId } from '../data/ids'
  */
 
 /** Arm length and shoulder offset when walking. */
-export const FOLLOW_DIST = 5.6
+export const FOLLOW_DIST = 6.4
 const FOLLOW_SHOULDER = 0.55
 /** Over the shoulder, with the minigun or the launcher up. */
 const SHOULDER_DIST = 2.5
 const SHOULDER_SIDE = 0.85
 const SHOULDER_FOV = 46
+/** The base field of view the zoom values above are tuned at (16:9). */
+const REFERENCE_FOV = 60
 /** How far the camera keeps off a wall it is pushed against. */
 const WALL_MARGIN = 0.3
 const MIN_DIST = 0.55
@@ -145,7 +147,9 @@ export const placeCam = (
     tx: x + f.x * 30,
     ty: y + f.y * 30,
     tz: z + f.z * 30,
-    fov: lerp(baseFov, sniper ? scopeFov : SHOULDER_FOV, a),
+    // Both zooms are a fraction of the base view, which is wider on a
+    // phone held upright: the same magnification either way round.
+    fov: lerp(baseFov, (sniper ? scopeFov : SHOULDER_FOV) * (baseFov / REFERENCE_FOV), a),
     inside: sniper ? a : 0
   }
 }

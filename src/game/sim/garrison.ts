@@ -44,10 +44,11 @@ interface Spec {
 
 const HUMAN = { eye: 1.5, height: 1.72, radius: 0.35, walk: 1.5, look: 2.3, run: 3.9 }
 export const SPECS: Readonly<Record<PostKind, Spec>> = {
-  guard: { ...HUMAN, range: 18, half: 0.66, hp: 30 },
+  // A guard sees a 110° cone, some 22 m deep (plan G4).
+  guard: { ...HUMAN, range: 22, half: 0.96, hp: 30 },
   // A sentry watches one way, far and narrow: the thing a sniper deals with first.
-  sentry: { ...HUMAN, range: 26, half: 0.5, hp: 30 },
-  commander: { ...HUMAN, range: 16, half: 0.7, hp: 60 },
+  sentry: { ...HUMAN, range: 30, half: 0.55, hp: 30 },
+  commander: { ...HUMAN, range: 20, half: 0.96, hp: 60 },
   drone: { eye: 0, height: 0.5, radius: 0.45, walk: 2.6, look: 1.2, run: 3.6, range: 0, half: 0, hp: 20 },
   enforcer: { eye: 2.9, height: 3.3, radius: 0.95, walk: 2.0, look: 2.0, run: 2.6, range: 30, half: 1.0, hp: 600 },
   goliath: { eye: 2.6, height: 3.0, radius: 2.6, walk: 1.4, look: 1.4, run: 1.8, range: 40, half: 1.2, hp: 3000 }
@@ -73,6 +74,9 @@ const BODY_HEIGHT = 0.45
 
 /** What a second (third …) witness adds to the alert. */
 const SECOND_WITNESS = 8
+
+/** A drone that has lost the mech this long goes back to its sweep. */
+const DRONE_LOST_S = 4
 
 const TURN_RATE = 5.5
 const HUH_S = 0.9
@@ -423,6 +427,8 @@ const fight = (u: Unit, g: Grid, gar: Garrison, target: Target, dt: number): voi
     }
     turnToward(u, headingTo(u.x, u.z, u.seenX, u.seenZ), dt, 3)
     u.speed01 = 1
+    if (u.sees) u.repath = 0
+    else if (!gar.alert.chaos && (u.repath += dt) > DRONE_LOST_S) { u.repath = 0; enter(u, 'search') }
     return
   }
   if (u.sees) {
@@ -606,6 +612,26 @@ export const killUnit = (gar: Garrison, id: number, fromX: number, fromZ: number
   // A wrecked drone is scrap, not a body anyone raises the alarm over.
   u.found = u.kind === 'drone'
   gar.events.push({ type: 'kill', id })
+}
+
+/**
+ * A defender was hit and lived, or stood next to something that did not:
+ * it knows it is under attack and from where.
+ */
+export const alarmUnit = (gar: Garrison, id: number, fromX: number, fromZ: number): void => {
+  const u = gar.units[id]
+  if (!u || u.state === 'dead' || u.state === 'combat') return
+  // A machine that is hit wakes up.
+  u.detect = 1
+  u.seenX = fromX
+  u.seenZ = fromZ
+  u.lured = false
+  u.path = []
+  u.repath = 0
+  enter(u, 'combat')
+  gar.events.push({ type: 'spotted', id })
+  const target: Target = { x: fromX, y: 0, z: fromZ, height: 0, crouched: false, visible: false }
+  raise(gar, 'seen', target)
 }
 
 /** Hurt a unit; kills it when its health runs out. True if it died. */

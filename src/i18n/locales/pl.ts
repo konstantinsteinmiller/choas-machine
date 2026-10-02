@@ -18,6 +18,11 @@ export default {
   },
   'hud': {
     'alert': 'Poziom alarmu',
+    'strike': 'Cios',
+    'decoy': 'Wabik',
+    'weapons': 'Bronie',
+    'ammo': 'Amunicja',
+    'heat': 'Temperatura broni',
     'crouch': 'Kucnij',
     'stand': 'Wstań',
     'cancel': 'Opuść broń',

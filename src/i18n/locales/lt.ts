@@ -18,6 +18,11 @@ export default {
   },
   'hud': {
     'alert': 'Pavojaus lygis',
+    'strike': 'Smūgis',
+    'decoy': 'Masalas',
+    'weapons': 'Ginklai',
+    'ammo': 'Amunicija',
+    'heat': 'Ginklo kaitra',
     'crouch': 'Pritūpti',
     'stand': 'Atsistoti',
     'cancel': 'Nuleisti ginklą',

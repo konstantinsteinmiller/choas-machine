@@ -18,6 +18,11 @@ export default {
   },
   'hud': {
     'alert': 'Niveau d\'alerte',
+    'strike': 'Frapper',
+    'decoy': 'Leurre',
+    'weapons': 'Armes',
+    'ammo': 'Munitions',
+    'heat': 'Chaleur de l\'arme',
     'crouch': 'S\'accroupir',
     'stand': 'Se relever',
     'cancel': 'Baisser l\'arme',

@@ -18,6 +18,11 @@ export default {
   },
   'hud': {
     'alert': 'Úroveň poplachu',
+    'strike': 'Úder',
+    'decoy': 'Návnada',
+    'weapons': 'Zbraně',
+    'ammo': 'Munice',
+    'heat': 'Žhavost zbraně',
     'crouch': 'Skrčit se',
     'stand': 'Vstát',
     'cancel': 'Spustit zbraň',

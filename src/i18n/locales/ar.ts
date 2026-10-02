@@ -18,6 +18,11 @@ export default {
   },
   'hud': {
     'alert': 'مستوى الإنذار',
+    'strike': 'اطعن',
+    'decoy': 'طُعم',
+    'weapons': 'الأسلحة',
+    'ammo': 'الذخيرة',
+    'heat': 'حرارة السلاح',
     'crouch': 'انحناء',
     'stand': 'وقوف',
     'cancel': 'خفض السلاح',

@@ -88,7 +88,7 @@ three.js import, so it runs in Vitest and in a balance script.
 - [x] **P5 Stealth** — patrol routes, vision cones, detection meter,
   suspicious / alarmed states, body discovery, drones, base-wide Alert Level,
   HUD meter and detection markers.
-- [ ] **P6 Arsenal** — scope (first person, zoom, sway), hit-scan with head
+- [x] **P6 Arsenal** — scope (first person, zoom, sway), hit-scan with head
   zones, magazine and reload; blade backstab and drop assassination prompts;
   decoys; minigun spool and heat; rockets and splash; weapon wheel; haptics.
 - [ ] **P7 Chaos phase** — full alert switch, reinforcement waves, Enforcers
@@ -273,6 +273,22 @@ Answered by the owner (2026-10-02): G5 (one fortress), C1 (new remote), C2 (wran
   AlertMeter, ThreatArcs. Guards do not shoot yet (P7); the simulation runs
   under the loader until P8 gives the mission an intro phase.
   Scratch probe: `probe.mjs <url> <out> <desktop|touch|touch-portrait> <scenario.mjs>`.
+- 2026-10-02 P6 done. Pure modules: `sim/hitscan.ts` (ray vs grid and vs each
+  defender's zones: head/body, Enforcer joints, Goliath vents), `sim/damage.ts`
+  (the weapon × kind × zone table, `blast`), `sim/weapons.ts` (sniper: 5
+  rounds, bolt, reload; minigun: spool-up, heat, lockout; rockets: 6 per
+  mission, self-reloading), `sim/melee.ts` (backstab / drop / strike offer;
+  decoys: 3 per mission, 9 s, thrown up to 12 m), `sim/rockets.ts`.
+  `fx/combatFx.ts`: flashes, tracers, impacts, explosions, rockets in flight,
+  decoy holograms (one particle draw call). `useHaptics` rewritten with a cue
+  per weapon. HUD: Reticle (per weapon, scope lens, hit ticks), AmmoStrip,
+  weapon wheel, decoy and strike chips. Touch fires on release / while held;
+  a mouse has its own trigger. A sniper miss near a guard is heard; the
+  minigun and rockets send the base to full alert. Zooms scale with the base
+  field of view, so portrait and landscape magnify alike.
+  Deferred to P8: scope glint/zoom-in sound, kill-cam. To P9: the look
+  sensitivity slider in Options (the mission already reads the setting).
+  `hud.armor` is translated in `scratchpad/i18n/p6.json`, waiting for P7.
 
 ## Resume notes
 

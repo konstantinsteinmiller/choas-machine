@@ -18,6 +18,11 @@ export default {
   },
   'hud': {
     'alert': 'Tingkat siaga',
+    'strike': 'Tikam',
+    'decoy': 'Umpan',
+    'weapons': 'Senjata',
+    'ammo': 'Amunisi',
+    'heat': 'Panas senjata',
     'crouch': 'Jongkok',
     'stand': 'Berdiri',
     'cancel': 'Turunkan senjata',

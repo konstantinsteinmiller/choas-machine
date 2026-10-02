@@ -18,6 +18,11 @@ export default {
   },
   'hud': {
     'alert': 'Alarmstufe',
+    'strike': 'Zustechen',
+    'decoy': 'Köder',
+    'weapons': 'Waffen',
+    'ammo': 'Munition',
+    'heat': 'Waffenhitze',
     'crouch': 'Ducken',
     'stand': 'Aufstehen',
     'cancel': 'Waffe senken',

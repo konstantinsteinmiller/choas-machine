@@ -18,6 +18,11 @@ export default {
   },
   'hud': {
     'alert': 'Alarmnivå',
+    'strike': 'Stikk',
+    'decoy': 'Lokkedue',
+    'weapons': 'Våpen',
+    'ammo': 'Ammunisjon',
+    'heat': 'Våpenvarme',
     'crouch': 'Huk deg',
     'stand': 'Reis deg',
     'cancel': 'Senk våpenet',

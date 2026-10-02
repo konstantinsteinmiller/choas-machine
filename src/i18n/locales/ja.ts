@@ -18,6 +18,11 @@ export default {
   },
   'hud': {
     'alert': '警戒レベル',
+    'strike': '斬撃',
+    'decoy': 'デコイ',
+    'weapons': '武器',
+    'ammo': '弾薬',
+    'heat': '武器の熱',
     'crouch': 'しゃがむ',
     'stand': '立つ',
     'cancel': '武器を下ろす',

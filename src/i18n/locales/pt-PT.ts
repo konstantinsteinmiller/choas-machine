@@ -18,6 +18,11 @@ export default {
   },
   'hud': {
     'alert': 'Nível de alerta',
+    'strike': 'Golpear',
+    'decoy': 'Isco',
+    'weapons': 'Armas',
+    'ammo': 'Munições',
+    'heat': 'Calor da arma',
     'crouch': 'Agachar',
     'stand': 'Levantar',
     'cancel': 'Baixar arma',

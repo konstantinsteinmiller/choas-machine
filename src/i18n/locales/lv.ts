@@ -18,6 +18,11 @@ export default {
   },
   'hud': {
     'alert': 'Trauksmes līmenis',
+    'strike': 'Trieciens',
+    'decoy': 'Ēsma',
+    'weapons': 'Ieroči',
+    'ammo': 'Munīcija',
+    'heat': 'Ieroča karstums',
     'crouch': 'Pietupties',
     'stand': 'Piecelties',
     'cancel': 'Nolaist ieroci',

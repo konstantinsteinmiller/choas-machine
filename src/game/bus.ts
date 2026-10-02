@@ -1,4 +1,5 @@
 import type { PostKind } from './world/fortress'
+import type { WeaponId } from './data/ids'
 import type { Phase } from './state/hud'
 
 /**
@@ -29,7 +30,16 @@ export interface GameEvents {
   /** A defender found a body. */
   body: { id: number; corpse: number }
   /** A defender went down. */
-  kill: { id: number; kind: PostKind }
+  kill: { id: number; kind: PostKind; by: WeaponId | 'blade'; head: boolean; dist: number }
+  /** A round left the barrel; a round or a rocket arrived. */
+  shot: { weapon: WeaponId }
+  hit: { id: number; weapon: WeaponId; zone: string }
+  blast: { x: number; y: number; z: number; weak: boolean }
+  /** Another weapon was drawn. */
+  weapon: { weapon: WeaponId }
+  /** The blade went for someone; a decoy lit up. */
+  strike: { kind: 'backstab' | 'drop' | 'strike'; id: number }
+  decoy: { x: number; y: number; z: number }
   /** The alert meter lit or lost a segment. */
   alert: { segments: number; prev: number }
   /** The base went to full alert: the stealth phase is over. */

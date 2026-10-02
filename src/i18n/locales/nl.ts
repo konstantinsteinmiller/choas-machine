@@ -18,6 +18,11 @@ export default {
   },
   'hud': {
     'alert': 'Alarmniveau',
+    'strike': 'Steken',
+    'decoy': 'Lokaas',
+    'weapons': 'Wapens',
+    'ammo': 'Munitie',
+    'heat': 'Wapenhitte',
     'crouch': 'Bukken',
     'stand': 'Opstaan',
     'cancel': 'Wapen laten zakken',

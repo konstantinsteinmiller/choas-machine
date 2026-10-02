@@ -18,6 +18,11 @@ export default {
   },
   'hud': {
     'alert': '경계 수준',
+    'strike': '찌르기',
+    'decoy': '미끼',
+    'weapons': '무기',
+    'ammo': '탄약',
+    'heat': '무기 열',
     'crouch': '앉기',
     'stand': '일어서기',
     'cancel': '무기 내리기',

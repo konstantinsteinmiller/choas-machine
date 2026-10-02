@@ -18,6 +18,11 @@ export default {
   },
   'hud': {
     'alert': '警戒等级',
+    'strike': '突刺',
+    'decoy': '诱饵',
+    'weapons': '武器',
+    'ammo': '弹药',
+    'heat': '武器过热',
     'crouch': '蹲下',
     'stand': '站起',
     'cancel': '放下武器',
