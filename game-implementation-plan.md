@@ -121,9 +121,9 @@ three.js import, so it runs in Vitest and in a balance script.
   hydration reload proof, Playwright e2e suite, every platform build.
 - [x] **P14 Pipelines** — art sheets + slicer + playground, compression,
   preview-video scenarios and capture seams, `deploy:poki` reset to this game.
-- [ ] **P15 Performance and layout sweep** — throttled A/B into
+- [x] **P15 Performance and layout sweep** — throttled A/B into
   `PERF-LEDGER.md`, boot timeline, 320×658 portrait and 764×385 landscape.
-- [ ] **P16 Documents** — `roadmap.md` (15+ items), `description.md`,
+- [x] **P16 Documents** — `roadmap.md` (15+ items), `description.md`,
   `README.md`, `art-todo.md`, final report.
 
 ## Decisions (short form; the report has sources and options)
@@ -473,6 +473,38 @@ Answered by the owner (2026-10-02): G5 (one fortress), C1 (new remote), C2 (wran
   **Compression** and **deploy:poki** were already this game's (no ids).
   Not done: a flag to hide the "?" / "!" marks in a clip; `scope` in the
   other six aspects; painted detail maps.
+- 2026-10-02 P15 done. Numbers, method and open items: `PERF-LEDGER.md`.
+  At 4x CPU on the built bundle: stealth holds 60 fps (work p50 9-11 ms),
+  the loud phase holds 30 with a tail (work p95 up to 100 ms, not yet
+  explained: open item 1). Boot: playable after 3.9-4.6 s, longest task
+  0.44-0.74 s. Three changes, each behind a `?perf=` flag for its A/B:
+  the objective marker no longer forces a layout every frame (8.5 % of CPU
+  in the profile; p95 better in 3/3 pairs), the sky's instanced islands no
+  longer share a material with plain meshes (5 % in program lookups; better
+  in 4/4 pairs, median 7 %), rapid-fire sounds are voiced once per 50-80 ms
+  (weak evidence, kept, nobody has listened). The machine was shared while
+  measuring; loud-phase runs spread widely.
+  `scripts/perf-mission.mjs` drives this game (`--stealth`, `--profile`),
+  `scripts/xbrowser.mjs` plays to the rewards screen and back to the base
+  through a new dev cheat (Ctrl+Shift+Alt+O): **PASS on Chrome, Edge, Firefox
+  and WebKit**, zero page errors (WebKit never takes the mouse capture).
+  Release checks from the final tree: all eight portal builds exit 0
+  (crazy-web, gamepix, gamemonetize, yandex, itch, glitch, poki, playgama);
+  portal QA **12/12 on GamePix**; on GameMonetize 10/12 as shipped, because
+  the game id is empty and the SDK is never asked, and **15/15 with a
+  placeholder id** (the wiring is right; it needs the real id);
+  **Poki's offline gates all pass** (`pnpm deploy:poki --gates-only`:
+  no CSP meta, no foreign SDK, no dev tooling, 1.14 MB initial, 1.76 MB
+  total). Layout: the e2e suite checks the HUD at 320x658 and 764x385 and
+  the base and workshop in German on three screens. Suite: 98 files / 1198
+  unit tests, 8 e2e, type-check clean.
+  Not done: a phone has not been measured; draw calls (about 124 from the
+  perch) were not reduced; wavedash was not built (its script pushes).
+- 2026-10-02 P16 done. `README.md` rewritten for this game; `description.md`
+  (short 139 / 150, description 482 / 500, how to play, controls);
+  `art-todo.md`, `sound-todo.md`; `PERF-LEDGER.md`; `roadmap.md` (the
+  owner's file, not committed): #1 ticked with its deferred note, retention
+  items #2-#20 appended.
 
 ## Resume notes
 
