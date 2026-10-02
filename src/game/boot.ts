@@ -89,9 +89,14 @@ const precompile = async (
   }
 }
 
-registerModeFactories((onProgress) =>
-  FortressView.create(buildProvingGround(), viewAngleFromUrl(window.location.search), createSlicer(12), onProgress)
-)
+registerModeFactories(async (onProgress) => {
+  // DEV ONLY: the model bench. The `import.meta.env.DEV` guard folds the
+  // branch, and its chunk, out of every build.
+  if (import.meta.env.DEV && new URLSearchParams(window.location.search).get('bench') === 'models') {
+    return new (await import('./scenes/modelBench')).ModelBench(window.location.search)
+  }
+  return FortressView.create(buildProvingGround(), viewAngleFromUrl(window.location.search), createSlicer(12), onProgress)
+})
 
 let prepared: GameMode | null = null
 let primed: Promise<void> | null = null

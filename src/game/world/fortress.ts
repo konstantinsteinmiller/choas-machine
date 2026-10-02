@@ -13,9 +13,9 @@ import { CELL, CellKind, VOID, cellMid, cellHeight, inGrid, makeGrid, type Grid 
  * world metres.
  */
 
-/** Heights the kit builds with, in metres. The mech stands about 2.2 tall and
- *  crouches to 1.2, so cover hides it crouched and a wall hides it standing. */
-export const COVER_H = 1.4
+/** Heights the kit builds with, in metres. The mech stands 2.5 tall and
+ *  crouches to 1.65, so cover hides it crouched and a wall hides it standing. */
+export const COVER_H = 1.8
 export const WALL_H = 4
 export const TOWER_H = 8
 /** Rise of one stair tread: under the step-up limit, so a patrol walks it. */

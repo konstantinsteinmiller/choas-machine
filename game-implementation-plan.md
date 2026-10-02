@@ -81,7 +81,7 @@ three.js import, so it runs in Vitest and in a balance script.
 - [x] **P2 Fortress world** — level format + builder; outdoor mesh (16 m
   chunks, frustum culling, instanced props); height-aware nav and A*; 3D line
   of sight; sky, haze, island; fortress lab route.
-- [ ] **P3 Rigs** — mech (blade arm, sniper, minigun, launcher, weapon tiers),
+- [x] **P3 Rigs** — mech (blade arm, sniper, minigun, launcher, weapon tiers),
   guard, Commander, drone, Enforcer, Goliath Tank; model lab entries.
 - [ ] **P4 The mech in play** — third-person controller and camera, crouch,
   cover, ladders, cables, drops, vault; touch + desktop action set, rebinding.
@@ -243,6 +243,13 @@ Answered by the owner (2026-10-02): G5 (one fortress), C1 (new remote), C2 (wran
   with the whole base in view, 22 calls through a narrow lens. The game boots
   into `scenes/fortressView.ts` (`?view=az,el,dist[,fov]` pins the camera).
   Gate: suite, type-check, build, browser pass at three sizes.
+- 2026-10-02 P3 done. `models/mech.ts`: the mech (2.5 m; blade arm; sniper,
+  minigun and launcher all in the rig, the holstered ones scaled away) with a
+  blended pose function (walk, crouch, aim, recoil, stab, climb, cable, air).
+  `models/garrison.ts`: guard and Commander (headshot zone constants), drone,
+  Enforcer (dormant slump, glowing joints), Goliath Tank (turret, cannon, rear
+  vents). Each is one skinned mesh plus an outline. Cover is 1.8 m and the
+  crouched mech tops out at 1.65 m (tested). Bench: `?bench=models&m=…&pose=…`.
 
 ## Resume notes
 
