@@ -100,6 +100,10 @@ export interface GuardPose {
   seed: number
   /** The Commander carries himself differently. */
   proud: boolean
+  /** Seized from behind (alive); on the blade; the life going out of it. Each 0 … 1. */
+  gripped: number
+  impaled: number
+  limp: number
   /** Seconds since it died; 0 while alive. */
   deadT: number
   /** How it goes down. */
@@ -116,7 +120,7 @@ export interface GuardPose {
 export type HumanDeath = 'back' | 'front' | 'spin' | 'thrown'
 
 export const restGuardPose = (): GuardPose => ({
-  time: 0, stride: 0, speed: 0, aim: 0, wary: 0, caution: 0, startle: 0, recoil: 0, lookYaw: 0, seed: 0.5, proud: false, deadT: 0, death: 'back'
+  time: 0, stride: 0, speed: 0, aim: 0, wary: 0, caution: 0, startle: 0, recoil: 0, lookYaw: 0, seed: 0.5, proud: false, gripped: 0, impaled: 0, limp: 0, deadT: 0, death: 'back'
 })
 
 const sat = (v: number): number => (v < 0 ? 0 : v > 1 ? 1 : v)
@@ -293,7 +297,14 @@ const poseGuardAlive = (rig: Rig, s: GuardPose): void => {
   const walk = smooth(s.speed / 0.3) * alive
   const run = smooth((s.speed - 0.55) / 0.4) * alive
   const still = (1 - walk) * alive
-  const calm = (1 - s.aim) * (1 - s.caution)
+  const calm = (1 - s.aim) * (1 - s.caution) * (1 - s.gripped)
+  // Seized, and then run through: it is pulled back onto the hand, arches
+  // on the blade with its feet barely on the ground, and then everything
+  // lets go from the head down.
+  const grip = s.gripped * (1 - s.impaled)
+  const stuck = s.impaled * (1 - s.limp)
+  const gone = s.impaled * s.limp
+  const tremble = Math.sin(s.time * 43) * 0.02 * stuck
   const own = s.seed - 0.5
   const swagger = 1 + own * 0.5
   const t = s.time
@@ -312,7 +323,7 @@ const poseGuardAlive = (rig: Rig, s: GuardPose): void => {
 
   // ── Legs ──
   const hipPitch = (0.05 + 0.12 * run) * walk + 0.12 * s.caution
-  const stance = 0.22 * s.caution + 0.28 * s.aim
+  const stance = (0.22 * s.caution + 0.28 * s.aim) * (1 - s.gripped) + 0.3 * gone
   let reach = 0
   for (const [tag, sign] of [['L', 1], ['R', -1]] as const) {
     const ph = s.stride + (sign > 0 ? 0 : Math.PI)
@@ -340,8 +351,8 @@ const poseGuardAlive = (rig: Rig, s: GuardPose): void => {
   nudge(
     rig, 'hips',
     shift * 0.035 + swing * 0.012 * walk,
-    -sink,
-    -0.04 * s.startle
+    -sink + 0.05 * stuck,
+    -0.04 * s.startle - 0.05 * grip + 0.06 * s.impaled
   )
   pose(
     rig, 'hips',
@@ -351,14 +362,14 @@ const poseGuardAlive = (rig: Rig, s: GuardPose): void => {
   )
   pose(
     rig, 'chest',
-    0.04 * walk + 0.22 * s.caution + 0.1 * s.aim - 0.06 * s.recoil - 0.22 * s.startle
+    0.04 * walk + 0.22 * s.caution + 0.1 * s.aim - 0.06 * s.recoil - 0.22 * s.startle - 0.2 * grip - 0.38 * stuck + 0.2 * gone + tremble
       + breathe * 0.012 * alive + lookDown * 0.18 - shrug * 0.12 - (s.proud ? 0.07 * calm : 0),
     -swing * 0.3 * walk * swagger * calm,
     -Math.cos(s.stride) * 0.04 * walk - shift * 0.05
   )
   pose(
     rig, 'head',
-    -0.04 * walk - 0.16 * s.caution - 0.15 * s.aim + lookDown * 0.55 + 0.25 * s.startle
+    -0.04 * walk - 0.16 * s.caution - 0.15 * s.aim + lookDown * 0.55 + 0.25 * s.startle - 0.4 * grip - 0.55 * stuck + 0.75 * gone
       + Math.sin(t * 1.3) * 0.03 * alive + (s.proud ? -0.08 * calm : 0),
     (s.lookYaw + Math.sin(t * 2.3) * 0.5 * s.wary + swing * 0.14 * walk * calm) * alive,
     scratch * 0.2
@@ -371,11 +382,11 @@ const poseGuardAlive = (rig: Rig, s: GuardPose): void => {
   const carryR = -0.3 + swing * 0.22 * walk * swagger - shrug * 0.15
   pose(
     rig, 'armR',
-    carryR * (1 - ready) - 1.45 * ready - 0.12 * s.recoil + 0.5 * s.startle,
+    (carryR * (1 - ready) - 1.45 * ready - 0.12 * s.recoil + 0.5 * s.startle) * (1 - s.impaled) + 0.25 * grip - 0.7 * stuck,
     0.15 * ready,
-    0.1 * (1 - ready) + shrug * 0.12
+    0.1 * (1 - ready) + shrug * 0.12 + 0.75 * stuck + 0.15 * gone
   )
-  pose(rig, 'foreR', (-0.5 - 0.12 * walk) * (1 - ready) - 0.1 * ready - 0.25 * s.startle, 0, 0)
+  pose(rig, 'foreR', ((-0.5 - 0.12 * walk) * (1 - ready) - 0.1 * ready - 0.25 * s.startle) * (1 - gone) - 0.1 * gone, 0, 0)
   // The free arm swings against its leg, bends as it comes forward, and is
   // the one that scratches. The Commander keeps his behind his back.
   const swingL = -swing * (0.5 + 0.35 * run) * walk * swagger
@@ -383,13 +394,14 @@ const poseGuardAlive = (rig: Rig, s: GuardPose): void => {
   pose(
     rig, 'armL',
     (swingL - 0.05) * (1 - ready) * (1 - behind) + 0.45 * behind - 1.0 * ready - 2.5 * scratch - shrug * 0.15
-      + 0.6 * s.startle,
+      + 0.6 * s.startle - 1.7 * grip - 0.9 * stuck,
     -0.5 * ready + 0.5 * behind,
-    -0.1 - 0.25 * scratch - shrug * 0.14 - 0.3 * s.startle
+    -0.1 - 0.25 * scratch - shrug * 0.14 - 0.3 * s.startle - 0.8 * stuck - 0.15 * gone
   )
   pose(
     rig, 'foreL',
-    (-0.22 - Math.max(0, -swingL) * 0.9 - 0.3 * run) * (1 - ready) * (1 - behind) - 0.9 * behind - 0.7 * ready - 1.5 * scratch,
+    ((-0.22 - Math.max(0, -swingL) * 0.9 - 0.3 * run) * (1 - ready) * (1 - behind) - 0.9 * behind - 0.7 * ready - 1.5 * scratch) * (1 - s.gripped)
+      - 1.6 * grip - 0.5 * stuck - 0.1 * gone,
     0, 0
   )
 }

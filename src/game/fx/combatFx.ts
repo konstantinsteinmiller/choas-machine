@@ -268,6 +268,24 @@ export class CombatFx {
     p.flash(x + Math.sin(yaw) * 0.9, y + 1.4, z + Math.cos(yaw) * 0.9, '#ffffff', 0.9, 0.08)
   }
 
+  /** The blade's tip comes out of a body: a hot point and a spray along `yaw`. */
+  stabThrough(x: number, y: number, z: number, yaw: number): void {
+    const p = this.particles
+    const fx = Math.sin(yaw)
+    const fz = Math.cos(yaw)
+    p.flash(x + fx * 0.25, y, z + fz * 0.25, '#ffffff', 0.7, 0.1)
+    for (let k = 0; k < 16; k++) {
+      const a = (Math.random() - 0.5) * 1.3
+      const e = (Math.random() - 0.3) * 0.9
+      const sp = 2.5 + Math.random() * 4
+      p.emit({
+        x, y, z,
+        vx: (fx * Math.cos(a) - fz * Math.sin(a)) * sp, vy: Math.sin(e) * sp, vz: (fz * Math.cos(a) + fx * Math.sin(a)) * sp,
+        color: k % 3 === 0 ? '#ffffff' : PAL.mechBlade, size: 0.16, sizeEnd: 0.03, life: 0.25 + Math.random() * 0.3, gravity: 6, drag: 2
+      })
+    }
+  }
+
   /** A decoy lights up, or goes out. */
   decoyPop(x: number, y: number, z: number): void {
     this.particles.riseRing(x, y + 0.1, z, PAL.glowCyan, 0.7, 18)

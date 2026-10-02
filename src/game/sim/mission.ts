@@ -8,7 +8,7 @@ import { consumeEdges, type Input } from '../engine/input'
 import { input as sharedInput, inputClock } from '../engine/inputState'
 import { emit, on } from '../bus'
 import { gun, hud, mirror, runHudTickers, setPhase, threats, vital, waypoint, MAX_THREATS } from '../state/hud'
-import { CELL, VOID, heightAt } from '../world/grid'
+import { CELL, VOID, heightAt , raycast } from '../world/grid'
 import type { Fortress } from '../world/fortress'
 import { buildFortressMesh, type FortressMesh } from '../world/fortressMesh'
 import { buildDecor, type DecorMesh } from '../world/decor'
@@ -30,6 +30,7 @@ import {
   type Garrison, type Target
 } from './garrison'
 import { GarrisonView } from './garrisonView'
+import { TAKEDOWN, TD_END, TD_HOLD, TD_IN, TD_PULL, takedownCam, takedownPose } from './takedown'
 import { castShot, makeShotHit, HEAD_Y } from './hitscan'
 import { blast, shotDamage } from './damage'
 import { SPREAD, ammoOf, makeArsenal, stepArsenal, type Arsenal, type Trigger } from './weapons'
@@ -82,12 +83,19 @@ interface StrikeRun {
   tz: number
   yaw: number
   landed: boolean
+  /** The choreographed takedown (`sim/takedown.ts`), not the quick lunge. */
+  full: boolean
+  /** The takedown's beats that have already fired. */
+  drawn: boolean
+  pulled: boolean
 }
 
 /** The scripted shot that is running, if one is. Timed in REAL seconds. */
 type Cine =
   /** The drop-in. */
   | { kind: 'intro'; t: number; dur: number; landed: boolean }
+  /** The takedown's own camera: it runs as long as the strike does. */
+  | { kind: 'stab'; t: number; dur: number }
   /** The extraction. */
   | { kind: 'outro'; t: number; dur: number }
   /** The sniper's round in flight, then a moment on what it did. */
@@ -154,6 +162,7 @@ export class Mission implements GameMode {
   private markers = new FloorMarkers()
   /** Seconds since the mech went down. */
   private downT = 0
+  private tdPose = { grab: 0, draw: 0, plunge: 0, blade: 0 }
   /** What the mission wants next. */
   objective: 'target' | 'extract' | 'done' = 'target'
   private cine: Cine | null = null
@@ -300,7 +309,8 @@ export class Mission implements GameMode {
     inputClock.tick()
 
     // Any press skips a scripted shot (once it has had a moment to register).
-    if (this.cine && i.anyPressed && this.cine.t > 0.3) this.skipCine()
+    // (A takedown needs a later press: the one that started it is still going down.)
+    if (this.cine && i.anyPressed && this.cine.t > (this.cine.kind === 'stab' ? 0.7 : 0.3)) this.skipCine()
     // The bullet in flight: the world holds its breath.
     if (this.cine?.kind === 'bullet' && !this.cine.hit) {
       consumeEdges(i)
@@ -313,7 +323,7 @@ export class Mission implements GameMode {
       stepGarrison(this.garrison, this.fortress.grid, this.target, dt)
       drainEvents(this.garrison)
     } else if (hud.phase === 'play') {
-      this.target.visible = true
+      this.target.visible = !this.strike?.full
       this.stats.time += dt
       if (this.strike) {
         this.stepStrike(dt)
@@ -597,12 +607,24 @@ export class Mission implements GameMode {
     const p = this.player
     const u = this.garrison.units[s.id]!
     const away = Math.hypot(p.x - u.x, p.z - u.z) || 1
-    // End a blade's length from the target, on the side the mech came from.
-    const tx = u.x + ((p.x - u.x) / away) * 0.85
-    const tz = u.z + ((p.z - u.z) / away) * 0.85
+    // From behind or from above, and with kill-cams on, it is the whole
+    // takedown: the mech ends square behind the target, facing its way.
+    const full = s.kind !== 'strike' && killCamsEnabled.value
+    // Otherwise: a blade's length from the target, on the side the mech came from.
+    const tx = full ? u.x - Math.sin(u.yaw) * TAKEDOWN.reach : u.x + ((p.x - u.x) / away) * 0.85
+    const tz = full ? u.z - Math.cos(u.yaw) * TAKEDOWN.reach : u.z + ((p.z - u.z) / away) * 0.85
     this.strike = {
-      id: s.id, kind: s.kind, t: 0, dur: s.kind === 'drop' ? 0.5 : 0.34,
-      fx: p.x, fy: p.y, fz: p.z, tx, ty: u.y, tz, yaw: headingTo(p.x, p.z, u.x, u.z), landed: false
+      id: s.id, kind: s.kind, t: 0, dur: s.kind === 'drop' ? 0.5 : full ? 0.3 : 0.34,
+      fx: p.x, fy: p.y, fz: p.z, tx, ty: u.y, tz, yaw: full ? u.yaw : headingTo(p.x, p.z, u.x, u.z), landed: false,
+      full, drawn: false, pulled: false
+    }
+    if (full) {
+      // The target is the mech's from this moment: it will not turn round.
+      u.gripped = true
+      p.crouched = false
+      this.cine = { kind: 'stab', t: 0, dur: 999 }
+      mirror('cine', true)
+      emit('killcam', { kind: 'stab', final: false })
     }
     p.vx = 0
     p.vz = 0
@@ -628,6 +650,7 @@ export class Mission implements GameMode {
     p.y = s.fy + (s.ty - s.fy) * (s.kind === 'drop' ? k * k : e) + (s.kind === 'drop' ? Math.sin(k * Math.PI) * 0.9 : 0)
     p.yaw += angleDelta(p.yaw, s.yaw) * Math.min(1, dt * 20)
     p.mode = s.kind === 'drop' && k < 1 ? 'air' : 'ground'
+    if (s.full) { this.stepTakedown(s); return }
     if (!s.landed && k >= 0.62) {
       s.landed = true
       const u = this.garrison.units[s.id]!
@@ -650,6 +673,72 @@ export class Mission implements GameMode {
       if (s.kind === 'drop') emit('land', { drop: s.fy - s.ty })
       this.strike = null
     }
+  }
+
+  /** The blade goes in: the kill, its effects, and the slow time that follows. */
+  private landTakedown(s: StrikeRun): void {
+    if (s.landed) return
+    s.landed = true
+    const p = this.player
+    const u = this.garrison.units[s.id]!
+    this.killBy = 'blade'
+    this.killHead = false
+    killUnit(this.garrison, s.id, p.x, p.z, 'blade')
+    // It stays up on the blade until the blade is out.
+    u.hold = TD_HOLD
+    u.fallDir = 1
+    this.stats.bladeKills++
+    haptic('blade')
+    this.shake = Math.max(this.shake, s.kind === 'drop' ? 0.6 : 0.4)
+    this.garrisonView.flash(s.id, PAL.mechBlade, 0.45)
+    // Where the tip comes out: the target's stomach, on its far side.
+    this.fx.stabThrough(u.x + Math.sin(u.yaw) * 0.2, u.y + 1.05, u.z + Math.cos(u.yaw) * 0.2, u.yaw)
+    emit('takedown', { beat: 'stab', id: s.id })
+    this.flushGarrison()
+    app.setTimeScale(TAKEDOWN.slow)
+  }
+
+  /** The takedown's beats, once the mech has closed in. */
+  private stepTakedown(s: StrikeRun): void {
+    const p = this.player
+    const t = s.t - s.dur
+    if (t < 0) return
+    p.x = s.tx
+    p.z = s.tz
+    p.y = s.ty
+    p.mode = 'ground'
+    if (!s.drawn && t >= TAKEDOWN.draw * 0.45) {
+      s.drawn = true
+      emit('takedown', { beat: 'draw', id: s.id })
+      if (s.kind === 'drop') emit('land', { drop: s.fy - s.ty })
+    }
+    if (t >= TD_IN) this.landTakedown(s)
+    if (!s.pulled && t >= TD_PULL) {
+      s.pulled = true
+      app.setTimeScale(1)
+      emit('takedown', { beat: 'pull', id: s.id })
+    }
+    if (t >= TD_END) this.endTakedown()
+  }
+
+  /** The takedown is over (or was skipped): the mech is the player's again. */
+  private endTakedown(): void {
+    const s = this.strike
+    if (!s || !s.full) return
+    this.landTakedown(s)
+    const u = this.garrison.units[s.id]!
+    // Skipped while the target was still on the blade: it drops now.
+    if (!s.pulled) u.hold = Math.min(u.hold, u.deadT)
+    const p = this.player
+    p.x = s.tx
+    p.z = s.tz
+    p.y = s.ty
+    p.vy = 0
+    p.airFrom = p.y
+    p.mode = 'ground'
+    this.strike = null
+    if (this.cine?.kind === 'stab') this.endCine()
+    else app.setTimeScale(1)
   }
 
   private throwDecoy(): void {
@@ -805,6 +894,8 @@ export class Mission implements GameMode {
 
   /** The mech takes damage from the direction of (fromX, fromZ). */
   private hurt(amount: number, fromX: number, fromZ: number): void {
+    // A takedown is the mech's moment: nothing lands on it until it is over.
+    if (this.strike?.full) return
     if (hud.phase !== 'play') return
     const p = this.player
     const down = hurtArmor(this.armor, amount)
@@ -1001,6 +1092,9 @@ export class Mission implements GameMode {
       if (!c.landed) { c.landed = true; emit('land', { drop: 4 }) }
     } else if (c.kind === 'bullet' && !c.hit) {
       this.landBullet(c)
+    } else if (c.kind === 'stab') {
+      this.endTakedown()
+      return
     } else if (c.kind === 'outro') {
       // The way out is not skipped half-way: it jumps to the end of the lift.
       c.t = c.dur
@@ -1075,6 +1169,29 @@ export class Mission implements GameMode {
       const u = this.garrison.units[c.id]!
       orbitCam(out, c.t, u.x, u.y + 1.2, u.z, c.yaw, 3.3, 0.5, 0.55, this.baseFov * 0.62)
       if (k >= 1) this.endCine()
+      return true
+    }
+    if (c.kind === 'stab') {
+      const st = this.strike
+      if (!st || !st.full) { this.endCine(); return false }
+      const u = this.garrison.units[st.id]!
+      takedownCam(out, st.t - st.dur, u.x, u.y, u.z, u.yaw, this.baseFov)
+      // Never from inside a wall: pull the camera in along its own line.
+      const dx = out.x - out.tx
+      const dy = out.y - out.ty
+      const dz = out.z - out.tz
+      const len = Math.hypot(dx, dy, dz)
+      const hit = raycast(this.fortress.grid, out.tx, out.ty, out.tz, dx / len, dy / len, dz / len, len + 0.3)
+      if (hit.hit) {
+        const k2 = Math.max(0.25, (hit.t - 0.3) / len)
+        out.x = out.tx + dx * k2
+        out.y = out.ty + dy * k2
+        out.z = out.tz + dz * k2
+      }
+      // Out of the follow camera at the start, back into it at the end.
+      const tt = st.t - st.dur
+      const edge = Math.min(1, (st.t) / 0.22, (TD_END - tt) / 0.28)
+      if (edge < 1) blendPose(out, follow, out, Math.max(0, edge))
       return true
     }
     if (c.kind === 'orbit') {
@@ -1194,7 +1311,19 @@ export class Mission implements GameMode {
     s.recoil = a.recoil
     s.spin = a.spin
     s.blade = this.bladeOut
-    s.stab = striking ? Math.min(1, (striking.t / striking.dur) * 0.9 + 0.05) : 0
+    if (striking?.full) {
+      const td = takedownPose(striking.t - striking.dur, this.tdPose)
+      s.stab = 0
+      s.grab = td.grab
+      s.draw = td.draw
+      s.plunge = td.plunge
+      // Hidden until it springs: that is the moment.
+      s.blade = td.blade
+      s.crouch = 0
+    } else {
+      s.stab = striking ? Math.min(1, (striking.t / striking.dur) * 0.9 + 0.05) : 0
+      s.grab = s.draw = s.plunge = 0
+    }
     s.climb = p.mode === 'ladder' || p.mode === 'mantle' ? 1 : 0
     s.climbPhase = p.climbPhase
     s.cable = p.mode === 'cable' ? 1 : 0

@@ -1,3 +1,4 @@
+import { killCamsEnabled } from '@/use/useKillCam'
 import { watch } from 'vue'
 import { on } from '../bus'
 import { addHudTicker, gun, hud, vital } from '../state/hud'
@@ -54,7 +55,9 @@ export const installGameSounds = (): void => {
     }
   })
   on('weapon', () => sfx('weapon'))
-  on('strike', () => sfx('blade'))
+  // A quick strike is one sound; a takedown plays its own beats.
+  on('strike', ({ kind }) => { if (kind === 'strike' || !killCamsEnabled.value) sfx('blade') })
+  on('takedown', ({ beat }) => sfx(beat === 'stab' ? 'blade' : 'bladeOut', 0, beat === 'pull' ? 0.7 : 1))
   on('decoy', () => sfx('decoy'))
   on('hit', ({ zone }) => sfx(zone === 'armor' ? 'tink' : 'hit'))
   on('blast', () => sfx('explode'))

@@ -58,6 +58,8 @@ interface UnitView {
   aim: number
   wary: number
   caution: number
+  /** Humans: eased 0 … 1 while the mech has hold of it. */
+  grip: number
   spin: number
   /** Drones: last frame's heading, and the bank it is easing into. */
   lastYaw: number
@@ -179,7 +181,7 @@ export class GarrisonView {
         drone: u.kind === 'drone' ? { time: 0, spin: 0, pitch: 0, roll: 0, eyeYaw: 0, eyePitch: 0.5, alarm: 0, deadT: 0, landed: false } : null,
         enforcer: u.kind === 'enforcer' ? { time: 0, stride: 0, speed: 0, power: 0, aimYaw: 0, aimPitch: 0, recoilL: 0, recoilR: 0, deadT: 0 } : null,
         goliath: u.kind === 'goliath' ? { time: 0, turretYaw: 0, barrelPitch: 0, recoil: 0, rumble: 0, dead: 0 } : null,
-        aim: 0, wary: 0, caution: 0, spin: 0, lastYaw: u.yaw, bank: 0, pop: 0, lastState: u.state, flash: 0, wrecked: false, landed: false
+        aim: 0, wary: 0, caution: 0, grip: 0, spin: 0, lastYaw: u.yaw, bank: 0, pop: 0, lastState: u.state, flash: 0, wrecked: false, landed: false
       }
       this.views.push(v)
       this.group.add(rig.root, shadow)
@@ -371,7 +373,14 @@ export class GarrisonView {
         s.startle = wary || hot ? v.pop : 0
         s.recoil = Math.min(1, u.recoil * 4)
         s.lookYaw = u.look
-        s.deadT = dead ? Math.max(1e-3, u.deadT) : 0
+        // On the blade it is dead in the simulation and not yet falling.
+        const held = dead && u.deadT < u.hold
+        v.grip += ((u.gripped || held ? 1 : 0) - v.grip) * Math.min(1, dt * 16)
+        s.gripped = dead && !held ? 1 : v.grip
+        s.impaled = dead ? Math.min(1, u.deadT / 0.07) : 0
+        s.limp = dead ? Math.min(1, Math.max(0, (u.deadT - 0.25) / Math.max(0.2, u.hold - 0.3))) : 0
+        if (dead && u.hold <= 0) { s.gripped = 0; s.impaled = 0; s.limp = 0 }
+        s.deadT = dead && !held ? Math.max(1e-3, u.deadT - u.hold) : 0
         s.death = u.death === 'front' || u.death === 'spin' || u.death === 'thrown' ? u.death : 'back'
         poseGuard(v.rig, s)
       } else if (v.drone) {

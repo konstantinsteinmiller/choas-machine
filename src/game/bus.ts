@@ -53,7 +53,9 @@ export interface GameEvents {
   hurt: { amount: number; hp: number }
   defeat: Record<string, never>
   /** A kill-cam started (`kind`: the bullet's flight, or a slow orbit). */
-  killcam: { kind: 'bullet' | 'orbit' | 'dip'; final: boolean }
+  killcam: { kind: 'bullet' | 'orbit' | 'dip' | 'stab'; final: boolean }
+  /** The takedown's beats: the blade springs out, goes in, comes back out. */
+  takedown: { beat: 'draw' | 'stab' | 'pull'; id: number }
   /** The objective moved on: the target is dead, the way out is open. */
   objective: { state: 'extract' }
   /** The Commander is dead and the Goliath is waking. */

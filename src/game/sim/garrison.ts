@@ -157,6 +157,10 @@ export interface Unit {
   deadT: number
   /** 1 fell forward, −1 backward. */
   fallDir: number
+  /** Seized by the mech: it does nothing until it is let go or killed. */
+  gripped: boolean
+  /** Dead, and held up for this long before its fall may begin (the blade). */
+  hold: number
   /** How it went down: the view plays this, and a wreck in pieces lies where it burst. */
   death: DeathKind
   /** The way the blow pushed it (a unit vector on the ground). */
@@ -269,7 +273,7 @@ export const makeGarrison = (f: Fortress, level = 2): Garrison => {
       yaw: p.facing, pyaw: p.facing, look: 0,
       state: p.reserve ? 'reserve' : mech ? 'dormant' : 'patrol', t: 0, detect: 0, sees: false, seenX: p.x, seenZ: p.z, lured: false,
       route: p.route, wp: p.route.length > 1 ? 1 : 0, wait: p.route[0]?.wait ?? 0,
-      path: [], pathI: 0, repath: 0, bodyT: 0, hp: Math.round(SPECS[p.kind].hp * threat.hp), deadT: 0, fallDir: 1, death: 'back', hitX: 0, hitZ: 0, found: false,
+      path: [], pathI: 0, repath: 0, bodyT: 0, hp: Math.round(SPECS[p.kind].hp * threat.hp), deadT: 0, fallDir: 1, gripped: false, hold: 0, death: 'back', hitX: 0, hitZ: 0, found: false,
       stride: 0, speed01: 0, homeX: p.x, homeZ: p.z, homeYaw: p.facing, altitude: p.altitude,
       seed: (id * 2.399) % (Math.PI * 2),
       power: mech ? 0 : 1, fireT: 0, burst: 0, burstT: 0, shellT: 0, shellX: 0, shellZ: 0, recoil: 0
@@ -643,6 +647,8 @@ export const stepGarrison = (gar: Garrison, g: Grid, target: Target, dt: number)
       continue
     }
     if (u.state === 'dormant' || u.state === 'reserve') continue
+    // In the mech's grip: no eyes, no feet, no voice.
+    if (u.gripped) { u.speed01 = 0; u.sees = false; continue }
     if (u.power < 1) {
       // Powering up: it stands and whirs, and does nothing else yet.
       u.power = Math.min(1, u.power + dt / WAKE_S)
@@ -691,7 +697,7 @@ export const stepGarrison = (gar: Garrison, g: Grid, target: Target, dt: number)
       let looking = false
       for (const c of gar.units) {
         // A wreck counts once it is on the ground (a drone takes a second to fall).
-        if (c.state !== 'dead' || c.found || c.deadT < (c.kind === 'drone' ? 1.2 : 0.6)) continue
+        if (c.state !== 'dead' || c.found || c.deadT < c.hold + (c.kind === 'drone' ? 1.2 : 0.6)) continue
         if (Math.hypot(c.x - u.x, c.z - u.z) > BODY_RANGE) continue
         if (sight(u, g, { x: c.x, feetY: c.y, z: c.z, height: BODY_HEIGHT }) <= 0) continue
         looking = true
@@ -794,6 +800,8 @@ export const killUnit = (gar: Garrison, id: number, fromX: number, fromZ: number
   }
   u.hp = 0
   u.state = 'dead'
+  u.gripped = false
+  u.hold = 0
   u.t = 0
   u.deadT = 0
   u.sees = false

@@ -148,11 +148,15 @@ export interface MechPose {
   air: number
   /** Seconds since its armor gave out; 0 while it stands. */
   down: number
+  /** A takedown: the free hand on the target, the blade arm cocked, the blade arm through. Each 0 … 1. */
+  grab: number
+  draw: number
+  plunge: number
 }
 
 export const restPose = (): MechPose => ({
   time: 0, stride: 0, speed: 0, crouch: 0, sprint: 0, aim: 0, aimPitch: 0, weapon: 'sniper', recoil: 0, spin: 0,
-  blade: 0, stab: 0, climb: 0, climbPhase: 0, cable: 0, air: 0, down: 0
+  blade: 0, stab: 0, climb: 0, climbPhase: 0, cable: 0, air: 0, down: 0, grab: 0, draw: 0, plunge: 0
 })
 
 const HIDDEN = 0.001
@@ -162,6 +166,20 @@ const lerp = (a: number, b: number, k: number): number => a + (b - a) * k
 const THIGH_LEN = 0.46
 const SHIN_LEN = 0.42
 const LEG_LEN = THIGH_LEN + SHIN_LEN
+/**
+ * The takedown's arm angles (`sim/takedown.ts` has the timing). Worked out
+ * from the rig: the blade arm's shoulder is 0.52 m to the right and 1.91 m
+ * up, the target's middle is `TAKEDOWN.reach` ahead on the mech's centre line
+ * and 1.05 m up, so the straight arm points down, forward and inward. A test
+ * checks that the blade really passes through the target and out of its front.
+ */
+const PLUNGE_PITCH = -0.69
+const PLUNGE_ROLL = 0.43
+const DRAW_PITCH = 1.0
+const DRAW_ROLL = -0.3
+const GRAB_PITCH = -0.93
+const GRAB_ROLL = -0.44
+
 /** Down: how long it kneels before it falls, and when it has come to rest. */
 export const MECH_KNEEL_S = 0.45
 export const MECH_DOWN_S = 1.45
@@ -234,36 +252,56 @@ export const poseMech = (rig: Rig, s: MechPose): void => {
   // Left arm: swings with the walk, comes up to steady the weapon, reaches on
   // a ladder, spreads on a cable.
   const hang = 1 - Math.max(s.aim, s.climb, s.cable)
+  // In a takedown the free hand goes over the target's far shoulder: up,
+  // forward and across (`GRAB_*` point the arm at it from where the mech
+  // stands, `TAKEDOWN.reach` behind).
   pose(
     rig, 'shoulderL',
-    swing * (0.5 + 0.4 * run) * walk * hang - 1.15 * s.aim + s.aimPitch * s.aim - (1.9 + Math.sin(s.climbPhase) * 0.6) * s.climb - 0.3 * s.air,
-    -0.55 * s.aim,
-    -1.35 * s.cable - 0.12 * hang - 0.5 * fall
+    lerp(
+      swing * (0.5 + 0.4 * run) * walk * hang - 1.15 * s.aim + s.aimPitch * s.aim - (1.9 + Math.sin(s.climbPhase) * 0.6) * s.climb - 0.3 * s.air,
+      GRAB_PITCH, s.grab
+    ),
+    -0.55 * s.aim * (1 - s.grab),
+    lerp(-1.35 * s.cable - 0.12 * hang - 0.5 * fall, GRAB_ROLL, s.grab)
   )
-  pose(rig, 'foreL', -(0.25 + 0.9 * run) * hang - 0.9 * s.aim - 0.5 * s.climb, 0, 0)
+  pose(rig, 'foreL', lerp(-(0.25 + 0.9 * run) * hang - 0.9 * s.aim - 0.5 * s.climb, -0.1, s.grab), 0, 0)
 
   // Right arm: the weapon arm. A stab swings it forward and across.
   const thrust = s.stab > 0 ? Math.sin(Math.min(1, s.stab) * Math.PI) : 0
   const kick = s.recoil * (s.weapon === 'rocket' ? 0.3 : s.weapon === 'sniper' ? 0.18 : 0.05)
+  // The blade arm in a takedown: cocked back with the elbow high, then
+  // straight through, down and across to the middle of the target's back.
+  const td = Math.max(s.draw, s.plunge)
   pose(
     rig, 'shoulderR',
     // Lowered, the long rifle would trail on the floor: the arm carries it
     // forward, more so in a crouch.
-    lerp(-swing * (0.5 + 0.4 * run) * walk * hang - 0.3 - 0.45 * s.crouch, -Math.PI / 2 + s.aimPitch + kick, s.aim)
-      - (1.9 - Math.sin(s.climbPhase) * 0.6) * s.climb - 1.5 * thrust - 0.3 * s.air,
-    0.5 * thrust,
-    1.35 * s.cable + 0.12 * hang
+    lerp(
+      lerp(
+        lerp(-swing * (0.5 + 0.4 * run) * walk * hang - 0.3 - 0.45 * s.crouch, -Math.PI / 2 + s.aimPitch + kick, s.aim)
+          - (1.9 - Math.sin(s.climbPhase) * 0.6) * s.climb - 1.5 * thrust - 0.3 * s.air,
+        DRAW_PITCH, s.draw
+      ),
+      PLUNGE_PITCH, s.plunge
+    ),
+    0.5 * thrust * (1 - td),
+    lerp(lerp(1.35 * s.cable + 0.12 * hang, DRAW_ROLL, s.draw), PLUNGE_ROLL, s.plunge)
   )
-  pose(rig, 'foreR', lerp(-(0.75 + 0.6 * s.crouch) * hang, -0.05, s.aim) - 0.5 * s.climb - 0.4 * thrust, 0, 0)
+  pose(
+    rig, 'foreR',
+    lerp(lerp(lerp(-(0.75 + 0.6 * s.crouch) * hang, -0.05, s.aim) - 0.5 * s.climb - 0.4 * thrust, -1.6, s.draw), 0, s.plunge),
+    0, 0
+  )
 
   // ── What is in the hand ──
   // The gun is put away for a stab, a climb and a cable walk.
-  const armed = s.stab > 0 || s.climb > 0.5 || s.cable > 0.5 ? null : s.weapon
+  const armed = s.stab > 0 || td > 0 || s.grab > 0 || s.climb > 0.5 || s.cable > 0.5 ? null : s.weapon
   for (const w of ['sniper', 'minigun', 'rocket'] as const) scaleBone(rig, w, w === armed ? 1 : HIDDEN)
   rig.bones.minigunBarrels!.rotation.y = s.spin
   // Its lights: steady while it lives, a stutter as it goes, then almost out.
   const lit = s.down <= 0 ? 1 : s.down < MECH_KNEEL_S + 0.5 ? (Math.sin(s.down * 47) > 0 ? 1 : 0.2) : 0.12
   rig.glowMaterial.color.setScalar(lit)
   const out = Math.max(s.blade, thrust > 0 ? 1 : 0)
-  scaleBone(rig, 'blade', out > 0.01 ? 1 : HIDDEN, Math.max(HIDDEN, out), out > 0.01 ? 1 : HIDDEN)
+  // It grows out along the arm; past 1 is the instant it springs.
+  scaleBone(rig, 'blade', out > 0.01 ? Math.min(1.25, 0.6 + out * 0.4) : HIDDEN, Math.max(HIDDEN, out), out > 0.01 ? 1 : HIDDEN)
 }

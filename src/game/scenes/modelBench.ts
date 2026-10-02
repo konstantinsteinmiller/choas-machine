@@ -9,10 +9,12 @@ import {
   buildGuard, poseGuard, restGuardPose, buildDrone, poseDrone, buildEnforcer, poseEnforcer, buildGoliath, poseGoliath
 } from '../models/garrison'
 import type { WeaponId } from '../data/ids'
+import { TAKEDOWN, TD_FREE, takedownPose, victimPose } from '../sim/takedown'
 
 /**
  * DEV ONLY (`?bench=models`): every rig on a pad, animated, for art iteration.
  *   m=mech|guard|commander|drone|enforcer|goliath|all   which rig(s)
+ *   m=takedown                                          the blade from behind, both bodies (t from the lunge's end)
  *   pose=idle|walk|run|wary|search|startle|crouch|aim|stab|climb|cable|air|dormant
  *        die|die-front|die-spin|die-thrown (with t=<seconds since>)|dead
  *   seed=0..1                                           a guard's own gait and fidgets
@@ -30,6 +32,7 @@ export class ModelBench implements GameMode {
   private entries: Entry[] = []
   private t = 0
   private frozen: number | null
+  private pairAt = 0
   private centre = new Vector3()
   private az: number
   private el: number
@@ -66,6 +69,28 @@ export class ModelBench implements GameMode {
     if (all || which === 'mech') {
       const rig = buildMech()
       add(rig, 0, (t) => poseMech(rig, mechPose(t)))
+    }
+    if (which === 'takedown') {
+      // The blade from behind, both bodies, on the takedown's own clock:
+      // `t` is seconds from the end of the lunge.
+      const mech = buildMech()
+      const guard = buildGuard(false)
+      const td = { grab: 0, draw: 0, plunge: 0, blade: 0 }
+      const vp = { gripped: 0, impaled: 0, limp: 0 }
+      add(mech, 0, (t) => {
+        takedownPose(t, td)
+        poseMech(mech, { ...restPose(), time: t, grab: td.grab, draw: td.draw, plunge: td.plunge, blade: td.blade })
+      })
+      add(guard, 0, (t) => {
+        victimPose(t, vp)
+        const falling = t >= TD_FREE
+        poseGuard(guard, {
+          ...restGuardPose(), time: t, seed: 0.7,
+          gripped: falling ? 1 : vp.gripped, impaled: falling ? 1 : vp.impaled, limp: falling ? 1 : vp.limp,
+          deadT: falling ? Math.max(1e-3, t - TD_FREE) : 0, death: 'front'
+        })
+      })
+      this.pairAt = TAKEDOWN.reach
     }
     for (const commander of [false, true]) {
       if (all || which === (commander ? 'commander' : 'guard')) {
@@ -127,6 +152,11 @@ export class ModelBench implements GameMode {
       x += widths[i]!
       e.rig.root.position.set(e.x, e.y, 0)
     })
+    if (this.pairAt > 0) {
+      // The takedown's two: the mech at the middle, its target a reach ahead.
+      this.entries[0]!.rig.root.position.set(0, 0, 0)
+      this.entries[1]!.rig.root.position.set(0, 0, this.pairAt)
+    }
     const pad = new Mesh(new CircleGeometry(Math.max(4, total * 0.7), 40), toon('#9a8be0'))
     pad.rotation.x = -Math.PI / 2
     this.scene.add(pad)
