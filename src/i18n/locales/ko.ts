@@ -23,10 +23,15 @@ export default {
     'weapons': '무기',
     'ammo': '탄약',
     'heat': '무기 열',
+    'armor': '장갑',
     'crouch': '앉기',
     'stand': '일어서기',
     'cancel': '무기 내리기',
     'capture': '클릭하여 계속'
+  },
+  'defeat': {
+    'title': '메카 파괴',
+    'retry': '다시 도전'
   },
   'pause': {
     'title': '일시정지',

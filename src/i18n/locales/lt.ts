@@ -23,10 +23,15 @@ export default {
     'weapons': 'Ginklai',
     'ammo': 'Amunicija',
     'heat': 'Ginklo kaitra',
+    'armor': 'Šarvai',
     'crouch': 'Pritūpti',
     'stand': 'Atsistoti',
     'cancel': 'Nuleisti ginklą',
     'capture': 'Spustelėk ir tęsk'
+  },
+  'defeat': {
+    'title': 'Mechas žlugo',
+    'retry': 'Bandyti dar kartą'
   },
   'pause': {
     'title': 'PAUZĖ',

@@ -23,10 +23,15 @@ export default {
     'weapons': 'Ieroči',
     'ammo': 'Munīcija',
     'heat': 'Ieroča karstums',
+    'armor': 'Bruņas',
     'crouch': 'Pietupties',
     'stand': 'Piecelties',
     'cancel': 'Nolaist ieroci',
     'capture': 'Klikšķini, lai turpinātu'
+  },
+  'defeat': {
+    'title': 'Mehs ir ticis',
+    'retry': 'Mēģināt vēlreiz'
   },
   'pause': {
     'title': 'PAUZE',

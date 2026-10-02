@@ -5,14 +5,14 @@ import { noSlice, type Slice } from '../engine/slicer'
 import { consumeEdges, type Input } from '../engine/input'
 import { input as sharedInput, inputClock } from '../engine/inputState'
 import { emit } from '../bus'
-import { gun, hud, mirror, runHudTickers, threats, MAX_THREATS } from '../state/hud'
+import { gun, hud, mirror, runHudTickers, setPhase, threats, vital, MAX_THREATS } from '../state/hud'
 import { CELL, VOID, heightAt } from '../world/grid'
 import type { Fortress } from '../world/fortress'
 import { buildFortressMesh, type FortressMesh } from '../world/fortressMesh'
 import { buildDecor, type DecorMesh } from '../world/decor'
 import { buildSky, type Sky } from '../world/sky'
 import { ringTexture } from '../world/textures'
-import { makeBlobShadow } from '../fx/markers'
+import { FloorMarkers, makeBlobShadow } from '../fx/markers'
 import { CombatFx } from '../fx/combatFx'
 import type { Rig } from '../models/kit'
 import { buildMech, poseMech, restPose, MECH_HEIGHT, MECH_HEIGHT_CROUCH, type MechPose } from '../models/mech'
@@ -34,6 +34,9 @@ import { blast, shotDamage } from './damage'
 import { SPREAD, ammoOf, makeArsenal, stepArsenal, type Arsenal, type Trigger } from './weapons'
 import { DECOYS_PER_MISSION, decoySpot, findStrike, stepDecoys, type Decoy, type Strike, type StrikeKind } from './melee'
 import { fireRocket, stepRockets, type Rocket } from './rockets'
+import { stepFire } from './chaos'
+import { hurtArmor, makeArmor, stepArmor, type Armor } from './armor'
+import { flow } from '../flow'
 
 /**
  * ─── A mission ───────────────────────────────────────────────────────────────
@@ -98,6 +101,7 @@ export class Mission implements GameMode {
   readonly cam: Cam
   readonly garrison: Garrison
   readonly arsenal: Arsenal = makeArsenal()
+  readonly armor: Armor = makeArmor()
   readonly decoys: Decoy[] = []
   readonly rockets: Rocket[] = []
   readonly stats: MissionStats = { time: 0, shots: 0, hits: 0, headshots: 0, kills: 0, bladeKills: 0, spotted: 0, bodiesFound: 0, loud: false }
@@ -107,6 +111,9 @@ export class Mission implements GameMode {
   private strike: StrikeRun | null = null
   private garrisonView!: GarrisonView
   private fx!: CombatFx
+  private markers = new FloorMarkers()
+  /** Seconds since the mech went down. */
+  private downT = 0
   private target: Target
   private mesh!: FortressMesh
   private decor!: DecorMesh
@@ -137,6 +144,8 @@ export class Mission implements GameMode {
     this.player = makePlayer(x, heightAt(g, x, z), z, facing)
     this.cam = makeCam(facing)
     this.garrison = makeGarrison(fortress)
+    this.garrison.lures = this.decoys
+    this.markers.floorY = (mx, mz) => heightAt(g, mx, mz)
     this.target = { x, y: this.player.y, z, height: MECH_HEIGHT, crouched: false, visible: true }
     this.centre.set((g.w * CELL) / 2, 0, (g.d * CELL) / 2)
   }
@@ -160,7 +169,7 @@ export class Mission implements GameMode {
     }))
     m.strikeMark.renderOrder = 31
     m.strikeMark.visible = false
-    m.scene.add(m.mesh.group, m.decor.group, m.rig.root, m.shadow, m.garrisonView.group, m.fx.group, m.strikeMark)
+    m.scene.add(m.mesh.group, m.decor.group, m.rig.root, m.shadow, m.garrisonView.group, m.fx.group, m.markers.root, m.strikeMark)
     onProgress(1)
     m.place(1, 0)
     return m
@@ -173,6 +182,9 @@ export class Mission implements GameMode {
     hud.chaos = false
     hud.watched = false
     threats.n = 0
+    vital.armor = 1
+    vital.hitAge = 9
+    mirror('armorLow', false)
     this.mirrorWeapons()
   }
 
@@ -218,7 +230,15 @@ export class Mission implements GameMode {
       this.stepRockets(dt)
       if (stepDecoys(this.decoys, this.garrison, this.fortress.grid, dt) > 0) mirror('decoys', this.decoysLeft)
       this.stepGarrison(dt)
+      stepArmor(this.armor, dt)
+      vital.armor = this.armor.hp / this.armor.max
+      mirror('armorLow', vital.armor < 0.3)
+    } else if (hud.phase === 'dead') {
+      // A beat to see it happen, then the screen that says so.
+      this.downT += dt
+      if (this.downT > 1.5 && flow.modal === '') flow.modal = 'defeat'
     }
+    vital.hitAge += dt
 
     this.shake = Math.max(0, this.shake - dt * 2.2)
     mirror('device', i.device)
@@ -477,7 +497,9 @@ export class Mission implements GameMode {
     t.z = p.z
     t.height = MECH_HEIGHT + (MECH_HEIGHT_CROUCH - MECH_HEIGHT) * p.crouch
     t.crouched = p.crouched
+    t.moving = p.mode === 'ground' ? p.speed01 : 0.6
     stepGarrison(this.garrison, this.fortress.grid, t, dt)
+    stepFire(this.garrison, this.fortress.grid, t, dt)
     this.flushGarrison()
   }
 
@@ -502,6 +524,26 @@ export class Mission implements GameMode {
           id: e.id, kind: u.kind, by: this.killBy, head: this.killHead,
           dist: Math.hypot(u.x - this.player.x, u.z - this.player.z)
         })
+      } else if (e.type === 'fire') {
+        this.incoming(e.id, e.damage)
+      } else if (e.type === 'telegraph') {
+        this.markers.spawn(e.x, e.z, e.radius, e.dur)
+        emit('telegraph', { x: e.x, z: e.z, radius: e.radius, dur: e.dur })
+      } else if (e.type === 'shell') {
+        const u = gar.units[e.id]!
+        this.fx.muzzle(u.x + Math.sin(u.yaw + u.look) * 3.4, u.y + 2.1, u.z + Math.cos(u.yaw + u.look) * 3.4, Math.sin(u.yaw + u.look), 0.1, Math.cos(u.yaw + u.look), 'rocket')
+        this.fx.explosion(e.x, e.y + 0.4, e.z, e.y)
+        const d = Math.hypot(e.x - this.player.x, e.z - this.player.z)
+        this.shake = Math.max(this.shake, Math.max(0.25, 1.2 - d / 30))
+        haptic('blast')
+        emit('blast', { x: e.x, y: e.y, z: e.z, weak: false })
+        if (e.damage > 0) this.hurt(e.damage, e.x, e.z)
+      } else if (e.type === 'wave') {
+        emit('wave', { n: e.n })
+      } else if (e.type === 'wake') {
+        const u = gar.units[e.id]!
+        this.fx.particles.riseRing(u.x, u.y + 0.2, u.z, PAL.glowRed, SPECS[u.kind].radius * 1.4, 20)
+        emit('wake', { id: e.id, kind: u.kind })
       } else {
         if (e.type === 'spotted') this.stats.spotted++
         emit(e.type, { id: e.id, kind: gar.units[e.id]!.kind })
@@ -517,6 +559,62 @@ export class Mission implements GameMode {
     let watched = false
     for (const u of gar.units) if (u.state === 'combat' && u.sees) { watched = true; break }
     mirror('watched', watched)
+  }
+
+  /** A round comes the mech's way: the flash, the line, and what it costs. */
+  private incoming(id: number, damage: number): void {
+    const u = this.garrison.units[id]!
+    const p = this.player
+    const spec = SPECS[u.kind]
+    const ox = u.x + Math.sin(u.yaw) * (spec.radius + 0.5)
+    const oy = u.y + spec.eye * 0.85
+    const oz = u.z + Math.cos(u.yaw) * (spec.radius + 0.5)
+    // A hit ends on the mech's chest; a miss goes past it, wide and high or low.
+    let tx = p.x
+    let ty = p.y + eyeHeight(p) * 0.6
+    let tz = p.z
+    if (damage <= 0) {
+      const a = Math.random() * Math.PI * 2
+      const r = 0.8 + Math.random() * 1.4
+      tx += Math.cos(a) * r
+      ty += (Math.random() - 0.3) * 1.6
+      tz += Math.sin(a) * r
+    }
+    const len = Math.hypot(tx - ox, ty - oy, tz - oz) || 1
+    const dx = (tx - ox) / len
+    const dy = (ty - oy) / len
+    const dz = (tz - oz) / len
+    this.fx.muzzle(ox, oy, oz, dx, dy, dz, 'minigun')
+    // A miss flies on behind the mech.
+    const over = damage > 0 ? 0 : 6
+    this.fx.tracer(ox, oy, oz, tx + dx * over, ty + dy * over, tz + dz * over, 'minigun')
+    emit('incoming', { id, kind: u.kind, hit: damage > 0 })
+    if (damage > 0) {
+      this.fx.impact(tx, ty, tz, -dx, -dy, -dz, false, 'minigun')
+      this.hurt(damage, u.x, u.z)
+    }
+  }
+
+  /** The mech takes damage from the direction of (fromX, fromZ). */
+  private hurt(amount: number, fromX: number, fromZ: number): void {
+    if (hud.phase !== 'play') return
+    const p = this.player
+    const down = hurtArmor(this.armor, amount)
+    vital.armor = this.armor.hp / this.armor.max
+    vital.hitAngle = angleDelta(this.cam.yaw, headingTo(p.x, p.z, fromX, fromZ))
+    vital.hitAge = 0
+    this.shake = Math.max(this.shake, Math.min(0.9, 0.2 + amount / 50))
+    haptic('hurt')
+    emit('hurt', { amount, hp: this.armor.hp })
+    if (down) {
+      this.downT = 0
+      this.fx.particles.orbBurst(p.x, p.y + 1.4, p.z, PAL.mechCore, 1.4)
+      this.shake = 1
+      this.offer = null
+      this.strike = null
+      setPhase('dead')
+      emit('defeat', {})
+    }
   }
 
   /** Take a defender out directly (the test probe's hand). */
@@ -600,7 +698,8 @@ export class Mission implements GameMode {
     s.time = this.time
     s.stride = p.stride
     s.speed = p.mode === 'ground' ? p.speed01 : 0
-    s.crouch = p.crouch
+    // Down: it folds where it stands.
+    s.crouch = this.armor.down ? 1 : p.crouch
     s.aim = striking ? 0 : this.cam.aim
     s.aimPitch = this.cam.pitch
     s.weapon = a.current
@@ -634,6 +733,7 @@ export class Mission implements GameMode {
     }
 
     this.garrisonView.update(alpha, dt, this.time, view.x, view.y, view.z)
+    this.markers.update(dt, this.time)
     this.fx.update(dt, alpha, this.rockets, this.decoys, this.viewH, this.camera.fov)
     this.writeThreats(x, z)
   }

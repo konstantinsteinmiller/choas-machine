@@ -52,6 +52,8 @@ export const buildProvingGround = (): Fortress => {
   b.drone([[12, 12], [27, 12], [27, 27], [12, 27]], 7)
   b.drone([[5, 20], [34, 20]], 9)
   b.enforcer(23, 26, Math.PI).enforcer(15, 12, 0)
+  // Reinforcements: through the south gate first, then the postern.
+  b.reserve(19, 32, Math.PI).reserve(20, 32, Math.PI).reserve(19, 7).reserve(18, 7).reserve(19, 33, Math.PI).reserve(20, 33, Math.PI)
 
   // ── Dressing ──
   b.prop('lamp', 18, 31).prop('lamp', 21, 31).prop('lamp', 12, 20).prop('lamp', 27, 20)

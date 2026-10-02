@@ -23,10 +23,15 @@ export default {
     'weapons': 'Armiloj',
     'ammo': 'Municio',
     'heat': 'Varmo de armilo',
+    'armor': 'Kiraso',
     'crouch': 'Kaŝkaŭri',
     'stand': 'Stariĝi',
     'cancel': 'Mallevi armilon',
     'capture': 'Alklaku por daŭrigi'
+  },
+  'defeat': {
+    'title': 'Meĥo falis',
+    'retry': 'Reprovu'
   },
   'pause': {
     'title': 'PAŬZITA',

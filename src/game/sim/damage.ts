@@ -60,7 +60,7 @@ export interface BlastResult {
 export const blast = (gar: Garrison, g: Grid, x: number, y: number, z: number, direct: number): BlastResult => {
   const res: BlastResult = { kills: [], hurt: [], weakHit: false }
   for (const u of gar.units) {
-    if (u.state === 'dead') continue
+    if (u.state === 'dead' || u.state === 'reserve') continue
     const spec = SPECS[u.kind]
     const dist = Math.max(0, Math.hypot(u.x - x, u.z - z, u.y + spec.height * 0.5 - y) - spec.radius)
     if (dist > BLAST_RADIUS) continue

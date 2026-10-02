@@ -23,10 +23,15 @@ export default {
     'weapons': 'Armas',
     'ammo': 'Munición',
     'heat': 'Calor del arma',
+    'armor': 'Blindaje',
     'crouch': 'Agacharse',
     'stand': 'Levantarse',
     'cancel': 'Bajar arma',
     'capture': 'Haz clic para continuar'
+  },
+  'defeat': {
+    'title': 'Mech fuera de combate',
+    'retry': 'Reintentar'
   },
   'pause': {
     'title': 'PAUSA',

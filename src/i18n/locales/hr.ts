@@ -23,10 +23,15 @@ export default {
     'weapons': 'Oružje',
     'ammo': 'Streljivo',
     'heat': 'Zagrijanost oružja',
+    'armor': 'Oklop',
     'crouch': 'Čučni',
     'stand': 'Ustani',
     'cancel': 'Spusti oružje',
     'capture': 'Klikni za nastavak'
+  },
+  'defeat': {
+    'title': 'Mech je pao',
+    'retry': 'Pokušaj ponovno'
   },
   'pause': {
     'title': 'PAUZA',

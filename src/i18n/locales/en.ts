@@ -27,10 +27,15 @@ export default {
     'weapons': 'Weapons',
     'ammo': 'Ammunition',
     'heat': 'Weapon heat',
+    'armor': 'Armor',
     'crouch': 'Crouch',
     'stand': 'Stand up',
     'cancel': 'Lower weapon',
     'capture': 'Click to continue'
+  },
+  'defeat': {
+    'title': 'Mech down',
+    'retry': 'Try again'
   },
   'pause': {
     'title': 'PAUSED',

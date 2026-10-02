@@ -23,10 +23,15 @@ export default {
     'weapons': '武器',
     'ammo': '弹药',
     'heat': '武器过热',
+    'armor': '装甲',
     'crouch': '蹲下',
     'stand': '站起',
     'cancel': '放下武器',
     'capture': '点击继续'
+  },
+  'defeat': {
+    'title': '机甲倒下了',
+    'retry': '再试一次'
   },
   'pause': {
     'title': '已暂停',

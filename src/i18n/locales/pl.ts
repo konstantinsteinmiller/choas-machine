@@ -23,10 +23,15 @@ export default {
     'weapons': 'Bronie',
     'ammo': 'Amunicja',
     'heat': 'Temperatura broni',
+    'armor': 'Pancerz',
     'crouch': 'Kucnij',
     'stand': 'Wstań',
     'cancel': 'Opuść broń',
     'capture': 'Kliknij, aby kontynuować'
+  },
+  'defeat': {
+    'title': 'Mech padł',
+    'retry': 'Spróbuj ponownie'
   },
   'pause': {
     'title': 'PAUZA',

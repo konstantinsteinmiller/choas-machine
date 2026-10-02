@@ -23,10 +23,15 @@ export default {
     'weapons': 'Armes',
     'ammo': 'Munició',
     'heat': 'Calor de l\'arma',
+    'armor': 'Armadura',
     'crouch': 'Ajupir-se',
     'stand': 'Aixecar-se',
     'cancel': 'Baixar l\'arma',
     'capture': 'Clica per continuar'
+  },
+  'defeat': {
+    'title': 'Mecha a terra',
+    'retry': 'Torna-ho a provar'
   },
   'pause': {
     'title': 'PAUSA',

@@ -23,10 +23,15 @@ export default {
     'weapons': 'Fegyverek',
     'ammo': 'Lőszer',
     'heat': 'Fegyver hőmérséklete',
+    'armor': 'Páncél',
     'crouch': 'Guggolás',
     'stand': 'Felállás',
     'cancel': 'Fegyver le',
     'capture': 'Kattints a folytatáshoz'
+  },
+  'defeat': {
+    'title': 'A mech kiesett',
+    'retry': 'Próbáld újra'
   },
   'pause': {
     'title': 'SZÜNET',

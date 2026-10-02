@@ -23,10 +23,15 @@ export default {
     'weapons': 'الأسلحة',
     'ammo': 'الذخيرة',
     'heat': 'حرارة السلاح',
+    'armor': 'الدرع',
     'crouch': 'انحناء',
     'stand': 'وقوف',
     'cancel': 'خفض السلاح',
     'capture': 'انقر للمتابعة'
+  },
+  'defeat': {
+    'title': 'تحطّم الميكا',
+    'retry': 'حاول مجددًا'
   },
   'pause': {
     'title': 'متوقف مؤقتاً',

@@ -23,10 +23,15 @@ export default {
     'weapons': 'Wapens',
     'ammo': 'Munitie',
     'heat': 'Wapenhitte',
+    'armor': 'Pantser',
     'crouch': 'Bukken',
     'stand': 'Opstaan',
     'cancel': 'Wapen laten zakken',
     'capture': 'Klik om verder te gaan'
+  },
+  'defeat': {
+    'title': 'Mech neergehaald',
+    'retry': 'Opnieuw proberen'
   },
   'pause': {
     'title': 'GEPAUZEERD',

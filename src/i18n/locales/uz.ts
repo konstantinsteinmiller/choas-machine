@@ -23,10 +23,15 @@ export default {
     'weapons': 'Qurollar',
     'ammo': 'O\'q-dorilar',
     'heat': 'Qurol qizishi',
+    'armor': 'Zirh',
     'crouch': 'Cho\'kka tushish',
     'stand': 'Turish',
     'cancel': 'Qurolni tushirish',
     'capture': 'Davom etish uchun bosing'
+  },
+  'defeat': {
+    'title': 'Mech yiqildi',
+    'retry': 'Qayta urinish'
   },
   'pause': {
     'title': 'PAUZA',

@@ -23,10 +23,15 @@ export default {
     'weapons': 'Vapen',
     'ammo': 'Ammunition',
     'heat': 'Vapenvärme',
+    'armor': 'Pansar',
     'crouch': 'Huka dig',
     'stand': 'Res dig',
     'cancel': 'Sänk vapnet',
     'capture': 'Klicka för att fortsätta'
+  },
+  'defeat': {
+    'title': 'Mechen är nere',
+    'retry': 'Försök igen'
   },
   'pause': {
     'title': 'PAUSAT',

@@ -23,10 +23,15 @@ export default {
     'weapons': 'Arme',
     'ammo': 'Muniție',
     'heat': 'Căldura armei',
+    'armor': 'Armură',
     'crouch': 'Ghemuiește-te',
     'stand': 'Ridică-te',
     'cancel': 'Coboară arma',
     'capture': 'Click pentru a continua'
+  },
+  'defeat': {
+    'title': 'Mech doborât',
+    'retry': 'Încearcă din nou'
   },
   'pause': {
     'title': 'PAUZĂ',

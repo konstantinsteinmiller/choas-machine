@@ -43,6 +43,8 @@ export interface Post {
   route: Waypoint[]
   /** Drones: height above the ground they fly at. */
   altitude: number
+  /** Held back: arrives with a reinforcement wave once the base is on full alert. */
+  reserve?: boolean
 }
 
 export type DecorKind = 'lamp' | 'antenna' | 'barrel' | 'flag'
@@ -209,6 +211,16 @@ export class FortressBuilder {
   /** A guard walking a loop of cells: `[cx, cz, waitSeconds?]` each. */
   guard(route: ReadonlyArray<readonly [number, number, number?]>, facing = 0): this {
     return this.post('guard', route, facing)
+  }
+
+  /**
+   * A reinforcement: a guard who is not in the base until it goes to full
+   * alert, and then comes in at this cell (a gate, a door) with a wave.
+   */
+  reserve(cx: number, cz: number, facing = 0): this {
+    this.post('guard', [[cx, cz]], facing)
+    this.posts[this.posts.length - 1]!.reserve = true
+    return this
   }
 
   /** A guard who stands and watches one way (a tower, a gate). */

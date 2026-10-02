@@ -23,10 +23,15 @@ export default {
     'weapons': 'Silahlar',
     'ammo': 'Sursat',
     'heat': 'Silahın istiliyi',
+    'armor': 'Zireh',
     'crouch': 'Çömel',
     'stand': 'Ayağa qalx',
     'cancel': 'Silahı endir',
     'capture': 'Davam üçün kliklə'
+  },
+  'defeat': {
+    'title': 'Meka məğlub oldu',
+    'retry': 'Yenidən cəhd et'
   },
   'pause': {
     'title': 'FASİLƏ',

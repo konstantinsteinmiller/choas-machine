@@ -23,10 +23,15 @@ export default {
     'weapons': 'Senjata',
     'ammo': 'Amunisi',
     'heat': 'Panas senjata',
+    'armor': 'Armor',
     'crouch': 'Jongkok',
     'stand': 'Berdiri',
     'cancel': 'Turunkan senjata',
     'capture': 'Klik untuk lanjut'
+  },
+  'defeat': {
+    'title': 'Mech tumbang',
+    'retry': 'Coba lagi'
   },
   'pause': {
     'title': 'JEDA',

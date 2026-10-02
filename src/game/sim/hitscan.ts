@@ -171,7 +171,7 @@ export const castShot = (
   out.nz = w.nz
   for (let i = 0; i < units.length; i++) {
     const u = units[i]!
-    if (u.state === 'dead') continue
+    if (u.state === 'dead' || u.state === 'reserve') continue
     // Skip anything whose whole body is further than the best hit so far.
     const reach = u.kind === 'goliath' ? 4.2 : u.kind === 'enforcer' ? 1.6 : 0.6
     const ux = u.x - ox

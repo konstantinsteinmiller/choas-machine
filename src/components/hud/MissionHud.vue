@@ -1,5 +1,6 @@
 <template lang="pug">
   div.mission-hud
+    HitFlash
     Reticle
     Joystick
     AimHold
@@ -11,7 +12,8 @@
     div.top-right
       FHudButton(icon="pause" :aria-label="t('ui.pause')" data-testid="btn-pause" @click="emit('pause')")
 
-    div.bottom-centre(v-show="!hud.scoped || hud.reloading")
+    div.bottom-centre
+      ArmorBar
       AmmoStrip
 
     //- The blade's offer: big, pink and under the right thumb's reach. A tap
@@ -89,6 +91,8 @@ import AlertMeter from '@/components/hud/AlertMeter.vue'
 import ThreatArcs from '@/components/hud/ThreatArcs.vue'
 import Reticle from '@/components/hud/Reticle.vue'
 import AmmoStrip from '@/components/hud/AmmoStrip.vue'
+import ArmorBar from '@/components/hud/ArmorBar.vue'
+import HitFlash from '@/components/hud/HitFlash.vue'
 import { hud } from '@/game/state/hud'
 import { input } from '@/game/engine/inputState'
 import { cancelAim } from '@/game/engine/input'
@@ -145,6 +149,14 @@ onUnmounted(() => window.clearTimeout(closeTimer))
   bottom: var(--cm-safe-bottom)
   left: 50%
   translate: -50% 0
+  display: flex
+  flex-direction: column
+  align-items: center
+  gap: clamp(0.25rem, 1vmin, 0.45rem)
+  // Upright, the stick's ring reaches the middle of a narrow phone: the
+  // gauges stand just right of centre, between the ring and the chips.
+  @media (orientation: portrait)
+    left: 58%
 
 .actions
   position: absolute

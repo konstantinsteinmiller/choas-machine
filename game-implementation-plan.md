@@ -91,7 +91,7 @@ three.js import, so it runs in Vitest and in a balance script.
 - [x] **P6 Arsenal** — scope (first person, zoom, sway), hit-scan with head
   zones, magazine and reload; blade backstab and drop assassination prompts;
   decoys; minigun spool and heat; rockets and splash; weapon wheel; haptics.
-- [ ] **P7 Chaos phase** — full alert switch, reinforcement waves, Enforcers
+- [x] **P7 Chaos phase** — full alert switch, reinforcement waves, Enforcers
   power up, suppressive fire, armor and defeat, Goliath Tank fight.
 - [ ] **P8 Cinematics and juice** — kill-cam director (bullet follow, x-ray,
   blade angles, 50 % / 20 % rates), drop-in intro, extraction outro with tally,
@@ -289,6 +289,21 @@ Answered by the owner (2026-10-02): G5 (one fortress), C1 (new remote), C2 (wran
   Deferred to P8: scope glint/zoom-in sound, kill-cam. To P9: the look
   sensitivity slider in Options (the mission already reads the setting).
   `hud.armor` is translated in `scratchpad/i18n/p6.json`, waiting for P7.
+- 2026-10-02 P7 done. Full alert wakes the dormant machines (1.6 s power-up)
+  and brings reserve guards in by waves (8 s, 24 s, 42 s; `b.reserve()` in a
+  layout). A drone's report wakes the nearest Enforcer on its own (G7).
+  `sim/chaos.ts`: guards fire bursts (hit chance by range, the mech's speed
+  and crouch; seeded, so a fight replays), Enforcers hose long bursts, the
+  Goliath calls a shell onto a marked point (1.15 s warning, 4.2 m), prefers
+  a decoy to the mech, and turns its turret 2.4× faster than its hull.
+  `sim/armor.ts`: 100 armor, mends after 4 s out of the fire; at 0 the mech is
+  down → DefeatModal → retry. HUD: ArmorBar, HitFlash (edge flush + bearing).
+  `flow.swap` freezes the scene being left and shows LoadingVeil.
+  Scratch probe `sc-layout.mjs` measures every HUD control for overlaps:
+  none at 320×658, 764×385, 1280×720.
+  Not yet seen in a browser: the Goliath (the proving ground has none; the
+  P10 fortress brings it). Balance (9 s to go down standing still in the yard)
+  is tuned in P10 with the threat levels.
 
 ## Resume notes
 

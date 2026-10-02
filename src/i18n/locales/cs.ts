@@ -23,10 +23,15 @@ export default {
     'weapons': 'Zbraně',
     'ammo': 'Munice',
     'heat': 'Žhavost zbraně',
+    'armor': 'Pancíř',
     'crouch': 'Skrčit se',
     'stand': 'Vstát',
     'cancel': 'Spustit zbraň',
     'capture': 'Klikni a pokračuj'
+  },
+  'defeat': {
+    'title': 'Mech je venku',
+    'retry': 'Zkusit znovu'
   },
   'pause': {
     'title': 'PAUZA',

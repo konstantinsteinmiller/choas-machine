@@ -23,10 +23,15 @@ export default {
     'weapons': 'Silahlar',
     'ammo': 'Cephane',
     'heat': 'Silah ısısı',
+    'armor': 'Zırh',
     'crouch': 'Çömel',
     'stand': 'Ayağa kalk',
     'cancel': 'Silahı indir',
     'capture': 'Devam için tıkla'
+  },
+  'defeat': {
+    'title': 'Mech yenildi',
+    'retry': 'Tekrar dene'
   },
   'pause': {
     'title': 'DURAKLATILDI',

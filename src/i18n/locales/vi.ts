@@ -23,10 +23,15 @@ export default {
     'weapons': 'Vũ khí',
     'ammo': 'Đạn dược',
     'heat': 'Nhiệt vũ khí',
+    'armor': 'Giáp',
     'crouch': 'Cúi xuống',
     'stand': 'Đứng dậy',
     'cancel': 'Hạ vũ khí',
     'capture': 'Nhấn để tiếp tục'
+  },
+  'defeat': {
+    'title': 'Mech gục ngã',
+    'retry': 'Thử lại'
   },
   'pause': {
     'title': 'TẠM DỪNG',

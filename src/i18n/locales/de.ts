@@ -23,10 +23,15 @@ export default {
     'weapons': 'Waffen',
     'ammo': 'Munition',
     'heat': 'Waffenhitze',
+    'armor': 'Panzerung',
     'crouch': 'Ducken',
     'stand': 'Aufstehen',
     'cancel': 'Waffe senken',
     'capture': 'Klicken zum Fortsetzen'
+  },
+  'defeat': {
+    'title': 'Mech außer Gefecht',
+    'retry': 'Nochmal versuchen'
   },
   'pause': {
     'title': 'PAUSIERT',

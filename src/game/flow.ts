@@ -48,10 +48,22 @@ export const createBootMode = async (onProgress: Progress = () => {}): Promise<G
 }
 
 const swap = async (screen: Screen, factory: ModeFactory, phase: 'play' | 'base'): Promise<void> => {
+  if (flow.loading) return
   flow.modal = ''
   flow.loading = true
   flow.loadProgress = 0
-  const mode = await factory((p) => { flow.loadProgress = p })
+  // The scene being left stops here: it must not go on simulating (and
+  // spending the frame) under the veil while the next one is built.
+  app.setWanted(false)
+  let mode: GameMode
+  try {
+    mode = await factory((p) => { flow.loadProgress = p })
+  } catch (err) {
+    flow.loading = false
+    app.setWanted(true)
+    throw err
+  }
+  flow.modal = ''
   flow.loading = false
   flow.screen = screen
   setPhase(phase)

@@ -23,10 +23,15 @@ export default {
     'weapons': 'Aseet',
     'ammo': 'Ammukset',
     'heat': 'Aseen kuumuus',
+    'armor': 'Panssari',
     'crouch': 'Kyyristy',
     'stand': 'Nouse ylös',
     'cancel': 'Laske ase',
     'capture': 'Jatka klikkaamalla'
+  },
+  'defeat': {
+    'title': 'Mecha kaatui',
+    'retry': 'Yritä uudelleen'
   },
   'pause': {
     'title': 'TAUKO',

@@ -23,10 +23,15 @@ export default {
     'weapons': 'Armi',
     'ammo': 'Munizioni',
     'heat': 'Calore dell\'arma',
+    'armor': 'Corazza',
     'crouch': 'Accovacciati',
     'stand': 'Alzati',
     'cancel': 'Abbassa l\'arma',
     'capture': 'Clicca per continuare'
+  },
+  'defeat': {
+    'title': 'Mech a terra',
+    'retry': 'Riprova'
   },
   'pause': {
     'title': 'IN PAUSA',

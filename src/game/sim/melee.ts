@@ -35,7 +35,7 @@ export const findStrike = (gar: Garrison, g: Grid, x: number, y: number, z: numb
   let best: Strike | null = null
   let bestScore = Infinity
   for (const u of gar.units) {
-    if (u.state === 'dead' || !isHuman(u)) continue
+    if (u.state === 'dead' || u.state === 'reserve' || !isHuman(u)) continue
     const dist = Math.hypot(u.x - x, u.z - z)
     const above = y - u.y
     let kind: StrikeKind | null = null

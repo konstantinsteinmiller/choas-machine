@@ -40,6 +40,15 @@ export interface GameEvents {
   /** The blade went for someone; a decoy lit up. */
   strike: { kind: 'backstab' | 'drop' | 'strike'; id: number }
   decoy: { x: number; y: number; z: number }
+  /** A machine powers up; reinforcements arrive. */
+  wake: { id: number; kind: PostKind }
+  wave: { n: number }
+  /** A round fired at the mech; a shell called onto a point. */
+  incoming: { id: number; kind: PostKind; hit: boolean }
+  telegraph: { x: number; z: number; radius: number; dur: number }
+  /** The mech took damage; the mech is down. */
+  hurt: { amount: number; hp: number }
+  defeat: Record<string, never>
   /** The alert meter lit or lost a segment. */
   alert: { segments: number; prev: number }
   /** The base went to full alert: the stealth phase is over. */

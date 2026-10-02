@@ -3,6 +3,7 @@ import type { Fortress, PostKind, Waypoint } from '../world/fortress'
 import { exposure, noticeRate, type Viewer, type Seen } from './perception'
 import { makeAlert, raiseAlert, pressAlert, stepAlert, ENGAGED_PER_S, type Alert, type AlertCause } from './alert'
 import { angleDelta } from './player'
+import { hashSeed, mulberry32, type Rng } from '../world/rng'
 
 /**
  * ─── The garrison ────────────────────────────────────────────────────────────
@@ -24,7 +25,8 @@ import { angleDelta } from './player'
  * (`chaos.ts`).
  */
 
-export type UnitState = 'patrol' | 'suspicious' | 'search' | 'combat' | 'dormant' | 'dead'
+/** `dormant`: a machine powered down. `reserve`: not in the base yet. */
+export type UnitState = 'patrol' | 'suspicious' | 'search' | 'combat' | 'dormant' | 'reserve' | 'dead'
 
 interface Spec {
   /** Sight range (metres) and half-angle of the cone (radians). */
@@ -79,6 +81,14 @@ const SECOND_WITNESS = 8
 const DRONE_LOST_S = 4
 
 const TURN_RATE = 5.5
+/** The Goliath's hull turns this slowly, its turret this fast (rad/s). */
+export const GOLIATH_HULL_TURN = 0.55
+export const GOLIATH_TURRET_TURN = 1.3
+/** Seconds of full alert at which each reinforcement wave arrives, and its size. */
+export const WAVE_AT_S: readonly number[] = [8, 24, 42]
+export const WAVE_SIZE = 2
+/** A machine takes this long to power up. */
+export const WAKE_S = 1.6
 const HUH_S = 0.9
 const SCAN_S = 3.5
 const SCAN_LURED_S = 6
@@ -138,6 +148,19 @@ export interface Unit {
   altitude: number
   /** Its own phase for idle sweeps, so no two guards move in step. */
   seed: number
+  /** Machines: 0 powered down … 1 awake. Always 1 for the living. */
+  power: number
+  /** Seconds until it may start its next burst (or shell). */
+  fireT: number
+  /** Rounds left in the burst it is firing, and seconds to the next one. */
+  burst: number
+  burstT: number
+  /** The Goliath: seconds until the shell it has called lands, and where. */
+  shellT: number
+  shellX: number
+  shellZ: number
+  /** 0 … 1 kick of its last shot, for the pose. */
+  recoil: number
 }
 
 export interface Garrison {
@@ -146,6 +169,14 @@ export interface Garrison {
   time: number
   /** What happened since the mission last drained it (`drainEvents`). */
   events: GarrisonEvent[]
+  /** Hit rolls; seeded per fortress, so a test replays the same fight. */
+  rng: Rng
+  /** Reinforcement waves sent so far, and seconds of full alert. */
+  wave: number
+  chaosT: number
+  /** Decoys standing in the base (the mission's list): the Goliath shoots at
+   *  the nearest one it can see in preference to the mech. */
+  lures: ReadonlyArray<{ x: number; y: number; z: number }>
 }
 
 /** What the garrison is looking for: the mech. */
@@ -159,6 +190,8 @@ export interface Target {
   crouched: boolean
   /** False while it cannot be seen at all (the drop-in, the extraction). */
   visible: boolean
+  /** 0 standing still … 1 at a run: a moving mech is harder to hit. */
+  moving?: number
 }
 
 export type GarrisonEvent =
@@ -168,10 +201,20 @@ export type GarrisonEvent =
   | { type: 'body'; id: number; corpse: number }
   | { type: 'kill'; id: number }
   | { type: 'chaos' }
+  /** A machine powers up. */
+  | { type: 'wake'; id: number }
+  /** A reinforcement wave came in: `n` guards. */
+  | { type: 'wave'; n: number }
+  /** A round fired at the mech: `damage` is 0 for a miss. */
+  | { type: 'fire'; id: number; damage: number }
+  /** The Goliath has called a shell onto a point; it lands in `dur` seconds. */
+  | { type: 'telegraph'; id: number; x: number; z: number; radius: number; dur: number }
+  /** The shell landed. `damage` is what the mech took from it. */
+  | { type: 'shell'; id: number; x: number; y: number; z: number; damage: number }
 
 const isHuman = (u: Unit): boolean => u.kind === 'guard' || u.kind === 'sentry' || u.kind === 'commander'
 /** Still on its feet (or in the air) and part of the defence. */
-export const isAlive = (u: Unit): boolean => u.state !== 'dead'
+export const isAlive = (u: Unit): boolean => u.state !== 'dead' && u.state !== 'reserve'
 /** Has no idea: the state a blade needs. */
 export const isUnaware = (u: Unit): boolean => u.state === 'patrol' || (u.state === 'suspicious' && u.lured)
 /** Heading from a to b: 0 along +z, growing toward +x. */
@@ -185,14 +228,15 @@ export const makeGarrison = (f: Fortress): Garrison => {
     return {
       id, kind: p.kind, x: p.x, y, z: p.z, px: p.x, py: y, pz: p.z,
       yaw: p.facing, pyaw: p.facing, look: 0,
-      state: mech ? 'dormant' : 'patrol', t: 0, detect: 0, sees: false, seenX: p.x, seenZ: p.z, lured: false,
+      state: p.reserve ? 'reserve' : mech ? 'dormant' : 'patrol', t: 0, detect: 0, sees: false, seenX: p.x, seenZ: p.z, lured: false,
       route: p.route, wp: p.route.length > 1 ? 1 : 0, wait: p.route[0]?.wait ?? 0,
       path: [], pathI: 0, repath: 0, bodyT: 0, hp: SPECS[p.kind].hp, deadT: 0, fallDir: 1, found: false,
       stride: 0, speed01: 0, homeX: p.x, homeZ: p.z, homeYaw: p.facing, altitude: p.altitude,
-      seed: (id * 2.399) % (Math.PI * 2)
+      seed: (id * 2.399) % (Math.PI * 2),
+      power: mech ? 0 : 1, fireT: 0, burst: 0, burstT: 0, shellT: 0, shellX: 0, shellZ: 0, recoil: 0
     }
   })
-  return { units, alert: makeAlert(), time: 0, events: [] }
+  return { units, alert: makeAlert(), time: 0, events: [], rng: mulberry32(hashSeed(f.id)), wave: 0, chaosT: 0, lures: [] }
 }
 
 // ─── Getting about ───────────────────────────────────────────────────────────
@@ -222,7 +266,7 @@ const goTo = (u: Unit, g: Grid, x: number, z: number): boolean => {
 }
 
 /** Walk the planned path. True once there is nothing left of it. */
-const follow = (u: Unit, g: Grid, speed: number, dt: number): boolean => {
+const follow = (u: Unit, g: Grid, speed: number, dt: number, turn = TURN_RATE): boolean => {
   const p = u.path[u.pathI]
   if (!p) { u.speed01 = 0; return true }
   const dx = p.x - u.x
@@ -236,7 +280,7 @@ const follow = (u: Unit, g: Grid, speed: number, dt: number): boolean => {
   } else {
     u.x += (dx / dist) * step
     u.z += (dz / dist) * step
-    turnToward(u, Math.atan2(dx, dz), dt)
+    turnToward(u, Math.atan2(dx, dz), dt, turn)
   }
   const floor = heightAt(g, u.x, u.z)
   if (floor !== VOID) u.y += (floor - u.y) * Math.min(1, dt * 12)
@@ -282,7 +326,8 @@ const sight = (u: Unit, g: Grid, t: Seen): number => {
 const goChaos = (gar: Garrison, target: Target): void => {
   gar.events.push({ type: 'chaos' })
   for (const u of gar.units) {
-    if (!isAlive(u) || u.state === 'dormant') continue
+    if (!isAlive(u)) continue
+    if (u.state === 'dormant') { wake(gar, u, target.x, target.z); continue }
     u.detect = 1
     u.lured = false
     u.seenX = target.x
@@ -290,6 +335,27 @@ const goChaos = (gar: Garrison, target: Target): void => {
     u.repath = 0
     if (u.state !== 'combat') enter(u, 'combat')
   }
+}
+
+/** Power a dormant machine up and point it at something. */
+const wake = (gar: Garrison, u: Unit, x: number, z: number): void => {
+  if (u.state !== 'dormant') return
+  u.detect = 1
+  u.seenX = x
+  u.seenZ = z
+  u.fireT = 1
+  enter(u, 'combat')
+  gar.events.push({ type: 'wake', id: u.id })
+}
+
+/** Wake the dormant Enforcer nearest to a point (a drone's report does this). */
+const wakeNearest = (gar: Garrison, x: number, z: number): void => {
+  let best: Unit | null = null
+  for (const u of gar.units) {
+    if (u.state !== 'dormant' || u.kind !== 'enforcer') continue
+    if (!best || Math.hypot(u.x - x, u.z - z) < Math.hypot(best.x - x, best.z - z)) best = u
+  }
+  if (best) wake(gar, best, x, z)
 }
 
 const raise = (gar: Garrison, cause: AlertCause, target: Target): void => {
@@ -410,9 +476,38 @@ const investigate = (u: Unit, g: Grid, dt: number): void => {
   if (u.kind !== 'drone') u.yaw += Math.sin(u.t * 0.8) * 0.5 * dt
 }
 
+/** What the Goliath shoots at: the nearest decoy it can see, else the mech. */
+export const goliathAim = (u: Unit, gar: Garrison, g: Grid, target: Target): { x: number; z: number; lure: boolean } | null => {
+  const eye = u.y + SPECS.goliath.eye
+  let best: { x: number; z: number; lure: boolean } | null = null
+  let bestD = Infinity
+  for (const d of gar.lures) {
+    const dist = Math.hypot(d.x - u.x, d.z - u.z)
+    if (dist < bestD && dist <= SPECS.goliath.range && hasLineOfSight(g, u.x, eye, u.z, d.x, d.y + 1.2, d.z)) {
+      best = { x: d.x, z: d.z, lure: true }
+      bestD = dist
+    }
+  }
+  if (best) return best
+  return u.sees ? { x: target.x, z: target.z, lure: false } : null
+}
+
+/** The turret swings onto its aim, faster than the hull can follow. */
+const aimTurret = (u: Unit, gar: Garrison, g: Grid, target: Target, dt: number): void => {
+  const aim = goliathAim(u, gar, g, target)
+  // With nothing in view it swings to where the mech was last reported, so
+  // the turret (and its sight) gets there well before the hull does.
+  const want = aim
+    ? angleDelta(u.yaw, headingTo(u.x, u.z, aim.x, aim.z))
+    : gar.alert.chaos ? angleDelta(u.yaw, headingTo(u.x, u.z, u.seenX, u.seenZ)) : 0
+  const d = angleDelta(u.look, want)
+  const step = GOLIATH_TURRET_TURN * dt
+  u.look += Math.abs(d) <= step ? d : Math.sign(d) * step
+}
+
 const fight = (u: Unit, g: Grid, gar: Garrison, target: Target, dt: number): void => {
   const spec = SPECS[u.kind]
-  u.look *= Math.max(0, 1 - dt * 8)
+  if (u.kind !== 'goliath') u.look *= Math.max(0, 1 - dt * 8)
   const dist = Math.hypot(u.seenX - u.x, u.seenZ - u.z)
   if (u.kind === 'drone') {
     // Keep the light on the mech.
@@ -431,14 +526,18 @@ const fight = (u: Unit, g: Grid, gar: Garrison, target: Target, dt: number): voi
     else if (!gar.alert.chaos && (u.repath += dt) > DRONE_LOST_S) { u.repath = 0; enter(u, 'search') }
     return
   }
+  // Machines are slow to turn: that is how they are flanked.
+  const turn = u.kind === 'goliath' ? GOLIATH_HULL_TURN : u.kind === 'enforcer' ? 2.2 : 8
+  const engage = u.kind === 'goliath' ? 30 : u.kind === 'enforcer' ? 14 : ENGAGE_DIST
+  if (u.kind === 'goliath') aimTurret(u, gar, g, target, dt)
   if (u.sees) {
-    turnToward(u, headingTo(u.x, u.z, target.x, target.z), dt, 8)
-    if (dist > ENGAGE_DIST) {
+    turnToward(u, headingTo(u.x, u.z, target.x, target.z), dt, turn)
+    if (dist > engage) {
       if (u.path.length === 0 || (u.repath -= dt) <= 0) {
         u.repath = HUNT_REPATH_S
         goTo(u, g, target.x, target.z)
       }
-      follow(u, g, spec.run, dt)
+      follow(u, g, spec.run, dt, turn)
     } else {
       u.path = []
       stand(u)
@@ -457,14 +556,14 @@ const fight = (u: Unit, g: Grid, gar: Garrison, target: Target, dt: number): voi
     if (dist < 1.5 || !goTo(u, g, u.seenX, u.seenZ)) {
       if (gar.alert.chaos) {
         stand(u)
-        turnToward(u, headingTo(u.x, u.z, u.seenX, u.seenZ), dt)
+        turnToward(u, headingTo(u.x, u.z, u.seenX, u.seenZ), dt, turn)
       } else {
         enter(u, 'search')
       }
       return
     }
   }
-  if (follow(u, g, spec.run, dt)) u.path = []
+  if (follow(u, g, spec.run, dt, turn)) u.path = []
 }
 
 /**
@@ -492,7 +591,13 @@ export const stepGarrison = (gar: Garrison, g: Grid, target: Target, dt: number)
       }
       continue
     }
-    if (u.state === 'dormant') continue
+    if (u.state === 'dormant' || u.state === 'reserve') continue
+    if (u.power < 1) {
+      // Powering up: it stands and whirs, and does nothing else yet.
+      u.power = Math.min(1, u.power + dt / WAKE_S)
+      calm = false
+      continue
+    }
 
     // ── What it sees of the mech ──
     const exposed = target.visible ? sight(u, g, seen) : 0
@@ -519,6 +624,8 @@ export const stepGarrison = (gar: Garrison, g: Grid, target: Target, dt: number)
       // The first to be sure raises the alarm; one more pair of eyes on a
       // mech the base already knows about adds little.
       const known = gar.units.some(o => o !== u && o.state === 'combat')
+      // A drone's report sends a machine (plan G7).
+      if (u.kind === 'drone') wakeNearest(gar, target.x, target.z)
       if (!known) raise(gar, u.kind === 'drone' ? 'drone' : 'seen', target)
       else if (pressAlert(gar.alert, SECOND_WITNESS)) goChaos(gar, target)
     } else if (u.state === 'patrol' && u.detect >= SUSPECT_AT) {
@@ -580,6 +687,25 @@ export const stepGarrison = (gar: Garrison, g: Grid, target: Target, dt: number)
     if (u.state === 'combat' || u.state === 'search' || (u.state === 'suspicious' && !u.lured)) calm = false
   }
 
+  // Full alert: reinforcements come in through the gates, in waves.
+  if (gar.alert.chaos) {
+    gar.chaosT += dt
+    if (gar.wave < WAVE_AT_S.length && gar.chaosT >= WAVE_AT_S[gar.wave]!) {
+      gar.wave++
+      let n = 0
+      for (const u of gar.units) {
+        if (u.state !== 'reserve' || n >= WAVE_SIZE) continue
+        n++
+        u.detect = 1
+        u.seenX = target.x
+        u.seenZ = target.z
+        u.fireT = 1.2
+        enter(u, 'combat')
+      }
+      if (n > 0) gar.events.push({ type: 'wave', n })
+    }
+  }
+
   // However many are watching, the meter climbs at one rate: being seen by
   // two guards is not twice as bad, it is two witnesses to silence.
   if (watched && pressAlert(gar.alert, ENGAGED_PER_S * dt)) goChaos(gar, target)
@@ -597,7 +723,7 @@ export const drainEvents = (gar: Garrison): GarrisonEvent[] => gar.events.splice
  */
 export const killUnit = (gar: Garrison, id: number, fromX: number, fromZ: number): void => {
   const u = gar.units[id]
-  if (!u || u.state === 'dead') return
+  if (!u || !isAlive(u)) return
   const toSource = angleDelta(u.yaw, headingTo(u.x, u.z, fromX, fromZ))
   // Hit from the front it goes over backward; from behind, onto its face.
   u.fallDir = Math.abs(toSource) < Math.PI / 2 ? -1 : 1
@@ -620,8 +746,9 @@ export const killUnit = (gar: Garrison, id: number, fromX: number, fromZ: number
  */
 export const alarmUnit = (gar: Garrison, id: number, fromX: number, fromZ: number): void => {
   const u = gar.units[id]
-  if (!u || u.state === 'dead' || u.state === 'combat') return
+  if (!u || !isAlive(u) || u.state === 'combat') return
   // A machine that is hit wakes up.
+  if (u.state === 'dormant') { wake(gar, u, fromX, fromZ); return }
   u.detect = 1
   u.seenX = fromX
   u.seenZ = fromZ
@@ -637,7 +764,7 @@ export const alarmUnit = (gar: Garrison, id: number, fromX: number, fromZ: numbe
 /** Hurt a unit; kills it when its health runs out. True if it died. */
 export const damageUnit = (gar: Garrison, id: number, amount: number, fromX: number, fromZ: number): boolean => {
   const u = gar.units[id]
-  if (!u || u.state === 'dead') return false
+  if (!u || !isAlive(u)) return false
   u.hp -= amount
   if (u.hp > 0) return false
   killUnit(gar, id, fromX, fromZ)

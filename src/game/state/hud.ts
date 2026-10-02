@@ -53,8 +53,20 @@ export const hud = reactive({
   overheated: false,
   decoys: 0,
   /** The blade's offer right now, or '' when there is none. */
-  strike: '' as '' | 'backstab' | 'drop' | 'strike'
+  strike: '' as '' | 'backstab' | 'drop' | 'strike',
+  /** Under a third of its armor: the HUD says so. */
+  armorLow: false
 })
+
+/** The mech's armor and the last hit it took: per-frame, so outside Vue. */
+export const vital = {
+  /** 0 … 1 of its armor. */
+  armor: 1,
+  /** Bearing of the last hit from the camera's heading (positive to the LEFT),
+   *  and seconds since it. */
+  hitAngle: 0,
+  hitAge: 9
+}
 
 /** The weapon's gauges: they move every frame, so the HUD reads them from a
  *  ticker, not through Vue. */

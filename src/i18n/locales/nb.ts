@@ -23,10 +23,15 @@ export default {
     'weapons': 'Våpen',
     'ammo': 'Ammunisjon',
     'heat': 'Våpenvarme',
+    'armor': 'Panser',
     'crouch': 'Huk deg',
     'stand': 'Reis deg',
     'cancel': 'Senk våpenet',
     'capture': 'Klikk for å fortsette'
+  },
+  'defeat': {
+    'title': 'Mechen er nede',
+    'retry': 'Prøv igjen'
   },
   'pause': {
     'title': 'PAUSE',

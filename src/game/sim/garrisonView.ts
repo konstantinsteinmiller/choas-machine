@@ -194,7 +194,7 @@ export class GarrisonView {
     const base = v.cone * CONE_VERTS
     const p = this.conePos
     const c = this.coneCol
-    if (u.state === 'dead' || u.state === 'combat') {
+    if (u.state === 'dead' || u.state === 'combat' || u.state === 'reserve') {
       // Nothing to read once it is down, or once it is shooting at you.
       for (let k = 0; k < CONE_VERTS; k++) c[(base + k) * 4 + 3] = 0
       return
@@ -271,6 +271,11 @@ export class GarrisonView {
     for (let i = 0; i < units.length; i++) {
       const u = units[i]!
       const v = this.views[i]!
+      // Not in the base yet: nothing of it is drawn.
+      const here = u.state !== 'reserve'
+      v.rig.root.visible = here
+      v.shadow.visible = here
+      if (!here) { if (v.mark) v.mark.visible = false; continue }
       const x = u.px + (u.x - u.px) * alpha
       const y = u.py + (u.y - u.py) * alpha
       const z = u.pz + (u.z - u.pz) * alpha
@@ -293,7 +298,7 @@ export class GarrisonView {
         s.time = time + u.seed
         s.stride = u.stride
         s.speed = u.speed01
-        s.aim = v.aim
+        s.aim = Math.max(v.aim, u.recoil > 0 ? 1 : 0)
         s.wary = u.state === 'search' ? v.wary : 0
         s.lookYaw = u.look
         s.dead = dead ? Math.min(1, u.deadT / 0.55) : 0
@@ -308,13 +313,26 @@ export class GarrisonView {
         s.roll = dead ? 0.6 : Math.sin(time * 0.9 + u.seed) * 0.05
         poseDrone(v.rig, s)
       } else if (v.enforcer) {
-        v.enforcer.time = time
-        v.enforcer.dead = dead ? 1 : 0
-        poseEnforcer(v.rig, v.enforcer)
+        const s = v.enforcer
+        s.time = time
+        s.stride = u.stride * 0.55
+        s.speed = u.speed01
+        s.power = u.power
+        s.aimPitch = hot ? -0.06 : 0
+        // The two guns take turns: the kick alternates with the rounds left.
+        s.recoilL = u.burst % 2 === 0 ? u.recoil : 0
+        s.recoilR = u.burst % 2 === 1 ? u.recoil : 0
+        s.dead = dead ? Math.min(1, u.deadT / 0.8) : 0
+        poseEnforcer(v.rig, s)
       } else if (v.goliath) {
-        v.goliath.time = time
-        v.goliath.dead = dead ? 1 : 0
-        poseGoliath(v.rig, v.goliath)
+        const s = v.goliath
+        s.time = time
+        s.turretYaw = u.look
+        s.recoil = u.recoil
+        // The engine shudders while it drives, and harder while a shell is on its way.
+        s.rumble = u.power * Math.max(u.speed01, u.shellT > 0 ? 1 : 0.25)
+        s.dead = dead ? Math.min(1, u.deadT / 1.2) : 0
+        poseGoliath(v.rig, s)
       }
 
       // The shadow, on whatever is under it.
@@ -366,7 +384,7 @@ export class GarrisonView {
           v.mark.position.set(x, y + top, z)
           // Keep it readable from sniping range: grow with distance.
           const d = Math.hypot(camX - x, camY - y, camZ - z)
-          const size = Math.max(0.7, d * 0.055) * (1 + v.pop * 0.6) * (bang || wary ? 1 : 0.55 + 0.45 * Math.min(1, u.detect / SUSPECT_AT))
+          const size = Math.min(Math.max(0.34, d * 0.055), 4) * (1 + v.pop * 0.6) * (bang || wary ? 1 : 0.55 + 0.45 * Math.min(1, u.detect / SUSPECT_AT))
           v.mark.scale.set(size, size, 1)
         }
       }

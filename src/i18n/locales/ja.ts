@@ -23,10 +23,15 @@ export default {
     'weapons': '武器',
     'ammo': '弾薬',
     'heat': '武器の熱',
+    'armor': '装甲',
     'crouch': 'しゃがむ',
     'stand': '立つ',
     'cancel': '武器を下ろす',
     'capture': 'クリックで再開'
+  },
+  'defeat': {
+    'title': 'メカ撃破',
+    'retry': 'もう一度'
   },
   'pause': {
     'title': 'ポーズ中',
