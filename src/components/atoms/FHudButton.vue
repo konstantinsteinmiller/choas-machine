@@ -2,49 +2,54 @@
 import { computed, useSlots } from 'vue'
 import { useI18n } from 'vue-i18n'
 import GameIcon from '@/components/icons/GameIcon.vue'
+import { sfx } from '@/game/audio/sfx'
 import { resolveIconLabel } from '@/components/icons/iconLabels'
 import type { GameIconName } from '@/components/icons/iconNames'
 
 /**
- * The standard HUD chip used by every meta button in the bottom rows
- * (Daily Rewards, Missions, Achievements, Battle Pass, Ad Reward, Settings,
- * Tech Tree, Themes).
+ * The standard HUD chip: one glyph in a square holographic key. Every HUD
+ * control (settings, mute, pause, crouch, decoy, the Command Base stations) is
+ * one of these, so a row of them reads as one set.
  *
- * Exists to kill the copy-pasted `scale-80 sm:scale-100` wrappers that used to
- * live in each of those components. Those transforms shrank the painted chip
- * without shrinking its layout box, so the bottom row reserved full-size gaps
- * around 80%-size buttons and the spacing looked wrong on exactly the screens
- * that could least afford it. Everything here is fluid `clamp()` sizing with a
- * hard 2.5rem floor, so the row is compact on a 320px phone, comfortable on a
- * tablet, and never collapses.
+ * Everything is fluid `clamp()` sizing with a hard 2.5rem floor (`--cm-chip`),
+ * so a row is compact on a 320px phone, comfortable on a tablet, and never
+ * collapses. No `transform: scale()`: a scaled chip keeps its original
+ * footprint in its row and its hit target drifts off its painted pixels.
  *
- * The glyph normally comes from the shared set via the `icon` prop; the default
- * slot stays for the handful of marks that are art rather than UI (a bitmap
- * prop, a component with its own fallback logic). `badge` = the corner
- * indicator (claim count, reward pill, timer).
+ * The glyph normally comes from the shared set via the `icon` prop; the
+ * default slot stays for marks that are art rather than UI. `badge` is the
+ * corner indicator (a count, a timer).
  */
 
 interface Props {
-  /** Colour family. `gold` is the "there is something to collect" default. */
-  tone?: 'gold' | 'blue' | 'green' | 'slate'
-  /** Soft glow pulse — used when the button has an unclaimed reward. */
+  /** Colour family. `cyan` is the everyday control. */
+  tone?: 'cyan' | 'pink' | 'violet' | 'warn' | 'danger'
+  /** The control is switched on (crouched, muted): it fills with its tone. */
+  active?: boolean
+  /** A soft pulse: there is something new here. */
   attention?: boolean
   isDisabled?: boolean
   /** A glyph from the shared set. Ignored when the default slot is filled. */
   icon?: GameIconName
-  /** A painting under `images/ui/` that may stand in for the glyph once the
-   *  art pipeline has produced it — see `ArtIcon`. */
-  art?: string
   ariaLabel?: string
+  /** For a toggle: announced as pressed / not pressed. */
+  pressed?: boolean
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  tone: 'gold',
+  tone: 'cyan',
+  active: false,
   attention: false,
-  isDisabled: false
+  isDisabled: false,
+  pressed: undefined
 })
 
-defineEmits(['click'])
+const emit = defineEmits(['click'])
+const onClick = (): void => {
+  if (props.isDisabled) return
+  sfx('uiClick')
+  emit('click')
+}
 
 const slots = useSlots()
 const { t, te } = useI18n()
@@ -59,12 +64,12 @@ const resolvedAriaLabel = computed<string | undefined>(
 <template lang="pug">
   button.f-hud-button(
     type="button"
-    :class="[`tone-${tone}`, { 'is-attention': attention, 'is-disabled': isDisabled }]"
+    :class="[`tone-${tone}`, { 'is-active': active, 'is-attention': attention, 'is-disabled': isDisabled }]"
     :aria-label="resolvedAriaLabel"
+    :aria-pressed="pressed"
     :disabled="isDisabled"
-    @click="!isDisabled && $emit('click')"
+    @click="onClick"
   )
-    span.f-hud-button__shadow(aria-hidden="true")
     span.f-hud-button__body
       GameIcon.f-hud-button__glyph(v-if="icon && !slots.default" :name="icon")
       slot
@@ -74,41 +79,45 @@ const resolvedAriaLabel = computed<string | undefined>(
 
 <style scoped lang="sass">
 .f-hud-button
+  --fhb-tone: var(--cm-cyan)
+  --fhb-tone-hi: var(--cm-cyan-hi)
+  --fhb-glow: var(--cm-glow-cyan)
   position: relative
   display: inline-flex
   align-items: center
   justify-content: center
   flex: 0 0 auto
+  width: var(--cm-chip)
+  height: var(--cm-chip)
   // Floors keep the tap target legal and the chip visible in any layout.
   min-width: 2.5rem
   min-height: 2.5rem
-  width: clamp(2.5rem, 11vw, 3.4rem)
-  height: clamp(2.5rem, 11vw, 3.4rem)
   padding: 0
   border: 0
   background: none
   cursor: pointer
+  // A HUD layer is `pointer-events: none` so the canvas gets the drags; its
+  // controls take their own pointers back.
   pointer-events: auto
   touch-action: manipulation
   -webkit-tap-highlight-color: transparent
-  transition: transform 90ms ease-out, filter 90ms ease-out
 
-  &:hover:not(.is-disabled)
-    filter: brightness(1.08)
+  &:hover:not(.is-disabled) .f-hud-button__body
+    background: var(--cm-panel-hi)
+    box-shadow: var(--fhb-glow)
 
-  &:active:not(.is-disabled)
-    transform: translateY(2px) scale(0.94)
+  &:active:not(.is-disabled) .f-hud-button__body
+    translate: 0 0.12rem
+    filter: brightness(0.9)
+
+  &:focus-visible .f-hud-button__body
+    outline: var(--cm-edge) solid var(--cm-text)
+    outline-offset: 0.15em
 
   &.is-disabled
     opacity: 0.45
     filter: grayscale(1)
     cursor: not-allowed
-
-.f-hud-button__shadow
-  position: absolute
-  inset: 0
-  transform: translateY(3px)
-  border-radius: clamp(0.45rem, 2vw, 0.7rem)
 
 .f-hud-button__body
   position: relative
@@ -117,27 +126,31 @@ const resolvedAriaLabel = computed<string | undefined>(
   justify-content: center
   width: 100%
   height: 100%
-  border: 2px solid #0f1a30
-  border-radius: clamp(0.45rem, 2vw, 0.7rem)
-  color: #fff
+  box-sizing: border-box
+  border: var(--cm-edge) solid var(--fhb-tone)
+  border-radius: var(--cm-radius-m)
+  background: var(--cm-glass-soft)
+  color: var(--fhb-tone-hi)
+  transition: background-color 110ms ease-out, box-shadow 110ms ease-out
 
   // The glyph fills a consistent fraction of the chip regardless of chip size,
-  // so a row of mixed icons reads as one set. A bitmap needs the larger box to
-  // read as the same optical size — its art carries its own margin, a vector
-  // glyph does not.
+  // so a row of mixed icons reads as one set.
   .f-hud-button__glyph
-    width: 54%
-    height: 54%
+    width: 56%
+    height: 56%
 
-  // A painted glyph carries its own outline and sits larger than a flat one.
-  img.f-hud-button__glyph
-    width: 70%
-    height: 70%
-
+  // Both element types, deliberately: a slotted <img> that is not sized here
+  // renders at its natural size and bursts out of the chip.
   :slotted(svg), :slotted(img)
     width: 62%
     height: 62%
     pointer-events: none
+
+// Switched on: the chip fills with its tone and the glyph goes dark on it.
+.is-active .f-hud-button__body
+  background: var(--fhb-tone)
+  color: var(--cm-ink)
+  box-shadow: var(--fhb-glow)
 
 .f-hud-button__badge
   position: absolute
@@ -151,36 +164,43 @@ const resolvedAriaLabel = computed<string | undefined>(
 
 // ─── Tones ──────────────────────────────────────────────────────────────────
 
-.tone-gold
-  .f-hud-button__shadow
-    background-color: #7a5a12
-  .f-hud-button__body
-    background-image: linear-gradient(to bottom, #ffcd00, #f7a000)
+.tone-pink
+  --fhb-tone: var(--cm-pink)
+  --fhb-tone-hi: var(--cm-pink-hi)
+  --fhb-glow: var(--cm-glow-pink)
 
-.tone-blue
-  .f-hud-button__shadow
-    background-color: #102e7a
-  .f-hud-button__body
-    background-image: linear-gradient(to bottom, #50aaff, #2266ff)
+.tone-violet
+  --fhb-tone: var(--cm-violet)
+  --fhb-tone-hi: var(--cm-lilac)
+  --fhb-glow: 0 0 0.75em rgba(154, 120, 255, 0.5)
 
-.tone-green
-  .f-hud-button__shadow
-    background-color: #0e5c2c
-  .f-hud-button__body
-    background-image: linear-gradient(to bottom, #67e08a, #1f9d4d)
+.tone-warn
+  --fhb-tone: var(--cm-warn)
+  --fhb-tone-hi: #ffe98f
+  --fhb-glow: 0 0 0.75em rgba(255, 210, 63, 0.45)
 
-.tone-slate
-  .f-hud-button__shadow
-    background-color: #151d31
-  .f-hud-button__body
-    background-image: linear-gradient(to bottom, #4a5878, #2d3855)
+.tone-danger
+  --fhb-tone: var(--cm-danger)
+  --fhb-tone-hi: #ff96ab
+  --fhb-glow: 0 0 0.75em rgba(255, 85, 118, 0.45)
 
-.is-attention
-  animation: hud-pulse 1.6s ease-in-out infinite
+// The pulse animates a child's opacity, never the button itself: a lesson's
+// highlight animates the button, and one animation would replace the other.
+.is-attention .f-hud-button__body::after
+  content: ''
+  position: absolute
+  inset: calc(var(--cm-edge) * -2)
+  border: var(--cm-edge) solid var(--fhb-tone-hi)
+  border-radius: inherit
+  opacity: 0
+  animation: fhb-pulse 1.6s ease-in-out infinite
 
-@keyframes hud-pulse
-  0%, 100%
-    filter: drop-shadow(0 0 0 rgba(255, 200, 0, 0))
+@keyframes fhb-pulse
   50%
-    filter: drop-shadow(0 0 8px rgba(255, 200, 0, 0.75))
+    opacity: 0.9
+
+@media (prefers-reduced-motion: reduce)
+  .is-attention .f-hud-button__body::after
+    animation: none
+    opacity: 0.6
 </style>

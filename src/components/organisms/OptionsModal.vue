@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, watch, onUnmounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import useUser, { isMobileLandscape } from '@/use/useUser'
+import useUser from '@/use/useUser'
 import { setI18nLocale } from '@/i18n'
 import FModal from '@/components/molecules/FModal.vue'
 import FButton from '@/components/atoms/FButton.vue'
@@ -38,9 +38,9 @@ const {
 const currentTab = ref('general')
 
 // The dropdown shows the language ON SCREEN, not the stored setting: a
-// first-time player on a German portal saw German text with "English"
-// selected, and picking English then changed nothing (#115). A pick is always
-// the player's choice and always applied, even when it equals the stored one.
+// first-time player on a German portal sees German text, and "English"
+// selected there would be a lie. A pick is always the player's choice and
+// always applied, even when it equals the stored one.
 const chooseLanguage = (code: string): void => {
   setSettingValue('language', code)
   if (appI18n) void setI18nLocale(appI18n, code)
@@ -55,21 +55,15 @@ watch(userLanguage, async (newValue: string) => {
   }
 })
 
-const isMobile = computed(() => {
-  return typeof window !== 'undefined' && ('ontouchstart' in window || navigator.maxTouchPoints > 0)
-})
-
 const tabs = computed(() => {
-  const list = [
+  const list: { value: string; label: string }[] = [
     { value: 'general', label: t('options.general') },
-    // Gameplay: how the game plays (kill-cams, vibration), apart
-    // from language and sound.
+    // Gameplay: how the game plays (kill-cams, vibration), apart from
+    // language and sound.
     { value: 'gameplay', label: t('options.gameplay') }
   ]
-  if (isMobile.value) return list
-  const desk = list.concat({ label: t('options.audio'), value: 'audio' })
   // Keyboard layout and rebinding: a keyboard player's tab, never a phone's.
-  return touchFirst() ? desk : desk.concat({ label: t('pause.controls'), value: 'controls' })
+  return touchFirst() ? list : list.concat({ value: 'controls', label: t('pause.controls') })
 })
 
 // Native-name dropdown — every option legible regardless of the active locale.
@@ -81,18 +75,14 @@ const languagesList = computed(() =>
   }))
 )
 
-// ─── Vibration ──────────────────────────────────────────────────────────────
+// ─── On / off rows ──────────────────────────────────────────────────────────
 //
 // `hapticsAvailable` is resolved once at module load and is false on every
 // desktop and on every iPhone — `navigator.vibrate` is absent on iOS Safari
 // entirely, and desktop Chrome ships it as a silent no-op. The row is therefore
 // hidden rather than disabled: a settings control that provably cannot do
 // anything on this device teaches the player that the settings lie.
-//
-// An `FSelect` rather than a bespoke switch, because every other control on
-// this tab is one and the modal has no toggle atom — a one-off switch here
-// would be the only control in the game that looks like that.
-const hapticsList = computed(() => [
+const onOffList = computed(() => [
   { value: 'on', label: t('options.on') },
   { value: 'off', label: t('options.off') }
 ])
@@ -135,134 +125,174 @@ onUnmounted(stopCapture)
 <template lang="pug">
   FModal(
     :model-value="isOpen"
-    :is-closable="false"
+    :is-closable="true"
     :title="t('options.title')"
     :tabs="tabs"
     v-model:activeTab="currentTab"
     @update:model-value="emit('close')"
   )
-    div(v-if="currentTab === 'general'")
-      //- Landscape mobile lays the controls out in 2 columns so all of them
-      //- (language, the two sliders) fit the
-      //- short viewport without the SAVE & CLOSE footer overlapping them.
-      div(:class="isMobileLandscape ? 'grid grid-cols-2 gap-x-4 gap-y-1 p-1 items-start' : 'flex flex-col gap-2 p-2'")
-        div(class="z-[20] flex flex-col gap-2")
-          FSelect(
-            :label="t('options.language')"
-            :options="languagesList"
-            :model-value="locale"
-            @update:model-value="chooseLanguage($event)"
-          )
-        hr(v-if="!isMobileLandscape" class="border-slate-600 my-1 md:my-2 pt-0")
-        FSlider.px-4(class="!py-1 !pb-3 w-full max-w-[min(20rem,90%)]" :model-value="userSoundVolume" @update:modelValue="setSettingValue('sound', $event)" :label="t('options.soundEffects')" :min="0" :max="1" :step="0.01")
-        FSlider.px-4(class="!py-1 !pb-2 w-full max-w-[min(20rem,90%)]" :model-value="userMusicVolume" @update:modelValue="setSettingValue('music', $event)" :label="t('options.music')" :min="0" :max="1" :step="0.01")
+    //- One auto-fitting grid for every tab: a single column on a portrait
+    //- phone, two on a landscape phone or anything wider, with no breakpoint
+    //- to keep in step with the modal's own width.
+    div.options-grid(v-if="currentTab === 'general'")
+      FSelect(
+        :label="t('options.language')"
+        :options="languagesList"
+        :model-value="locale"
+        @update:model-value="chooseLanguage($event)"
+      )
+      FSlider(
+        :label="t('options.soundEffects')"
+        :model-value="userSoundVolume"
+        :min="0" :max="1" :step="0.01"
+        @update:model-value="setSettingValue('sound', $event)"
+      )
+      FSlider(
+        :label="t('options.music')"
+        :model-value="userMusicVolume"
+        :min="0" :max="1" :step="0.01"
+        @update:model-value="setSettingValue('music', $event)"
+      )
 
-    div(v-else-if="currentTab === 'gameplay'").flex.flex-col.gap-2.p-2
+    div.options-grid(v-else-if="currentTab === 'gameplay'")
       //- The kill-cam: on by default; a player who switched it off from inside
       //- one turns it back on here.
-      div(class="z-[10] flex flex-col gap-1")
-        FSelect(
-          :label="t('options.killCams')"
-          :options="hapticsList"
-          :model-value="killCamsEnabled ? 'on' : 'off'"
-          @update:model-value="setKillCamsEnabled($event === 'on')"
-        )
+      FSelect(
+        :label="t('options.killCams')"
+        :options="onOffList"
+        :model-value="killCamsEnabled ? 'on' : 'off'"
+        @update:model-value="setKillCamsEnabled($event === 'on')"
+      )
       //- Vibration: phones only (hidden where there is no motor).
-      div(v-if="hapticsAvailable" class="z-[1] flex flex-col gap-1")
-        FSelect(
-          :label="t('options.haptics')"
-          :options="hapticsList"
-          :model-value="hapticsEnabled ? 'on' : 'off'"
-          @update:model-value="setHapticsEnabled($event === 'on')"
-        )
+      FSelect(
+        v-if="hapticsAvailable"
+        :label="t('options.haptics')"
+        :options="onOffList"
+        :model-value="hapticsEnabled ? 'on' : 'off'"
+        @update:model-value="setHapticsEnabled($event === 'on')"
+      )
 
-    div(v-else-if="currentTab === 'audio'").flex.flex-col.justify-between.items-center
-      FSlider.px-4(class="!py-1 !pb-3 w-full max-w-[min(20rem,90%)]" :model-value="userSoundVolume" @update:modelValue="setSettingValue('sound', $event)" :label="t('options.soundEffects')" :min="0" :max="1" :step="0.01")
-      FSlider.px-4(class="!py-1 !pb-2 w-full max-w-[min(20rem,90%)]" :model-value="userMusicVolume" @update:modelValue="setSettingValue('music', $event)" :label="t('options.music')" :min="0" :max="1" :step="0.01")
-      hr(class="border-slate-600 my-1 md:my-2 pt-0")
-
-    div(v-else-if="currentTab === 'controls'").flex.flex-col.gap-2.p-2
-      div(class="z-[20] flex flex-col gap-1")
+    div.options-controls(v-else-if="currentTab === 'controls'")
+      div.options-grid
+        div.options-field
+          FSelect(
+            :label="t('options.keyboard.auto')"
+            :options="onOffList"
+            :model-value="keyboard.auto ? 'on' : 'off'"
+            @update:model-value="setAutoLayout($event === 'on')"
+          )
+          p.options-hint(v-if="keyboard.auto") {{ t('options.keyboard.detected', { layout: detectedName }) }}
         FSelect(
-          :label="t('options.keyboard.auto')"
-          :options="hapticsList"
-          :model-value="keyboard.auto ? 'on' : 'off'"
-          @update:model-value="setAutoLayout($event === 'on')"
-        )
-        p.text-white.game-text.opacity-70.leading-tight.px-1(v-if="keyboard.auto" class="text-[10px] md:text-xs") {{ t('options.keyboard.detected', { layout: detectedName }) }}
-      div(v-if="!keyboard.auto" class="z-[10] flex flex-col gap-1")
-        FSelect(
+          v-if="!keyboard.auto"
           :label="t('options.keyboard.layout')"
           :options="layoutList"
           :model-value="keyboard.manual"
           @update:model-value="pickLayout"
         )
-      hr(class="border-slate-600 my-1 pt-0")
-      div.flex.items-center.justify-between.px-1
-        span.text-white.game-text(class="text-xs md:text-sm") {{ t('options.keyboard.bindings') }}
-        button.reset-keys(type="button" :disabled="!bindingsChanged()" @click="resetBindings()") {{ t('options.keyboard.reset') }}
-      p.text-white.game-text.px-1(v-if="capturing" class="text-[10px] md:text-xs") {{ t('options.keyboard.press') }}
+      div.options-bind-head
+        span.options-bind-title {{ t('options.keyboard.bindings') }}
+        FButton(size="sm" type="ghost" :is-disabled="!bindingsChanged()" @click="resetBindings()") {{ t('options.keyboard.reset') }}
+      p.options-hint(v-if="capturing") {{ t('options.keyboard.press') }}
       ul.bindings
         li.bind-row(v-for="a in ACTIONS" :key="a")
           span.bind-name {{ t(`options.actions.${a}`) }}
           button.bind-key(type="button" :class="{ waiting: capturing === a }" @click="startCapture(a)") {{ capturing === a ? '…' : keyLabel(primaryCode(a)) }}
 
     template(#footer)
-      div.flex.flex-wrap.items-center.justify-center.gap-2
-        FButton(class="px-6 sm:px-8" @click="emit('close')") {{ t('options.close') }}
+      FButton(type="secondary" @click="emit('close')") {{ t('options.close') }}
 </template>
 
 <style lang="sass" scoped>
-span
-  text-shadow: 2px 2px 0 #000
+.options-grid
+  display: grid
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr))
+  gap: clamp(0.6rem, 2.6vmin, 1.2rem) clamp(0.8rem, 3vmin, 1.6rem)
+  align-items: start
+
+.options-controls
+  display: flex
+  flex-direction: column
+  gap: clamp(0.5rem, 2vmin, 1rem)
+
+.options-field
+  display: flex
+  flex-direction: column
+  gap: 0.3em
+  min-width: 0
+
+.options-hint
+  margin: 0
+  color: var(--cm-dim)
+  font-size: var(--cm-fs-xs)
+  line-height: 1.3
+
+.options-bind-head
+  display: flex
+  flex-wrap: wrap
+  align-items: center
+  justify-content: space-between
+  gap: 0.5rem
+  padding-top: clamp(0.4rem, 1.6vmin, 0.8rem)
+  border-top: var(--cm-edge) solid rgba(77, 232, 255, 0.25)
+
+.options-bind-title
+  color: var(--cm-dim)
+  font-size: var(--cm-fs-s)
+  text-transform: uppercase
+  letter-spacing: 0.05em
+
 .bindings
   display: grid
-  grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr))
-  gap: 4px 12px
-  max-height: min(46vh, 22rem)
-  overflow-y: auto
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 12rem), 1fr))
+  gap: 0.3rem 0.8rem
   margin: 0
-  padding: 0 4px
+  padding: 0
   list-style: none
+
 .bind-row
   display: flex
   align-items: center
   justify-content: space-between
-  gap: 8px
-  padding: 3px 4px
-  border-radius: 8px
-  background: rgba(0, 0, 0, 0.22)
+  gap: 0.5rem
+  min-height: 2.5rem
+  padding: 0.2rem 0.5rem
+  border-radius: var(--cm-radius-s)
+  background: rgba(255, 255, 255, 0.06)
+
 .bind-name
-  color: #fff
-  font-size: clamp(11px, 2.4vmin, 13px)
+  min-width: 0
+  color: var(--cm-text)
+  font-size: var(--cm-fs-s)
   line-height: 1.2
+  overflow-wrap: anywhere
+
 .bind-key
-  min-width: 2.4em
-  height: 1.9em
-  padding: 0 0.45em
-  border-radius: 0.4em
-  background: #f4f7ff
-  border: 2px solid #141a33
-  box-shadow: 0 0.18em 0 #141a33
-  color: #141a33
+  flex: 0 0 auto
+  min-width: 2.6em
+  min-height: 2em
+  padding: 0 0.5em
+  border: var(--cm-edge) solid var(--cm-cyan)
+  border-radius: var(--cm-radius-s)
+  background: var(--cm-ink)
+  color: var(--cm-cyan-hi)
   font-family: var(--font-ui)
-  font-size: 11px
+  font-size: var(--cm-fs-s)
   cursor: pointer
+
+  &:focus-visible
+    outline: var(--cm-edge) solid var(--cm-text)
+    outline-offset: 0.15em
+
   &.waiting
-    background: #ffd84a
+    border-color: var(--cm-pink)
+    color: var(--cm-pink-hi)
     animation: key-wait 0.9s ease-in-out infinite
-.reset-keys
-  padding: 2px 10px
-  border-radius: 8px
-  border: 2px solid #141a33
-  background: #6f8cff
-  color: #fff
-  font-size: 11px
-  cursor: pointer
-  &:disabled
-    opacity: 0.45
-    cursor: default
+
 @keyframes key-wait
   50%
-    transform: scale(1.08)
+    opacity: 0.45
+
+@media (prefers-reduced-motion: reduce)
+  .bind-key.waiting
+    animation: none
 </style>

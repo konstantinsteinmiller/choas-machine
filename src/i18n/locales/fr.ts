@@ -12,33 +12,20 @@ export default {
     'pause': 'Pause',
     'menu': 'Menu',
     'home': 'Accueil',
-    'info': 'Infos'
-  },
-  'combat': {
-    'slide': 'Glissade'
-  },
-  'hud': {
-    'bolts': 'Boulons'
-  },
-  'interact': {
-    'chest': 'Ouvrir'
+    'info': 'Infos',
+    'mute': 'Couper le son',
+    'unmute': 'Activer le son'
   },
   'pause': {
     'title': 'PAUSE',
     'resume': 'Reprendre',
     'controls': 'Commandes'
   },
-  'hub': {
-    'tab': {
-      'workshop': 'Atelier'
-    }
-  },
   'options': {
     'killCams': 'Kill-cam',
     'gameplay': 'Jeu',
     'title': 'Options',
     'general': 'Général',
-    'audio': 'Audio',
     'language': 'Langue',
     'soundEffects': 'Effets sonores',
     'music': 'Musique',
@@ -75,7 +62,7 @@ export default {
   },
   'saveStatus': {
     'restoredTitle': 'Sauvegarde cloud restaurée',
-    'restoredBody': '+{n} boulons bonus pour la récupération',
+    'restoredBody': 'Bonus de récupération : +{n}',
     'tap': 'toucher',
     'pausedTitle': 'Synchronisation en pause',
     'pausedBody': 'Vous jouez hors ligne. Votre progression est enregistrée ici.',

@@ -12,33 +12,20 @@ export default {
     'pause': 'Pausa',
     'menu': 'Menú',
     'home': 'Inicio',
-    'info': 'Info'
-  },
-  'combat': {
-    'slide': 'Esvarar'
-  },
-  'hud': {
-    'bolts': 'Parafusos'
-  },
-  'interact': {
-    'chest': 'Abrir'
+    'info': 'Info',
+    'mute': 'Silenciar',
+    'unmute': 'Activar o son'
   },
   'pause': {
     'title': 'PAUSA',
     'resume': 'Continuar',
     'controls': 'Controis'
   },
-  'hub': {
-    'tab': {
-      'workshop': 'Taller'
-    }
-  },
   'options': {
     'killCams': 'Cámara de derrube',
     'gameplay': 'Xogabilidade',
     'title': 'Opcións',
     'general': 'Xeral',
-    'audio': 'Audio',
     'language': 'Idioma',
     'soundEffects': 'Efectos de son',
     'music': 'Música',
@@ -75,7 +62,7 @@ export default {
   },
   'saveStatus': {
     'restoredTitle': 'Partida na nube restaurada',
-    'restoredBody': '+{n} parafusos de bonificación pola recuperación',
+    'restoredBody': 'Bonus de recuperación: +{n}',
     'tap': 'toca',
     'pausedTitle': 'Sincronización en pausa',
     'pausedBody': 'Xogando sen conexión. O teu progreso gárdase aquí.',

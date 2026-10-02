@@ -12,33 +12,20 @@ export default {
     'pause': 'Jeda',
     'menu': 'Menu',
     'home': 'Beranda',
-    'info': 'Info'
-  },
-  'combat': {
-    'slide': 'Luncur'
-  },
-  'hud': {
-    'bolts': 'Baut'
-  },
-  'interact': {
-    'chest': 'Buka'
+    'info': 'Info',
+    'mute': 'Bisukan',
+    'unmute': 'Nyalakan suara'
   },
   'pause': {
     'title': 'JEDA',
     'resume': 'Lanjutkan',
     'controls': 'Kontrol'
   },
-  'hub': {
-    'tab': {
-      'workshop': 'Bengkel'
-    }
-  },
   'options': {
     'killCams': 'Kamera kill',
     'gameplay': 'Permainan',
     'title': 'Opsi',
     'general': 'Umum',
-    'audio': 'Audio',
     'language': 'Bahasa',
     'soundEffects': 'Efek Suara',
     'music': 'Musik',
@@ -75,7 +62,7 @@ export default {
   },
   'saveStatus': {
     'restoredTitle': 'Simpanan cloud dipulihkan',
-    'restoredBody': '+{n} baut bonus untuk pemulihan',
+    'restoredBody': 'Bonus pemulihan: +{n}',
     'tap': 'ketuk',
     'pausedTitle': 'Sinkronisasi cloud dijeda',
     'pausedBody': 'Bermain offline. Progresmu disimpan di sini.',

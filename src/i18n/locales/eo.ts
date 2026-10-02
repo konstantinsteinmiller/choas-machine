@@ -12,33 +12,20 @@ export default {
     'pause': 'Paŭzo',
     'menu': 'Menuo',
     'home': 'Hejmo',
-    'info': 'Informoj'
-  },
-  'combat': {
-    'slide': 'Gliti'
-  },
-  'hud': {
-    'bolts': 'Boltoj'
-  },
-  'interact': {
-    'chest': 'Malfermi'
+    'info': 'Informoj',
+    'mute': 'Silentigi',
+    'unmute': 'Reaktivigi sonon'
   },
   'pause': {
     'title': 'PAŬZITA',
     'resume': 'Daŭrigi',
     'controls': 'Regiloj'
   },
-  'hub': {
-    'tab': {
-      'workshop': 'Laborejo'
-    }
-  },
   'options': {
     'killCams': 'Venko-kamerao',
     'gameplay': 'Ludado',
     'title': 'Agordoj',
     'general': 'Ĝenerale',
-    'audio': 'Sono',
     'language': 'Lingvo',
     'soundEffects': 'Sonefektoj',
     'music': 'Muziko',
@@ -75,7 +62,7 @@ export default {
   },
   'saveStatus': {
     'restoredTitle': 'Nuba konservo restarigita',
-    'restoredBody': '+{n} bonusaj boltoj pro la restarigo',
+    'restoredBody': 'Restaŭra bonuso: +{n}',
     'tap': 'tuŝetu',
     'pausedTitle': 'Nuba sinkronigo paŭzita',
     'pausedBody': 'Vi ludas eksterrete. Via progreso estas konservata ĉi tie.',

@@ -74,7 +74,7 @@ three.js import, so it runs in Vitest and in a balance script.
   (stages, bosses, story, comic, voice, masters, loot, XP, skills, jobs, NG+,
   leaderboard, worker, voice tooling, rewarded UI); prune tests; the app boots
   through the loader into an empty scene; suite + type-check green.
-- [ ] **P1 Foundations** — `cmachine_state` + schema version + merge score;
+- [x] **P1 Foundations** — `cmachine_state` + schema version + merge score;
   event bus; global time scale; neon token layer; F-component rework (no
   collapse, FModal header/scroll/close fixes, relative units); angrybirds font;
   new glyphs; splash, logo, manifest placeholders.
@@ -171,9 +171,9 @@ Answered by the owner: none yet.
 
 ## Carried forward (owed by a later phase)
 
-- **P1**: restyle the splash grid and bar (still navy and amber) in both
-  copies; the top bar with mute and help (the old `TopStatus` test went with
-  it); glyph set clean-up (`iconPaths.ts` still carries Mega Droid gear).
+- **P9**: the docked game logo and the currency badges in the Command Base's
+  top bar (the chaos-arena arrangement: logo top-left, wallet top-right, mute
+  over settings bottom-left; the last one is `hud/SystemCorner.vue` already).
 - **P3**: `models/gait.ts` + `motion.ts`, `props`, `exitDrone` are salvaged
   from `../mega-droid/src/game/models` (or `git show a10992d:<path>`) when the
   rigs are built.
@@ -213,13 +213,32 @@ Answered by the owner: none yet.
   Gate: type-check 0 errors, 69 test files / 681 tests green, production build
   OK, browser pass at 1280×720, 320×658, 764×385 with no console errors and
   one storage key.
+- 2026-10-02 P1 done. State: the in-memory object is `cmachine_state`
+  (`useGameState.ts`); `state/profile.ts` holds the typed profile (schema
+  version `cm_v`, defensive load, copies in and out, re-load on a cloud
+  hydrate). `game/bus.ts` is the typed event bus; `engine/clock.ts` the
+  fixed-step clock with a time scale (`app.setTimeScale`). UI kit: tokens in
+  `assets/css/tokens.sass` (+ Tailwind `cm-*`), FButton / FHudButton /
+  FHudBadge / FTabs / FSelect (menu teleported, never clipped) / FSlider /
+  FModal (three-row grid: header and close in the flow, only the content
+  scrolls, footer wraps) / FMuteButton / SettingsButton, all sized in `vmin`
+  with hard floors and no scale transforms. 60 glyphs (13 new). Dev kit page:
+  `#/ui`. Gate: 73 test files / 760 tests, type-check clean, build OK, browser
+  pass of `#/ui`, the modal and the base screen at 1280×720, 320×658, 764×385.
 
 ## Resume notes
 
-- Dev server: `pnpm dev`. Check the served `<title>` ("Chaos Machine") before
+- Dev server: `pnpm dev` (port 2196). Check the served `<title>` ("Chaos Machine") before
   trusting a browser test; other games' servers run on this machine.
 - Every finite parallel job goes through
   `node "$HOME/.claude/skills/worker-budget/budget.mjs" run -- <command>`.
 - Browser checks run on a private headless Chrome (own `--user-data-dir`, own
   port); stop the server and the browser after each check.
 - Layout checks: 320×658 portrait and 764×385 landscape, touch UA.
+- Scratch tools of the build sessions (not in the repo): a browser probe that
+  boots the app at three viewports and reports state and console errors, a
+  locale merge script (`drafts.json` → all 39 files, with `--prune`), and
+  patch scripts. New locale keys go to English first; an agent drafts the
+  other 38 as JSON keyed by dotted path, and the merge script applies them.
+- Tests that read source must not use regexes with nested quantifiers over
+  whole files (one hung the suite); parse the SASS block by indentation.

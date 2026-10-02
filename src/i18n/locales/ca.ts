@@ -12,33 +12,20 @@ export default {
     'pause': 'Pausa',
     'menu': 'Menú',
     'home': 'Inici',
-    'info': 'Info'
-  },
-  'combat': {
-    'slide': 'Llisca'
-  },
-  'hud': {
-    'bolts': 'Cargols'
-  },
-  'interact': {
-    'chest': 'Obre'
+    'info': 'Info',
+    'mute': 'Silencia',
+    'unmute': 'Activa el so'
   },
   'pause': {
     'title': 'PAUSA',
     'resume': 'Reprèn',
     'controls': 'Controls'
   },
-  'hub': {
-    'tab': {
-      'workshop': 'Taller'
-    }
-  },
   'options': {
     'killCams': 'Càmera d\'abatiment',
     'gameplay': 'Joc',
     'title': 'Opcions',
     'general': 'General',
-    'audio': 'Àudio',
     'language': 'Idioma',
     'soundEffects': 'Efectes de so',
     'music': 'Música',
@@ -75,7 +62,7 @@ export default {
   },
   'saveStatus': {
     'restoredTitle': 'Partida al núvol restaurada',
-    'restoredBody': '+{n} cargols de bonificació per la recuperació',
+    'restoredBody': 'Bonus de recuperació: +{n}',
     'tap': 'toca',
     'pausedTitle': 'Sincronització en pausa',
     'pausedBody': 'Jugues sense connexió. El progrés es desa aquí.',

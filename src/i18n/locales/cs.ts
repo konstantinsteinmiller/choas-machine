@@ -12,33 +12,20 @@ export default {
     'pause': 'Pauza',
     'menu': 'Menu',
     'home': 'Domů',
-    'info': 'Info'
-  },
-  'combat': {
-    'slide': 'Skluz'
-  },
-  'hud': {
-    'bolts': 'Šrouby'
-  },
-  'interact': {
-    'chest': 'Otevřít'
+    'info': 'Info',
+    'mute': 'Ztlumit',
+    'unmute': 'Zapnout zvuk'
   },
   'pause': {
     'title': 'PAUZA',
     'resume': 'Pokračovat',
     'controls': 'Ovládání'
   },
-  'hub': {
-    'tab': {
-      'workshop': 'Dílna'
-    }
-  },
   'options': {
     'killCams': 'Kill-cam',
     'gameplay': 'Hratelnost',
     'title': 'Možnosti',
     'general': 'Obecné',
-    'audio': 'Zvuk',
     'language': 'Jazyk',
     'soundEffects': 'Zvukové efekty',
     'music': 'Hudba',
@@ -75,7 +62,7 @@ export default {
   },
   'saveStatus': {
     'restoredTitle': 'Uložení v cloudu obnoveno',
-    'restoredBody': '+{n} bonusových šroubů za obnovu',
+    'restoredBody': 'Bonus za obnovení: +{n}',
     'tap': 'klepni',
     'pausedTitle': 'Synchronizace pozastavena',
     'pausedBody': 'Hraješ offline. Postup se ukládá tady.',

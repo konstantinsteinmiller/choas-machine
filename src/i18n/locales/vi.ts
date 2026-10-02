@@ -12,33 +12,20 @@ export default {
     'pause': 'Tạm dừng',
     'menu': 'Menu',
     'home': 'Trang chính',
-    'info': 'Thông tin'
-  },
-  'combat': {
-    'slide': 'Trượt'
-  },
-  'hud': {
-    'bolts': 'Bu lông'
-  },
-  'interact': {
-    'chest': 'Mở'
+    'info': 'Thông tin',
+    'mute': 'Tắt tiếng',
+    'unmute': 'Bật tiếng'
   },
   'pause': {
     'title': 'TẠM DỪNG',
     'resume': 'Tiếp tục',
     'controls': 'Điều khiển'
   },
-  'hub': {
-    'tab': {
-      'workshop': 'Xưởng'
-    }
-  },
   'options': {
     'killCams': 'Camera hạ gục',
     'gameplay': 'Lối chơi',
     'title': 'Tùy chọn',
     'general': 'Chung',
-    'audio': 'Âm thanh',
     'language': 'Ngôn ngữ',
     'soundEffects': 'Hiệu ứng âm thanh',
     'music': 'Nhạc',
@@ -75,7 +62,7 @@ export default {
   },
   'saveStatus': {
     'restoredTitle': 'Đã khôi phục lưu trên đám mây',
-    'restoredBody': '+{n} bu lông thưởng cho việc khôi phục',
+    'restoredBody': 'Thưởng khôi phục: +{n}',
     'tap': 'chạm',
     'pausedTitle': 'Đã tạm dừng đồng bộ đám mây',
     'pausedBody': 'Đang chơi ngoại tuyến. Tiến trình được lưu tại đây.',

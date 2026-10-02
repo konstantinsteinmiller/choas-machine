@@ -12,33 +12,20 @@ export default {
     'pause': 'Pauză',
     'menu': 'Meniu',
     'home': 'Acasă',
-    'info': 'Info'
-  },
-  'combat': {
-    'slide': 'Alunecă'
-  },
-  'hud': {
-    'bolts': 'Șuruburi'
-  },
-  'interact': {
-    'chest': 'Deschide'
+    'info': 'Info',
+    'mute': 'Dezactivează sunetul',
+    'unmute': 'Activează sunetul'
   },
   'pause': {
     'title': 'PAUZĂ',
     'resume': 'Continuă',
     'controls': 'Comenzi'
   },
-  'hub': {
-    'tab': {
-      'workshop': 'Atelier'
-    }
-  },
   'options': {
     'killCams': 'Kill-cam',
     'gameplay': 'Joc',
     'title': 'Opțiuni',
     'general': 'General',
-    'audio': 'Audio',
     'language': 'Limbă',
     'soundEffects': 'Efecte sonore',
     'music': 'Muzică',
@@ -75,7 +62,7 @@ export default {
   },
   'saveStatus': {
     'restoredTitle': 'Salvare din cloud restaurată',
-    'restoredBody': '+{n} șuruburi bonus pentru recuperare',
+    'restoredBody': 'Bonus de recuperare: +{n}',
     'tap': 'atinge',
     'pausedTitle': 'Sincronizare cloud în pauză',
     'pausedBody': 'Joci offline. Progresul tău e salvat aici.',

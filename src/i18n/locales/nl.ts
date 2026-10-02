@@ -12,33 +12,20 @@ export default {
     'pause': 'Pauze',
     'menu': 'Menu',
     'home': 'Start',
-    'info': 'Info'
-  },
-  'combat': {
-    'slide': 'Glijden'
-  },
-  'hud': {
-    'bolts': 'Bouten'
-  },
-  'interact': {
-    'chest': 'Openen'
+    'info': 'Info',
+    'mute': 'Dempen',
+    'unmute': 'Geluid aan'
   },
   'pause': {
     'title': 'GEPAUZEERD',
     'resume': 'Hervatten',
     'controls': 'Besturing'
   },
-  'hub': {
-    'tab': {
-      'workshop': 'Werkplaats'
-    }
-  },
   'options': {
     'killCams': 'Kill-cam',
     'gameplay': 'Gameplay',
     'title': 'Opties',
     'general': 'Algemeen',
-    'audio': 'Audio',
     'language': 'Taal',
     'soundEffects': 'Geluidseffecten',
     'music': 'Muziek',
@@ -75,7 +62,7 @@ export default {
   },
   'saveStatus': {
     'restoredTitle': 'Cloudopslag hersteld',
-    'restoredBody': '+{n} bonusbouten voor het herstel',
+    'restoredBody': 'Herstelbonus: +{n}',
     'tap': 'tik',
     'pausedTitle': 'Cloudsync gepauzeerd',
     'pausedBody': 'Je speelt offline. Je voortgang wordt hier opgeslagen.',

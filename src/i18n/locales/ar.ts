@@ -12,33 +12,20 @@ export default {
     'pause': 'إيقاف مؤقت',
     'menu': 'القائمة',
     'home': 'الرئيسية',
-    'info': 'معلومات'
-  },
-  'combat': {
-    'slide': 'انزلاق'
-  },
-  'hud': {
-    'bolts': 'البراغي'
-  },
-  'interact': {
-    'chest': 'افتح'
+    'info': 'معلومات',
+    'mute': 'كتم الصوت',
+    'unmute': 'تشغيل الصوت'
   },
   'pause': {
     'title': 'متوقف مؤقتاً',
     'resume': 'استئناف',
     'controls': 'التحكم'
   },
-  'hub': {
-    'tab': {
-      'workshop': 'الورشة'
-    }
-  },
   'options': {
     'killCams': 'كاميرا الإسقاط',
     'gameplay': 'أسلوب اللعب',
     'title': 'الخيارات',
     'general': 'عام',
-    'audio': 'الصوت',
     'language': 'اللغة',
     'soundEffects': 'المؤثرات الصوتية',
     'music': 'الموسيقى',
@@ -75,7 +62,7 @@ export default {
   },
   'saveStatus': {
     'restoredTitle': 'تمت استعادة الحفظ السحابي',
-    'restoredBody': '+{n} برغي مكافأة للاستعادة',
+    'restoredBody': 'مكافأة الاسترداد: +{n}',
     'tap': 'اضغط',
     'pausedTitle': 'تم إيقاف المزامنة السحابية مؤقتاً',
     'pausedBody': 'تلعب دون اتصال. يتم حفظ تقدمك هنا.',

@@ -12,33 +12,20 @@ export default {
     'pause': 'Pause',
     'menu': 'Menü',
     'home': 'Start',
-    'info': 'Info'
-  },
-  'combat': {
-    'slide': 'Rutschen'
-  },
-  'hud': {
-    'bolts': 'Bolzen'
-  },
-  'interact': {
-    'chest': 'Öffnen'
+    'info': 'Info',
+    'mute': 'Stummschalten',
+    'unmute': 'Ton an'
   },
   'pause': {
     'title': 'PAUSIERT',
     'resume': 'Fortsetzen',
     'controls': 'Steuerung'
   },
-  'hub': {
-    'tab': {
-      'workshop': 'Werkstatt'
-    }
-  },
   'options': {
     'killCams': 'Kill-Cam',
     'gameplay': 'Gameplay',
     'title': 'Optionen',
     'general': 'Allgemein',
-    'audio': 'Audio',
     'language': 'Sprache',
     'soundEffects': 'Soundeffekte',
     'music': 'Musik',
@@ -75,7 +62,7 @@ export default {
   },
   'saveStatus': {
     'restoredTitle': 'Cloud-Speicher wiederhergestellt',
-    'restoredBody': '+{n} Bonusbolzen für die Wiederherstellung',
+    'restoredBody': 'Wiederherstellungsbonus: +{n}',
     'tap': 'tippen',
     'pausedTitle': 'Cloud-Sync pausiert',
     'pausedBody': 'Offline-Modus. Dein Fortschritt wird hier gespeichert.',

@@ -12,33 +12,20 @@ export default {
     'pause': 'Pauzė',
     'menu': 'Meniu',
     'home': 'Pradžia',
-    'info': 'Informacija'
-  },
-  'combat': {
-    'slide': 'Slysti'
-  },
-  'hud': {
-    'bolts': 'Varžtai'
-  },
-  'interact': {
-    'chest': 'Atidaryti'
+    'info': 'Informacija',
+    'mute': 'Išjungti garsą',
+    'unmute': 'Įjungti garsą'
   },
   'pause': {
     'title': 'PAUZĖ',
     'resume': 'Tęsti',
     'controls': 'Valdymas'
   },
-  'hub': {
-    'tab': {
-      'workshop': 'Dirbtuvės'
-    }
-  },
   'options': {
     'killCams': 'Kill-cam kadrai',
     'gameplay': 'Žaidimas',
     'title': 'Nustatymai',
     'general': 'Bendra',
-    'audio': 'Garsas',
     'language': 'Kalba',
     'soundEffects': 'Garso efektai',
     'music': 'Muzika',
@@ -75,7 +62,7 @@ export default {
   },
   'saveStatus': {
     'restoredTitle': 'Debesies išsaugojimas atkurtas',
-    'restoredBody': '+{n} premijinių varžtų už atkūrimą',
+    'restoredBody': 'Atkūrimo premija: +{n}',
     'tap': 'bakstelėk',
     'pausedTitle': 'Debesies sinchronizavimas pristabdytas',
     'pausedBody': 'Žaidi neprisijungęs. Tavo pažanga išsaugoma čia.',

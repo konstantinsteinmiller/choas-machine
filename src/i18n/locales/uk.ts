@@ -12,33 +12,20 @@ export default {
     'pause': 'Пауза',
     'menu': 'Меню',
     'home': 'Головна',
-    'info': 'Інфо'
-  },
-  'combat': {
-    'slide': 'Підкат'
-  },
-  'hud': {
-    'bolts': 'Болти'
-  },
-  'interact': {
-    'chest': 'Відкрити'
+    'info': 'Інфо',
+    'mute': 'Вимкнути звук',
+    'unmute': 'Увімкнути звук'
   },
   'pause': {
     'title': 'ПАУЗА',
     'resume': 'Продовжити',
     'controls': 'Керування'
   },
-  'hub': {
-    'tab': {
-      'workshop': 'Майстерня'
-    }
-  },
   'options': {
     'killCams': 'Камера добивання',
     'gameplay': 'Гра',
     'title': 'Налаштування',
     'general': 'Загальні',
-    'audio': 'Звук',
     'language': 'Мова',
     'soundEffects': 'Звукові ефекти',
     'music': 'Музика',
@@ -75,7 +62,7 @@ export default {
   },
   'saveStatus': {
     'restoredTitle': 'Хмарне збереження відновлено',
-    'restoredBody': '+{n} бонусних болтів за відновлення',
+    'restoredBody': 'Бонус за відновлення: +{n}',
     'tap': 'торкнутися',
     'pausedTitle': 'Синхронізацію призупинено',
     'pausedBody': 'Гра офлайн. Ваш прогрес зберігається тут.',

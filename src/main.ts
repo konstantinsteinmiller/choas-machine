@@ -279,7 +279,7 @@ const bootstrap = async () => {
   installSaveStatus(saveManager)
   await saveManager.init()
 
-  // Refresh the in-memory `gameState` blob from the hydrated localStorage so
+  // Refresh the in-memory `cmachine_state` blob from the hydrated localStorage so
   // synchronous reads further down this file (notably `resolveInitialLocale`'s
   // `getState(LANGUAGE_KEY)` probe) see the cloud-stored values
   // immediately, NOT the stale pre-hydrate blob. Without this, a returning

@@ -1,6 +1,6 @@
 import { reactive } from 'vue'
 import { app, type GameMode } from './engine/app'
-import { hud } from './state/hud'
+import { setPhase } from './state/hud'
 
 /**
  * ─── Game flow ───────────────────────────────────────────────────────────────
@@ -40,7 +40,7 @@ export const createBootMode = async (onProgress: (p01: number) => void = () => {
   const mode = baseFactory()
   onProgress(1)
   flow.screen = 'base'
-  hud.phase = 'base'
+  setPhase('base')
   return mode
 }
 
@@ -49,7 +49,7 @@ export const goBase = (): void => {
   if (!baseFactory) return
   flow.modal = ''
   flow.screen = 'base'
-  hud.phase = 'base'
+  setPhase('base')
   app.setMode(baseFactory())
   app.setWanted(true)
 }

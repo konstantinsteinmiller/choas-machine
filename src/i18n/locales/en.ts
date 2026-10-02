@@ -16,33 +16,20 @@ export default {
     'pause': 'Pause',
     'menu': 'Menu',
     'home': 'Home',
-    'info': 'Info'
-  },
-  'combat': {
-    'slide': 'Slide'
-  },
-  'hud': {
-    'bolts': 'Bolts'
-  },
-  'interact': {
-    'chest': 'Open'
+    'info': 'Info',
+    'mute': 'Mute',
+    'unmute': 'Unmute'
   },
   'pause': {
     'title': 'PAUSED',
     'resume': 'Resume',
     'controls': 'Controls'
   },
-  'hub': {
-    'tab': {
-      'workshop': 'Workshop'
-    }
-  },
   'options': {
     'killCams': 'Kill-cam',
     'gameplay': 'Gameplay',
     'title': 'Options',
     'general': 'General',
-    'audio': 'Audio',
     'language': 'Language',
     'soundEffects': 'Sound Effects',
     'music': 'Music',
@@ -79,7 +66,7 @@ export default {
   },
   'saveStatus': {
     'restoredTitle': 'Cloud save restored',
-    'restoredBody': '+{n} bonus bolts for the recovery',
+    'restoredBody': 'Recovery bonus: +{n}',
     'tap': 'tap',
     'pausedTitle': 'Cloud sync paused',
     'pausedBody': 'Playing offline. Your progress is saved here.',

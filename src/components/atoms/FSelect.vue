@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, nextTick, onUnmounted, useId } from 'vue'
 import GameIcon from '@/components/icons/GameIcon.vue'
 
 interface Option {
@@ -13,157 +13,234 @@ interface Option {
 interface Props {
   modelValue: string | number
   options: Option[]
-  placeholder?: string
   label?: string
-  maxHeight?: string
 }
 
-const props = withDefaults(defineProps<Props>(), {
-  placeholder: 'SELECT...',
-  maxHeight: '200px'
-})
-
+const props = defineProps<Props>()
 const emit = defineEmits(['update:modelValue'])
 
 const isOpen = ref(false)
-const dropdownRef = ref<HTMLElement | null>(null)
+const trigger = ref<HTMLElement | null>(null)
+const menu = ref<HTMLElement | null>(null)
+const listId = useId()
 
-const selectedLabel = computed(() => {
-  const option = props.options.find(opt => opt.value === props.modelValue)
-  return option ? option.label : props.placeholder
-})
-const selectedLang = computed(() => props.options.find(opt => opt.value === props.modelValue)?.lang)
+const selected = computed(() => props.options.find(opt => opt.value === props.modelValue))
 
-const toggle = () => (isOpen.value = !isOpen.value)
-
-const selectOption = (value: string | number) => {
-  emit('update:modelValue', value)
-  isOpen.value = false
-}
-
-// Close when clicking outside
-const handleClickOutside = (event: MouseEvent) => {
-  if (dropdownRef.value && !dropdownRef.value.contains(event.target as Node)) {
-    isOpen.value = false
+/**
+ * The menu is teleported to <body> and placed with `position: fixed` from the
+ * trigger's own box. Inside a modal the list used to be clipped by the
+ * modal's scroll container, and each caller stacked z-index wrappers around
+ * it. A fixed menu belongs to no scroll container, so it cannot be clipped,
+ * and it opens upward when there is more room above than below.
+ */
+const place = ref({ left: '0px', top: '0px', width: '0px', maxHeight: '0px' })
+const GAP = 6
+const position = (): void => {
+  const el = trigger.value
+  if (!el) return
+  const r = el.getBoundingClientRect()
+  const below = window.innerHeight - r.bottom - GAP * 2
+  const above = r.top - GAP * 2
+  const up = below < 160 && above > below
+  const room = Math.max(96, up ? above : below)
+  const height = Math.min(room, menu.value?.scrollHeight ?? room)
+  place.value = {
+    left: `${Math.round(r.left)}px`,
+    top: `${Math.round(up ? r.top - GAP - height : r.bottom + GAP)}px`,
+    width: `${Math.round(r.width)}px`,
+    maxHeight: `${Math.round(room)}px`
   }
 }
 
-onMounted(() => document.addEventListener('click', handleClickOutside))
-onUnmounted(() => document.removeEventListener('click', handleClickOutside))
+const close = (): void => {
+  if (!isOpen.value) return
+  isOpen.value = false
+  document.removeEventListener('pointerdown', onOutside, true)
+  window.removeEventListener('resize', close)
+  window.removeEventListener('scroll', onScroll, true)
+}
+
+const onOutside = (e: Event): void => {
+  const target = e.target as Node
+  if (trigger.value?.contains(target) || menu.value?.contains(target)) return
+  close()
+}
+/** The page behind moved (the modal scrolled): the menu would be left
+ *  hanging in mid-air, so it closes. Scrolling the list itself is fine. */
+const onScroll = (e: Event): void => {
+  if (menu.value?.contains(e.target as Node)) return
+  close()
+}
+
+const open = async (): Promise<void> => {
+  isOpen.value = true
+  position()
+  await nextTick()
+  // Again, now that the list is rendered and its real height is known.
+  position()
+  document.addEventListener('pointerdown', onOutside, true)
+  window.addEventListener('resize', close)
+  window.addEventListener('scroll', onScroll, true)
+}
+
+const toggle = (): void => { if (isOpen.value) close(); else void open() }
+
+const selectOption = (value: string | number): void => {
+  emit('update:modelValue', value)
+  close()
+}
+
+const onKey = (e: KeyboardEvent): void => {
+  if (e.code === 'Escape' && isOpen.value) {
+    e.stopPropagation()
+    close()
+  }
+}
+
+onUnmounted(close)
 </script>
 
 <template lang="pug">
-  div(class="relative w-full font-black" ref="dropdownRef")
-    //- Label (Optional)
-    div(v-if="label" class="label-text mb-1 ml-1 text-white uppercase italic tracking-wider") {{ label }}
+  div.f-select
+    div.f-select__label(v-if="label") {{ label }}
 
-    //- The Trigger (Styled like FButton)
-    button(
+    button.f-select__trigger(
+      ref="trigger"
       type="button"
+      aria-haspopup="listbox"
+      :aria-expanded="isOpen"
+      :aria-controls="listId"
+      :aria-label="label"
+      :class="{ 'is-open': isOpen }"
       @click="toggle"
-      class="group relative w-full inline-block cursor-pointer select-none transition-all duration-75 active:scale-[0.98] hover:scale-[1.02] touch-manipulation focus:outline-none"
+      @keydown="onKey"
     )
-      //- 3D Shadow
-      span(class="absolute inset-0 translate-y-[4px] rounded-2xl bg-[#1a2b4b]")
+      span.f-select__value(:lang="selected?.lang") {{ selected?.label ?? '' }}
+      GameIcon.f-select__caret(name="down")
 
-      //- Main Button Body
-      span.f-select__body(class="relative flex items-center justify-between rounded-2xl border-[3px] border-[#0f1a30] bg-gradient-to-b from-[#ffcd00] to-[#f7a000]")
-        //- Inner Top Shine
-        span(class="absolute inset-x-0 top-0 h-1/2 rounded-t-xl bg-white/25")
-
-        //- Selected Text
-        span.f-select__value(class="text relative block tracking-wide text-white uppercase truncate mr-2" :lang="selectedLang") {{ selectedLabel }}
-
-        //- Arrow Icon
-        span.f-select__caret-wrap(
-          class="relative transition-transform duration-200"
-          :class="{ 'rotate-180': isOpen }"
+    Teleport(to="body")
+      Transition(name="f-select-pop")
+        ul.f-select__menu(
+          v-if="isOpen"
+          :id="listId"
+          ref="menu"
+          role="listbox"
+          :style="place"
         )
-          GameIcon.f-select__caret(name="down")
-
-    //- The Dropdown Menu
-    transition(name="pop")
-      div(
-        v-if="isOpen"
-        class="absolute z-1 left-0 right-0 mt-3 rounded-2xl border-[3px] border-[#0f1a30] bg-[#1a2b4b] shadow-2xl overflow-hidden"
-      )
-        //- Scrollable Area
-        div(
-          class="custom-scrollbar overflow-y-auto p-2"
-          :style="{ maxHeight: maxHeight }"
-        )
-          div(
+          li.f-select__option(
             v-for="option in options"
             :key="option.value"
+            role="option"
+            :aria-selected="modelValue === option.value"
+            :class="{ 'is-selected': modelValue === option.value }"
+            :lang="option.lang"
             @click="selectOption(option.value)"
-            class="group/item relative mb-1 last:mb-0 cursor-pointer p-3 rounded-xl transition-all duration-75 active:scale-[0.97]"
-            :class="modelValue === option.value ? 'bg-[#50aaff]' : 'hover:bg-[#2266ff]'"
-          )
-            //- Option Shine (only for selected/hover)
-            span(class="absolute inset-x-0 top-0 h-1/2 rounded-t-xl bg-white/10")
-
-            span.f-select__option(class="text relative block text-white uppercase tracking-wide" :lang="option.lang") {{ option.label }}
+          ) {{ option.label }}
 </template>
 
 <style scoped lang="sass">
-// Fluid metrics replace the old fixed `text-sm md:text-lg` / `px-4 py-3` pairs
-// so the control reads the same on a 320px phone and a 4K desktop, and the
-// `min-height` floor guarantees a legal touch target in every layout.
-.f-select__body
+.f-select
+  display: flex
+  flex-direction: column
+  gap: 0.3em
+  width: 100%
+  min-width: 0
+  font-size: var(--cm-fs-m)
+
+.f-select__label
+  color: var(--cm-dim)
+  font-size: var(--cm-fs-s)
+  text-transform: uppercase
+  letter-spacing: 0.05em
+
+.f-select__trigger
+  display: flex
+  align-items: center
+  justify-content: space-between
+  gap: 0.6em
+  width: 100%
+  min-width: 0
+  // The touch floor, in every layout.
   min-height: 2.75rem
-  min-width: clamp(6rem, 40vw, 9rem)
-  padding: clamp(0.4rem, 1.8vw, 0.75rem) clamp(0.6rem, 3vw, 1.1rem)
+  padding: clamp(0.35rem, 1.6vmin, 0.7rem) clamp(0.6rem, 2.6vmin, 1.1rem)
+  border: var(--cm-edge) solid var(--cm-cyan)
+  border-radius: var(--cm-radius-m)
+  background: var(--cm-panel)
+  color: var(--cm-text)
+  font-size: inherit
+  cursor: pointer
+  -webkit-tap-highlight-color: transparent
+  transition: background-color 120ms ease-out, box-shadow 120ms ease-out
 
-// The caret is the shared `down` chevron now — solid like the rest of the set,
-// rather than the last stroked glyph left in the UI. Sized here because
-// `GameIcon` deliberately fills whatever box the caller gives it.
-// Nested to outrank `GameIcon`'s own `.game-icon` rule, which carries the same
-// specificity a flat class selector would — on a tie the winner is whichever
-// stylesheet the bundler emitted last.
-.f-select__caret-wrap
-  flex: 0 0 auto
-  color: #fff
+  &:hover, &.is-open
+    background: var(--cm-panel-hi)
+    box-shadow: var(--cm-glow-cyan)
 
-  .f-select__caret
-    width: 1.25rem
-    height: 1.25rem
-    filter: drop-shadow(2px 2px 0 rgba(0, 0, 0, 1))
+  &:focus-visible
+    outline: var(--cm-edge) solid var(--cm-text)
+    outline-offset: 0.15em
 
 .f-select__value
-  font-size: clamp(0.7rem, 3vw, 1.05rem)
+  min-width: 0
+  overflow: hidden
+  text-overflow: ellipsis
+  white-space: nowrap
+  text-transform: uppercase
+  letter-spacing: 0.03em
+
+// Nested to outrank `GameIcon`'s own `.game-icon` rule (same specificity as a
+// flat class selector; the bundler's emit order would decide a tie).
+.f-select__trigger .f-select__caret
+  flex: 0 0 auto
+  width: 1.1em
+  height: 1.1em
+  color: var(--cm-cyan)
+  transition: transform 160ms ease-out
+
+.f-select__trigger.is-open .f-select__caret
+  transform: rotate(180deg)
+
+.f-select__menu
+  position: fixed
+  // Over the modal that holds the trigger (z 110), under the splash.
+  z-index: 130
+  box-sizing: border-box
+  margin: 0
+  padding: 0.3em
+  list-style: none
+  overflow-y: auto
+  overscroll-behavior: contain
+  touch-action: pan-y
+  border: var(--cm-edge) solid var(--cm-cyan)
+  border-radius: var(--cm-radius-m)
+  background: var(--cm-night)
+  box-shadow: var(--cm-glow-cyan), 0 0.6em 1.6em rgba(0, 0, 0, 0.55)
+  color: var(--cm-text)
+  font-size: var(--cm-fs-m)
+  scrollbar-width: thin
+  scrollbar-color: var(--cm-cyan) transparent
 
 .f-select__option
-  font-size: clamp(0.7rem, 3vw, 1rem)
+  display: flex
+  align-items: center
+  min-height: 2.5rem
+  padding: 0.3em 0.7em
+  border-radius: var(--cm-radius-s)
+  cursor: pointer
+  text-transform: uppercase
+  letter-spacing: 0.03em
+  overflow-wrap: anywhere
 
-.label-text
-  font-size: clamp(0.75rem, 3.2vw, 1.1rem)
+  &:hover
+    background: rgba(77, 232, 255, 0.16)
 
-.text, .label-text
-  text-shadow: 3px 3px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000
+  &.is-selected
+    background: var(--cm-pink)
+    text-shadow: var(--cm-text-outline)
 
-/* Custom Scrollbar for that game feel */
-.custom-scrollbar
-  &::-webkit-scrollbar
-    width: 12px
+.f-select-pop-enter-active, .f-select-pop-leave-active
+  transition: opacity 110ms ease-out
 
-  &::-webkit-scrollbar-track
-    background: #0a1425
-    border-radius: 10px
-    margin: 8px
-
-  &::-webkit-scrollbar-thumb
-    background: #50aaff
-    border: 3px solid #0f1a30
-    border-radius: 10px
-
-    &:hover
-      background: #2266ff
-
-/* Transition Animations */
-.pop-enter-active, .pop-leave-active
-  transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.1s
-
-.pop-enter-from, .pop-leave-to
+.f-select-pop-enter-from, .f-select-pop-leave-to
   opacity: 0
-  transform: translateY(-10px) scale(0.95)
 </style>

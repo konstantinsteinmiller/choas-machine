@@ -12,33 +12,20 @@ export default {
     'pause': 'Pause',
     'menu': 'Meny',
     'home': 'Start',
-    'info': 'Info'
-  },
-  'combat': {
-    'slide': 'Skli'
-  },
-  'hud': {
-    'bolts': 'Bolter'
-  },
-  'interact': {
-    'chest': 'Åpne'
+    'info': 'Info',
+    'mute': 'Slå av lyd',
+    'unmute': 'Slå på lyd'
   },
   'pause': {
     'title': 'PAUSE',
     'resume': 'Fortsett',
     'controls': 'Kontroller'
   },
-  'hub': {
-    'tab': {
-      'workshop': 'Verksted'
-    }
-  },
   'options': {
     'killCams': 'Kill-cam',
     'gameplay': 'Spilling',
     'title': 'Innstillinger',
     'general': 'Generelt',
-    'audio': 'Lyd',
     'language': 'Språk',
     'soundEffects': 'Lydeffekter',
     'music': 'Musikk',
@@ -75,7 +62,7 @@ export default {
   },
   'saveStatus': {
     'restoredTitle': 'Skylagring gjenopprettet',
-    'restoredBody': '+{n} bonusbolter for gjenopprettingen',
+    'restoredBody': 'Gjenopprettingsbonus: +{n}',
     'tap': 'trykk',
     'pausedTitle': 'Skysynk satt på pause',
     'pausedBody': 'Spiller frakoblet. Fremgangen din lagres her.',

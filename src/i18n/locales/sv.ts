@@ -12,33 +12,20 @@ export default {
     'pause': 'Paus',
     'menu': 'Meny',
     'home': 'Start',
-    'info': 'Info'
-  },
-  'combat': {
-    'slide': 'Glid'
-  },
-  'hud': {
-    'bolts': 'Bultar'
-  },
-  'interact': {
-    'chest': 'Öppna'
+    'info': 'Info',
+    'mute': 'Stäng av ljudet',
+    'unmute': 'Slå på ljudet'
   },
   'pause': {
     'title': 'PAUSAT',
     'resume': 'Fortsätt',
     'controls': 'Kontroller'
   },
-  'hub': {
-    'tab': {
-      'workshop': 'Verkstad'
-    }
-  },
   'options': {
     'killCams': 'Kill-cam',
     'gameplay': 'Spel',
     'title': 'Inställningar',
     'general': 'Allmänt',
-    'audio': 'Ljud',
     'language': 'Språk',
     'soundEffects': 'Ljudeffekter',
     'music': 'Musik',
@@ -75,7 +62,7 @@ export default {
   },
   'saveStatus': {
     'restoredTitle': 'Molnsparning återställd',
-    'restoredBody': '+{n} bonusbultar för återställningen',
+    'restoredBody': 'Återställningsbonus: +{n}',
     'tap': 'tryck',
     'pausedTitle': 'Molnsynk pausad',
     'pausedBody': 'Spelar offline. Dina framsteg sparas här.',

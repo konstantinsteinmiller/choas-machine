@@ -30,6 +30,23 @@ export const MISSIONS_DONE_KEY = 'cm_missions'
 /** Tech Scrap — the upgrade currency. */
 export const SCRAP_KEY = 'cm_scrap'
 
+// ─── Structured progress ────────────────────────────────────────────────────
+
+/** Data Cores — earned only; they skip Forge timers. */
+export const CORES_KEY = 'cm_cores'
+/** `ArsenalSave` — blueprints, weapon tiers, upgrade levels, unlocked gear. */
+export const ARSENAL_KEY = 'cm_arsenal'
+/** `Record<fortressId, FortressSave>` — clears, medals and bests per fortress. */
+export const FORTRESSES_KEY = 'cm_fortresses'
+/** `ForgeSave | null` — the weapon tier under construction and its clock. */
+export const FORGE_KEY = 'cm_forge'
+/** `Record<InputFamily, Record<lessonId, uses>>` — control lessons learned. */
+export const LESSONS_KEY = 'cm_lessons'
+/** `string[]` — one-time moments already shown (first launch, reveals). */
+export const SEEN_KEY = 'cm_seen'
+/** `StatsSave` — lifetime counters. */
+export const STATS_KEY = 'cm_stats'
+
 // ─── User settings ──────────────────────────────────────────────────────────
 
 export const SOUND_KEY = 'cm_user_sound_volume'

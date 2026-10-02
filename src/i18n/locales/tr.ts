@@ -12,33 +12,20 @@ export default {
     'pause': 'Duraklat',
     'menu': 'Menü',
     'home': 'Ana ekran',
-    'info': 'Bilgi'
-  },
-  'combat': {
-    'slide': 'Kay'
-  },
-  'hud': {
-    'bolts': 'Cıvata'
-  },
-  'interact': {
-    'chest': 'Aç'
+    'info': 'Bilgi',
+    'mute': 'Sesi kapat',
+    'unmute': 'Sesi aç'
   },
   'pause': {
     'title': 'DURAKLATILDI',
     'resume': 'Devam et',
     'controls': 'Kontroller'
   },
-  'hub': {
-    'tab': {
-      'workshop': 'Atölye'
-    }
-  },
   'options': {
     'killCams': 'Öldürme kamerası',
     'gameplay': 'Oynanış',
     'title': 'Seçenekler',
     'general': 'Genel',
-    'audio': 'Ses',
     'language': 'Dil',
     'soundEffects': 'Ses Efektleri',
     'music': 'Müzik',
@@ -75,7 +62,7 @@ export default {
   },
   'saveStatus': {
     'restoredTitle': 'Bulut kaydı geri yüklendi',
-    'restoredBody': 'Kurtarma için +{n} bonus cıvata',
+    'restoredBody': 'Kurtarma bonusu: +{n}',
     'tap': 'dokun',
     'pausedTitle': 'Bulut eşitlemesi duraklatıldı',
     'pausedBody': 'Çevrimdışı oynuyorsun. İlerlemen burada kaydediliyor.',

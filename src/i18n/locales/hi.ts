@@ -12,33 +12,20 @@ export default {
     'pause': 'रोकें',
     'menu': 'मेन्यू',
     'home': 'होम',
-    'info': 'जानकारी'
-  },
-  'combat': {
-    'slide': 'स्लाइड'
-  },
-  'hud': {
-    'bolts': 'बोल्ट'
-  },
-  'interact': {
-    'chest': 'खोलें'
+    'info': 'जानकारी',
+    'mute': 'म्यूट करें',
+    'unmute': 'अनम्यूट करें'
   },
   'pause': {
     'title': 'रुका हुआ',
     'resume': 'फिर शुरू करें',
     'controls': 'कंट्रोल'
   },
-  'hub': {
-    'tab': {
-      'workshop': 'वर्कशॉप'
-    }
-  },
   'options': {
     'killCams': 'किल-कैम',
     'gameplay': 'गेमप्ले',
     'title': 'विकल्प',
     'general': 'सामान्य',
-    'audio': 'ऑडियो',
     'language': 'भाषा',
     'soundEffects': 'ध्वनि प्रभाव',
     'music': 'संगीत',
@@ -75,7 +62,7 @@ export default {
   },
   'saveStatus': {
     'restoredTitle': 'क्लाउड सेव बहाल हुआ',
-    'restoredBody': 'रिकवरी के लिए +{n} बोनस बोल्ट',
+    'restoredBody': 'रिकवरी बोनस: +{n}',
     'tap': 'टैप',
     'pausedTitle': 'क्लाउड सिंक रुका',
     'pausedBody': 'ऑफ़लाइन खेल रहे हैं। आपकी प्रगति यहाँ सहेजी जा रही है।',

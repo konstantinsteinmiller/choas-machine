@@ -12,33 +12,20 @@ export default {
     'pause': 'Пауза',
     'menu': 'Меню',
     'home': 'Главная',
-    'info': 'Инфо'
-  },
-  'combat': {
-    'slide': 'Подкат'
-  },
-  'hud': {
-    'bolts': 'Болты'
-  },
-  'interact': {
-    'chest': 'Открыть'
+    'info': 'Инфо',
+    'mute': 'Выключить звук',
+    'unmute': 'Включить звук'
   },
   'pause': {
     'title': 'ПАУЗА',
     'resume': 'Продолжить',
     'controls': 'Управление'
   },
-  'hub': {
-    'tab': {
-      'workshop': 'Мастерская'
-    }
-  },
   'options': {
     'killCams': 'Камера добивания',
     'gameplay': 'Игра',
     'title': 'Настройки',
     'general': 'Общие',
-    'audio': 'Звук',
     'language': 'Язык',
     'soundEffects': 'Звуковые эффекты',
     'music': 'Музыка',
@@ -75,7 +62,7 @@ export default {
   },
   'saveStatus': {
     'restoredTitle': 'Облачное сохранение восстановлено',
-    'restoredBody': '+{n} бонусных болтов за восстановление',
+    'restoredBody': 'Бонус за восстановление: +{n}',
     'tap': 'нажать',
     'pausedTitle': 'Синхронизация приостановлена',
     'pausedBody': 'Игра офлайн. Ваш прогресс сохраняется здесь.',

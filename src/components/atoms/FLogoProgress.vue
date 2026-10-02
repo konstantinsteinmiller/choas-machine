@@ -231,12 +231,12 @@ const onBackdropGone = (): void => {
   inset: 0
   z-index: 150
   overflow: hidden
-  background: radial-gradient(circle at 50% 40%, rgba(255, 167, 51, 0.16) 0%, rgba(255, 167, 51, 0) 32%), radial-gradient(circle at 50% 40%, #1d2f63 0%, #111d42 52%, #2a1b4d 100%)
+  background: radial-gradient(circle at 50% 40%, rgba(255, 79, 182, 0.2) 0%, rgba(255, 79, 182, 0) 34%), radial-gradient(circle at 50% 40%, #3d2a80 0%, #1f1244 55%, #150c2b 100%)
 
 .backdrop-grid
   position: absolute
   inset: -64px 0 0 -64px
-  background-image: linear-gradient(rgba(120, 160, 230, 0.08) 2px, transparent 2px), linear-gradient(90deg, rgba(120, 160, 230, 0.08) 2px, transparent 2px)
+  background-image: linear-gradient(rgba(77, 232, 255, 0.1) 2px, transparent 2px), linear-gradient(90deg, rgba(77, 232, 255, 0.1) 2px, transparent 2px)
   background-size: 64px 64px
   animation: grid-pan 6s linear infinite
   will-change: transform
@@ -275,31 +275,31 @@ const onBackdropGone = (): void => {
     height: 100%
 
 // ── The plasma bar ──
-// An amber fill in a graphite capsule, leaning with the wordmark. ONE fill
+// A pink plasma fill in a dark capsule, leaning with the wordmark. ONE fill
 // element animated by transform, clipped by `.lit`; its hot top edge is the
 // gloss, so the empty track stays dark and the fill reads at 12 px.
 .bar
   position: relative
   width: 76%
   height: clamp(12px, 2.6vmin, 18px)
-  border: 2px solid #141a33
-  border-radius: 4px
-  background: #161a22
-  box-shadow: 0 3px 0 rgba(0, 0, 0, 0.3)
+  border: 2px solid #4de8ff
+  border-radius: 999px
+  background: #150c2b
+  box-shadow: 0 0 12px rgba(77, 232, 255, 0.45)
   box-sizing: border-box
   transform: skewX(-12deg)
 .track, .lit
   position: absolute
   inset: 1px
-  border-radius: 2px
+  border-radius: 999px
 .track
-  background: linear-gradient(#232936, #161a22)
+  background: linear-gradient(#2b1b5c, #150c2b)
 .lit
   overflow: hidden
 .fill
   width: 100%
   height: 100%
-  background: linear-gradient(#fff0cc 0%, #ffc768 35%, #ffa733 62%, #e27a10 100%)
+  background: linear-gradient(#ffe3f4 0%, #ff8fd2 35%, #ff4fb6 62%, #a91d70 100%)
   transform-origin: left center
   transition-property: transform
   transition-timing-function: cubic-bezier(0.2, 0.7, 0.3, 1)
@@ -307,7 +307,7 @@ const onBackdropGone = (): void => {
 
 .stuck-hint
   font-size: clamp(0.8rem, 3.2vmin, 1rem)
-  color: #cfe8ff
+  color: #cbbcff
   text-align: center
 
 .splash-fade-leave-active, .loader-fade-leave-active

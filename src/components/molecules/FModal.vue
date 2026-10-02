@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch, onMounted, onUnmounted, nextTick } from 'vue'
+import { watch, onMounted, onUnmounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import FTabs, { type TabOption } from '@/components/atoms/FTabs.vue'
 import GameIcon from '@/components/icons/GameIcon.vue'
@@ -27,46 +27,21 @@ const emit = defineEmits(['update:modelValue', 'update:activeTab'])
 // Vue warns about extraneous attrs. Opt out and forward $attrs explicitly.
 defineOptions({ inheritAttrs: false })
 
+/**
+ * ─── Layout: three rows, and only the middle one scrolls ────────────────────
+ *
+ * The panel is a grid: header / content / footer. The header (title or tabs,
+ * and the close button) and the footer are rows of their own, so:
+ *
+ *   • content can never sit under the header, at rest or scrolled: the header
+ *     is not an overlay, and the scroll container starts below it;
+ *   • the close button is IN the header row, beside the title or the tabs,
+ *     so it cannot cover them at any width;
+ *   • the content row keeps a minimum height, so a short screen shrinks the
+ *     panel's margins before it squeezes the content to nothing.
+ */
 
-
-// ─── Header / content overlap ───────────────────────────────────────────────
-//
-// The ribbon header deliberately overhangs the frame's top edge (that's the
-// look). Previously the content slot compensated with a hard-coded
-// `pt-6 sm:pt-7 md:pt-9`, which is a guess: it was too small when the title
-// wrapped to two lines or the tab row grew, and the first row of content ended
-// up UNDER the ribbon.
-//
-// Now the header's real height is measured with a ResizeObserver and published
-// as `--fmodal-header-overlap`. The content slot pads by exactly the amount the
-// header actually overhangs, so an overlap is impossible at any viewport, in
-// any language, at any font size.
-const headerRef = ref<HTMLElement | null>(null)
-const headerOverlap = ref(0)
-let observer: ResizeObserver | null = null
-
-/** How far the header dips INTO the frame, in px. The header sits above the
- *  frame and is pulled down by this much (see `--fmodal-header-dip`), so the
- *  content must clear exactly that plus a small breathing gap. */
-const HEADER_DIP_RATIO = 0.55
-
-const measureHeader = (): void => {
-  const el = headerRef.value
-  if (!el) { headerOverlap.value = 0; return }
-  const h = el.getBoundingClientRect().height
-  headerOverlap.value = h > 0 ? Math.round(h * HEADER_DIP_RATIO) : 0
-}
-
-const attachObserver = async (): Promise<void> => {
-  await nextTick()
-  if (!headerRef.value) return
-  observer?.disconnect()
-  observer = new ResizeObserver(measureHeader)
-  observer.observe(headerRef.value)
-  measureHeader()
-}
-
-// ─── Modal-open signal (CrazyGames gameplayStop/Start) ──────────────────────
+// ─── Modal-open signal (portal gameplayStop/Start, pause gate) ───────────────
 // Centralised here so every FModal consumer participates without per-modal
 // wiring. Refcounted; held once per open, dropped on close or unmount.
 let releaseModalOpen: (() => void) | null = null
@@ -76,273 +51,225 @@ const markClosed = (): void => { releaseModalOpen?.(); releaseModalOpen = null }
 watch(() => props.modelValue, (open, prev) => {
   if (open && !prev) sfx('uiOpen')
   else if (!open && prev) sfx('uiClose')
-  if (open) { markOpen(); void attachObserver() } else { markClosed(); observer?.disconnect() }
-})
-
-// Re-measure when the header's content changes (title text, tab set).
-watch(() => [props.title, props.tabs?.length], () => { void nextTick(measureHeader) })
-
-onMounted(() => {
-  if (props.modelValue) { markOpen(); void attachObserver() }
-})
-onUnmounted(() => {
-  markClosed()
-  observer?.disconnect()
-  observer = null
+  if (open) markOpen()
+  else markClosed()
 })
 
 const close = (): void => emit('update:modelValue', false)
 const handleTabChange = (val: string | number): void => emit('update:activeTab', val)
+
+const onKey = (e: KeyboardEvent): void => {
+  if (e.code === 'Escape' && props.modelValue && props.isClosable) {
+    e.stopPropagation()
+    close()
+  }
+}
+
+onMounted(() => {
+  if (props.modelValue) markOpen()
+  window.addEventListener('keydown', onKey, true)
+})
+onUnmounted(() => {
+  markClosed()
+  window.removeEventListener('keydown', onKey, true)
+})
 </script>
 
 <template lang="pug">
   //- Teleport to body so `position: fixed` isn't trapped by an ancestor
   //- transform, which would promote that ancestor to a containing block.
   Teleport(to="body")
-    Transition(
-      name="pop"
-      appear
-      enter-active-class="transition-all duration-[380ms] ease-[cubic-bezier(0.18,0.89,0.32,1.28)]"
-      leave-active-class="transition-all duration-[180ms] ease-[cubic-bezier(0.6,-0.28,0.735,0.045)]"
-      enter-from-class="opacity-0 scale-90 translate-y-6"
-      leave-to-class="opacity-0 scale-90 translate-y-6"
-    )
+    Transition(name="f-modal")
       div.f-modal(
         v-if="modelValue"
         v-bind="$attrs"
-        :style="{ '--fmodal-header-overlap': headerOverlap + 'px' }"
         role="dialog"
         aria-modal="true"
+        :aria-label="title"
       )
-        //- Backdrop
         div.f-modal__backdrop(@click="isClosable && close()")
 
-        div.f-modal__container
-          //- Header (title ribbon or tab bar). Lives IN the layout flow so it
-          //- can never be pushed above the viewport's top edge.
-          div.f-modal__header(
-            v-if="(tabs && tabs.length > 0) || title"
-            ref="headerRef"
-          )
-            FTabs(
+        div.f-modal__panel
+          header.f-modal__header(v-if="(tabs && tabs.length > 0) || title || isClosable")
+            FTabs.f-modal__tabs(
               v-if="tabs && tabs.length > 0"
               :model-value="activeTab"
               :options="tabs"
               @update:model-value="handleTabChange"
             )
-            div.f-modal__ribbon(v-else-if="title")
-              span.f-modal__ribbon-shadow(aria-hidden="true")
-              span.f-modal__ribbon-body
-                span.f-modal__ribbon-text {{ title }}
+            h2.f-modal__title(v-else-if="title") {{ title }}
+            span.f-modal__spacer(v-else)
+            button.f-modal__close(
+              v-if="isClosable"
+              type="button"
+              :aria-label="t('close')"
+              @click="close"
+            )
+              GameIcon.f-modal__close-icon(name="close")
 
-          //- Frame
-          div.f-modal__frame-wrap
-            span.f-modal__frame-shadow(aria-hidden="true")
-            div.f-modal__frame
-              button.f-modal__close(
-                v-if="isClosable"
-                type="button"
-                :aria-label="t('close')"
-                @click="close"
-              )
-                span.f-modal__close-shadow(aria-hidden="true")
-                span.f-modal__close-body
-                  GameIcon.f-modal__close-icon(name="close")
+          div.f-modal__content
+            slot
 
-              //- Scrollable content. Top padding is the MEASURED header
-              //- overhang plus a gap — never a guess.
-              div.f-modal__content
-                slot
-
-              //- Footer — pinned, collapses out of layout when empty.
-              div.f-modal__footer
-                slot(name="footer")
+          footer.f-modal__footer(v-if="$slots.footer")
+            slot(name="footer")
 </template>
 
 <style scoped lang="sass">
 .f-modal
   position: fixed
   inset: 0
-  // Above the result overlay (`FReward`, z-100) and below the ad-blocker
-  // explainer (z-150) and the splash (z-200). The shop is opened FROM the
-  // result screen — at z-50 it rendered behind it and the player got a blurred
-  // rectangle with the result buttons floating on top.
+  // Above the HUD and the rewards screen, below the splash.
   z-index: 110
   display: flex
   align-items: center
   justify-content: center
-  padding: calc(clamp(0.4rem, 2vw, 1rem) + env(safe-area-inset-top, 0px)) calc(clamp(0.4rem, 2vw, 1rem) + env(safe-area-inset-right, 0px)) calc(clamp(0.4rem, 2vw, 1rem) + env(safe-area-inset-bottom, 0px)) calc(clamp(0.4rem, 2vw, 1rem) + env(safe-area-inset-left, 0px))
+  padding: var(--cm-safe-top) var(--cm-safe-right) var(--cm-safe-bottom) var(--cm-safe-left)
 
 .f-modal__backdrop
   position: absolute
   inset: 0
-  background-color: rgba(0, 0, 0, 0.7)
-  backdrop-filter: blur(4px)
+  background: rgba(10, 5, 24, 0.72)
 
-.f-modal__container
+.f-modal__panel
   position: relative
-  display: flex
-  flex-direction: column
+  display: grid
+  grid-template-rows: auto minmax(0, 1fr) auto
   width: 100%
-  max-width: min(42rem, 96vw)
+  max-width: min(42rem, 100%)
   max-height: 100%
+  border: var(--cm-edge) solid var(--cm-cyan)
+  border-radius: var(--cm-radius-l)
+  background: var(--cm-glass)
+  // The hologram: a cyan rim light outside, a faint pink wash inside.
+  box-shadow: var(--cm-glow-cyan), inset 0 0 2.5em rgba(255, 79, 182, 0.12)
+  color: var(--cm-text)
+  overflow: hidden
+
+  // Scan lines over the whole panel, under the content.
+  &::before
+    content: ''
+    position: absolute
+    inset: 0
+    background-image: repeating-linear-gradient(to bottom, rgba(255, 255, 255, 0.035) 0 1px, transparent 1px 4px)
+    pointer-events: none
 
 .f-modal__header
   position: relative
-  z-index: 20
-  display: flex
-  flex-shrink: 0
-  justify-content: center
-  // The ribbon dips into the frame by HEADER_DIP_RATIO of its own height; the
-  // negative margin removes that dip from the layout flow so the frame starts
-  // underneath it.
-  margin-bottom: calc(var(--fmodal-header-overlap, 0px) * -1)
-
-.f-modal__ribbon
-  position: relative
-  max-width: 100%
-
-.f-modal__ribbon-shadow
-  position: absolute
-  inset: 0
-  transform: translateY(4px)
-  border-radius: clamp(0.6rem, 2.6vw, 1rem)
-  background-color: #1a2b4b
-
-.f-modal__ribbon-body
-  position: relative
   display: flex
   align-items: center
-  justify-content: center
-  min-height: 2.25rem
-  padding: clamp(0.3rem, 1.4vw, 0.6rem) clamp(1.1rem, 6vw, 2.75rem)
-  border: 4px solid #0f1a30
-  border-radius: clamp(0.6rem, 2.6vw, 1rem)
-  background-image: linear-gradient(to bottom, #ffcd00, #f7a000)
+  gap: clamp(0.4rem, 2vmin, 0.9rem)
+  min-width: 0
+  padding: clamp(0.4rem, 1.8vmin, 0.8rem) clamp(0.5rem, 2.4vmin, 1.1rem)
+  border-bottom: var(--cm-edge) solid rgba(77, 232, 255, 0.35)
+  background: linear-gradient(to right, rgba(255, 79, 182, 0.22), rgba(77, 232, 255, 0.1))
 
-.f-modal__ribbon-text
-  color: #fff
-  font-weight: 900
+.f-modal__tabs, .f-modal__title, .f-modal__spacer
+  flex: 1 1 auto
+  min-width: 0
+
+.f-modal__title
+  margin: 0
+  color: var(--cm-text)
+  font-size: var(--cm-fs-l)
+  font-weight: 400
+  line-height: 1.15
   text-transform: uppercase
   letter-spacing: 0.05em
-  text-align: center
-  font-size: clamp(0.95rem, 4.4vw, 1.85rem)
-  line-height: 1.15
-  text-shadow: 3px 3px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000
-
-.f-modal__frame-wrap
-  position: relative
-  display: flex
-  flex: 1 1 auto
-  flex-direction: column
-  // `min-height: 0` lets the inner scroll container actually scroll instead of
-  // stretching the frame to fit its content.
-  min-height: 0
-
-.f-modal__frame-shadow
-  position: absolute
-  inset: 0
-  transform: translateY(8px)
-  border-radius: clamp(1rem, 5vw, 2.5rem)
-  background-color: #0c1626
-
-.f-modal__frame
-  position: relative
-  display: flex
-  flex: 1 1 auto
-  flex-direction: column
-  min-height: 0
-  border: 5px solid #0f1a30
-  border-radius: clamp(0.9rem, 4.4vw, 2rem)
-  background-color: #1a2b4b
-
-.f-modal__content
-  flex: 1 1 auto
-  min-height: 0
-  overflow-y: auto
-  overscroll-behavior: contain
-  color: #fff
-  text-align: center
-  // The measured header overhang plus a breathing gap. This is the fix for the
-  // "header overlaps the content" bug — it is derived, not guessed.
-  padding-top: calc(var(--fmodal-header-overlap, 0px) + clamp(0.6rem, 2.4vw, 1.1rem))
-  padding-bottom: clamp(0.4rem, 1.6vw, 0.75rem)
-  padding-inline: clamp(0.5rem, 3vw, 1.5rem)
-
-.f-modal__footer
-  flex-shrink: 0
-  display: flex
-  justify-content: center
-  gap: clamp(0.4rem, 2.4vw, 1rem)
-  padding-bottom: clamp(0.4rem, 1.6vw, 0.75rem)
-  padding-inline: clamp(0.5rem, 3vw, 1.5rem)
-
-  &:empty
-    display: none
+  overflow-wrap: anywhere
+  text-shadow: var(--cm-text-outline), 0 0 0.6em rgba(255, 79, 182, 0.7)
 
 .f-modal__close
-  position: absolute
-  top: 0
-  right: 0
-  z-index: 30
-  // Overhang the frame corner, scaled with the viewport so it never collides
-  // with the content on a small screen.
-  translate: 28% -34%
-  width: clamp(2.1rem, 8.5vw, 2.75rem)
-  height: clamp(2.1rem, 8.5vw, 2.75rem)
-  min-width: 2.1rem
-  min-height: 2.1rem
+  flex: 0 0 auto
+  display: grid
+  place-items: center
+  width: var(--cm-chip)
+  height: var(--cm-chip)
+  // A second, absolute floor: the token already has one, and a control that
+  // closes a dialog must never depend on a single line of CSS.
+  min-width: 2.5rem
+  min-height: 2.5rem
   padding: 0
-  border: 0
-  background: none
+  border: var(--cm-edge) solid var(--cm-pink-hi)
+  border-radius: var(--cm-radius-s)
+  background: var(--cm-pink)
+  color: var(--cm-text)
   cursor: pointer
   -webkit-tap-highlight-color: transparent
-  transition: transform 90ms ease-out
+  transition: filter 90ms ease-out
+
+  &:hover
+    filter: brightness(1.12)
 
   &:active
-    translate: 28% -30%
-    scale: 0.92
+    filter: brightness(0.9)
 
-.f-modal__close-shadow
-  position: absolute
-  inset: 0
-  transform: translateY(3px)
-  border-radius: clamp(0.4rem, 1.8vw, 0.65rem)
-  background-color: #6b1212
-
-.f-modal__close-body
-  position: relative
-  display: flex
-  align-items: center
-  justify-content: center
-  width: 100%
-  height: 100%
-  border: 2px solid #0f1a30
-  border-radius: clamp(0.4rem, 1.8vw, 0.65rem)
-  background-color: #ff3e3e
-  color: #fff
+  &:focus-visible
+    outline: var(--cm-edge) solid var(--cm-text)
+    outline-offset: 0.15em
 
   // Nested to outrank `GameIcon`'s own `.game-icon` rule, which has the same
   // specificity a flat class selector would.
   .f-modal__close-icon
-    width: 45%
-    height: 45%
+    width: 46%
+    height: 46%
+
+.f-modal__content
+  position: relative
+  // The floor that keeps the body readable: on a short screen the panel uses
+  // the whole height before this row gives way.
+  min-height: min(7rem, 40dvh)
+  overflow-y: auto
+  overscroll-behavior: contain
+  // Scrolling inside the panel is the one pan the page allows.
+  touch-action: pan-y
+  padding: clamp(0.6rem, 2.6vmin, 1.3rem)
+  font-size: var(--cm-fs-m)
+  scrollbar-width: thin
+  scrollbar-color: var(--cm-cyan) transparent
+
+.f-modal__footer
+  position: relative
+  display: flex
+  flex-wrap: wrap
+  align-items: center
+  justify-content: center
+  gap: clamp(0.4rem, 2vmin, 1rem)
+  padding: clamp(0.4rem, 1.8vmin, 0.8rem) clamp(0.5rem, 2.4vmin, 1.1rem)
+  border-top: var(--cm-edge) solid rgba(77, 232, 255, 0.35)
+
+// The panel flickers on like a projection; it does not bounce.
+.f-modal-enter-active
+  transition: opacity 200ms ease-out
+
+  .f-modal__panel
+    transition: transform 220ms cubic-bezier(0.2, 0.9, 0.3, 1.15)
+
+.f-modal-leave-active
+  transition: opacity 140ms ease-in
+
+  .f-modal__panel
+    transition: transform 140ms ease-in
+
+.f-modal-enter-from, .f-modal-leave-to
+  opacity: 0
+
+  .f-modal__panel
+    transform: scaleY(0.86)
+
+@media (prefers-reduced-motion: reduce)
+  .f-modal-enter-active .f-modal__panel, .f-modal-leave-active .f-modal__panel
+    transition: none
 
 // ─── Short viewports (landscape phone, embedded iframe) ─────────────────────
-// Claim the full short axis so the header is never pushed off-screen and the
-// dead space above the modal collapses.
+// The panel may use the full width, and the header and footer tighten, so the
+// content keeps as much of the short axis as possible.
 @media (max-height: 520px)
-  .f-modal
-    align-items: stretch
-    padding-block: calc(0.3rem + env(safe-area-inset-top, 0px)) calc(0.3rem + env(safe-area-inset-bottom, 0px))
+  .f-modal__panel
+    max-width: min(52rem, 100%)
 
-  .f-modal__container
-    max-width: min(46rem, 98vw)
-    max-height: 100%
+  .f-modal__header, .f-modal__footer
+    padding-block: 0.3rem
 
-  .f-modal__frame
-    border-width: 3px
-
-  .f-modal__ribbon-text
-    font-size: clamp(0.85rem, 3.4vh, 1.2rem)
+  .f-modal__title
+    font-size: var(--cm-fs-m)
 </style>

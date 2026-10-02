@@ -12,33 +12,20 @@ export default {
     'pause': 'Пауза',
     'menu': 'Меню',
     'home': 'Начало',
-    'info': 'Инфо'
-  },
-  'combat': {
-    'slide': 'Плъзгане'
-  },
-  'hud': {
-    'bolts': 'Болтове'
-  },
-  'interact': {
-    'chest': 'Отвори'
+    'info': 'Инфо',
+    'mute': 'Заглуши',
+    'unmute': 'Включи звука'
   },
   'pause': {
     'title': 'ПАУЗА',
     'resume': 'Продължи',
     'controls': 'Контроли'
   },
-  'hub': {
-    'tab': {
-      'workshop': 'Работилница'
-    }
-  },
   'options': {
     'killCams': 'Финален кадър',
     'gameplay': 'Геймплей',
     'title': 'Настройки',
     'general': 'Общи',
-    'audio': 'Звук',
     'language': 'Език',
     'soundEffects': 'Звукови ефекти',
     'music': 'Музика',
@@ -75,7 +62,7 @@ export default {
   },
   'saveStatus': {
     'restoredTitle': 'Облачният запис е възстановен',
-    'restoredBody': '+{n} бонус болтове за възстановяването',
+    'restoredBody': 'Бонус за възстановяване: +{n}',
     'tap': 'докосни',
     'pausedTitle': 'Облачната синхронизация е на пауза',
     'pausedBody': 'Играеш офлайн. Напредъкът ти се пази тук.',

@@ -12,33 +12,20 @@ export default {
     'pause': 'Pausa',
     'menu': 'Menu',
     'home': 'Início',
-    'info': 'Info'
-  },
-  'combat': {
-    'slide': 'Deslizar'
-  },
-  'hud': {
-    'bolts': 'Parafusos'
-  },
-  'interact': {
-    'chest': 'Abrir'
+    'info': 'Info',
+    'mute': 'Silenciar',
+    'unmute': 'Ativar som'
   },
   'pause': {
     'title': 'EM PAUSA',
     'resume': 'Continuar',
     'controls': 'Controlos'
   },
-  'hub': {
-    'tab': {
-      'workshop': 'Oficina'
-    }
-  },
   'options': {
     'killCams': 'Kill-cam',
     'gameplay': 'Jogabilidade',
     'title': 'Opções',
     'general': 'Geral',
-    'audio': 'Áudio',
     'language': 'Idioma',
     'soundEffects': 'Efeitos sonoros',
     'music': 'Música',
@@ -75,7 +62,7 @@ export default {
   },
   'saveStatus': {
     'restoredTitle': 'Progresso na nuvem restaurado',
-    'restoredBody': '+{n} parafusos de bónus pela recuperação',
+    'restoredBody': 'Bónus de recuperação: +{n}',
     'tap': 'toca',
     'pausedTitle': 'Sincronização em pausa',
     'pausedBody': 'Estás a jogar offline. O teu progresso fica guardado aqui.',

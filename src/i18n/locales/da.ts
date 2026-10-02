@@ -12,33 +12,20 @@ export default {
     'pause': 'Pause',
     'menu': 'Menu',
     'home': 'Start',
-    'info': 'Info'
-  },
-  'combat': {
-    'slide': 'Glid'
-  },
-  'hud': {
-    'bolts': 'Bolte'
-  },
-  'interact': {
-    'chest': 'Åbn'
+    'info': 'Info',
+    'mute': 'Slå lyden fra',
+    'unmute': 'Slå lyden til'
   },
   'pause': {
     'title': 'PAUSE',
     'resume': 'Fortsæt',
     'controls': 'Styring'
   },
-  'hub': {
-    'tab': {
-      'workshop': 'Værksted'
-    }
-  },
   'options': {
     'killCams': 'Kill-cam',
     'gameplay': 'Spil',
     'title': 'Indstillinger',
     'general': 'Generelt',
-    'audio': 'Lyd',
     'language': 'Sprog',
     'soundEffects': 'Lydeffekter',
     'music': 'Musik',
@@ -75,7 +62,7 @@ export default {
   },
   'saveStatus': {
     'restoredTitle': 'Skygemning gendannet',
-    'restoredBody': '+{n} bonusbolte for gendannelsen',
+    'restoredBody': 'Gendannelsesbonus: +{n}',
     'tap': 'tryk',
     'pausedTitle': 'Skysynk sat på pause',
     'pausedBody': 'Spiller offline. Dine fremskridt gemmes her.',

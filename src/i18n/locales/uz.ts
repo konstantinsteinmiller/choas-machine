@@ -12,33 +12,20 @@ export default {
     'pause': 'Pauza',
     'menu': 'Menyu',
     'home': 'Bosh sahifa',
-    'info': 'Maʼlumot'
-  },
-  'combat': {
-    'slide': 'Sirpanish'
-  },
-  'hud': {
-    'bolts': 'Boltlar'
-  },
-  'interact': {
-    'chest': 'Ochish'
+    'info': 'Maʼlumot',
+    'mute': 'Ovozni o\'chirish',
+    'unmute': 'Ovozni yoqish'
   },
   'pause': {
     'title': 'PAUZA',
     'resume': 'Davom etish',
     'controls': 'Boshqaruv'
   },
-  'hub': {
-    'tab': {
-      'workshop': 'Ustaxona'
-    }
-  },
   'options': {
     'killCams': 'Yoʻq qilish kamerasi',
     'gameplay': 'Oʻyin',
     'title': 'Sozlamalar',
     'general': 'Umumiy',
-    'audio': 'Ovoz',
     'language': 'Til',
     'soundEffects': 'Ovoz effektlari',
     'music': 'Musiqa',
@@ -75,7 +62,7 @@ export default {
   },
   'saveStatus': {
     'restoredTitle': 'Bulutli saqlash tiklandi',
-    'restoredBody': 'Tiklash uchun +{n} bonus bolt',
+    'restoredBody': 'Tiklash bonusi: +{n}',
     'tap': 'bosing',
     'pausedTitle': 'Bulutli sinxronlash toʻxtatildi',
     'pausedBody': 'Oflayn oʻynayapsiz. Yutuqlaringiz shu yerda saqlanadi.',

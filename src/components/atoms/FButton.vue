@@ -9,26 +9,23 @@ import type { GameIconName } from '@/components/icons/iconNames'
 /**
  * The primary CTA button.
  *
- * Sizing is FLUID, not scaled. The previous implementation applied Tailwind
- * `scale-60 / 75 / 80 / 90 / 110 / 120 / 125` transforms to a fixed-size body,
- * which had three problems: the transform did not affect layout (so buttons
- * overlapped their neighbours at large sizes and left dead gaps at small ones),
- * the border/shadow scaled with it (going blurry or hairline), and hit targets
- * drifted away from the painted pixels.
+ * Sizing is FLUID, not scaled. A `transform: scale()` on a fixed-size body
+ * does not affect layout (so buttons overlap their neighbours at large sizes
+ * and leave dead gaps at small ones), blurs the border, and lets the hit
+ * target drift away from the painted pixels.
  *
- * Every dimension is now a `clamp(min, preferred-in-vw/vh, max)`, so the button
- * grows smoothly from a 320 px phone to a 4K desktop while never collapsing
- * below a comfortable 44 px touch target.
+ * Every dimension is a `clamp(min, preferred, max)` on the SHORTER viewport
+ * side (`vmin`), so the button is the same size on a phone held either way,
+ * grows smoothly up to a 4K desktop, and never collapses below a comfortable
+ * 44 px touch target.
  */
 
 interface Props {
   label?: string
-  type?: 'primary' | 'secondary' | 'danger' | 'success' | 'warning'
-  variant?: 'default' | 'brawl'
+  /** `primary` is the one action a screen is for (pink); `secondary` the
+   *  everyday action (cyan); `ghost` a quiet outline for the way back. */
+  type?: 'primary' | 'secondary' | 'danger' | 'success' | 'warning' | 'ghost'
   isDisabled?: boolean
-  colorFrom?: string
-  colorTo?: string
-  shadowColor?: string
   size?: 'sm' | 'md' | 'lg' | 'xl'
   attention?: boolean
   /** Stretch to the container's width. Off by default so a button in a row
@@ -49,18 +46,13 @@ interface Props {
   iconOnly?: boolean
   /** Required whenever the button has no visible text. */
   ariaLabel?: string
-  /** A painting under `images/ui/` that may stand in for the glyph of an
-   *  icon-only button once the art pipeline has produced it — see `ArtIcon`. */
-  art?: string
   /**
    * Grow the whole control by this factor - the "this is the one that ends the
    * screen" mark for a row of otherwise identical glyph buttons.
    *
    * Multiplies INSIDE the clamp terms rather than applying a `transform:
    * scale()`, so the layout box grows with the paint and the row gutters
-   * correctly around it. A transform would leave the neighbours' gaps wrong and
-   * the hit target drifting off the painted pixels - which is the bug this
-   * component was rewritten to kill in the first place.
+   * correctly around it.
    */
   emphasis?: number
 }
@@ -68,7 +60,6 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), {
   label: '',
   type: 'primary',
-  variant: 'default',
   size: 'md',
   attention: false,
   block: false,
@@ -78,7 +69,7 @@ const props = withDefaults(defineProps<Props>(), {
 })
 
 const emit = defineEmits(['click'])
-/** Every button answers with a click (#114: buttons were silent). */
+/** Every button answers with a click sound. */
 const onClick = (): void => {
   if (props.isDisabled) return
   sfx('uiClick')
@@ -99,46 +90,8 @@ const resolvedAriaLabel = computed<string | undefined>(() => {
   return props.iconOnly ? resolveIconLabel(undefined, props.icon, t, te) : undefined
 })
 
-const theme = computed(() => {
-  switch (props.type) {
-    case 'secondary':
-      return {
-        from: props.colorFrom ?? '#50aaff',
-        to: props.colorTo ?? '#2266ff',
-        shadow: props.shadowColor ?? '#102e7a'
-      }
-    case 'danger':
-      return {
-        from: props.colorFrom ?? '#ff6b5a',
-        to: props.colorTo ?? '#c62828',
-        shadow: props.shadowColor ?? '#6b1212'
-      }
-    case 'success':
-      return {
-        from: props.colorFrom ?? '#67e08a',
-        to: props.colorTo ?? '#1f9d4d',
-        shadow: props.shadowColor ?? '#0e5c2c'
-      }
-    // The rewarded-video gold, named rather than respelled. It is the one
-    // button in the game that earns money, so it is the one whose colour is
-    // least allowed to drift between screens.
-    case 'warning':
-      return {
-        from: props.colorFrom ?? '#ffcd00',
-        to: props.colorTo ?? '#f7a000',
-        shadow: props.shadowColor ?? '#7a5a12'
-      }
-    default:
-      return {
-        from: props.colorFrom ?? '#ffcd00',
-        to: props.colorTo ?? '#f7a000',
-        shadow: props.shadowColor ?? '#1a2b4b'
-      }
-  }
-})
-
 /**
- * Per-size fluid metrics. The `vw` term is what makes the button responsive;
+ * Per-size fluid metrics. The `vmin` term is what makes the button responsive;
  * the min/max clamp keeps it usable at both extremes. `--fbtn-min-h` is never
  * below 2.25rem (36px) for `sm` and 2.75rem (44px) elsewhere — the WCAG touch
  * target floor — so no parent layout can crush the control out of existence.
@@ -147,39 +100,39 @@ const sizeVars = computed<Record<string, string>>(() => {
   switch (props.size) {
     case 'sm':
       return {
-        '--fbtn-font': 'clamp(0.7rem, 2.6vw, 0.95rem)',
-        '--fbtn-px': 'clamp(0.6rem, 2.6vw, 1rem)',
-        '--fbtn-py': 'clamp(0.3rem, 1.2vw, 0.5rem)',
-        '--fbtn-min-w': 'clamp(3.5rem, 18vw, 6rem)',
+        '--fbtn-font': 'clamp(0.7rem, 2.6vmin, 0.95rem)',
+        '--fbtn-px': 'clamp(0.6rem, 2.6vmin, 1rem)',
+        '--fbtn-py': 'clamp(0.3rem, 1.2vmin, 0.5rem)',
+        '--fbtn-min-w': 'clamp(3.5rem, 18vmin, 6rem)',
         '--fbtn-min-h': '2.25rem',
-        '--fbtn-radius': 'clamp(0.5rem, 2vw, 0.85rem)'
+        '--fbtn-radius': 'clamp(0.5rem, 2vmin, 0.85rem)'
       }
     case 'lg':
       return {
-        '--fbtn-font': 'clamp(1rem, 4.2vw, 1.6rem)',
-        '--fbtn-px': 'clamp(1.1rem, 5vw, 2.2rem)',
-        '--fbtn-py': 'clamp(0.55rem, 2.2vw, 0.95rem)',
-        '--fbtn-min-w': 'clamp(6.5rem, 34vw, 12rem)',
+        '--fbtn-font': 'clamp(1rem, 4.2vmin, 1.6rem)',
+        '--fbtn-px': 'clamp(1.1rem, 5vmin, 2.2rem)',
+        '--fbtn-py': 'clamp(0.55rem, 2.2vmin, 0.95rem)',
+        '--fbtn-min-w': 'clamp(6.5rem, 34vmin, 12rem)',
         '--fbtn-min-h': '3rem',
-        '--fbtn-radius': 'clamp(0.75rem, 3vw, 1.35rem)'
+        '--fbtn-radius': 'clamp(0.75rem, 3vmin, 1.35rem)'
       }
     case 'xl':
       return {
-        '--fbtn-font': 'clamp(1.15rem, 5vw, 2rem)',
-        '--fbtn-px': 'clamp(1.4rem, 6vw, 2.8rem)',
-        '--fbtn-py': 'clamp(0.65rem, 2.6vw, 1.15rem)',
-        '--fbtn-min-w': 'clamp(8rem, 42vw, 15rem)',
+        '--fbtn-font': 'clamp(1.15rem, 5vmin, 2rem)',
+        '--fbtn-px': 'clamp(1.4rem, 6vmin, 2.8rem)',
+        '--fbtn-py': 'clamp(0.65rem, 2.6vmin, 1.15rem)',
+        '--fbtn-min-w': 'clamp(8rem, 42vmin, 15rem)',
         '--fbtn-min-h': '3.25rem',
-        '--fbtn-radius': 'clamp(0.85rem, 3.4vw, 1.6rem)'
+        '--fbtn-radius': 'clamp(0.85rem, 3.4vmin, 1.6rem)'
       }
     default:
       return {
-        '--fbtn-font': 'clamp(0.85rem, 3.4vw, 1.25rem)',
-        '--fbtn-px': 'clamp(0.85rem, 4vw, 1.6rem)',
-        '--fbtn-py': 'clamp(0.45rem, 1.8vw, 0.75rem)',
-        '--fbtn-min-w': 'clamp(5rem, 26vw, 9rem)',
+        '--fbtn-font': 'clamp(0.85rem, 3.4vmin, 1.25rem)',
+        '--fbtn-px': 'clamp(0.85rem, 4vmin, 1.6rem)',
+        '--fbtn-py': 'clamp(0.45rem, 1.8vmin, 0.75rem)',
+        '--fbtn-min-w': 'clamp(5rem, 26vmin, 9rem)',
         '--fbtn-min-h': '2.75rem',
-        '--fbtn-radius': 'clamp(0.65rem, 2.6vw, 1.1rem)'
+        '--fbtn-radius': 'clamp(0.65rem, 2.6vmin, 1.1rem)'
       }
   }
 })
@@ -187,23 +140,13 @@ const sizeVars = computed<Record<string, string>>(() => {
 /**
  * Emphasis multiplies every fluid metric, so a 1.2x button is a genuinely
  * larger BOX: `calc(clamp(...) * 1.2)` clamps first and scales after, which
- * keeps the floors meaningful. The border width and the depth plate offset are
- * deliberately left alone - they read as the material the buttons are cut
- * from, and scaling them makes the emphasised one look like a different set.
+ * keeps the floors meaningful.
  */
 const scaled = (v: string, e: number): string => (e === 1 ? v : `calc(${v} * ${e})`)
 
 const styleVars = computed(() => {
   const e = Number.isFinite(props.emphasis) && props.emphasis > 0 ? props.emphasis : 1
-  const vars = Object.fromEntries(
-    Object.entries(sizeVars.value).map(([key, value]) => [key, scaled(value, e)])
-  )
-  return {
-    ...vars,
-    '--fbtn-from': theme.value.from,
-    '--fbtn-to': theme.value.to,
-    '--fbtn-shadow': theme.value.shadow
-  }
+  return Object.fromEntries(Object.entries(sizeVars.value).map(([key, value]) => [key, scaled(value, e)]))
 })
 </script>
 
@@ -212,7 +155,7 @@ const styleVars = computed(() => {
     type="button"
     :style="styleVars"
     :class="[\
-      variant === 'brawl' ? 'is-brawl' : '',\
+      `is-${type}`,\
       block ? 'is-block' : '',\
       attention ? 'attention-bounce' : '',\
       isDisabled ? 'is-disabled' : '',\
@@ -222,10 +165,10 @@ const styleVars = computed(() => {
     :disabled="isDisabled"
     @click="onClick"
   )
-    //- 3D depth plate behind the body.
+    //- The depth plate behind the body: the button reads as a pressable key.
     span.f-button__shadow(aria-hidden="true")
     span.f-button__body
-      //- Classic top shine.
+      //- A soft band of light across the top half.
       span.f-button__shine(aria-hidden="true")
       //- Glyph-only. A separate `v-if` rather than a `v-else` on the label, so
       //- an icon-only button that was passed no icon still renders its slot
@@ -240,6 +183,12 @@ const styleVars = computed(() => {
 
 <style scoped lang="sass">
 .f-button
+  // The colour family; each `is-<type>` below swaps these.
+  --fbtn-from: var(--cm-pink-hi)
+  --fbtn-to: var(--cm-pink)
+  --fbtn-shadow: var(--cm-pink-deep)
+  --fbtn-edge: #ffd3ee
+  --fbtn-glow: var(--cm-glow-pink)
   position: relative
   display: inline-flex
   align-items: center
@@ -248,27 +197,35 @@ const styleVars = computed(() => {
   // flex/grid parent — the "invisible button" failure mode.
   min-width: var(--fbtn-min-w)
   min-height: var(--fbtn-min-h)
+  // A long caption wraps inside the button; it never pushes it past its row.
+  max-width: 100%
   padding: 0
   border: 0
   background: none
   cursor: pointer
   touch-action: manipulation
   -webkit-tap-highlight-color: transparent
-  transition: transform 90ms ease-out, filter 90ms ease-out
+  transition: filter 90ms ease-out
 
   &.is-block
     display: flex
     width: 100%
 
   &:hover:not(.is-disabled)
-    filter: brightness(1.08)
+    filter: brightness(1.1)
 
-  &:active:not(.is-disabled)
-    transform: translateY(2px) scale(0.97)
+  // Pressed: the body sinks onto its plate. A translate, not a scale: the
+  // layout box and the hit target stay exactly where they are.
+  &:active:not(.is-disabled) .f-button__body
+    transform: translateY(0.18em)
+
+  &:focus-visible .f-button__body
+    outline: var(--cm-edge) solid var(--cm-text)
+    outline-offset: 0.15em
 
   &.is-disabled
     opacity: 0.5
-    filter: grayscale(1)
+    filter: grayscale(0.9)
     cursor: not-allowed
 
   // Glyph-only: a square button, not a pill with a lonely icon adrift in it.
@@ -282,21 +239,47 @@ const styleVars = computed(() => {
       min-width: var(--fbtn-min-h)
       padding-inline: var(--fbtn-py)
 
-  &.is-brawl
-    transform: skewX(-10deg)
+.is-secondary
+  --fbtn-from: var(--cm-cyan-hi)
+  --fbtn-to: var(--cm-cyan)
+  --fbtn-shadow: var(--cm-cyan-deep)
+  --fbtn-edge: #e3fbff
+  --fbtn-glow: var(--cm-glow-cyan)
 
-    &:active:not(.is-disabled)
-      transform: skewX(-10deg) translateY(2px) scale(0.97)
+.is-success
+  --fbtn-from: #a6ffd9
+  --fbtn-to: var(--cm-ok)
+  --fbtn-shadow: var(--cm-ok-deep)
+  --fbtn-edge: #e2fff3
+  --fbtn-glow: 0 0 0.75em rgba(77, 255, 176, 0.45)
 
-    .f-button__text
-      transform: skewX(10deg)
-      font-style: italic
-      letter-spacing: -0.01em
+.is-warning
+  --fbtn-from: #ffe98f
+  --fbtn-to: var(--cm-warn)
+  --fbtn-shadow: var(--cm-warn-deep)
+  --fbtn-edge: #fff6cf
+  --fbtn-glow: 0 0 0.75em rgba(255, 210, 63, 0.45)
+
+.is-danger
+  --fbtn-from: #ff96ab
+  --fbtn-to: var(--cm-danger)
+  --fbtn-shadow: var(--cm-danger-deep)
+  --fbtn-edge: #ffd9e0
+  --fbtn-glow: 0 0 0.75em rgba(255, 85, 118, 0.45)
+
+// The quiet one: a glass body with a cyan rim, for "back" and "close".
+.is-ghost
+  --fbtn-from: var(--cm-panel-hi)
+  --fbtn-to: var(--cm-panel)
+  --fbtn-shadow: var(--cm-ink)
+  --fbtn-edge: var(--cm-cyan)
+  --fbtn-glow: none
 
 .f-button__shadow
   position: absolute
   inset: 0
-  transform: translateY(3px)
+  font-size: var(--fbtn-font)
+  transform: translateY(0.22em)
   border-radius: var(--fbtn-radius)
   background-color: var(--fbtn-shadow)
 
@@ -313,25 +296,26 @@ const styleVars = computed(() => {
   width: 100%
   min-height: var(--fbtn-min-h)
   padding: var(--fbtn-py) var(--fbtn-px)
-  border: 2px solid #0f1a30
+  border: var(--cm-edge) solid var(--fbtn-edge)
   border-radius: var(--fbtn-radius)
   background-image: linear-gradient(to bottom, var(--fbtn-from), var(--fbtn-to))
+  box-shadow: var(--fbtn-glow)
   overflow: hidden
+  transition: transform 90ms ease-out
 
 .f-button__shine
   position: absolute
   inset-inline: 0
   top: 0
-  height: 48%
-  background-color: rgba(255, 255, 255, 0.25)
-  border-radius: var(--fbtn-radius) var(--fbtn-radius) 0 0
+  height: 46%
+  background-image: linear-gradient(to bottom, rgba(255, 255, 255, 0.42), rgba(255, 255, 255, 0.08))
   pointer-events: none
 
 // Nested rather than written flat, and that is load-bearing: `GameIcon`'s own
 // scoped rule is `.game-icon[data-v-…]` — one class plus one attribute, exactly
-// the same specificity a flat `.f-button__glyph[data-v-…]` would have. On a tie the
-// winner is whichever stylesheet the bundler happened to emit last. Nesting
-// adds the ancestor class and settles it.
+// the same specificity a flat `.f-button__glyph[data-v-…]` would have. On a tie
+// the winner is whichever stylesheet the bundler happened to emit last.
+// Nesting adds the ancestor class and settles it.
 .f-button__body .f-button__glyph
   position: relative
   flex: 0 0 auto
@@ -339,9 +323,10 @@ const styleVars = computed(() => {
   // the glyph together at every size and emphasis factor.
   width: 1.25em
   height: 1.25em
-  // The same hard black offset the captions wear, so a glyph button and a text
+  color: var(--cm-text)
+  // The same dark offset the captions wear, so a glyph button and a text
   // button read as the same material.
-  filter: drop-shadow(2px 2px 0 rgba(0, 0, 0, 0.85))
+  filter: drop-shadow(0.06em 0.08em 0 var(--cm-ink))
 
   // Alone in the button it IS the control, not an ornament beside a word.
   &.is-solo
@@ -351,13 +336,18 @@ const styleVars = computed(() => {
 .f-button__text
   position: relative
   display: block
-  color: #fff
-  font-weight: 900
+  min-width: 0
+  color: var(--cm-text)
   text-transform: uppercase
+  letter-spacing: 0.03em
   font-size: var(--fbtn-font)
-  line-height: 1.15
-  white-space: nowrap
-  text-shadow: 3px 3px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000
+  line-height: 1.12
+  text-align: center
+  // Two short lines beat one clipped one: German and Vietnamese captions run
+  // two to three times the English width.
+  overflow-wrap: anywhere
+  text-wrap: balance
+  text-shadow: var(--cm-text-outline)
 
 .attention-bounce
   animation: fbtn-bounce 0.6s infinite alternate
@@ -366,5 +356,9 @@ const styleVars = computed(() => {
   from
     translate: 0 0
   to
-    translate: 0 -5px
+    translate: 0 -0.3em
+
+@media (prefers-reduced-motion: reduce)
+  .attention-bounce
+    animation: none
 </style>

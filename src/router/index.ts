@@ -2,6 +2,9 @@ import { createRouter, createWebHashHistory, createMemoryHistory, type RouteReco
 
 const routes: RouteRecordRaw[] = [
   { path: '/', name: 'main', component: () => import('@/views/GameScene.vue') },
+  // DEV ONLY: the UI kit on one page. The `import.meta.env.DEV` guard lets
+  // Rollup drop the chunk from every build.
+  ...(import.meta.env.DEV ? [{ path: '/ui', name: 'ui', component: () => import('@/views/UiLab.vue') }] : []),
   { path: '/:pathMatch(.*)*', redirect: '/' }
 ]
 

@@ -12,33 +12,20 @@ export default {
     'pause': 'Szünet',
     'menu': 'Menü',
     'home': 'Főoldal',
-    'info': 'Infó'
-  },
-  'combat': {
-    'slide': 'Csúszás'
-  },
-  'hud': {
-    'bolts': 'Csavarok'
-  },
-  'interact': {
-    'chest': 'Kinyitás'
+    'info': 'Infó',
+    'mute': 'Némítás',
+    'unmute': 'Hang be'
   },
   'pause': {
     'title': 'SZÜNET',
     'resume': 'Folytatás',
     'controls': 'Irányítás'
   },
-  'hub': {
-    'tab': {
-      'workshop': 'Műhely'
-    }
-  },
   'options': {
     'killCams': 'Kill-cam',
     'gameplay': 'Játékmenet',
     'title': 'Beállítások',
     'general': 'Általános',
-    'audio': 'Hang',
     'language': 'Nyelv',
     'soundEffects': 'Hangeffektek',
     'music': 'Zene',
@@ -75,7 +62,7 @@ export default {
   },
   'saveStatus': {
     'restoredTitle': 'Felhőmentés visszaállítva',
-    'restoredBody': '+{n} bónuszcsavar a helyreállításért',
+    'restoredBody': 'Helyreállítási bónusz: +{n}',
     'tap': 'koppints',
     'pausedTitle': 'Felhőszinkron szüneteltetve',
     'pausedBody': 'Offline játszol. A haladásod itt mentődik.',

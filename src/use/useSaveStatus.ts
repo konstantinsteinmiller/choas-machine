@@ -32,7 +32,7 @@ let manager: SaveManager | null = null
  * Refresh the in-memory `cmachine_state` blob from (now-patched) localStorage,
  * THEN bump `saveDataVersion`. Order is load-bearing: composables re-read
  * their refs via `getState(...)` inside a `watch(saveDataVersion)` callback,
- * and `getState` reads from the `gameState` ref — so the blob MUST already
+ * and `getState` reads from the `cmachine_state` ref — so the blob MUST already
  * hold the cloud-hydrated values when the watcher fires. Without the reload,
  * everything that re-reads on `saveDataVersion` (tech levels, achievements,
  * the resumable run, battle pass, user settings, …) would see the pre-hydrate

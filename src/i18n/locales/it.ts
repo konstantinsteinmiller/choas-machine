@@ -12,33 +12,20 @@ export default {
     'pause': 'Pausa',
     'menu': 'Menu',
     'home': 'Home',
-    'info': 'Info'
-  },
-  'combat': {
-    'slide': 'Scivola'
-  },
-  'hud': {
-    'bolts': 'Bulloni'
-  },
-  'interact': {
-    'chest': 'Apri'
+    'info': 'Info',
+    'mute': 'Disattiva audio',
+    'unmute': 'Attiva audio'
   },
   'pause': {
     'title': 'IN PAUSA',
     'resume': 'Riprendi',
     'controls': 'Comandi'
   },
-  'hub': {
-    'tab': {
-      'workshop': 'Officina'
-    }
-  },
   'options': {
     'killCams': 'Kill-cam',
     'gameplay': 'Gioco',
     'title': 'Opzioni',
     'general': 'Generale',
-    'audio': 'Audio',
     'language': 'Lingua',
     'soundEffects': 'Effetti sonori',
     'music': 'Musica',
@@ -75,7 +62,7 @@ export default {
   },
   'saveStatus': {
     'restoredTitle': 'Salvataggio cloud ripristinato',
-    'restoredBody': '+{n} bulloni bonus per il recupero',
+    'restoredBody': 'Bonus di recupero: +{n}',
     'tap': 'tocca',
     'pausedTitle': 'Sincronizzazione in pausa',
     'pausedBody': 'Stai giocando offline. I progressi sono salvati qui.',

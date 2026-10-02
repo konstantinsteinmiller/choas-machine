@@ -12,33 +12,20 @@ export default {
     'pause': 'หยุดชั่วคราว',
     'menu': 'เมนู',
     'home': 'หน้าหลัก',
-    'info': 'ข้อมูล'
-  },
-  'combat': {
-    'slide': 'สไลด์'
-  },
-  'hud': {
-    'bolts': 'โบลต์'
-  },
-  'interact': {
-    'chest': 'เปิด'
+    'info': 'ข้อมูล',
+    'mute': 'ปิดเสียง',
+    'unmute': 'เปิดเสียง'
   },
   'pause': {
     'title': 'หยุดชั่วคราว',
     'resume': 'เล่นต่อ',
     'controls': 'การควบคุม'
   },
-  'hub': {
-    'tab': {
-      'workshop': 'โรงช่าง'
-    }
-  },
   'options': {
     'killCams': 'กล้องจังหวะปิดฉาก',
     'gameplay': 'การเล่น',
     'title': 'ตัวเลือก',
     'general': 'ทั่วไป',
-    'audio': 'เสียง',
     'language': 'ภาษา',
     'soundEffects': 'เอฟเฟกต์เสียง',
     'music': 'เพลง',
@@ -75,7 +62,7 @@ export default {
   },
   'saveStatus': {
     'restoredTitle': 'กู้คืนเซฟบนคลาวด์แล้ว',
-    'restoredBody': '+{n} โบลต์โบนัสสำหรับการกู้คืน',
+    'restoredBody': 'โบนัสการกู้คืน: +{n}',
     'tap': 'แตะ',
     'pausedTitle': 'หยุดซิงก์คลาวด์ชั่วคราว',
     'pausedBody': 'กำลังเล่นออฟไลน์ ความคืบหน้าถูกบันทึกไว้ที่นี่',

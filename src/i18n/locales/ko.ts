@@ -12,33 +12,20 @@ export default {
     'pause': '일시정지',
     'menu': '메뉴',
     'home': '홈',
-    'info': '정보'
-  },
-  'combat': {
-    'slide': '슬라이딩'
-  },
-  'hud': {
-    'bolts': '나사'
-  },
-  'interact': {
-    'chest': '열기'
+    'info': '정보',
+    'mute': '음소거',
+    'unmute': '음소거 해제'
   },
   'pause': {
     'title': '일시정지',
     'resume': '계속하기',
     'controls': '조작법'
   },
-  'hub': {
-    'tab': {
-      'workshop': '공방'
-    }
-  },
   'options': {
     'killCams': '킬캠',
     'gameplay': '게임플레이',
     'title': '설정',
     'general': '일반',
-    'audio': '오디오',
     'language': '언어',
     'soundEffects': '효과음',
     'music': '음악',
@@ -75,7 +62,7 @@ export default {
   },
   'saveStatus': {
     'restoredTitle': '클라우드 저장이 복원되었습니다',
-    'restoredBody': '복구 보너스 +{n} 나사',
+    'restoredBody': '복구 보너스: +{n}',
     'tap': '탭',
     'pausedTitle': '클라우드 동기화 일시 중지',
     'pausedBody': '오프라인으로 플레이 중입니다. 진행 상황은 여기에 저장됩니다.',

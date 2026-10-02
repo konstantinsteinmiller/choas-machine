@@ -12,33 +12,20 @@ export default {
     'pause': 'Pauza',
     'menu': 'Izbornik',
     'home': 'Početna',
-    'info': 'Info'
-  },
-  'combat': {
-    'slide': 'Klizanje'
-  },
-  'hud': {
-    'bolts': 'Vijci'
-  },
-  'interact': {
-    'chest': 'Otvori'
+    'info': 'Info',
+    'mute': 'Isključi zvuk',
+    'unmute': 'Uključi zvuk'
   },
   'pause': {
     'title': 'PAUZA',
     'resume': 'Nastavi',
     'controls': 'Kontrole'
   },
-  'hub': {
-    'tab': {
-      'workshop': 'Radionica'
-    }
-  },
   'options': {
     'killCams': 'Kill-cam',
     'gameplay': 'Igranje',
     'title': 'Postavke',
     'general': 'Općenito',
-    'audio': 'Zvuk',
     'language': 'Jezik',
     'soundEffects': 'Zvučni efekti',
     'music': 'Glazba',
@@ -75,7 +62,7 @@ export default {
   },
   'saveStatus': {
     'restoredTitle': 'Spremanje u oblaku vraćeno',
-    'restoredBody': '+{n} bonus vijaka za oporavak',
+    'restoredBody': 'Bonus za oporavak: +{n}',
     'tap': 'dodirni',
     'pausedTitle': 'Sinkronizacija pauzirana',
     'pausedBody': 'Igraš offline. Napredak se sprema ovdje.',

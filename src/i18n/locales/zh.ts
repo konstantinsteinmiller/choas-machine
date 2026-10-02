@@ -12,33 +12,20 @@ export default {
     'pause': '暂停',
     'menu': '菜单',
     'home': '主页',
-    'info': '信息'
-  },
-  'combat': {
-    'slide': '滑铲'
-  },
-  'hud': {
-    'bolts': '螺丝'
-  },
-  'interact': {
-    'chest': '打开'
+    'info': '信息',
+    'mute': '静音',
+    'unmute': '取消静音'
   },
   'pause': {
     'title': '已暂停',
     'resume': '继续',
     'controls': '操作说明'
   },
-  'hub': {
-    'tab': {
-      'workshop': '工坊'
-    }
-  },
   'options': {
     'killCams': '击杀镜头',
     'gameplay': '玩法',
     'title': '选项',
     'general': '通用',
-    'audio': '音频',
     'language': '语言',
     'soundEffects': '音效',
     'music': '音乐',
@@ -75,7 +62,7 @@ export default {
   },
   'saveStatus': {
     'restoredTitle': '云存档已恢复',
-    'restoredBody': '恢复奖励 +{n} 螺丝',
+    'restoredBody': '恢复奖励：+{n}',
     'tap': '点击',
     'pausedTitle': '云同步已暂停',
     'pausedBody': '正在离线游戏。你的进度会保存在本地。',

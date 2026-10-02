@@ -12,33 +12,20 @@ export default {
     'pause': 'Fasilə',
     'menu': 'Menyu',
     'home': 'Əsas ekran',
-    'info': 'Məlumat'
-  },
-  'combat': {
-    'slide': 'Sürüş'
-  },
-  'hud': {
-    'bolts': 'Boltlar'
-  },
-  'interact': {
-    'chest': 'Aç'
+    'info': 'Məlumat',
+    'mute': 'Səsi söndür',
+    'unmute': 'Səsi aç'
   },
   'pause': {
     'title': 'FASİLƏ',
     'resume': 'Davam et',
     'controls': 'İdarəetmə'
   },
-  'hub': {
-    'tab': {
-      'workshop': 'Emalatxana'
-    }
-  },
   'options': {
     'killCams': 'Qələbə kamerası',
     'gameplay': 'Oyun',
     'title': 'Seçimlər',
     'general': 'Ümumi',
-    'audio': 'Səs',
     'language': 'Dil',
     'soundEffects': 'Səs effektləri',
     'music': 'Musiqi',
@@ -75,7 +62,7 @@ export default {
   },
   'saveStatus': {
     'restoredTitle': 'Bulud yaddaşı bərpa olundu',
-    'restoredBody': 'Bərpa üçün +{n} bonus bolt',
+    'restoredBody': 'Bərpa bonusu: +{n}',
     'tap': 'toxun',
     'pausedTitle': 'Bulud sinxronizasiyası dayandırıldı',
     'pausedBody': 'Oflayn oynayırsan. İrəliləyişin burada saxlanılır.',

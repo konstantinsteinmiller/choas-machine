@@ -12,33 +12,20 @@ export default {
     'pause': 'Pauze',
     'menu': 'Izvēlne',
     'home': 'Sākums',
-    'info': 'Info'
-  },
-  'combat': {
-    'slide': 'Slīdiens'
-  },
-  'hud': {
-    'bolts': 'Skrūves'
-  },
-  'interact': {
-    'chest': 'Atvērt'
+    'info': 'Info',
+    'mute': 'Izslēgt skaņu',
+    'unmute': 'Ieslēgt skaņu'
   },
   'pause': {
     'title': 'PAUZE',
     'resume': 'Turpināt',
     'controls': 'Vadība'
   },
-  'hub': {
-    'tab': {
-      'workshop': 'Darbnīca'
-    }
-  },
   'options': {
     'killCams': 'Kill-cam',
     'gameplay': 'Spēle',
     'title': 'Iestatījumi',
     'general': 'Vispārīgi',
-    'audio': 'Skaņa',
     'language': 'Valoda',
     'soundEffects': 'Skaņas efekti',
     'music': 'Mūzika',
@@ -75,7 +62,7 @@ export default {
   },
   'saveStatus': {
     'restoredTitle': 'Mākoņa saglabājums atjaunots',
-    'restoredBody': '+{n} bonusa skrūves par atgūšanu',
+    'restoredBody': 'Atjaunošanas bonuss: +{n}',
     'tap': 'pieskaries',
     'pausedTitle': 'Mākoņa sinhronizācija apturēta',
     'pausedBody': 'Spēlē bezsaistē. Tavs progress tiek saglabāts šeit.',

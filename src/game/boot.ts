@@ -6,6 +6,7 @@ import { bakeTextures, loadTextureOverrides } from './world/textures'
 import { StandbyMode } from './scenes/standby'
 import type { GameMode } from './engine/app'
 import { registerModeFactories, createBootMode } from './flow'
+import { initProfile } from './state/profile'
 import { installSynth, loadSfxOverrides } from './audio/synth'
 
 /**
@@ -100,6 +101,7 @@ export const primeGame = (onProgress: (p01: number) => void): Promise<void> => {
     // Boot milestones as User Timing marks: free, and they line up in the
     // DevTools Performance panel (and `scripts/boot-timeline.mjs`).
     performance.mark('boot:prime-start')
+    initProfile()
     installSynth()
     // Drop-in files (only those that exist; see game/assets/overrides.ts).
     // SFX decode in the background; the detail maps must land before the
@@ -148,5 +150,6 @@ export const adoptBootMode = async (): Promise<GameMode> => {
   const m = takePreparedMode()
   performance.mark(m ? 'boot:adopted' : 'boot:fallback-build')
   if (m) return m
+  initProfile()
   return createBootMode()
 }

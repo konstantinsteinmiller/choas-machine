@@ -12,33 +12,20 @@ export default {
     'pause': 'Кідіріс',
     'menu': 'Мәзір',
     'home': 'Басты бет',
-    'info': 'Ақпарат'
-  },
-  'combat': {
-    'slide': 'Сырғу'
-  },
-  'hud': {
-    'bolts': 'Болттар'
-  },
-  'interact': {
-    'chest': 'Ашу'
+    'info': 'Ақпарат',
+    'mute': 'Дыбысты өшіру',
+    'unmute': 'Дыбысты қосу'
   },
   'pause': {
     'title': 'КІДІРІС',
     'resume': 'Жалғастыру',
     'controls': 'Басқару'
   },
-  'hub': {
-    'tab': {
-      'workshop': 'Шеберхана'
-    }
-  },
   'options': {
     'killCams': 'Жою камерасы',
     'gameplay': 'Ойын',
     'title': 'Параметрлер',
     'general': 'Жалпы',
-    'audio': 'Дыбыс',
     'language': 'Тіл',
     'soundEffects': 'Дыбыс әсерлері',
     'music': 'Музыка',
@@ -75,7 +62,7 @@ export default {
   },
   'saveStatus': {
     'restoredTitle': 'Бұлттық сақтау қалпына келтірілді',
-    'restoredBody': 'Қалпына келтіру үшін +{n} бонус болт',
+    'restoredBody': 'Қалпына келтіру бонусы: +{n}',
     'tap': 'түрту',
     'pausedTitle': 'Бұлттық синхрондау тоқтатылды',
     'pausedBody': 'Желіден тыс ойнап жатырсыз. Прогресіңіз осында сақталады.',

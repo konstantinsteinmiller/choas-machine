@@ -1,4 +1,5 @@
 import { reactive } from 'vue'
+import { emit } from '../bus'
 
 /**
  * ─── The HUD mirror ──────────────────────────────────────────────────────────
@@ -27,3 +28,11 @@ export type Phase = 'boot' | 'intro' | 'play' | 'outro' | 'dead' | 'done' | 'bas
 export const hud = reactive({
   phase: 'boot' as Phase
 })
+
+/** Move to another phase and tell the bus. A no-op if nothing changes. */
+export const setPhase = (phase: Phase): void => {
+  const prev = hud.phase
+  if (prev === phase) return
+  hud.phase = phase
+  emit('phase', { phase, prev })
+}

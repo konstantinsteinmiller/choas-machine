@@ -5,7 +5,7 @@ import { ref, type Ref } from 'vue'
  *
  * EVERY persisted value Chaos Machine touches — campaign progress, currencies,
  * upgrades, forge timers, lesson mastery, user settings
- * — lives inside ONE in-memory record (`gameState`), and exactly ONE
+ * — lives inside ONE in-memory record (`cmachine_state`), and exactly ONE
  * localStorage key is ever written: `cmachine_state`.
  *
  * Why one object:
@@ -69,7 +69,7 @@ export const flushPersist = (): void => {
     persistTimer = null
   }
   firstDirtyAt = 0
-  persistRaw(gameState.value)
+  persistRaw(cmachine_state.value)
 }
 
 const schedulePersist = (): void => {
@@ -81,7 +81,7 @@ const schedulePersist = (): void => {
   persistTimer = setTimeout(() => {
     persistTimer = null
     firstDirtyAt = 0
-    persistRaw(gameState.value)
+    persistRaw(cmachine_state.value)
   }, delay)
 }
 
@@ -144,21 +144,21 @@ const buildInitial = (): Record<string, any> => {
 /** The single in-memory aggregate of all persisted game state.
  *  `Record<string, any>` by design — this is a heterogeneous bag keyed by the
  *  constants in `src/keys.ts`; consumers narrow via `getState<T>()`. */
-export const gameState: Ref<Record<string, any>> = ref(buildInitial())
+export const cmachine_state: Ref<Record<string, any>> = ref(buildInitial())
 
 /** Read a value out of the blob. `fallback` is returned when the key is absent.
  *  The type parameter is advisory — the layer does not validate shape. */
 export const getState = <T = unknown>(key: string, fallback?: T): T => {
-  const v = gameState.value[key]
+  const v = cmachine_state.value[key]
   return (v === undefined ? fallback : v) as T
 }
 
-export const hasState = (key: string): boolean => gameState.value[key] !== undefined
+export const hasState = (key: string): boolean => cmachine_state.value[key] !== undefined
 
 export const setState = (key: string, value: unknown): void => {
-  // Replace the record identity so `watch(gameState)` (shallow) fires for every
+  // Replace the record identity so `watch(cmachine_state)` (shallow) fires for every
   // consumer that mirrors a field into its own ref.
-  gameState.value = { ...gameState.value, [key]: value }
+  cmachine_state.value = { ...cmachine_state.value, [key]: value }
   schedulePersist()
 }
 
@@ -166,15 +166,15 @@ export const setState = (key: string, value: unknown): void => {
  *  schedule. Used by the run-snapshot writer, which touches half a dozen keys
  *  at each wave boundary and would otherwise fan out six watcher passes. */
 export const setStates = (patch: Record<string, unknown>): void => {
-  gameState.value = { ...gameState.value, ...patch }
+  cmachine_state.value = { ...cmachine_state.value, ...patch }
   schedulePersist()
 }
 
 export const removeState = (key: string): void => {
-  if (gameState.value[key] === undefined) return
-  const next = { ...gameState.value }
+  if (cmachine_state.value[key] === undefined) return
+  const next = { ...cmachine_state.value }
   delete next[key]
-  gameState.value = next
+  cmachine_state.value = next
   schedulePersist()
 }
 
@@ -183,11 +183,11 @@ export const removeState = (key: string): void => {
  *  in-memory BEFORE any composable's `saveDataVersion` watcher re-reads its
  *  keys — the ordering is load-bearing for correct hydration. */
 export const reloadGameState = (): void => {
-  gameState.value = buildInitial()
+  cmachine_state.value = buildInitial()
 }
 
 /** Test-only: wipe both the in-memory blob and the persisted entry. */
 export const __resetGameState = (): void => {
-  gameState.value = {}
+  cmachine_state.value = {}
   try { localStorage.removeItem(STATE_KEY) } catch { /* harmless */ }
 }

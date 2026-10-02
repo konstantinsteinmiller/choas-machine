@@ -12,33 +12,20 @@ export default {
     'pause': '暫停',
     'menu': '選單',
     'home': '首頁',
-    'info': '資訊'
-  },
-  'combat': {
-    'slide': '滑鏟'
-  },
-  'hud': {
-    'bolts': '螺絲'
-  },
-  'interact': {
-    'chest': '打開'
+    'info': '資訊',
+    'mute': '靜音',
+    'unmute': '取消靜音'
   },
   'pause': {
     'title': '已暫停',
     'resume': '繼續',
     'controls': '操作說明'
   },
-  'hub': {
-    'tab': {
-      'workshop': '工坊'
-    }
-  },
   'options': {
     'killCams': '擊殺鏡頭',
     'gameplay': '遊戲玩法',
     'title': '選項',
     'general': '一般',
-    'audio': '音訊',
     'language': '語言',
     'soundEffects': '音效',
     'music': '音樂',
@@ -75,7 +62,7 @@ export default {
   },
   'saveStatus': {
     'restoredTitle': '雲端存檔已還原',
-    'restoredBody': '還原獎勵 +{n} 螺絲',
+    'restoredBody': '復原獎勵：+{n}',
     'tap': '輕觸',
     'pausedTitle': '雲端同步已暫停',
     'pausedBody': '正在離線遊玩。你的進度會儲存在這台裝置上。',

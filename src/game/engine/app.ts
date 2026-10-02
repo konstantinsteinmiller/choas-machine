@@ -1,6 +1,8 @@
 import { PerspectiveCamera, Scene } from 'three'
 import { getRenderer, resizeRenderer, fovForAspect } from './renderer'
 import { frameStart, frameEnd, phaseStart, phaseEnd } from '@/use/usePerfProbe'
+import { advance, STEP } from './clock'
+import { emit } from '../bus'
 
 /**
  * ─── The game loop ───────────────────────────────────────────────────────────
@@ -8,7 +10,9 @@ import { frameStart, frameEnd, phaseStart, phaseEnd } from '@/use/usePerfProbe'
  * ONE requestAnimationFrame for the whole game. Logic runs on a fixed 60 Hz
  * step (deterministic enough for replays and snapshot resumes, and immune to
  * 120/144 Hz displays speeding the game up); rendering runs every frame and
- * interpolates between the last two logic states.
+ * interpolates between the last two logic states. Slow motion is a time scale
+ * on that clock (`clock.ts`), so it changes how often a step runs and never
+ * how long one is.
  *
  * The loop only RUNS while gameplay wants it AND the platform/ad/modal gate
  * allows it (`setSuspended`). A suspended loop cancels its RAF outright — a
@@ -31,9 +35,6 @@ export interface GameMode {
   dispose(): void
 }
 
-const STEP = 1 / 60
-const MAX_STEPS = 5
-
 class GameApp {
   mode: GameMode | null = null
   private raf = 0
@@ -42,6 +43,7 @@ class GameApp {
   private wants = false
   private suspended = false
   private container: HTMLElement | null = null
+  private scale = 1
   private ro: ResizeObserver | null = null
   /** Rolling frame stats for the perf meter. */
   frameMs = 16.7
@@ -93,6 +95,21 @@ class GameApp {
       mode.enter?.()
     }
     this.acc = 0
+    // A mode never inherits the last one's slow motion.
+    this.setTimeScale(1)
+  }
+
+  /** The simulation's speed: 1 is real time, 0.1 a kill-cam, 0 a freeze. */
+  get timeScale(): number {
+    return this.scale
+  }
+
+  /** Change the simulation's speed. The render keeps its real frame time. */
+  setTimeScale(scale: number): void {
+    const s = Number.isFinite(scale) ? Math.max(0, scale) : 1
+    if (s === this.scale) return
+    this.scale = s
+    emit('timeScale', { scale: s })
   }
 
   /** Gameplay wants the loop (a mode is active and not ended). */
@@ -141,18 +158,13 @@ class GameApp {
     // Perf seam (`?perfprobe=1`, see PERF-LEDGER.md): a const-false no-op in
     // every player's session.
     frameStart(now)
-    this.acc += dt
-    let n = 0
+    const tick = advance(this.acc, dt, this.scale)
+    this.acc = tick.acc
     phaseStart('step')
-    while (this.acc >= STEP && n < MAX_STEPS) {
-      mode.update(STEP, n === 0)
-      this.acc -= STEP
-      n++
-    }
+    for (let n = 0; n < tick.steps; n++) mode.update(STEP, n === 0)
     phaseEnd('step')
-    if (n === MAX_STEPS) this.acc = 0
     phaseStart('draw')
-    mode.render(this.acc / STEP, dt)
+    mode.render(tick.alpha, dt)
     phaseEnd('draw')
     frameEnd()
   }

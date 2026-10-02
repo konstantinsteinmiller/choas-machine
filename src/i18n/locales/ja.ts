@@ -12,33 +12,20 @@ export default {
     'pause': '一時停止',
     'menu': 'メニュー',
     'home': 'ホーム',
-    'info': '情報'
-  },
-  'combat': {
-    'slide': 'スライディング'
-  },
-  'hud': {
-    'bolts': 'ネジ'
-  },
-  'interact': {
-    'chest': '開ける'
+    'info': '情報',
+    'mute': 'ミュート',
+    'unmute': 'ミュート解除'
   },
   'pause': {
     'title': 'ポーズ中',
     'resume': '再開',
     'controls': '操作方法'
   },
-  'hub': {
-    'tab': {
-      'workshop': '工房'
-    }
-  },
   'options': {
     'killCams': 'キルカメラ',
     'gameplay': 'ゲームプレイ',
     'title': '設定',
     'general': '一般',
-    'audio': 'オーディオ',
     'language': '言語',
     'soundEffects': '効果音',
     'music': '音楽',
@@ -75,7 +62,7 @@ export default {
   },
   'saveStatus': {
     'restoredTitle': 'クラウドセーブを復元しました',
-    'restoredBody': '復元ボーナス +{n} ネジ',
+    'restoredBody': '復旧ボーナス：+{n}',
     'tap': 'タップ',
     'pausedTitle': 'クラウド同期を一時停止中',
     'pausedBody': 'オフラインでプレイ中です。進行状況はここに保存されます。',

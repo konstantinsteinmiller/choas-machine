@@ -12,33 +12,20 @@ export default {
     'pause': 'Pausa',
     'menu': 'Menú',
     'home': 'Inicio',
-    'info': 'Info'
-  },
-  'combat': {
-    'slide': 'Deslizar'
-  },
-  'hud': {
-    'bolts': 'Tornillos'
-  },
-  'interact': {
-    'chest': 'Abrir'
+    'info': 'Info',
+    'mute': 'Silenciar',
+    'unmute': 'Activar sonido'
   },
   'pause': {
     'title': 'PAUSA',
     'resume': 'Reanudar',
     'controls': 'Controles'
   },
-  'hub': {
-    'tab': {
-      'workshop': 'Taller'
-    }
-  },
   'options': {
     'killCams': 'Cámara de derribo',
     'gameplay': 'Jugabilidad',
     'title': 'Opciones',
     'general': 'General',
-    'audio': 'Audio',
     'language': 'Idioma',
     'soundEffects': 'Efectos de sonido',
     'music': 'Música',
@@ -75,7 +62,7 @@ export default {
   },
   'saveStatus': {
     'restoredTitle': 'Guardado en la nube restaurado',
-    'restoredBody': '+{n} tornillos de bonificación por la recuperación',
+    'restoredBody': 'Bonus de recuperación: +{n}',
     'tap': 'toca',
     'pausedTitle': 'Sincronización pausada',
     'pausedBody': 'Jugando sin conexión. Tu progreso se guarda aquí.',

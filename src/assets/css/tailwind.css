@@ -1,1 +1,22 @@
 @import "tailwindcss";
+
+/* The synthwave palette as Tailwind utilities (`bg-cm-panel`, `text-cm-cyan`,
+   `border-cm-pink`...). The values live in tokens.sass; this only names them. */
+@theme inline {
+  --color-cm-ink: var(--cm-ink);
+  --color-cm-night: var(--cm-night);
+  --color-cm-panel: var(--cm-panel);
+  --color-cm-panel-hi: var(--cm-panel-hi);
+  --color-cm-pink: var(--cm-pink);
+  --color-cm-pink-hi: var(--cm-pink-hi);
+  --color-cm-cyan: var(--cm-cyan);
+  --color-cm-cyan-hi: var(--cm-cyan-hi);
+  --color-cm-violet: var(--cm-violet);
+  --color-cm-lilac: var(--cm-lilac);
+  --color-cm-text: var(--cm-text);
+  --color-cm-dim: var(--cm-dim);
+  --color-cm-ok: var(--cm-ok);
+  --color-cm-warn: var(--cm-warn);
+  --color-cm-danger: var(--cm-danger);
+  --font-ui: var(--font-ui);
+}

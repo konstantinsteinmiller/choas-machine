@@ -12,33 +12,20 @@ export default {
     'pause': 'Tauko',
     'menu': 'Valikko',
     'home': 'Alkuun',
-    'info': 'Tietoa'
-  },
-  'combat': {
-    'slide': 'Liu\'u'
-  },
-  'hud': {
-    'bolts': 'Pultit'
-  },
-  'interact': {
-    'chest': 'Avaa'
+    'info': 'Tietoa',
+    'mute': 'Mykistä',
+    'unmute': 'Poista mykistys'
   },
   'pause': {
     'title': 'TAUKO',
     'resume': 'Jatka',
     'controls': 'Ohjaimet'
   },
-  'hub': {
-    'tab': {
-      'workshop': 'Paja'
-    }
-  },
   'options': {
     'killCams': 'Tuhokamera',
     'gameplay': 'Pelattavuus',
     'title': 'Asetukset',
     'general': 'Yleiset',
-    'audio': 'Ääni',
     'language': 'Kieli',
     'soundEffects': 'Ääniefektit',
     'music': 'Musiikki',
@@ -75,7 +62,7 @@ export default {
   },
   'saveStatus': {
     'restoredTitle': 'Pilvitallennus palautettu',
-    'restoredBody': '+{n} bonuspulttia palautuksesta',
+    'restoredBody': 'Palautusbonus: +{n}',
     'tap': 'napauta',
     'pausedTitle': 'Pilvisynkronointi keskeytetty',
     'pausedBody': 'Pelaat offline-tilassa. Edistymisesi tallennetaan tänne.',

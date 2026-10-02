@@ -30,13 +30,6 @@ export const ICON_LABEL_KEYS: Partial<Record<GameIconName, string>> = {
   info: 'ui.info',
   // Named by the screens they open.
   settings: 'options.title',
-  shop: 'hub.tab.workshop',
-  anvil: 'hub.tab.workshop',
-  chest: 'interact.chest',
-  // The currency glyph is named by the currency.
-  nut: 'hud.bolts',
-  // The dodge glyph is named by the move it stands for.
-  dodge: 'combat.slide',
   close: 'close',
   music: 'options.music',
   'music-off': 'options.music',

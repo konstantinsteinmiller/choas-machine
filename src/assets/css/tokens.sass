@@ -1,0 +1,65 @@
+// ─── Design tokens ──────────────────────────────────────────────────────────
+//
+// The synthwave palette of the GDD (neon pink, vibrant cyan, deep purples) as
+// custom properties. Every component colours itself from these, so the look
+// is changed here and nowhere else. `tailwind.css` exposes the same values as
+// `cm-*` utilities.
+:root
+  // Grounds, darkest first.
+  --cm-ink: #150c2b
+  --cm-night: #1f1244
+  --cm-panel: #2b1b5c
+  --cm-panel-hi: #3d2a80
+  // Neon.
+  --cm-pink: #ff4fb6
+  --cm-pink-hi: #ff8fd2
+  --cm-pink-deep: #a91d70
+  --cm-cyan: #4de8ff
+  --cm-cyan-hi: #a8f5ff
+  --cm-cyan-deep: #0f7fa3
+  --cm-violet: #9a78ff
+  --cm-lilac: #cbbcff
+  // Text.
+  --cm-text: #f6f1ff
+  --cm-dim: #b2a4dc
+  // Meaning.
+  --cm-ok: #4dffb0
+  --cm-ok-deep: #0c7a55
+  --cm-warn: #ffd23f
+  --cm-warn-deep: #9a6a00
+  --cm-danger: #ff5576
+  --cm-danger-deep: #8c1232
+
+  // A translucent panel body: the fortress stays faintly visible behind it.
+  --cm-glass: rgba(31, 18, 68, 0.9)
+  --cm-glass-soft: rgba(31, 18, 68, 0.72)
+  // The dark outline every caption wears, so text reads on any ground.
+  --cm-text-outline: 0.06em 0.08em 0 var(--cm-ink), -0.04em -0.04em 0 var(--cm-ink), 0.04em -0.04em 0 var(--cm-ink), -0.04em 0.04em 0 var(--cm-ink)
+  // Neon halos. Kept as `box-shadow`: it is composited once, where a
+  // `filter: drop-shadow` re-rasterises its element on every change.
+  --cm-glow-cyan: 0 0 0.75em rgba(77, 232, 255, 0.45)
+  --cm-glow-pink: 0 0 0.75em rgba(255, 79, 182, 0.5)
+
+  // Edges and radii, fluid between a 320 px phone and a desktop.
+  --cm-edge: clamp(1.5px, 0.35vmin, 3px)
+  --cm-radius-s: clamp(0.4rem, 1.6vmin, 0.7rem)
+  --cm-radius-m: clamp(0.6rem, 2.4vmin, 1.1rem)
+  --cm-radius-l: clamp(0.9rem, 3.4vmin, 1.7rem)
+
+  // Type scale, sized off the SHORTER viewport side so a landscape phone and a
+  // portrait phone get the same reading size.
+  --cm-fs-xs: clamp(0.62rem, 2.3vmin, 0.85rem)
+  --cm-fs-s: clamp(0.72rem, 2.7vmin, 1rem)
+  --cm-fs-m: clamp(0.85rem, 3.2vmin, 1.2rem)
+  --cm-fs-l: clamp(1.05rem, 4.2vmin, 1.7rem)
+  --cm-fs-xl: clamp(1.35rem, 5.6vmin, 2.4rem)
+
+  // The gutter between the screen edge and the HUD, safe area included.
+  --cm-gutter: clamp(0.4rem, 1.8vmin, 1rem)
+  --cm-safe-top: calc(var(--cm-gutter) + env(safe-area-inset-top, 0px))
+  --cm-safe-right: calc(var(--cm-gutter) + env(safe-area-inset-right, 0px))
+  --cm-safe-bottom: calc(var(--cm-gutter) + env(safe-area-inset-bottom, 0px))
+  --cm-safe-left: calc(var(--cm-gutter) + env(safe-area-inset-left, 0px))
+
+  // One HUD control: never under the 40 px touch floor.
+  --cm-chip: clamp(2.5rem, 9.5vmin, 3.5rem)

@@ -7,121 +7,129 @@ interface Props {
   max?: number
   step?: number
   label?: string
-  colorFrom?: string
-  colorTo?: string
-  trackColor?: string
 }
 
 const props = withDefaults(defineProps<Props>(), {
   modelValue: 50,
   min: 0,
   max: 100,
-  step: 1,
-  colorFrom: '#ffcd00', // Brawl Yellow
-  colorTo: '#f7a000',
-  trackColor: '#1a2b4b' // Dark Blue depth
+  step: 1
 })
 
 const emit = defineEmits(['update:modelValue'])
 
-const progress = computed(() => {
-  return ((props.modelValue - props.min) / (props.max - props.min)) * 100
+/** How full the track is, 0..1. A zero-width range reads as empty. */
+const fill = computed(() => {
+  const span = props.max - props.min
+  return span > 0 ? Math.min(1, Math.max(0, (props.modelValue - props.min) / span)) : 0
 })
 
-const updateValue = (event: Event) => {
-  const target = event.target as HTMLInputElement
-  emit('update:modelValue', Number(target.value))
+const updateValue = (event: Event): void => {
+  emit('update:modelValue', Number((event.target as HTMLInputElement).value))
 }
 </script>
 
 <template lang="pug">
-  div.f-slider-container(class="w-full")
-    //- Label (Optional)
-    div(v-if="label" class="slider-label mb-2 text-white font-black uppercase italic tracking-wider") {{ label }}
-
-    div.f-slider__row(class="relative flex items-center")
-      //- Custom Track Background (The 3D "Well")
-      div(
-        class="f-slider__track absolute inset-0 my-auto rounded-full border-[3px] border-[#0f1a30] overflow-hidden bg-[#0a1425]"
-      )
-        //- Progress Fill
-        div(
-          class="h-full transition-all duration-75 relative"
-          :style="{ \
-            width: `${progress}%`, \
-            backgroundImage: `linear-gradient(to bottom, ${colorFrom}, ${colorTo})` \
-          }"
-        )
-          //- Inner Shine for the fill
-          span(class="absolute inset-x-0 top-0 h-1/2 bg-white/20")
-
-      //- Native Input (Invisible but functional)
-      input(
+  label.f-slider(:style="{ '--fsl-fill': fill }")
+    span.f-slider__label(v-if="label") {{ label }}
+    span.f-slider__row
+      span.f-slider__track(aria-hidden="true")
+        span.f-slider__fill
+      span.f-slider__thumb(aria-hidden="true")
+      //- The native range sits on top, invisible: it owns the dragging, the
+      //- keyboard and the accessibility; the spans under it are the paint.
+      input.f-slider__input(
         type="range"
         :min="min"
         :max="max"
         :step="step"
         :value="modelValue"
         @input="updateValue"
-        class="f-slider__input absolute inset-0 w-full opacity-0 cursor-pointer z-10 touch-manipulation"
       )
-
-      //- Custom Thumb (Visual Only)
-      div(
-        class="thumb-visual pointer-events-none absolute flex items-center justify-center transition-transform"
-        :style="{ left: `calc(${progress}% - var(--fsl-thumb) / 2)` }"
-      )
-        //- The "3D Shadow" of the thumb
-        span(class="absolute inset-0 translate-y-[3px] bg-[#102e7a] rounded-xl border-[3px] border-[#0f1a30]")
-        //- The Main Thumb Body
-        span(class="relative block inset-0 w-full h-full bg-[#50aaff] rounded-xl border-[3px] border-[#0f1a30] overflow-hidden")
-          //- Thumb Shine
-          span(class="absolute inset-x-0 top-0 h-1/2 bg-white/30")
-          //- Little Detail (Vertical Line)
-          span(class="absolute inset-0 flex items-center justify-center")
-            span(class="w-1.5 h-4 bg-white/50 rounded-full")
 </template>
 
 <style scoped lang="sass">
-.slider-label
-  font-size: clamp(0.75rem, 3.2vw, 1.1rem)
-  text-shadow: 2px 2px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000
-
-.f-slider-container
-  // Thumb size drives the row height, the track height AND the left offset, so
-  // all three stay in sync at any viewport instead of the old hard-coded 40px.
-  --fsl-thumb: clamp(2rem, 9vw, 2.5rem)
-  padding-block: clamp(0.4rem, 2vw, 1rem)
+.f-slider
+  // The thumb size drives the row height, the track inset and the thumb's
+  // travel, so all three stay in step at any viewport.
+  --fsl-thumb: clamp(1.9rem, 7.5vmin, 2.5rem)
+  display: flex
+  flex-direction: column
+  gap: 0.3em
+  width: 100%
+  // A slider squeezed below this is no longer draggable with a thumb.
+  min-width: 7rem
+  font-size: var(--cm-fs-m)
   -webkit-tap-highlight-color: transparent
 
+.f-slider__label
+  color: var(--cm-dim)
+  font-size: var(--cm-fs-s)
+  text-transform: uppercase
+  letter-spacing: 0.05em
+
 .f-slider__row
+  position: relative
+  display: block
   height: var(--fsl-thumb)
 
 .f-slider__track
-  height: calc(var(--fsl-thumb) * 0.6)
+  position: absolute
+  inset-inline: 0
+  top: 50%
+  height: calc(var(--fsl-thumb) * 0.42)
+  translate: 0 -50%
+  border: var(--cm-edge) solid var(--cm-cyan-deep)
+  border-radius: 999px
+  background: var(--cm-ink)
+  overflow: hidden
 
-.f-slider__input
-  height: var(--fsl-thumb)
+.f-slider__fill
+  display: block
+  height: 100%
+  // The fill ends under the thumb's centre at every value.
+  width: calc(var(--fsl-thumb) / 2 + (100% - var(--fsl-thumb)) * var(--fsl-fill))
+  background-image: linear-gradient(to right, var(--cm-pink), var(--cm-cyan))
 
-.thumb-visual
+.f-slider__thumb
+  position: absolute
+  top: 0
+  left: calc((100% - var(--fsl-thumb)) * var(--fsl-fill))
   width: var(--fsl-thumb)
   height: var(--fsl-thumb)
+  box-sizing: border-box
+  border: var(--cm-edge) solid var(--cm-text)
+  border-radius: 50%
+  background: radial-gradient(circle at 35% 30%, var(--cm-cyan-hi), var(--cm-cyan) 60%, var(--cm-cyan-deep))
+  box-shadow: var(--cm-glow-cyan)
+  pointer-events: none
 
-/* Ensure the native range covers the whole area for better hitboxes */
-input[type="range"]
+.f-slider__input
+  position: absolute
+  inset: 0
+  width: 100%
+  height: 100%
+  margin: 0
+  opacity: 0
+  cursor: pointer
+  // The page forbids panning; a slider drag is horizontal by nature.
+  touch-action: pan-y
   -webkit-appearance: none
+  appearance: none
   background: transparent
 
   &::-webkit-slider-thumb
     -webkit-appearance: none
     width: var(--fsl-thumb)
     height: var(--fsl-thumb)
-    cursor: pointer
 
   &::-moz-range-thumb
     width: var(--fsl-thumb)
     height: var(--fsl-thumb)
-    cursor: pointer
-    border: none
+    border: 0
     background: transparent
+
+.f-slider__input:focus-visible ~ .f-slider__thumb, .f-slider__row:focus-within .f-slider__thumb
+  outline: var(--cm-edge) solid var(--cm-text)
+  outline-offset: 0.15em
 </style>

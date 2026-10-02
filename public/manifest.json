@@ -10,8 +10,8 @@
   "orientation": "any",
   "start_url": "./",
   "scope": "./",
-  "theme_color": "#2a1b4d",
-  "background_color": "#2a1b4d",
+  "theme_color": "#150c2b",
+  "background_color": "#150c2b",
   "icons": [
     {
       "src": "icons/icon-192.png",

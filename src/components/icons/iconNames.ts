@@ -7,8 +7,8 @@
  * so a typo in a call site is a compile error instead of a silently blank
  * button.
  *
- * The redesign replaced most button captions with glyphs, which makes this list
- * load-bearing: `next` is no longer the word "Next", it is `skip-forward`.
+ * Most buttons carry a glyph rather than a caption, which makes this list
+ * load-bearing: `next` is not the word "Next", it is `skip-forward`.
  */
 export const GAME_ICON_NAMES = [
   // Transport / run control
@@ -16,71 +16,19 @@ export const GAME_ICON_NAMES = [
   // Navigation
   'menu', 'home', 'back', 'forward', 'close', 'check',
   // Meta screens
-  // `anvil` is the upgrade shop's mark — a rising chevron over an anvil, on
-  // the HUD button and the result screen's button alike, so the thing tapped
-  // during a run and the thing tapped after it are one object — and
-  // `chest` is now the IDLE chest on the HUD, which pays coins for waiting.
-  // They were one glyph until the chest became a thing of its own; two
-  // buttons that do different things may not wear the same drawing.
-  'settings', 'shop', 'chest', 'anvil', 'video', 'ads', 'book', 'info', 'help',
+  'settings', 'forge', 'info', 'help', 'map', 'fortress',
   // Audio
   'music', 'music-off', 'sound', 'sound-off',
   // Progression
-  'lock', 'unlock', 'star', 'star-empty', 'trophy', 'chart', 'leaderboard',
+  'lock', 'unlock', 'star', 'star-empty', 'trophy', 'chart', 'leaderboard', 'ghost',
   // Steppers / arrows
   'plus', 'minus', 'left', 'right', 'up', 'down',
-  // Game nouns
-  'coin', 'gem', 'heart', 'flask', 'wheel', 'gift', 'fullscreen', 'share',
-  // ── Survivalist's own run nouns ────────────────────────────────────────────
-  // The five stats this game is actually about, added to the shared set because
-  // they were previously re-traced per component: `squad`, `bolt` and `rate`
-  // existed as byte-identical `d` strings in BOTH `RunHud.vue` and
-  // `UpgradeModal.vue`, which is the exact duplication this module exists to
-  // end. Geometry moved verbatim from those call sites — they are tuned against
-  // each other's weight in the HUD strip, so redraw them together or not at all.
-  'squad', 'bolt', 'rate', 'range', 'flame', 'skull',
-  // Active skills — see `SkillBar.vue`. The last two are the late skills
-  // (`game/skills.ts`): a six-armed ice crystal and a burning flare stick.
-  'bomb', 'shield', 'snowflake', 'flare',
-  // The two per-stage weapons. They front a shop row AND the run's weapon
-  // badge, which is the same rule the five stat glyphs above follow: the thing
-  // bought and the thing carried must be one drawing, or the player has to
-  // learn the same object twice. See `game/weapons.ts`.
-  'rocket', 'gatling', 'grapeshot', 'dynamo', 'gravecall', 'hoard',
-  // The incoming-attack alarm. It lives in the shared set rather than inline in
-  // `IncomingWarning.vue` because that badge now asks `ArtIcon` for its mark,
-  // and `ArtIcon`'s floor is a glyph from this list — see `game/uiArt.ts`,
-  // which draws the same sign on a canvas for the reference sheet.
-  'warning',
-  'buster', 'helmet', 'armor', 'boots', 'chip',
-  // The hero himself: Flux's face (visor band, two eye-lights, the sensor
-  // blade) on his hub tab and his name plate. It was `helmet` until the face
-  // showed up on the helmet gear slot too; the character and a piece of his
-  // kit may not wear the same drawing.
-  'android',
-  // The currency. Bolts wore `bolt` (the lightning glyph) until a playtest
-  // showed the cost: ⚡ also marks the charged shot and the weapon-energy
-  // bar, and a tester called his Bolts "energy". The money is a hex nut now,
-  // the gold hexagon of the pickup's head; ⚡ means energy and charge only.
-  'nut',
-  // The Slide (the dodge). It wore `forward` until a phone tester read the
-  // arrow as "dash ahead" and was thrown when a slide with no stick hopped
-  // BACK. A slide goes wherever the stick points (back without one), so its
-  // mark is the move itself, a figure sliding low with speed lines, not a
-  // direction.
-  'dodge',
-  // Gale Guard's mark: three gusts, the top and middle ones curling off.
-  'wind',
-  // Magnet Pull's mark: a horseshoe magnet, its pole tips set apart.
-  'magnet',
-  // Drill Bomb's mark: a drill bit, its spiral flutes cut as gaps.
-  'drill',
-  // Bubble Lance's mark: a bubble with its highlight cut out.
-  'bubble',
-  // Neon Blade's mark: a boomerang crescent with a glint.
-  'blade',
-  // Drone Swarm's mark: three little drones, each a body under a rotor bar.
-  'drones'
+  // Currencies: Tech Scrap (a hex nut), Data Cores (a chip), Blueprints (a sheet)
+  'scrap', 'core', 'blueprint', 'gem', 'clock',
+  // The mech and its kit
+  'mech', 'sniper', 'minigun', 'rocket', 'blade', 'decoy', 'armor', 'shield', 'bolt', 'heart',
+  // In the field
+  'scope', 'eye', 'crouch', 'stand', 'warning', 'skull', 'drone', 'fullscreen', 'share'
 ] as const
 
 export type GameIconName = (typeof GAME_ICON_NAMES)[number]

@@ -1,13 +1,16 @@
 <script setup lang="ts">
+import GameIcon from '@/components/icons/GameIcon.vue'
+import type { GameIconName } from '@/components/icons/iconNames'
+
 export interface TabOption {
   label: string
   value: string | number
-  /** Optional image icon shown instead of the label. */
-  icon?: string
+  /** A glyph from the shared set, drawn before the label. */
+  icon?: GameIconName
 }
 
 interface Props {
-  modelValue: string | number
+  modelValue?: string | number
   options: TabOption[]
 }
 
@@ -20,9 +23,8 @@ const selectTab = (value: string | number): void => {
 </script>
 
 <template lang="pug">
-  //- The row scrolls horizontally rather than wrapping: on a 320px phone with
-  //- four tabs, wrapping would push the modal content down and the previous
-  //- fixed padding compensation would no longer clear the header.
+  //- The row scrolls sideways rather than wrapping: on a 320px phone with
+  //- four tabs, wrapping would push the content down by a row.
   div.f-tabs(role="tablist")
     button.f-tabs__tab(
       v-for="tab in options"
@@ -33,93 +35,70 @@ const selectTab = (value: string | number): void => {
       :class="{ 'is-active': modelValue === tab.value }"
       @click="selectTab(tab.value)"
     )
-      span.f-tabs__shadow(aria-hidden="true")
-      span.f-tabs__body
-        img.f-tabs__icon(v-if="tab.icon" :src="tab.icon" :alt="tab.label" draggable="false")
-        span.f-tabs__label(v-else) {{ tab.label }}
+      GameIcon.f-tabs__icon(v-if="tab.icon" :name="tab.icon")
+      span.f-tabs__label {{ tab.label }}
 </template>
 
 <style scoped lang="sass">
 .f-tabs
   display: flex
-  align-items: flex-end
-  justify-content: center
-  gap: 0
+  align-items: stretch
+  gap: clamp(0.2rem, 1vmin, 0.5rem)
+  min-width: 0
   max-width: 100%
-  padding-inline: clamp(0.25rem, 2vw, 1rem)
   overflow-x: auto
   overflow-y: hidden
   scrollbar-width: none
+  // A tab scrolled half out of view snaps back in.
+  scroll-snap-type: x proximity
 
   &::-webkit-scrollbar
     display: none
 
 .f-tabs__tab
-  position: relative
   flex: 0 0 auto
-  // Floor so a tab can never render as an invisible sliver.
-  min-width: 3.25rem
-  min-height: 2.1rem
-  padding: 0
-  border: 0
-  background: none
+  display: inline-flex
+  align-items: center
+  justify-content: center
+  gap: 0.4em
+  // Floors so a tab can never render as an invisible sliver.
+  min-width: 2.75rem
+  min-height: 2.5rem
+  padding: clamp(0.25rem, 1.2vmin, 0.5rem) clamp(0.6rem, 2.8vmin, 1.2rem)
+  border: var(--cm-edge) solid transparent
+  border-radius: var(--cm-radius-s)
+  background: rgba(255, 255, 255, 0.06)
+  color: var(--cm-dim)
+  font-size: var(--cm-fs-s)
   cursor: pointer
-  opacity: 0.8
-  transition: transform 140ms ease-out, opacity 140ms ease-out
+  scroll-snap-align: center
+  transition: background-color 140ms ease-out, color 140ms ease-out, border-color 140ms ease-out
   -webkit-tap-highlight-color: transparent
 
   &:hover
-    opacity: 1
+    color: var(--cm-text)
+    background: rgba(255, 255, 255, 0.12)
 
-  &:active
-    transform: scale(0.94)
+  &:focus-visible
+    outline: var(--cm-edge) solid var(--cm-text)
+    outline-offset: -0.2em
 
+  // The active tab lights up in place. It does not lift or grow: nothing a
+  // scrolling row could clip, and no neighbour moves when it changes.
   &.is-active
-    z-index: 10
-    opacity: 1
-    translate: 0 -0.25rem
-
-.f-tabs__shadow
-  position: absolute
-  inset: 0
-  transform: translateY(3px)
-  border-radius: clamp(0.5rem, 2.4vw, 1rem) clamp(0.5rem, 2.4vw, 1rem) 0 0
-  background-color: #0f1a30
-
-.f-tabs__body
-  position: relative
-  display: flex
-  align-items: center
-  justify-content: center
-  min-height: 2.1rem
-  padding: clamp(0.2rem, 1vw, 0.4rem) clamp(0.6rem, 3.2vw, 1.35rem)
-  border-inline: 4px solid #0f1a30
-  border-top: 4px solid #0f1a30
-  border-radius: clamp(0.5rem, 2.4vw, 1rem) clamp(0.5rem, 2.4vw, 1rem) 0 0
-  background-color: #2a4372
-  color: #8fa7d1
-  transition: background-color 140ms ease-out
-
-  .f-tabs__tab:hover &
-    background-color: #34538d
-
-  .f-tabs__tab.is-active &
-    background-image: linear-gradient(to bottom, #ffcd00, #f7a000)
-    color: #fff
-    box-shadow: inset 0 4px 0 rgba(255, 255, 255, 0.4)
+    border-color: var(--cm-cyan)
+    background: rgba(77, 232, 255, 0.16)
+    color: var(--cm-cyan-hi)
+    box-shadow: inset 0 0 0.8em rgba(77, 232, 255, 0.25)
 
 .f-tabs__label
-  font-weight: 900
-  font-style: italic
   text-transform: uppercase
-  letter-spacing: 0.05em
+  letter-spacing: 0.04em
   white-space: nowrap
-  font-size: clamp(0.65rem, 2.9vw, 1rem)
-  text-shadow: 2px 2px 0 #000
+  line-height: 1.1
 
-.f-tabs__icon
-  width: clamp(1.15rem, 5vw, 1.75rem)
-  height: clamp(1.15rem, 5vw, 1.75rem)
-  object-fit: contain
-  pointer-events: none
+.f-tabs__tab .f-tabs__icon
+  flex: 0 0 auto
+  width: 1.2em
+  height: 1.2em
 </style>

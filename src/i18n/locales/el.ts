@@ -12,33 +12,20 @@ export default {
     'pause': 'Παύση',
     'menu': 'Μενού',
     'home': 'Αρχική',
-    'info': 'Πληροφορίες'
-  },
-  'combat': {
-    'slide': 'Γλίστρημα'
-  },
-  'hud': {
-    'bolts': 'Μπουλόνια'
-  },
-  'interact': {
-    'chest': 'Άνοιξε'
+    'info': 'Πληροφορίες',
+    'mute': 'Σίγαση',
+    'unmute': 'Ενεργοποίηση ήχου'
   },
   'pause': {
     'title': 'ΠΑΥΣΗ',
     'resume': 'Συνέχεια',
     'controls': 'Χειριστήρια'
   },
-  'hub': {
-    'tab': {
-      'workshop': 'Συνεργείο'
-    }
-  },
   'options': {
     'killCams': 'Κάμερα φινάλε',
     'gameplay': 'Παιχνίδι',
     'title': 'Ρυθμίσεις',
     'general': 'Γενικά',
-    'audio': 'Ήχος',
     'language': 'Γλώσσα',
     'soundEffects': 'Ηχητικά εφέ',
     'music': 'Μουσική',
@@ -75,7 +62,7 @@ export default {
   },
   'saveStatus': {
     'restoredTitle': 'Η αποθήκευση στο νέφος επανήλθε',
-    'restoredBody': '+{n} μπουλόνια μπόνους για την ανάκτηση',
+    'restoredBody': 'Μπόνους ανάκτησης: +{n}',
     'tap': 'πάτα',
     'pausedTitle': 'Ο συγχρονισμός νέφους σε παύση',
     'pausedBody': 'Παίζεις εκτός σύνδεσης. Η πρόοδός σου αποθηκεύεται εδώ.',

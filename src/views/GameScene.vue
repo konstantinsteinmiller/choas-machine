@@ -1,6 +1,8 @@
 <template lang="pug">
   div.scene-root
     div.canvas-host(ref="canvasHost")
+    div.hud-layer
+      SystemCorner(v-if="flow.screen === 'base'")
 </template>
 
 <script setup lang="ts">
@@ -15,6 +17,7 @@ import { isGameplayLive, syncGameplayLifecycle } from '@/use/useGameplayLifecycl
 import { startGameMusic } from '@/use/useSound'
 import { toggleGameMute } from '@/use/useGameMute'
 import { registerGameCheats } from '@/game/cheats'
+import SystemCorner from '@/components/hud/SystemCorner.vue'
 
 /**
  * The one game view. Hosts the canvas and whichever UI the flow is in — the
@@ -89,7 +92,7 @@ onUnmounted(() => {
   position: fixed
   inset: 0
   overflow: hidden
-  background: #2a1b4d
+  background: #150c2b
 .canvas-host
   position: absolute
   inset: 0
@@ -98,4 +101,10 @@ onUnmounted(() => {
     width: 100%
     height: 100%
     touch-action: none
+// The HUD lets every press through to the canvas; each control takes its own
+// pointers back (`pointer-events: auto` in the control).
+.hud-layer
+  position: absolute
+  inset: 0
+  pointer-events: none
 </style>
