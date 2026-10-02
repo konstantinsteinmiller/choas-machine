@@ -24,7 +24,7 @@ const { chromium } = require('playwright-core')
 const argv = process.argv.slice(2)
 const di = argv.indexOf('--dist')
 let server = null
-let url = argv.find(a => a.startsWith('http')) ?? 'http://localhost:2194/'
+let url = argv.find(a => a.startsWith('http')) ?? 'http://localhost:2196/'
 if (di >= 0) {
   const ROOT = resolve(argv[di + 1])
   const TYPES = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css', '.json': 'application/json', '.png': 'image/png', '.svg': 'image/svg+xml', '.ico': 'image/x-icon', '.woff2': 'font/woff2', '.woff': 'font/woff', '.webp': 'image/webp' }

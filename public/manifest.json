@@ -1,7 +1,7 @@
 {
-  "name": "Mega Droid",
-  "short_name": "Mega Droid",
-  "description": "Beam into machine-infested sectors as Flux, a pearl-white combat android with a plasma-lit visor. Explore, blast rogue robots with your charge cannon, loot chests, take on missions and upgrade your circuits.",
+  "name": "Chaos Machine",
+  "short_name": "Chaos Machine",
+  "description": "Infiltrate neon fortresses as a silent mech. Snipe guards, strike from the shadows with your energy blade, or go loud with minigun and rockets when the alarm sounds.",
   "display": "standalone",
   "display_override": [
     "fullscreen",
@@ -10,8 +10,8 @@
   "orientation": "any",
   "start_url": "./",
   "scope": "./",
-  "theme_color": "#0a1224",
-  "background_color": "#0a1224",
+  "theme_color": "#2a1b4d",
+  "background_color": "#2a1b4d",
   "icons": [
     {
       "src": "icons/icon-192.png",

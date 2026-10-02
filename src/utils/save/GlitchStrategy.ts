@@ -17,7 +17,6 @@ import {
   type SaveMeta
 } from './SaveMergePolicy'
 import { STATE_KEY } from '@/use/useGameState'
-import { LEGACY_KEYS, adoptLegacyField } from '@/legacyKeys'
 
 // ─── Glitch save strategy ──────────────────────────────────────────────────
 //
@@ -222,15 +221,6 @@ export class GlitchStrategy implements SaveStrategy {
       // overwrite the (possibly-recoverable) local state with garbage.
       this.setState('failed-retrying', 'remote payload decode failed')
       return
-    }
-
-    // A slot saved before the rename (Mega Adventure → Mega Droid) holds the
-    // blob under the legacy key. Re-file it under STATE_KEY before it is scored
-    // or copied to local (the new key wins if the slot has both), and re-upload
-    // straight away: the upload is the whole local payload, so the slot then
-    // carries only the new name.
-    if (remotePayload && adoptLegacyField(remotePayload, LEGACY_KEYS.STATE, STATE_KEY)) {
-      this.dirty = true
     }
 
     // Run the merge policy: build remote/local meta, decide winner,

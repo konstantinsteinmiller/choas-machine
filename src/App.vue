@@ -11,7 +11,6 @@ import useAssets from '@/use/useAssets'
 import FLogoProgress from '@/components/atoms/FLogoProgress.vue'
 import FPerfMeter from '@/components/atoms/FPerfMeter.vue'
 import SaveStatusBanner from '@/components/atoms/SaveStatusBanner.vue'
-import AdsBlockedModal from '@/components/atoms/AdsBlockedModal.vue'
 import VConsoleHideButton from '@/components/atoms/VConsoleHideButton.vue'
 import GlLostVeil from '@/components/atoms/GlLostVeil.vue'
 import { useCrazyMuteSync } from '@/use/useCrazyMuteSync'
@@ -154,7 +153,6 @@ const VConsoleHide = import.meta.env.VITE_APP_NATIVE === 'true' || import.meta.e
     FLogoProgress
     FPerfMeter(v-if="isDebug" :offset-y="52")
     SaveStatusBanner
-    AdsBlockedModal
     GlLostVeil
     component(v-if="VConsoleHide" :is="VConsoleHide")
     RouterView

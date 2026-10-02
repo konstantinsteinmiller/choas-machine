@@ -139,7 +139,7 @@ const runOnce = async (base) => {
 
   const evalIn = (expression) => send('Runtime.evaluate', { expression, returnByValue: true, awaitPromise: true }, S)
 
-  const seed = STAGE > 0 ? `try { localStorage.setItem('mega_droid_state', JSON.stringify({
+  const seed = STAGE > 0 ? `try { localStorage.setItem('cmachine_state', JSON.stringify({
       ts_stage: ${STAGE}, ts_coins: 50000, ts_best_stage: ${STAGE - 1},
       ts_onboarded: true, ts_tutorial_seen: true, ts_results_seen: 6,
       ts_shop_spotlight_seen: true, ts_guard_hint_seen: true,

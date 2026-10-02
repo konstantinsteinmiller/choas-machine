@@ -1,6 +1,6 @@
 // ─── Playgama save strategy (Bridge v2) ────────────────────────────────────
 //
-// Mirrors the consolidated `mega_droid_state` blob and its `__save_meta__` through
+// Mirrors the consolidated `cmachine_state` blob and its `__save_meta__` through
 // `bridge.storage`. The same code runs on three backends, because the same
 // archive does:
 //
@@ -28,11 +28,8 @@
 //    still costs a full cloud round-trip per key; so the dirty map drains as a
 //    single `storage.set([keys], [values])`, one flight at a time.
 //
-// 3. ONLY THE SAVE CROSSES. `mega_droid_state` + `__save_meta__`, nothing else —
-//    dev toggles, perf flags and ad-tech scribbles stay on the device. A cloud
-//    save from before the rename holds its blob under `LEGACY_KEYS.STATE`: the
-//    hydrate read asks for it too, adopts it when the new key is empty, and the
-//    first push under the new key deletes the legacy one after it.
+// 3. ONLY THE SAVE CROSSES. `cmachine_state` + `__save_meta__`, nothing else —
+//    dev toggles, perf flags and ad-tech scribbles stay on the device.
 //
 // 4. THE CALL IS THE CERTIFICATION SIGNAL. The QA Tool's "Game Saves" check
 //    watches `bridge.storage.set`, so writes go through the Bridge even where
@@ -59,7 +56,6 @@ import type {
 } from './types'
 import { isInternalKey } from './types'
 import { STATE_KEY } from '@/use/useGameState'
-import { LEGACY_KEYS, adoptLegacyField } from '@/legacyKeys'
 import { META_KEY, computeMeta, decideMerge, parseMeta, serializeMeta } from './SaveMergePolicy'
 import { isDebug } from '@/use/useMatch'
 import { getPlaygamaBridge, isPlaygamaSdkActive } from '@/utils/playgamaPlugin'
@@ -137,9 +133,6 @@ export class PlaygamaStrategy implements SaveStrategy {
   private writeInFlight = new Map<string, string | null>()
   private retriesRun = 0
   private local: LocalStorageAccessor | null = null
-  /** The last cloud read found a pre-rename blob (`LEGACY_KEYS.STATE`). It is
-   *  deleted after the next push that carries STATE_KEY has landed. */
-  private legacyInCloud = false
 
   // ─── Hydrate ────────────────────────────────────────────────────────────
 
@@ -181,16 +174,10 @@ export class PlaygamaStrategy implements SaveStrategy {
     let remoteMetaRaw: string | null
     try {
       // ONE call for every key: on a whole-blob backend every read is a full
-      // download. `false` = do not JSON-parse, the blob is a string. The
-      // pre-rename key rides along so an old cloud save is found in the same
-      // round-trip (the new key wins when both are there).
-      const raw = await storage.get([STATE_KEY, META_KEY, LEGACY_KEYS.STATE], false)
-      const values = Array.isArray(raw) ? raw : [raw, null, null]
-      const remote: Record<string, string | null> = { [STATE_KEY]: asStoredString(values[0]) }
-      const legacy = asStoredString(values[2])
-      if (legacy !== null) remote[LEGACY_KEYS.STATE] = legacy
-      this.legacyInCloud = adoptLegacyField(remote, LEGACY_KEYS.STATE, STATE_KEY)
-      remoteState = remote[STATE_KEY] ?? null
+      // download. `false` = do not JSON-parse, the blob is a string.
+      const raw = await storage.get([STATE_KEY, META_KEY], false)
+      const values = Array.isArray(raw) ? raw : [raw, null]
+      remoteState = asStoredString(values[0])
       remoteMetaRaw = asStoredString(values[1])
     } catch (e) {
       console.warn(`${TAG} hydrate: storage.get failed`, e)
@@ -219,8 +206,6 @@ export class PlaygamaStrategy implements SaveStrategy {
       this.dirty.clear()
       local.set(STATE_KEY, remoteState)
       if (remoteMeta) local.set(META_KEY, serializeMeta(remoteMeta))
-      // An adopted pre-rename save goes straight back up under its new name.
-      if (this.legacyInCloud) this.dirty.set(STATE_KEY, remoteState)
       dlog(`${TAG} hydrate: ${resolution.kind} — cloud → local`)
       this.setState('success-with-data')
       return
@@ -229,24 +214,6 @@ export class PlaygamaStrategy implements SaveStrategy {
     dlog(`${TAG} hydrate: ${resolution.kind} — keeping local, queued for push`)
     this.setState('success-with-data')
     this.seedFromLocal(local)
-  }
-
-  /**
-   * Delete a pre-rename cloud blob, AFTER a push carrying STATE_KEY resolved —
-   * the legacy copy never goes before the new one has landed. Best-effort and
-   * outside the batch's re-queue: some Bridge backends reject deletes, and a
-   * failure there must not re-send the save every debounce. A copy left behind
-   * is harmless (the next read adopts it, the new key wins) and is retried then.
-   */
-  private async retireLegacyState(del: BridgeStorage['delete']): Promise<void> {
-    this.legacyInCloud = false
-    if (!del) return
-    try {
-      await del([LEGACY_KEYS.STATE])
-      dlog(`${TAG} retired the pre-rename cloud save`)
-    } catch (e) {
-      console.warn(`${TAG} retiring the pre-rename cloud save failed`, e)
-    }
   }
 
   /** Queue the local snapshot so the cloud catches up with it. */
@@ -358,7 +325,6 @@ export class PlaygamaStrategy implements SaveStrategy {
       for (const [k, v] of batch) this.writeInFlight.set(k, v)
       try {
         if (setKeys.length > 0) await set(setKeys, setValues)
-        if (this.legacyInCloud && setKeys.includes(STATE_KEY)) await this.retireLegacyState(del)
         if (deleteKeys.length > 0 && del) await del(deleteKeys)
         dlog(`${TAG} pushed ${setKeys.length} key(s), deleted ${deleteKeys.length}`)
       } catch (e) {

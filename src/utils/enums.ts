@@ -1,13 +1,5 @@
 import type { ENUM } from '@/types'
 
-export const DIFFICULTY = {
-  EASY: 'easy',
-  MEDIUM: 'medium',
-  HARD: 'hard'
-} as const
-
-export type Difficulties = (typeof DIFFICULTY)[keyof typeof DIFFICULTY]
-
 // Languages enabled in the OptionsModal picker. Each entry MUST have a
 // matching `src/i18n/locales/<code>.ts` file — the Vite glob in
 // `i18n/index.ts` registers each one as its own dynamic-import chunk so

@@ -10,7 +10,7 @@
 // in the DOM at the moment `gameReady()` reached the SDK.
 //
 // Pinned: the signal waits for the backdrop (the last loading layer) to finish
-// leaving, then for the scene to take input — hub, or a mission in `play` —
+// leaving, then for the scene to take input — the base, or a mission in `play` —
 // and is never withheld past a cap. Every other portal keeps its timing.
 
 import { readFileSync } from 'node:fs'
@@ -28,7 +28,7 @@ describe('whenInteractive', () => {
   it('holds through the boot and a mission\'s scripted beam-in, fires at "play" — once', async () => {
     const fn = vi.fn()
     whenInteractive(fn)
-    hud.phase = 'beamIn'
+    hud.phase = 'intro'
     await tick()
     expect(fn).not.toHaveBeenCalled()
     hud.phase = 'play'
@@ -41,8 +41,8 @@ describe('whenInteractive', () => {
     expect(fn).toHaveBeenCalledTimes(1)
   })
 
-  it('fires at once in the hub', () => {
-    hud.phase = 'hub'
+  it('fires at once in the base', () => {
+    hud.phase = 'base'
     const fn = vi.fn()
     whenInteractive(fn)
     expect(fn).toHaveBeenCalledTimes(1)

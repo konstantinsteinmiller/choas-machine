@@ -1,2 +1,2 @@
 // Test stand-in for `virtual:asset-overrides`: no drop-in files.
-export default { sfx: [] as string[], music: [] as string[], textures: [] as string[], voice: [] as string[] }
+export default { sfx: [] as string[], music: [] as string[], textures: [] as string[] }

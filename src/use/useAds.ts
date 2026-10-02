@@ -22,7 +22,6 @@ import { computed, ref } from 'vue'
 import { isCrazyWeb, isWaveDash, isItch, isGlitch, isGameDistribution, isPlaygama, isGamepix, isGameMonetize, isYandex, isPoki, isNative, showMediatorAds } from '@/use/useUser'
 import type { AdProvider } from './ads/types'
 import { resolveAdProvider } from '@/platforms/resolveAdProvider'
-import { isRewardedThrottled, recordRewardedGranted } from '@/use/useRewardedThrottle'
 import { isAdShowing, isGamePaused, acquireAppPause } from '@/use/useGamePause'
 import { installGamePauseAudio } from '@/use/useGamePauseAudio'
 import { __audioDebugSnapshot, killOneShotSfx } from '@/use/useAssets'
@@ -65,7 +64,7 @@ export const isAdsReady = computed(() => provider.isReady.value)
 // same UX as a no-fill SDK state. Anti-abuse for kids audience: caps
 // the watch-only reward farming pattern.
 export const isRewardedReady = computed(() =>
-  provider.isRewardedReady.value && !isRewardedThrottled.value
+  provider.isRewardedReady.value
 )
 export const isInterstitialReady = computed(() => provider.isInterstitialReady.value)
 /** True once the active ad provider has detected a browser-extension
@@ -201,7 +200,6 @@ export const showRewardedAd = async (): Promise<boolean> => {
   // contract callers already handle (no grant). The reward UI is
   // already hidden via `isRewardedReady`, so this branch only fires
   // if a placement somehow bypassed that check.
-  if (isRewardedThrottled.value) return false
   // Flip `isAdShowing` BEFORE the await. It OR's into `isGamePaused`,
   // which the audio orchestrator (`useGamePauseAudio`) watches with
   // `flush: 'sync'` — so the renderer pause AND the audio suspend both
@@ -232,9 +230,7 @@ export const showRewardedAd = async (): Promise<boolean> => {
     const call = provider.showRewardedAd(() => { opened = true })
     call.then((ok) => { granted = ok }, () => { granted = false })
     await awaitAdBounded(call, () => opened)
-    if (granted) {
-      recordRewardedGranted()
-    } else if (provider.isAdsBlocked.value && !provider.ownsAdBlockUi) {
+    if (!granted && provider.isAdsBlocked.value && !provider.ownsAdBlockUi) {
       // Skip the shared modal when the SDK shows its own ad-blocker notice
       // (CrazyGames) — stacking two popups was flagged by CG QA.
       showAdsBlockedModal()

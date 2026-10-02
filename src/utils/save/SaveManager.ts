@@ -7,7 +7,6 @@ import type {
 import { isInternalKey } from './types'
 import { SAVE_KEYS } from './SaveMergePolicy'
 import { STATE_KEY } from '@/use/useGameState'
-import { LEGACY_KEYS, migrateLegacyKey } from '@/legacyKeys'
 import { BlobStorage, type BlobStorageOptions } from './BlobStorage'
 
 // ─── SaveManager ───────────────────────────────────────────────────────────
@@ -68,12 +67,6 @@ export class SaveManager {
     this.rawClear = storage.clear.bind(storage)
     this.rawKey = storage.key.bind(storage)
     this.rawLength = () => storage.length
-    // A pre-rename blob (`LEGACY_KEYS.STATE`) must be under STATE_KEY BEFORE
-    // BlobStorage seeds: the seed takes payload keys only, so an unmoved legacy
-    // entry would never be read — and on CrazyGames `main.ts` then scrubs it.
-    // `useGameState` already did this at module load for `window.localStorage`;
-    // repeating it covers any storage handed in here, and is a no-op otherwise.
-    migrateLegacyKey(LEGACY_KEYS.STATE, STATE_KEY, storage)
     this.blob = new BlobStorage(storage, opts.blob)
   }
 
@@ -407,11 +400,11 @@ const shouldRunSanityGuard = (state: HydrateState, local: LocalStorageAccessor):
 }
 
 /**
- * Read one field out of the consolidated `mega_droid_state` blob, falling back to a
+ * Read one field out of the consolidated `cmachine_state` blob, falling back to a
  * top-level key read.
  *
  * This indirection is load-bearing: the game persists everything INSIDE one
- * localStorage entry, so a naive `local.get('ma_level')` always returns
+ * localStorage entry, so a naive `local.get('cm_cleared')` always returns
  * null and `localLooksFresh` would report "fresh" for every player — making the
  * boot-sanity guard fire (and cost 3 s of boot latency) on every single launch
  * of a returning player, while telling us nothing.
@@ -433,19 +426,14 @@ const readStateField = (local: LocalStorageAccessor, field: string): string | nu
 
 /**
  * "Does this device look like a brand-new install?" — the precondition for the
- * boot-sanity retry loop. Any signal of real progress (a level gained, a boss
- * beaten, a mission done, bolts banked) means the local snapshot is worth
+ * boot-sanity retry loop. Any signal of real progress (a fortress cleared, a
+ * medal earned, a mission done, scrap banked) means the local snapshot is worth
  * booting with and we don't stall the player waiting on the cloud.
  */
 const localLooksFresh = (local: LocalStorageAccessor): boolean => {
-  const level = parseInt(readStateField(local, SAVE_KEYS.LEVEL) ?? '1', 10) || 1
-  if (level > 1) return false
-  const story = parseInt(readStateField(local, SAVE_KEYS.STORY) ?? '0', 10) || 0
-  if (story > 0) return false
-  const done = parseInt(readStateField(local, SAVE_KEYS.QUESTS_DONE) ?? '0', 10) || 0
-  if (done > 0) return false
-  const bolts = parseInt(readStateField(local, SAVE_KEYS.COINS) ?? '0', 10) || 0
-  if (bolts > 0) return false
+  for (const field of [SAVE_KEYS.CLEARED, SAVE_KEYS.MEDALS, SAVE_KEYS.MISSIONS_DONE, SAVE_KEYS.COINS]) {
+    if ((parseInt(readStateField(local, field) ?? '0', 10) || 0) > 0) return false
+  }
   return true
 }
 

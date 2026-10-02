@@ -15,7 +15,6 @@ import type {
   SaveStrategy
 } from './types'
 import { STATE_KEY } from '@/use/useGameState'
-import { LEGACY_KEYS, adoptLegacyField } from '@/legacyKeys'
 
 // ─── CrazyGames data-module strategy (per-key) ─────────────────────────────
 //
@@ -39,10 +38,6 @@ import { LEGACY_KEYS, adoptLegacyField } from '@/legacyKeys'
 //   3. When hydrate fails, schedule a background retry ladder
 //      (5s → 15s → 45s → 2m → 5m → 15m loop) so a brief outage at boot
 //      heals on its own without requiring the player to relaunch.
-//   4. A save written before the rename (Mega Adventure → Mega Droid) lists
-//      its blob under `LEGACY_KEYS.STATE`. Hydrate re-files it under
-//      STATE_KEY; the flush uploads it under the new key and only THEN
-//      retires the legacy entry (`retireLegacyState`).
 
 const KEYS_MANIFEST = '__save_internal__crazy_keys'
 const FLUSH_DELAY_MS = 250
@@ -243,11 +238,6 @@ export class CrazyGamesStrategy implements SaveStrategy {
       }
     }
 
-    // A pre-rename save: its blob sits under the legacy key. Re-file it under
-    // STATE_KEY before anything counts, scores or applies the snapshot (the new
-    // key wins when sdk.data holds both). `lastSentByKey` then has no STATE_KEY
-    // entry for it, so the post-merge queue below uploads it under the new name.
-    adoptLegacyField(remoteSnapshot, LEGACY_KEYS.STATE, STATE_KEY)
     if (manifestRaw !== null) {
       this.lastSentByKey.set(KEYS_MANIFEST, manifestRaw)
       // Critical for cloud-only mode: sync the cloud manifest into the
@@ -434,8 +424,6 @@ export class CrazyGamesStrategy implements SaveStrategy {
       }
     }
 
-    await this.retireLegacyState(data)
-
     // Manifest write (also dedupe'd — every flush would otherwise re-send
     // the same JSON-stringified key list even when only META changed).
     try {
@@ -447,21 +435,6 @@ export class CrazyGamesStrategy implements SaveStrategy {
       }
     } catch (e) {
       console.warn('[save/crazy] manifest sync failed', e)
-    }
-  }
-
-  /** Drop a pre-rename blob (`LEGACY_KEYS.STATE`) that the manifest still
-   *  lists — but only once the blob is confirmed on sdk.data under STATE_KEY,
-   *  so a failed upload never leaves the player with neither copy. */
-  private async retireLegacyState(data: SdkDataModule): Promise<void> {
-    if (!this.readManifest().includes(LEGACY_KEYS.STATE)) return
-    if (typeof this.lastSentByKey.get(STATE_KEY) !== 'string') return
-    try {
-      await data.removeItem(LEGACY_KEYS.STATE)
-      this.lastSentByKey.set(LEGACY_KEYS.STATE, undefined)
-      this.untrackKey(LEGACY_KEYS.STATE)
-    } catch (e) {
-      console.warn('[save/crazy] retiring the pre-rename save failed', e)
     }
   }
 

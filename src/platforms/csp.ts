@@ -161,26 +161,6 @@ const CONNECT_BASE_EXTRA: ReadonlyArray<string> = [
   'https://*.getpantry.cloud'
 ]
 
-/**
- * The leaderboard worker's ORIGIN, or `null` when this build has none.
- *
- * ORIGIN ONLY, never the configured URL. `VITE_LEADERBOARD_URL` may carry a
- * path (a route prefix, a trailing slash), and a CSP source with a path is a
- * PATH PREFIX match — `https://host/api` would refuse `https://host/api2/top`
- * and, worse, silently narrow the policy in a way that only shows up as a
- * blocked request on someone else's phone. `URL.origin` throws on anything
- * malformed, and a typo'd env var must not take the whole build down with it:
- * a missing origin costs a leaderboard, a thrown build costs a release.
- */
-const leaderboardOrigin = (raw: string | undefined): string | null => {
-  if (!raw) return null
-  try {
-    return new URL(raw).origin
-  } catch {
-    return null
-  }
-}
-
 const CSP_DIRECTIVES = [
   'default-src', 'script-src', 'style-src', 'img-src',
   'connect-src', 'frame-src', 'media-src', 'font-src'
@@ -252,12 +232,6 @@ export const buildCsp = (env: Record<string, string>): string => {
       // open `https:` / `wss:` added below for ad-waterfall builds still
       // covers what's actually needed at runtime).
       ...(isYandex ? [] : CONNECT_BASE_EXTRA),
-      // The leaderboard worker. Omitted on Yandex for the same reason the rest
-      // of CONNECT_BASE_EXTRA is: their moderator greps the bundle — the CSP
-      // meta tag included — for third-party storage endpoints and rejects the
-      // draft. `.env.yandex.local` also empties the URL, so this is belt AND
-      // braces, and it has to be: the two switches fail independently.
-      ...(isYandex ? [] : [leaderboardOrigin(env.VITE_LEADERBOARD_URL)].filter((o): o is string => o !== null)),
       // GD / Playgama partner analytics / ad telemetry beacons.
       ...(adWaterfallBuild ? ['https:', 'wss:'] : [])
     ],

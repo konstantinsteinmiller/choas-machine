@@ -69,7 +69,7 @@ export const ANALYTICS = /gtag\s*\(|googletagmanager\.com|google-analytics\.com|
 
 /** Our own leaderboard Worker. External calls are banned on Playables, so the
  *  Playgama build bakes the board and must not carry the endpoint at all. */
-export const LEADERBOARD_WORKER = /workers\.dev|mega-adventure-leaderboard/i
+export const LEADERBOARD_WORKER = /workers\.dev/i
 
 /** YouTube is reached THROUGH the Bridge on this build — the game's own code
  *  must not talk to Playables' SDK directly. (index.html carries its tag, and
@@ -88,11 +88,9 @@ export const NOISE_HOSTS = ['vuejs.org', 'jcgt.org', 'github.com', 'mozilla.org'
 
 /** What only the vendored Bridge npm build carries (the exemption's
  *  fingerprint), and what only the game's code carries (proof it is not in
- *  there). Both storage-key prefixes count: the game writes `mega_droid_*`,
- *  and its pre-rename migration (src/legacyKeys.ts) still ships the
- *  `mega_adventure_*` names it reads. */
+ *  there): its log tags and its storage key. */
 const BRIDGE_FINGERPRINTS = ['jio_games', 'bridge-youtube-subscribe']
-const GAME_FINGERPRINTS = ['[playgama]', '[playgama-save]', 'mega_droid', 'mega_adventure']
+const GAME_FINGERPRINTS = ['[playgama]', '[playgama-save]', 'cmachine_state']
 
 const walk = (dir, out = []) => {
   for (const e of readdirSync(dir, { withFileTypes: true })) {

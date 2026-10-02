@@ -102,7 +102,7 @@ export const setI18nLocale = async (
  *      portal locale or the player's stored choice from `useUser`. Caller
  *      is responsible for picking the right source; this function does
  *      not touch sessionStorage (CG QA: NO locally-saved data).
- *   2. `mega_droid_state.ts_user_language` — the cloud-hydrated player
+ *   2. `cmachine_state.ts_user_language` — the cloud-hydrated player
  *      choice. On CG builds this has already been populated from
  *      `sdk.data` by `SaveManager.init()` before `main.ts` calls us.
  *   3. navigator.language short code — first-ever load with no portal

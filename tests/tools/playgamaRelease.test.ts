@@ -32,7 +32,7 @@ const CLEAN_HTML = `<!DOCTYPE html>
   <!-- YouTube Playables SDK: must stay first -->
   <script src="https://www.youtube.com/game_api/v1"></script>
   <script src="./js/storage-shim.js"></script>
-  <title>Mega Droid</title>
+  <title>Chaos Machine</title>
   <script type="module" crossorigin src="./assets/index-Abc123.js"></script>
 </head>
 <body><div id="app"></div></body>
@@ -104,13 +104,12 @@ describe('each rule fails the build that breaks it', () => {
     ['no vendored Bridge chunk', { 'assets/playgama-bridge-Xyz789.js': null }, 'Bridge v2 bundled from npm'],
     ['a Bridge v1 build bundled', { 'assets/playgama-bridge-Xyz789.js': BRIDGE.replace('"2.2.0"', '"1.32.0"') }, 'Bridge v2 bundled from npm'],
     ['game code hiding inside the exempt SDK chunk', { 'assets/playgama-bridge-Xyz789.js': `${BRIDGE};console.info("[playgama] ready")` }, 'the exempt SDK chunk holds only the SDK'],
-    ['the save layer hiding inside the exempt SDK chunk', { 'assets/playgama-bridge-Xyz789.js': `${BRIDGE};localStorage.getItem("mega_droid_state")` }, 'the exempt SDK chunk holds only the SDK'],
-    ['the pre-rename migration hiding inside the exempt SDK chunk', { 'assets/playgama-bridge-Xyz789.js': `${BRIDGE};const L={STATE:"mega_adventure_state"}` }, 'the exempt SDK chunk holds only the SDK'],
+    ['the save layer hiding inside the exempt SDK chunk', { 'assets/playgama-bridge-Xyz789.js': `${BRIDGE};localStorage.getItem("cmachine_state")` }, 'the exempt SDK chunk holds only the SDK'],
     ['forciblySetPlatformId in the bridge config', { 'playgama-bridge-config.json': JSON.stringify({ forciblySetPlatformId: 'playgama', advertisement: { minimumDelayBetweenInterstitial: 120 } }) }, 'playgama-bridge-config.json'],
     ['a SaaS board with no isMain (YouTube drops the score)', { 'playgama-bridge-config.json': JSON.stringify({ advertisement: { minimumDelayBetweenInterstitial: 120 }, saas: { publicToken: 't', leaderboards: { platforms: ['playgama'] } }, leaderboards: [{ id: 'b' }] }) }, 'playgama-bridge-config.json'],
     ['a SaaS board listing youtube (a banned call there)', { 'playgama-bridge-config.json': JSON.stringify({ advertisement: { minimumDelayBetweenInterstitial: 120 }, saas: { publicToken: 't', leaderboards: { platforms: ['playgama', 'youtube'] } }, leaderboards: [{ id: 'b', isMain: true }] }) }, 'playgama-bridge-config.json'],
     ['analytics in the game code', { 'assets/index-Abc123.js': 'gtag("event","x")' }, 'no analytics, no external endpoint'],
-    ['our leaderboard Worker endpoint', { 'assets/index-Abc123.js': 'fetch("https://mega-adventure-leaderboard.example.workers.dev/top")' }, 'no analytics, no external endpoint'],
+    ['our leaderboard Worker endpoint', { 'assets/index-Abc123.js': 'fetch("https://scores.example.workers.dev/top")' }, 'no analytics, no external endpoint'],
     ['an external host in the game code', { 'assets/index-Abc123.js': 'fetch("https://cdn.example.com/lib.js")' }, 'no external host in the game\'s own code'],
     ['the game calling YouTube directly', { 'assets/index-Abc123.js': 'window.ytgame.game.gameReady()' }, 'YouTube only through the Bridge'],
     ['dev tooling (a QA twin)', { 'assets/index-Abc123.js': 'console.warn("[CHEAT] enabled")' }, 'clean build: no dev tooling'],

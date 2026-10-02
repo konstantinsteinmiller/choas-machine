@@ -33,7 +33,6 @@ export const playgamaGameplayStart = (): void => {}
 export const playgamaGameplayStop = (): void => {}
 export const showInterstitialPG = async (_onImpression?: () => void): Promise<void> => {}
 export const showRewardedPG = async (_onImpression?: () => void): Promise<boolean> => false
-export const registerPlaygamaLeaderboard = (): void => {}
 export const createPlaygamaSaveStrategy = async (): Promise<SaveStrategy> => {
   throw new Error('[playgama] save strategy requested on a non-Playgama build')
 }

@@ -5,7 +5,7 @@
 // Symptom on Firefox (other browsers fine):
 //   • Hydrate from `sdk.data` returns the right values for every key.
 //   • The game UI nevertheless boots at stage 1 with default settings.
-//   • A few seconds later, the strategy writes `ma_level = 1`
+//   • A few seconds later, the strategy writes `cm_medals = 1`
 //     to the cloud, OVERWRITING the player's hard-earned cloud value.
 //
 // Root cause: `SaveManager.patchLocalStorage` was assigning override
@@ -111,8 +111,8 @@ describe('SaveManager — Firefox storage semantics', () => {
 
   it('patched getItem proxies to BlobStorage even in cloud-only mode (persistToRaw=false)', async () => {
     const strategy = makeSeedingStrategy({
-      'ma_story': '7',
-      'ma_level': '14'
+      'cm_cleared': '7',
+      'cm_medals': '14'
     })
     const manager = new SaveManager(strategy, storage, { blob: { persistToRaw: false } })
     await manager.init()
@@ -123,8 +123,8 @@ describe('SaveManager — Firefox storage semantics', () => {
     // silently failed (Firefox bug), the prototype's getItem reads the
     // empty raw map and returns null — which is exactly what
     // the game's first profile read saw before the fix.
-    expect(storage.getItem('ma_story')).toBe('7')
-    expect(storage.getItem('ma_level')).toBe('14')
+    expect(storage.getItem('cm_cleared')).toBe('7')
+    expect(storage.getItem('cm_medals')).toBe('14')
   })
 
   it('patched setItem forwards to the strategy (does not stash under a "setItem" key)', async () => {
@@ -132,25 +132,25 @@ describe('SaveManager — Firefox storage semantics', () => {
     const manager = new SaveManager(strategy, storage)
     await manager.init()
 
-    storage.setItem('ma_story', '8')
+    storage.setItem('cm_cleared', '8')
 
-    expect(strategy.onLocalSet).toHaveBeenCalledWith('ma_story', '8')
-    expect(storage.getItem('ma_story')).toBe('8')
+    expect(strategy.onLocalSet).toHaveBeenCalledWith('cm_cleared', '8')
+    expect(storage.getItem('cm_cleared')).toBe('8')
   })
 
   it('reproduces the recordPlayerStage data-loss scenario (defaults must NOT win after hydrate)', async () => {
-    // CG cloud has ma_level=14 from prior sessions on
+    // CG cloud has cm_medals=14 from prior sessions on
     // other browsers. Firefox loads the iframe, hydrate succeeds — but
     // if patching is broken, every composable's
     // `ref(parseInt(localStorage.getItem(...) ?? '0', 10))` initialiser
     // sees null, defaults to 0, and the next gameplay tick writes back
     // the default. That was the bug.
-    const strategy = makeSeedingStrategy({ 'ma_level': '14' })
+    const strategy = makeSeedingStrategy({ 'cm_medals': '14' })
     const manager = new SaveManager(strategy, storage, { blob: { persistToRaw: false } })
     await manager.init()
 
     const loadPlayerMaxStage = (): number => {
-      const raw = storage.getItem('ma_level')
+      const raw = storage.getItem('cm_medals')
       return parseInt(raw ?? '0', 10) || 0
     }
     expect(loadPlayerMaxStage()).toBe(14) // would be 0 with the unpatched assignment
@@ -190,14 +190,14 @@ describe('SaveManager — Proxy path on window.localStorage (Opera/Firefox QA bu
 
   it('reads of `window.localStorage.getItem` go through the SaveManager proxy', async () => {
     const strategy = makeSeedingStrategy({
-      'ma_story': '10',
-      'ma_level': '14'
+      'cm_cleared': '10',
+      'cm_medals': '14'
     })
     const manager = new SaveManager(strategy, window.localStorage, { blob: { persistToRaw: false } })
     await manager.init()
 
-    expect(window.localStorage.getItem('ma_story')).toBe('10')
-    expect(window.localStorage.getItem('ma_level')).toBe('14')
+    expect(window.localStorage.getItem('cm_cleared')).toBe('10')
+    expect(window.localStorage.getItem('cm_medals')).toBe('14')
   })
 
   it('writes via `window.localStorage.setItem` reach the strategy', async () => {
@@ -205,9 +205,9 @@ describe('SaveManager — Proxy path on window.localStorage (Opera/Firefox QA bu
     const manager = new SaveManager(strategy, window.localStorage)
     await manager.init()
 
-    window.localStorage.setItem('ma_story', '11')
+    window.localStorage.setItem('cm_cleared', '11')
 
-    expect(strategy.onLocalSet).toHaveBeenCalledWith('ma_story', '11')
-    expect(window.localStorage.getItem('ma_story')).toBe('11')
+    expect(strategy.onLocalSet).toHaveBeenCalledWith('cm_cleared', '11')
+    expect(window.localStorage.getItem('cm_cleared')).toBe('11')
   })
 })

@@ -26,29 +26,3 @@ const byName = (files: string[], dir: string): Map<string, string> => {
 export const SFX_FILES = byName(overrides.sfx, 'audio/sfx')
 export const MUSIC_FILES = byName(overrides.music, 'audio/music')
 export const TEXTURE_FILES = byName(overrides.textures, 'images/textures')
-
-/**
- * Voice-overs: `public/audio/voice/<lang>/<file>.ogg` (also .mp3 / .m4a),
- * per voiced language, keyed by line id (the line's i18n key, e.g.
- * `atlas.lowHp`). The file is named after the key with its dots as
- * underscores (`atlas_lowHp.ogg`, see `audio/voiceCatalog.ts`); a dotted name
- * (`atlas.lowHp.ogg`) still works. Only files that exist are listed, so a
- * line without one is never requested: it just shows its speech bubble.
- */
-export const voiceFiles = (list: readonly string[] = overrides.voice ?? []): Map<string, Map<string, string>> => {
-  const base = import.meta.env.BASE_URL
-  const out = new Map<string, Map<string, string>>()
-  for (const entry of list) {
-    const slash = entry.indexOf('/')
-    if (slash < 0) continue
-    const lang = entry.slice(0, slash)
-    const file = entry.slice(slash + 1)
-    const id = file.slice(0, file.lastIndexOf('.')).replace(/_/g, '.')
-    let m = out.get(lang)
-    if (!m) out.set(lang, (m = new Map()))
-    // One file per line: .ogg wins over a duplicate .mp3 / .m4a.
-    if (!m.has(id) || file.endsWith('.ogg')) m.set(id, `${base}audio/voice/${entry}`)
-  }
-  return out
-}
-export const VOICE_FILES = voiceFiles()

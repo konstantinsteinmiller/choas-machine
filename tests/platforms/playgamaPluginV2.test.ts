@@ -46,17 +46,14 @@ const makeBridge = (o: { id?: string; language?: string; isPaused?: boolean; isA
 let bridge: ReturnType<typeof makeBridge>
 const pause = { pauseGame: vi.fn(), resumeGame: vi.fn() }
 const audio = { setPlatformAudioMuted: vi.fn() }
-const portal = { setPortalBoard: vi.fn() }
 
 const load = async (b = makeBridge()) => {
   bridge = b
   vi.resetModules()
   vi.stubEnv('VITE_APP_PLAYGAMA', 'true')
-  vi.stubEnv('VITE_PLAYGAMA_LEADERBOARD_ID', 'mega_droid_xp')
   vi.doMock('@/utils/playgamaBridgeLoader', () => ({ loadPlaygamaBridge: async () => bridge }))
   vi.doMock('@/use/useGamePause', () => pause)
   vi.doMock('@/use/useGamePauseAudio', () => audio)
-  vi.doMock('@/use/usePortalLeaderboard', () => portal)
   vi.doMock('@/utils/save/PlaygamaStrategy', () => ({ PlaygamaStrategy: class {} }))
   return await import('@/utils/playgamaPlugin')
 }
@@ -66,7 +63,6 @@ beforeEach(() => {
   pause.pauseGame.mockClear()
   pause.resumeGame.mockClear()
   audio.setPlatformAudioMuted.mockClear()
-  portal.setPortalBoard.mockClear()
 })
 
 afterEach(async () => {
@@ -77,7 +73,6 @@ afterEach(async () => {
   vi.doUnmock('@/utils/playgamaBridgeLoader')
   vi.doUnmock('@/use/useGamePause')
   vi.doUnmock('@/use/useGamePauseAudio')
-  vi.doUnmock('@/use/usePortalLeaderboard')
   vi.doUnmock('@/utils/save/PlaygamaStrategy')
   vi.restoreAllMocks()
 })
@@ -224,7 +219,7 @@ describe('portal language', () => {
   })
 })
 
-describe('messages and the leaderboard', () => {
+describe('messages', () => {
   it('sends game_ready once, and brackets gameplay idempotently', async () => {
     const m = await load()
     await m.playgamaPlugin()
@@ -237,14 +232,5 @@ describe('messages and the leaderboard', () => {
     expect(sent.filter((s) => s === 'game_ready')).toHaveLength(1)
     expect(sent.filter((s) => s === 'gameplay_started')).toHaveLength(1)
     expect(sent.filter((s) => s === 'gameplay_stopped')).toHaveLength(1)
-  })
-
-  it('registers the Playgama board only after a successful init', async () => {
-    const m = await load()
-    m.registerPlaygamaLeaderboard()
-    expect(portal.setPortalBoard).not.toHaveBeenCalled()
-    await m.playgamaPlugin()
-    m.registerPlaygamaLeaderboard()
-    expect(portal.setPortalBoard).toHaveBeenCalledTimes(1)
   })
 })

@@ -11,8 +11,8 @@ import { drainAndResetModules, drainPersist, holdGameState } from '../stubs/drai
 // (on desktop the volume mute of useCrazyMuteSync), or the button would say
 // "muted" over a game that is playing.
 
-const SOUND_KEY = 'ma_user_sound_volume'
-const MUSIC_KEY = 'ma_user_music_volume'
+const SOUND_KEY = 'cm_user_sound_volume'
+const MUSIC_KEY = 'cm_user_music_volume'
 
 beforeEach(async () => {
   localStorage.clear()
@@ -44,16 +44,6 @@ describe('useGameMute (desktop)', () => {
 
 describe('wiring', () => {
   const src = (p: string) => readFileSync(resolve(__dirname, '../..', p), 'utf8')
-
-  it('the top bar puts the speaker left of the help button, keycap F2', () => {
-    const top = src('src/components/hud/TopStatus.vue')
-    const mute = top.indexOf('button.mute(')
-    const help = top.indexOf('button.help(')
-    expect(mute).toBeGreaterThan(0)
-    expect(mute).toBeLessThan(help)
-    expect(top).toMatch(/KeyCap\.kc\(v-if="desk" code="F2"\)/)
-    expect(top).toMatch(/hud\.unmute/)
-  })
 
   it('F2 toggles the same mute from the scene key handler', () => {
     const scene = src('src/views/GameScene.vue')

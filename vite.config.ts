@@ -1,90 +1,9 @@
 import { fileURLToPath, URL } from 'node:url'
 import { resolve, dirname } from 'node:path'
 import { readFileSync, writeFileSync, existsSync, mkdirSync, readdirSync } from 'node:fs'
-import { execFileSync } from 'node:child_process'
 
 import { defineConfig, loadEnv, type Plugin } from 'vite'
 
-// ─── The baked leaderboard ─────────────────────────────────────────────────
-//
-// Ships a board inside the bundle as `virtual:leaderboard-snapshot`. Every
-// build carries one, but not the same one:
-//
-//   • a build WITH an endpoint bakes `data/leaderboard-snapshot.json`, the live
-//     board as last fetched: the bottom rung of `useLeaderboard`'s offline
-//     ladder, for a device whose fetch failed and that has no cache yet;
-//   • a build WITHOUT one (Poki, Yandex, Playgama: `VITE_LEADERBOARD_URL`
-//     empty) can neither read nor write the live board, so it bakes the
-//     MODELLED `data/leaderboard-seed.json`, which is the whole board for the
-//     life of that build. On those builds the game shows only the rank badge;
-//     the top-100 list is hidden, so no invented player is ever shown.
-//
-// The refresh runs as a CHILD PROCESS of `scripts/leaderboard-snapshot.mjs` —
-// the same code path `pnpm leaderboard:snapshot` runs, so the build cannot
-// drift from the manual command, and a fetch that hangs or throws cannot take
-// the vite process with it. It is allowed to fail: the file is committed, so a
-// build with no network bakes the last known board instead of quietly shipping
-// without the feature.
-const SNAPSHOT_VIRTUAL_ID = 'virtual:leaderboard-snapshot'
-const SNAPSHOT_RESOLVED = '\0' + SNAPSHOT_VIRTUAL_ID
-const SNAPSHOT_FILE = resolve(
-  fileURLToPath(new URL('./data/leaderboard-snapshot.json', import.meta.url))
-)
-/**
- * The SEEDED board, for builds that can never write to the real one.
- *
- * Poki forbids every external runtime request and Yandex rejects third-party
- * storage URLs, so neither can post a score — their baked copy is not a stale
- * view of a living board, it is the entire board for the life of the build.
- * Seeding those from the live snapshot ranks their players against a 2 422-row
- * sample of everyone who ever opened the game once, 56 % of whom never passed
- * stage 2. `scripts/leaderboard-seed.mjs` builds a modelled retention curve
- * instead; the file it writes is committed and deterministic.
- */
-const SEED_FILE = resolve(
-  fileURLToPath(new URL('./data/leaderboard-seed.json', import.meta.url))
-)
-const SNAPSHOT_SCRIPT = resolve(
-  fileURLToPath(new URL('./scripts/leaderboard-snapshot.mjs', import.meta.url))
-)
-
-interface LeaderboardSnapshotFile {
-  /** When this process last pulled it off the Worker — the freshness clock. */
-  fetchedAt: number
-  updatedAt: number
-  total: number
-  entries: { rank: number; name: string; score: number; flair: number }[]
-  dist: [number, number][]
-}
-
-/** How recently the file must have been fetched for the build to accept it as
- *  already current. Long enough that `build:poki`'s own refresh (and a run of
- *  several portal builds back to back) costs the Worker ONE request. */
-const SNAPSHOT_FRESH_MS = 10 * 60_000
-
-const readSnapshotFile = (file: string): LeaderboardSnapshotFile | null => {
-  if (!existsSync(file)) return null
-  try {
-    const parsed = JSON.parse(readFileSync(file, 'utf-8')) as Partial<LeaderboardSnapshotFile>
-    if (!Array.isArray(parsed.entries) || !Array.isArray(parsed.dist)) return null
-    if (!(Number(parsed.total) > 0)) return null
-    return {
-      fetchedAt: Number(parsed.fetchedAt) || 0,
-      updatedAt: Number(parsed.updatedAt) || 0,
-      total: Number(parsed.total),
-      entries: parsed.entries,
-      dist: parsed.dist
-    }
-  } catch {
-    return null
-  }
-}
-
-/**
- * @param seeded whether this build can never gain a real player (Poki, Yandex —
- *   no endpoint, so no writes). Those bake the modelled board; every other
- *   target bakes the real snapshot as the bottom rung of its offline ladder.
- */
 // ─── Drop-in asset overrides ─────────────────────────────────────────────────
 //
 // Everything the game draws and plays is procedural (canvas textures, a
@@ -105,21 +24,8 @@ const OVERRIDE_DIRS = {
   music: { dir: 'public/audio/music', exts: ['.ogg', '.mp3', '.m4a'] },
   textures: { dir: 'public/images/textures', exts: ['.webp', '.png', '.jpg'] }
 } as const
-/** Voice-overs: public/audio/voice/<lang>/<line file>.ogg, one folder per
- *  voiced language (see `src/game/audio/voice.ts` and voice-todo.md). */
-const VOICE_DIR = 'public/audio/voice'
-const VOICE_EXTS = ['.ogg', '.mp3', '.m4a']
-const scanOverrides = (): Record<keyof typeof OVERRIDE_DIRS | 'voice', string[]> => {
-  const out = { sfx: [] as string[], music: [] as string[], textures: [] as string[], voice: [] as string[] }
-  const voiceAbs = fileURLToPath(new URL(`./${VOICE_DIR}`, import.meta.url))
-  if (existsSync(voiceAbs)) {
-    for (const lang of readdirSync(voiceAbs).filter(d => /^[a-z]{2}$/.test(d)).sort()) {
-      const files = readdirSync(`${voiceAbs}/${lang}`)
-        .filter(f => VOICE_EXTS.includes(f.slice(f.lastIndexOf('.')).toLowerCase()))
-        .sort()
-      for (const f of files) out.voice.push(`${lang}/${f}`)
-    }
-  }
+const scanOverrides = (): Record<keyof typeof OVERRIDE_DIRS, string[]> => {
+  const out = { sfx: [] as string[], music: [] as string[], textures: [] as string[] }
   for (const [key, { dir, exts }] of Object.entries(OVERRIDE_DIRS)) {
     const abs = fileURLToPath(new URL(`./${dir}`, import.meta.url))
     if (!existsSync(abs)) continue
@@ -137,7 +43,7 @@ const assetOverridesPlugin = (): Plugin => {
     resolveId: (id) => (id === ID ? RESOLVED : null),
     load: (id) => (id === RESOLVED ? `export default ${JSON.stringify(scanOverrides())}` : null),
     configureServer(server) {
-      const dirs = [...Object.values(OVERRIDE_DIRS).map(d => d.dir), VOICE_DIR].map(d => fileURLToPath(new URL(`./${d}`, import.meta.url)))
+      const dirs = Object.values(OVERRIDE_DIRS).map(d => d.dir).map(d => fileURLToPath(new URL(`./${d}`, import.meta.url)))
       server.watcher.add(dirs)
       const onChange = (file: string) => {
         if (!dirs.some(d => file.startsWith(d))) return
@@ -190,72 +96,6 @@ const preloadEngineChunksPlugin = (): Plugin => {
   }
 }
 
-const leaderboardSnapshotPlugin = (seeded: boolean): Plugin => ({
-  name: 'mega-leaderboard-snapshot',
-  buildStart() {
-    if (seeded) {
-      // Nothing to fetch: the seed is generated from a curve, committed, and
-      // deterministic. Re-running `pnpm leaderboard:seed` reproduces it byte for
-      // byte, so a build never needs to and never should.
-      const seed = readSnapshotFile(SEED_FILE)
-      if (seed) {
-        console.log(
-          `[leaderboard] baking the SEEDED board — ${seed.total} players / `
-          + `${seed.entries.length} rows, top score ${seed.dist[0]?.[0] ?? 0}. `
-          + 'This build cannot post scores, so the board is modelled.'
-        )
-      } else {
-        console.warn(
-          `[leaderboard] no seed at ${SEED_FILE} — run \`pnpm leaderboard:seed\`. `
-          + 'This build has no leaderboard.'
-        )
-      }
-      return
-    }
-
-    // The `build:*` scripts refresh it themselves, so the file is usually
-    // seconds old by the time this runs. Refetching would be a second round
-    // trip for the same bytes — and building five portal targets in a row would
-    // be five. This hook is the SAFETY NET for anyone invoking `vite build
-    // --mode <x>` directly, which is why it stays.
-    const onDisk = readSnapshotFile(SNAPSHOT_FILE)
-    const fresh = onDisk !== null && Date.now() - onDisk.fetchedAt < SNAPSHOT_FRESH_MS
-    if (!fresh) {
-      try {
-        execFileSync(process.execPath, [SNAPSHOT_SCRIPT], { stdio: 'inherit', timeout: 60_000 })
-      } catch {
-        // Offline, or the Worker is down. The committed file stands in.
-        console.warn(
-          '[leaderboard] could not refresh the snapshot — building with the committed copy.'
-        )
-      }
-    }
-    const snap = readSnapshotFile(SNAPSHOT_FILE)
-    if (snap) {
-      console.log(
-        `[leaderboard] baking ${snap.total} players / ${snap.entries.length} rows `
-        + `(board of ${new Date(snap.updatedAt).toISOString().slice(0, 10)})`
-      )
-    } else {
-      // Not a build failure. A build WITH an endpoint still has its live
-      // board (`leaderboardEnabled` is true on `LIVE` alone); it only lacks the
-      // offline fallback, which is normal until a new board has players.
-      console.warn(
-        `[leaderboard] no usable snapshot at ${SNAPSHOT_FILE} — the live board still works; `
-        + 'this build just has no offline fallback yet (a new board with no players).'
-      )
-    }
-  },
-  resolveId(id) {
-    if (id === SNAPSHOT_VIRTUAL_ID) return SNAPSHOT_RESOLVED
-    return null
-  },
-  load(id) {
-    if (id !== SNAPSHOT_RESOLVED) return null
-    return `export default ${JSON.stringify(readSnapshotFile(seeded ? SEED_FILE : SNAPSHOT_FILE))}`
-  }
-})
-
 // Read the package version directly so APP_VERSION resolves regardless of
 // how vite is invoked. `process.env.npm_package_version` is only set when
 // vite runs via `pnpm run <script>` — running `pnpm vite` directly leaves
@@ -270,7 +110,7 @@ import VueI18nPlugin from '@intlify/unplugin-vue-i18n/vite'
 import javascriptObfuscator from 'vite-plugin-javascript-obfuscator'
 import { viteSingleFile } from 'vite-plugin-singlefile'
 import { buildCsp } from './src/platforms/csp'
-import { buildPlaygamaBridgeConfig, playgamaLeaderboardEnv } from './src/platforms/playgama/bridgeConfig'
+import { buildPlaygamaBridgeConfig } from './src/platforms/playgama/bridgeConfig'
 import { PLAYGAMA_BRIDGE_CHUNK, PLAYGAMA_OUT_DIR } from './src/platforms/playgama/release'
 import { devToolAliases, resolvePlatformPolicy } from './src/platforms/policy'
 
@@ -317,22 +157,6 @@ export default defineConfig(({ mode, command }) => {
 
   // Drop-in art/audio overrides (see `assetOverridesPlugin`).
   plugins.push(assetOverridesPlugin())
-
-  // The baked board. EVERY build carries one — but not the same one, and the
-  // difference is whether the build can ever write to the real board.
-  //
-  // Poki and Yandex cannot: they forbid the request outright, which `loadEnv`
-  // surfaces here as an empty `VITE_LEADERBOARD_URL`. Their copy is the WHOLE
-  // board for the life of the build and no player of theirs will ever join it,
-  // so it is the modelled one — see `SEED_FILE`.
-  //
-  // Every other build bakes the real snapshot as the bottom rung of
-  // `useLeaderboard`'s offline ladder: what a player sees when the fetch fails
-  // and their device has no cache yet. Not hypothetical — the Worker's D1
-  // row-read allowance ran out mid-afternoon and `/top` threw for every live
-  // build, which without this shows a first-time player "Couldn't reach the
-  // leaderboard". It costs ~2 kB gzipped per build.
-  plugins.push(leaderboardSnapshotPlugin((env.VITE_LEADERBOARD_URL ?? '').trim().length === 0))
 
   // Only push the obfuscator if both conditions are met
   if (isProduction && shouldObfuscate) {
@@ -407,12 +231,6 @@ export default defineConfig(({ mode, command }) => {
           // path so both the raw `.vue` file AND the script-block
           // virtual module are excluded.
           /components[\\/]atoms[\\/]FLogoProgress\.vue/,
-          // useMawCampaign lazy-loads the heavy `useStageBuilder`
-          // chunk via `await import('@/use/useStageBuilder')` so all
-          // 20 stage builds stay off the boot critical path. The
-          // obfuscator's stringArray rewrite would inline the chunk
-          // back into the parent, undoing the split.
-          /use[\\/]useMawCampaign\.ts$/,
           // useAssets.preloadAssets dynamic-imports the campaign module
           // so the gameplay shared-chunk loads in parallel with the
           // splash render instead of blocking the entry parse. Same
@@ -445,11 +263,7 @@ export default defineConfig(({ mode, command }) => {
           // verifying the CG pre-release build. The cheats self-gate on
           // `localStorage.cheat`, so leaving this file readable grants nothing
           // devtools would not.
-          /use[\\/]useCheats\.ts$/,
-          // usePlayerIdentity lazy-loads `@/use/useCrazyGames` to read the
-          // portal's player name for the leaderboard. Same failure mode, but on
-          // a PLAYER-facing path rather than a dev-only one.
-          /use[\\/]usePlayerIdentity\.ts$/
+          /use[\\/]useCheats\.ts$/
         ],
         // ─── Obfuscation profile (tuned 2026-04-30) ─────────────────────
         // The previous profile enabled every aggressive transform the
@@ -682,19 +496,8 @@ export default defineConfig(({ mode, command }) => {
   // localhost / QA-tool contexts (which speak different protocols than
   // the production portal). The config here intentionally OMITS
   // `forciblySetPlatformId` so the bridge auto-detects the right protocol.
-  //
-  // The config also switches on Playgama's SaaS leaderboard when `.env.playgama`
-  // carries both its id and the dashboard's public token — see
-  // `src/platforms/playgama/bridgeConfig.ts`.
   if (isPlaygama) {
-    const playgamaBoard = playgamaLeaderboardEnv(env)
-    if ((playgamaBoard.id.length > 0) !== (playgamaBoard.token.length > 0)) {
-      console.warn(
-        '[playgama] VITE_PLAYGAMA_LEADERBOARD_ID and PLAYGAMA_SAAS_PUBLIC_TOKEN must be set together — '
-        + 'building WITHOUT the Playgama leaderboard.'
-      )
-    }
-    const playgamaBridgeConfigJson = JSON.stringify(buildPlaygamaBridgeConfig(env), null, 2)
+    const playgamaBridgeConfigJson = JSON.stringify(buildPlaygamaBridgeConfig(), null, 2)
     const playgamaBridgeConfigPlugin: Plugin = {
       name: 'emit-playgama-bridge-config',
       // The bridge fetches `./playgama-bridge-config.json` on every boot. With
@@ -737,7 +540,7 @@ export default defineConfig(({ mode, command }) => {
   return {
     base: '/',
     server: {
-      port: 2194
+      port: 2196
     },
     define: {
       APP_VERSION: JSON.stringify(appVersion),
@@ -829,17 +632,6 @@ export default defineConfig(({ mode, command }) => {
           // stack in the bundle is a certification finding. Same stub-swap.
           '@/utils/yandexPlugin': fileURLToPath(new URL('./src/utils/yandexPlugin.stub.ts', import.meta.url))
         }),
-        // INVERTED POLARITY versus every other alias here: this one swaps out
-        // ON a platform rather than off it. The analytics probe walks other
-        // portals' globals (`PokiSDK`, `GamePix`) plus `gtag` / `dataLayer`,
-        // and the Playgama archive is also the YouTube Playables submission —
-        // where external analytics are banned outright and those names are
-        // precisely what a reviewer greps for. A guard inside the probe was
-        // measured and did NOT keep the literals out (stringArray hoists before
-        // the env fold), so the whole module is aliased away instead.
-        ...(env.VITE_APP_PLAYGAMA === 'true' ? {
-          '@/use/analyticsSink': fileURLToPath(new URL('./src/use/analyticsSink.stub.ts', import.meta.url))
-        } : {}),
         ...(env.VITE_APP_POKI === 'true' ? {} : {
           '@/use/ads/PokiProvider': fileURLToPath(new URL('./src/use/ads/PokiProvider.stub.ts', import.meta.url)),
           // pokiPlugin is STATICALLY imported by `useGameplayLifecycle.ts` (which

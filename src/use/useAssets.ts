@@ -1,7 +1,7 @@
 import { ref } from 'vue'
 import { prependBaseUrl } from '@/utils/function'
 
-// Mega Droid renders every gameplay asset procedurally (three.js meshes
+// Chaos Machine renders every gameplay asset procedurally (three.js meshes
 // built from primitives, canvas-baked textures, synthesized audio). The
 // critical-path "assets" are therefore not files but WORK: the engine chunk,
 // the first scene's meshes and the shader compile. `preloadAssets` drives that
@@ -321,10 +321,7 @@ export default () => {
       try {
         if (typeof document === 'undefined' || !('fonts' in document)) return
         await Promise.race([
-          Promise.all([
-            document.fonts.load('700 1em "Russo One"'),
-            document.fonts.load('400 1em "Press Start 2P"')
-          ]),
+          document.fonts.load('400 1em "AngryBirds"'),
           new Promise((resolve) => setTimeout(resolve, 1500))
         ])
       } catch { /* a missing font is a fallback face, never a blocker */ }

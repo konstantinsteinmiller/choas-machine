@@ -40,15 +40,15 @@ describe('CrazyGamesStrategy (per-key)', () => {
 
   it('hydrates localStorage from the SDK manifest at boot', async () => {
     const data = makeFakeData({
-      [MANIFEST_KEY]: JSON.stringify([SAVE_KEYS.COINS, SAVE_KEYS.STORY]),
+      [MANIFEST_KEY]: JSON.stringify([SAVE_KEYS.COINS, SAVE_KEYS.CLEARED]),
       [SAVE_KEYS.COINS]: '150',
-      [SAVE_KEYS.STORY]: '3'
+      [SAVE_KEYS.CLEARED]: '3'
     })
     const manager = new SaveManager(new CrazyGamesStrategy(() => data))
     await initWithFakeTimers(manager)
 
     expect(window.localStorage.getItem(SAVE_KEYS.COINS)).toBe('150')
-    expect(window.localStorage.getItem(SAVE_KEYS.STORY)).toBe('3')
+    expect(window.localStorage.getItem(SAVE_KEYS.CLEARED)).toBe('3')
   })
 
   it('mirrors subsequent writes to the SDK after a debounce, sorted', async () => {
@@ -56,7 +56,7 @@ describe('CrazyGamesStrategy (per-key)', () => {
     const manager = new SaveManager(new CrazyGamesStrategy(() => data))
     await initWithFakeTimers(manager)
 
-    window.localStorage.setItem(SAVE_KEYS.STORY, '2')
+    window.localStorage.setItem(SAVE_KEYS.CLEARED, '2')
     window.localStorage.setItem(SAVE_KEYS.COINS, '20')
 
     expect(data.setItem).not.toHaveBeenCalled()
@@ -66,7 +66,7 @@ describe('CrazyGamesStrategy (per-key)', () => {
     // Per-key writes plus the manifest. Verify both gameplay values landed.
     const writes = data.setItem.mock.calls.filter(c => c[0] !== MANIFEST_KEY)
     expect(writes).toContainEqual([SAVE_KEYS.COINS, '20'])
-    expect(writes).toContainEqual([SAVE_KEYS.STORY, '2'])
+    expect(writes).toContainEqual([SAVE_KEYS.CLEARED, '2'])
 
     // Wire ordering is sorted alphabetically.
     const orderedKeys = writes.map(c => c[0])
@@ -75,7 +75,7 @@ describe('CrazyGamesStrategy (per-key)', () => {
     // Manifest carries the full sorted key list.
     const manifest = JSON.parse(data.store.get(MANIFEST_KEY)!)
     expect(manifest).toContain(SAVE_KEYS.COINS)
-    expect(manifest).toContain(SAVE_KEYS.STORY)
+    expect(manifest).toContain(SAVE_KEYS.CLEARED)
   })
 
   it('does NOT mirror non-allowlisted keys (vConsole / ad-tech / dev flags)', async () => {
@@ -150,7 +150,7 @@ describe('CrazyGamesStrategy (per-key)', () => {
     const manager = new SaveManager(new CrazyGamesStrategy(() => data))
     await initWithFakeTimers(manager)
 
-    window.localStorage.setItem(SAVE_KEYS.LEVEL, '4')
+    window.localStorage.setItem(SAVE_KEYS.MEDALS, '4')
     await vi.runAllTimersAsync()
 
     expect(data.store.get(META_KEY)).toBeTruthy()
@@ -174,39 +174,39 @@ describe('CrazyGamesStrategy (per-key)', () => {
     // Simulates useUser.ts having seeded its current ref values into
     // localStorage just before the strategy runs (the `useUser` side
     // of the fix). Cloud is empty.
-    window.localStorage.setItem('ma_user_sound_volume', '0.7')
-    window.localStorage.setItem('ma_user_music_volume', '0.6')
-    window.localStorage.setItem('ma_user_language', 'en')
-    window.localStorage.setItem('ma_user_difficulty', 'medium')
+    window.localStorage.setItem('cm_user_sound_volume', '0.7')
+    window.localStorage.setItem('cm_user_music_volume', '0.6')
+    window.localStorage.setItem('cm_user_language', 'en')
+    window.localStorage.setItem('cm_user_difficulty', 'medium')
 
     const data = makeFakeData()
     const manager = new SaveManager(new CrazyGamesStrategy(() => data))
     await initWithFakeTimers(manager)
 
     // Every settings key reaches sdk.data after init resolves.
-    expect(data.setItem).toHaveBeenCalledWith('ma_user_sound_volume', '0.7')
-    expect(data.setItem).toHaveBeenCalledWith('ma_user_music_volume', '0.6')
-    expect(data.setItem).toHaveBeenCalledWith('ma_user_language', 'en')
-    expect(data.setItem).toHaveBeenCalledWith('ma_user_difficulty', 'medium')
+    expect(data.setItem).toHaveBeenCalledWith('cm_user_sound_volume', '0.7')
+    expect(data.setItem).toHaveBeenCalledWith('cm_user_music_volume', '0.6')
+    expect(data.setItem).toHaveBeenCalledWith('cm_user_language', 'en')
+    expect(data.setItem).toHaveBeenCalledWith('cm_user_difficulty', 'medium')
 
     // Manifest carries every settings key — next refresh's hydrate
     // fast-path will read them back without needing recovery.
     const manifest = JSON.parse(data.store.get(MANIFEST_KEY)!)
-    expect(manifest).toContain('ma_user_sound_volume')
-    expect(manifest).toContain('ma_user_music_volume')
-    expect(manifest).toContain('ma_user_language')
-    expect(manifest).toContain('ma_user_difficulty')
+    expect(manifest).toContain('cm_user_sound_volume')
+    expect(manifest).toContain('cm_user_music_volume')
+    expect(manifest).toContain('cm_user_language')
+    expect(manifest).toContain('cm_user_difficulty')
   })
 
   it('does NOT re-push settings keys that already match sdk.data', async () => {
     // Player previously synced — both sides agree on every key. The
     // post-hydrate sweep should dedupe via lastSentByKey and skip a
     // redundant flush so QA doesn't see spurious writes on every load.
-    window.localStorage.setItem('ma_user_language', 'es')
+    window.localStorage.setItem('cm_user_language', 'es')
 
     const data = makeFakeData({
-      [MANIFEST_KEY]: JSON.stringify(['ma_user_language']),
-      'ma_user_language': 'es'
+      [MANIFEST_KEY]: JSON.stringify(['cm_user_language']),
+      'cm_user_language': 'es'
     })
     const manager = new SaveManager(new CrazyGamesStrategy(() => data))
     await initWithFakeTimers(manager)
@@ -218,21 +218,21 @@ describe('CrazyGamesStrategy (per-key)', () => {
     // Cloud is fresh (no manifest). Local has full gameplay state from
     // the last session AND user settings. Every local payload key must
     // reach sdk.data so the player's first cloud save is complete.
-    window.localStorage.setItem(SAVE_KEYS.STORY, '5')
+    window.localStorage.setItem(SAVE_KEYS.CLEARED, '5')
     window.localStorage.setItem(SAVE_KEYS.COINS, '300')
-    window.localStorage.setItem('ma_user_language', 'fr')
+    window.localStorage.setItem('cm_user_language', 'fr')
 
     const data = makeFakeData()
     const manager = new SaveManager(new CrazyGamesStrategy(() => data))
     await initWithFakeTimers(manager)
 
-    expect(data.setItem).toHaveBeenCalledWith(SAVE_KEYS.STORY, '5')
+    expect(data.setItem).toHaveBeenCalledWith(SAVE_KEYS.CLEARED, '5')
     expect(data.setItem).toHaveBeenCalledWith(SAVE_KEYS.COINS, '300')
-    expect(data.setItem).toHaveBeenCalledWith('ma_user_language', 'fr')
+    expect(data.setItem).toHaveBeenCalledWith('cm_user_language', 'fr')
   })
 
   // ─── Cloud-only mode (CG QA requirement) ────────────────────────────────
-  // Requirement: on CrazyGames builds, gameplay state ("ma_*")
+  // Requirement: on CrazyGames builds, gameplay state ("cm_*")
   // and our save bookkeeping ("__save_internal__*", "__save_meta__") MUST
   // NOT live in raw localStorage. Only "fps", "debug", "cheat",
   // "campaign-test", "full_unlocked" (developer toggles touched from
@@ -254,20 +254,20 @@ describe('CrazyGamesStrategy (per-key)', () => {
     )
     await initWithFakeTimers(manager)
 
-    window.localStorage.setItem(SAVE_KEYS.STORY, '7')
+    window.localStorage.setItem(SAVE_KEYS.CLEARED, '7')
     window.localStorage.setItem(SAVE_KEYS.COINS, '500')
-    window.localStorage.setItem('ma_user_sound_volume', '0.4')
+    window.localStorage.setItem('cm_user_sound_volume', '0.4')
     await vi.runAllTimersAsync()
 
     // sdk.data has the values.
-    expect(data.store.get(SAVE_KEYS.STORY)).toBe('7')
+    expect(data.store.get(SAVE_KEYS.CLEARED)).toBe('7')
     expect(data.store.get(SAVE_KEYS.COINS)).toBe('500')
-    expect(data.store.get('ma_user_sound_volume')).toBe('0.4')
+    expect(data.store.get('cm_user_sound_volume')).toBe('0.4')
 
     // Raw localStorage is empty of every gameplay + bookkeeping key.
-    expect(rawGet(SAVE_KEYS.STORY)).toBeNull()
+    expect(rawGet(SAVE_KEYS.CLEARED)).toBeNull()
     expect(rawGet(SAVE_KEYS.COINS)).toBeNull()
-    expect(rawGet('ma_user_sound_volume')).toBeNull()
+    expect(rawGet('cm_user_sound_volume')).toBeNull()
     expect(rawGet(MANIFEST_KEY)).toBeNull()
     expect(rawGet(META_KEY)).toBeNull()
   })
@@ -304,21 +304,21 @@ describe('CrazyGamesStrategy (per-key)', () => {
 
   it('cloud-only mode: scrubs pre-existing payload + bookkeeping at boot, preserves dev toggles', async () => {
     // Simulates upgrading a returning player from per-key-raw-mirror
-    // mode to cloud-only mode: their localStorage already has ma_*
+    // mode to cloud-only mode: their localStorage already has cm_*
     // entries, the META blob, and the manifest. After construction
     // every gameplay/bookkeeping key must be gone from raw, but the
     // values must survive in BlobStorage's in-memory state so the
     // hydrate's local meta still computes from real values.
-    window.localStorage.setItem(SAVE_KEYS.STORY, '6')
+    window.localStorage.setItem(SAVE_KEYS.CLEARED, '6')
     window.localStorage.setItem(SAVE_KEYS.COINS, '8818')
-    window.localStorage.setItem('ma_user_sound_volume', '0.7')
+    window.localStorage.setItem('cm_user_sound_volume', '0.7')
     window.localStorage.setItem(META_KEY, JSON.stringify({
       savedAt: '2025-01-01T00:00:00.000Z',
       progressScore: 3000,
       schemaVersion: 1,
       maxStage: 6
     }))
-    window.localStorage.setItem(MANIFEST_KEY, JSON.stringify([SAVE_KEYS.STORY, SAVE_KEYS.COINS, 'ma_user_sound_volume']))
+    window.localStorage.setItem(MANIFEST_KEY, JSON.stringify([SAVE_KEYS.CLEARED, SAVE_KEYS.COINS, 'cm_user_sound_volume']))
     window.localStorage.setItem('fps', 'true')
 
     const proto = Object.getPrototypeOf(window.localStorage)
@@ -333,9 +333,9 @@ describe('CrazyGamesStrategy (per-key)', () => {
     await initWithFakeTimers(manager)
 
     // Raw is scrubbed of all payload + bookkeeping keys.
-    expect(rawGet(SAVE_KEYS.STORY)).toBeNull()
+    expect(rawGet(SAVE_KEYS.CLEARED)).toBeNull()
     expect(rawGet(SAVE_KEYS.COINS)).toBeNull()
-    expect(rawGet('ma_user_sound_volume')).toBeNull()
+    expect(rawGet('cm_user_sound_volume')).toBeNull()
     expect(rawGet(META_KEY)).toBeNull()
     expect(rawGet(MANIFEST_KEY)).toBeNull()
     // Dev toggle preserved.
@@ -343,11 +343,11 @@ describe('CrazyGamesStrategy (per-key)', () => {
 
     // Values readable via the patched accessor (in-memory state),
     // and forwarded to sdk.data on the next flush.
-    expect(window.localStorage.getItem(SAVE_KEYS.STORY)).toBe('6')
+    expect(window.localStorage.getItem(SAVE_KEYS.CLEARED)).toBe('6')
     expect(window.localStorage.getItem(SAVE_KEYS.COINS)).toBe('8818')
-    expect(window.localStorage.getItem('ma_user_sound_volume')).toBe('0.7')
-    expect(data.store.get(SAVE_KEYS.STORY)).toBe('6')
-    expect(data.store.get('ma_user_sound_volume')).toBe('0.7')
+    expect(window.localStorage.getItem('cm_user_sound_volume')).toBe('0.7')
+    expect(data.store.get(SAVE_KEYS.CLEARED)).toBe('6')
+    expect(data.store.get('cm_user_sound_volume')).toBe('0.7')
   })
 
   it('cloud-only mode: saveDataVersion bumps AFTER patchLocalStorage, not during hydrate', async () => {
@@ -363,8 +363,8 @@ describe('CrazyGamesStrategy (per-key)', () => {
     // `manager.isHydrated()` at the moment the version bump arrives.
     // It must be `true` — i.e. patching has finished.
     const data = makeFakeData({
-      [MANIFEST_KEY]: JSON.stringify([SAVE_KEYS.STORY]),
-      [SAVE_KEYS.STORY]: '6'
+      [MANIFEST_KEY]: JSON.stringify([SAVE_KEYS.CLEARED]),
+      [SAVE_KEYS.CLEARED]: '6'
     })
     const manager = new SaveManager(
       new CrazyGamesStrategy(() => data),
@@ -390,16 +390,16 @@ describe('CrazyGamesStrategy (per-key)', () => {
     // write produces a single-key manifest, and `doFlush` uploads it,
     // orphaning every other key on sdk.data.
     const cloudKeys = [
-      SAVE_KEYS.STORY,
+      SAVE_KEYS.CLEARED,
       SAVE_KEYS.COINS,
-      'ma_user_language',
+      'cm_user_language',
       META_KEY
     ]
     const data = makeFakeData({
       [MANIFEST_KEY]: JSON.stringify(cloudKeys),
-      [SAVE_KEYS.STORY]: '6',
+      [SAVE_KEYS.CLEARED]: '6',
       [SAVE_KEYS.COINS]: '8818',
-      'ma_user_language': 'es',
+      'cm_user_language': 'es',
       [META_KEY]: JSON.stringify({
         savedAt: '2025-01-01T00:00:00.000Z',
         progressScore: 3000,
@@ -415,19 +415,19 @@ describe('CrazyGamesStrategy (per-key)', () => {
     await initWithFakeTimers(manager)
 
     // Player switches language to French.
-    window.localStorage.setItem('ma_user_language', 'fr')
+    window.localStorage.setItem('cm_user_language', 'fr')
     await vi.runAllTimersAsync()
 
     // Cloud still has every key — none orphaned.
-    expect(data.store.get(SAVE_KEYS.STORY)).toBe('6')
+    expect(data.store.get(SAVE_KEYS.CLEARED)).toBe('6')
     expect(data.store.get(SAVE_KEYS.COINS)).toBe('8818')
-    expect(data.store.get('ma_user_language')).toBe('fr')
+    expect(data.store.get('cm_user_language')).toBe('fr')
 
     // Manifest still lists every cloud key plus META.
     const manifest = JSON.parse(data.store.get(MANIFEST_KEY)!)
-    expect(manifest).toContain(SAVE_KEYS.STORY)
+    expect(manifest).toContain(SAVE_KEYS.CLEARED)
     expect(manifest).toContain(SAVE_KEYS.COINS)
-    expect(manifest).toContain('ma_user_language')
+    expect(manifest).toContain('cm_user_language')
     expect(manifest).toContain(META_KEY)
   })
 })

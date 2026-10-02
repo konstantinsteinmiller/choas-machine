@@ -3,32 +3,26 @@ import { createInput } from './engine/input'
 import { afterPaint, createSlicer, yieldToBrowser, type Slice } from './engine/slicer'
 import type { Material, Mesh, Object3D } from 'three'
 import { bakeTextures, loadTextureOverrides } from './world/textures'
-import { Mission, setupFromQuest } from './sim/mission'
-import { HubMode } from './sim/hub'
-import { IntroMode } from './story/intro'
-import { app, type GameMode } from './engine/app'
-import { initProfile } from './state/profile'
-import { registerModeFactories, createBootMode, ensureJobs } from './flow'
+import { StandbyMode } from './scenes/standby'
+import type { GameMode } from './engine/app'
+import { registerModeFactories, createBootMode } from './flow'
 import { installSynth, loadSfxOverrides } from './audio/synth'
 
 /**
  * ─── Boot priming ────────────────────────────────────────────────────────────
  *
  * Called by the LOADER (`useAssets.preloadAssets`) while the splash is up:
- * loads the profile, creates the renderer, bakes the shared canvas textures,
- * builds the FIRST scene (a resumed mission, the tutorial, or the hub — never
- * a menu) and compiles its shaders. By the time the splash clears, the first
+ * creates the renderer, bakes the shared canvas textures, builds the FIRST
+ * scene and compiles its shaders. By the time the splash clears, the first
  * frame is ready to draw.
  *
  * Three rules, each one a measured failure before it was a rule:
  * - The loader PAINTS FIRST. Nothing heavy starts until the splash has been
  *   on screen for a frame, so the player gets feedback before the work.
- * - The build is time-sliced (`Mission.create`), so the bar keeps moving.
+ * - A heavy build is time-sliced, so the bar keeps moving.
  * - The scene NEVER builds its own copy. `GameScene` waits on `adoptBootMode`
- *   for the prepared mode. It used to fall back to a fresh synchronous build
- *   whenever it mounted before priming finished — which it always did — so
- *   the first sector was built TWICE, the second copy without the shader
- *   precompile, and the loader froze through both.
+ *   for the prepared mode; a second build in the scene would run without the
+ *   shader precompile and freeze the loader through both.
  */
 
 export const input = createInput()
@@ -74,9 +68,6 @@ const precompile = async (
       onProgress((i + 1) / reps.length * 0.8)
       await slice()
     }
-    if (mode instanceof Mission) {
-      for (const m of renderer.compile(mode.vmScene, mode.vmCamera)) pending.add(m)
-    }
     // KHR_parallel_shader_compile: poll completion without blocking.
     const started = performance.now()
     await new Promise<void>((resolve) => {
@@ -96,22 +87,7 @@ const precompile = async (
   }
 }
 
-registerModeFactories(
-  async (quest, snapshot, onProgress) => {
-    const m = await Mission.create(setupFromQuest(quest, snapshot), input, (p) => onProgress?.(p * 0.82))
-    await precompile(m, createSlicer(12), (f) => onProgress?.(0.82 + f * 0.1))
-    // GPU uploads now, behind the loader, not on the first live frame.
-    try {
-      await m.warmUp(createSlicer(12), (f) => onProgress?.(0.92 + f * 0.08))
-    } catch (e) { console.warn('[boot] warm-up render failed', e) }
-    onProgress?.(1)
-    return m
-  },
-  () => new HubMode(),
-  (opts) => new IntroMode(opts),
-  // The ending's own chunk, fetched when the Fortress is won.
-  async (opts) => new (await import('./story/ending')).EndingMode(opts)
-)
+registerModeFactories(() => new StandbyMode())
 
 let prepared: GameMode | null = null
 let primed: Promise<void> | null = null
@@ -124,8 +100,6 @@ export const primeGame = (onProgress: (p01: number) => void): Promise<void> => {
     // Boot milestones as User Timing marks: free, and they line up in the
     // DevTools Performance panel (and `scripts/boot-timeline.mjs`).
     performance.mark('boot:prime-start')
-    initProfile()
-    ensureJobs()
     installSynth()
     // Drop-in files (only those that exist; see game/assets/overrides.ts).
     // SFX decode in the background; the detail maps must land before the
@@ -142,8 +116,7 @@ export const primeGame = (onProgress: (p01: number) => void): Promise<void> => {
     performance.mark('boot:build-start')
     const mode = await createBootMode((p) => onProgress(0.1 + p * 0.88))
     performance.mark('boot:built')
-    // A mission was precompiled by its factory; the hub is compiled here.
-    if (!(mode instanceof Mission)) await precompile(mode)
+    await precompile(mode)
     onProgress(1)
     prepared = mode
     performance.mark('boot:primed')
@@ -175,11 +148,5 @@ export const adoptBootMode = async (): Promise<GameMode> => {
   const m = takePreparedMode()
   performance.mark(m ? 'boot:adopted' : 'boot:fallback-build')
   if (m) return m
-  initProfile()
-  ensureJobs()
   return createBootMode()
 }
-
-/** The live mission, if the active mode is one (HUD components read it). */
-export const currentMission = (): Mission | null => (app.mode instanceof Mission ? app.mode : null)
-export const currentHub = (): HubMode | null => (app.mode instanceof HubMode ? app.mode : null)

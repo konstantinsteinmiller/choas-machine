@@ -48,8 +48,8 @@ describe('notePortalLanguageChange — the device-local marker', () => {
     let m = await load()
     m.notePortalLanguageChange('fr')
     expect(localStorage.getItem(m.PORTAL_LANGUAGE_SEEN_KEY)).toBe('fr')
-    // `ma_*` keys are folded into the SYNCED state blob; the marker must not be.
-    expect(m.PORTAL_LANGUAGE_SEEN_KEY.startsWith('ma_')).toBe(false)
+    // `cm_*` keys are folded into the SYNCED state blob; the marker must not be.
+    expect(m.PORTAL_LANGUAGE_SEEN_KEY.startsWith('cm_')).toBe(false)
     m = await load()
     expect(m.notePortalLanguageChange('es')).toBe(true)
   })

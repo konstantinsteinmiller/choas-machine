@@ -15,8 +15,8 @@ import { drainAndResetModules, drainPersist, holdGameState } from '../stubs/drai
 // The fix: an explicit user tap always restores audible volumes — the
 // snapshot if present, else the install defaults.
 
-const SOUND_KEY = 'ma_user_sound_volume'
-const MUSIC_KEY = 'ma_user_music_volume'
+const SOUND_KEY = 'cm_user_sound_volume'
+const MUSIC_KEY = 'cm_user_music_volume'
 
 // Every case writes volumes through useGameState's debounced save. Hold the
 // fresh instance up front (each case loads this same one) so afterEach flushes

@@ -21,7 +21,7 @@ export const PLAYGAMA_OUT_DIR = 'dist-playgama/game'
 
 /** The upload for developer.playgama.com — a real PKZIP of `PLAYGAMA_OUT_DIR`,
  *  `index.html` at its root. Also the YouTube Playables submission. */
-export const PLAYGAMA_ZIP = 'dist-playgama/mega-droid-playgama.zip'
+export const PLAYGAMA_ZIP = 'dist-playgama/chaos-machine-playgama.zip'
 
 /**
  * The chunk the vendored Bridge SDK (`@playgama/bridge`, npm) is pinned into.

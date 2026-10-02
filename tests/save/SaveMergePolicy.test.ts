@@ -17,10 +17,10 @@ const reader = (snap: Record<string, string>): { get: (k: string) => string | nu
 })
 
 // Score formula under test:
-//   story × 5000 + level × 1000 + missionsDone × 40 + floor(bolts / 100)
-// …and exactly 0 while the save shows no progress at all (level 1, nothing done).
+//   cleared × 5000 + medals × 1000 + missionsDone × 40 + floor(scrap / 100)
+// …and exactly 0 while the save shows no progress at all.
 describe('SaveMergePolicy.computeMeta', () => {
-  it('returns score=0 for a fresh install (level 1, nothing done)', () => {
+  it('returns score=0 for a fresh install (nothing done)', () => {
     const meta = computeMeta(reader({}), '2026-04-27T10:00:00Z')
     expect(meta).toEqual({
       savedAt: '2026-04-27T10:00:00Z',
@@ -28,24 +28,24 @@ describe('SaveMergePolicy.computeMeta', () => {
       schemaVersion: SCHEMA_VERSION,
       maxStage: 0
     })
-    expect(computeMeta(reader({ [SAVE_KEYS.LEVEL]: '1' })).progressScore).toBe(0)
+    expect(computeMeta(reader({ [SAVE_KEYS.MEDALS]: '0' })).progressScore).toBe(0)
   })
 
-  it('counts story sectors at 5000 and level at 1000', () => {
-    const meta = computeMeta(reader({ [SAVE_KEYS.STORY]: '2', [SAVE_KEYS.LEVEL]: '7' }))
+  it('counts fortresses cleared at 5000 and medals at 1000', () => {
+    const meta = computeMeta(reader({ [SAVE_KEYS.CLEARED]: '2', [SAVE_KEYS.MEDALS]: '7' }))
     expect(meta.progressScore).toBe(2 * 5000 + 7 * 1000)
     expect(meta.maxStage).toBe(7)
   })
 
   it('floors garbage values instead of throwing', () => {
-    expect(computeMeta(reader({ [SAVE_KEYS.STORY]: '-3' })).progressScore).toBe(0)
-    expect(computeMeta(reader({ [SAVE_KEYS.STORY]: 'abc' })).progressScore).toBe(0)
-    expect(computeMeta(reader({ [SAVE_KEYS.LEVEL]: 'x' })).progressScore).toBe(0)
+    expect(computeMeta(reader({ [SAVE_KEYS.CLEARED]: '-3' })).progressScore).toBe(0)
+    expect(computeMeta(reader({ [SAVE_KEYS.CLEARED]: 'abc' })).progressScore).toBe(0)
+    expect(computeMeta(reader({ [SAVE_KEYS.MEDALS]: 'x' })).progressScore).toBe(0)
   })
 
-  it('breaks ties between equal story/level saves on missions done', () => {
-    const a = computeMeta(reader({ [SAVE_KEYS.LEVEL]: '4', [SAVE_KEYS.QUESTS_DONE]: '12' }))
-    const b = computeMeta(reader({ [SAVE_KEYS.LEVEL]: '4', [SAVE_KEYS.QUESTS_DONE]: '3' }))
+  it('breaks ties between saves equal on fortresses and medals on missions done', () => {
+    const a = computeMeta(reader({ [SAVE_KEYS.MEDALS]: '4', [SAVE_KEYS.MISSIONS_DONE]: '12' }))
+    const b = computeMeta(reader({ [SAVE_KEYS.MEDALS]: '4', [SAVE_KEYS.MISSIONS_DONE]: '3' }))
     expect(a.progressScore).toBe(4000 + 480)
     expect(b.progressScore).toBe(4000 + 120)
     expect(a.progressScore).toBeGreaterThan(b.progressScore)
@@ -53,15 +53,14 @@ describe('SaveMergePolicy.computeMeta', () => {
 
   it('counts the wallet only by the hundred', () => {
     const meta = computeMeta(reader({ [SAVE_KEYS.COINS]: '999' }))
-    // bolts alone are progress, so level 1 counts too
-    expect(meta.progressScore).toBe(1000 + 9)
+    expect(meta.progressScore).toBe(9)
   })
 
   it('combines every term per the formula', () => {
     const meta = computeMeta(reader({
-      [SAVE_KEYS.STORY]: '3',
-      [SAVE_KEYS.LEVEL]: '12',
-      [SAVE_KEYS.QUESTS_DONE]: '20',
+      [SAVE_KEYS.CLEARED]: '3',
+      [SAVE_KEYS.MEDALS]: '12',
+      [SAVE_KEYS.MISSIONS_DONE]: '20',
       [SAVE_KEYS.COINS]: '1250'
     }))
     expect(meta.progressScore).toBe(15000 + 12000 + 800 + 12)
@@ -70,7 +69,7 @@ describe('SaveMergePolicy.computeMeta', () => {
 
   it('reads the fields out of the consolidated state blob', () => {
     const meta = computeMeta(reader({
-      mega_droid_state: JSON.stringify({ [SAVE_KEYS.LEVEL]: 5, [SAVE_KEYS.STORY]: 1 })
+      cmachine_state: JSON.stringify({ [SAVE_KEYS.MEDALS]: 5, [SAVE_KEYS.CLEARED]: 1 })
     }))
     expect(meta.progressScore).toBe(5000 + 5000)
   })

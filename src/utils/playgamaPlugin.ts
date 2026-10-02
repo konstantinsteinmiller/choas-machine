@@ -62,14 +62,7 @@ import type { SaveStrategy } from '@/utils/save/types'
 // runtime. Static-importing it inlines the strategy into this already-lazy
 // chunk; non-Playgama builds never reach this module.
 import { PlaygamaStrategy } from '@/utils/save/PlaygamaStrategy'
-import { setPortalBoard } from '@/use/usePortalLeaderboard'
-import { createPlaygamaBoardAdapter } from '@/utils/playgamaLeaderboard'
 import { loadPlaygamaBridge, type Bridge } from '@/utils/playgamaBridgeLoader'
-
-/** The game-facing id of the board created on the Playgama dashboard. Empty
- *  means this build has no Playgama leaderboard; `vite.config.ts` then leaves
- *  the `saas` block out of the bridge config too. */
-const LEADERBOARD_ID: string = (import.meta.env.VITE_PLAYGAMA_LEADERBOARD_ID ?? '').trim()
 
 /**
  * Options handed to `bridge.initialize()`.
@@ -451,28 +444,6 @@ export const showRewardedPG = async (onImpression?: () => void): Promise<boolean
     }
     hardCap = setTimeout(finish, 120_000)
   })
-}
-
-// ─── Leaderboard ───────────────────────────────────────────────────────────
-
-/**
- * Hand Playgama's leaderboard to the portal-board layer. Call after
- * `playgamaPlugin()` resolved; a no-op when the bridge did not come up or the
- * build carries no leaderboard id.
- *
- * Registered even when `type` is `not_available` (localhost MOCK): the adapter
- * reports that mode, and the portal layer then neither posts nor shows a tab.
- */
-export const registerPlaygamaLeaderboard = (): void => {
-  const bridge = sdk
-  if (!isPlaygamaSdkActive.value || !bridge || LEADERBOARD_ID.length === 0) return
-  try {
-    if (!bridge.leaderboards) return
-    setPortalBoard(createPlaygamaBoardAdapter(bridge, LEADERBOARD_ID))
-    console.info('[playgama] leaderboard', LEADERBOARD_ID, '— type:', bridge.leaderboards.type)
-  } catch (e) {
-    if (isDebug.value) console.warn('[playgama] leaderboard registration failed', e)
-  }
 }
 
 // ─── Save-strategy factory ─────────────────────────────────────────────────

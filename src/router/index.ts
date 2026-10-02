@@ -2,16 +2,6 @@ import { createRouter, createWebHashHistory, createMemoryHistory, type RouteReco
 
 const routes: RouteRecordRaw[] = [
   { path: '/', name: 'main', component: () => import('@/views/GameScene.vue') },
-  // DEV ONLY: every procedural model on a turntable, for art iteration, and
-  // every level the game can generate, launchable straight away (a level
-  // select would let players skip progression). The `import.meta.env.DEV`
-  // guard lets Rollup drop both chunks from every build.
-  ...(import.meta.env.DEV
-    ? [
-        { path: '/models', name: 'models', component: () => import('@/views/ModelLab.vue') },
-        { path: '/levels', name: 'levels', component: () => import('@/views/LevelLab.vue') }
-      ]
-    : []),
   { path: '/:pathMatch(.*)*', redirect: '/' }
 ]
 

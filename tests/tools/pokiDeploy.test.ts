@@ -2,12 +2,13 @@
 //
 // ─── The Poki deploy tool: never the wrong game, never a fake zip ───────────
 //
-// This repo was forked from Survivalist, and `tools/poki-deploy/poki.config.mjs`
-// came along still pointing at SURVIVALIST'S P4D game. Every P4D step is
-// addressed by `gameId` alone, so an upload would not have failed — it would
-// have put Mega Droid into Survivalist's Versions list. Pinned here:
+// This repo was forked from Mega Droid (itself forked from Survivalist), and
+// `tools/poki-deploy/poki.config.mjs` came along pointing at the predecessor's
+// P4D game. Every P4D step is addressed by `gameId` alone, so an upload would
+// not have failed — it would have put Chaos Machine into another game's
+// Versions list. Pinned here:
 //
-//   1. the config is Mega Droid's (name, zip, version name, save hook) and
+//   1. the config is Chaos Machine's (name, zip, version name, save hook) and
 //      carries no gameId until the real one is known;
 //   2. `deploy.mjs` refuses every P4D-bound mode without a valid, non-foreign
 //      gameId — BEFORE it bumps the version, builds, or opens a browser — while
@@ -53,7 +54,7 @@ describe('gameId guard (lib/target.mjs)', () => {
 
   it('refuses anything that is not a P4D uuid', async () => {
     const { checkGameId } = await load('lib/target.mjs')
-    for (const v of ['TODO', 'mega-droid', '1d51788e-5771-4d70-8290', 42, {}]) {
+    for (const v of ['TODO', 'chaos-machine', '1d51788e-5771-4d70-8290', 42, {}]) {
       expect(checkGameId(v).ok, String(v)).toBe(false)
     }
   })
@@ -67,29 +68,36 @@ describe('gameId guard (lib/target.mjs)', () => {
     }
   })
 
+  it("refuses Mega Droid's game id, the repo this one was copied from", async () => {
+    const { checkGameId } = await load('lib/target.mjs')
+    const r = checkGameId('9b504ac8-a798-4111-b0e5-a7c569fcec46')
+    expect(r.ok).toBe(false)
+    expect(r.why).toMatch(/Mega Droid/)
+  })
+
   it('accepts a well-formed id of this game', async () => {
     const { checkGameId } = await load('lib/target.mjs')
     expect(checkGameId(FRESH_ID.toUpperCase())).toEqual({ ok: true, gameId: FRESH_ID })
   })
 })
 
-describe('poki.config.mjs is Mega Droid\'s', () => {
-  it('names, packs and versions the right game, under its registered gameId', async () => {
+describe("poki.config.mjs is Chaos Machine's", () => {
+  it('names, packs and versions the right game, and carries no gameId yet', async () => {
     const { default: cfg } = await load('poki.config.mjs')
     const { checkGameId } = await load('lib/target.mjs')
-    expect(cfg.gameName).toBe('Mega Droid')
-    expect(cfg.team).toBe('hyperg8')
-    expect(cfg.zip).toBe('dist/mega-droid-poki.zip')
+    expect(cfg.gameName).toBe('Chaos Machine')
+    expect(cfg.zip).toBe('dist/chaos-machine-poki.zip')
     expect(cfg.dist).toBe('dist')
     expect(cfg.build).toBe('pnpm build:poki')
-    expect(cfg.versionName('0.1.1')).toBe('Mega Droid 0.1.1')
-    expect(cfg.gameId).toBe('9b504ac8-a798-4111-b0e5-a7c569fcec46')
-    expect(checkGameId(cfg.gameId).ok).toBe(true)
+    expect(cfg.versionName('0.1.1')).toBe('Chaos Machine 0.1.1')
+    // Empty until the game exists in P4D: every P4D-bound mode refuses to run.
+    expect(cfg.gameId).toBe('')
+    expect(checkGameId(cfg.gameId).ok).toBe(false)
     expect(cfg.declares).toEqual({ usernames: false, chat: false })
     expect(cfg.allowHosts).toEqual([])
   })
 
-  it('carries no Survivalist value anywhere', async () => {
+  it('carries no predecessor value anywhere', async () => {
     const { default: cfg } = await load('poki.config.mjs')
     const values: string[] = []
     const walk = (v: unknown): void => {
@@ -98,7 +106,7 @@ describe('poki.config.mjs is Mega Droid\'s', () => {
       else if (v && typeof v === 'object') Object.values(v).forEach(walk)
     }
     walk(cfg)
-    for (const v of values) expect(v).not.toMatch(/survivalist/i)
+    for (const v of values) expect(v).not.toMatch(/survivalist|mega.?droid|mega.?adventure/i)
 
     // The old id may exist in exactly one place: the refusal list.
     const hits: string[] = []
@@ -122,38 +130,18 @@ describe('poki.config.mjs is Mega Droid\'s', () => {
 
     expect(run()).toBeNull()
 
-    store.set('mega_droid_state', JSON.stringify({
-      ma_level: 3,
-      ma_bolts: 120,
-      ma_story: 1,
-      ma_quests_done: 2,
-      ma_hero: { xp: 950, weapons: ['buster', 'spread'] },
-      ma_world: { unlocked: ['scrapyard', 'foundry'], bosses: ['scrapper'], tutorialDone: true },
+    store.set('cmachine_state', JSON.stringify({
+      cm_cleared: 1,
+      cm_medals: 3,
+      cm_missions: 2,
+      cm_scrap: 120,
       // Volatile on a reload — must not be part of the snapshot.
-      ma_mission: { quest: { id: 'q1' }, player: { x: 1, z: 2 } },
-      ma_quests: { jobSeed: 12345 }
+      cm_forge: { startedAt: 12345 }
     }))
-    expect(run()).toEqual({
-      level: 3, xp: 950, bolts: 120, story: 1, questsDone: 2,
-      tutorialDone: true, sectors: 2, bosses: 1, weapons: 2
-    })
+    expect(run()).toEqual({ cleared: 1, medals: 3, missions: 2, scrap: 120 })
 
-    store.set('mega_droid_state', '{not json')
+    store.set('cmachine_state', '{not json')
     expect(run()).toBeNull()
-  })
-
-  it('falls back to a pre-rename save the game has not migrated yet, and prefers the new key', async () => {
-    const { default: cfg } = await load('poki.config.mjs')
-    const store = new Map<string, string>()
-    const localStorage = { getItem: (k: string) => store.get(k) ?? null }
-    // eslint-disable-next-line no-new-func
-    const run = () => new Function('localStorage', `return ${cfg.hooks.readProgress}`)(localStorage)
-
-    store.set('mega_adventure_state', JSON.stringify({ ma_level: 4, ma_bolts: 10 }))
-    expect(run()).toMatchObject({ level: 4, bolts: 10 })
-
-    store.set('mega_droid_state', JSON.stringify({ ma_level: 6, ma_bolts: 30 }))
-    expect(run()).toMatchObject({ level: 6, bolts: 30 })
   })
 })
 
@@ -165,15 +153,15 @@ describe('deploy.mjs refuses P4D without a valid gameId', () => {
     // `dist` does not exist at all: should the guard ever regress, pack/gates
     // end the run long before any browser step. `build` would exit 3 if run.
     writeFileSync(file, `export default {
-      team: 'hyperg8',
+      team: 'studio',
       gameId: ${JSON.stringify(gameId)},
-      gameName: 'Mega Droid',
+      gameName: 'Chaos Machine',
       build: 'node -e "process.exit(3)"',
       dist: ${JSON.stringify(join(SCRATCH_REL, 'missing-dist').replace(/\\/g, '/'))},
       zip: ${JSON.stringify(join(SCRATCH_REL, 'never.zip').replace(/\\/g, '/'))},
       repack: true,
       allowHosts: [],
-      versionName: v => 'Mega Droid ' + v
+      versionName: v => 'Chaos Machine ' + v
     }\n`)
     return file
   }
@@ -215,16 +203,16 @@ describe('deploy.mjs refuses P4D without a valid gameId', () => {
     const distRel = join(SCRATCH_REL, 'gates-dist')
     mkdirSync(join(ROOT, distRel, 'assets'), { recursive: true })
     writeFileSync(join(ROOT, distRel, 'index.html'),
-      '<!doctype html><html><head><meta charset="utf-8"><title>Mega Droid</title></head><body>'
+      '<!doctype html><html><head><meta charset="utf-8"><title>Chaos Machine</title></head><body>'
       + '<script src="https://game-cdn.poki.com/scripts/v2/poki-sdk.js"></script>'
       + '<script type="module" src="./assets/index.js"></script></body></html>')
     writeFileSync(join(ROOT, distRel, 'assets', 'index.js'), 'console.log("hi")')
     const file = join(SCRATCH, 'gates.config.mjs')
     writeFileSync(file, `export default {
-      team: 'hyperg8', gameId: null, gameName: 'Mega Droid', build: 'node -e "process.exit(3)"',
+      team: 'studio', gameId: null, gameName: 'Chaos Machine', build: 'node -e "process.exit(3)"',
       dist: ${JSON.stringify(distRel.replace(/\\/g, '/'))},
-      zip: ${JSON.stringify(join(distRel, 'mega-droid-poki.zip').replace(/\\/g, '/'))},
-      repack: true, allowHosts: [], versionName: v => 'Mega Droid ' + v
+      zip: ${JSON.stringify(join(distRel, 'chaos-machine-poki.zip').replace(/\\/g, '/'))},
+      repack: true, allowHosts: [], versionName: v => 'Chaos Machine ' + v
     }\n`)
 
     const r = deploy(['--config', file, '--gates-only'])

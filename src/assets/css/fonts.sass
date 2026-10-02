@@ -1,21 +1,34 @@
-// Faces are bundled through @fontsource (see main.ts) — no runtime font CDN,
-// which Poki / Playables forbid. Russo One covers Latin + Cyrillic; every
-// other script falls through to a NAMED system face before the generic, so
-// CJK / Thai / Devanagari / Arabic never render as tofu.
-:root
-  --font-ui: 'Russo One', 'Segoe UI', 'Noto Sans', 'PingFang SC', 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Microsoft YaHei', 'Malgun Gothic', 'Apple SD Gothic Neo', 'Noto Sans CJK SC', 'Noto Sans Thai', 'Leelawadee UI', 'Noto Sans Devanagari', 'Nirmala UI', 'Noto Naskh Arabic', 'Segoe UI Arabic', system-ui, sans-serif
-  // The pixel face is Latin-only; the UI stack behind it names the system
-  // faces for every other script, so a translated label never falls to a
-  // generic monospace.
-  --font-pixel: 'Press Start 2P', var(--font-ui)
+// The one bundled face. It ships inside the build (no runtime font CDN, which
+// Poki / Playables forbid) and is the default for every text in the game.
+@font-face
+  font-family: 'AngryBirds'
+  src: url(./font/angrybirds-regular.ttf) format('truetype')
+  font-weight: 400 900
+  font-style: normal
+  font-display: swap
 
-// Greek: Russo One has no Greek, so a Greek word would mix two faces (its
-// Latin digits and punctuation in Russo, the letters in the fallback). Greek
-// sets wholly in a system sans instead.
-html:lang(el)
-  --font-ui: 'Segoe UI', 'Noto Sans', 'Helvetica Neue', Arial, system-ui, sans-serif
+// AngryBirds covers Western European Latin (Latin-1 plus Œ/œ). Every other
+// script falls through to a NAMED system face before the generic, so CJK /
+// Thai / Devanagari / Arabic never render as tofu.
+$system-sans: 'Segoe UI', 'Noto Sans', 'Helvetica Neue', Arial
+$system-scripts: 'PingFang SC', 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Microsoft YaHei', 'Malgun Gothic', 'Apple SD Gothic Neo', 'Noto Sans CJK SC', 'Noto Sans Thai', 'Leelawadee UI', 'Noto Sans Devanagari', 'Nirmala UI', 'Noto Naskh Arabic', 'Segoe UI Arabic'
+
+:root
+  --font-ui: 'AngryBirds', #{$system-sans}, #{$system-scripts}, system-ui, sans-serif
+
+// Languages whose alphabet AngryBirds only partly covers (a caron, an ogonek,
+// a Turkish dotless i, the whole of Cyrillic and Greek). A word would mix two
+// faces, its plain letters in AngryBirds and the rest in the fallback, so
+// these set wholly in a system sans instead.
+html:lang(cs), html:lang(pl), html:lang(hu), html:lang(ro), html:lang(tr), html:lang(lt), html:lang(lv), html:lang(hr), html:lang(vi), html:lang(az), html:lang(uz), html:lang(eo), html:lang(kk), html:lang(ru), html:lang(uk), html:lang(bg), html:lang(el)
+  --font-ui: #{$system-sans}, system-ui, sans-serif
+
+// Scripts with no Latin text of their own: digits and embedded Latin names
+// still take the game face, the script itself its system face.
+html:lang(ar), html:lang(hi), html:lang(th), html:lang(ja), html:lang(ko), html:lang(zh)
+  --font-ui: 'AngryBirds', #{$system-scripts}, #{$system-sans}, system-ui, sans-serif
 
 // Traditional Chinese: the Traditional faces before the Simplified ones, or
 // shared characters take the mainland glyph shapes.
 html:lang(zh-Hant)
-  --font-ui: 'Russo One', 'Segoe UI', 'PingFang TC', 'Microsoft JhengHei', 'Noto Sans CJK TC', 'Noto Sans TC', 'Hiragino Sans', system-ui, sans-serif
+  --font-ui: 'AngryBirds', 'PingFang TC', 'Microsoft JhengHei', 'Noto Sans CJK TC', 'Noto Sans TC', 'Hiragino Sans', system-ui, sans-serif

@@ -201,6 +201,6 @@ describe('the render gate folds to "always render" on Playgama', () => {
 describe('the audit script ships with the repo', () => {
   it('scripts/youtube-fit-audit.mjs is present (pnpm playgama:audit)', () => {
     expect(existsSync(resolve(ROOT, 'scripts/youtube-fit-audit.mjs'))).toBe(true)
-    expect(JSON.parse(read('package.json')).scripts['playgama:audit']).toMatch(/youtube-fit-audit\.mjs .*--dist dist-playgama\/game .*--zip dist-playgama\/mega-droid-playgama\.zip/)
+    expect(JSON.parse(read('package.json')).scripts['playgama:audit']).toMatch(/youtube-fit-audit\.mjs .*--dist dist-playgama\/game .*--zip dist-playgama\/chaos-machine-playgama\.zip/)
   })
 })

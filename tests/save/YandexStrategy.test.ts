@@ -7,9 +7,9 @@
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-const STATE_KEY = 'mega_droid_state'
+const STATE_KEY = 'cmachine_state'
 const META_KEY = '__save_meta__'
-const BLOB = 'spin_and_mow_blob'
+const BLOB = 'cmachine_blob'
 
 let player: { getData: ReturnType<typeof vi.fn>; setData: ReturnType<typeof vi.fn> } | null = null
 
@@ -27,7 +27,7 @@ const makeLocal = (seed: Record<string, string> = {}) => {
 }
 
 const save = (level: number, story: number): string =>
-  JSON.stringify({ ma_level: level, ma_story: story })
+  JSON.stringify({ cm_medals: level, cm_cleared: story })
 
 const load = async () => (await import('@/utils/save/YandexStrategy')).YandexStrategy
 

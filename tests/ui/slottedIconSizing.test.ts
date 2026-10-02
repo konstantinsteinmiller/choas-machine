@@ -25,16 +25,11 @@ const ICON_HOSTS = [
 ]
 
 describe('slotted icon sizing', () => {
-  it('is what makes the rule necessary: IconCoin is an <img>, not an <svg>', () => {
-    const src = read('src/components/icons/IconCoin.vue')
-    expect(src).toMatch(/<template lang="pug">[\s\S]*\bimg\(/)
-  })
-
   it.each(ICON_HOSTS)('%s sizes both slotted svg and slotted img', (path) => {
     const src = read(path)
     expect(src, `${path} has no :slotted() icon rule at all`).toContain(':slotted(')
     expect(src, `${path} does not size slotted <svg>`).toContain(':slotted(svg)')
-    expect(src, `${path} does not size slotted <img> — an IconCoin here would render at 128px`)
+    expect(src, `${path} does not size slotted <img> — an image icon here would render at its natural size`)
       .toContain(':slotted(img)')
   })
 })

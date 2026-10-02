@@ -26,7 +26,6 @@ import { mount } from '@vue/test-utils'
 import { useMusic } from '@/use/useSound'
 import { resourceCache } from '@/use/useAssets'
 import { setPlatformAudioMuted } from '@/use/useGamePauseAudio'
-import { MUSIC_TRACK_FILES } from '@/use/useUser'
 import { prependBaseUrl } from '@/utils/function'
 
 let playSpy: ReturnType<typeof vi.fn>
@@ -61,7 +60,7 @@ beforeEach(() => {
   // `canplaythrough` event jsdom never fires, so `play()` would go uncalled
   // whether the mute worked or not — and a game that simply never plays music
   // would pass. The control case below is the proof that it does not.
-  const src = prependBaseUrl('audio/music/' + MUSIC_TRACK_FILES.trance)
+  const src = prependBaseUrl('audio/music/theme.ogg')
   resourceCache.audio.set(src, { src } as unknown as HTMLAudioElement)
 })
 

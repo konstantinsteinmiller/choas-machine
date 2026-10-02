@@ -1,5 +1,5 @@
 import { prependBaseUrl } from '@/utils/function'
-import useUser, { MUSIC_TRACK_FILES } from '@/use/useUser'
+import useUser from '@/use/useUser'
 import { getAudioContext, loadAudioBuffer, resourceCache, registerHtmlAudio, unregisterHtmlAudio, isAudioSuspended, registerOneShotSource } from '@/use/useAssets'
 import { isAudioPaused } from '@/use/useGamePause'
 import { isPlatformAudioMuted } from '@/use/useGamePauseAudio'
@@ -38,11 +38,7 @@ let retrackSynth: (() => void) | null = null
 let usingSynth = false
 /** Which part of the game is on screen — picks the synthesized track. */
 const gameTrack = ref<TrackId>('hub')
-const synthTrack = (): TrackId => {
-  const { userMusicTrack } = useUser()
-  // "Calm" option: the lab theme everywhere; otherwise the sector / boss theme.
-  return userMusicTrack.value === 'cozy' ? 'hub' : gameTrack.value
-}
+const synthTrack = (): TrackId => gameTrack.value
 /** Start the game's music (sets the play intent). Safe to call repeatedly. */
 export const startGameMusic = (): void => {
   restartTrack?.()
@@ -162,21 +158,15 @@ export const setMusicIntensity = (intensity: number): void => {
 }
 
 export const useMusic = () => {
-  const { userMusicVolume, userMusicTrack } = useUser()
+  const { userMusicVolume } = useUser()
 
   watch(userMusicVolume, () => {
     if (!bgMusic.value) return
     bgMusic.value.volume = Math.max(0, Math.min(1, (userMusicVolume.value ?? 0.6) * 0.025))
   })
 
-  watch(userMusicTrack, () => {
-    if (!shouldPlay.value) return
-    isPlaying.value = false
-    loadAndPlayTrack()
-  })
-
-  const currentTrackFile = (): string =>
-    MUSIC_TRACK_FILES[userMusicTrack.value] ?? MUSIC_TRACK_FILES.trance
+  /** A whole-track drop-in under public/audio/music/ replaces the synth score. */
+  const currentTrackFile = (): string => 'theme.ogg'
 
   /** Gates shared by BOTH music paths: never start under an ad, a hidden tab,
    *  a platform pause or a mute. A modal is not one: it freezes the game, not

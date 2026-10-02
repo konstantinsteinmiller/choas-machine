@@ -5,7 +5,7 @@
 // (WHATWG 13.2.5, "Preprocessing the input stream"). Any code that carried a
 // literal NUL therefore arrives at the JS parser mangled.
 //
-// That is not a cosmetic difference. `usePlayerIdentity.cleanName` had its
+// That is not a cosmetic difference. A name-cleaning helper once had its
 // control-character class written with LITERAL characters rather than `\u`
 // escapes, so in the GamePix build the class became
 // `[\ufffd-\u001f...]` -- a range out of order, which throws at regex PARSE time, which means the entire
@@ -57,27 +57,5 @@ describe('source files carry no raw control characters', () => {
       }
     }
     expect(offenders, 'write these as \\uXXXX escapes instead').toEqual([])
-  })
-
-  it('cleanName still strips what it is supposed to strip', async () => {
-    // The escapes have to MEAN what the literals meant, so the fix is pinned by
-    // behaviour too, not only by the byte scan above.
-    //
-    // Built with `String.fromCharCode` rather than pasted characters -- this
-    // file would otherwise carry the very bytes the other test forbids, and a
-    // test that reintroduces the bug in order to check for it is not a test.
-    const { cleanName } = await import('@/use/usePlayerIdentity')
-    const ch = (code: number): string => 'a' + String.fromCharCode(code) + 'b'
-
-    expect(cleanName(ch(0x00))).toBe('ab')   // NUL -- the one that broke the build
-    expect(cleanName(ch(0x1f))).toBe('ab')   // C0 controls
-    expect(cleanName(ch(0x7f))).toBe('ab')   // DEL
-    expect(cleanName(ch(0x200b))).toBe('ab') // zero-width space
-    expect(cleanName(ch(0x202e))).toBe('ab') // bidi override (rank spoofing)
-    expect(cleanName(ch(0xfeff))).toBe('ab') // BOM
-
-    expect(cleanName('  Konst  ')).toBe('Konst')            // still trims
-    expect(cleanName('Ærø Sørensen')).toBe('Ærø Sørensen') // real text untouched
-    expect(cleanName(42)).toBe('')                          // still total
   })
 })

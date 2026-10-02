@@ -40,7 +40,7 @@ const seedReturningPlayer = (stage: number, coins: number) => {
   const meta = serializeMeta(computeMeta(
     {
       get: (k: string) => {
-        if (k === SAVE_KEYS.STORY) return String(stage)
+        if (k === SAVE_KEYS.CLEARED) return String(stage)
         if (k === SAVE_KEYS.COINS) return String(coins)
         return null
       }
@@ -48,8 +48,8 @@ const seedReturningPlayer = (stage: number, coins: number) => {
     '2026-04-26T10:00:00Z'
   ))
   return {
-    [KEYS_MANIFEST]: JSON.stringify([SAVE_KEYS.STORY, SAVE_KEYS.COINS, META_KEY]),
-    [SAVE_KEYS.STORY]: String(stage),
+    [KEYS_MANIFEST]: JSON.stringify([SAVE_KEYS.CLEARED, SAVE_KEYS.COINS, META_KEY]),
+    [SAVE_KEYS.CLEARED]: String(stage),
     [SAVE_KEYS.COINS]: String(coins),
     [META_KEY]: meta
   }
@@ -69,7 +69,7 @@ describe('Bulletproof save scenarios', () => {
     const manager = new SaveManager(new CrazyGamesStrategy(() => data))
     await manager.init()
 
-    expect(window.localStorage.getItem(SAVE_KEYS.STORY)).toBe('6')
+    expect(window.localStorage.getItem(SAVE_KEYS.CLEARED)).toBe('6')
     expect(window.localStorage.getItem(SAVE_KEYS.COINS)).toBe('720')
     expect(manager.hydrateState).toBe('success-with-data')
     expect(data.getItem.mock.calls.filter(c => c[0] === KEYS_MANIFEST)).toHaveLength(1)
@@ -91,7 +91,7 @@ describe('Bulletproof save scenarios', () => {
     await initPromise
 
     expect(manager.hydrateState).toBe('success-with-data')
-    expect(window.localStorage.getItem(SAVE_KEYS.STORY)).toBe('6')
+    expect(window.localStorage.getItem(SAVE_KEYS.CLEARED)).toBe('6')
     expect(window.localStorage.getItem(SAVE_KEYS.COINS)).toBe('720')
   })
 
@@ -108,7 +108,7 @@ describe('Bulletproof save scenarios', () => {
 
     expect(manager.hydrateState).toBe('failed-retrying')
 
-    window.localStorage.setItem(SAVE_KEYS.STORY, '1')
+    window.localStorage.setItem(SAVE_KEYS.CLEARED, '1')
     window.localStorage.setItem(SAVE_KEYS.COINS, '0')
     await vi.advanceTimersByTimeAsync(2_000)
 
@@ -125,11 +125,11 @@ describe('Bulletproof save scenarios', () => {
 
     expect(manager.hydrateState).toBe('success-empty')
 
-    window.localStorage.setItem(SAVE_KEYS.STORY, '2')
+    window.localStorage.setItem(SAVE_KEYS.CLEARED, '2')
     window.localStorage.setItem(SAVE_KEYS.COINS, '50')
     await vi.runAllTimersAsync()
 
-    expect(data.store.get(SAVE_KEYS.STORY)).toBe('2')
+    expect(data.store.get(SAVE_KEYS.CLEARED)).toBe('2')
     expect(data.store.get(SAVE_KEYS.COINS)).toBe('50')
     expect(data.store.get(META_KEY)).toBeTruthy()
   })
@@ -137,7 +137,7 @@ describe('Bulletproof save scenarios', () => {
   it('Scenario 5: local ahead of remote — local wins, pushed to remote', async () => {
     const data = makeFakeData(seedReturningPlayer(4, 200))
 
-    window.localStorage.setItem(SAVE_KEYS.STORY, '5')
+    window.localStorage.setItem(SAVE_KEYS.CLEARED, '5')
     window.localStorage.setItem(SAVE_KEYS.COINS, '300')
     window.localStorage.setItem(META_KEY, serializeMeta(computeMeta(
       { get: (k) => window.localStorage.getItem(k) },
@@ -148,16 +148,16 @@ describe('Bulletproof save scenarios', () => {
     await manager.init()
     await vi.runAllTimersAsync()
 
-    expect(window.localStorage.getItem(SAVE_KEYS.STORY)).toBe('5')
+    expect(window.localStorage.getItem(SAVE_KEYS.CLEARED)).toBe('5')
     expect(window.localStorage.getItem(SAVE_KEYS.COINS)).toBe('300')
-    expect(data.store.get(SAVE_KEYS.STORY)).toBe('5')
+    expect(data.store.get(SAVE_KEYS.CLEARED)).toBe('5')
     expect(data.store.get(SAVE_KEYS.COINS)).toBe('300')
   })
 
   it('Scenario 6: remote ahead of local — remote wins, NO bonus on CG', async () => {
     const data = makeFakeData(seedReturningPlayer(10, 500))
 
-    window.localStorage.setItem(SAVE_KEYS.STORY, '3')
+    window.localStorage.setItem(SAVE_KEYS.CLEARED, '3')
     window.localStorage.setItem(SAVE_KEYS.COINS, '100')
     window.localStorage.setItem(META_KEY, serializeMeta(computeMeta(
       { get: (k) => window.localStorage.getItem(k) },
@@ -168,25 +168,25 @@ describe('Bulletproof save scenarios', () => {
     await manager.init()
     await vi.runAllTimersAsync()
 
-    expect(window.localStorage.getItem(SAVE_KEYS.STORY)).toBe('10')
+    expect(window.localStorage.getItem(SAVE_KEYS.CLEARED)).toBe('10')
     expect(window.localStorage.getItem(SAVE_KEYS.COINS)).toBe('500')
     expect(data.store.get(SAVE_KEYS.COINS)).toBe('500')
   })
 
   it('Scenario 7: identical local + remote — tie-keep-local, no re-upload', async () => {
     const meta = computeMeta(
-      { get: (k) => k === SAVE_KEYS.STORY ? '5' : k === SAVE_KEYS.COINS ? '250' : null },
+      { get: (k) => k === SAVE_KEYS.CLEARED ? '5' : k === SAVE_KEYS.COINS ? '250' : null },
       '2026-04-27T10:00:00Z'
     )
     const seed = {
-      [KEYS_MANIFEST]: JSON.stringify([SAVE_KEYS.STORY, SAVE_KEYS.COINS, META_KEY]),
-      [SAVE_KEYS.STORY]: '5',
+      [KEYS_MANIFEST]: JSON.stringify([SAVE_KEYS.CLEARED, SAVE_KEYS.COINS, META_KEY]),
+      [SAVE_KEYS.CLEARED]: '5',
       [SAVE_KEYS.COINS]: '250',
       [META_KEY]: serializeMeta(meta)
     }
     const data = makeFakeData(seed)
 
-    window.localStorage.setItem(SAVE_KEYS.STORY, '5')
+    window.localStorage.setItem(SAVE_KEYS.CLEARED, '5')
     window.localStorage.setItem(SAVE_KEYS.COINS, '250')
     window.localStorage.setItem(META_KEY, serializeMeta(meta))
 
@@ -210,12 +210,12 @@ describe('Bulletproof save scenarios', () => {
     await vi.advanceTimersByTimeAsync(5_000)
     await initPromise
 
-    window.localStorage.setItem(SAVE_KEYS.STORY, '1')
+    window.localStorage.setItem(SAVE_KEYS.CLEARED, '1')
     window.localStorage.setItem(SAVE_KEYS.COINS, '0')
-    window.localStorage.setItem(SAVE_KEYS.LEVEL, JSON.stringify({ tops: {}, bottoms: {} }))
+    window.localStorage.setItem(SAVE_KEYS.MEDALS, JSON.stringify({ tops: {}, bottoms: {} }))
     await vi.advanceTimersByTimeAsync(2_000)
 
-    expect(data.store.get(SAVE_KEYS.STORY)).toBe('6')
+    expect(data.store.get(SAVE_KEYS.CLEARED)).toBe('6')
     expect(data.store.get(SAVE_KEYS.COINS)).toBe('720')
   })
 })

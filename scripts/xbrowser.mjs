@@ -125,7 +125,7 @@ try {
       })
       await page.goto(`http://127.0.0.1:${PORT}/`)
       out.title = await page.title()
-      if (!/Mega Droid/i.test(out.title)) throw new Error(`wrong app on the port (title "${out.title}")`)
+      if (!/Chaos Machine/i.test(out.title)) throw new Error(`wrong app on the port (title "${out.title}")`)
 // A fresh profile opens on the intro cutscene: skip it the way a player
       // does (the skip glyph), so the skip itself is exercised.
       {

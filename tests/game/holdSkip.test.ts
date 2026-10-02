@@ -1,4 +1,4 @@
-// Hold Space to skip the intro (`story/holdSkip.ts`, `story/cine.ts`): the
+// Hold Space to skip the intro (`story/holdSkip.ts`): the
 // ring fills over 3 s of the cutscene's clock, skips exactly once, and
 // empties the moment the key is let go. A key repeat is not a new press.
 
@@ -65,21 +65,5 @@ describe('hold to skip', () => {
     releaseHold(h)
     pressHold(h)
     expect(run(h, 3)).toBe(1)
-  })
-
-  it('the cutscene mirror routes the key and resets with the cutscene', async () => {
-    const { skipHold, holdToSkip, resetCine, cineLive } = await import('@/game/story/cine')
-    holdToSkip(true)
-    expect(skipHold.down).toBe(true)
-    stepHold(skipHold, 1)
-    expect(holdProgress(skipHold)).toBeCloseTo(1 / 3, 5)
-    holdToSkip(false)
-    expect(holdProgress(skipHold)).toBe(0)
-    holdToSkip(true)
-    stepHold(skipHold, 1)
-    cineLive.hold = holdProgress(skipHold)
-    resetCine()
-    expect(skipHold.down).toBe(false)
-    expect(cineLive.hold).toBe(0)
   })
 })

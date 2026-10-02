@@ -81,7 +81,7 @@ const runOnce = async (arm) => {
     const q = arm === 'base' ? '?perfprobe=1' : `?perfprobe=1&perf=${arm}`
     await page.goto(`http://127.0.0.1:${PORT}/${q}`)
     const title = await page.title()
-    if (!/Mega Droid/i.test(title)) throw new Error(`wrong app on the port (title "${title}")`)
+    if (!/Chaos Machine/i.test(title)) throw new Error(`wrong app on the port (title "${title}")`)
 
     // Boot and beam in, unthrottled: loading is not what this measures.
     // A fresh profile opens on the intro cutscene: skip it like a player.

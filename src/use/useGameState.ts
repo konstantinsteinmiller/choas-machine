@@ -1,36 +1,33 @@
 import { ref, type Ref } from 'vue'
-import { LEGACY_KEYS, migrateLegacyKey } from '@/legacyKeys'
 
 /**
- * ─── `mega_droid_state` — the single persisted state object ──────────────────
+ * ─── `cmachine_state` — the single persisted state object ──────────────────
  *
- * EVERY persisted value Mega Droid touches — hero progression, inventory,
- * quests, the resumable mission snapshot, user settings, retention bookkeeping
+ * EVERY persisted value Chaos Machine touches — campaign progress, currencies,
+ * upgrades, forge timers, lesson mastery, user settings
  * — lives inside ONE in-memory record (`gameState`), and exactly ONE
- * localStorage key is ever written: `mega_droid_state`.
+ * localStorage key is ever written: `cmachine_state`.
  *
  * Why one object:
  *   • Non-platform builds → a single localStorage entry, zero pollution.
  *   • Platform builds → `SaveManager` proxies `localStorage.setItem`, so the
- *     cloud payload is literally `{ mega_droid_state, __save_meta__ }`. One object
+ *     cloud payload is literally `{ cmachine_state, __save_meta__ }`. One object
  *     round-trips to CrazyGames `sdk.data` / GamePix / Playgama / Yandex /
  *     Glitch instead of dozens of per-key writes.
  *
  * Field names inside the record are catalogued in `src/keys.ts` and are all
- * `ma_`-prefixed (`STATE_FIELD_PREFIX`). They are a contract with the player base: renaming one
+ * `cm_`-prefixed (`STATE_FIELD_PREFIX`). They are a contract with the player base: renaming one
  * strands existing players' progress on the old field.
  *
  * Writes are debounced (trailing edge, hard-capped) and hard-flushed on
  * `pagehide` / tab-hide so a close mid-burst never drops data.
  */
 
-// Saves from before the rename to Mega Droid sit under `LEGACY_KEYS.STATE`;
-// they are moved onto this key before the first read below (`src/legacyKeys.ts`).
-export const STATE_KEY = 'mega_droid_state'
+export const STATE_KEY = 'cmachine_state'
 
 /** Every field inside the blob starts with this. The save layer's payload
  *  allowlist and the CrazyGames raw-storage scrub key off it. */
-export const STATE_FIELD_PREFIX = 'ma_'
+export const STATE_FIELD_PREFIX = 'cm_'
 
 /** Persisted values may be bare strings ("en"), stringified numbers ("120"),
  *  or stringified JSON. JSON.parse round-trips numbers/objects; bare strings
@@ -62,7 +59,7 @@ let persistTimer: ReturnType<typeof setTimeout> | null = null
 let firstDirtyAt = 0
 
 /** Force the debounced blob write to happen NOW — cancels the pending timer and
- *  writes `mega_droid_state` to localStorage synchronously. Called from the
+ *  writes `cmachine_state` to localStorage synchronously. Called from the
  *  page-hide handlers below and (via `useSaveStatus.flushSaveNow`) at hard
  *  checkpoints (wave cleared, run ended, tech purchased) so the cloud push
  *  starts immediately instead of waiting out the debounce. */
@@ -120,7 +117,7 @@ const buildInitial = (): Record<string, any> => {
     }
   } catch { /* corrupt → start fresh */ }
 
-  // Generic fold: if a player somehow has individual `ma_*` entries in raw
+  // Generic fold: if a player somehow has individual `cm_*` entries in raw
   // localStorage (defensive per-key write, or a mid-migration snapshot from an
   // older client), fold them into the blob once and remove them. The blob takes
   // precedence when both exist.
@@ -143,12 +140,6 @@ const buildInitial = (): Record<string, any> => {
   if (migrated) persistRaw(blob)
   return blob
 }
-
-// A pre-rename save moves onto STATE_KEY HERE, before the first read: this
-// module is the first thing on every boot path that reads the blob (the save
-// layer imports STATE_KEY from it, so it is evaluated before `SaveManager` seeds
-// too). Idempotent — once moved, the legacy key is gone.
-migrateLegacyKey(LEGACY_KEYS.STATE, STATE_KEY)
 
 /** The single in-memory aggregate of all persisted game state.
  *  `Record<string, any>` by design — this is a heterogeneous bag keyed by the

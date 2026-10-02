@@ -1,7 +1,5 @@
 import { createApp, watch } from 'vue'
 import router from '@/router'
-import '@fontsource/russo-one/400.css'
-import '@fontsource/press-start-2p/400.css'
 import '@/assets/css/tailwind.css'
 import '@/assets/css/index.sass'
 import { createI18n } from 'vue-i18n'
@@ -20,9 +18,7 @@ import { followPortalLanguage, notePortalLanguageChange } from '@/i18n/portalLan
 import { PLURAL_RULES } from '@/i18n/plural'
 import { isDebug } from '@/use/useMatch.ts'
 import { hasState, reloadGameState, flushPersist, STATE_KEY, STATE_FIELD_PREFIX } from '@/use/useGameState'
-import { LEGACY_KEYS } from '@/legacyKeys'
 import { LANGUAGE_KEY } from '@/keys'
-import { setSdkNameSource } from '@/use/usePlayerIdentity'
 import { SaveManager } from '@/utils/save/SaveManager'
 import { resolveSaveStrategy } from '@/platforms/resolveSaveStrategy'
 import { installSaveStatus } from '@/use/useSaveStatus'
@@ -133,10 +129,6 @@ const bootstrap = async () => {
   if (isCrazyWeb) {
     const cg = await import('@/use/useCrazyGames')
     await cg.initCrazyGames()
-    // The CrazyGames username is tier 2 of the leaderboard name. It is pushed
-    // in from here rather than imported by `usePlayerIdentity`, so a build
-    // without CrazyGames never resolves the CG module.
-    setSdkNameSource(() => cg.crazyPlayerName.value)
     // Explicit `loadingStart` immediately after SDK init. The SDK
     // technically auto-enters the "loading" state on init, but CG QA's
     // tooling does NOT register the load window unless we fire the
@@ -197,13 +189,11 @@ const bootstrap = async () => {
     //
     // It also makes the portal language readable before i18n boots, which is
     // what Playgama's localization check and Playables' `getLanguage` rule grade.
-    const { playgamaPlugin, playgamaLoadingStart, playgamaLocale, registerPlaygamaLeaderboard } =
+    const { playgamaPlugin, playgamaLoadingStart, playgamaLocale } =
       await import('@/utils/playgamaPlugin')
     await playgamaPlugin()
     playgamaLoadingStart()
     pgLocale = playgamaLocale.value
-    // Playgama's own leaderboard, beside ours — see `usePortalLeaderboard`.
-    registerPlaygamaLeaderboard()
   } else if (isPoki) {
     // **Parallel** init — deliberately NOT awaited, unlike the GamePix / Yandex
     // arms above. Poki has NO cloud-save API (its wrapper mirrors the iframe's
@@ -240,9 +230,8 @@ const bootstrap = async () => {
 
   // CrazyGames cloud-only mode: gameplay state and our save bookkeeping
   // (`__save_*`) live in memory only; `sdk.data` is the sole persistence
-  // backend. CG QA explicitly requires that no state blob (`mega_droid_state`,
-  // or its pre-rename name `LEGACY_KEYS.STATE`) / `ma_*` /
-  // `__save_*` keys appear in raw localStorage — only dev toggles
+  // backend. CG QA explicitly requires that no state blob (`cmachine_state`) /
+  // `cm_*` / `__save_*` keys appear in raw localStorage — only dev toggles
   // (`fps`, `debug`, `cheat`, `campaign-test`, `full_unlocked`) are
   // exempt. Inline env-literal so Vite tree-shakes the dead branch on
   // non-CG builds and the persistToRaw=false path is gone entirely.
@@ -258,17 +247,14 @@ const bootstrap = async () => {
     // matter the hydrate timing.
   ;(window as any).__saveManager = saveManager
 
-  // Defense-in-depth state-blob / `ma_*` / `__save_*` safety remove on
+  // Defense-in-depth state-blob / `cm_*` / `__save_*` safety remove on
   // CG builds. BlobStorage's `scrubRawForCloudOnly()` already wiped these
   // at construction (it seeded into `state` first, so progress is
-  // preserved); this second pass catches anything BlobStorage missed. The
-  // blob is removed under BOTH names: a pre-rename entry was already moved
-  // onto STATE_KEY (and so seeded) by the migration in `useGameState` /
-  // `SaveManager`, so a legacy copy still here is a stray — on CrazyGames
-  // `sdk.data`, not raw storage, is where the save lives.
+  // preserved); this second pass catches anything BlobStorage missed. On
+  // CrazyGames `sdk.data`, not raw storage, is where the save lives.
   // MUST run BEFORE `saveManager.init()` because init patches
   // `localStorage.setItem` / `removeItem` to forward to the strategy —
-  // calling the patched removeItem on a `ma_*` key would issue a
+  // calling the patched removeItem on a `cm_*` key would issue a
   // cloud delete via `sdk.data.removeItem`, wiping the player's save.
   // Pre-init, `localStorage.removeItem` is still native and these
   // removes are local-only.
@@ -277,7 +263,7 @@ const bootstrap = async () => {
       const stragglers: string[] = []
       for (let i = 0; i < window.localStorage.length; i++) {
         const k = window.localStorage.key(i)
-        if (k && (k === STATE_KEY || k === LEGACY_KEYS.STATE || k.startsWith(STATE_FIELD_PREFIX) || k.startsWith('__save_'))) {
+        if (k && (k === STATE_KEY || k.startsWith(STATE_FIELD_PREFIX) || k.startsWith('__save_'))) {
           stragglers.push(k)
         }
       }

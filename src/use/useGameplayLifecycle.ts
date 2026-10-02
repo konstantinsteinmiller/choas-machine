@@ -43,10 +43,10 @@ import { pokiGameplayStart, pokiGameplayStop } from '@/utils/pokiPlugin'
 // purpose: that module is the whole simulation, and a platform-contract module
 // must not drag it into anything that imports it.
 export interface GameplayLiveInputs {
-  /** Which screen the flow is on. Only a mission is PLAYED; the hub is menus. */
-  screen: 'boot' | 'mission' | 'hub' | 'intro' | 'ending'
-  /** The mission's phase. Only 'play' is live: the beam-in / beam-out
-   *  animations and the defeat countdown hand the player no control. */
+  /** Which screen the flow is on. Only a mission is PLAYED; the base is menus. */
+  screen: 'boot' | 'mission' | 'base'
+  /** The mission's phase. Only 'play' is live: the drop-in and extraction
+   *  cinematics and the defeat screen hand the player no control. */
   phase: string
   /** A flow modal is up: pause, defeat, results or level-up. */
   flowModal: boolean
@@ -155,8 +155,8 @@ export const __gameplayFanoutIdle = (): Promise<void> => playgamaChain
  * idempotent off a flag, and `pokiGameplayStart` DEFERS (never drops) a start
  * landing inside the SDK's 50 ms guard window.
  *
- * Mega Droid has no such handover today (every mission ends on the
- * results screen); this stays as the tested seam for one.
+ * Chaos Machine has no such handover today (every mission ends on the
+ * rewards screen); this stays as the tested seam for one.
  */
 export const restartGameplayBracket = (): void => {
   // Already closed — a result screen, a reveal, an ad or a hidden tab ended the

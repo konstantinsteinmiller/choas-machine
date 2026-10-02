@@ -9,24 +9,24 @@
 // the player's actual keys. The blob lets the next hydrate score local vs.
 // remote and pick a winner deterministically without prompting.
 //
-// Score formula (Mega Droid):
-//   storySectors   × 5000   (Core Masters defeated — the headline number)
-// + heroLevel      × 1000
-// + missionsDone   ×   40
-// + floor(bolts / 100)
+// Score formula (Chaos Machine):
+//   fortressesCleared × 5000   (the campaign position — the headline number)
+// + medals            × 1000
+// + missionsDone      ×   40
+// + floor(scrap / 100)
 //
-// Story progress dominates because it is the one thing a player can never
-// re-earn quickly; level is next; the mission counter and the wallet only
-// break ties between two saves at the same story beat and level.
+// Campaign progress dominates because it is the one thing a player can never
+// re-earn quickly; medals are next; the mission counter and the wallet only
+// break ties between two saves at the same campaign position and medal count.
 //
 // Conflict policy:
 //   - higher score wins
 //   - tie on score → newer savedAt wins
 //   - same time too → keep local (no needless writes)
 //   - if remote wins and local had ANY progress (score > 0), the player
-//     gets bonus bolts = winner.maxStage (hero level) × 50 to soften the loss
+//     gets bonus scrap = winner.maxStage (medals earned) × 50 to soften the loss
 
-import { LEVEL_KEY, STORY_KEY, QUESTS_DONE_KEY, BOLTS_KEY } from '@/keys'
+import { CLEARED_KEY, MEDALS_KEY, MISSIONS_DONE_KEY, SCRAP_KEY } from '@/keys'
 import { STATE_KEY, STATE_FIELD_PREFIX } from '@/use/useGameState'
 
 /** Where the meta blob is stored in localStorage / on the remote backend.
@@ -52,7 +52,7 @@ export interface SaveMeta {
   /** Output of the score formula above. */
   progressScore: number
   schemaVersion: number
-  /** Hero level the save represents — used to compute the conflict bonus.
+  /** Medals earned in the save — used to compute the conflict bonus.
    *  (Field name kept from the shared save-layer contract.) */
   maxStage: number
   /**
@@ -117,7 +117,7 @@ const safeJson = <T>(v: string | null, fallback: T): T => {
  * Compute a fresh meta blob from the current localStorage snapshot.
  * Pure — no side effects.
  */
-/** Pull a sub-field out of the consolidated `mega_droid_state` blob if present.
+/** Pull a sub-field out of the consolidated `cmachine_state` blob if present.
  *  Falls through to a top-level read for back-compat with any pre-migration
  *  snapshot that still has individual keys (e.g. the score formula was just
  *  invoked between BlobStorage construction and the first migration write). */
@@ -140,19 +140,14 @@ export const computeMeta = (
   read: SnapshotReader,
   savedAt: string = new Date().toISOString()
 ): SaveMeta => {
-  // A brand-new local snapshot (level 1, nothing done) scores exactly 1000 for
-  // the level term; `hasProgress` below is what decides "fresh", not zero.
-  const level = Math.max(1, safeInt(readField(read, LEVEL_KEY), 1))
-  const story = Math.max(0, safeInt(readField(read, STORY_KEY), 0))
-  const done = Math.max(0, safeInt(readField(read, QUESTS_DONE_KEY), 0))
-  const bolts = Math.max(0, safeInt(readField(read, BOLTS_KEY), 0))
-  const hasProgress = level > 1 || story > 0 || done > 0 || bolts > 0
+  const cleared = Math.max(0, safeInt(readField(read, CLEARED_KEY), 0))
+  const medals = Math.max(0, safeInt(readField(read, MEDALS_KEY), 0))
+  const done = Math.max(0, safeInt(readField(read, MISSIONS_DONE_KEY), 0))
+  const scrap = Math.max(0, safeInt(readField(read, SCRAP_KEY), 0))
 
-  const progressScore = hasProgress
-    ? story * 5000 + level * 1000 + done * 40 + Math.floor(bolts / 100)
-    : 0
+  const progressScore = cleared * 5000 + medals * 1000 + done * 40 + Math.floor(scrap / 100)
 
-  return { savedAt, progressScore, schemaVersion: SCHEMA_VERSION, maxStage: hasProgress ? level : 0 }
+  return { savedAt, progressScore, schemaVersion: SCHEMA_VERSION, maxStage: medals }
 }
 
 /**
@@ -227,18 +222,18 @@ export const decideMerge = (
 }
 
 /**
- * Add the bonus to the local bolt total. Returns the new value as a string
- * ready to be written back to BOLTS_KEY. Caller does the write (a stray
- * top-level `ma_bolts` key is folded into the blob by `useGameState`).
+ * Add the bonus to the local scrap total. Returns the new value as a string
+ * ready to be written back to SCRAP_KEY. Caller does the write (a stray
+ * top-level `cm_scrap` key is folded into the blob by `useGameState`).
  */
 export const applyBonusCoins = (read: SnapshotReader, bonus: number): string => {
-  const current = safeInt(readField(read, BOLTS_KEY), 0)
+  const current = safeInt(readField(read, SCRAP_KEY), 0)
   return String(current + Math.max(0, bonus))
 }
 
-/** Bonus path: read the bolt total out of the state blob if it exists. */
+/** Bonus path: read the scrap total out of the state blob if it exists. */
 export const readCoinTotal = (read: SnapshotReader): number => {
-  return safeInt(readField(read, BOLTS_KEY), 0)
+  return safeInt(readField(read, SCRAP_KEY), 0)
 }
 
 /**
@@ -253,13 +248,10 @@ export const readCoinTotal = (read: SnapshotReader): number => {
  * misleading picture of what the game stores.
  *
  * Single-blob model: every persisted gameplay value lives inside the
- * `mega_droid_state` localStorage entry (see `useGameState.ts`). The cloud
+ * `cmachine_state` localStorage entry (see `useGameState.ts`). The cloud
  * therefore mirrors exactly TWO keys — the state blob and the meta blob.
- * The pre-rename state key (`LEGACY_KEYS.STATE`) is deliberately NOT payload:
- * it is only ever read and re-filed by the migration (`src/legacyKeys.ts`),
- * never mirrored, so no layer can write the old name back.
  *
- * Individual `ma_*` field keys are also accepted as payload so any stray
+ * Individual `cm_*` field keys are also accepted as payload so any stray
  * per-key write (defensive, or a mid-migration snapshot from an older client)
  * round-trips safely instead of being silently dropped.
  */
@@ -276,9 +268,9 @@ export const isPayloadKey = (key: string): boolean => {
 
 // Re-exported so tests / other modules don't have to re-declare them.
 export const SAVE_KEYS = {
-  LEVEL: LEVEL_KEY,
-  STORY: STORY_KEY,
-  QUESTS_DONE: QUESTS_DONE_KEY,
+  CLEARED: CLEARED_KEY,
+  MEDALS: MEDALS_KEY,
+  MISSIONS_DONE: MISSIONS_DONE_KEY,
   /** The currency field — named COINS for the shared save-layer contract. */
-  COINS: BOLTS_KEY
+  COINS: SCRAP_KEY
 } as const
