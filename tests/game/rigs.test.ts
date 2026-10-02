@@ -6,7 +6,7 @@ import { Vector3 } from 'three'
 import { buildMech, poseMech, restPose, MECH_HEIGHT, MECH_HEIGHT_CROUCH, MECH_EYE, MECH_EYE_CROUCH } from '@/game/models/mech'
 import { COVER_H } from '@/game/world/fortress'
 import {
-  buildGuard, poseGuard, buildDrone, poseDrone, buildEnforcer, poseEnforcer, buildGoliath, poseGoliath,
+  buildGuard, poseGuard, restGuardPose, buildDrone, poseDrone, buildEnforcer, poseEnforcer, buildGoliath, poseGoliath,
   ENFORCER_JOINTS, GUARD_HEIGHT
 } from '@/game/models/garrison'
 import type { Rig } from '@/game/models/kit'
@@ -121,7 +121,7 @@ describe('the garrison', () => {
     expect(minY).toBeGreaterThan(-0.05)
     expect(maxY).toBeGreaterThan(GUARD_HEIGHT - 0.2)
     expect(maxY).toBeLessThan(GUARD_HEIGHT + 0.25)
-    const pose = { time: 0, stride: 0, speed: 0, aim: 0, wary: 0, lookYaw: 0, dead: 0, fallDir: -1 }
+    const pose = { ...restGuardPose(), fallDir: -1 }
     poseGuard(rig, pose)
     const up = rig.bones.hips!.position.y
     poseGuard(rig, { ...pose, dead: 1 })
@@ -161,7 +161,7 @@ describe('the garrison', () => {
 
   it('a drone spins opposite rotors opposite ways', () => {
     const rig = buildDrone()
-    poseDrone(rig, { time: 0, spin: 1, pitch: 0, roll: 0, eyeYaw: 0, eyePitch: 0 })
+    poseDrone(rig, { time: 0, spin: 1, pitch: 0, roll: 0, eyeYaw: 0, eyePitch: 0, alarm: 0 })
     expect(rig.bones.rotor0!.rotation.y).toBe(1)
     expect(rig.bones.rotor1!.rotation.y).toBe(-1)
   })

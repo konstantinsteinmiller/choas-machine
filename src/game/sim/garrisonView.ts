@@ -5,7 +5,7 @@ import {
 import { VOID, hasLineOfSight, heightAt, type Grid } from '../world/grid'
 import type { Rig } from '../models/kit'
 import {
-  buildDrone, buildEnforcer, buildGoliath, buildGuard, poseDrone, poseEnforcer, poseGoliath, poseGuard,
+  buildDrone, buildEnforcer, buildGoliath, buildGuard, restGuardPose, poseDrone, poseEnforcer, poseGoliath, poseGuard,
   type DronePose, type EnforcerPose, type GoliathPose, type GuardPose
 } from '../models/garrison'
 import { makeBlobShadow } from '../fx/markers'
@@ -54,7 +54,11 @@ interface UnitView {
   /** Eased 0 … 1 pose values. */
   aim: number
   wary: number
+  caution: number
   spin: number
+  /** Drones: last frame's heading, and the bank it is easing into. */
+  lastYaw: number
+  bank: number
   /** The mark's pop when the state changes. */
   pop: number
   lastState: string
@@ -148,11 +152,11 @@ export class GarrisonView {
       const v: UnitView = {
         rig, shadow, mark, spot, beam,
         cone: human ? this.coneCount++ : -1,
-        guard: human ? { time: 0, stride: 0, speed: 0, aim: 0, wary: 0, lookYaw: 0, dead: 0, fallDir: 1 } : null,
-        drone: u.kind === 'drone' ? { time: 0, spin: 0, pitch: 0, roll: 0, eyeYaw: 0, eyePitch: 0.5 } : null,
+        guard: human ? { ...restGuardPose(), seed: (u.seed * 0.618) % 1, proud: u.kind === 'commander' } : null,
+        drone: u.kind === 'drone' ? { time: 0, spin: 0, pitch: 0, roll: 0, eyeYaw: 0, eyePitch: 0.5, alarm: 0 } : null,
         enforcer: u.kind === 'enforcer' ? { time: 0, stride: 0, speed: 0, power: 0, aimYaw: 0, aimPitch: 0, recoilL: 0, recoilR: 0, dead: 0 } : null,
         goliath: u.kind === 'goliath' ? { time: 0, turretYaw: 0, barrelPitch: 0, recoil: 0, rumble: 0, dead: 0 } : null,
-        aim: 0, wary: 0, spin: 0, pop: 0, lastState: u.state, flash: 0
+        aim: 0, wary: 0, caution: 0, spin: 0, lastYaw: u.yaw, bank: 0, pop: 0, lastState: u.state, flash: 0
       }
       this.views.push(v)
       this.group.add(rig.root, shadow)
@@ -298,6 +302,7 @@ export class GarrisonView {
       const wary = u.state === 'suspicious' || u.state === 'search'
       v.aim += ((hot ? 1 : 0) - v.aim) * ease
       v.wary += ((wary ? 1 : 0) - v.wary) * ease
+      v.caution += ((wary ? 1 : 0) - v.caution) * Math.min(1, dt * 4)
       if (u.state !== v.lastState) {
         v.lastState = u.state
         v.pop = 1
@@ -318,17 +323,29 @@ export class GarrisonView {
         s.speed = u.speed01
         s.aim = Math.max(v.aim, u.recoil > 0 ? 1 : 0)
         s.wary = u.state === 'search' ? v.wary : 0
+        s.caution = v.caution
+        // The mark's pop is the moment it noticed: the body jumps with it.
+        s.startle = wary || hot ? v.pop : 0
+        s.recoil = Math.min(1, u.recoil * 4)
         s.lookYaw = u.look
         s.dead = dead ? Math.min(1, u.deadT / 0.55) : 0
         s.fallDir = u.fallDir
         poseGuard(v.rig, s)
       } else if (v.drone) {
         const s = v.drone
-        if (!dead) v.spin += dt * 38
+        // The rotors race when it is alarmed.
+        if (!dead) v.spin += dt * (38 + 30 * v.caution)
         s.time = dead ? 0 : time + u.seed
         s.spin = v.spin
+        // It banks into its turns like anything that flies.
+        const turn = angleDelta(v.lastYaw, yaw) / Math.max(dt, 1e-3)
+        v.lastYaw = yaw
+        v.bank += (Math.max(-0.5, Math.min(0.5, -turn * 0.25)) - v.bank) * Math.min(1, dt * 4)
         s.pitch = dead ? 0.9 : 0.12 * u.speed01
-        s.roll = dead ? 0.6 : Math.sin(time * 0.9 + u.seed) * 0.05
+        s.roll = dead ? 0.6 : v.bank + Math.sin(time * 0.9 + u.seed) * 0.05
+        // The eye looks down the beam: three metres ahead, from its height.
+        s.eyePitch = Math.atan2(Math.max(0.5, y - heightAt(this.grid, x, z)), 3) * 0.75
+        s.alarm = dead ? 0 : Math.max(v.caution, hot ? 1 : 0)
         poseDrone(v.rig, s)
       } else if (v.enforcer) {
         const s = v.enforcer

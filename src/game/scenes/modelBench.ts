@@ -6,14 +6,15 @@ import { toon } from '../models/toon'
 import type { Rig } from '../models/kit'
 import { buildMech, poseMech, restPose, type MechPose } from '../models/mech'
 import {
-  buildGuard, poseGuard, buildDrone, poseDrone, buildEnforcer, poseEnforcer, buildGoliath, poseGoliath
+  buildGuard, poseGuard, restGuardPose, buildDrone, poseDrone, buildEnforcer, poseEnforcer, buildGoliath, poseGoliath
 } from '../models/garrison'
 import type { WeaponId } from '../data/ids'
 
 /**
  * DEV ONLY (`?bench=models`): every rig on a pad, animated, for art iteration.
  *   m=mech|guard|commander|drone|enforcer|goliath|all   which rig(s)
- *   pose=idle|walk|crouch|aim|stab|climb|cable|air|dead|dormant
+ *   pose=idle|walk|run|wary|search|startle|crouch|aim|stab|climb|cable|air|dead|dormant
+ *   seed=0..1                                           a guard's own gait and fidgets
  *   weapon=sniper|minigun|rocket
  *   view=az,el,dist                                     the camera
  *   t=<seconds>                                         freeze time here
@@ -69,12 +70,18 @@ export class ModelBench implements GameMode {
       if (all || which === (commander ? 'commander' : 'guard')) {
         const rig = buildGuard(commander)
         add(rig, 0, (t) => poseGuard(rig, {
+          ...restGuardPose(),
           time: t,
-          stride: t * 8,
-          speed: poseName === 'walk' ? 1 : 0,
+          // A patrol's pace is 0.42 of a run; 3.4 radians of stride per metre.
+          stride: poseName === 'run' ? t * 5.2 * 3.4 : t * 2.3 * 3.4,
+          speed: poseName === 'walk' || poseName === 'wary' ? 0.42 : poseName === 'run' ? 1 : 0,
           aim: poseName === 'aim' ? 1 : 0,
-          wary: poseName === 'idle' ? 1 : 0,
-          lookYaw: 0,
+          wary: poseName === 'search' ? 1 : 0,
+          caution: poseName === 'wary' || poseName === 'search' ? 1 : 0,
+          startle: poseName === 'startle' ? Math.max(0, 1 - (t % 1.5) * 3.5) : 0,
+          recoil: poseName === 'aim' ? Math.max(0, 1 - (t % 0.6) * 6) : 0,
+          seed: Number(q.get('seed') ?? (commander ? 0.2 : 0.7)),
+          proud: commander,
           dead: poseName === 'dead' ? Math.min(1, (t % 3) / 0.6) : 0,
           fallDir: -1
         }))
@@ -82,7 +89,7 @@ export class ModelBench implements GameMode {
     }
     if (all || which === 'drone') {
       const rig = buildDrone()
-      add(rig, 2.2, (t) => poseDrone(rig, { time: t, spin: t * 40, pitch: 0.12, roll: Math.sin(t) * 0.1, eyeYaw: Math.sin(t * 0.8) * 0.6, eyePitch: 0.3 }))
+      add(rig, 2.2, (t) => poseDrone(rig, { time: t, spin: t * 40, pitch: 0.12, roll: Math.sin(t) * 0.1, eyeYaw: 0, eyePitch: 0.7, alarm: poseName === 'wary' ? 1 : 0 }))
     }
     if (all || which === 'enforcer') {
       const rig = buildEnforcer()
