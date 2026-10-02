@@ -1,6 +1,7 @@
 import { registerCheat } from '@/use/useCheats'
 import { getState, setState } from '@/use/useGameState'
 import { SCRAP_KEY } from '@/keys'
+import { app } from './engine/app'
 
 /**
  * Dev cheats. They only fire when cheats are enabled: `localStorage.cheat =
@@ -12,5 +13,9 @@ import { SCRAP_KEY } from '@/keys'
 export const registerGameCheats = (): void => {
   registerCheat('ctrl+shift+alt+b', '+1000 Tech Scrap', () => {
     setState(SCRAP_KEY, (Number(getState(SCRAP_KEY, 0)) || 0) + 1000)
+  })
+  // The cross-browser smoke test (`scripts/xbrowser.mjs`) ends a mission with this.
+  registerCheat('ctrl+shift+alt+o', 'Objective done: extract now', () => {
+    (app.mode as { cheatExtract?: () => void } | null)?.cheatExtract?.()
   })
 }

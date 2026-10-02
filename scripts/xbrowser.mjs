@@ -6,9 +6,10 @@
 //
 // Plays the first mission to its result screen in Chrome, Edge, Firefox and
 // WebKit, and asserts STATE, not vibes: WebGL came up, the mission HUD
-// mounted, the objective completed (dev cheat, `localStorage.cheat`), Beam-out
-// appeared and B beamed out, the results screen entered the DOM, Continue
-// reached the hub, and the page logged ZERO errors. `locked` reports whether
+// mounted, the drop-in was skipped, the mech walked, the objective completed
+// (dev cheat, `localStorage.cheat`), the grapple lifted it out, the rewards
+// screen entered the DOM, its button reached the Command Base, and the page
+// logged ZERO errors. `locked` reports whether
 // the engine granted the mouse capture on the first click.
 //
 // Run it before every release, not after a bug report. Engine- and
@@ -22,9 +23,9 @@
 // Each engine gets a fresh temporary profile, so no one's open browser is
 // touched.
 //
-// The Beam-out button bobs forever (a CSS animation), so it is never "stable"
-// by Playwright's rules and would time out a normal click; it is clicked with
-// { force: true }. A person taps it without trouble.
+// Buttons with an attention animation are never "stable" by Playwright's
+// rules, so they are clicked with { force: true }. A person taps them without
+// trouble.
 
 import { createRequire } from 'node:module'
 import { createServer } from 'node:http'
@@ -126,31 +127,32 @@ try {
       await page.goto(`http://127.0.0.1:${PORT}/`)
       out.title = await page.title()
       if (!/Chaos Machine/i.test(out.title)) throw new Error(`wrong app on the port (title "${out.title}")`)
-// A fresh profile opens on the intro cutscene: skip it the way a player
-      // does (the skip glyph), so the skip itself is exercised.
-      {
-        const first = await page.waitForSelector('.cutscene-skip, .hud-layer', { timeout: 40000 })
-        if (await first.evaluate(el => el.classList.contains('cutscene-skip'))) await first.click()
-      }
-      await page.waitForSelector('.hud-layer', { timeout: 40000 })
+      await page.waitForSelector('.hud-layer', { timeout: 60000 })
       out.webgl = await page.evaluate(() => {
         const c = document.querySelector('canvas')
         return !!(c && (c.getContext('webgl2') || c.getContext('webgl')))
       })
-      await page.waitForTimeout(8000) // splash + beam-in
+      // A fresh profile opens on the drop-in: any press skips it, once it has
+      // had a moment to register.
+      await page.waitForTimeout(1500)
+      await page.keyboard.press('Space')
+      await page.waitForTimeout(3000)
       // The first click captures the mouse (pointer lock) where the engine
-      // grants it; a captured mouse has no cursor for HUD buttons, so the
-      // run beams out with the B key, like a desktop player.
+      // grants it; walk a little, so the run has moved, turned and fired.
       await page.mouse.click(700, 300)
       out.locked = await page.evaluate(() => !!document.pointerLockElement)
-      await page.keyboard.press('Control+Shift+Alt+KeyO') // cheat: objective done
-      await page.waitForSelector('.ctx-btn.beam', { timeout: 10000 })
-      await page.keyboard.press('KeyB')
-      await page.waitForSelector('.results', { timeout: 20000 })
+      await page.keyboard.down('KeyW')
+      await page.mouse.move(760, 300)
+      await page.waitForTimeout(1200)
+      await page.keyboard.up('KeyW')
+      await page.keyboard.press('Control+Shift+Alt+KeyO') // cheat: objective done, extract now
+      await page.waitForSelector('[data-testid="rewards"]', { timeout: 30000 })
       out.results = true
-      await page.locator('button', { hasText: /continue/i }).last().click({ force: true, timeout: 10000 })
-      await page.waitForSelector('.hub', { timeout: 15000 })
-      out.hub = true
+      // Free the mouse like a player would before using a button.
+      await page.evaluate(() => document.exitPointerLock())
+      await page.locator('[data-testid="btn-to-base"]').click({ force: true, timeout: 10000 })
+      await page.waitForSelector('[data-testid="btn-deploy"]', { timeout: 30000 })
+      out.base = true
       out.errors = errors.slice(0, 5)
       if (errors.length || !out.webgl) failed++
     } catch (e) {

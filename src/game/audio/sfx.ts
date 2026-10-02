@@ -1,3 +1,5 @@
+import { SFX_UNLIMITED } from '@/use/perfVariants'
+
 /**
  * SFX entry point. Every gameplay sound goes through `sfx(name, pan, gain)`;
  * the synthesizer behind it lands in the audio chunk. Until then this is a
@@ -29,6 +31,36 @@ let player: Player | null = null
 
 export const setSfxPlayer = (p: Player | null): void => { player = p }
 
+/**
+ * The sounds that can fire many times a second, and the least time between
+ * two of the same. Each play builds a handful of audio nodes; a minigun burst
+ * with every round and every hit voiced was 5 % of a throttled CPU in node
+ * construction alone (PERF-LEDGER.md, entry 3), and past about fifteen a
+ * second the ear hears a buzz either way.
+ */
+export const SFX_MIN_GAP_MS: Partial<Record<SfxName, number>> = {
+  minigun: 66,
+  hit: 50,
+  tink: 50,
+  ricochet: 60,
+  enemyShot: 50,
+  whizz: 80,
+  step: 60
+}
+
+const lastAt = new Map<SfxName, number>()
+
+/** Forget when each sound last played (a new mission, a test). */
+export const resetSfxGaps = (): void => lastAt.clear()
+
 export const sfx = (name: SfxName, pan = 0, gain = 1, muffle = 0): void => {
-  player?.(name, Math.max(-1, Math.min(1, pan)), gain, Math.max(0, Math.min(1, muffle)))
+  if (!player) return
+  const gap = SFX_UNLIMITED ? undefined : SFX_MIN_GAP_MS[name]
+  if (gap !== undefined) {
+    const now = performance.now()
+    const last = lastAt.get(name)
+    if (last !== undefined && now - last < gap) return
+    lastAt.set(name, now)
+  }
+  player(name, Math.max(-1, Math.min(1, pan)), gain, Math.max(0, Math.min(1, muffle)))
 }

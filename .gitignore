@@ -105,3 +105,6 @@ __screenshots__/
 /vo-src/jobs/
 /vo-src/gen/
 /vo-src/compare/
+
+# Unminified build for CPU profiles (scripts/perf-mission.mjs --profile)
+/dist-prof/

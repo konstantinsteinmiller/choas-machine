@@ -380,7 +380,7 @@ export class RigBuilder {
       const og = outlineGeos.length === this.parts.length && glowGeos.length === 0
         ? geometry
         : merge(outlineGeos)
-      outline = new SkinnedMesh(og, outlineMat(thickness))
+      outline = new SkinnedMesh(og, outlineMat(thickness, undefined, true))
       outline.bind(skeleton, mesh.bindMatrix)
       outline.frustumCulled = false
       outline.renderOrder = -1

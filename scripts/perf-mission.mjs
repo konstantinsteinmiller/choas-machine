@@ -4,11 +4,13 @@
 //   npx vite build --outDir dist           # or any build mode
 //   node scripts/perf-mission.mjs [--dist dist] [--throttle 4] [--seconds 25]
 //   node scripts/perf-mission.mjs --arms base,noportal --reps 3     # A/B
+//   node scripts/perf-mission.mjs --stealth                         # the quiet phase
+//   node scripts/perf-mission.mjs --dist dist-prof --profile        # where the CPU goes
 //
 // Serves the built output, opens it headless with the in-page probe on
 // (`?perfprobe=1`, see `src/use/usePerfProbe.ts`), throttles the CPU over CDP
-// and PLAYS: the first mission's corridor with an in-page driver that walks,
-// turns and fires, so the numbers are the game and not an idle title card.
+// and PLAYS: the Bastion with an in-page driver that walks, turns and holds
+// the minigun, so the numbers are the game and not an idle title card.
 // Reports p50/p95/p99 work-per-frame, RAF interval, long tasks and the
 // step/draw split — the rows `PERF-LEDGER.md` records.
 //
@@ -44,6 +46,11 @@ const ARMS = arg('arms', 'base').split(',').map(s => s.trim()).filter(Boolean)
 const REPS = Number(arg('reps', '1'))
 const CHROME = arg('chrome', process.env.CHROME_PATH ?? 'C:/Program Files/Google/Chrome/Application/chrome.exe')
 const VIEW = (arg('view', '1280x720')).split('x').map(Number)
+// --profile: also print where the CPU went (self time per function).
+const PROFILE = argv.includes('--profile')
+// --stealth: stay on the perch and only look around, so the garrison stays on
+// patrol with its vision cones up. Without it the driver goes loud.
+const STEALTH = argv.includes('--stealth')
 
 if (!existsSync(join(ROOT, 'index.html'))) {
   console.error(`no index.html in ${ROOT} — build first`)
@@ -75,6 +82,22 @@ const runOnce = async (arm) => {
     args: ['--use-angle=d3d11', '--enable-unsafe-swiftshader', '--autoplay-policy=no-user-gesture-required']
   })
   const page = await (await browser.newContext({ viewport: { width: VIEW[0], height: VIEW[1] } })).newPage()
+  // The mouse stays the owner's: even a headless Chrome takes the REAL pointer
+  // lock when a page asks for it. The page gets a pretend one instead.
+  await page.addInitScript(() => {
+    let locked = null
+    Object.defineProperty(Document.prototype, 'pointerLockElement', { configurable: true, get: () => locked })
+    Element.prototype.requestPointerLock = function () {
+      locked = this
+      queueMicrotask(() => document.dispatchEvent(new Event('pointerlockchange')))
+      return Promise.resolve()
+    }
+    Document.prototype.exitPointerLock = function () {
+      if (!locked) return
+      locked = null
+      queueMicrotask(() => document.dispatchEvent(new Event('pointerlockchange')))
+    }
+  })
   const errors = []
   page.on('pageerror', e => errors.push(e.message))
   try {
@@ -83,44 +106,68 @@ const runOnce = async (arm) => {
     const title = await page.title()
     if (!/Chaos Machine/i.test(title)) throw new Error(`wrong app on the port (title "${title}")`)
 
-    // Boot and beam in, unthrottled: loading is not what this measures.
-    // A fresh profile opens on the intro cutscene: skip it like a player.
-    {
-      const first = await page.waitForSelector('.cutscene-skip, .hud-layer', { timeout: 30000 })
-      if (await first.evaluate(el => el.classList.contains('cutscene-skip'))) await first.click()
-    }
-    await page.waitForSelector('.hud-layer', { timeout: 30000 })
-    await sleep(7000)
+    // Boot and drop in, unthrottled: loading is not what this measures. Any
+    // press skips the drop-in, once it has had a moment to register.
+    await page.waitForSelector('.hud-layer', { timeout: 60000 })
+    await sleep(900)
+    await page.keyboard.press('Space')
+    await sleep(5000)
     const cdp = await page.context().newCDPSession(page)
     await cdp.send('Emulation.setCPUThrottlingRate', { rate: THROTTLE })
 
-    // The in-page driver: walk the corridor, sweep the view, fire in bursts
-    // (charge and release), so enemies wake, shoot back and die on camera.
-    await page.evaluate(() => {
+    // The in-page driver: leave the perch, walk into the yard, sweep the view
+    // and hold the minigun in bursts, so the alarm goes, the garrison wakes,
+    // shoots back and dies on camera. That is the heaviest the game gets.
+    await page.evaluate((stealth) => {
       const key = (type, code) => window.dispatchEvent(new KeyboardEvent(type, { code, bubbles: true }))
       const surface = document.querySelector('.input-surface')
+      const mouse = (target, type, extra) => target.dispatchEvent(new MouseEvent(type, { bubbles: true, cancelable: true, button: 0, ...extra }))
+      // The first press takes the (pretend) pointer lock; the second is a shot.
+      if (surface) { mouse(surface, 'mousedown', {}); mouse(window, 'mouseup', {}) }
+      if (!stealth) { key('keydown', 'Digit2'); key('keyup', 'Digit2') }
       let t = 0
       let fireHeld = false
       const id = setInterval(() => {
         t += 0.1
+        if (stealth) {
+          mouse(document, 'mousemove', { movementX: Math.sin(t * 0.9) * 14, movementY: 0 })
+          return
+        }
         key('keydown', 'KeyW')
         if (Math.sin(t * 0.7) > 0.6) key('keydown', 'KeyA'); else key('keyup', 'KeyA')
         if (Math.sin(t * 0.7) < -0.6) key('keydown', 'KeyD'); else key('keyup', 'KeyD')
-        const wantFire = Math.sin(t * 2.3) > 0
-        if (wantFire !== fireHeld) { key(wantFire ? 'keydown' : 'keyup', 'Space'); fireHeld = wantFire }
-        if (surface) {
-          const r = surface.getBoundingClientRect()
-          const dx = Math.sin(t * 0.9) * 14
-          surface.dispatchEvent(new PointerEvent('pointermove', {
-            pointerId: 1, pointerType: 'mouse', clientX: r.width * 0.7 + dx, clientY: r.height * 0.5, movementX: dx, buttons: 0, bubbles: true
-          }))
-        }
+        const wantFire = Math.sin(t * 1.1) > -0.3
+        if (surface && wantFire !== fireHeld) { mouse(wantFire ? surface : window, wantFire ? 'mousedown' : 'mouseup', {}); fireHeld = wantFire }
+        mouse(document, 'mousemove', { movementX: Math.sin(t * 0.9) * 14, movementY: 0 })
       }, 100)
       window.__perfDriver = () => clearInterval(id)
-    })
-    await sleep(3000)
+    }, STEALTH)
+    await sleep(STEALTH ? 500 : 3000)
     await page.evaluate(() => window.__perfProbe?.reset())
+    if (PROFILE) {
+      await cdp.send('Profiler.enable')
+      await cdp.send('Profiler.setSamplingInterval', { interval: 500 })
+      await cdp.send('Profiler.start')
+    }
     await sleep(SECONDS * 1000)
+    if (PROFILE) {
+      // Self time per function, heaviest first. Meaningful on an unminified
+      // build: `npx vite build --outDir dist-prof --minify false`.
+      const { profile } = await cdp.send('Profiler.stop')
+      const self = new Map()
+      const dt = profile.timeDeltas
+      const byId = new Map(profile.nodes.map(n => [n.id, n]))
+      let total = 0
+      profile.samples.forEach((id, i) => {
+        const n = byId.get(id)
+        const f = n.callFrame
+        const key = `${f.functionName || '(anonymous)'}  ${(f.url.split('/').pop() || '').split('?')[0]}:${f.lineNumber + 1}`
+        self.set(key, (self.get(key) ?? 0) + (dt[i] ?? 0))
+        total += dt[i] ?? 0
+      })
+      console.log(`  profile (${arm}): self time, share of ${(total / 1000).toFixed(0)} ms sampled`)
+      for (const [k, v] of [...self].sort((x, y) => y[1] - x[1]).slice(0, 28)) console.log(`    ${(v / total * 100).toFixed(1).padStart(5)} %  ${k}`)
+    }
     const s = await page.evaluate(() => window.__perfProbe?.summary())
     await page.evaluate(() => window.__perfDriver?.())
     if (!s) throw new Error('perf probe not installed')

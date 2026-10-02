@@ -63,19 +63,24 @@ export const activeVariants = (): string[] => [...flags]
 /**
  * Baseline: iOS opens like any other phone (full scenery when it reports no
  * small RAM, 1.6x resolution). The shipping path opens iOS at low scenery and
- * 1.5x. Not yet measured on a real iPhone; see PERF-LEDGER entry 7.
+ * 1.5x. Inherited, and not yet measured on a real iPhone (PERF-LEDGER.md, open items).
  */
 export const IOS_LEGACY = perfFlag('ios-legacy')
 
 /**
- * Baseline: paint the full-screen vignette as a live radial gradient.
- *
- * The shipping path blits a small baked texture instead. This is a RE-TEST of
- * an experiment the ledger already rejected once (2026-09-05, "-0.0 %") and it
- * is only legitimate because the metric changed: that run measured `workP95`
- * under CPU throttling on a phone-sized canvas with a real GPU, and the failure
- * this is aimed at is fill-bound — a 2.7 Mpx canvas on an Adreno 618, where the
- * cost is a radial shader evaluated per pixel rather than the JS that submits
- * it. Delete the loser and record the verdict in `PERF-LEDGER.md`.
+ * `?perf=marker-legacy`: the objective marker reads its host's size on every
+ * frame again (a forced layout), as it did before PERF-LEDGER.md entry 1.
  */
-export const VIGNETTE_GRADIENT = perfFlag('vignette-gradient')
+export const MARKER_LEGACY = perfFlag('marker-legacy')
+
+/**
+ * `?perf=islands-shared`: the sky's instanced islands share the level's toon
+ * material again, as before PERF-LEDGER.md entry 2.
+ */
+export const ISLANDS_SHARED = perfFlag('islands-shared')
+
+/**
+ * `?perf=sfx-unlimited`: every rapid-fire sound is voiced every time again,
+ * as before PERF-LEDGER.md entry 3.
+ */
+export const SFX_UNLIMITED = perfFlag('sfx-unlimited')

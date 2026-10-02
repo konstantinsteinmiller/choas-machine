@@ -3,7 +3,7 @@ import {
   InstancedMesh, Matrix4, Mesh, MeshBasicMaterial, Quaternion, Scene, SphereGeometry, Vector3
 } from 'three'
 import { rock, sph, paint, paintBy } from '../models/kit'
-import { toonVC } from '../models/toon'
+import { toonVCInstanced } from '../models/toon'
 import { mulberry32 } from './rng'
 import { sceneQuality } from '../engine/quality'
 
@@ -104,7 +104,7 @@ const buildFarIslands = (c: SkyColors, count: number, centre: Vector3, near: num
   }
   geo.computeVertexNormals()
   paintBy(geo, (_x, y) => (y > 0 ? top : foot.clone().lerp(top, Math.max(0, 1 + y / 1.7))))
-  const mesh = new InstancedMesh(geo, toonVC(), count)
+  const mesh = new InstancedMesh(geo, toonVCInstanced(), count)
   mesh.name = 'far-islands'
   const rng = mulberry32(20261002)
   for (let i = 0; i < count; i++) {

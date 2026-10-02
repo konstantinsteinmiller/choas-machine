@@ -2,6 +2,7 @@ import {
   Color, DataTexture, RedFormat, NearestFilter, MeshToonMaterial, MeshBasicMaterial,
   ShaderMaterial, BackSide, UniformsLib, UniformsUtils, type Material, type Texture
 } from 'three'
+import { ISLANDS_SHARED } from '@/use/perfVariants'
 
 /**
  * ─── The cel-shaded look ─────────────────────────────────────────────────────
@@ -55,6 +56,23 @@ export const toonVC = (): MeshToonMaterial => {
   if (vcToon) return vcToon
   vcToon = new MeshToonMaterial({ vertexColors: true, gradientMap: toonRamp() })
   return vcToon
+}
+
+let vcToonInstanced: MeshToonMaterial | null = null
+/**
+ * The same look for an InstancedMesh, as a material of its own.
+ *
+ * One material drawn by both an InstancedMesh and a plain Mesh (or a skinned
+ * and a plain one) makes the renderer re-derive its program every time the
+ * two alternate in the draw list. Nothing recompiles, but the parameter
+ * gathering and the program's cache-key string are rebuilt per draw: it was
+ * 5 % of a throttled CPU in the stealth phase (PERF-LEDGER.md, entry 2).
+ */
+export const toonVCInstanced = (): MeshToonMaterial => {
+  if (ISLANDS_SHARED) return toonVC()
+  if (vcToonInstanced) return vcToonInstanced
+  vcToonInstanced = new MeshToonMaterial({ vertexColors: true, gradientMap: toonRamp() })
+  return vcToonInstanced
 }
 
 const vcMapCache = new Map<Texture, MeshToonMaterial>()
@@ -132,8 +150,13 @@ void main() {
 
 const outlineCache = new Map<string, ShaderMaterial>()
 /** Outline material of a given object-space thickness. Cached per thickness. */
-export const outlineMat = (thickness = 0.03, color: Color = OUTLINE_COLOR): ShaderMaterial => {
-  const key = `${thickness.toFixed(4)}|${color.getHexString()}`
+/**
+ * `skinned` is part of the cache key on purpose: see `toonVCInstanced`. A
+ * character's outline and a prop's outline of the same thickness are two
+ * materials.
+ */
+export const outlineMat = (thickness = 0.03, color: Color = OUTLINE_COLOR, skinned = false): ShaderMaterial => {
+  const key = `${thickness.toFixed(4)}|${color.getHexString()}|${skinned ? 's' : 'm'}`
   const hit = outlineCache.get(key)
   if (hit) return hit
   const m = new ShaderMaterial({

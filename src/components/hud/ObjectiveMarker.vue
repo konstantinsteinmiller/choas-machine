@@ -14,6 +14,7 @@ import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import GameIcon from '@/components/icons/GameIcon.vue'
 import { addHudTicker, hud, waypoint } from '@/game/state/hud'
+import { MARKER_LEGACY } from '@/use/perfVariants'
 
 /**
  * Written straight to the DOM by a HUD ticker: it moves every frame the
@@ -26,10 +27,31 @@ const arrow = ref<HTMLElement | null>(null)
 const dist = ref<HTMLElement | null>(null)
 const label = computed(() => t(hud.objective === 'extract' ? 'hud.objective.extract' : 'hud.objective.target'))
 let off: (() => void) | null = null
+let sizer: ResizeObserver | null = null
+let unlisten: (() => void) | null = null
 
 onMounted(() => {
   let shown = false
   let lastM = -1
+  let edged = false
+  // The host's size, measured when it CHANGES. Reading `clientWidth` in the
+  // ticker forced a layout on every frame, right after the other tickers had
+  // written their styles: 8 % of a throttled CPU (PERF-LEDGER.md, entry 1).
+  let w = window.innerWidth
+  let h = window.innerHeight
+  const host = el.value?.parentElement ?? null
+  const measure = (): void => {
+    w = host?.clientWidth || window.innerWidth
+    h = host?.clientHeight || window.innerHeight
+  }
+  measure()
+  if (host && typeof ResizeObserver !== 'undefined') {
+    sizer = new ResizeObserver(measure)
+    sizer.observe(host)
+  } else {
+    window.addEventListener('resize', measure)
+    unlisten = () => window.removeEventListener('resize', measure)
+  }
   off = addHudTicker(() => {
     const e = el.value
     const a = arrow.value
@@ -40,9 +62,7 @@ onMounted(() => {
       e.style.opacity = shown ? '1' : '0'
     }
     if (!shown) return
-    const host = e.parentElement
-    const w = host?.clientWidth ?? window.innerWidth
-    const h = host?.clientHeight ?? window.innerHeight
+    if (MARKER_LEGACY) measure()
     // Keep it clear of the HUD's corners.
     const m = Math.min(w, h) * 0.13
     let x = waypoint.x * w
@@ -56,10 +76,11 @@ onMounted(() => {
       const k = Math.min((w / 2 - m) / Math.max(1e-3, Math.abs(dx)), (h / 2 - m) / Math.max(1e-3, Math.abs(dy)))
       x = w / 2 + dx * k
       y = h / 2 + dy * k
-      a.style.opacity = '1'
       a.style.rotate = `${Math.atan2(dy, dx)}rad`
-    } else {
-      a.style.opacity = '0'
+    }
+    if (edge !== edged) {
+      edged = edge
+      a.style.opacity = edge ? '1' : '0'
     }
     e.style.transform = `translate(${x.toFixed(1)}px, ${y.toFixed(1)}px)`
     const metres = Math.round(waypoint.dist)
@@ -69,7 +90,11 @@ onMounted(() => {
     }
   })
 })
-onUnmounted(() => off?.())
+onUnmounted(() => {
+  off?.()
+  sizer?.disconnect()
+  unlisten?.()
+})
 </script>
 
 <style scoped lang="sass">
