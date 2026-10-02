@@ -14,7 +14,8 @@ export default {
     'home': '홈',
     'info': '정보',
     'mute': '음소거',
-    'unmute': '음소거 해제'
+    'unmute': '음소거 해제',
+    'skip': '건너뛰기'
   },
   'hud': {
     'alert': '경계 수준',

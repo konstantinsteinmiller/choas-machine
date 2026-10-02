@@ -14,7 +14,8 @@ export default {
     'home': 'Főoldal',
     'info': 'Infó',
     'mute': 'Némítás',
-    'unmute': 'Hang be'
+    'unmute': 'Hang be',
+    'skip': 'Kihagyás'
   },
   'hud': {
     'alert': 'Riadószint',

@@ -14,7 +14,8 @@ export default {
     'home': 'ホーム',
     'info': '情報',
     'mute': 'ミュート',
-    'unmute': 'ミュート解除'
+    'unmute': 'ミュート解除',
+    'skip': 'スキップ'
   },
   'hud': {
     'alert': '警戒レベル',

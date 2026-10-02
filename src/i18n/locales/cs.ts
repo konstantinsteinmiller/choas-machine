@@ -14,7 +14,8 @@ export default {
     'home': 'Domů',
     'info': 'Info',
     'mute': 'Ztlumit',
-    'unmute': 'Zapnout zvuk'
+    'unmute': 'Zapnout zvuk',
+    'skip': 'Přeskočit'
   },
   'hud': {
     'alert': 'Úroveň poplachu',

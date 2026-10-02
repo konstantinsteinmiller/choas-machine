@@ -26,6 +26,7 @@ import useAssets from '@/use/useAssets'
 import { stopLoading } from '@/use/useCrazyGames'
 import { armFirstLoadInterstitial, notifySplashGone } from '@/use/useFirstLoadInterstitial'
 import { whenInteractive } from '@/use/whenInteractive'
+import { flow } from '@/game/flow'
 
 /**
  * The boot splash: the Chaos Machine lockup + a plasma bar, driven by
@@ -190,6 +191,9 @@ const signalGameReadyToYandex = () => {
 
 watch(done, (isDone) => {
   if (!isDone) return
+  // The scene may begin once the backdrop has left (`onBackdropGone`); this
+  // is the fallback for a tab where that transition never reports back.
+  setTimeout(() => { flow.curtain = false }, 1500)
   setTimeout(() => {
     backdropHidden.value = true
     signalGameReadyToCG()
@@ -208,6 +212,8 @@ watch(done, (isDone) => {
 // then for the scene to take input (`whenInteractive`: the hub, or a mission
 // past its scripted beam-in).
 const onBackdropGone = (): void => {
+  // The scene's drop-in plays to a player who can see it.
+  flow.curtain = false
   if (import.meta.env.VITE_APP_PLAYGAMA !== 'true') return
   whenInteractive(signalGameReadyToPlaygama)
 }

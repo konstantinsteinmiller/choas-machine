@@ -14,7 +14,8 @@ export default {
     'home': '主页',
     'info': '信息',
     'mute': '静音',
-    'unmute': '取消静音'
+    'unmute': '取消静音',
+    'skip': '跳过'
   },
   'hud': {
     'alert': '警戒等级',

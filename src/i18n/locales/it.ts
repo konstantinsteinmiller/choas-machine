@@ -14,7 +14,8 @@ export default {
     'home': 'Home',
     'info': 'Info',
     'mute': 'Disattiva audio',
-    'unmute': 'Attiva audio'
+    'unmute': 'Attiva audio',
+    'skip': 'Salta'
   },
   'hud': {
     'alert': 'Livello di allerta',

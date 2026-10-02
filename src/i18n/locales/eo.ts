@@ -14,7 +14,8 @@ export default {
     'home': 'Hejmo',
     'info': 'Informoj',
     'mute': 'Silentigi',
-    'unmute': 'Reaktivigi sonon'
+    'unmute': 'Reaktivigi sonon',
+    'skip': 'Preterpasi'
   },
   'hud': {
     'alert': 'Alarmnivelo',

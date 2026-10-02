@@ -14,7 +14,8 @@ export default {
     'home': 'Pradžia',
     'info': 'Informacija',
     'mute': 'Išjungti garsą',
-    'unmute': 'Įjungti garsą'
+    'unmute': 'Įjungti garsą',
+    'skip': 'Praleisti'
   },
   'hud': {
     'alert': 'Pavojaus lygis',

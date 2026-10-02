@@ -14,7 +14,8 @@ export default {
     'home': 'Ana ekran',
     'info': 'Bilgi',
     'mute': 'Sesi kapat',
-    'unmute': 'Sesi aç'
+    'unmute': 'Sesi aç',
+    'skip': 'Geç'
   },
   'hud': {
     'alert': 'Alarm seviyesi',

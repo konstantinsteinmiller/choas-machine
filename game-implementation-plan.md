@@ -93,7 +93,7 @@ three.js import, so it runs in Vitest and in a balance script.
   decoys; minigun spool and heat; rockets and splash; weapon wheel; haptics.
 - [x] **P7 Chaos phase** — full alert switch, reinforcement waves, Enforcers
   power up, suppressive fire, armor and defeat, Goliath Tank fight.
-- [ ] **P8 Cinematics and juice** — kill-cam director (bullet follow, x-ray,
+- [x] **P8 Cinematics and juice** — kill-cam director (bullet follow, x-ray,
   blade angles, 50 % / 20 % rates), drop-in intro, extraction outro with tally,
   effects pass (muzzle, tracers, explosions, hologram shaders, screen FX).
 - [ ] **P9 Loop and Command Base** — objectives, score, medals, rewards
@@ -304,6 +304,23 @@ Answered by the owner (2026-10-02): G5 (one fortress), C1 (new remote), C2 (wran
   Not yet seen in a browser: the Goliath (the proving ground has none; the
   P10 fortress brings it). Balance (9 s to go down standing still in the yard)
   is tuned in P10 with the threat levels.
+- 2026-10-02 P8 done. `sim/killcam.ts` (pure director: first headshot and the
+  objective kill always, 50 % of headshots, 20 % of the rest, 5 s apart,
+  honours the Options switch). `sim/cine.ts` (pure camera moves: bullet chase,
+  orbit, drop-in, extraction). In the mission: a sniper round that will kill
+  can be held back and ridden in by the camera (the world frozen), then the
+  x-ray plate and a slow orbit at 0.16× time; blade and objective kills get
+  the orbit; bursts and blasts only the slow beat. The drop-in (5 s, 3 s once
+  seen; dropship, fall, landing) runs in phase `intro`, the extraction (line
+  down from the dropship) in `outro`, then phase `done` and bus `extracted`.
+  Objective: the Commander / Goliath dead → the pad's beacon lights → stand on
+  it. Any press skips a scripted shot. `flow.curtain` holds everything
+  scripted until the boot loader has left. CineBars: letterbox + skip glyph.
+  Scratch probes: `intro.mjs`, `sc-cine.mjs`.
+- **Probe rule (owner, 2026-10-02):** headless Chrome takes the REAL pointer
+  lock and grabbed the owner's mouse. Every probe page now runs
+  `scratchpad/nolock.mjs` (an in-page stand-in for the lock) through
+  `page.addInitScript`. The P13 Playwright fixtures must do the same.
 
 ## Resume notes
 

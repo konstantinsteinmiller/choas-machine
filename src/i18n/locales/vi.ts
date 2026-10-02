@@ -14,7 +14,8 @@ export default {
     'home': 'Trang chính',
     'info': 'Thông tin',
     'mute': 'Tắt tiếng',
-    'unmute': 'Bật tiếng'
+    'unmute': 'Bật tiếng',
+    'skip': 'Bỏ qua'
   },
   'hud': {
     'alert': 'Mức báo động',

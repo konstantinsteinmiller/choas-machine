@@ -14,7 +14,8 @@ export default {
     'home': 'Beranda',
     'info': 'Info',
     'mute': 'Bisukan',
-    'unmute': 'Nyalakan suara'
+    'unmute': 'Nyalakan suara',
+    'skip': 'Lewati'
   },
   'hud': {
     'alert': 'Tingkat siaga',

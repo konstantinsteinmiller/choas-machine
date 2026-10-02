@@ -14,7 +14,8 @@ export default {
     'home': 'Sākums',
     'info': 'Info',
     'mute': 'Izslēgt skaņu',
-    'unmute': 'Ieslēgt skaņu'
+    'unmute': 'Ieslēgt skaņu',
+    'skip': 'Izlaist'
   },
   'hud': {
     'alert': 'Trauksmes līmenis',

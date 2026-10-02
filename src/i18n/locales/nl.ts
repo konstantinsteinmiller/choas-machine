@@ -14,7 +14,8 @@ export default {
     'home': 'Start',
     'info': 'Info',
     'mute': 'Dempen',
-    'unmute': 'Geluid aan'
+    'unmute': 'Geluid aan',
+    'skip': 'Overslaan'
   },
   'hud': {
     'alert': 'Alarmniveau',

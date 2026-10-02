@@ -21,7 +21,9 @@ export const flow = reactive({
   /** A scene is being built behind the loading overlay. */
   loading: false,
   /** 0..1 progress of that build. */
-  loadProgress: 0
+  loadProgress: 0,
+  /** The boot loader is still on screen: nothing scripted starts under it. */
+  curtain: true
 })
 
 type Progress = (p01: number) => void
@@ -43,11 +45,11 @@ export const createBootMode = async (onProgress: Progress = () => {}): Promise<G
   const mode = await factories.mission(onProgress)
   onProgress(1)
   flow.screen = 'mission'
-  setPhase('play')
+  setPhase('intro')
   return mode
 }
 
-const swap = async (screen: Screen, factory: ModeFactory, phase: 'play' | 'base'): Promise<void> => {
+const swap = async (screen: Screen, factory: ModeFactory, phase: 'intro' | 'base'): Promise<void> => {
   if (flow.loading) return
   flow.modal = ''
   flow.loading = true
@@ -73,7 +75,7 @@ const swap = async (screen: Screen, factory: ModeFactory, phase: 'play' | 'base'
 
 /** Drop into the fortress. */
 export const startMission = async (): Promise<void> => {
-  if (factories) await swap('mission', factories.mission, 'play')
+  if (factories) await swap('mission', factories.mission, 'intro')
 }
 
 /** Leave whatever is running for the Command Base. */

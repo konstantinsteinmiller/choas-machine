@@ -14,7 +14,8 @@ export default {
     'home': 'Acasă',
     'info': 'Info',
     'mute': 'Dezactivează sunetul',
-    'unmute': 'Activează sunetul'
+    'unmute': 'Activează sunetul',
+    'skip': 'Omite'
   },
   'hud': {
     'alert': 'Nivel de alertă',

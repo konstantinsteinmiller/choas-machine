@@ -18,7 +18,8 @@ export default {
     'home': 'Home',
     'info': 'Info',
     'mute': 'Mute',
-    'unmute': 'Unmute'
+    'unmute': 'Unmute',
+    'skip': 'Skip'
   },
   'hud': {
     'alert': 'Alert level',

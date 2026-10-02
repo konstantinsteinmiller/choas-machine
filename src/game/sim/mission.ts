@@ -1,6 +1,8 @@
-import { PerspectiveCamera, Sprite, SpriteMaterial, AdditiveBlending, Vector3, type Mesh } from 'three'
+import {
+  PerspectiveCamera, Sprite, SpriteMaterial, AdditiveBlending, Vector3, Mesh, CylinderGeometry, MeshBasicMaterial, DoubleSide
+} from 'three'
 import { getRenderer, fovForAspect } from '../engine/renderer'
-import { newScene, type GameMode } from '../engine/app'
+import { app, newScene, type GameMode } from '../engine/app'
 import { noSlice, type Slice } from '../engine/slicer'
 import { consumeEdges, type Input } from '../engine/input'
 import { input as sharedInput, inputClock } from '../engine/inputState'
@@ -29,7 +31,7 @@ import {
   type Garrison, type Target
 } from './garrison'
 import { GarrisonView } from './garrisonView'
-import { castShot, makeShotHit } from './hitscan'
+import { castShot, makeShotHit, HEAD_Y } from './hitscan'
 import { blast, shotDamage } from './damage'
 import { SPREAD, ammoOf, makeArsenal, stepArsenal, type Arsenal, type Trigger } from './weapons'
 import { DECOYS_PER_MISSION, decoySpot, findStrike, stepDecoys, type Decoy, type Strike, type StrikeKind } from './melee'
@@ -37,6 +39,14 @@ import { fireRocket, stepRockets, type Rocket } from './rockets'
 import { stepFire } from './chaos'
 import { hurtArmor, makeArmor, stepArmor, type Armor } from './armor'
 import { flow } from '../flow'
+import { makeKillCamState, wantsKillCam } from './killcam'
+import {
+  DROP_LANDED, blendPose, bulletAt, bulletCam, bulletFlightS, dropHeight, introCam, liftHeight, makeCinePose, orbitCam, outroCam,
+  type CinePose
+} from './cine'
+import { buildDropship, type Dropship } from '../models/dropship'
+import { killCamsEnabled } from '@/use/useKillCam'
+import { markSeen, profile } from '../state/profile'
 
 /**
  * ─── A mission ───────────────────────────────────────────────────────────────
@@ -58,8 +68,8 @@ const SHOT_RANGE = 260
 /** A sniper round that hits a wall is heard this far. */
 const MISS_EARSHOT = 8
 /** The scope's sway, radians: standing, and steadied in a crouch. */
-const SWAY = 0.0034
-const SWAY_CROUCH = 0.0012
+const SWAY = 0.0022
+const SWAY_CROUCH = 0.0008
 
 /** A strike in progress: the mech is not the player's for its length. */
 interface StrikeRun {
@@ -76,6 +86,29 @@ interface StrikeRun {
   yaw: number
   landed: boolean
 }
+
+/** The scripted shot that is running, if one is. Timed in REAL seconds. */
+type Cine =
+  /** The drop-in. */
+  | { kind: 'intro'; t: number; dur: number; landed: boolean }
+  /** The extraction. */
+  | { kind: 'outro'; t: number; dur: number }
+  /** The sniper's round in flight, then a moment on what it did. */
+  | {
+    kind: 'bullet'; t: number; dur: number; hit: boolean
+    ox: number; oy: number; oz: number; hx: number; hy: number; hz: number
+    nx: number; ny: number; nz: number
+    id: number; damage: number; head: boolean; final: boolean; yaw: number
+  }
+  /** A slow turn round a kill made some other way. */
+  | { kind: 'orbit'; t: number; dur: number; id: number; yaw: number; final: boolean }
+  /** No camera move: time just dips for a beat. */
+  | { kind: 'dip'; t: number; dur: number }
+
+/** How slow the world runs while a kill-cam holds on its kill. */
+const KILLCAM_SLOW = 0.16
+/** How near the pad the mech must be for the line to take it. */
+const EXTRACT_RADIUS = 1.9
 
 /** What the mission remembers for the tally. */
 export interface MissionStats {
@@ -114,6 +147,17 @@ export class Mission implements GameMode {
   private markers = new FloorMarkers()
   /** Seconds since the mech went down. */
   private downT = 0
+  /** What the mission wants next. */
+  objective: 'target' | 'extract' | 'done' = 'target'
+  private cine: Cine | null = null
+  private cinePose = makeCinePose()
+  private followPose = makeCinePose()
+  private killcam = makeKillCamState()
+  private ship!: Dropship
+  private beacon!: Mesh
+  private line!: Mesh
+  /** How far above its feet the mech is drawn (the drop, the lift). */
+  private lift = 0
   private target: Target
   private mesh!: FortressMesh
   private decor!: DecorMesh
@@ -169,7 +213,27 @@ export class Mission implements GameMode {
     }))
     m.strikeMark.renderOrder = 31
     m.strikeMark.visible = false
-    m.scene.add(m.mesh.group, m.decor.group, m.rig.root, m.shadow, m.garrisonView.group, m.fx.group, m.markers.root, m.strikeMark)
+    await slice()
+    m.ship = buildDropship()
+    m.ship.group.visible = false
+    // The way out: a column of light on the pad, lit once the target is down.
+    const column = new CylinderGeometry(1.5, 1.5, 1, 20, 1, true)
+    column.translate(0, 0.5, 0)
+    m.beacon = new Mesh(column, new MeshBasicMaterial({
+      color: PAL.glowGreen, transparent: true, opacity: 0.3, blending: AdditiveBlending, depthWrite: false, side: DoubleSide, toneMapped: false
+    }))
+    m.beacon.position.set(fortress.extract.x, heightAt(fortress.grid, fortress.extract.x, fortress.extract.z), fortress.extract.z)
+    m.beacon.scale.set(1, 40, 1)
+    m.beacon.visible = false
+    // The grapple line: a unit rod, stretched between the ship and the mech.
+    const rod = new CylinderGeometry(0.035, 0.035, 1, 6)
+    rod.translate(0, 0.5, 0)
+    m.line = new Mesh(rod, new MeshBasicMaterial({ color: PAL.glowCyan, toneMapped: false }))
+    m.line.visible = false
+    m.scene.add(
+      m.mesh.group, m.decor.group, m.rig.root, m.shadow, m.garrisonView.group, m.fx.group, m.markers.root, m.strikeMark,
+      m.ship.group, m.beacon, m.line
+    )
     onProgress(1)
     m.place(1, 0)
     return m
@@ -185,7 +249,12 @@ export class Mission implements GameMode {
     vital.armor = 1
     vital.hitAge = 9
     mirror('armorLow', false)
+    mirror('cine', false)
+    mirror('objective', 'target')
     this.mirrorWeapons()
+    // The drop-in: five seconds the first time, three once it has been seen.
+    this.cine = { kind: 'intro', t: 0, dur: profile.seen.includes('intro') ? 3 : 5, landed: false }
+    this.lift = dropHeight(0)
   }
 
   resize(w: number, h: number): void {
@@ -201,7 +270,21 @@ export class Mission implements GameMode {
     this.time += dt
     inputClock.tick()
 
-    if (hud.phase === 'play') {
+    // Any press skips a scripted shot (once it has had a moment to register).
+    if (this.cine && i.anyPressed && this.cine.t > 0.3) this.skipCine()
+    // The bullet in flight: the world holds its breath.
+    if (this.cine?.kind === 'bullet' && !this.cine.hit) {
+      consumeEdges(i)
+      return
+    }
+
+    if (hud.phase === 'intro' || hud.phase === 'outro') {
+      // The base goes about its night; nothing in it can see the mech yet.
+      this.target.visible = false
+      stepGarrison(this.garrison, this.fortress.grid, this.target, dt)
+      drainEvents(this.garrison)
+    } else if (hud.phase === 'play') {
+      this.target.visible = true
       this.stats.time += dt
       if (this.strike) {
         this.stepStrike(dt)
@@ -225,6 +308,11 @@ export class Mission implements GameMode {
         this.offer = findStrike(this.garrison, this.fortress.grid, p.x, p.y, p.z, this.cam.yaw, p.mode === 'ground')
         if (i.actQueued && this.offer) this.startStrike(this.offer)
         if (i.decoyQueued) this.throwDecoy()
+        // On the pad with the job done: the line comes down.
+        if (this.objective === 'extract' && p.mode === 'ground') {
+          const e = this.fortress.extract
+          if (Math.hypot(p.x - e.x, p.z - e.z) < EXTRACT_RADIUS) this.startOutro()
+        }
       }
       this.stepWeapons(dt)
       this.stepRockets(dt)
@@ -364,22 +452,42 @@ export class Mission implements GameMode {
     if (w === 'minigun') this.goLoud()
 
     const h = castShot(g, gar.units, ox, oy, oz, dx, dy, dz, SHOT_RANGE, this.hit)
-    this.fx.tracer(ox, oy, oz, h.x, h.y, h.z, w)
     if (h.kind === 'unit') {
       const u = gar.units[h.unit]!
       const soft = u.kind === 'guard' || u.kind === 'sentry' || u.kind === 'commander'
-      this.fx.impact(h.x, h.y, h.z, h.nx, h.ny, h.nz, soft, w)
       this.stats.hits++
       const head = h.zone === 'head' && soft
       if (head) this.stats.headshots++
       this.killBy = w
       this.killHead = head
+      const damage = shotDamage(w, u.kind, h.zone)
+      // A sniper round that is going to kill may be given the kill-cam: then
+      // it has not landed yet, and the camera rides it in.
+      if (w === 'sniper' && u.hp - damage <= 0) {
+        const final = this.isLastTarget(u.id)
+        if (wantsKillCam(this.killcam, { by: 'sniper', head, final, time: this.stats.time }, Math.random(), killCamsEnabled.value)) {
+          const dist = Math.hypot(h.x - ox, h.y - oy, h.z - oz)
+          this.cine = {
+            kind: 'bullet', t: 0, dur: bulletFlightS(dist), hit: false,
+            ox, oy, oz, hx: h.x, hy: h.y, hz: h.z, nx: h.nx, ny: h.ny, nz: h.nz,
+            id: u.id, damage, head, final, yaw: Math.atan2(ox - h.x, oz - h.z)
+          }
+          mirror('cine', true)
+          emit('killcam', { kind: 'bullet', final })
+          return
+        }
+      }
+      this.fx.tracer(ox, oy, oz, h.x, h.y, h.z, w)
+      this.fx.impact(h.x, h.y, h.z, h.nx, h.ny, h.nz, soft, w)
       emit('hit', { id: u.id, weapon: w, zone: h.zone })
-      if (!damageUnit(gar, u.id, shotDamage(w, u.kind, h.zone), ox, oz)) alarmUnit(gar, u.id, this.player.x, this.player.z)
+      if (!damageUnit(gar, u.id, damage, ox, oz)) alarmUnit(gar, u.id, this.player.x, this.player.z)
     } else if (h.kind === 'world') {
+      this.fx.tracer(ox, oy, oz, h.x, h.y, h.z, w)
       this.fx.impact(h.x, h.y, h.z, h.nx, h.ny, h.nz, false, w)
       // A silenced round is still heard where it lands.
       if (w === 'sniper') noiseAt(gar, this.target, h.x, h.z, MISS_EARSHOT, 'miss')
+    } else {
+      this.fx.tracer(ox, oy, oz, h.x, h.y, h.z, w)
     }
     this.flushGarrison()
   }
@@ -524,6 +632,25 @@ export class Mission implements GameMode {
           id: e.id, kind: u.kind, by: this.killBy, head: this.killHead,
           dist: Math.hypot(u.x - this.player.x, u.z - this.player.z)
         })
+        const final = this.objective === 'target' && this.targetsLeft() === 0
+        if (final) this.openExtraction()
+        // The sniper's kill-cam was decided when the round was fired.
+        if (this.killBy !== 'sniper' && !this.cine && hud.phase === 'play') {
+          const info = { by: this.killBy, head: false, final, time: this.stats.time }
+          if (wantsKillCam(this.killcam, info, Math.random(), killCamsEnabled.value)) {
+            // The blade and the last kill get the camera; a burst or a blast
+            // in the middle of a fight only gets the slow beat.
+            if (this.killBy === 'blade' || final) {
+              this.cine = { kind: 'orbit', t: 0, dur: final ? 2.4 : 1.5, id: e.id, yaw: this.cam.yaw + Math.PI * 0.75, final }
+              mirror('cine', true)
+              emit('killcam', { kind: 'orbit', final })
+            } else {
+              this.cine = { kind: 'dip', t: 0, dur: 0.75 }
+              emit('killcam', { kind: 'dip', final })
+            }
+            app.setTimeScale(KILLCAM_SLOW)
+          }
+        }
       } else if (e.type === 'fire') {
         this.incoming(e.id, e.damage)
       } else if (e.type === 'telegraph') {
@@ -617,6 +744,185 @@ export class Mission implements GameMode {
     }
   }
 
+  // ─── The objective and the scripted shots ──────────────────────────────────
+
+  /** The mission's targets still standing: the Commander, the Goliath. */
+  private targetsLeft(): number {
+    let n = 0
+    for (const u of this.garrison.units) if ((u.kind === 'commander' || u.kind === 'goliath') && u.state !== 'dead') n++
+    return n
+  }
+
+  /** Would killing this unit complete the objective? */
+  private isLastTarget(id: number): boolean {
+    const u = this.garrison.units[id]!
+    return this.objective === 'target' && (u.kind === 'commander' || u.kind === 'goliath') && this.targetsLeft() === 1
+  }
+
+  private openExtraction(): void {
+    if (this.objective !== 'target') return
+    this.objective = 'extract'
+    this.beacon.visible = true
+    mirror('objective', 'extract')
+    emit('objective', { state: 'extract' })
+  }
+
+  private startOutro(): void {
+    if (hud.phase !== 'play') return
+    const p = this.player
+    this.strike = null
+    this.offer = null
+    p.vx = 0
+    p.vz = 0
+    p.speed01 = 0
+    this.cine = { kind: 'outro', t: 0, dur: 4.4 }
+    this.objective = 'done'
+    this.beacon.visible = false
+    mirror('objective', 'done')
+    setPhase('outro')
+    emit('extracting', {})
+  }
+
+  /** The kill-cam's round arrives: now it does what it was always going to. */
+  private landBullet(c: Extract<Cine, { kind: 'bullet' }>): void {
+    const gar = this.garrison
+    const u = gar.units[c.id]!
+    c.hit = true
+    c.t = 0
+    c.dur = c.final ? 2.0 : 1.15
+    this.fx.hideBullet()
+    this.fx.impact(c.hx, c.hy, c.hz, c.nx, c.ny, c.nz, true, 'sniper')
+    this.garrisonView.flash(c.id, PAL.glowCyan, 0.6)
+    // The plate sits on the head itself, not on the point of entry.
+    if (c.head) this.fx.showXray(u.x, u.y + HEAD_Y, u.z, 1.05)
+    this.shake = Math.max(this.shake, 0.5)
+    haptic('blast')
+    this.killBy = 'sniper'
+    this.killHead = c.head
+    emit('hit', { id: u.id, weapon: 'sniper', zone: c.head ? 'head' : 'body' })
+    damageUnit(gar, c.id, c.damage, c.ox, c.oz)
+    this.flushGarrison()
+    app.setTimeScale(KILLCAM_SLOW)
+  }
+
+  private endCine(): void {
+    const c = this.cine
+    if (!c) return
+    this.cine = null
+    this.fx.hideBullet()
+    app.setTimeScale(1)
+    mirror('cine', false)
+    if (c.kind === 'intro') {
+      this.lift = 0
+      this.ship.group.visible = false
+      markSeen('intro')
+      setPhase('play')
+      emit('deployed', {})
+    } else if (c.kind === 'outro') {
+      this.line.visible = false
+      setPhase('done')
+      emit('extracted', {})
+    }
+  }
+
+  /** A press during a scripted shot: cut to its end. */
+  private skipCine(): void {
+    const c = this.cine
+    if (!c) return
+    if (c.kind === 'intro') {
+      if (!c.landed) { c.landed = true; emit('land', { drop: 4 }) }
+    } else if (c.kind === 'bullet' && !c.hit) {
+      this.landBullet(c)
+    } else if (c.kind === 'outro') {
+      // The way out is not skipped half-way: it jumps to the end of the lift.
+      c.t = c.dur
+      return
+    }
+    this.endCine()
+  }
+
+  /**
+   * Run the scripted shot by `dt` REAL seconds and fill the camera for it.
+   * Returns false when there is none (the follow camera is used).
+   */
+  private stepCine(dt: number, follow: CinePose, x: number, y: number, z: number): boolean {
+    const c = this.cine
+    if (!c) return false
+    const out = this.cinePose
+    const f = this.fortress
+    // Nothing scripted plays under the loader or the veil.
+    if (!flow.curtain && !flow.loading) c.t += dt
+    const k = Math.min(1, c.t / c.dur)
+    if (c.kind === 'intro') {
+      this.lift = dropHeight(k)
+      const py = heightAt(f.grid, f.insert.x, f.insert.z)
+      introCam(out, k, f.insert.x, py, f.insert.z, f.insert.facing, this.centre.x, this.centre.z, follow)
+      // The ship hangs over the perch, lets the mech go, and leaves.
+      const leave = Math.max(0, k - DROP_LANDED)
+      this.ship.group.visible = k < 0.98
+      this.ship.group.position.set(
+        f.insert.x - Math.sin(f.insert.facing) * leave * 50, py + 17.5 + leave * leave * 90, f.insert.z - Math.cos(f.insert.facing) * leave * 50
+      )
+      this.ship.group.rotation.set(-leave * 0.5, f.insert.facing, Math.sin(this.time * 1.7) * 0.03)
+      if (!c.landed && k >= DROP_LANDED) {
+        c.landed = true
+        this.fx.rings.spawn(f.insert.x, py + 0.08, f.insert.z, 3.4, PAL.glowCyan, 0.55)
+        this.fx.particles.sparks(f.insert.x, py + 0.2, f.insert.z, '#d9ccff', 16, 5, 0.2)
+        this.shake = Math.max(this.shake, 0.7)
+        haptic('blast')
+        emit('land', { drop: 16 })
+      }
+      if (k >= 1) this.endCine()
+      return true
+    }
+    if (c.kind === 'outro') {
+      this.lift = liftHeight(k)
+      const py = heightAt(f.grid, f.extract.x, f.extract.z)
+      outroCam(out, k, x, py, z, this.player.yaw, this.baseFov)
+      // The ship comes down over the pad, drops the line, and takes the mech up.
+      const down = Math.min(1, k / 0.3)
+      const shipY = py + 16 + (1 - down) * (1 - down) * 40 + Math.max(0, k - 0.45) * 26
+      this.ship.group.visible = true
+      this.ship.group.position.set(x, shipY, z)
+      this.ship.group.rotation.set(0, this.player.yaw, Math.sin(this.time * 1.7) * 0.03)
+      const top = shipY + 0.7
+      const bottom = py + this.lift + 2.2
+      const reach = Math.min(1, Math.max(0, (k - 0.12) / 0.18))
+      this.line.visible = reach > 0
+      this.line.position.set(x, top - (top - bottom) * reach, z)
+      this.line.scale.set(1, (top - bottom) * reach, 1)
+      if (k >= 1) this.endCine()
+      return true
+    }
+    if (c.kind === 'bullet') {
+      if (!c.hit) {
+        bulletCam(out, k, c.ox, c.oy, c.oz, c.hx, c.hy, c.hz, this.baseFov)
+        const b = bulletAt(k, c.ox, c.oy, c.oz, c.hx, c.hy, c.hz)
+        const len = Math.hypot(c.hx - c.ox, c.hy - c.oy, c.hz - c.oz) || 1
+        this.fx.showBullet(b.x, b.y, b.z, (c.hx - c.ox) / len, (c.hy - c.oy) / len, (c.hz - c.oz) / len)
+        if (k >= 1) this.landBullet(c)
+        return true
+      }
+      // On the target: a slow turn round it as it goes down.
+      const u = this.garrison.units[c.id]!
+      orbitCam(out, c.t, u.x, u.y + 1.2, u.z, c.yaw, 3.3, 0.5, 0.55, this.baseFov * 0.62)
+      if (k >= 1) this.endCine()
+      return true
+    }
+    if (c.kind === 'orbit') {
+      const u = this.garrison.units[c.id]!
+      orbitCam(out, c.t, u.x, u.y + 1.1, u.z, c.yaw, 4.2, 1.1, 0.7, this.baseFov * 0.7)
+      // In and out of the follow camera, so the cut is a move.
+      const edge = Math.min(1, c.t / 0.25, (c.dur - c.t) / 0.3)
+      if (edge < 1) blendPose(out, follow, out, Math.max(0, edge))
+      if (k >= 1) this.endCine()
+      return true
+    }
+    // dip: time only.
+    if (k >= 1) this.endCine()
+    return false
+  }
+
   /** Take a defender out directly (the test probe's hand). */
   kill(id: number): void {
     this.killBy = 'blade'
@@ -676,22 +982,34 @@ export class Mission implements GameMode {
     const jy = this.shake > 0 ? (Math.random() - 0.5) * this.shake * 0.03 : 0
     this.cam.yaw += sway.yaw + jx
     this.cam.pitch += sway.pitch + kick + jy
-    const view = placeCam(this.cam, g, x, y, z, eyeHeight(p), a.current, this.baseFov, SCOPE_FOV, dt)
+    const follow = placeCam(this.cam, g, x, y, z, eyeHeight(p), a.current, this.baseFov, SCOPE_FOV, dt)
     this.cam.yaw -= sway.yaw + jx
     this.cam.pitch -= sway.pitch + kick + jy
 
+    // A scripted shot takes the camera; otherwise it follows the mech.
+    const fp = this.followPose
+    fp.x = follow.x; fp.y = follow.y; fp.z = follow.z
+    fp.tx = follow.tx; fp.ty = follow.ty; fp.tz = follow.tz
+    fp.fov = follow.fov
+    const scripted = this.stepCine(dt, fp, x, y, z)
+    const view = scripted ? this.cinePose : fp
+    const inside = scripted ? 0 : follow.inside
+    if (scripted && this.shake > 0) {
+      view.x += (Math.random() - 0.5) * this.shake * 0.12
+      view.y += (Math.random() - 0.5) * this.shake * 0.12
+    }
     this.camera.position.set(view.x, view.y, view.z)
     this.camera.lookAt(view.tx, view.ty, view.tz)
     if (Math.abs(this.camera.fov - view.fov) > 0.01) {
       this.camera.fov = view.fov
       this.camera.updateProjectionMatrix()
     }
-    mirror('scoped', view.inside > 0.6)
+    mirror('scoped', inside > 0.6)
 
     // The body.
-    this.rig.root.position.set(x, y, z)
+    this.rig.root.position.set(x, y + this.lift, z)
     this.rig.root.rotation.y = yaw
-    this.rig.root.visible = view.inside < 0.6
+    this.rig.root.visible = inside < 0.6
     const striking = this.strike
     this.bladeOut += (((striking || this.offer) ? 1 : 0) - this.bladeOut) * Math.min(1, dt * 14)
     const s = this.pose
@@ -710,14 +1028,14 @@ export class Mission implements GameMode {
     s.climb = p.mode === 'ladder' || p.mode === 'mantle' ? 1 : 0
     s.climbPhase = p.climbPhase
     s.cable = p.mode === 'cable' ? 1 : 0
-    s.air = p.mode === 'air' ? 1 : 0
+    s.air = p.mode === 'air' || this.lift > 0.05 ? 1 : 0
     poseMech(this.rig, s)
 
     // A soft shadow on whatever is under the mech, fading with its height.
     const floor = heightAt(g, x, z)
     this.shadow.position.set(x, floor + 0.03, z)
     this.shadow.visible = floor > -100
-    const lift = Math.max(0, y - floor)
+    const lift = Math.max(0, y + this.lift - floor)
     this.shadow.scale.setScalar(0.7 / (1 + lift * 0.25))
 
     // The mark on whoever the blade can reach.
@@ -732,6 +1050,8 @@ export class Mission implements GameMode {
       this.strikeMark.scale.set(size, size, 1)
     }
 
+    // The beacon breathes.
+    if (this.beacon.visible) (this.beacon.material as MeshBasicMaterial).opacity = 0.22 + 0.12 * Math.sin(this.time * 3)
     this.garrisonView.update(alpha, dt, this.time, view.x, view.y, view.z)
     this.markers.update(dt, this.time)
     this.fx.update(dt, alpha, this.rockets, this.decoys, this.viewH, this.camera.fov)
@@ -754,6 +1074,12 @@ export class Mission implements GameMode {
     this.garrisonView.dispose()
     this.fx.dispose()
     this.strikeMark.material.dispose()
+    app.setTimeScale(1)
+    this.ship.dispose()
+    this.beacon.geometry.dispose()
+    ;(this.beacon.material as MeshBasicMaterial).dispose()
+    this.line.geometry.dispose()
+    ;(this.line.material as MeshBasicMaterial).dispose()
     this.rig.mesh.geometry.dispose()
     this.rig.material.dispose()
     this.rig.glowMaterial.dispose()

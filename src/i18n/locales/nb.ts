@@ -14,7 +14,8 @@ export default {
     'home': 'Start',
     'info': 'Info',
     'mute': 'Slå av lyd',
-    'unmute': 'Slå på lyd'
+    'unmute': 'Slå på lyd',
+    'skip': 'Hopp over'
   },
   'hud': {
     'alert': 'Alarmnivå',

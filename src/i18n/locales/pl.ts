@@ -14,7 +14,8 @@ export default {
     'home': 'Ekran główny',
     'info': 'Info',
     'mute': 'Wycisz',
-    'unmute': 'Włącz dźwięk'
+    'unmute': 'Włącz dźwięk',
+    'skip': 'Pomiń'
   },
   'hud': {
     'alert': 'Poziom alarmu',

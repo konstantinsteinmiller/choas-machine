@@ -4,7 +4,8 @@
     //- The gesture surface: every touch and click on the scene lands here.
     div.input-surface(v-show="flow.screen === 'mission'" ref="surface")
     div.hud-layer
-      MissionHud(v-if="flow.screen === 'mission' && (hud.phase === 'play' || hud.phase === 'dead')" @pause="openPause")
+      MissionHud(v-if="flow.screen === 'mission' && (hud.phase === 'play' || hud.phase === 'dead')" v-show="!hud.cine" @pause="openPause")
+      CineBars
       SystemCorner(v-if="flow.screen === 'base'")
     //- After a pause or an ad the mouse is free, and a browser only captures
     //- it again on a click: the run waits under this veil for one.
@@ -42,6 +43,7 @@ import { registerGameCheats } from '@/game/cheats'
 import GameIcon from '@/components/icons/GameIcon.vue'
 import SystemCorner from '@/components/hud/SystemCorner.vue'
 import MissionHud from '@/components/hud/MissionHud.vue'
+import CineBars from '@/components/hud/CineBars.vue'
 import PauseModal from '@/components/modals/PauseModal.vue'
 import LoadingVeil from '@/components/atoms/LoadingVeil.vue'
 import DefeatModal from '@/components/modals/DefeatModal.vue'

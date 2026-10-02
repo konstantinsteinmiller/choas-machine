@@ -14,7 +14,8 @@ export default {
     'home': 'Alkuun',
     'info': 'Tietoa',
     'mute': 'Mykistä',
-    'unmute': 'Poista mykistys'
+    'unmute': 'Poista mykistys',
+    'skip': 'Ohita'
   },
   'hud': {
     'alert': 'Hälytystaso',

@@ -14,7 +14,8 @@ export default {
     'home': 'Bosh sahifa',
     'info': 'Maʼlumot',
     'mute': 'Ovozni o\'chirish',
-    'unmute': 'Ovozni yoqish'
+    'unmute': 'Ovozni yoqish',
+    'skip': 'O‘tkazib yuborish'
   },
   'hud': {
     'alert': 'Xavf darajasi',

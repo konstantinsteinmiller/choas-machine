@@ -14,7 +14,8 @@ export default {
     'home': 'Početna',
     'info': 'Info',
     'mute': 'Isključi zvuk',
-    'unmute': 'Uključi zvuk'
+    'unmute': 'Uključi zvuk',
+    'skip': 'Preskoči'
   },
   'hud': {
     'alert': 'Razina uzbune',

@@ -55,7 +55,11 @@ export const hud = reactive({
   /** The blade's offer right now, or '' when there is none. */
   strike: '' as '' | 'backstab' | 'drop' | 'strike',
   /** Under a third of its armor: the HUD says so. */
-  armorLow: false
+  armorLow: false,
+  /** A kill-cam is playing: the HUD stands down. */
+  cine: false,
+  /** What the mission wants next: the target dead, then the way out. */
+  objective: 'target' as 'target' | 'extract' | 'done'
 })
 
 /** The mech's armor and the last hit it took: per-frame, so outside Vue. */

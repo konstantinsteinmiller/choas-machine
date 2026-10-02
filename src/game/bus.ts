@@ -49,6 +49,14 @@ export interface GameEvents {
   /** The mech took damage; the mech is down. */
   hurt: { amount: number; hp: number }
   defeat: Record<string, never>
+  /** A kill-cam started (`kind`: the bullet's flight, or a slow orbit). */
+  killcam: { kind: 'bullet' | 'orbit' | 'dip'; final: boolean }
+  /** The objective moved on: the target is dead, the way out is open. */
+  objective: { state: 'extract' }
+  /** The drop-in ended and the mech is the player's; the mech is away. */
+  deployed: Record<string, never>
+  extracting: Record<string, never>
+  extracted: Record<string, never>
   /** The alert meter lit or lost a segment. */
   alert: { segments: number; prev: number }
   /** The base went to full alert: the stealth phase is over. */

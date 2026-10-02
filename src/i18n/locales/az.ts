@@ -14,7 +14,8 @@ export default {
     'home': 'Əsas ekran',
     'info': 'Məlumat',
     'mute': 'Səsi söndür',
-    'unmute': 'Səsi aç'
+    'unmute': 'Səsi aç',
+    'skip': 'Keç'
   },
   'hud': {
     'alert': 'Həyəcan səviyyəsi',

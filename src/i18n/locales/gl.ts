@@ -14,7 +14,8 @@ export default {
     'home': 'Inicio',
     'info': 'Info',
     'mute': 'Silenciar',
-    'unmute': 'Activar o son'
+    'unmute': 'Activar o son',
+    'skip': 'Omitir'
   },
   'hud': {
     'alert': 'Nivel de alerta',

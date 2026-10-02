@@ -14,7 +14,8 @@ export default {
     'home': 'Inici',
     'info': 'Info',
     'mute': 'Silencia',
-    'unmute': 'Activa el so'
+    'unmute': 'Activa el so',
+    'skip': 'Omet'
   },
   'hud': {
     'alert': 'Nivell d\'alerta',

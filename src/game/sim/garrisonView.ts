@@ -58,6 +58,8 @@ interface UnitView {
   /** The mark's pop when the state changes. */
   pop: number
   lastState: string
+  /** Seconds left of the flash a hit gives it. */
+  flash: number
 }
 
 /** The "?" and the "!", drawn as shapes: no font, so no wait for one. */
@@ -102,6 +104,7 @@ export class GarrisonView {
   private coneCol: Float32Array
   private coneCount = 0
   private cursor = 0
+  private flashColor = new Color()
   /** Scratch for one cone's grid points: x, y, z, alpha. */
   private gx = new Float32Array((CONE_SEGS + 1) * (CONE_RINGS + 1) * 4)
   private textures: CanvasTexture[]
@@ -149,7 +152,7 @@ export class GarrisonView {
         drone: u.kind === 'drone' ? { time: 0, spin: 0, pitch: 0, roll: 0, eyeYaw: 0, eyePitch: 0.5 } : null,
         enforcer: u.kind === 'enforcer' ? { time: 0, stride: 0, speed: 0, power: 0, aimYaw: 0, aimPitch: 0, recoilL: 0, recoilR: 0, dead: 0 } : null,
         goliath: u.kind === 'goliath' ? { time: 0, turretYaw: 0, barrelPitch: 0, recoil: 0, rumble: 0, dead: 0 } : null,
-        aim: 0, wary: 0, spin: 0, pop: 0, lastState: u.state
+        aim: 0, wary: 0, spin: 0, pop: 0, lastState: u.state, flash: 0
       }
       this.views.push(v)
       this.group.add(rig.root, shadow)
@@ -181,6 +184,15 @@ export class GarrisonView {
 
   addTo(scene: Scene): void {
     scene.add(this.group)
+  }
+
+  /** Light a defender up for a moment (a hit, the x-ray of a kill-cam). */
+  flash(id: number, hex: string, seconds = 0.5): void {
+    const v = this.views[id]
+    if (!v) return
+    v.flash = seconds
+    this.flashColor.set(hex)
+    v.rig.material.emissive.copy(this.flashColor)
   }
 
   /**
@@ -291,6 +303,12 @@ export class GarrisonView {
         v.pop = 1
       }
       v.pop = Math.max(0, v.pop - dt * 3.5)
+      if (v.flash > 0) {
+        v.flash -= dt
+        // The glow dies away rather than switching off.
+        v.rig.material.emissive.multiplyScalar(Math.max(0, 1 - dt * 5))
+        if (v.flash <= 0) v.rig.material.emissive.setScalar(0)
+      }
       const dead = u.state === 'dead'
 
       if (v.guard) {

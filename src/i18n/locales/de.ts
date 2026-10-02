@@ -14,7 +14,8 @@ export default {
     'home': 'Start',
     'info': 'Info',
     'mute': 'Stummschalten',
-    'unmute': 'Ton an'
+    'unmute': 'Ton an',
+    'skip': 'Überspringen'
   },
   'hud': {
     'alert': 'Alarmstufe',
