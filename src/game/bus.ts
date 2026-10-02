@@ -54,6 +54,8 @@ export interface GameEvents {
   defeat: Record<string, never>
   /** A kill-cam started (`kind`: the bullet's flight, or a slow orbit). */
   killcam: { kind: 'bullet' | 'orbit' | 'dip' | 'stab'; final: boolean }
+  /** The grappling hook: thrown, caught (`heard` listeners), recalled, the mech on top. */
+  grapple: { beat: 'throw' | 'bite' | 'recall' | 'top'; heard: number }
   /** The takedown's beats: the blade springs out, goes in, comes back out. */
   takedown: { beat: 'draw' | 'stab' | 'pull'; id: number }
   /** The objective moved on: the target is dead, the way out is open. */

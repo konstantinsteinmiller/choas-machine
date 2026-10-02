@@ -255,6 +255,25 @@ const RECIPES: Record<SfxName, (pan: number, g: number) => void> = {
     burst({ dur: 0.06, vol: 0.06 * g, type: 'bandpass', f0: 2600, q: 3, at: 0.06 })
   },
 
+  // ── The grappling hook: a line paid out, steel on stone, a winch ──
+  hookThrow: (_p, g) => {
+    burst({ dur: 0.22, vol: 0.1 * g, type: 'bandpass', f0: 900, f1: 3600, q: 1.2 })
+    tone({ wave: 'tri', f0: 300, f1: 900, dur: 0.2, vol: 0.06 * g })
+  },
+  hookBite: (p, g) => {
+    tone({ wave: 'p12', f0: 1900, f1: 1300, dur: 0.05, vol: 0.14 * g, pan: p })
+    tone({ wave: 'tri', f0: 620, f1: 480, dur: 0.22, vol: 0.1 * g, pan: p, at: 0.01 })
+    burst({ dur: 0.07, vol: 0.14 * g, type: 'highpass', f0: 3200, pan: p })
+  },
+  hookReel: (_p, g) => {
+    tone({ wave: 'saw', f0: 140, f1: 420, dur: 0.9, vol: 0.05 * g, vib: 14, vibRate: 28 })
+    burst({ dur: 0.9, vol: 0.035 * g, type: 'bandpass', f0: 1400, f1: 2600, q: 2 })
+  },
+  hookRecall: (_p, g) => {
+    tone({ wave: 'tri', f0: 900, f1: 260, dur: 0.18, vol: 0.07 * g })
+    burst({ dur: 0.14, vol: 0.07 * g, type: 'bandpass', f0: 3000, f1: 800, q: 1.2 })
+  },
+
   // ── The blade: energy, drawn and through ──
   bladeOut: (_p, g) => tone({ wave: 'saw', f0: 500, f1: 1500, dur: 0.14, vol: 0.06 * g, vib: 30, vibRate: 40 }),
   blade: (p, g) => {

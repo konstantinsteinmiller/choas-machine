@@ -16,6 +16,8 @@ export type SfxName =
   | 'minigun' | 'overheat' | 'rocket' | 'explode' | 'weapon'
   // The blade and the decoy
   | 'blade' | 'bladeOut' | 'decoy' | 'decoyOut'
+  // The grappling hook: thrown, biting into the wall top, reeling, recalled
+  | 'hookThrow' | 'hookBite' | 'hookReel' | 'hookRecall'
   // What a round does
   | 'hit' | 'headshot' | 'tink' | 'ricochet' | 'kill' | 'wreck'
   // The base

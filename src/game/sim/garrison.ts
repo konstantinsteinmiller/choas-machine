@@ -157,6 +157,10 @@ export interface Unit {
   deadT: number
   /** 1 fell forward, −1 backward. */
   fallDir: number
+  /** How long it stands over this suspicion before it moves: a double-take, or two seconds of wondering. */
+  huh: number
+  /** The noise it is wondering about (`wonderAt`), or 0. */
+  noise: number
   /** Seized by the mech: it does nothing until it is let go or killed. */
   gripped: boolean
   /** Dead, and held up for this long before its fall may begin (the blade). */
@@ -206,6 +210,8 @@ export interface Garrison {
    *  the nearest one it can see in preference to the mech. */
   lures: ReadonlyArray<{ x: number; y: number; z: number }>
   threat: Threat
+  /** Counts noises, so each has a token of its own (`wonderAt`). */
+  noiseSeq: number
 }
 
 /** What the garrison is looking for: the mech. */
@@ -273,13 +279,13 @@ export const makeGarrison = (f: Fortress, level = 2): Garrison => {
       yaw: p.facing, pyaw: p.facing, look: 0,
       state: p.reserve ? 'reserve' : mech ? 'dormant' : 'patrol', t: 0, detect: 0, sees: false, seenX: p.x, seenZ: p.z, lured: false,
       route: p.route, wp: p.route.length > 1 ? 1 : 0, wait: p.route[0]?.wait ?? 0,
-      path: [], pathI: 0, repath: 0, bodyT: 0, hp: Math.round(SPECS[p.kind].hp * threat.hp), deadT: 0, fallDir: 1, gripped: false, hold: 0, death: 'back', hitX: 0, hitZ: 0, found: false,
+      path: [], pathI: 0, repath: 0, bodyT: 0, hp: Math.round(SPECS[p.kind].hp * threat.hp), deadT: 0, fallDir: 1, huh: HUH_S, noise: 0, gripped: false, hold: 0, death: 'back', hitX: 0, hitZ: 0, found: false,
       stride: 0, speed01: 0, homeX: p.x, homeZ: p.z, homeYaw: p.facing, altitude: p.altitude,
       seed: (id * 2.399) % (Math.PI * 2),
       power: mech ? 0 : 1, fireT: 0, burst: 0, burstT: 0, shellT: 0, shellX: 0, shellZ: 0, recoil: 0
     }
   })
-  return { units, alert: makeAlert(), time: 0, events: [], rng: mulberry32(hashSeed(f.id)), wave: 0, chaosT: 0, lures: [], threat }
+  return { units, alert: makeAlert(), time: 0, events: [], rng: mulberry32(hashSeed(f.id)), wave: 0, chaosT: 0, lures: [], threat, noiseSeq: 0 }
 }
 
 // ─── Getting about ───────────────────────────────────────────────────────────
@@ -410,6 +416,8 @@ const suspect = (gar: Garrison, u: Unit, x: number, z: number, lured: boolean): 
   u.seenZ = z
   if (u.state === 'suspicious' && u.lured === lured) return
   u.lured = lured
+  u.huh = HUH_S
+  u.noise = 0
   enter(u, 'suspicious')
   u.path = []
   gar.events.push({ type: 'suspicious', id: u.id })
@@ -476,11 +484,18 @@ const patrol = (u: Unit, g: Grid, time: number, dt: number): void => {
 const investigate = (u: Unit, g: Grid, dt: number): void => {
   const face = headingTo(u.x, u.z, u.seenX, u.seenZ)
   if (u.state === 'suspicious') {
-    if (u.t < HUH_S) {
-      // The double-take: stop and turn to it before taking a step.
+    if (u.t < u.huh) {
       stand(u)
-      turnToward(u, face, dt)
-      u.look *= Math.max(0, 1 - dt * 6)
+      if (u.noise) {
+        // Wondering: it heard something and does not know where. It looks
+        // about where it stands; only afterwards does it go and see.
+        u.look = Math.sin(u.t * 3.3 + u.seed) * 1.0
+        if (u.kind !== 'drone') u.yaw += Math.sin(u.t * 2.1 + u.seed) * 0.9 * dt
+      } else {
+        // The double-take: stop and turn to it before taking a step.
+        turnToward(u, face, dt)
+        u.look *= Math.max(0, 1 - dt * 6)
+      }
       return
     }
     if (u.kind === 'drone') {
@@ -495,7 +510,7 @@ const investigate = (u: Unit, g: Grid, dt: number): void => {
         u.z += (dz / dist) * step
       }
       turnToward(u, face, dt, 2)
-      if (u.t > HUH_S + (u.lured ? SCAN_LURED_S : SCAN_S)) enter(u, 'search')
+      if (u.t > u.huh + (u.lured ? SCAN_LURED_S : SCAN_S)) enter(u, 'search')
       return
     }
     if (u.path.length === 0) {
@@ -877,6 +892,47 @@ export const hearAt = (gar: Garrison, x: number, z: number, radius: number): num
     if (!isAlive(u) || u.state !== 'patrol' || u.kind === 'drone' || u.kind === 'goliath') continue
     if (Math.hypot(u.x - x, u.z - z) > radius) continue
     suspect(gar, u, x, z, false)
+    n++
+  }
+  return n
+}
+
+/** How long a listener wonders about a noise before it goes to look. */
+export const WONDER_S = 2
+
+/**
+ * A noise nobody can place: a hook biting into the top of a wall. Everyone in
+ * earshot who is on patrol stops and WONDERS for `WONDER_S` (looking about
+ * where they stand) before walking over to the spot. Returns a token for the
+ * noise and how many heard it; `voidNoise` with that token, inside the two
+ * seconds, takes the cause away and they shrug it off.
+ */
+export const wonderAt = (gar: Garrison, x: number, z: number, radius: number): { token: number; heard: number } => {
+  const token = ++gar.noiseSeq
+  let heard = 0
+  for (const u of gar.units) {
+    if (!isAlive(u) || u.state !== 'patrol' || u.kind === 'goliath' || u.gripped) continue
+    if (Math.hypot(u.x - x, u.z - z) > radius) continue
+    suspect(gar, u, x, z, false)
+    u.huh = WONDER_S
+    u.noise = token
+    heard++
+  }
+  return { token, heard }
+}
+
+/** The cause of a noise is gone: whoever is still wondering about it lets it go. */
+export const voidNoise = (gar: Garrison, token: number): number => {
+  let n = 0
+  if (!token) return 0
+  for (const u of gar.units) {
+    if (u.noise !== token || u.state !== 'suspicious' || u.t >= u.huh) continue
+    u.noise = 0
+    u.huh = HUH_S
+    u.detect = Math.min(u.detect, 0.2)
+    u.path = []
+    enter(u, 'patrol')
+    gar.events.push({ type: 'calm', id: u.id })
     n++
   }
   return n

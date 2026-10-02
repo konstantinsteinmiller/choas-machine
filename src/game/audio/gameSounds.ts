@@ -57,6 +57,7 @@ export const installGameSounds = (): void => {
   on('weapon', () => sfx('weapon'))
   // A quick strike is one sound; a takedown plays its own beats.
   on('strike', ({ kind }) => { if (kind === 'strike' || !killCamsEnabled.value) sfx('blade') })
+  on('grapple', ({ beat }) => sfx(beat === 'throw' ? 'hookThrow' : beat === 'bite' ? 'hookBite' : beat === 'recall' ? 'hookRecall' : 'land'))
   on('takedown', ({ beat }) => sfx(beat === 'stab' ? 'blade' : 'bladeOut', 0, beat === 'pull' ? 0.7 : 1))
   on('decoy', () => sfx('decoy'))
   on('hit', ({ zone }) => sfx(zone === 'armor' ? 'tink' : 'hit'))

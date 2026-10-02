@@ -32,6 +32,20 @@
         @click="input.actQueued = true"
       )
 
+    //- The hook's offer at the foot of a wall; once it is out, the same
+    //- place takes it back (red while somebody up there is wondering).
+    div.strike.grapple(v-if="(hud.grapple || hud.grappling === 'up') && !hud.strike")
+      FHudButton(
+        :icon="hud.grappling ? 'close' : 'hook'"
+        :tone="hud.grappling ? (hud.grappleHeard > 0 ? 'danger' : 'violet') : 'cyan'"
+        :attention="!hud.grappling || hud.grappleHeard > 0"
+        :aria-label="hud.grappling ? t('hud.grappleRecall') : t('hud.grapple')"
+        data-testid="btn-grapple"
+        @click="input.grappleQueued = true"
+      )
+        template(#badge)
+          FHudBadge(v-if="hud.grappling && hud.grappleHeard > 0" tone="warn") {{ hud.grappleHeard }}
+
     //- The right thumb's column, above where it rests.
     div.actions
       FHudButton(

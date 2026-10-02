@@ -54,6 +54,12 @@ export const hud = reactive({
   reloading: false,
   overheated: false,
   decoys: 0,
+  /** A wall the hook can take is in front of the mech. */
+  grapple: false,
+  /** The hook is out: 'up' while it can still be recalled, 'over' once it cannot. */
+  grappling: '' as '' | 'up' | 'over',
+  /** How many heard the hook bite. */
+  grappleHeard: 0,
   /** The blade's offer right now, or '' when there is none. */
   strike: '' as '' | 'backstab' | 'drop' | 'strike',
   /** Under a third of its armor: the HUD says so. */

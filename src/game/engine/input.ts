@@ -66,6 +66,8 @@ export interface Input {
   firePressed: boolean
   /** The contextual action: a tap on the right side, or the act key. */
   actQueued: boolean
+  /** Throw the grappling hook, or take it back. */
+  grappleQueued: boolean
   crouchQueued: boolean
   decoyQueued: boolean
   reloadQueued: boolean
@@ -135,7 +137,7 @@ export const createInput = (): Input => ({
   moveX: 0, moveY: 0, turn: 0, lookDX: 0, lookDY: 0,
   aimHeld: false, aimPressed: false, aimReleased: false, aimCancelled: false, fireHeld: false, firePressed: false,
   sprintHeld: false,
-  actQueued: false, crouchQueued: false, decoyQueued: false, reloadQueued: false, weaponQueued: 0, cycleQueued: false,
+  actQueued: false, grappleQueued: false, crouchQueued: false, decoyQueued: false, reloadQueued: false, weaponQueued: 0, cycleQueued: false,
   pauseQueued: false, anyPressed: false,
   joyActive: false, joyOriginX: 0, joyOriginY: 0, joyX: 0, joyY: 0, joyHomeX: 0, joyHomeY: 0, joyHomeR: 0, joyRadius: 56,
   holdX: 0, holdY: 0, hold01: 0,
@@ -157,6 +159,7 @@ export const consumeEdges = (i: Input): void => {
   i.aimCancelled = false
   i.firePressed = false
   i.actQueued = false
+  i.grappleQueued = false
   i.crouchQueued = false
   i.decoyQueued = false
   i.reloadQueued = false
@@ -580,6 +583,9 @@ export const attachInput = (surface: HTMLElement, input: Input, opts: InputOptio
         break
       case 'act':
         input.actQueued = true
+        break
+      case 'grapple':
+        input.grappleQueued = true
         break
       case 'decoy':
         input.decoyQueued = true

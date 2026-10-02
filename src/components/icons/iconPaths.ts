@@ -347,6 +347,14 @@ export const ICON_PATHS: Record<GameIconName, string[]> = {
     'M5.5 6.5L12 12.2L18.5 6.5L20.3 8.6L12 15.9L3.7 8.6Z',
     'M4 18.6h16v2.6H4Z'
   ],
+  // The grappling hook: an eye for the line, a shank, two flukes.
+  'hook': [
+    'M12 2.4A2.3 2.3 0 1 1 12 7A2.3 2.3 0 1 1 12 2.4Z',
+    'M10.8 6.4h2.4v10.2h-2.4Z',
+    'M3.4 11.6h3c0 3.1 2.1 5.2 5.6 5.2s5.6-2.1 5.6-5.2h3c0 4.9-3.4 8.2-8.6 8.2s-8.6-3.3-8.6-8.2Z',
+    'M2.2 12.6l2.7-4.6l2.7 4.6Z',
+    'M16.4 12.6l2.7-4.6l2.7 4.6Z'
+  ],
   // Sprint: two chevrons leaning forward, the second chasing the first.
   'sprint': [
     'M3.6 5.2L7.4 5.2L13.4 12L7.4 18.8L3.6 18.8L9.6 12Z',

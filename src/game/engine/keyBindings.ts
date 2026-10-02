@@ -21,7 +21,7 @@ import { KEY_BINDINGS_KEY } from '@/keys'
 
 export type Action =
   | 'forward' | 'back' | 'left' | 'right' | 'turnLeft' | 'turnRight'
-  | 'sprint' | 'crouch' | 'act' | 'decoy' | 'reload'
+  | 'sprint' | 'crouch' | 'act' | 'grapple' | 'decoy' | 'reload'
   | 'weapon1' | 'weapon2' | 'weapon3' | 'cycle' | 'pause'
 
 /** Defaults: the first code is the action's main key, the rest alternates.
@@ -37,6 +37,7 @@ export const DEFAULT_BINDINGS: Readonly<Record<Action, readonly string[]>> = {
   sprint: ['ShiftLeft', 'ShiftRight'],
   crouch: ['KeyC'],
   act: ['KeyE', 'KeyF'],
+  grapple: ['KeyG'],
   decoy: ['KeyQ'],
   reload: ['KeyR'],
   weapon1: ['Digit1', 'Numpad1'],

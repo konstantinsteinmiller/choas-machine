@@ -1,5 +1,5 @@
 import {
-  PerspectiveCamera, Sprite, SpriteMaterial, AdditiveBlending, Vector3, Mesh, CylinderGeometry, MeshBasicMaterial, DoubleSide
+  PerspectiveCamera, Sprite, SpriteMaterial, AdditiveBlending, Vector3, Mesh, ConeGeometry, CylinderGeometry, MeshBasicMaterial, DoubleSide
 } from 'three'
 import { getRenderer, fovForAspect } from '../engine/renderer'
 import { app, newScene, type GameMode } from '../engine/app'
@@ -26,10 +26,14 @@ import { makePlayer, stepPlayer, eyeHeight, angleDelta, type Player } from './pl
 import { makeCam, lookCam, stepCam, placeCam, stickToWorld, camForward, type Cam } from './camera'
 import { alertSegments } from './alert'
 import {
-  SPECS, drainEvents, headingTo, killUnit, damageUnit, makeGarrison, noiseAt, hearAt, stepGarrison, alarmUnit,
+  SPECS, drainEvents, headingTo, killUnit, damageUnit, makeGarrison, noiseAt, hearAt, wonderAt, voidNoise, stepGarrison, alarmUnit,
   type Garrison, type Target
 } from './garrison'
 import { GarrisonView } from './garrisonView'
+import {
+  GRAPPLE_EARSHOT, cancelGrapple, canCancel, findGrapple, hookAt, startGrapple, stepGrapple, type GrappleRun, type GrappleSpot
+} from './grapple'
+import { sfx } from '../audio/sfx'
 import { TAKEDOWN, TD_END, TD_HOLD, TD_IN, TD_PULL, takedownCam, takedownPose } from './takedown'
 import { castShot, makeShotHit, HEAD_Y } from './hitscan'
 import { blast, shotDamage } from './damage'
@@ -62,6 +66,8 @@ import { HINTS, coachHelp, coachUse, makeCoach, stepCoach, type Coach, type Coac
  * The rules themselves live in the pure modules beside this one; this class
  * is where they meet the input, the renderer, the HUD and the bus.
  */
+
+const UP = new Vector3(0, 1, 0)
 
 /** How far a round flies. */
 const SHOT_RANGE = 260
@@ -151,7 +157,7 @@ export class Mission implements GameMode {
   /** What the mech is fitted with (the Armory, the Chassis Bay, the Forge). */
   readonly loadout: Loadout
   /** DEV: is a strike or a cutscene moving the mech right now (`game/preview.ts`)? */
-  get busy(): boolean { return !!this.strike || !!this.cine }
+  get busy(): boolean { return !!this.strike || !!this.cine || !!this.grapple }
   /** DEV: the next kill gets the kill-cam (`game/preview.ts`). */
   forceKillcam = false
   /** The strike on offer right now. */
@@ -172,6 +178,14 @@ export class Mission implements GameMode {
   private ship!: Dropship
   private beacon!: Mesh
   private line!: Mesh
+  /** The grappling hook's line and its head. */
+  private rope!: Mesh
+  private hook!: Mesh
+  /** The wall the hook could take from here, and the throw in progress. */
+  private hookSpot: GrappleSpot | null = null
+  private grapple: GrappleRun | null = null
+  private hookPos = { x: 0, y: 0, z: 0 }
+  private ropeDir = new Vector3()
   /** How far above its feet the mech is drawn (the drop, the lift). */
   private lift = 0
   /** Seconds until the Goliath answers the Commander's death; < 0 when not armed. */
@@ -264,6 +278,12 @@ export class Mission implements GameMode {
     rod.translate(0, 0.5, 0)
     m.line = new Mesh(rod, new MeshBasicMaterial({ color: PAL.glowCyan, toneMapped: false }))
     m.line.visible = false
+    // The hook's own line (thinner, steel) and a small three-pronged head.
+    m.rope = new Mesh(rod, new MeshBasicMaterial({ color: '#d8ccff', toneMapped: false }))
+    m.rope.visible = false
+    m.hook = new Mesh(new ConeGeometry(0.16, 0.34, 3), new MeshBasicMaterial({ color: PAL.glowCyan, toneMapped: false }))
+    m.hook.visible = false
+    m.scene.add(m.rope, m.hook)
     m.scene.add(
       m.mesh.group, m.decor.group, m.rig.root, m.shadow, m.garrisonView.group, m.fx.group, m.markers.root, m.strikeMark,
       m.ship.group, m.beacon, m.line
@@ -327,6 +347,8 @@ export class Mission implements GameMode {
       this.stats.time += dt
       if (this.strike) {
         this.stepStrike(dt)
+      } else if (this.grapple) {
+        this.stepHook(dt)
       } else {
         const dir = stickToWorld(this.cam, i.moveX, i.moveY)
         const wasCrouched = p.crouched
@@ -361,6 +383,9 @@ export class Mission implements GameMode {
         }
         this.offer = findStrike(this.garrison, this.fortress.grid, p.x, p.y, p.z, this.cam.yaw, p.mode === 'ground')
         if (i.actQueued && this.offer) this.startStrike(this.offer)
+        // A wall too high to pull up onto, straight ahead: the hook can take it.
+        this.hookSpot = p.mode === 'ground' && !this.strike ? findGrapple(this.fortress.grid, p.x, p.y, p.z, p.yaw) : null
+        if (i.grappleQueued && this.hookSpot && !this.strike) this.throwHook(this.hookSpot)
         if (i.decoyQueued) this.throwDecoy()
         // On the pad with the job done: the line comes down.
         if (this.objective === 'extract' && p.mode === 'ground') {
@@ -412,6 +437,9 @@ export class Mission implements GameMode {
     mirror('aiming', this.weaponUp())
     mirror('mode', p.mode)
     mirror('strike', this.strike ? '' : this.offer?.kind ?? '')
+    mirror('grapple', !this.grapple && !!this.hookSpot && hud.phase === 'play')
+    mirror('grappling', !this.grapple ? '' : canCancel(this.grapple) ? 'up' : 'over')
+    mirror('grappleHeard', this.grapple?.heard ?? 0)
     consumeEdges(i)
   }
 
@@ -739,6 +767,48 @@ export class Mission implements GameMode {
     this.strike = null
     if (this.cine?.kind === 'stab') this.endCine()
     else app.setTimeScale(1)
+  }
+
+  // ─── The grappling hook ────────────────────────────────────────────────────
+
+  private throwHook(spot: GrappleSpot): void {
+    this.grapple = startGrapple(this.player, spot)
+    this.hookSpot = null
+    this.offer = null
+    emit('grapple', { beat: 'throw', heard: 0 })
+    haptic('tap')
+  }
+
+  private stepHook(dt: number): void {
+    const r = this.grapple!
+    const p = this.player
+    // Asked again while it can still be taken back: the hook comes off the
+    // wall, the mech drops, and whoever was wondering finds nothing to find.
+    if (this.input.grappleQueued && cancelGrapple(r)) {
+      voidNoise(this.garrison, r.noise)
+      emit('grapple', { beat: 'recall', heard: r.heard })
+    }
+    for (const e of stepGrapple(r, p, dt)) {
+      if (e.type === 'bite') {
+        const s = r.spot
+        const heard = wonderAt(this.garrison, s.edge.x, s.edge.z, GRAPPLE_EARSHOT)
+        r.noise = heard.token
+        r.heard = heard.heard
+        this.fx.particles.sparks(s.edge.x, s.edge.y + 0.05, s.edge.z, '#fff1c9', 10, 3, 0.25)
+        this.shake = Math.max(this.shake, 0.15)
+        haptic('tap')
+        emit('grapple', { beat: 'bite', heard: r.heard })
+        sfx('hookReel')
+        this.flushGarrison()
+      } else if (e.type === 'top') {
+        emit('grapple', { beat: 'top', heard: r.heard })
+        emit('traverse', { kind: 'mantle' })
+      } else if (e.type === 'landed') {
+        emit('land', { drop: e.drop })
+        if (e.drop > 2) { this.shake = Math.max(this.shake, 0.25); haptic('tap') }
+      }
+    }
+    if (r.phase === 'done') this.grapple = null
   }
 
   private throwDecoy(): void {
@@ -1330,6 +1400,27 @@ export class Mission implements GameMode {
     s.air = p.mode === 'air' || this.lift > 0.05 ? 1 : 0
     poseMech(this.rig, s)
 
+    // The hook's line: from the mech's raised hand to the hook.
+    const gr = this.grapple
+    const lineOn = !!gr && gr.hook > 0.01 && gr.phase !== 'over'
+    this.rope.visible = lineOn
+    this.hook.visible = lineOn
+    if (gr && lineOn) {
+      const h = hookAt(gr, this.hookPos)
+      const hx = x + Math.sin(yaw) * 0.25
+      const hy = y + this.lift + 2.05
+      const hz = z + Math.cos(yaw) * 0.25
+      const dx = h.x - hx
+      const dy = h.y - hy
+      const dz = h.z - hz
+      const len = Math.max(0.05, Math.hypot(dx, dy, dz))
+      this.rope.position.set(hx, hy, hz)
+      this.rope.scale.set(0.6, len, 0.6)
+      this.rope.quaternion.setFromUnitVectors(UP, this.ropeDir.set(dx / len, dy / len, dz / len))
+      this.hook.position.set(h.x, h.y, h.z)
+      this.hook.rotation.y = yaw
+    }
+
     // A soft shadow on whatever is under the mech, fading with its height.
     const floor = heightAt(g, x, z)
     this.shadow.position.set(x, floor + 0.03, z)
@@ -1414,6 +1505,9 @@ export class Mission implements GameMode {
     this.ship.dispose()
     this.beacon.geometry.dispose()
     ;(this.beacon.material as MeshBasicMaterial).dispose()
+    this.hook.geometry.dispose()
+    ;(this.hook.material as MeshBasicMaterial).dispose()
+    ;(this.rope.material as MeshBasicMaterial).dispose()
     this.line.geometry.dispose()
     ;(this.line.material as MeshBasicMaterial).dispose()
     this.rig.mesh.geometry.dispose()
