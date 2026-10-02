@@ -146,11 +146,13 @@ export interface MechPose {
   cable: number
   /** 0 … 1 in the air (a drop). */
   air: number
+  /** Seconds since its armor gave out; 0 while it stands. */
+  down: number
 }
 
 export const restPose = (): MechPose => ({
   time: 0, stride: 0, speed: 0, crouch: 0, sprint: 0, aim: 0, aimPitch: 0, weapon: 'sniper', recoil: 0, spin: 0,
-  blade: 0, stab: 0, climb: 0, climbPhase: 0, cable: 0, air: 0
+  blade: 0, stab: 0, climb: 0, climbPhase: 0, cable: 0, air: 0, down: 0
 })
 
 const HIDDEN = 0.001
@@ -160,6 +162,11 @@ const lerp = (a: number, b: number, k: number): number => a + (b - a) * k
 const THIGH_LEN = 0.46
 const SHIN_LEN = 0.42
 const LEG_LEN = THIGH_LEN + SHIN_LEN
+/** Down: how long it kneels before it falls, and when it has come to rest. */
+export const MECH_KNEEL_S = 0.45
+export const MECH_DOWN_S = 1.45
+const smoothstep = (v: number): number => { const k = v < 0 ? 0 : v > 1 ? 1 : v; return k * k * (3 - 2 * k) }
+const bumpAt = (v: number): number => (v <= 0 || v >= 1 ? 0 : Math.sin(v * Math.PI))
 /** A full crouch: a deep squat, knees forward, feet under the body. */
 const CROUCH_THIGH = 1.6
 const CROUCH_KNEE = 2.65
@@ -175,6 +182,10 @@ export const poseMech = (rig: Rig, s: MechPose): void => {
   const breathe = Math.sin(s.time * 2.1) * 0.012
 
   const run = s.sprint * walk
+  // Down: it drops to its knees, holds there a beat with its lights
+  // stuttering, and pitches forward onto its face.
+  const fall = s.down > 0 ? smoothstep((s.down - MECH_KNEEL_S) / 0.55) : 0
+  const thud = s.down > 0 ? bumpAt((s.down - MECH_KNEEL_S - 0.5) / 0.3) : 0
   // ── Legs first: where the feet end up decides how high the hips ride ──
   // The hips are not lowered by a number that hopes to match the legs. Each
   // leg's reach is worked out from its own angles, and the hips sit exactly
@@ -207,12 +218,17 @@ export const poseMech = (rig: Rig, s: MechPose): void => {
   // ── Body ──
   const grounded = (1 - s.climb) * (1 - s.air)
   const sink = (LEG_LEN - reach) * grounded
-  nudge(rig, 'hips', 0, -sink + s.air * 0.05, -0.12 * s.crouch)
-  pose(rig, 'hips', hipPitch, 0, 0)
-  pose(rig, 'spine', 0.5 * s.crouch + (0.08 + 0.2 * s.sprint) * walk - s.aimPitch * 0.25 * s.aim, 0, swing * 0.06 * walk)
+  nudge(rig, 'hips', 0, -sink + s.air * 0.05 - 0.12 * fall + thud * 0.06, -0.12 * s.crouch + 0.55 * fall)
+  pose(rig, 'hips', hipPitch + 1.25 * fall, 0, 0.12 * fall)
+  pose(rig, 'spine', 0.5 * s.crouch * (1 - fall) + (0.08 + 0.2 * s.sprint) * walk - s.aimPitch * 0.25 * s.aim, 0, swing * 0.06 * walk)
   nudge(rig, 'chest', 0, breathe, 0)
-  pose(rig, 'chest', 0.3 * s.crouch - s.aimPitch * 0.25 * s.aim, -swing * (0.1 + 0.12 * run) * walk, 0)
-  pose(rig, 'head', -0.7 * s.crouch - 0.16 * run - s.aimPitch * 0.4 * s.aim, 0, Math.sin(s.time * 0.7) * 0.03 * (1 - s.aim))
+  pose(rig, 'chest', 0.3 * s.crouch * (1 - fall) - s.aimPitch * 0.25 * s.aim, -swing * (0.1 + 0.12 * run) * walk, 0)
+  pose(
+    rig, 'head',
+    -0.7 * s.crouch * (1 - fall) + (s.down > 0 ? 0.5 * (1 - fall) : 0) - 0.16 * run - s.aimPitch * 0.4 * s.aim,
+    0.6 * fall,
+    Math.sin(s.time * 0.7) * 0.03 * (1 - s.aim)
+  )
 
   // ── Arms ──
   // Left arm: swings with the walk, comes up to steady the weapon, reaches on
@@ -222,7 +238,7 @@ export const poseMech = (rig: Rig, s: MechPose): void => {
     rig, 'shoulderL',
     swing * (0.5 + 0.4 * run) * walk * hang - 1.15 * s.aim + s.aimPitch * s.aim - (1.9 + Math.sin(s.climbPhase) * 0.6) * s.climb - 0.3 * s.air,
     -0.55 * s.aim,
-    -1.35 * s.cable - 0.12 * hang
+    -1.35 * s.cable - 0.12 * hang - 0.5 * fall
   )
   pose(rig, 'foreL', -(0.25 + 0.9 * run) * hang - 0.9 * s.aim - 0.5 * s.climb, 0, 0)
 
@@ -245,6 +261,9 @@ export const poseMech = (rig: Rig, s: MechPose): void => {
   const armed = s.stab > 0 || s.climb > 0.5 || s.cable > 0.5 ? null : s.weapon
   for (const w of ['sniper', 'minigun', 'rocket'] as const) scaleBone(rig, w, w === armed ? 1 : HIDDEN)
   rig.bones.minigunBarrels!.rotation.y = s.spin
+  // Its lights: steady while it lives, a stutter as it goes, then almost out.
+  const lit = s.down <= 0 ? 1 : s.down < MECH_KNEEL_S + 0.5 ? (Math.sin(s.down * 47) > 0 ? 1 : 0.2) : 0.12
+  rig.glowMaterial.color.setScalar(lit)
   const out = Math.max(s.blade, thrust > 0 ? 1 : 0)
   scaleBone(rig, 'blade', out > 0.01 ? 1 : HIDDEN, Math.max(HIDDEN, out), out > 0.01 ? 1 : HIDDEN)
 }

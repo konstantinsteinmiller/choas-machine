@@ -76,7 +76,7 @@ export const blast = (
       const astern = Math.abs(angleDelta(u.yaw + Math.PI, headingTo(u.x, u.z, x, z))) < REAR_ARC
       if (astern) { amount *= 3; res.weakHit = true } else amount *= 0.35
     }
-    if (damageUnit(gar, u.id, amount, x, z)) res.kills.push(u.id)
+    if (damageUnit(gar, u.id, amount, x, z, 'blast')) res.kills.push(u.id)
     else res.hurt.push(u.id)
   }
   return res

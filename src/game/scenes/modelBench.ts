@@ -13,7 +13,8 @@ import type { WeaponId } from '../data/ids'
 /**
  * DEV ONLY (`?bench=models`): every rig on a pad, animated, for art iteration.
  *   m=mech|guard|commander|drone|enforcer|goliath|all   which rig(s)
- *   pose=idle|walk|run|wary|search|startle|crouch|aim|stab|climb|cable|air|dead|dormant
+ *   pose=idle|walk|run|wary|search|startle|crouch|aim|stab|climb|cable|air|dormant
+ *        die|die-front|die-spin|die-thrown (with t=<seconds since>)|dead
  *   seed=0..1                                           a guard's own gait and fidgets
  *   weapon=sniper|minigun|rocket
  *   view=az,el,dist                                     the camera
@@ -82,14 +83,14 @@ export class ModelBench implements GameMode {
           recoil: poseName === 'aim' ? Math.max(0, 1 - (t % 0.6) * 6) : 0,
           seed: Number(q.get('seed') ?? (commander ? 0.2 : 0.7)),
           proud: commander,
-          dead: poseName === 'dead' ? Math.min(1, (t % 3) / 0.6) : 0,
-          fallDir: -1
+          deadT: poseName.startsWith('die') ? Math.max(1e-3, t) : 0,
+          death: poseName === 'die-front' ? 'front' : poseName === 'die-spin' ? 'spin' : poseName === 'die-thrown' ? 'thrown' : 'back'
         }))
       }
     }
     if (all || which === 'drone') {
       const rig = buildDrone()
-      add(rig, 2.2, (t) => poseDrone(rig, { time: t, spin: t * 40, pitch: 0.12, roll: Math.sin(t) * 0.1, eyeYaw: 0, eyePitch: 0.7, alarm: poseName === 'wary' ? 1 : 0 }))
+      add(rig, 2.2, (t) => poseDrone(rig, { time: t, spin: t * 40, pitch: 0.12, roll: Math.sin(t) * 0.1, eyeYaw: 0, eyePitch: 0.7, alarm: poseName === 'wary' ? 1 : 0, deadT: poseName === 'die' ? Math.max(1e-3, t) : 0, landed: poseName === 'die' && t > 0.8 }))
     }
     if (all || which === 'enforcer') {
       const rig = buildEnforcer()
@@ -102,7 +103,7 @@ export class ModelBench implements GameMode {
         aimPitch: 0,
         recoilL: poseName === 'aim' ? Math.max(0, Math.sin(t * 12)) : 0,
         recoilR: poseName === 'aim' ? Math.max(0, -Math.sin(t * 12)) : 0,
-        dead: poseName === 'dead' ? 1 : 0
+        deadT: poseName === 'die' ? Math.max(1e-3, t) : 0
       }))
     }
     if (all || which === 'goliath') {

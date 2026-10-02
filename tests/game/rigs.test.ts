@@ -121,10 +121,10 @@ describe('the garrison', () => {
     expect(minY).toBeGreaterThan(-0.05)
     expect(maxY).toBeGreaterThan(GUARD_HEIGHT - 0.2)
     expect(maxY).toBeLessThan(GUARD_HEIGHT + 0.25)
-    const pose = { ...restGuardPose(), fallDir: -1 }
+    const pose = restGuardPose()
     poseGuard(rig, pose)
     const up = rig.bones.hips!.position.y
-    poseGuard(rig, { ...pose, dead: 1 })
+    poseGuard(rig, { ...pose, deadT: 2, death: 'back' })
     expect(rig.bones.hips!.position.y).toBeLessThan(up - 0.5)
     expect(finite(rig)).toBe(true)
   })
@@ -137,7 +137,7 @@ describe('the garrison', () => {
 
   it('a dormant Enforcer is dark and slumped; awake it stands and lights up', () => {
     const rig = buildEnforcer()
-    const base = { time: 0, stride: 0, speed: 0, aimYaw: 0, aimPitch: 0, recoilL: 0, recoilR: 0, dead: 0 }
+    const base = { time: 0, stride: 0, speed: 0, aimYaw: 0, aimPitch: 0, recoilL: 0, recoilR: 0, deadT: 0 }
     poseEnforcer(rig, { ...base, power: 0 })
     const asleep = rig.bones.hips!.position.y
     const dark = rig.glowMaterial.color.r
@@ -161,7 +161,7 @@ describe('the garrison', () => {
 
   it('a drone spins opposite rotors opposite ways', () => {
     const rig = buildDrone()
-    poseDrone(rig, { time: 0, spin: 1, pitch: 0, roll: 0, eyeYaw: 0, eyePitch: 0, alarm: 0 })
+    poseDrone(rig, { time: 0, spin: 1, pitch: 0, roll: 0, eyeYaw: 0, eyePitch: 0, alarm: 0, deadT: 0, landed: false })
     expect(rig.bones.rotor0!.rotation.y).toBe(1)
     expect(rig.bones.rotor1!.rotation.y).toBe(-1)
   })

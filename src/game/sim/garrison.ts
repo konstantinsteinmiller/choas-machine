@@ -157,6 +157,11 @@ export interface Unit {
   deadT: number
   /** 1 fell forward, −1 backward. */
   fallDir: number
+  /** How it went down: the view plays this, and a wreck in pieces lies where it burst. */
+  death: DeathKind
+  /** The way the blow pushed it (a unit vector on the ground). */
+  hitX: number
+  hitZ: number
   /** A body, and somebody has already raised the alarm over it. */
   found: boolean
   stride: number
@@ -214,12 +219,25 @@ export interface Target {
   moving?: number
 }
 
+/**
+ * How a defender goes down.
+ * People: `back`, `front`, `spin` (a burst turned it round), `thrown` (a blast).
+ * Machines: `burst` (apart, in pieces that stay), `slump` (an Enforcer that
+ * folds in one piece), `crash` (a drone that falls whole).
+ */
+export type DeathKind = 'back' | 'front' | 'spin' | 'thrown' | 'burst' | 'slump' | 'crash'
+/** What did it: a single round, a burst of them, an explosion, the blade. */
+export type KillHow = 'shot' | 'spray' | 'blast' | 'blade'
+
+/** Machines taken apart by anything less than an explosion burst this often. */
+export const BURST_CHANCE = 0.6
+
 export type GarrisonEvent =
   | { type: 'suspicious'; id: number }
   | { type: 'spotted'; id: number }
   | { type: 'calm'; id: number }
   | { type: 'body'; id: number; corpse: number }
-  | { type: 'kill'; id: number }
+  | { type: 'kill'; id: number; death: DeathKind }
   | { type: 'chaos' }
   /** A machine powers up. */
   | { type: 'wake'; id: number }
@@ -251,7 +269,7 @@ export const makeGarrison = (f: Fortress, level = 2): Garrison => {
       yaw: p.facing, pyaw: p.facing, look: 0,
       state: p.reserve ? 'reserve' : mech ? 'dormant' : 'patrol', t: 0, detect: 0, sees: false, seenX: p.x, seenZ: p.z, lured: false,
       route: p.route, wp: p.route.length > 1 ? 1 : 0, wait: p.route[0]?.wait ?? 0,
-      path: [], pathI: 0, repath: 0, bodyT: 0, hp: Math.round(SPECS[p.kind].hp * threat.hp), deadT: 0, fallDir: 1, found: false,
+      path: [], pathI: 0, repath: 0, bodyT: 0, hp: Math.round(SPECS[p.kind].hp * threat.hp), deadT: 0, fallDir: 1, death: 'back', hitX: 0, hitZ: 0, found: false,
       stride: 0, speed01: 0, homeX: p.x, homeZ: p.z, homeYaw: p.facing, altitude: p.altitude,
       seed: (id * 2.399) % (Math.PI * 2),
       power: mech ? 0 : 1, fireT: 0, burst: 0, burstT: 0, shellT: 0, shellX: 0, shellZ: 0, recoil: 0
@@ -672,7 +690,8 @@ export const stepGarrison = (gar: Garrison, g: Grid, target: Target, dt: number)
     if (u.state !== 'combat') {
       let looking = false
       for (const c of gar.units) {
-        if (c.state !== 'dead' || c.found || c.kind === 'drone' || c.deadT < 0.6) continue
+        // A wreck counts once it is on the ground (a drone takes a second to fall).
+        if (c.state !== 'dead' || c.found || c.deadT < (c.kind === 'drone' ? 1.2 : 0.6)) continue
         if (Math.hypot(c.x - u.x, c.z - u.z) > BODY_RANGE) continue
         if (sight(u, g, { x: c.x, feetY: c.y, z: c.z, height: BODY_HEIGHT }) <= 0) continue
         looking = true
@@ -754,12 +773,25 @@ export const drainEvents = (gar: Garrison): GarrisonEvent[] => gar.events.splice
  * Take a unit out. `fromX/fromZ` is where the blow came from, which decides
  * the way it falls.
  */
-export const killUnit = (gar: Garrison, id: number, fromX: number, fromZ: number): void => {
+export const killUnit = (gar: Garrison, id: number, fromX: number, fromZ: number, how: KillHow = 'shot'): void => {
   const u = gar.units[id]
   if (!u || !isAlive(u)) return
   const toSource = angleDelta(u.yaw, headingTo(u.x, u.z, fromX, fromZ))
   // Hit from the front it goes over backward; from behind, onto its face.
   u.fallDir = Math.abs(toSource) < Math.PI / 2 ? -1 : 1
+  const away = Math.hypot(u.x - fromX, u.z - fromZ) || 1
+  u.hitX = (u.x - fromX) / away
+  u.hitZ = (u.z - fromZ) / away
+  if (isHuman(u)) {
+    u.death = how === 'blast' ? 'thrown' : how === 'spray' ? 'spin' : how === 'blade' ? 'front' : u.fallDir < 0 ? 'back' : 'front'
+    // A blast throws it away from the blast, whichever way it was facing.
+    if (how === 'blast') u.fallDir = -1
+  } else {
+    // Its own number decides, so the same machine dies the same way in a replay.
+    const roll = (((u.seed * 7.13 + u.id * 0.37) % 1) + 1) % 1
+    const apart = u.kind === 'goliath' || how === 'blast' || roll < BURST_CHANCE
+    u.death = apart ? 'burst' : u.kind === 'drone' ? 'crash' : 'slump'
+  }
   u.hp = 0
   u.state = 'dead'
   u.t = 0
@@ -768,9 +800,10 @@ export const killUnit = (gar: Garrison, id: number, fromX: number, fromZ: number
   u.detect = 0
   u.speed01 = 0
   u.path = []
-  // A wrecked drone is scrap, not a body anyone raises the alarm over.
-  u.found = u.kind === 'drone'
-  gar.events.push({ type: 'kill', id })
+  // Wreckage is evidence like a body is: a patrol that sees a drone in
+  // pieces on the ground knows somebody is in the base.
+  u.found = false
+  gar.events.push({ type: 'kill', id, death: u.death })
 }
 
 /**
@@ -795,12 +828,12 @@ export const alarmUnit = (gar: Garrison, id: number, fromX: number, fromZ: numbe
 }
 
 /** Hurt a unit; kills it when its health runs out. True if it died. */
-export const damageUnit = (gar: Garrison, id: number, amount: number, fromX: number, fromZ: number): boolean => {
+export const damageUnit = (gar: Garrison, id: number, amount: number, fromX: number, fromZ: number, how: KillHow = 'shot'): boolean => {
   const u = gar.units[id]
   if (!u || !isAlive(u)) return false
   u.hp -= amount
   if (u.hp > 0) return false
-  killUnit(gar, id, fromX, fromZ)
+  killUnit(gar, id, fromX, fromZ, how)
   return true
 }
 

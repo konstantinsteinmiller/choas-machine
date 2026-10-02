@@ -17,7 +17,7 @@ import { ringTexture } from '../world/textures'
 import { FloorMarkers, makeBlobShadow } from '../fx/markers'
 import { CombatFx } from '../fx/combatFx'
 import type { Rig } from '../models/kit'
-import { buildMech, poseMech, restPose, MECH_HEIGHT, MECH_HEIGHT_CROUCH, type MechPose } from '../models/mech'
+import { buildMech, poseMech, restPose, MECH_HEIGHT, MECH_HEIGHT_CROUCH, type MechPose , MECH_KNEEL_S, MECH_DOWN_S } from '../models/mech'
 import { PAL } from '../models/palette'
 import { WEAPON_IDS, type WeaponId } from '../data/ids'
 import { haptic } from '@/use/useHaptics'
@@ -373,8 +373,25 @@ export class Mission implements GameMode {
       mirror('armorLow', vital.armor < 0.3)
     } else if (hud.phase === 'dead') {
       // A beat to see it happen, then the screen that says so.
+      const was = this.downT
       this.downT += dt
-      if (this.downT > 1.5 && flow.modal === '') flow.modal = 'defeat'
+      const p2 = this.player
+      // Sparks as the knees go; a thud, dust and a few plates as it lands.
+      if (was < 0.2 && this.downT >= 0.2) this.fx.particles.orbBurst(p2.x, p2.y + 1.0, p2.z, PAL.mechEye, 0.7)
+      const landAt = MECH_KNEEL_S + 0.5
+      if (was < landAt && this.downT >= landAt) {
+        const fx = Math.sin(p2.yaw)
+        const fz = Math.cos(p2.yaw)
+        this.garrisonView.wreckage.burst({
+          x: p2.x + fx * 0.6, y: p2.y + 0.3, z: p2.z + fz * 0.6, hx: 0.3, hy: 0.15, hz: 0.3,
+          count: 7, size: [0.1, 0.22], colors: [PAL.mechArmor, PAL.mechArmorDeep, PAL.mechSuit, PAL.mechCore], force: 3.6, dirX: fx, dirZ: fz
+        })
+        this.shake = Math.max(this.shake, 0.5)
+        haptic('blast')
+        emit('land', { drop: 3 })
+      }
+      // The screen waits until it has stopped moving.
+      if (this.downT > MECH_DOWN_S + 0.7 && flow.modal === '') flow.modal = 'defeat'
     }
     vital.hitAge += dt
 
@@ -535,7 +552,7 @@ export class Mission implements GameMode {
       this.fx.tracer(ox, oy, oz, h.x, h.y, h.z, w)
       this.fx.impact(h.x, h.y, h.z, h.nx, h.ny, h.nz, soft, w)
       emit('hit', { id: u.id, weapon: w, zone: h.zone })
-      if (!damageUnit(gar, u.id, damage, ox, oz)) alarmUnit(gar, u.id, this.player.x, this.player.z)
+      if (!damageUnit(gar, u.id, damage, ox, oz, w === 'minigun' ? 'spray' : 'shot')) alarmUnit(gar, u.id, this.player.x, this.player.z)
     } else if (h.kind === 'world') {
       this.fx.tracer(ox, oy, oz, h.x, h.y, h.z, w)
       this.fx.impact(h.x, h.y, h.z, h.nx, h.ny, h.nz, false, w)
@@ -617,7 +634,7 @@ export class Mission implements GameMode {
       this.killBy = 'blade'
       this.killHead = false
       this.fx.slash(p.x, p.y, p.z, s.yaw)
-      killUnit(this.garrison, s.id, p.x, p.z)
+      killUnit(this.garrison, s.id, p.x, p.z, 'blade')
       // A knife in the back drops him forward, away from the mech.
       if (s.kind !== 'strike') u.fallDir = 1
       this.stats.bladeKills++
@@ -685,6 +702,11 @@ export class Mission implements GameMode {
         const u = gar.units[e.id]!
         this.stats.kills++
         this.fx.kill(u.x, u.y, u.z, u.kind)
+        // Apart, in pieces that stay where they land.
+        if (e.death === 'burst') {
+          this.garrisonView.burst(e.id)
+          this.shake = Math.max(this.shake, u.kind === 'goliath' ? 0.9 : 0.3)
+        }
         emit('kill', {
           id: e.id, kind: u.kind, by: this.killBy, head: this.killHead,
           dist: Math.hypot(u.x - this.player.x, u.z - this.player.z)
@@ -1163,9 +1185,10 @@ export class Mission implements GameMode {
     s.stride = p.stride
     s.speed = p.mode === 'ground' ? p.speed01 : 0
     // Down: it folds where it stands.
-    s.crouch = this.armor.down ? 1 : p.crouch
+    s.crouch = this.armor.down ? Math.min(1, Math.max(p.crouch, this.downT / MECH_KNEEL_S)) : p.crouch
+    s.down = this.armor.down ? Math.max(1e-3, this.downT) : 0
     s.sprint = p.mode === 'ground' ? p.sprint : 0
-    s.aim = striking ? 0 : this.cam.aim
+    s.aim = striking || this.armor.down ? 0 : this.cam.aim
     s.aimPitch = this.cam.pitch
     s.weapon = a.current
     s.recoil = a.recoil

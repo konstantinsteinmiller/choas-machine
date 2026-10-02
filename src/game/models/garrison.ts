@@ -1,4 +1,4 @@
-import { BoxGeometry, CylinderGeometry } from 'three'
+import { BoxGeometry, CylinderGeometry, Quaternion, Vector3 } from 'three'
 import { RigBuilder, cap, dome, ell, pose, nudge, rbox, rcone, rcyl, sph, stripUv, torus, type Rig } from './kit'
 import { PAL } from './palette'
 
@@ -100,14 +100,23 @@ export interface GuardPose {
   seed: number
   /** The Commander carries himself differently. */
   proud: boolean
-  /** 0 alive … 1 lying dead; the fall plays out between. */
-  dead: number
-  /** Which way the body falls: 1 forward, −1 backward. */
-  fallDir: number
+  /** Seconds since it died; 0 while alive. */
+  deadT: number
+  /** How it goes down. */
+  death: HumanDeath
 }
 
+/**
+ * The ways a person falls:
+ * `back`   shot from the front: the head snaps, the body goes over backward;
+ * `front`  from behind: the knees give, then it folds onto its face;
+ * `spin`   a burst: it is turned round and dropped on its side;
+ * `thrown` a blast: off its feet, heels over head, onto its back.
+ */
+export type HumanDeath = 'back' | 'front' | 'spin' | 'thrown'
+
 export const restGuardPose = (): GuardPose => ({
-  time: 0, stride: 0, speed: 0, aim: 0, wary: 0, caution: 0, startle: 0, recoil: 0, lookYaw: 0, seed: 0.5, proud: false, dead: 0, fallDir: 1
+  time: 0, stride: 0, speed: 0, aim: 0, wary: 0, caution: 0, startle: 0, recoil: 0, lookYaw: 0, seed: 0.5, proud: false, deadT: 0, death: 'back'
 })
 
 const sat = (v: number): number => (v < 0 ? 0 : v > 1 ? 1 : v)
@@ -130,7 +139,156 @@ const bump = (v: number): number => (v <= 0 || v >= 1 ? 0 : Math.sin(v * Math.PI
  * - no two are alike: `seed` gives each its own stride, swagger and timing.
  */
 export const poseGuard = (rig: Rig, s: GuardPose): void => {
-  const alive = 1 - s.dead
+  if (s.deadT > DEATH_BLEND) { poseGuardDeath(rig, s); return }
+  poseGuardAlive(rig, s)
+  if (s.deadT <= 0) return
+  // The first instant of dying: out of whatever it was doing, into the fall.
+  const bones = GUARD_BONES
+  for (let i = 0; i < bones.length; i++) {
+    const b = rig.bones[bones[i]!]!
+    _q[i]!.copy(b.quaternion)
+    _p[i]!.copy(b.position)
+  }
+  poseGuardDeath(rig, s)
+  const w = smooth(s.deadT / DEATH_BLEND)
+  for (let i = 0; i < bones.length; i++) {
+    const b = rig.bones[bones[i]!]!
+    b.quaternion.copy(_q[i]!.slerp(b.quaternion, w))
+    b.position.copy(_p[i]!.lerp(b.position, w))
+  }
+}
+
+const DEATH_BLEND = 0.12
+const GUARD_BONES = ['hips', 'chest', 'head', 'armL', 'armR', 'foreL', 'foreR', 'legL', 'legR', 'shinL', 'shinR', 'footL', 'footR'] as const
+const _q = GUARD_BONES.map(() => new Quaternion())
+const _p = GUARD_BONES.map(() => new Vector3())
+
+/** How long each fall takes to come to rest, seconds: nothing moves after. */
+export const DEATH_SECONDS: Readonly<Record<HumanDeath, number>> = { back: 1.0, front: 1.25, spin: 1.1, thrown: 1.3 }
+
+/**
+ * The fall, as a little piece of acting rather than a tip-over: a reaction to
+ * the hit, the body giving way in an order (head, knees, the rest), a landing
+ * with a bounce, and limbs that come to rest a moment after the body does.
+ * Lying, the hips are 14 cm off the ground: the thickness of the body.
+ */
+const poseGuardDeath = (rig: Rig, s: GuardPose): void => {
+  const k = s.deadT
+  const own = s.seed - 0.5
+  const hit = bump(k / 0.3)
+  const LIE = -0.64
+  let hipY = 0
+  let hipZ = 0
+  let hipX = 0
+  let pitch = 0
+  let yaw = 0
+  let roll = 0
+  let chest = 0
+  let head = 0
+  let headYaw = 0
+  let armL = 0; let armR = 0; let armLz = -0.1; let armRz = 0.1
+  let foreL = -0.2; let foreR = -0.3
+  let legL = 0; let legR = 0; let kneeL = 0.05; let kneeR = 0.05
+  if (s.death === 'back') {
+    // The head goes first, the heels leave the ground, flat on the back.
+    const f = smooth((k - 0.06) / 0.5)
+    const land = bump((k - 0.5) / 0.28)
+    const rest = smooth((k - 0.55) / 0.4)
+    pitch = -1.5 * f
+    hipY = LIE * f + land * 0.07
+    hipZ = -0.45 * f
+    head = -0.7 * hit + 0.15 * rest
+    headYaw = own * 1.2 * rest
+    chest = -0.25 * hit
+    armL = -2.2 * bump(f * 0.9) - 0.5 * rest
+    armR = -1.9 * bump(f * 0.9) - 0.2 * rest
+    armLz = -0.1 - 1.2 * rest
+    armRz = 0.1 + 0.9 * rest
+    foreL = -0.2 - 0.5 * rest
+    legL = -0.9 * bump(f * 0.85)
+    legR = -0.6 * bump(f * 0.95) - 0.5 * rest
+    kneeR = 0.05 + 0.9 * rest
+    kneeL = 0.05 + 0.6 * bump(f)
+  } else if (s.death === 'front') {
+    // The knees give, it sits back on its heels for a breath, then folds
+    // forward onto its face.
+    const kneel = smooth(k / 0.32)
+    const f = smooth((k - 0.42) / 0.5)
+    const land = bump((k - 0.85) / 0.25)
+    const rest = smooth((k - 0.9) / 0.35)
+    hipY = -0.36 * kneel * (1 - f) + LIE * f + land * 0.05
+    hipZ = 0.5 * f
+    pitch = -0.12 * kneel * (1 - f) + 1.5 * f
+    kneeL = 0.05 + 1.9 * kneel * (1 - f)
+    kneeR = 0.05 + 1.9 * kneel * (1 - f) + 0.35 * rest
+    legL = -0.55 * kneel * (1 - f)
+    legR = -0.55 * kneel * (1 - f)
+    chest = 0.35 * kneel * (1 - f) + 0.1 * f
+    head = 0.6 * kneel * (1 - f) - 0.2 * f
+    headYaw = (own > 0 ? 1 : -1) * 1.1 * f
+    armL = 0.2 * kneel - 1.1 * f
+    armR = 0.2 * kneel + 0.3 * f
+    armLz = -0.1 - 0.5 * rest
+    armRz = 0.1 + 0.3 * rest
+    foreL = -0.2 - 0.9 * f
+  } else if (s.death === 'spin') {
+    // Turned by the rounds, legs tangling, down on its side.
+    const f = smooth((k - 0.05) / 0.6)
+    const land = bump((k - 0.6) / 0.28)
+    const rest = smooth((k - 0.65) / 0.4)
+    const dir = own > 0 ? 1 : -1
+    yaw = dir * 2.6 * smooth(k / 0.55)
+    roll = dir * 1.5 * f
+    hipY = LIE * f + land * 0.06
+    hipX = dir * 0.3 * f
+    chest = 0.2 * hit
+    head = 0.3 * rest
+    armL = -1.6 * bump(f) - 0.9 * rest
+    armR = -1.2 * bump(f) + 0.2 * rest
+    armLz = -0.1 - 0.8 * bump(f)
+    armRz = 0.1 + 0.8 * bump(f)
+    legL = -0.5 * f
+    legR = 0.35 * f
+    kneeL = 0.05 + 1.0 * f
+    kneeR = 0.05 + 0.4 * f
+  } else {
+    // Off its feet: up, over, and down on its back a couple of metres away.
+    const f = sat(k / 0.75)
+    const land = bump((k - 0.75) / 0.3)
+    const rest = smooth((k - 0.8) / 0.4)
+    const arc = Math.sin(f * Math.PI)
+    pitch = -(Math.PI * 2 + 1.5) * smooth(f)
+    hipY = arc * 1.5 + LIE * smooth(f) + land * 0.1
+    hipZ = -2.2 * smooth(f)
+    armL = -2.4 * arc - 0.4 * rest
+    armR = -2.0 * arc - 0.6 * rest
+    armLz = -0.1 - 1.0 * rest - 0.6 * arc
+    armRz = 0.1 + 1.1 * rest + 0.6 * arc
+    legL = -0.8 * arc
+    legR = -0.3 * arc - 0.4 * rest
+    kneeL = 0.05 + 1.0 * arc
+    kneeR = 0.05 + 0.6 * arc + 0.7 * rest
+    head = -0.3 * arc
+    headYaw = own * rest
+  }
+  nudge(rig, 'hips', hipX, hipY, hipZ)
+  pose(rig, 'hips', pitch, yaw, roll)
+  pose(rig, 'chest', chest, 0, 0)
+  pose(rig, 'head', head, headYaw, 0)
+  pose(rig, 'armL', armL, 0, armLz)
+  pose(rig, 'armR', armR, 0, armRz)
+  pose(rig, 'foreL', foreL, 0, 0)
+  pose(rig, 'foreR', foreR, 0, 0)
+  pose(rig, 'legL', legL, 0, 0.08)
+  pose(rig, 'legR', legR, 0, -0.08)
+  pose(rig, 'shinL', kneeL, 0, 0)
+  pose(rig, 'shinR', kneeR, 0, 0)
+  pose(rig, 'footL', 0.5, 0, 0)
+  pose(rig, 'footR', 0.5, 0, 0)
+}
+
+const poseGuardAlive = (rig: Rig, s: GuardPose): void => {
+  const alive = 1
   // A walk is a whole gait from a slow pace on; a run lengthens it.
   const walk = smooth(s.speed / 0.3) * alive
   const run = smooth((s.speed - 0.55) / 0.4) * alive
@@ -139,9 +297,6 @@ export const poseGuard = (rig: Rig, s: GuardPose): void => {
   const own = s.seed - 0.5
   const swagger = 1 + own * 0.5
   const t = s.time
-
-  // ── The fall (R3 replaces this) ──
-  const fall = s.dead * s.dead * (3 - 2 * s.dead)
 
   // ── Idle: weight on one leg, then the other ──
   const shift = Math.sin(t * 0.42 + s.seed * 6) * still * calm
@@ -168,16 +323,14 @@ export const poseGuard = (rig: Rig, s: GuardPose): void => {
       - stance
       // Standing: the leg without the weight is a little bent.
       - 0.1 * Math.max(0, -shift * sign)
-      - fall * 0.2 * sign
     const knee = (0.14 + up * (0.95 + 0.5 * run) + Math.max(0, sw) * 0.12) * walk
       + stance * 2
       + 0.22 * Math.max(0, -shift * sign)
-      + fall * 0.3
     // Heel first (toes up as the leg reaches), toe last (heel up as it leaves).
     const roll = (Math.max(0, sw) * 0.3 * (1 - up) - Math.max(0, -sw) * 0.45 * up) * walk
     pose(rig, `leg${tag}`, thigh, 0, sign * (0.07 + 0.06 * s.aim) * alive + 0.04 * shift)
     pose(rig, `shin${tag}`, knee, 0, 0)
-    pose(rig, `foot${tag}`, -(thigh + knee) * (1 - fall) - roll, 0, 0)
+    pose(rig, `foot${tag}`, -(thigh + knee) - roll, 0, 0)
     reach = Math.max(reach, G_THIGH * Math.cos(hipPitch + thigh) + G_SHIN * Math.cos(hipPitch + thigh + knee))
   }
 
@@ -187,20 +340,19 @@ export const poseGuard = (rig: Rig, s: GuardPose): void => {
   nudge(
     rig, 'hips',
     shift * 0.035 + swing * 0.012 * walk,
-    -sink - fall * 0.62,
-    fall * 0.35 * s.fallDir - 0.04 * s.startle
+    -sink,
+    -0.04 * s.startle
   )
   pose(
     rig, 'hips',
-    hipPitch * alive + fall * 1.45 * s.fallDir,
+    hipPitch * alive,
     swing * 0.16 * walk * swagger,
     Math.cos(s.stride) * 0.05 * walk * swagger + shift * 0.06
   )
   pose(
     rig, 'chest',
     0.04 * walk + 0.22 * s.caution + 0.1 * s.aim - 0.06 * s.recoil - 0.22 * s.startle
-      + breathe * 0.012 * alive + lookDown * 0.18 - shrug * 0.12 - (s.proud ? 0.07 * calm : 0)
-      + fall * 0.15 * s.fallDir,
+      + breathe * 0.012 * alive + lookDown * 0.18 - shrug * 0.12 - (s.proud ? 0.07 * calm : 0),
     -swing * 0.3 * walk * swagger * calm,
     -Math.cos(s.stride) * 0.04 * walk - shift * 0.05
   )
@@ -209,7 +361,7 @@ export const poseGuard = (rig: Rig, s: GuardPose): void => {
     -0.04 * walk - 0.16 * s.caution - 0.15 * s.aim + lookDown * 0.55 + 0.25 * s.startle
       + Math.sin(t * 1.3) * 0.03 * alive + (s.proud ? -0.08 * calm : 0),
     (s.lookYaw + Math.sin(t * 2.3) * 0.5 * s.wary + swing * 0.14 * walk * calm) * alive,
-    scratch * 0.2 + fall * 0.4
+    scratch * 0.2
   )
 
   // ── Arms ──
@@ -219,9 +371,9 @@ export const poseGuard = (rig: Rig, s: GuardPose): void => {
   const carryR = -0.3 + swing * 0.22 * walk * swagger - shrug * 0.15
   pose(
     rig, 'armR',
-    carryR * (1 - ready) - 1.45 * ready - 0.12 * s.recoil + 0.5 * s.startle + fall * 0.9,
+    carryR * (1 - ready) - 1.45 * ready - 0.12 * s.recoil + 0.5 * s.startle,
     0.15 * ready,
-    0.1 * (1 - ready) + shrug * 0.12 + fall * 0.5
+    0.1 * (1 - ready) + shrug * 0.12
   )
   pose(rig, 'foreR', (-0.5 - 0.12 * walk) * (1 - ready) - 0.1 * ready - 0.25 * s.startle, 0, 0)
   // The free arm swings against its leg, bends as it comes forward, and is
@@ -231,9 +383,9 @@ export const poseGuard = (rig: Rig, s: GuardPose): void => {
   pose(
     rig, 'armL',
     (swingL - 0.05) * (1 - ready) * (1 - behind) + 0.45 * behind - 1.0 * ready - 2.5 * scratch - shrug * 0.15
-      + 0.6 * s.startle - fall * 0.6,
+      + 0.6 * s.startle,
     -0.5 * ready + 0.5 * behind,
-    -0.1 - 0.25 * scratch - shrug * 0.14 - 0.3 * s.startle - fall * 0.7
+    -0.1 - 0.25 * scratch - shrug * 0.14 - 0.3 * s.startle
   )
   pose(
     rig, 'foreL',
@@ -280,9 +432,24 @@ export interface DronePose {
   eyePitch: number
   /** 0 calm … 1 it thinks it saw something: the eye darts, the body twitches. */
   alarm: number
+  /** Seconds since it was shot down; 0 while it flies. `landed` once it is on the ground. */
+  deadT: number
+  landed: boolean
 }
 
 export const poseDrone = (rig: Rig, s: DronePose): void => {
+  if (s.deadT > 0) {
+    // Shot down: it tumbles all the way to the ground, rotors windmilling,
+    // and lies there on its side.
+    const tumble = s.landed ? 0 : s.deadT
+    nudge(rig, 'body', 0, 0, 0)
+    pose(rig, 'body', s.landed ? 0.35 : tumble * 9, tumble * 4, s.landed ? 1.1 : tumble * 6)
+    pose(rig, 'eye', 0.6, 0, 0)
+    for (let i = 0; i < 4; i++) rig.bones[`rotor${i}`]!.rotation.y = s.spin * (i % 2 === 0 ? 1 : -1)
+    rig.glowMaterial.color.setScalar(s.landed ? 0.12 : 0.4 + 0.6 * Math.max(0, Math.sin(s.time * 40)))
+    return
+  }
+  rig.glowMaterial.color.setScalar(1)
   // It hangs in the air like something with weight under four rotors: a slow
   // bob, a drift from side to side, and a nervous shake when alarmed.
   const jitter = Math.sin(s.time * 41) * 0.02 * s.alarm
@@ -351,12 +518,17 @@ export interface EnforcerPose {
   /** 0 … 1 recoil of the left and right guns. */
   recoilL: number
   recoilR: number
-  /** 0 alive … 1 wrecked. */
-  dead: number
+  /** Seconds since it was wrecked; 0 while it runs. */
+  deadT: number
 }
 
 export const poseEnforcer = (rig: Rig, s: EnforcerPose): void => {
-  const up = s.power * (1 - s.dead)
+  // Wrecked in one piece: the lights stutter, the knees let go, and it
+  // goes down forward onto its guns.
+  const dying = sat(s.deadT / 0.35)
+  const topple = smooth((s.deadT - 0.3) / 0.75)
+  const crash = bump((s.deadT - 1.0) / 0.3)
+  const up = s.power * (1 - dying)
   const walk = s.speed * up
   const swing = Math.sin(s.stride)
   const slump = 1 - up
@@ -367,13 +539,14 @@ export const poseEnforcer = (rig: Rig, s: EnforcerPose): void => {
   const waking = up * (1 - up) * 4
   const shudder = Math.sin(s.time * 37) * 0.02 * waking
   const idle = Math.sin(s.time * 1.3) * 0.015 * up * (1 - walk)
-  nudge(rig, 'hips', 0, -0.45 * slump - (0.05 + land * 0.1) * walk + idle + shudder, 0)
-  pose(rig, 'hips', 0.05 * walk, swing * 0.1 * walk, s.dead * 0.25 + Math.cos(s.stride) * 0.06 * walk)
+  const spark = s.deadT > 0 && s.deadT < 0.9 ? Math.sin(s.time * 53) * 0.03 * (1 - topple) : 0
+  nudge(rig, 'hips', spark, -0.45 * slump * (1 - topple * 0.4) - 0.55 * topple + crash * 0.08 - (0.05 + land * 0.1) * walk + idle + shudder, 0.5 * topple)
+  pose(rig, 'hips', 0.05 * walk + 1.15 * topple, swing * 0.1 * walk, 0.18 * topple + Math.cos(s.stride) * 0.06 * walk)
   pose(
     rig, 'torso',
     0.4 * slump + s.aimPitch * up + land * 0.05 * walk + shudder * 2,
     s.aimYaw * up - swing * 0.14 * walk,
-    s.dead * 0.2 - Math.cos(s.stride) * 0.05 * walk
+    0.2 * topple - Math.cos(s.stride) * 0.05 * walk
   )
   pose(
     rig, 'head',
@@ -390,7 +563,9 @@ export const poseEnforcer = (rig: Rig, s: EnforcerPose): void => {
   nudge(rig, 'gunL', 0, 0, -0.18 * s.recoilL)
   nudge(rig, 'gunR', 0, 0, -0.18 * s.recoilR)
   // Dormant machines are dark: the glow follows the power.
-  rig.glowMaterial.color.setScalar(0.08 + 0.92 * up)
+  // …and a dying one stutters before it goes out.
+  const stutter = s.deadT > 0 && s.deadT < 0.7 ? (Math.sin(s.time * 61) > 0.2 ? 0.7 : 0) * (1 - s.deadT / 0.7) : 0
+  rig.glowMaterial.color.setScalar(0.08 + 0.92 * Math.max(up, stutter))
 }
 
 // ─── Goliath Tank ────────────────────────────────────────────────────────────

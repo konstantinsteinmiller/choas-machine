@@ -3,6 +3,9 @@ import {
   Group, Mesh, MeshBasicMaterial, Sprite, SpriteMaterial, SRGBColorSpace, type Scene
 } from 'three'
 import { VOID, hasLineOfSight, heightAt, type Grid } from '../world/grid'
+import { PAL } from '../models/palette'
+import { Wreckage } from '../fx/wreckage'
+import type { PostKind } from '../world/fortress'
 import type { Rig } from '../models/kit'
 import {
   buildDrone, buildEnforcer, buildGoliath, buildGuard, restGuardPose, poseDrone, poseEnforcer, poseGoliath, poseGuard,
@@ -64,6 +67,10 @@ interface UnitView {
   lastState: string
   /** Seconds left of the flash a hit gives it. */
   flash: number
+  /** It burst: the rig is gone and its pieces lie where they fell. */
+  wrecked: boolean
+  /** A drone that fell whole has hit the ground (and shed a few parts). */
+  landed: boolean
 }
 
 /** The "?" and the "!", drawn as shapes: no font, so no wait for one. */
@@ -100,6 +107,18 @@ const markTexture = (bang: boolean): CanvasTexture => {
   return t
 }
 
+/**
+ * What each machine comes apart into. `half` is the body the pieces start
+ * in (metres either side of its middle), `lift` how far up that middle is.
+ */
+const WRECKS: Partial<Record<PostKind, {
+  count: number; size: [number, number]; half: [number, number, number]; lift: number; force: number; colors: readonly string[]
+}>> = {
+  drone: { count: 9, size: [0.1, 0.24], half: [0.3, 0.15, 0.3], lift: 0, force: 4.5, colors: [PAL.steel, PAL.steelDeep, PAL.steelDark, PAL.glowRed] },
+  enforcer: { count: 26, size: [0.22, 0.62], half: [0.8, 1.4, 0.6], lift: 0.4, force: 6.5, colors: [PAL.steel, PAL.steel, PAL.steelDeep, PAL.steelDeep, PAL.steelDark, PAL.steelDark, PAL.glowYellow] },
+  goliath: { count: 54, size: [0.35, 1.1], half: [1.9, 1.1, 2.9], lift: 0.5, force: 9, colors: [PAL.steel, PAL.steel, PAL.steelDeep, PAL.steelDeep, PAL.steelDark, PAL.steelDark, PAL.steelDark, PAL.hazard] }
+}
+
 export class GarrisonView {
   readonly group = new Group()
   private views: UnitView[] = []
@@ -113,9 +132,13 @@ export class GarrisonView {
   private gx = new Float32Array((CONE_SEGS + 1) * (CONE_RINGS + 1) * 4)
   private textures: CanvasTexture[]
   private spotGeo = new CircleGeometry(1, 28)
+  /** Every machine taken apart in this mission, in one mesh. */
+  readonly wreckage: Wreckage
   private beamGeo = new CylinderGeometry(0.03, 1, 1, 16, 1, true)
 
   constructor(private gar: Garrison, private grid: Grid) {
+    this.wreckage = new Wreckage(grid)
+    this.group.add(this.wreckage.mesh)
     const q = markTexture(false)
     const bang = markTexture(true)
     this.textures = [q, bang]
@@ -153,10 +176,10 @@ export class GarrisonView {
         rig, shadow, mark, spot, beam,
         cone: human ? this.coneCount++ : -1,
         guard: human ? { ...restGuardPose(), seed: (u.seed * 0.618) % 1, proud: u.kind === 'commander' } : null,
-        drone: u.kind === 'drone' ? { time: 0, spin: 0, pitch: 0, roll: 0, eyeYaw: 0, eyePitch: 0.5, alarm: 0 } : null,
-        enforcer: u.kind === 'enforcer' ? { time: 0, stride: 0, speed: 0, power: 0, aimYaw: 0, aimPitch: 0, recoilL: 0, recoilR: 0, dead: 0 } : null,
+        drone: u.kind === 'drone' ? { time: 0, spin: 0, pitch: 0, roll: 0, eyeYaw: 0, eyePitch: 0.5, alarm: 0, deadT: 0, landed: false } : null,
+        enforcer: u.kind === 'enforcer' ? { time: 0, stride: 0, speed: 0, power: 0, aimYaw: 0, aimPitch: 0, recoilL: 0, recoilR: 0, deadT: 0 } : null,
         goliath: u.kind === 'goliath' ? { time: 0, turretYaw: 0, barrelPitch: 0, recoil: 0, rumble: 0, dead: 0 } : null,
-        aim: 0, wary: 0, caution: 0, spin: 0, lastYaw: u.yaw, bank: 0, pop: 0, lastState: u.state, flash: 0
+        aim: 0, wary: 0, caution: 0, spin: 0, lastYaw: u.yaw, bank: 0, pop: 0, lastState: u.state, flash: 0, wrecked: false, landed: false
       }
       this.views.push(v)
       this.group.add(rig.root, shadow)
@@ -188,6 +211,25 @@ export class GarrisonView {
 
   addTo(scene: Scene): void {
     scene.add(this.group)
+  }
+
+  /**
+   * A machine comes apart: its rig is taken away and rounded cubes in its own
+   * colours fly from where it stood. They stay where they land.
+   */
+  burst(id: number): void {
+    const u = this.gar.units[id]
+    const v = this.views[id]
+    if (!u || !v || v.wrecked) return
+    v.wrecked = true
+    const spec = WRECKS[u.kind]
+    if (!spec) return
+    this.wreckage.burst({
+      x: u.x, y: u.y + spec.lift, z: u.z,
+      hx: spec.half[0], hy: spec.half[1], hz: spec.half[2],
+      count: spec.count, size: spec.size, colors: spec.colors, force: spec.force,
+      dirX: u.hitX, dirZ: u.hitZ
+    })
   }
 
   /** Light a defender up for a moment (a hit, the x-ray of a kill-cam). */
@@ -283,12 +325,13 @@ export class GarrisonView {
     this.cones.geometry.attributes.position!.needsUpdate = true
     this.cones.geometry.attributes.color!.needsUpdate = true
     const ease = Math.min(1, dt * 8)
+    this.wreckage.update(dt)
 
     for (let i = 0; i < units.length; i++) {
       const u = units[i]!
       const v = this.views[i]!
       // Not in the base yet: nothing of it is drawn.
-      const here = u.state !== 'reserve'
+      const here = u.state !== 'reserve' && !v.wrecked
       v.rig.root.visible = here
       v.shadow.visible = here
       if (!here) { if (v.mark) v.mark.visible = false; continue }
@@ -328,24 +371,32 @@ export class GarrisonView {
         s.startle = wary || hot ? v.pop : 0
         s.recoil = Math.min(1, u.recoil * 4)
         s.lookYaw = u.look
-        s.dead = dead ? Math.min(1, u.deadT / 0.55) : 0
-        s.fallDir = u.fallDir
+        s.deadT = dead ? Math.max(1e-3, u.deadT) : 0
+        s.death = u.death === 'front' || u.death === 'spin' || u.death === 'thrown' ? u.death : 'back'
         poseGuard(v.rig, s)
       } else if (v.drone) {
         const s = v.drone
         // The rotors race when it is alarmed.
         if (!dead) v.spin += dt * (38 + 30 * v.caution)
-        s.time = dead ? 0 : time + u.seed
+        s.time = time + u.seed
         s.spin = v.spin
         // It banks into its turns like anything that flies.
         const turn = angleDelta(v.lastYaw, yaw) / Math.max(dt, 1e-3)
         v.lastYaw = yaw
         v.bank += (Math.max(-0.5, Math.min(0.5, -turn * 0.25)) - v.bank) * Math.min(1, dt * 4)
-        s.pitch = dead ? 0.9 : 0.12 * u.speed01
-        s.roll = dead ? 0.6 : v.bank + Math.sin(time * 0.9 + u.seed) * 0.05
+        s.pitch = 0.12 * u.speed01
+        s.roll = v.bank + Math.sin(time * 0.9 + u.seed) * 0.05
         // The eye looks down the beam: three metres ahead, from its height.
         s.eyePitch = Math.atan2(Math.max(0.5, y - heightAt(this.grid, x, z)), 3) * 0.75
         s.alarm = dead ? 0 : Math.max(v.caution, hot ? 1 : 0)
+        s.deadT = dead ? Math.max(1e-3, u.deadT) : 0
+        if (dead && !v.landed && y <= heightAt(this.grid, x, z) + 0.25) {
+          // It hits the ground whole, and a few parts of it do not stay on.
+          v.landed = true
+          this.wreckage.burst({ x, y: y + 0.1, z, hx: 0.3, hy: 0.1, hz: 0.3, count: 5, size: [0.1, 0.2], colors: WRECKS.drone!.colors, force: 3.2, dirX: 0, dirZ: 0 })
+        }
+        s.landed = v.landed
+        if (dead && !v.landed) v.spin += dt * 20
         poseDrone(v.rig, s)
       } else if (v.enforcer) {
         const s = v.enforcer
@@ -357,7 +408,7 @@ export class GarrisonView {
         // The two guns take turns: the kick alternates with the rounds left.
         s.recoilL = u.burst % 2 === 0 ? u.recoil : 0
         s.recoilR = u.burst % 2 === 1 ? u.recoil : 0
-        s.dead = dead ? Math.min(1, u.deadT / 0.8) : 0
+        s.deadT = dead ? Math.max(1e-3, u.deadT) : 0
         poseEnforcer(v.rig, s)
       } else if (v.goliath) {
         const s = v.goliath
@@ -436,6 +487,7 @@ export class GarrisonView {
       if (v.spot) (v.spot.material as MeshBasicMaterial).dispose()
       if (v.beam) (v.beam.material as MeshBasicMaterial).dispose()
     }
+    this.wreckage.dispose()
     for (const t of this.textures) t.dispose()
     this.spotGeo.dispose()
     this.beamGeo.dispose()
