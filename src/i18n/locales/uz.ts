@@ -90,6 +90,13 @@ export default {
     'marksman': 'Merganlik',
     'swift': 'Chaqqon'
   },
+  'hint': {
+    'look': 'Atrofga qarang',
+    'scope': 'Nishonga oling',
+    'fire': 'Otish',
+    'climb': 'Chiqish',
+    'help': 'Boshqaruvni koʻrsatish'
+  },
   'pause': {
     'title': 'PAUZA',
     'resume': 'Davom etish',

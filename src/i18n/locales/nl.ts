@@ -90,6 +90,13 @@ export default {
     'marksman': 'Scherpschutter',
     'swift': 'Snel'
   },
+  'hint': {
+    'look': 'Rondkijken',
+    'scope': 'Richten',
+    'fire': 'Vuren',
+    'climb': 'Klimmen',
+    'help': 'Besturing tonen'
+  },
   'pause': {
     'title': 'GEPAUZEERD',
     'resume': 'Hervatten',

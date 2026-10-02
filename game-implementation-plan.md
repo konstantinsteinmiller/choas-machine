@@ -99,15 +99,15 @@ three.js import, so it runs in Vitest and in a balance script.
 - [x] **P9 Loop and Command Base** — objectives, score, medals, rewards
   screen, Tech Scrap / Data Cores / Blueprints, holomap, Armory, Chassis Bay,
   Forge timers; first-launch flow; balance sim as a test.
-- [ ] **P10 The fortress** — ONE large base to start with (owner,
+- [x] **P10 The fortress** — ONE large base to start with (owner,
   2026-10-02: "start with one fortress, we will add more later if the concept
   works out and is fun"). It carries every mechanic of the GDD in one mission:
-  - [ ] 10.1 layout: perch, curtain wall, towers, cables, keep, garrison
+  - [x] 10.1 layout: perch, curtain wall, towers, cables, keep, garrison
     (guards, sentries, drones, dormant Enforcers), the Commander, and the
     Goliath Tank that wakes for the finale
-  - [ ] 10.2 the wordless lessons on a first run: move, look, scope, headshot,
+  - [x] 10.2 the wordless lessons on a first run: move, look, scope, headshot,
     crouch, blade, climb, cable, drop, decoy, weapon wheel
-  - [ ] 10.3 threat levels I–V of the same base (garrison size and toughness),
+  - [x] 10.3 threat levels I–V of the same base (garrison size and toughness),
     so the Armory, Chassis Bay and Forge have something to be used against
 - [ ] **P11 Sound** — synthesised SFX set, stealth and chaos music loops with
   crossfade, loudness gate, `sound-todo.md`.
@@ -348,6 +348,23 @@ Answered by the owner (2026-10-02): G5 (one fortress), C1 (new remote), C2 (wran
   `base.mjs` (seeds a returning save; measures overlaps).
   Still to do in P10: the five threat levels all play the same garrison.
   In P13: the interstitial goes BEFORE the rewards screen (playbook).
+- 2026-10-02 P10 done. `data/fortresses/bastion.ts`: one 104 × 112 m base
+  (south ward, inner wall with main gate and postern, keep with the
+  Commander on its roof, tank park, perch with a cable in), built per level:
+  I a night watch; II sentries, a second drone, Enforcers; III the Goliath,
+  which wakes 2 s after the Commander dies and must be destroyed too; IV, V
+  more patrols and reinforcements. `garrison.threatOf(level)` scales health,
+  damage and how fast the base notices (level I is gentler than baseline).
+  The Goliath holds its ground (wider than a gate) and turns its hull slowly.
+  `sim/coach.ts` (pure): ten wordless lessons (move, look, scope, fire,
+  crouch, blade, climb, cable, decoy, weapon), two at a time, retired by use
+  per input family and saved in `cm_lessons`; they come back when the player
+  is stuck and on the "?" chip. ControlHints draws key caps (in the player's
+  own layout), a mouse with a button lit, and finger gestures on the part of
+  the screen they work on; HUD chips pulse for their own lesson.
+  Dev URL: `?level=3`, `?fort=proving`, `?view=az,el,dist`.
+  Draw calls at the perch: 124 (71k triangles) — P15's first target.
+  Not yet seen in a browser: a full no-cheat playthrough by hand.
 
 ## Resume notes
 

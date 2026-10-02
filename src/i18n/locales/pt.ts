@@ -90,6 +90,13 @@ export default {
     'marksman': 'Atirador',
     'swift': 'Veloz'
   },
+  'hint': {
+    'look': 'Olhar ao redor',
+    'scope': 'Mirar',
+    'fire': 'Atirar',
+    'climb': 'Escalar',
+    'help': 'Mostrar controles'
+  },
   'pause': {
     'title': 'PAUSADO',
     'resume': 'Continuar',

@@ -94,6 +94,13 @@ export default {
     'marksman': 'Marksman',
     'swift': 'Swift'
   },
+  'hint': {
+    'look': 'Look around',
+    'scope': 'Aim',
+    'fire': 'Fire',
+    'climb': 'Climb',
+    'help': 'Show controls'
+  },
   'pause': {
     'title': 'PAUSED',
     'resume': 'Resume',

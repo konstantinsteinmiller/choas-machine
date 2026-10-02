@@ -3,8 +3,9 @@ import { FortressBuilder, WALL_H, type Fortress } from '@/game/world/fortress'
 import { cellMid } from '@/game/world/grid'
 import {
   GOLIATH_HULL_TURN, GOLIATH_TURRET_TURN, WAKE_S, WAVE_AT_S, WAVE_SIZE, drainEvents, isAlive, livingCount, makeGarrison,
-  noiseAt, stepGarrison, type Garrison, type GarrisonEvent, type Target
+  noiseAt, stepGarrison, threatOf, type Garrison, type GarrisonEvent, type Target
 } from '@/game/sim/garrison'
+import { buildBastion } from '@/game/data/fortresses/bastion'
 import { GUNS, SHELL_RADIUS, SHELL_WARN_S, hitChance, stepFire } from '@/game/sim/chaos'
 import { ARMOR_MAX, REGEN_AFTER_S, hurtArmor, makeArmor, stepArmor } from '@/game/sim/armor'
 import { castShot, makeShotHit } from '@/game/sim/hitscan'
@@ -233,6 +234,37 @@ describe('the Goliath', () => {
     noiseAt(gar, target, target.x, target.z, 5, 'loud')
     run(gar, f, target, WAKE_S + 1)
     expect(Math.abs(u.look)).toBeGreaterThan(Math.abs(u.yaw) + 0.3)
+  })
+})
+
+describe('threat levels', () => {
+  it('each level is at least as tough, as hard-hitting and as watchful as the one before', () => {
+    for (let l = 2; l <= 5; l++) {
+      const a = threatOf(l - 1)
+      const b = threatOf(l)
+      expect(b.hp).toBeGreaterThanOrEqual(a.hp)
+      expect(b.damage).toBeGreaterThanOrEqual(a.damage)
+      expect(b.notice).toBeGreaterThanOrEqual(a.notice)
+    }
+    expect(threatOf(5).hp).toBeGreaterThan(threatOf(1).hp)
+    expect(threatOf(0)).toEqual(threatOf(1))
+    expect(threatOf(99)).toEqual(threatOf(5))
+  })
+  it('scale the garrison built for them', () => {
+    const f = yard().sentry(10, 5, 0).build()
+    expect(makeGarrison(f, 5).units[0]!.hp).toBeGreaterThan(makeGarrison(f, 1).units[0]!.hp)
+    const hurt = (level: number): number => {
+      const gar = makeGarrison(f, level)
+      return damageOf(run(gar, f, mech(10, 9), 30))
+    }
+    expect(hurt(5)).toBeGreaterThan(hurt(1))
+  })
+  it('Bastion grows with the level: more defenders, and the Goliath from level III', () => {
+    const count = (l: number): number => buildBastion(l).posts.length
+    for (let l = 2; l <= 5; l++) expect(count(l)).toBeGreaterThan(count(l - 1))
+    const has = (l: number): boolean => buildBastion(l).posts.some(p => p.kind === 'goliath')
+    expect([has(1), has(2), has(3), has(4), has(5)]).toEqual([false, false, true, true, true])
+    for (let l = 1; l <= 5; l++) expect(buildBastion(l).posts.filter(p => p.kind === 'commander')).toHaveLength(1)
   })
 })
 

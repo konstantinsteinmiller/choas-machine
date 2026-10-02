@@ -90,6 +90,13 @@ export default {
     'marksman': '狙撃手',
     'swift': '迅速'
   },
+  'hint': {
+    'look': '見回す',
+    'scope': '狙う',
+    'fire': '撃つ',
+    'climb': '登る',
+    'help': '操作を表示'
+  },
   'pause': {
     'title': 'ポーズ中',
     'resume': '再開',

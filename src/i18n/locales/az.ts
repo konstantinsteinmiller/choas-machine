@@ -90,6 +90,13 @@ export default {
     'marksman': 'Nişançı',
     'swift': 'Cəld'
   },
+  'hint': {
+    'look': 'Ətrafa bax',
+    'scope': 'Nişan al',
+    'fire': 'Atəş aç',
+    'climb': 'Dırman',
+    'help': 'İdarəetməni göstər'
+  },
   'pause': {
     'title': 'FASİLƏ',
     'resume': 'Davam et',

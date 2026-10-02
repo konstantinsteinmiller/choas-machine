@@ -90,6 +90,13 @@ export default {
     'marksman': 'قنّاص',
     'swift': 'سريع'
   },
+  'hint': {
+    'look': 'انظر حولك',
+    'scope': 'صوّب',
+    'fire': 'أطلق النار',
+    'climb': 'تسلّق',
+    'help': 'إظهار التحكم'
+  },
   'pause': {
     'title': 'متوقف مؤقتاً',
     'resume': 'استئناف',

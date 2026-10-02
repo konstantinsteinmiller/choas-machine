@@ -90,6 +90,13 @@ export default {
     'marksman': 'Prickskytt',
     'swift': 'Snabb'
   },
+  'hint': {
+    'look': 'Se dig omkring',
+    'scope': 'Sikta',
+    'fire': 'Skjut',
+    'climb': 'Klättra',
+    'help': 'Visa kontroller'
+  },
   'pause': {
     'title': 'PAUSAT',
     'resume': 'Fortsätt',

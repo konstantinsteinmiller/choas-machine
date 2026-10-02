@@ -90,6 +90,13 @@ export default {
     'marksman': 'มือปืน',
     'swift': 'ว่องไว'
   },
+  'hint': {
+    'look': 'มองรอบๆ',
+    'scope': 'เล็ง',
+    'fire': 'ยิง',
+    'climb': 'ปีน',
+    'help': 'แสดงปุ่มควบคุม'
+  },
   'pause': {
     'title': 'หยุดชั่วคราว',
     'resume': 'เล่นต่อ',

@@ -90,6 +90,13 @@ export default {
     'marksman': 'Šāvējs',
     'swift': 'Veiklais'
   },
+  'hint': {
+    'look': 'Apskatīties',
+    'scope': 'Mērķēt',
+    'fire': 'Šaut',
+    'climb': 'Kāpt',
+    'help': 'Rādīt vadību'
+  },
   'pause': {
     'title': 'PAUZE',
     'resume': 'Turpināt',

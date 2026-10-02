@@ -90,6 +90,13 @@ export default {
     'marksman': 'Snaiperis',
     'swift': 'Greitas'
   },
+  'hint': {
+    'look': 'Apsidairyti',
+    'scope': 'Taikytis',
+    'fire': 'Šauti',
+    'climb': 'Lipti',
+    'help': 'Rodyti valdymą'
+  },
   'pause': {
     'title': 'PAUZĖ',
     'resume': 'Tęsti',

@@ -90,6 +90,13 @@ export default {
     'marksman': 'Tarkka-ampuja',
     'swift': 'Nopea'
   },
+  'hint': {
+    'look': 'Katso ympärille',
+    'scope': 'Tähtää',
+    'fire': 'Ammu',
+    'climb': 'Kiipeä',
+    'help': 'Näytä ohjaimet'
+  },
   'pause': {
     'title': 'TAUKO',
     'resume': 'Jatka',

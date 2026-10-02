@@ -90,6 +90,13 @@ export default {
     'marksman': 'Mesterlövész',
     'swift': 'Gyors'
   },
+  'hint': {
+    'look': 'Körbenézés',
+    'scope': 'Célzás',
+    'fire': 'Tűz',
+    'climb': 'Mászás',
+    'help': 'Irányítás megjelenítése'
+  },
   'pause': {
     'title': 'SZÜNET',
     'resume': 'Folytatás',

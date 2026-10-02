@@ -90,6 +90,13 @@ export default {
     'marksman': '神射手',
     'swift': '迅捷'
   },
+  'hint': {
+    'look': '环顾四周',
+    'scope': '瞄准',
+    'fire': '开火',
+    'climb': '攀爬',
+    'help': '显示操作提示'
+  },
   'pause': {
     'title': '已暂停',
     'resume': '继续',

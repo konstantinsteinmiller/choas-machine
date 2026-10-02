@@ -1,0 +1,134 @@
+import { describe, expect, it } from 'vitest'
+import {
+  HINTS, HINT_IDS, LOOK_STEP_RAD, MAX_SHOWN, MOVE_STEP_M, coachHelp, coachUse, hintDone, makeCoach, stepCoach,
+  type Coach, type CoachContext, type HintView
+} from '@/game/sim/coach'
+
+const DT = 1 / 60
+const base: CoachContext = {
+  playing: true, walked: 0, turned: 0, enemies: true, aiming: false, chaos: false, threat: 0, guardNear: false,
+  strike: false, nearLadder: false, nearCable: false, decoys: 3
+}
+const ctx = (over: Partial<CoachContext> = {}): CoachContext => ({ ...base, ...over })
+
+/** Step for `seconds` and return what is on screen at the end. */
+const run = (c: Coach, k: CoachContext, seconds: number): HintView[] => {
+  let last: HintView[] = lastShown.get(c) ?? []
+  for (let t = 0; t < seconds; t += DT) {
+    const v = stepCoach(c, k, DT)
+    if (v) last = v
+  }
+  lastShown.set(c, last)
+  return last
+}
+const lastShown = new WeakMap<Coach, HintView[]>()
+const ids = (v: HintView[]): string[] => v.map(h => h.id)
+/** A player who knows the thumbs already. */
+const taught = (...known: string[]): Coach => makeCoach('touch', Object.fromEntries(known.map(id => [id, 9])))
+
+describe('the control coach', () => {
+  it('opens with the two thumbs, and nothing else', () => {
+    const c = makeCoach('touch')
+    expect(ids(run(c, ctx(), 0.1))).toEqual(['move', 'look'])
+  })
+
+  it('never shows more than two glyphs, the most urgent first', () => {
+    const c = makeCoach('touch')
+    const v = run(c, ctx({ strike: true, nearLadder: true, nearCable: true, aiming: true, threat: 0.5 }), 0.1)
+    expect(v).toHaveLength(MAX_SHOWN)
+    expect(ids(v)).toEqual(['fire', 'blade'])
+  })
+
+  it('a ladder or a cable is taught once walking is: it is the same push of the stick', () => {
+    expect(ids(run(makeCoach('touch'), ctx({ nearCable: true, nearLadder: true }), 0.1))).toEqual(['move', 'look'])
+    expect(ids(run(taught('move'), ctx({ nearCable: true }), 0.1))).toEqual(['cable', 'look'])
+  })
+
+  it('nothing times out: an unused glyph is still there a minute later', () => {
+    const c = makeCoach('desk')
+    expect(ids(run(c, ctx(), 60))).toContain('look')
+  })
+
+  it('walking and turning retire their glyphs by how much was done', () => {
+    const c = makeCoach('touch')
+    const perStep = (MOVE_STEP_M * HINTS.move.goal) / 60
+    run(c, ctx({ walked: perStep }), 1.05)
+    expect(hintDone(c, 'move')).toBe(true)
+    expect(hintDone(c, 'look')).toBe(false)
+    run(c, ctx({ turned: (LOOK_STEP_RAD * HINTS.look.goal) / 60 }), 1.05)
+    expect(hintDone(c, 'look')).toBe(true)
+    // Both gone, a moment later.
+    expect(ids(run(c, ctx({ enemies: false }), 4))).toEqual([])
+  })
+
+  it('every success flashes the glyph, and the last one reports the retirement', () => {
+    const c = taught('move', 'look')
+    run(c, ctx(), 0.1)
+    expect(coachUse(c, 'scope')).toBe(false)
+    const mid = run(c, ctx(), 0.1).find(h => h.id === 'scope')!
+    expect([mid.count, mid.goal, mid.flash]).toEqual([1, HINTS.scope.goal, 1])
+    expect(coachUse(c, 'scope')).toBe(true)
+    expect(coachUse(c, 'scope')).toBe(false)
+    expect(ids(run(c, ctx(), 5))).not.toContain('scope')
+  })
+
+  it('the scope waits for the thumbs, but not for ever', () => {
+    const c = makeCoach('touch')
+    expect(ids(run(c, ctx({ strike: false }), 2))).not.toContain('scope')
+    const later = taught('move')
+    run(later, ctx(), 9)
+    // `look` is still unlearned and outranks nothing: the scope has a slot now.
+    expect(ids(run(later, ctx(), 0.1))).toContain('scope')
+  })
+
+  it('a glyph comes in with its context and lingers a moment after it', () => {
+    const c = taught('move', 'look', 'scope')
+    expect(ids(run(c, ctx(), 1))).toEqual([])
+    expect(ids(run(c, ctx({ strike: true }), 0.1))).toEqual(['blade'])
+    expect(ids(run(c, ctx(), 1))).toEqual(['blade'])
+    expect(ids(run(c, ctx(), 3))).toEqual([])
+  })
+
+  it('crouching is taught when someone starts to notice; the decoy after that', () => {
+    const c = taught('move', 'look', 'scope')
+    expect(ids(run(c, ctx({ guardNear: true }), 0.1))).toEqual(['crouch'])
+    coachUse(c, 'crouch')
+    expect(ids(run(c, ctx({ guardNear: true }), 1.5))).toEqual(['decoy'])
+    expect(ids(run(taught('move', 'look', 'scope', 'crouch'), ctx({ guardNear: true, decoys: 0 }), 0.1))).toEqual([])
+  })
+
+  it('the stealth glyphs stand down once the base is loud; the weapon wheel comes up', () => {
+    const c = taught('move', 'look')
+    const v = ids(run(c, ctx({ chaos: true, guardNear: true, threat: 1 }), 0.1))
+    expect(v).toEqual(['weapon'])
+  })
+
+  it('mastery is per input family', () => {
+    const touch = makeCoach('touch', { move: 3, look: 3 })
+    const desk = makeCoach('desk', {})
+    expect(hintDone(touch, 'move')).toBe(true)
+    expect(hintDone(desk, 'move')).toBe(false)
+  })
+
+  it('a player who stops turning the camera gets its glyph back; one use sends it away', () => {
+    const c = taught(...HINT_IDS)
+    expect(ids(run(c, ctx({ walked: 0.05 }), 17))).toEqual([])
+    expect(ids(run(c, ctx({ walked: 0.05 }), 2))).toEqual(['look'])
+    coachUse(c, 'look')
+    expect(ids(run(c, ctx({ walked: 0.05, turned: 0.01 }), 2))).toEqual([])
+  })
+
+  it('the "?" button brings the core set back, two at a time, and it goes again', () => {
+    const c = taught(...HINT_IDS)
+    coachHelp(c)
+    expect(run(c, ctx({ walked: 0.05, turned: 0.01 }), 0.1)).toHaveLength(MAX_SHOWN)
+    expect(ids(run(c, ctx({ walked: 0.05, turned: 0.01 }), 24))).toEqual([])
+  })
+
+  it('shows nothing while the player has no control, and reports only changes', () => {
+    const c = makeCoach('touch')
+    expect(stepCoach(c, ctx({ playing: false }), DT)).toEqual(null)
+    expect(stepCoach(c, ctx(), DT)).not.toBeNull()
+    expect(stepCoach(c, ctx(), DT)).toBeNull()
+  })
+})

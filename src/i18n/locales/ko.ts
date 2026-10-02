@@ -90,6 +90,13 @@ export default {
     'marksman': '명사수',
     'swift': '신속'
   },
+  'hint': {
+    'look': '둘러보기',
+    'scope': '조준',
+    'fire': '발사',
+    'climb': '오르기',
+    'help': '조작 표시'
+  },
   'pause': {
     'title': '일시정지',
     'resume': '계속하기',

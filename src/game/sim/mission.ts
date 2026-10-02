@@ -6,7 +6,7 @@ import { app, newScene, type GameMode } from '../engine/app'
 import { noSlice, type Slice } from '../engine/slicer'
 import { consumeEdges, type Input } from '../engine/input'
 import { input as sharedInput, inputClock } from '../engine/inputState'
-import { emit } from '../bus'
+import { emit, on } from '../bus'
 import { gun, hud, mirror, runHudTickers, setPhase, threats, vital, waypoint, MAX_THREATS } from '../state/hud'
 import { CELL, VOID, heightAt } from '../world/grid'
 import type { Fortress } from '../world/fortress'
@@ -46,7 +46,8 @@ import {
 } from './cine'
 import { buildDropship, type Dropship } from '../models/dropship'
 import { killCamsEnabled } from '@/use/useKillCam'
-import { markSeen, profile } from '../state/profile'
+import { markSeen, profile, saveProfile } from '../state/profile'
+import { HINTS, coachHelp, coachUse, makeCoach, stepCoach, type Coach, type CoachContext, type HintId } from './coach'
 
 /**
  * ─── A mission ───────────────────────────────────────────────────────────────
@@ -158,6 +159,18 @@ export class Mission implements GameMode {
   private line!: Mesh
   /** How far above its feet the mech is drawn (the drop, the lift). */
   private lift = 0
+  /** Seconds until the Goliath answers the Commander's death; < 0 when not armed. */
+  private finaleT = -1
+  /** The control lessons. */
+  private coach: Coach = makeCoach('desk')
+  private coachCtx: CoachContext = {
+    playing: false, walked: 0, turned: 0, enemies: true, aiming: false, chaos: false, threat: 0, guardNear: false,
+    strike: false, nearLadder: false, nearCable: false, decoys: 0
+  }
+  private lastYaw = 0
+  private lastPitch = 0
+  private wasAiming = false
+  private offHelp: (() => void) | null = null
   private target: Target
   private mesh!: FortressMesh
   private decor!: DecorMesh
@@ -191,7 +204,7 @@ export class Mission implements GameMode {
     this.player = makePlayer(x, heightAt(g, x, z), z, facing)
     this.player.speedMul = loadout.speed
     this.cam = makeCam(facing)
-    this.garrison = makeGarrison(fortress)
+    this.garrison = makeGarrison(fortress, level)
     this.garrison.lures = this.decoys
     this.markers.floorY = (mx, mz) => heightAt(g, mx, mz)
     this.target = { x, y: this.player.y, z, height: MECH_HEIGHT, crouched: false, visible: true }
@@ -255,6 +268,11 @@ export class Mission implements GameMode {
     mirror('armorLow', false)
     mirror('cine', false)
     mirror('objective', 'target')
+    this.newCoach()
+    this.lastYaw = this.cam.yaw
+    this.lastPitch = this.cam.pitch
+    this.offHelp?.()
+    this.offHelp = on('help', () => coachHelp(this.coach))
     this.mirrorWeapons()
     // The drop-in: five seconds the first time, three once it has been seen.
     this.cine = { kind: 'intro', t: 0, dur: profile.seen.includes('intro') ? 3 : 5, landed: false }
@@ -306,9 +324,16 @@ export class Mission implements GameMode {
           if (e.type === 'land') {
             emit('land', { drop: e.drop })
             if (e.drop > 2) { this.shake = Math.max(this.shake, 0.25); haptic('tap') }
-          } else emit('traverse', { kind: e.type })
+          } else {
+            emit('traverse', { kind: e.type })
+            if (e.type === 'ladder') this.learn('climb')
+            else if (e.type === 'cable') this.learn('cable')
+          }
         }
-        if (p.crouched !== wasCrouched) emit('crouch', { crouched: p.crouched })
+        if (p.crouched !== wasCrouched) {
+          emit('crouch', { crouched: p.crouched })
+          if (p.crouched) this.learn('crouch')
+        }
         this.offer = findStrike(this.garrison, this.fortress.grid, p.x, p.y, p.z, this.cam.yaw, p.mode === 'ground')
         if (i.actQueued && this.offer) this.startStrike(this.offer)
         if (i.decoyQueued) this.throwDecoy()
@@ -321,8 +346,14 @@ export class Mission implements GameMode {
       this.stepWeapons(dt)
       this.stepRockets(dt)
       if (stepDecoys(this.decoys, this.garrison, this.fortress.grid, dt) > 0) mirror('decoys', this.decoysLeft)
+      if (this.finaleT >= 0 && (this.finaleT -= dt) < 0) {
+        // The finale: the base goes loud and the Goliath powers up.
+        this.goLoud()
+        emit('finale', {})
+      }
       this.stepGarrison(dt)
       stepArmor(this.armor, dt)
+      this.stepCoach(dt)
       vital.armor = this.armor.hp / this.armor.max
       mirror('armorLow', vital.armor < 0.3)
     } else if (hud.phase === 'dead') {
@@ -370,7 +401,10 @@ export class Mission implements GameMode {
     t.cycle = i.cycleQueued
     const was = a.current
     const rounds = stepArsenal(a, t, dt)
-    if (a.current !== was) emit('weapon', { weapon: a.current })
+    if (a.current !== was) {
+      emit('weapon', { weapon: a.current })
+      this.learn('weapon')
+    }
     for (let k = 0; k < rounds; k++) this.fireRound()
     this.mirrorWeapons()
   }
@@ -443,6 +477,7 @@ export class Mission implements GameMode {
     const gar = this.garrison
     const { ox, oy, oz, dx, dy, dz } = this.aimLine(SPREAD[w])
     this.stats.shots++
+    this.learn('fire')
     this.fx.muzzle(ox, oy, oz, dx, dy, dz, w)
     haptic(w)
     emit('shot', { weapon: w })
@@ -540,6 +575,7 @@ export class Mission implements GameMode {
     p.vz = 0
     p.speed01 = 0
     this.offer = null
+    this.learn('blade')
     emit('strike', { kind: s.kind, id: s.id })
   }
 
@@ -594,6 +630,7 @@ export class Mission implements GameMode {
     this.decoys.push({ ...spot, yaw: this.cam.yaw + Math.PI, t: 0, life: this.loadout.decoySeconds, pulse: 0 })
     this.fx.decoyPop(spot.x, spot.y, spot.z)
     haptic('tap')
+    this.learn('decoy')
     emit('decoy', { x: spot.x, y: spot.y, z: spot.z })
     mirror('decoys', this.decoysLeft)
   }
@@ -638,6 +675,8 @@ export class Mission implements GameMode {
         })
         const final = this.objective === 'target' && this.targetsLeft() === 0
         if (final) this.openExtraction()
+        // The Commander is down and the tank is still asleep: not for long.
+        else if (u.kind === 'commander' && gar.units.some(o => o.kind === 'goliath' && o.state === 'dormant')) this.finaleT = 2.2
         // The sniper's kill-cam was decided when the round was fired.
         if (this.killBy !== 'sniper' && !this.cine && hud.phase === 'play') {
           const info = { by: this.killBy, head: false, final, time: this.stats.time }
@@ -747,6 +786,69 @@ export class Mission implements GameMode {
       failMission(this.stats)
       emit('defeat', {})
     }
+  }
+
+  // ─── The control lessons ───────────────────────────────────────────────────
+
+  private family(): 'touch' | 'desk' {
+    return this.input.device === 'touch' ? 'touch' : 'desk'
+  }
+
+  private newCoach(): void {
+    const family = this.family()
+    this.coach = makeCoach(family, profile.lessons[family])
+    hud.hints = []
+  }
+
+  /** The player did a thing the coach teaches. */
+  private learn(id: HintId): void {
+    if (!coachUse(this.coach, id)) return
+    // Retired for this input family, for good.
+    profile.lessons[this.coach.family][id] = HINTS[id].goal
+    saveProfile()
+  }
+
+  private stepCoach(dt: number): void {
+    const p = this.player
+    const gar = this.garrison
+    const g = this.fortress.grid
+    // A phone player who plugs a mouse in is a new pupil.
+    if (this.coach.family !== this.family()) this.newCoach()
+    const c = this.coachCtx
+    c.playing = !this.cine && !this.strike
+    c.walked = p.mode === 'ground' ? Math.hypot(p.x - p.px, p.z - p.pz) : 0
+    c.turned = Math.abs(angleDelta(this.lastYaw, this.cam.yaw)) + Math.abs(this.cam.pitch - this.lastPitch)
+    this.lastYaw = this.cam.yaw
+    this.lastPitch = this.cam.pitch
+    const aiming = this.weaponUp()
+    if (aiming && !this.wasAiming) this.learn('scope')
+    this.wasAiming = aiming
+    c.aiming = aiming
+    c.chaos = gar.alert.chaos
+    c.strike = !!this.offer
+    c.decoys = this.decoysLeft
+    let threat = 0
+    let near = false
+    let enemies = false
+    for (const u of gar.units) {
+      if (u.state === 'dead' || u.state === 'reserve' || u.state === 'dormant') continue
+      enemies = true
+      if (u.detect > threat) threat = u.detect
+      if (u.kind !== 'drone' && u.state === 'patrol' && Math.hypot(u.x - p.x, u.z - p.z) < 24 && Math.abs(u.y - p.y) < 3) near = true
+    }
+    c.enemies = enemies
+    c.threat = threat
+    c.guardNear = near
+    // A ladder or a cable within a few steps, on the mech's own storey.
+    const cx = p.x / CELL - 0.5
+    const cz = p.z / CELL - 0.5
+    c.nearLadder = p.mode === 'ground' && g.ladders.some(l =>
+      (Math.hypot(l.cx - cx, l.cz - cz) < 1.8 && Math.abs(heightAt(g, (l.cx + 0.5) * CELL, (l.cz + 0.5) * CELL) - p.y) < 1))
+    c.nearCable = p.mode === 'ground' && g.cables.some(k =>
+      (Math.hypot(k.ax - cx, k.az - cz) < 1.8 && Math.abs(heightAt(g, (k.ax + 0.5) * CELL, (k.az + 0.5) * CELL) - p.y) < 1)
+      || (Math.hypot(k.bx - cx, k.bz - cz) < 1.8 && Math.abs(heightAt(g, (k.bx + 0.5) * CELL, (k.bz + 0.5) * CELL) - p.y) < 1))
+    const views = stepCoach(this.coach, c, dt)
+    if (views) hud.hints = views
   }
 
   // ─── The objective and the scripted shots ──────────────────────────────────
@@ -1115,6 +1217,8 @@ export class Mission implements GameMode {
     this.garrisonView.dispose()
     this.fx.dispose()
     this.strikeMark.material.dispose()
+    this.offHelp?.()
+    hud.hints = []
     app.setTimeScale(1)
     this.ship.dispose()
     this.beacon.geometry.dispose()

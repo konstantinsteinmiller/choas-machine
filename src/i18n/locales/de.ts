@@ -90,6 +90,13 @@ export default {
     'marksman': 'Scharfschütze',
     'swift': 'Flink'
   },
+  'hint': {
+    'look': 'Umschauen',
+    'scope': 'Zielen',
+    'fire': 'Feuern',
+    'climb': 'Klettern',
+    'help': 'Steuerung anzeigen'
+  },
   'pause': {
     'title': 'PAUSIERT',
     'resume': 'Fortsetzen',

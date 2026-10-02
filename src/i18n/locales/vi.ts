@@ -90,6 +90,13 @@ export default {
     'marksman': 'Xạ thủ',
     'swift': 'Thần tốc'
   },
+  'hint': {
+    'look': 'Nhìn quanh',
+    'scope': 'Ngắm',
+    'fire': 'Bắn',
+    'climb': 'Leo',
+    'help': 'Hiện điều khiển'
+  },
   'pause': {
     'title': 'TẠM DỪNG',
     'resume': 'Tiếp tục',

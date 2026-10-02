@@ -90,6 +90,13 @@ export default {
     'marksman': 'Strijelac',
     'swift': 'Brzi'
   },
+  'hint': {
+    'look': 'Pogledaj oko sebe',
+    'scope': 'Nanišani',
+    'fire': 'Pucaj',
+    'climb': 'Penji se',
+    'help': 'Prikaži kontrole'
+  },
   'pause': {
     'title': 'PAUZA',
     'resume': 'Nastavi',

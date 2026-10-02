@@ -6,11 +6,14 @@
     AimHold
     ThreatArcs
     ObjectiveMarker
+    ControlHints
 
     div.top-centre
       AlertMeter
 
     div.top-right
+      //- The lessons, back on request.
+      FHudButton(icon="help" tone="violet" :aria-label="t('hint.help')" data-testid="btn-help" @click="busEmit('help', {})")
       FHudButton(icon="pause" :aria-label="t('ui.pause')" data-testid="btn-pause" @click="emit('pause')")
 
     div.bottom-centre
@@ -56,12 +59,14 @@
           v-else
           :icon="hud.weapon"
           :tone="TONES[hud.weapon]"
+          :attention="teaching('weapon')"
           :aria-label="t('hud.weapons')"
           data-testid="btn-weapons"
           @click="wheelOpen = true"
         )
       FHudButton(
         icon="decoy"
+        :attention="teaching('decoy')"
         :is-disabled="hud.decoys <= 0 || hud.mode !== 'ground'"
         :aria-label="t('hud.decoy')"
         data-testid="btn-decoy"
@@ -72,6 +77,7 @@
       FHudButton(
         :icon="hud.crouched ? 'stand' : 'crouch'"
         tone="violet"
+        :attention="teaching('crouch')"
         :active="hud.crouched"
         :pressed="hud.crouched"
         :is-disabled="hud.mode !== 'ground'"
@@ -91,6 +97,8 @@ import AimHold from '@/components/hud/AimHold.vue'
 import AlertMeter from '@/components/hud/AlertMeter.vue'
 import ThreatArcs from '@/components/hud/ThreatArcs.vue'
 import ObjectiveMarker from '@/components/hud/ObjectiveMarker.vue'
+import ControlHints from '@/components/hud/ControlHints.vue'
+import { emit as busEmit } from '@/game/bus'
 import Reticle from '@/components/hud/Reticle.vue'
 import AmmoStrip from '@/components/hud/AmmoStrip.vue'
 import ArmorBar from '@/components/hud/ArmorBar.vue'
@@ -99,6 +107,7 @@ import { hud } from '@/game/state/hud'
 import { input } from '@/game/engine/inputState'
 import { cancelAim } from '@/game/engine/input'
 import { WEAPON_IDS, type WeaponId } from '@/game/data/ids'
+import type { HintId } from '@/game/sim/coach'
 
 /**
  * The mission's HUD. The layer lets every press through to the scene under
@@ -110,6 +119,9 @@ const emit = defineEmits<{ (e: 'pause'): void }>()
 const { t } = useI18n()
 
 const TONES: Record<WeaponId, 'cyan' | 'warn' | 'danger'> = { sniper: 'cyan', minigun: 'warn', rocket: 'danger' }
+
+/** A control lesson is on for this chip: it pulses until it has been used. */
+const teaching = (id: HintId): boolean => hud.device === 'touch' && hud.hints.some(h => h.id === id)
 
 // ── The weapon wheel ──
 const wheelOpen = ref(false)

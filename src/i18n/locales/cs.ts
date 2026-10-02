@@ -90,6 +90,13 @@ export default {
     'marksman': 'Střelec',
     'swift': 'Rychlík'
   },
+  'hint': {
+    'look': 'Rozhlédnout se',
+    'scope': 'Zamířit',
+    'fire': 'Střílet',
+    'climb': 'Lézt',
+    'help': 'Zobrazit ovládání'
+  },
   'pause': {
     'title': 'PAUZA',
     'resume': 'Pokračovat',

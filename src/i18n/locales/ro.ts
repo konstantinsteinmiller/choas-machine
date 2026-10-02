@@ -90,6 +90,13 @@ export default {
     'marksman': 'Trăgător',
     'swift': 'Rapid'
   },
+  'hint': {
+    'look': 'Privește în jur',
+    'scope': 'Țintește',
+    'fire': 'Trage',
+    'climb': 'Urcă',
+    'help': 'Arată comenzile'
+  },
   'pause': {
     'title': 'PAUZĂ',
     'resume': 'Continuă',

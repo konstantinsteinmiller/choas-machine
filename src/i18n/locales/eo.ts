@@ -90,6 +90,13 @@ export default {
     'marksman': 'Pafisto',
     'swift': 'Rapida'
   },
+  'hint': {
+    'look': 'Rigardu ĉirkaŭen',
+    'scope': 'Celu',
+    'fire': 'Pafu',
+    'climb': 'Grimpu',
+    'help': 'Montru regilojn'
+  },
   'pause': {
     'title': 'PAŬZITA',
     'resume': 'Daŭrigi',

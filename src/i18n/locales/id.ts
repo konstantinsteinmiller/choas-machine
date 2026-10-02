@@ -90,6 +90,13 @@ export default {
     'marksman': 'Penembak jitu',
     'swift': 'Gesit'
   },
+  'hint': {
+    'look': 'Lihat sekeliling',
+    'scope': 'Bidik',
+    'fire': 'Tembak',
+    'climb': 'Panjat',
+    'help': 'Tampilkan kontrol'
+  },
   'pause': {
     'title': 'JEDA',
     'resume': 'Lanjutkan',

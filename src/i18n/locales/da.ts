@@ -90,6 +90,13 @@ export default {
     'marksman': 'Skarpskytte',
     'swift': 'Hurtig'
   },
+  'hint': {
+    'look': 'Se dig omkring',
+    'scope': 'Sigt',
+    'fire': 'Skyd',
+    'climb': 'Klatre',
+    'help': 'Vis kontroller'
+  },
   'pause': {
     'title': 'PAUSE',
     'resume': 'Fortsæt',

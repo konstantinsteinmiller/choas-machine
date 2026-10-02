@@ -53,6 +53,10 @@ export interface GameEvents {
   killcam: { kind: 'bullet' | 'orbit' | 'dip'; final: boolean }
   /** The objective moved on: the target is dead, the way out is open. */
   objective: { state: 'extract' }
+  /** The Commander is dead and the Goliath is waking. */
+  finale: Record<string, never>
+  /** The player asked for the control hints back (the "?" button). */
+  help: Record<string, never>
   /** The drop-in ended and the mech is the player's; the mech is away. */
   deployed: Record<string, never>
   extracting: Record<string, never>

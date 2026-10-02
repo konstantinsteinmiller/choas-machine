@@ -98,6 +98,25 @@ const HUNT_REPATH_S = 1.5
 /** A guard in a fight stops closing in once it is this near. */
 const ENGAGE_DIST = 11
 
+/**
+ * How hard a threat level makes the garrison (plan 10.3): tougher, harder
+ * hitting, quicker to notice. Level I is gentler than the baseline, for a
+ * player's first night.
+ */
+export interface Threat {
+  hp: number
+  damage: number
+  notice: number
+}
+const THREATS: readonly Threat[] = [
+  { hp: 1, damage: 0.75, notice: 0.8 },
+  { hp: 1, damage: 1, notice: 1 },
+  { hp: 1.15, damage: 1.1, notice: 1 },
+  { hp: 1.3, damage: 1.25, notice: 1.1 },
+  { hp: 1.6, damage: 1.5, notice: 1.25 }
+]
+export const threatOf = (level: number): Threat => THREATS[Math.min(THREATS.length, Math.max(1, Math.round(level))) - 1]!
+
 export interface Unit {
   id: number
   kind: PostKind
@@ -177,6 +196,7 @@ export interface Garrison {
   /** Decoys standing in the base (the mission's list): the Goliath shoots at
    *  the nearest one it can see in preference to the mech. */
   lures: ReadonlyArray<{ x: number; y: number; z: number }>
+  threat: Threat
 }
 
 /** What the garrison is looking for: the mech. */
@@ -220,7 +240,8 @@ export const isUnaware = (u: Unit): boolean => u.state === 'patrol' || (u.state 
 /** Heading from a to b: 0 along +z, growing toward +x. */
 export const headingTo = (ax: number, az: number, bx: number, bz: number): number => Math.atan2(bx - ax, bz - az)
 
-export const makeGarrison = (f: Fortress): Garrison => {
+export const makeGarrison = (f: Fortress, level = 2): Garrison => {
+  const threat = threatOf(level)
   const units: Unit[] = f.posts.map((p, id) => {
     const ground = heightAt(f.grid, p.x, p.z)
     const y = p.kind === 'drone' ? p.altitude : ground
@@ -230,13 +251,13 @@ export const makeGarrison = (f: Fortress): Garrison => {
       yaw: p.facing, pyaw: p.facing, look: 0,
       state: p.reserve ? 'reserve' : mech ? 'dormant' : 'patrol', t: 0, detect: 0, sees: false, seenX: p.x, seenZ: p.z, lured: false,
       route: p.route, wp: p.route.length > 1 ? 1 : 0, wait: p.route[0]?.wait ?? 0,
-      path: [], pathI: 0, repath: 0, bodyT: 0, hp: SPECS[p.kind].hp, deadT: 0, fallDir: 1, found: false,
+      path: [], pathI: 0, repath: 0, bodyT: 0, hp: Math.round(SPECS[p.kind].hp * threat.hp), deadT: 0, fallDir: 1, found: false,
       stride: 0, speed01: 0, homeX: p.x, homeZ: p.z, homeYaw: p.facing, altitude: p.altitude,
       seed: (id * 2.399) % (Math.PI * 2),
       power: mech ? 0 : 1, fireT: 0, burst: 0, burstT: 0, shellT: 0, shellX: 0, shellZ: 0, recoil: 0
     }
   })
-  return { units, alert: makeAlert(), time: 0, events: [], rng: mulberry32(hashSeed(f.id)), wave: 0, chaosT: 0, lures: [] }
+  return { units, alert: makeAlert(), time: 0, events: [], rng: mulberry32(hashSeed(f.id)), wave: 0, chaosT: 0, lures: [], threat }
 }
 
 // ─── Getting about ───────────────────────────────────────────────────────────
@@ -529,7 +550,19 @@ const fight = (u: Unit, g: Grid, gar: Garrison, target: Target, dt: number): voi
   // Machines are slow to turn: that is how they are flanked.
   const turn = u.kind === 'goliath' ? GOLIATH_HULL_TURN : u.kind === 'enforcer' ? 2.2 : 8
   const engage = u.kind === 'goliath' ? 30 : u.kind === 'enforcer' ? 14 : ENGAGE_DIST
-  if (u.kind === 'goliath') aimTurret(u, gar, g, target, dt)
+  if (u.kind === 'goliath') {
+    // The tank holds its ground (it is wider than a gate): it turns its
+    // hull, slowly, toward where the mech is or was last reported.
+    aimTurret(u, gar, g, target, dt)
+    if (gar.alert.chaos && (u.repath -= dt) <= 0 && !u.sees) {
+      u.repath = HUNT_REPATH_S
+      u.seenX = target.x
+      u.seenZ = target.z
+    }
+    stand(u)
+    turnToward(u, headingTo(u.x, u.z, u.sees ? target.x : u.seenX, u.sees ? target.z : u.seenZ), dt, turn)
+    return
+  }
   if (u.sees) {
     turnToward(u, headingTo(u.x, u.z, target.x, target.z), dt, turn)
     if (dist > engage) {
@@ -607,7 +640,7 @@ export const stepGarrison = (gar: Garrison, g: Grid, target: Target, dt: number)
       const rate = u.kind === 'drone'
         ? (exposed * (target.crouched ? 0.7 : 1)) / SPOT_NOTICE_S
         : noticeRate(Math.hypot(target.x - u.x, target.z - u.z), SPECS[u.kind].range, exposed, target.crouched)
-      u.detect = Math.min(1, u.detect + rate * wary * dt)
+      u.detect = Math.min(1, u.detect + rate * wary * gar.threat.notice * dt)
       u.seenX = target.x
       u.seenZ = target.z
     } else if (u.state !== 'combat') {

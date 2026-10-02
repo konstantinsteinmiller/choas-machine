@@ -90,6 +90,13 @@ export default {
     'marksman': 'Nişancı',
     'swift': 'Çevik'
   },
+  'hint': {
+    'look': 'Etrafa bak',
+    'scope': 'Nişan al',
+    'fire': 'Ateş et',
+    'climb': 'Tırman',
+    'help': 'Kontrolleri göster'
+  },
   'pause': {
     'title': 'DURAKLATILDI',
     'resume': 'Devam et',

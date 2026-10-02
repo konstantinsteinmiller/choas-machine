@@ -86,7 +86,7 @@ export const stepFire = (gar: Garrison, g: Grid, target: Target, dt: number): vo
       u.burstT = gun.gap
       u.recoil = 1
       const hit = gar.rng() < hitChance(gun, dist, target)
-      gar.events.push({ type: 'fire', id: u.id, damage: hit ? gun.damage : 0 })
+      gar.events.push({ type: 'fire', id: u.id, damage: hit ? Math.max(1, Math.round(gun.damage * gar.threat.damage)) : 0 })
       if (u.burst === 0) u.fireT = gun.pauseMin + gar.rng() * (gun.pauseMax - gun.pauseMin)
       continue
     }
@@ -107,7 +107,7 @@ const stepCannon = (u: Unit, gar: Garrison, g: Grid, target: Target, dt: number)
     const y = floor === VOID ? 0 : floor
     const d = Math.hypot(target.x - u.shellX, target.z - u.shellZ)
     const level = Math.abs(target.y - y) < 3
-    const damage = target.visible && level && d < SHELL_RADIUS ? Math.round(SHELL_DAMAGE * (1 - 0.6 * (d / SHELL_RADIUS))) : 0
+    const damage = target.visible && level && d < SHELL_RADIUS ? Math.round(SHELL_DAMAGE * gar.threat.damage * (1 - 0.6 * (d / SHELL_RADIUS))) : 0
     u.recoil = 1
     gar.events.push({ type: 'shell', id: u.id, x: u.shellX, y, z: u.shellZ, damage })
     u.fireT = SHELL_RELOAD_S

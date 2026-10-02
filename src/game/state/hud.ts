@@ -1,6 +1,7 @@
 import { reactive } from 'vue'
 import { emit } from '../bus'
 import type { WeaponId } from '../data/ids'
+import type { HintView } from '../sim/coach'
 
 /**
  * ─── The HUD mirror ──────────────────────────────────────────────────────────
@@ -59,7 +60,9 @@ export const hud = reactive({
   /** A kill-cam is playing: the HUD stands down. */
   cine: false,
   /** What the mission wants next: the target dead, then the way out. */
-  objective: 'target' as 'target' | 'extract' | 'done'
+  objective: 'target' as 'target' | 'extract' | 'done',
+  /** The control lessons on screen (replaced only when they change). */
+  hints: [] as HintView[]
 })
 
 /**
