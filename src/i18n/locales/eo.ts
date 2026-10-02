@@ -2,7 +2,15 @@ export default {
   'gameName': 'Chaos Machine',
   'close': 'Fermi',
   'ok': 'Bone',
-  'rewards': 'PREMIOJ',
+  'rewards': {
+    'title': 'Elekto plenumita',
+    'time': 'Tempo',
+    'kills': 'Neŭtraligoj',
+    'headshots': 'Kapĵetoj',
+    'score': 'Poentoj',
+    'continue': 'Al la bazo',
+    'newBest': 'Nova rekordo!'
+  },
   'onlyAvailableOn': 'Ĉi tiu ludo disponeblas nur ĉe',
   'ui': {
     'next': 'Sekva',
@@ -28,11 +36,59 @@ export default {
     'crouch': 'Kaŝkaŭri',
     'stand': 'Stariĝi',
     'cancel': 'Mallevi armilon',
-    'capture': 'Alklaku por daŭrigi'
+    'capture': 'Alklaku por daŭrigi',
+    'metres': '{n} m',
+    'objective': {
+      'target': 'Neŭtraligu la komandanton',
+      'extract': 'Atingu la evakuan platformon'
+    }
   },
   'defeat': {
     'title': 'Meĥo falis',
-    'retry': 'Reprovu'
+    'retry': 'Reprovu',
+    'kept': 'Savitaj teknorestaĵoj'
+  },
+  'base': {
+    'deploy': 'Ek!',
+    'threat': 'Danĝera nivelo',
+    'locked': 'Unue finu nivelon {n}',
+    'best': 'Plej bona poentaro',
+    'armory': 'Armilejo',
+    'chassis': 'Ĉasia golfo',
+    'forge': 'Forĝejo',
+    'scrap': 'Teknorestaĵoj',
+    'cores': 'Datumkernoj',
+    'blueprints': 'Planoj'
+  },
+  'track': {
+    'sniperZoom': 'Zomo de celilo',
+    'sniperDamage': 'Fusila damaĝo',
+    'sniperSilence': 'Silentigilo',
+    'minigunCooling': 'Malvarmigo',
+    'minigunDamage': 'Mitralila damaĝo',
+    'rocketBlast': 'Eksploda radiuso',
+    'rocketAmmo': 'Raketoj',
+    'armor': 'Kirasado',
+    'speed': 'Servo-rapido',
+    'decoy': 'Logaĵa daŭro'
+  },
+  'workshop': {
+    'max': 'Maks.',
+    'buy': 'Plibonigi: {name}',
+    'level': 'Nivelo {n} el {max}'
+  },
+  'forge': {
+    'tier': 'Grado {n}',
+    'build': 'Konstrui',
+    'claim': 'Preni',
+    'finish': 'Finu nun',
+    'busy': 'Forĝejo okupata',
+    'top': 'Plej alta grado'
+  },
+  'medal': {
+    'ghost': 'Fantomo',
+    'marksman': 'Pafisto',
+    'swift': 'Rapida'
   },
   'pause': {
     'title': 'PAŬZITA',
@@ -41,6 +97,7 @@ export default {
   },
   'options': {
     'killCams': 'Venko-kamerao',
+    'sensitivity': 'Rigarda sentemo',
     'gameplay': 'Ludado',
     'title': 'Agordoj',
     'general': 'Ĝenerale',

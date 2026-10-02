@@ -2,7 +2,15 @@ export default {
   'gameName': 'Chaos Machine',
   'close': '닫기',
   'ok': '확인',
-  'rewards': '보상',
+  'rewards': {
+    'title': '추출 완료',
+    'time': '시간',
+    'kills': '제압',
+    'headshots': '헤드샷',
+    'score': '점수',
+    'continue': '기지로',
+    'newBest': '신기록!'
+  },
   'onlyAvailableOn': '이 게임은 다음에서만 이용할 수 있습니다:',
   'ui': {
     'next': '다음',
@@ -28,11 +36,59 @@ export default {
     'crouch': '앉기',
     'stand': '일어서기',
     'cancel': '무기 내리기',
-    'capture': '클릭하여 계속'
+    'capture': '클릭하여 계속',
+    'metres': '{n}m',
+    'objective': {
+      'target': '사령관을 처치하라',
+      'extract': '추출 지점에 도달하라'
+    }
   },
   'defeat': {
     'title': '메카 파괴',
-    'retry': '다시 도전'
+    'retry': '다시 도전',
+    'kept': '회수한 테크 스크랩'
+  },
+  'base': {
+    'deploy': '출격',
+    'threat': '위협 등급',
+    'locked': '먼저 레벨 {n} 클리어',
+    'best': '최고 점수',
+    'armory': '무기고',
+    'chassis': '섀시 베이',
+    'forge': '제작소',
+    'scrap': '테크 스크랩',
+    'cores': '데이터 코어',
+    'blueprints': '설계도'
+  },
+  'track': {
+    'sniperZoom': '스코프 배율',
+    'sniperDamage': '소총 피해',
+    'sniperSilence': '소음기',
+    'minigunCooling': '냉각',
+    'minigunDamage': '미니건 피해',
+    'rocketBlast': '폭발 반경',
+    'rocketAmmo': '로켓',
+    'armor': '장갑판',
+    'speed': '서보 속도',
+    'decoy': '디코이 지속시간'
+  },
+  'workshop': {
+    'max': '최대',
+    'buy': '{name} 강화',
+    'level': '레벨 {n} / {max}'
+  },
+  'forge': {
+    'tier': '{n}단계',
+    'build': '제작',
+    'claim': '수령',
+    'finish': '즉시 완료',
+    'busy': '제작 중',
+    'top': '최고 단계'
+  },
+  'medal': {
+    'ghost': '유령',
+    'marksman': '명사수',
+    'swift': '신속'
   },
   'pause': {
     'title': '일시정지',
@@ -41,6 +97,7 @@ export default {
   },
   'options': {
     'killCams': '킬캠',
+    'sensitivity': '시점 감도',
     'gameplay': '게임플레이',
     'title': '설정',
     'general': '일반',

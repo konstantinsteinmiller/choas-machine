@@ -9,7 +9,7 @@ import type { Rig } from '../models/kit'
 import { buildMech, poseMech, restPose, type MechPose } from '../models/mech'
 import { PAL } from '../models/palette'
 import type { Rocket } from '../sim/rockets'
-import { DECOY_LIFE_S, type Decoy } from '../sim/melee'
+import type { Decoy } from '../sim/melee'
 
 /**
  * ─── Combat effects ──────────────────────────────────────────────────────────
@@ -339,7 +339,7 @@ export class CombatFx {
       h.rig.root.position.set(d.x, d.y, d.z)
       h.rig.root.rotation.y = d.yaw
       // It flickers like a bad signal, more as it runs out.
-      const left = 1 - d.t / DECOY_LIFE_S
+      const left = 1 - d.t / d.life
       const flick = Math.sin(this.time * 31) > 0.86 - (1 - left) * 0.5 ? 0.25 : 1
       h.rig.material.opacity = (0.32 + 0.2 * Math.sin(this.time * 6)) * flick * Math.min(1, d.t * 5) * Math.min(1, left * 6 + 0.2)
       h.pose.time = this.time

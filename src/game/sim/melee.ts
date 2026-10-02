@@ -68,8 +68,9 @@ export interface Decoy {
   z: number
   /** Heading the hologram stands at. */
   yaw: number
-  /** Seconds since it lit up. */
+  /** Seconds since it lit up, and how long it lasts. */
   t: number
+  life: number
   pulse: number
 }
 
@@ -103,7 +104,7 @@ export const stepDecoys = (decoys: Decoy[], gar: Garrison, g: Grid, dt: number):
     const d = decoys[i]!
     d.t += dt
     d.pulse -= dt
-    if (d.t >= DECOY_LIFE_S) {
+    if (d.t >= d.life) {
       decoys.splice(i, 1)
       out++
       continue

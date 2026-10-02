@@ -2,7 +2,15 @@ export default {
   'gameName': 'Chaos Machine',
   'close': 'Sulje',
   'ok': 'OK',
-  'rewards': 'PALKINNOT',
+  'rewards': {
+    'title': 'Pako onnistui',
+    'time': 'Aika',
+    'kills': 'Kaadot',
+    'headshots': 'Päähaavat',
+    'score': 'Pisteet',
+    'continue': 'Tukikohtaan',
+    'newBest': 'Uusi ennätys!'
+  },
   'onlyAvailableOn': 'Tämä peli on saatavilla vain palvelussa',
   'ui': {
     'next': 'Seuraava',
@@ -28,11 +36,59 @@ export default {
     'crouch': 'Kyyristy',
     'stand': 'Nouse ylös',
     'cancel': 'Laske ase',
-    'capture': 'Jatka klikkaamalla'
+    'capture': 'Jatka klikkaamalla',
+    'metres': '{n} m',
+    'objective': {
+      'target': 'Kaada komentaja',
+      'extract': 'Pääse noutoalustalle'
+    }
   },
   'defeat': {
     'title': 'Mecha kaatui',
-    'retry': 'Yritä uudelleen'
+    'retry': 'Yritä uudelleen',
+    'kept': 'Pelastettu teknoromu'
+  },
+  'base': {
+    'deploy': 'Lähde',
+    'threat': 'Uhkataso',
+    'locked': 'Suorita ensin taso {n}',
+    'best': 'Paras tulos',
+    'armory': 'Asevarasto',
+    'chassis': 'Runkoteline',
+    'forge': 'Paja',
+    'scrap': 'Teknoromu',
+    'cores': 'Dataytimet',
+    'blueprints': 'Piirustukset'
+  },
+  'track': {
+    'sniperZoom': 'Tähtäimen zoomaus',
+    'sniperDamage': 'Kiväärin vahinko',
+    'sniperSilence': 'Vaimennin',
+    'minigunCooling': 'Jäähdytys',
+    'minigunDamage': 'Minigunin vahinko',
+    'rocketBlast': 'Räjähdyssäde',
+    'rocketAmmo': 'Raketit',
+    'armor': 'Panssarointi',
+    'speed': 'Servojen nopeus',
+    'decoy': 'Houkuttimen kesto'
+  },
+  'workshop': {
+    'max': 'Maks.',
+    'buy': 'Päivitä: {name}',
+    'level': 'Taso {n}/{max}'
+  },
+  'forge': {
+    'tier': 'Luokka {n}',
+    'build': 'Rakenna',
+    'claim': 'Nouda',
+    'finish': 'Valmis heti',
+    'busy': 'Paja on varattu',
+    'top': 'Ylin luokka'
+  },
+  'medal': {
+    'ghost': 'Haamu',
+    'marksman': 'Tarkka-ampuja',
+    'swift': 'Nopea'
   },
   'pause': {
     'title': 'TAUKO',
@@ -41,6 +97,7 @@ export default {
   },
   'options': {
     'killCams': 'Tuhokamera',
+    'sensitivity': 'Katseen herkkyys',
     'gameplay': 'Pelattavuus',
     'title': 'Asetukset',
     'general': 'Yleiset',

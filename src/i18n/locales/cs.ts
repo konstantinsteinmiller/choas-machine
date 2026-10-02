@@ -2,7 +2,15 @@ export default {
   'gameName': 'Chaos Machine',
   'close': 'Zavřít',
   'ok': 'Ok',
-  'rewards': 'ODMĚNY',
+  'rewards': {
+    'title': 'Evakuace dokončena',
+    'time': 'Čas',
+    'kills': 'Likvidace',
+    'headshots': 'Zásahy do hlavy',
+    'score': 'Skóre',
+    'continue': 'Na základnu',
+    'newBest': 'Nový rekord!'
+  },
   'onlyAvailableOn': 'Tato hra je dostupná pouze na',
   'ui': {
     'next': 'Další',
@@ -28,11 +36,59 @@ export default {
     'crouch': 'Skrčit se',
     'stand': 'Vstát',
     'cancel': 'Spustit zbraň',
-    'capture': 'Klikni a pokračuj'
+    'capture': 'Klikni a pokračuj',
+    'metres': '{n} m',
+    'objective': {
+      'target': 'Vyřaď velitele',
+      'extract': 'Dojdi na evakuační plošinu'
+    }
   },
   'defeat': {
     'title': 'Mech je venku',
-    'retry': 'Zkusit znovu'
+    'retry': 'Zkusit znovu',
+    'kept': 'Zachráněný techno šrot'
+  },
+  'base': {
+    'deploy': 'Nasadit',
+    'threat': 'Úroveň hrozby',
+    'locked': 'Nejdřív dokonči úroveň {n}',
+    'best': 'Nejlepší skóre',
+    'armory': 'Zbrojnice',
+    'chassis': 'Hangár podvozku',
+    'forge': 'Kovárna',
+    'scrap': 'Techno šrot',
+    'cores': 'Datová jádra',
+    'blueprints': 'Plány'
+  },
+  'track': {
+    'sniperZoom': 'Zoom zaměřovače',
+    'sniperDamage': 'Poškození pušky',
+    'sniperSilence': 'Tlumič',
+    'minigunCooling': 'Chlazení',
+    'minigunDamage': 'Poškození minigunu',
+    'rocketBlast': 'Dosah výbuchu',
+    'rocketAmmo': 'Rakety',
+    'armor': 'Pancíř',
+    'speed': 'Rychlost serv',
+    'decoy': 'Trvání návnady'
+  },
+  'workshop': {
+    'max': 'Max',
+    'buy': 'Vylepšit: {name}',
+    'level': 'Úroveň {n} z {max}'
+  },
+  'forge': {
+    'tier': 'Stupeň {n}',
+    'build': 'Vyrobit',
+    'claim': 'Vyzvednout',
+    'finish': 'Dokončit hned',
+    'busy': 'Kovárna je obsazená',
+    'top': 'Nejvyšší stupeň'
+  },
+  'medal': {
+    'ghost': 'Duch',
+    'marksman': 'Střelec',
+    'swift': 'Rychlík'
   },
   'pause': {
     'title': 'PAUZA',
@@ -41,6 +97,7 @@ export default {
   },
   'options': {
     'killCams': 'Kill-cam',
+    'sensitivity': 'Citlivost rozhlížení',
     'gameplay': 'Hratelnost',
     'title': 'Možnosti',
     'general': 'Obecné',

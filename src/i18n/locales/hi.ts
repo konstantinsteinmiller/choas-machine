@@ -2,7 +2,15 @@ export default {
   'gameName': 'Chaos Machine',
   'close': 'बंद करें',
   'ok': 'ठीक है',
-  'rewards': 'इनाम',
+  'rewards': {
+    'title': 'निकासी पूरी हुई',
+    'time': 'समय',
+    'kills': 'सफ़ाए',
+    'headshots': 'हेडशॉट',
+    'score': 'स्कोर',
+    'continue': 'बेस पर',
+    'newBest': 'नया रिकॉर्ड!'
+  },
   'onlyAvailableOn': 'यह गेम केवल यहाँ उपलब्ध है:',
   'ui': {
     'next': 'आगे',
@@ -28,11 +36,59 @@ export default {
     'crouch': 'झुकें',
     'stand': 'खड़े हों',
     'cancel': 'हथियार नीचे करें',
-    'capture': 'जारी रखने के लिए क्लिक करें'
+    'capture': 'जारी रखने के लिए क्लिक करें',
+    'metres': '{n} मी',
+    'objective': {
+      'target': 'कमांडर को खत्म करें',
+      'extract': 'निकासी पैड तक पहुँचें'
+    }
   },
   'defeat': {
     'title': 'मेक गिर गया',
-    'retry': 'फिर से कोशिश करें'
+    'retry': 'फिर से कोशिश करें',
+    'kept': 'बचा टेक स्क्रैप'
+  },
+  'base': {
+    'deploy': 'तैनात करें',
+    'threat': 'खतरे का स्तर',
+    'locked': 'पहले लेवल {n} पूरा करें',
+    'best': 'सर्वश्रेष्ठ स्कोर',
+    'armory': 'शस्त्रागार',
+    'chassis': 'चेसिस बे',
+    'forge': 'फोर्ज',
+    'scrap': 'टेक स्क्रैप',
+    'cores': 'डेटा कोर',
+    'blueprints': 'ब्लूप्रिंट'
+  },
+  'track': {
+    'sniperZoom': 'स्कोप ज़ूम',
+    'sniperDamage': 'राइफल डैमेज',
+    'sniperSilence': 'साइलेंसर',
+    'minigunCooling': 'कूलिंग',
+    'minigunDamage': 'मिनी-गन डैमेज',
+    'rocketBlast': 'धमाके का दायरा',
+    'rocketAmmo': 'रॉकेट',
+    'armor': 'कवच',
+    'speed': 'सर्वो स्पीड',
+    'decoy': 'डिकॉय अवधि'
+  },
+  'workshop': {
+    'max': 'अधिकतम',
+    'buy': '{name} अपग्रेड करें',
+    'level': 'लेवल {n}/{max}'
+  },
+  'forge': {
+    'tier': 'टियर {n}',
+    'build': 'बनाएँ',
+    'claim': 'लें',
+    'finish': 'अभी पूरा करें',
+    'busy': 'फोर्ज व्यस्त है',
+    'top': 'सर्वोच्च टियर'
+  },
+  'medal': {
+    'ghost': 'घोस्ट',
+    'marksman': 'निशानेबाज़',
+    'swift': 'फुर्तीला'
   },
   'pause': {
     'title': 'रुका हुआ',
@@ -41,6 +97,7 @@ export default {
   },
   'options': {
     'killCams': 'किल-कैम',
+    'sensitivity': 'लुक सेंसिटिविटी',
     'gameplay': 'गेमप्ले',
     'title': 'विकल्प',
     'general': 'सामान्य',

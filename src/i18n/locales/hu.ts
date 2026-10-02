@@ -2,7 +2,15 @@ export default {
   'gameName': 'Chaos Machine',
   'close': 'Bezárás',
   'ok': 'Ok',
-  'rewards': 'JUTALMAK',
+  'rewards': {
+    'title': 'Kimentés kész',
+    'time': 'Idő',
+    'kills': 'Kiiktatások',
+    'headshots': 'Fejlövések',
+    'score': 'Pontszám',
+    'continue': 'A bázisra',
+    'newBest': 'Új rekord!'
+  },
   'onlyAvailableOn': 'Ez a játék csak itt érhető el:',
   'ui': {
     'next': 'Tovább',
@@ -28,11 +36,59 @@ export default {
     'crouch': 'Guggolás',
     'stand': 'Felállás',
     'cancel': 'Fegyver le',
-    'capture': 'Kattints a folytatáshoz'
+    'capture': 'Kattints a folytatáshoz',
+    'metres': '{n} m',
+    'objective': {
+      'target': 'Iktasd ki a parancsnokot',
+      'extract': 'Érj a kimentési platformra'
+    }
   },
   'defeat': {
     'title': 'A mech kiesett',
-    'retry': 'Próbáld újra'
+    'retry': 'Próbáld újra',
+    'kept': 'Megmentett techhulladék'
+  },
+  'base': {
+    'deploy': 'Indulás',
+    'threat': 'Veszélyszint',
+    'locked': 'Előbb teljesítsd a(z) {n}. szintet',
+    'best': 'Legjobb pontszám',
+    'armory': 'Fegyvertár',
+    'chassis': 'Alvázműhely',
+    'forge': 'Kovácsműhely',
+    'scrap': 'Techhulladék',
+    'cores': 'Adatmagok',
+    'blueprints': 'Tervrajzok'
+  },
+  'track': {
+    'sniperZoom': 'Távcső zoom',
+    'sniperDamage': 'Puska sebzése',
+    'sniperSilence': 'Hangtompító',
+    'minigunCooling': 'Hűtés',
+    'minigunDamage': 'Minigun sebzése',
+    'rocketBlast': 'Robbanási sugár',
+    'rocketAmmo': 'Rakéták',
+    'armor': 'Páncélzat',
+    'speed': 'Szervósebesség',
+    'decoy': 'Csalétek időtartama'
+  },
+  'workshop': {
+    'max': 'Max',
+    'buy': '{name} fejlesztése',
+    'level': '{n}. szint / {max}'
+  },
+  'forge': {
+    'tier': '{n}. fokozat',
+    'build': 'Építés',
+    'claim': 'Átvétel',
+    'finish': 'Azonnali kész',
+    'busy': 'A kovácsműhely foglalt',
+    'top': 'Legmagasabb fokozat'
+  },
+  'medal': {
+    'ghost': 'Szellem',
+    'marksman': 'Mesterlövész',
+    'swift': 'Gyors'
   },
   'pause': {
     'title': 'SZÜNET',
@@ -41,6 +97,7 @@ export default {
   },
   'options': {
     'killCams': 'Kill-cam',
+    'sensitivity': 'Nézési érzékenység',
     'gameplay': 'Játékmenet',
     'title': 'Beállítások',
     'general': 'Általános',

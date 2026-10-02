@@ -96,7 +96,7 @@ three.js import, so it runs in Vitest and in a balance script.
 - [x] **P8 Cinematics and juice** — kill-cam director (bullet follow, x-ray,
   blade angles, 50 % / 20 % rates), drop-in intro, extraction outro with tally,
   effects pass (muzzle, tracers, explosions, hologram shaders, screen FX).
-- [ ] **P9 Loop and Command Base** — objectives, score, medals, rewards
+- [x] **P9 Loop and Command Base** — objectives, score, medals, rewards
   screen, Tech Scrap / Data Cores / Blueprints, holomap, Armory, Chassis Bay,
   Forge timers; first-launch flow; balance sim as a test.
 - [ ] **P10 The fortress** — ONE large base to start with (owner,
@@ -327,6 +327,27 @@ Answered by the owner (2026-10-02): G5 (one fortress), C1 (new remote), C2 (wran
   `git add -A -- . ':!.claude/settings.local.json' ':!roadmap.md'`.
   P14 takes item #1 into the art pipeline; P16 APPENDS the retention roadmap
   to that file as items #2…, leaving #1 as written.
+- 2026-10-02 P9 done. `data/upgrades.ts` (10 tracks: 3 sniper, 2 minigun, 2
+  rocket, 3 chassis; 5 levels each, 60 → 395 scrap; Forge tiers 2–5 from
+  blueprints + scrap in 1 min / 10 min / 1 h / 4 h; `loadoutOf` turns the
+  save into the numbers a mission plays with). `sim/rewards.ts` (score,
+  Ghost / Marksman / Swift, scrap, cores, blueprints, 30 % kept on defeat).
+  `state/progress.ts` (bank a mission or a defeat, buy a track, run the
+  Forge; the Forge's stamp never moves back, so winding the clock back and
+  forward finishes nothing). `flow.ts`: `level`, `result`, `finishMission`,
+  `failMission`; a fresh profile boots into the fortress, a returning one
+  into the base; scene swaps are shader-precompiled. Screens: BaseHud
+  (logo, Wallet, stations, DeployPanel with the five threat chips),
+  WorkshopModal (Armory / Chassis Bay / Forge), RewardsModal, DefeatModal,
+  ObjectiveMarker (edge-clamped waypoint), look sensitivity in Options.
+  `scenes/commandBase.ts`: the mech on its pad. Economy test: a careful
+  player tops every track in 15–70 missions, a loud one in under 110.
+  Browser: the whole loop including a reload (one key, `cmachine_state`,
+  restores scrap, cores, blueprints, upgrades and the running build).
+  Small buttons were 36 px tall: now 40. Scratch probes: `sc-loop.mjs`,
+  `base.mjs` (seeds a returning save; measures overlaps).
+  Still to do in P10: the five threat levels all play the same garrison.
+  In P13: the interstitial goes BEFORE the rewards screen (playbook).
 
 ## Resume notes
 

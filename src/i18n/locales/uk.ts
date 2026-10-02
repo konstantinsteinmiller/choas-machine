@@ -2,7 +2,15 @@ export default {
   'gameName': 'Chaos Machine',
   'close': 'Закрити',
   'ok': 'Ок',
-  'rewards': 'НАГОРОДИ',
+  'rewards': {
+    'title': 'Евакуацію завершено',
+    'time': 'Час',
+    'kills': 'Ліквідації',
+    'headshots': 'У голову',
+    'score': 'Рахунок',
+    'continue': 'На базу',
+    'newBest': 'Новий рекорд!'
+  },
   'onlyAvailableOn': 'Ця гра доступна лише на',
   'ui': {
     'next': 'Далі',
@@ -28,11 +36,59 @@ export default {
     'crouch': 'Пригнутися',
     'stand': 'Підвестися',
     'cancel': 'Опустити зброю',
-    'capture': 'Клацни, щоб продовжити'
+    'capture': 'Клацни, щоб продовжити',
+    'metres': '{n} м',
+    'objective': {
+      'target': 'Усуньте командира',
+      'extract': 'Дістаньтеся точки евакуації'
+    }
   },
   'defeat': {
     'title': 'Мех упав',
-    'retry': 'Спробувати ще'
+    'retry': 'Спробувати ще',
+    'kept': 'Врятований техломіт'
+  },
+  'base': {
+    'deploy': 'У бій',
+    'threat': 'Рівень загрози',
+    'locked': 'Спершу пройдіть рівень {n}',
+    'best': 'Найкращий рахунок',
+    'armory': 'Зброярня',
+    'chassis': 'Відсік шасі',
+    'forge': 'Кузня',
+    'scrap': 'Техломіт',
+    'cores': 'Ядра даних',
+    'blueprints': 'Креслення'
+  },
+  'track': {
+    'sniperZoom': 'Кратність приціла',
+    'sniperDamage': 'Шкода гвинтівки',
+    'sniperSilence': 'Глушник',
+    'minigunCooling': 'Охолодження',
+    'minigunDamage': 'Шкода мінігана',
+    'rocketBlast': 'Радіус вибуху',
+    'rocketAmmo': 'Ракети',
+    'armor': 'Бронеплити',
+    'speed': 'Швидкість серв',
+    'decoy': 'Тривалість принади'
+  },
+  'workshop': {
+    'max': 'Макс.',
+    'buy': 'Покращити: {name}',
+    'level': 'Рівень {n} з {max}'
+  },
+  'forge': {
+    'tier': 'Ранг {n}',
+    'build': 'Створити',
+    'claim': 'Забрати',
+    'finish': 'Завершити зараз',
+    'busy': 'Кузня зайнята',
+    'top': 'Найвищий ранг'
+  },
+  'medal': {
+    'ghost': 'Привид',
+    'marksman': 'Влучний',
+    'swift': 'Швидкий'
   },
   'pause': {
     'title': 'ПАУЗА',
@@ -41,6 +97,7 @@ export default {
   },
   'options': {
     'killCams': 'Камера добивання',
+    'sensitivity': 'Чутливість огляду',
     'gameplay': 'Гра',
     'title': 'Налаштування',
     'general': 'Загальні',

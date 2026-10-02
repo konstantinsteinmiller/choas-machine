@@ -62,6 +62,13 @@ export const hud = reactive({
   objective: 'target' as 'target' | 'extract' | 'done'
 })
 
+/**
+ * The objective's place on screen, for the marker: `x`, `y` in 0 … 1 of the
+ * view (left to right, top to bottom), `behind` when it is at the camera's
+ * back, `dist` in metres from the mech.
+ */
+export const waypoint = { on: false, x: 0.5, y: 0.5, behind: false, dist: 0 }
+
 /** The mech's armor and the last hit it took: per-frame, so outside Vue. */
 export const vital = {
   /** 0 … 1 of its armor. */

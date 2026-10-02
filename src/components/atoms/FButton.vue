@@ -104,7 +104,7 @@ const sizeVars = computed<Record<string, string>>(() => {
         '--fbtn-px': 'clamp(0.6rem, 2.6vmin, 1rem)',
         '--fbtn-py': 'clamp(0.3rem, 1.2vmin, 0.5rem)',
         '--fbtn-min-w': 'clamp(3.5rem, 18vmin, 6rem)',
-        '--fbtn-min-h': '2.25rem',
+        '--fbtn-min-h': '2.5rem',
         '--fbtn-radius': 'clamp(0.5rem, 2vmin, 0.85rem)'
       }
     case 'lg':

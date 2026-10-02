@@ -2,7 +2,15 @@ export default {
   'gameName': 'Chaos Machine',
   'close': 'إغلاق',
   'ok': 'حسناً',
-  'rewards': 'المكافآت',
+  'rewards': {
+    'title': 'اكتمل الإخلاء',
+    'time': 'الوقت',
+    'kills': 'الإطاحات',
+    'headshots': 'طلقات الرأس',
+    'score': 'النتيجة',
+    'continue': 'إلى القاعدة',
+    'newBest': 'رقم قياسي جديد!'
+  },
   'onlyAvailableOn': 'هذه اللعبة متاحة فقط على',
   'ui': {
     'next': 'التالي',
@@ -28,11 +36,59 @@ export default {
     'crouch': 'انحناء',
     'stand': 'وقوف',
     'cancel': 'خفض السلاح',
-    'capture': 'انقر للمتابعة'
+    'capture': 'انقر للمتابعة',
+    'metres': '{n} م',
+    'objective': {
+      'target': 'أطح بالقائد',
+      'extract': 'اصل إلى منصة الإخلاء'
+    }
   },
   'defeat': {
     'title': 'تحطّم الميكا',
-    'retry': 'حاول مجددًا'
+    'retry': 'حاول مجددًا',
+    'kept': 'خردة تقنية تم إنقاذها'
+  },
+  'base': {
+    'deploy': 'انطلاق',
+    'threat': 'مستوى الخطر',
+    'locked': 'أكمل المستوى {n} أولاً',
+    'best': 'أفضل نتيجة',
+    'armory': 'الترسانة',
+    'chassis': 'حظيرة الهيكل',
+    'forge': 'المصهر',
+    'scrap': 'خردة تقنية',
+    'cores': 'نوى البيانات',
+    'blueprints': 'المخططات'
+  },
+  'track': {
+    'sniperZoom': 'تقريب المنظار',
+    'sniperDamage': 'ضرر البندقية',
+    'sniperSilence': 'كاتم الصوت',
+    'minigunCooling': 'التبريد',
+    'minigunDamage': 'ضرر المدفع الرشاش',
+    'rocketBlast': 'نطاق الانفجار',
+    'rocketAmmo': 'الصواريخ',
+    'armor': 'دروع الحماية',
+    'speed': 'سرعة المحركات',
+    'decoy': 'مدة الشرَك'
+  },
+  'workshop': {
+    'max': 'الأقصى',
+    'buy': 'ترقية {name}',
+    'level': 'المستوى {n} من {max}'
+  },
+  'forge': {
+    'tier': 'الفئة {n}',
+    'build': 'بناء',
+    'claim': 'استلام',
+    'finish': 'أنهِ الآن',
+    'busy': 'المصهر مشغول',
+    'top': 'أعلى فئة'
+  },
+  'medal': {
+    'ghost': 'شبح',
+    'marksman': 'قنّاص',
+    'swift': 'سريع'
   },
   'pause': {
     'title': 'متوقف مؤقتاً',
@@ -41,6 +97,7 @@ export default {
   },
   'options': {
     'killCams': 'كاميرا الإسقاط',
+    'sensitivity': 'حساسية النظر',
     'gameplay': 'أسلوب اللعب',
     'title': 'الخيارات',
     'general': 'عام',

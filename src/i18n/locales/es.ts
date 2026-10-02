@@ -2,7 +2,15 @@ export default {
   'gameName': 'Chaos Machine',
   'close': 'Cerrar',
   'ok': 'Ok',
-  'rewards': 'RECOMPENSAS',
+  'rewards': {
+    'title': 'Extracción completada',
+    'time': 'Tiempo',
+    'kills': 'Eliminaciones',
+    'headshots': 'Disparos a la cabeza',
+    'score': 'Puntos',
+    'continue': 'A la base',
+    'newBest': '¡Nuevo récord!'
+  },
   'onlyAvailableOn': 'Este juego solo está disponible en',
   'ui': {
     'next': 'Siguiente',
@@ -28,11 +36,59 @@ export default {
     'crouch': 'Agacharse',
     'stand': 'Levantarse',
     'cancel': 'Bajar arma',
-    'capture': 'Haz clic para continuar'
+    'capture': 'Haz clic para continuar',
+    'metres': '{n} m',
+    'objective': {
+      'target': 'Elimina al comandante',
+      'extract': 'Llega a la plataforma de extracción'
+    }
   },
   'defeat': {
     'title': 'Mech fuera de combate',
-    'retry': 'Reintentar'
+    'retry': 'Reintentar',
+    'kept': 'Chatarra tech rescatada'
+  },
+  'base': {
+    'deploy': 'Desplegar',
+    'threat': 'Nivel de amenaza',
+    'locked': 'Supera antes el nivel {n}',
+    'best': 'Mejor puntuación',
+    'armory': 'Armería',
+    'chassis': 'Taller de chasis',
+    'forge': 'Forja',
+    'scrap': 'Chatarra tech',
+    'cores': 'Núcleos de datos',
+    'blueprints': 'Planos'
+  },
+  'track': {
+    'sniperZoom': 'Zoom de mira',
+    'sniperDamage': 'Daño del rifle',
+    'sniperSilence': 'Silenciador',
+    'minigunCooling': 'Refrigeración',
+    'minigunDamage': 'Daño del minigun',
+    'rocketBlast': 'Radio de explosión',
+    'rocketAmmo': 'Cohetes',
+    'armor': 'Blindaje',
+    'speed': 'Velocidad de servos',
+    'decoy': 'Duración del señuelo'
+  },
+  'workshop': {
+    'max': 'Máx.',
+    'buy': 'Mejorar {name}',
+    'level': 'Nivel {n} de {max}'
+  },
+  'forge': {
+    'tier': 'Nivel {n}',
+    'build': 'Fabricar',
+    'claim': 'Recoger',
+    'finish': 'Terminar ya',
+    'busy': 'Forja ocupada',
+    'top': 'Nivel máximo'
+  },
+  'medal': {
+    'ghost': 'Fantasma',
+    'marksman': 'Tirador',
+    'swift': 'Veloz'
   },
   'pause': {
     'title': 'PAUSA',
@@ -41,6 +97,7 @@ export default {
   },
   'options': {
     'killCams': 'Cámara de derribo',
+    'sensitivity': 'Sensibilidad de cámara',
     'gameplay': 'Jugabilidad',
     'title': 'Opciones',
     'general': 'General',

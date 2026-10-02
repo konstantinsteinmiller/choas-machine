@@ -2,7 +2,15 @@ export default {
   'gameName': 'Chaos Machine',
   'close': 'ปิด',
   'ok': 'ตกลง',
-  'rewards': 'รางวัล',
+  'rewards': {
+    'title': 'อพยพสำเร็จ',
+    'time': 'เวลา',
+    'kills': 'กำจัด',
+    'headshots': 'ยิงเข้าหัว',
+    'score': 'คะแนน',
+    'continue': 'กลับฐาน',
+    'newBest': 'สถิติใหม่!'
+  },
   'onlyAvailableOn': 'เกมนี้เล่นได้เฉพาะบน',
   'ui': {
     'next': 'ถัดไป',
@@ -28,11 +36,59 @@ export default {
     'crouch': 'ย่อตัว',
     'stand': 'ลุกขึ้น',
     'cancel': 'ลดอาวุธ',
-    'capture': 'คลิกเพื่อเล่นต่อ'
+    'capture': 'คลิกเพื่อเล่นต่อ',
+    'metres': '{n} ม.',
+    'objective': {
+      'target': 'กำจัดผู้บัญชาการ',
+      'extract': 'ไปที่จุดอพยพ'
+    }
   },
   'defeat': {
     'title': 'เม็คล้มแล้ว',
-    'retry': 'ลองอีกครั้ง'
+    'retry': 'ลองอีกครั้ง',
+    'kept': 'เศษเทคที่กู้ได้'
+  },
+  'base': {
+    'deploy': 'ออกปฏิบัติการ',
+    'threat': 'ระดับภัยคุกคาม',
+    'locked': 'ผ่านด่าน {n} ก่อน',
+    'best': 'คะแนนสูงสุด',
+    'armory': 'คลังอาวุธ',
+    'chassis': 'ห้องแชสซี',
+    'forge': 'โรงหลอม',
+    'scrap': 'เศษเทค',
+    'cores': 'คอร์ข้อมูล',
+    'blueprints': 'พิมพ์เขียว'
+  },
+  'track': {
+    'sniperZoom': 'ซูมกล้องเล็ง',
+    'sniperDamage': 'ดาเมจปืนไรเฟิล',
+    'sniperSilence': 'ที่เก็บเสียง',
+    'minigunCooling': 'ระบายความร้อน',
+    'minigunDamage': 'ดาเมจมินิกัน',
+    'rocketBlast': 'รัศมีระเบิด',
+    'rocketAmmo': 'จรวด',
+    'armor': 'แผ่นเกราะ',
+    'speed': 'ความเร็วเซอร์โว',
+    'decoy': 'ระยะเวลาตัวล่อ'
+  },
+  'workshop': {
+    'max': 'สูงสุด',
+    'buy': 'อัปเกรด {name}',
+    'level': 'เลเวล {n} จาก {max}'
+  },
+  'forge': {
+    'tier': 'ระดับ {n}',
+    'build': 'สร้าง',
+    'claim': 'รับ',
+    'finish': 'เสร็จทันที',
+    'busy': 'โรงหลอมไม่ว่าง',
+    'top': 'ระดับสูงสุด'
+  },
+  'medal': {
+    'ghost': 'ภูตผี',
+    'marksman': 'มือปืน',
+    'swift': 'ว่องไว'
   },
   'pause': {
     'title': 'หยุดชั่วคราว',
@@ -41,6 +97,7 @@ export default {
   },
   'options': {
     'killCams': 'กล้องจังหวะปิดฉาก',
+    'sensitivity': 'ความไวการมอง',
     'gameplay': 'การเล่น',
     'title': 'ตัวเลือก',
     'general': 'ทั่วไป',

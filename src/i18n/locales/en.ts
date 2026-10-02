@@ -6,7 +6,15 @@ export default {
   'gameName': 'Chaos Machine',
   'close': 'Close',
   'ok': 'Ok',
-  'rewards': 'REWARDS',
+  'rewards': {
+    'title': 'Extraction complete',
+    'time': 'Time',
+    'kills': 'Takedowns',
+    'headshots': 'Headshots',
+    'score': 'Score',
+    'continue': 'To the base',
+    'newBest': 'New best!'
+  },
   'onlyAvailableOn': 'This game is only available on',
   'ui': {
     'next': 'Next',
@@ -32,11 +40,59 @@ export default {
     'crouch': 'Crouch',
     'stand': 'Stand up',
     'cancel': 'Lower weapon',
-    'capture': 'Click to continue'
+    'capture': 'Click to continue',
+    'metres': '{n} m',
+    'objective': {
+      'target': 'Take out the Commander',
+      'extract': 'Reach the extraction pad'
+    }
   },
   'defeat': {
     'title': 'Mech down',
-    'retry': 'Try again'
+    'retry': 'Try again',
+    'kept': 'Tech Scrap salvaged'
+  },
+  'base': {
+    'deploy': 'Deploy',
+    'threat': 'Threat level',
+    'locked': 'Clear level {n} first',
+    'best': 'Best score',
+    'armory': 'Armory',
+    'chassis': 'Chassis Bay',
+    'forge': 'Forge',
+    'scrap': 'Tech Scrap',
+    'cores': 'Data Cores',
+    'blueprints': 'Blueprints'
+  },
+  'track': {
+    'sniperZoom': 'Scope zoom',
+    'sniperDamage': 'Rifle damage',
+    'sniperSilence': 'Silencer',
+    'minigunCooling': 'Cooling',
+    'minigunDamage': 'Mini-gun damage',
+    'rocketBlast': 'Blast radius',
+    'rocketAmmo': 'Rockets',
+    'armor': 'Armor plating',
+    'speed': 'Servo speed',
+    'decoy': 'Decoy duration'
+  },
+  'workshop': {
+    'max': 'Max',
+    'buy': 'Upgrade {name}',
+    'level': 'Level {n} of {max}'
+  },
+  'forge': {
+    'tier': 'Tier {n}',
+    'build': 'Build',
+    'claim': 'Collect',
+    'finish': 'Finish now',
+    'busy': 'Forge busy',
+    'top': 'Top tier'
+  },
+  'medal': {
+    'ghost': 'Ghost',
+    'marksman': 'Marksman',
+    'swift': 'Swift'
   },
   'pause': {
     'title': 'PAUSED',
@@ -45,6 +101,7 @@ export default {
   },
   'options': {
     'killCams': 'Kill-cam',
+    'sensitivity': 'Look sensitivity',
     'gameplay': 'Gameplay',
     'title': 'Options',
     'general': 'General',

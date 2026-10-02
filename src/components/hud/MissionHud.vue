@@ -5,6 +5,7 @@
     Joystick
     AimHold
     ThreatArcs
+    ObjectiveMarker
 
     div.top-centre
       AlertMeter
@@ -89,6 +90,7 @@ import Joystick from '@/components/hud/Joystick.vue'
 import AimHold from '@/components/hud/AimHold.vue'
 import AlertMeter from '@/components/hud/AlertMeter.vue'
 import ThreatArcs from '@/components/hud/ThreatArcs.vue'
+import ObjectiveMarker from '@/components/hud/ObjectiveMarker.vue'
 import Reticle from '@/components/hud/Reticle.vue'
 import AmmoStrip from '@/components/hud/AmmoStrip.vue'
 import ArmorBar from '@/components/hud/ArmorBar.vue'

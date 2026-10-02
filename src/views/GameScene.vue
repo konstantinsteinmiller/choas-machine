@@ -6,7 +6,7 @@
     div.hud-layer
       MissionHud(v-if="flow.screen === 'mission' && (hud.phase === 'play' || hud.phase === 'dead')" v-show="!hud.cine" @pause="openPause")
       CineBars
-      SystemCorner(v-if="flow.screen === 'base'")
+      BaseHud(v-if="flow.screen === 'base'")
     //- After a pause or an ad the mouse is free, and a browser only captures
     //- it again on a click: the run waits under this veil for one.
     button.relock(
@@ -20,6 +20,7 @@
     LoadingVeil
     PauseModal(@resume="onResume")
     DefeatModal
+    RewardsModal
 </template>
 
 <script setup lang="ts">
@@ -33,6 +34,7 @@ import { loadKeyboardLayout } from '@/game/engine/keyLabels'
 import { adoptBootMode } from '@/game/boot'
 import { flow } from '@/game/flow'
 import { hud } from '@/game/state/hud'
+import { profile } from '@/game/state/profile'
 import { isGamePaused, isAdShowing, isVisibilityHidden, isPlatformPaused, acquireAppPause } from '@/use/useGamePause'
 import { isAnyModalOpen } from '@/use/useModalState'
 import { isGameplayLive, syncGameplayLifecycle } from '@/use/useGameplayLifecycle'
@@ -41,12 +43,13 @@ import { toggleGameMute } from '@/use/useGameMute'
 import { armNavigationGuard, disarmNavigationGuard } from '@/use/useBrowserGuard'
 import { registerGameCheats } from '@/game/cheats'
 import GameIcon from '@/components/icons/GameIcon.vue'
-import SystemCorner from '@/components/hud/SystemCorner.vue'
+import BaseHud from '@/components/base/BaseHud.vue'
 import MissionHud from '@/components/hud/MissionHud.vue'
 import CineBars from '@/components/hud/CineBars.vue'
 import PauseModal from '@/components/modals/PauseModal.vue'
 import LoadingVeil from '@/components/atoms/LoadingVeil.vue'
 import DefeatModal from '@/components/modals/DefeatModal.vue'
+import RewardsModal from '@/components/modals/RewardsModal.vue'
 
 /**
  * The one game view. Hosts the canvas, the gesture surface and whichever UI
@@ -120,7 +123,7 @@ onMounted(async () => {
   startGameMusic()
   window.addEventListener('keydown', onKey)
   if (import.meta.env.DEV) {
-    (window as unknown as Record<string, unknown>).__game = { app, flow, hud, input, render: () => getRenderer().info.render }
+    (window as unknown as Record<string, unknown>).__game = { app, flow, hud, input, profile, render: () => getRenderer().info.render }
   }
   // The loader's prepared first scene. The scene never builds its own copy
   // while the loader is still priming (see `adoptBootMode`).

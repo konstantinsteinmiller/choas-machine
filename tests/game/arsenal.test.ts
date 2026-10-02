@@ -263,7 +263,7 @@ describe('decoys', () => {
     const f = yard().sentry(10, 5, 0).build()
     const gar = makeGarrison(f)
     const away: Target = { x: 2, y: 0, z: 2, height: 2.5, crouched: false, visible: false }
-    const decoys: Decoy[] = [{ x: cellMid(13), y: 0, z: cellMid(11), yaw: 0, t: 0, pulse: 0 }]
+    const decoys: Decoy[] = [{ x: cellMid(13), y: 0, z: cellMid(11), yaw: 0, t: 0, life: DECOY_LIFE_S, pulse: 0 }]
     let nearest = Infinity
     let out = 0
     for (let t = 0; t < DECOY_LIFE_S + 1; t += DT) {

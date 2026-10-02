@@ -20,9 +20,12 @@ const KILL = 1e6
 
 const isHuman = (k: PostKind): boolean => k === 'guard' || k === 'sentry' || k === 'commander'
 
-/** Damage of one round of `weapon` on `kind`, hit in `zone`. */
-export const shotDamage = (weapon: WeaponId, kind: PostKind, zone: Zone): number => {
-  const base = BASE_DAMAGE[weapon]
+/**
+ * Damage of one round of `weapon` on `kind`, hit in `zone`. `mul` is the
+ * weapon's tier and damage track (`data/upgrades`).
+ */
+export const shotDamage = (weapon: WeaponId, kind: PostKind, zone: Zone, mul = 1): number => {
+  const base = BASE_DAMAGE[weapon] * mul
   if (weapon === 'sniper') {
     if (kind === 'drone') return KILL
     if (isHuman(kind)) return zone === 'head' ? KILL : base
@@ -57,14 +60,16 @@ export interface BlastResult {
  * distance and much less behind a wall; plate takes a fraction, the Goliath's
  * vents take triple.
  */
-export const blast = (gar: Garrison, g: Grid, x: number, y: number, z: number, direct: number): BlastResult => {
+export const blast = (
+  gar: Garrison, g: Grid, x: number, y: number, z: number, direct: number, radius = BLAST_RADIUS, mul = 1
+): BlastResult => {
   const res: BlastResult = { kills: [], hurt: [], weakHit: false }
   for (const u of gar.units) {
     if (u.state === 'dead' || u.state === 'reserve') continue
     const spec = SPECS[u.kind]
     const dist = Math.max(0, Math.hypot(u.x - x, u.z - z, u.y + spec.height * 0.5 - y) - spec.radius)
-    if (dist > BLAST_RADIUS) continue
-    let amount = BASE_DAMAGE.rocket * (1 - 0.75 * (dist / BLAST_RADIUS))
+    if (dist > radius) continue
+    let amount = BASE_DAMAGE.rocket * mul * (1 - 0.75 * (dist / radius))
     if (u.id !== direct && !hasLineOfSight(g, x, y + 0.3, z, u.x, u.y + spec.height * 0.6, u.z)) amount *= 0.15
     if (u.kind === 'goliath') {
       // From astern the blast gets into the vents; anywhere else it is plate.

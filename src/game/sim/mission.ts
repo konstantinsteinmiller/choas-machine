@@ -7,7 +7,7 @@ import { noSlice, type Slice } from '../engine/slicer'
 import { consumeEdges, type Input } from '../engine/input'
 import { input as sharedInput, inputClock } from '../engine/inputState'
 import { emit } from '../bus'
-import { gun, hud, mirror, runHudTickers, setPhase, threats, vital, MAX_THREATS } from '../state/hud'
+import { gun, hud, mirror, runHudTickers, setPhase, threats, vital, waypoint, MAX_THREATS } from '../state/hud'
 import { CELL, VOID, heightAt } from '../world/grid'
 import type { Fortress } from '../world/fortress'
 import { buildFortressMesh, type FortressMesh } from '../world/fortressMesh'
@@ -21,8 +21,7 @@ import { buildMech, poseMech, restPose, MECH_HEIGHT, MECH_HEIGHT_CROUCH, type Me
 import { PAL } from '../models/palette'
 import { WEAPON_IDS, type WeaponId } from '../data/ids'
 import { haptic } from '@/use/useHaptics'
-import { getState } from '@/use/useGameState'
-import { LOOK_SENS_KEY } from '@/keys'
+import { lookSensitivity } from '@/use/useLookSensitivity'
 import { makePlayer, stepPlayer, eyeHeight, angleDelta, type Player } from './player'
 import { makeCam, lookCam, stepCam, placeCam, stickToWorld, camForward, type Cam } from './camera'
 import { alertSegments } from './alert'
@@ -38,7 +37,8 @@ import { DECOYS_PER_MISSION, decoySpot, findStrike, stepDecoys, type Decoy, type
 import { fireRocket, stepRockets, type Rocket } from './rockets'
 import { stepFire } from './chaos'
 import { hurtArmor, makeArmor, stepArmor, type Armor } from './armor'
-import { flow } from '../flow'
+import { flow, finishMission, failMission } from '../flow'
+import { BASE_LOADOUT, type Loadout } from '../data/upgrades'
 import { makeKillCamState, wantsKillCam } from './killcam'
 import {
   DROP_LANDED, blendPose, bulletAt, bulletCam, bulletFlightS, dropHeight, introCam, liftHeight, makeCinePose, orbitCam, outroCam,
@@ -61,12 +61,8 @@ import { markSeen, profile } from '../state/profile'
  * is where they meet the input, the renderer, the HUD and the bus.
  */
 
-/** The sniper scope's field of view, in degrees. */
-const SCOPE_FOV = 17
 /** How far a round flies. */
 const SHOT_RANGE = 260
-/** A sniper round that hits a wall is heard this far. */
-const MISS_EARSHOT = 8
 /** The scope's sway, radians: standing, and steadied in a crouch. */
 const SWAY = 0.0022
 const SWAY_CROUCH = 0.0008
@@ -133,12 +129,16 @@ export class Mission implements GameMode {
   readonly player: Player
   readonly cam: Cam
   readonly garrison: Garrison
-  readonly arsenal: Arsenal = makeArsenal()
-  readonly armor: Armor = makeArmor()
+  readonly arsenal: Arsenal
+  readonly armor: Armor
   readonly decoys: Decoy[] = []
   readonly rockets: Rocket[] = []
   readonly stats: MissionStats = { time: 0, shots: 0, hits: 0, headshots: 0, kills: 0, bladeKills: 0, spotted: 0, bodiesFound: 0, loud: false }
   decoysLeft = DECOYS_PER_MISSION
+  /** The threat level this mission is played at, 1 … 5. */
+  readonly level: number
+  /** What the mech is fitted with (the Armory, the Chassis Bay, the Forge). */
+  readonly loadout: Loadout
   /** The strike on offer right now. */
   offer: Strike | null = null
   private strike: StrikeRun | null = null
@@ -179,13 +179,17 @@ export class Mission implements GameMode {
   private shake = 0
   /** Eased blade-out and stab values for the pose. */
   private bladeOut = 0
-  /** Look sensitivity multiplier (the player's setting). */
-  sensitivity = 1
+  private proj = new Vector3()
 
-  private constructor(readonly fortress: Fortress, private input: Input) {
+  private constructor(readonly fortress: Fortress, private input: Input, level: number, loadout: Loadout) {
     const g = fortress.grid
     const { x, z, facing } = fortress.insert
+    this.level = level
+    this.loadout = loadout
+    this.arsenal = makeArsenal(loadout.rockets, loadout.heatSeconds, loadout.coolRate)
+    this.armor = makeArmor(loadout.armor)
     this.player = makePlayer(x, heightAt(g, x, z), z, facing)
+    this.player.speedMul = loadout.speed
     this.cam = makeCam(facing)
     this.garrison = makeGarrison(fortress)
     this.garrison.lures = this.decoys
@@ -195,9 +199,10 @@ export class Mission implements GameMode {
   }
 
   static async create(
-    fortress: Fortress, input: Input = sharedInput, slice: Slice = noSlice, onProgress: (p01: number) => void = () => {}
+    fortress: Fortress, input: Input = sharedInput, slice: Slice = noSlice, onProgress: (p01: number) => void = () => {},
+    level = 1, loadout: Loadout = BASE_LOADOUT
   ): Promise<Mission> {
-    const m = new Mission(fortress, input)
+    const m = new Mission(fortress, input, level, loadout)
     m.sky = buildSky(m.scene, m.centre)
     m.mesh = await buildFortressMesh(fortress, undefined, slice, p => onProgress(p * 0.8))
     m.decor = buildDecor(fortress.decor)
@@ -240,7 +245,6 @@ export class Mission implements GameMode {
   }
 
   enter(): void {
-    this.sensitivity = Math.min(2, Math.max(0.4, getState<number>(LOOK_SENS_KEY, 1) || 1))
     mirror('device', this.input.device)
     hud.alert = 0
     hud.chaos = false
@@ -460,7 +464,7 @@ export class Mission implements GameMode {
       if (head) this.stats.headshots++
       this.killBy = w
       this.killHead = head
-      const damage = shotDamage(w, u.kind, h.zone)
+      const damage = shotDamage(w, u.kind, h.zone, this.loadout.damage[w])
       // A sniper round that is going to kill may be given the kill-cam: then
       // it has not landed yet, and the camera rides it in.
       if (w === 'sniper' && u.hp - damage <= 0) {
@@ -485,7 +489,7 @@ export class Mission implements GameMode {
       this.fx.tracer(ox, oy, oz, h.x, h.y, h.z, w)
       this.fx.impact(h.x, h.y, h.z, h.nx, h.ny, h.nz, false, w)
       // A silenced round is still heard where it lands.
-      if (w === 'sniper') noiseAt(gar, this.target, h.x, h.z, MISS_EARSHOT, 'miss')
+      if (w === 'sniper') noiseAt(gar, this.target, h.x, h.z, this.loadout.missEarshot, 'miss')
     } else {
       this.fx.tracer(ox, oy, oz, h.x, h.y, h.z, w)
     }
@@ -507,7 +511,7 @@ export class Mission implements GameMode {
       this.fx.explosion(b.x, b.y, b.z, floor === VOID ? b.y - 1 : floor)
       this.killBy = 'rocket'
       this.killHead = false
-      const res = blast(this.garrison, g, b.x, b.y, b.z, b.direct)
+      const res = blast(this.garrison, g, b.x, b.y, b.z, b.direct, this.loadout.blastRadius, this.loadout.damage.rocket)
       if (res.kills.length + res.hurt.length > 0) this.stats.hits++
       for (const id of res.hurt) alarmUnit(this.garrison, id, this.player.x, this.player.z)
       emit('blast', { x: b.x, y: b.y, z: b.z, weak: res.weakHit })
@@ -587,7 +591,7 @@ export class Mission implements GameMode {
     this.decoysLeft--
     // It faces back at the mech: a mech-shaped light looking at the guards
     // who come round the corner after it.
-    this.decoys.push({ ...spot, yaw: this.cam.yaw + Math.PI, t: 0, pulse: 0 })
+    this.decoys.push({ ...spot, yaw: this.cam.yaw + Math.PI, t: 0, life: this.loadout.decoySeconds, pulse: 0 })
     this.fx.decoyPop(spot.x, spot.y, spot.z)
     haptic('tap')
     emit('decoy', { x: spot.x, y: spot.y, z: spot.z })
@@ -740,6 +744,7 @@ export class Mission implements GameMode {
       this.offer = null
       this.strike = null
       setPhase('dead')
+      failMission(this.stats)
       emit('defeat', {})
     }
   }
@@ -821,6 +826,7 @@ export class Mission implements GameMode {
     } else if (c.kind === 'outro') {
       this.line.visible = false
       setPhase('done')
+      finishMission(this.stats)
       emit('extracted', {})
     }
   }
@@ -971,7 +977,7 @@ export class Mission implements GameMode {
     const aiming = playing && this.weaponUp()
 
     // The look: applied here, at the display's rate, and consumed here.
-    lookCam(this.cam, i.lookDX, i.lookDY, i.turn, dt, this.sensitivity, this.camera.fov, this.baseFov)
+    lookCam(this.cam, i.lookDX, i.lookDY, i.turn, dt, lookSensitivity.value, this.camera.fov, this.baseFov)
     i.lookDX = 0
     i.lookDY = 0
     stepCam(this.cam, aiming, dt)
@@ -982,7 +988,7 @@ export class Mission implements GameMode {
     const jy = this.shake > 0 ? (Math.random() - 0.5) * this.shake * 0.03 : 0
     this.cam.yaw += sway.yaw + jx
     this.cam.pitch += sway.pitch + kick + jy
-    const follow = placeCam(this.cam, g, x, y, z, eyeHeight(p), a.current, this.baseFov, SCOPE_FOV, dt)
+    const follow = placeCam(this.cam, g, x, y, z, eyeHeight(p), a.current, this.baseFov, this.loadout.scopeFov, dt)
     this.cam.yaw -= sway.yaw + jx
     this.cam.pitch -= sway.pitch + kick + jy
 
@@ -1056,6 +1062,41 @@ export class Mission implements GameMode {
     this.markers.update(dt, this.time)
     this.fx.update(dt, alpha, this.rockets, this.decoys, this.viewH, this.camera.fov)
     this.writeThreats(x, z)
+    this.writeWaypoint(x, z, playing && !scripted)
+  }
+
+  /** Where the objective is on screen, for the HUD's marker. */
+  private writeWaypoint(x: number, z: number, show: boolean): void {
+    let wx = 0
+    let wy = 0
+    let wz = 0
+    let has = false
+    if (this.objective === 'extract') {
+      const e = this.fortress.extract
+      wx = e.x
+      wy = heightAt(this.fortress.grid, e.x, e.z) + 1.2
+      wz = e.z
+      has = true
+    } else if (this.objective === 'target') {
+      // The nearest target still standing.
+      let best = Infinity
+      for (const u of this.garrison.units) {
+        if ((u.kind !== 'commander' && u.kind !== 'goliath') || u.state === 'dead') continue
+        const d = Math.hypot(u.x - x, u.z - z)
+        if (d < best) { best = d; wx = u.x; wy = u.y + SPECS[u.kind].height + 0.9; wz = u.z; has = true }
+      }
+    }
+    waypoint.on = show && has && !hud.scoped
+    if (!waypoint.on) return
+    const p = this.proj.set(wx, wy, wz)
+    // In front of the camera or behind it, before the projection folds that away.
+    this.camera.updateMatrixWorld()
+    const behind = p.clone().applyMatrix4(this.camera.matrixWorldInverse).z > 0
+    p.project(this.camera)
+    waypoint.x = p.x * 0.5 + 0.5
+    waypoint.y = -p.y * 0.5 + 0.5
+    waypoint.behind = behind
+    waypoint.dist = Math.hypot(wx - x, wz - z)
   }
 
   render(alpha: number, dt: number): void {

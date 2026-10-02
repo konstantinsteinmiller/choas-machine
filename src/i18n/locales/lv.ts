@@ -2,7 +2,15 @@ export default {
   'gameName': 'Chaos Machine',
   'close': 'Aizvērt',
   'ok': 'Labi',
-  'rewards': 'BALVAS',
+  'rewards': {
+    'title': 'Evakuācija pabeigta',
+    'time': 'Laiks',
+    'kills': 'Nogalināti',
+    'headshots': 'Šāvieni galvā',
+    'score': 'Rezultāts',
+    'continue': 'Uz bāzi',
+    'newBest': 'Jauns rekords!'
+  },
   'onlyAvailableOn': 'Šī spēle ir pieejama tikai vietnē',
   'ui': {
     'next': 'Tālāk',
@@ -28,11 +36,59 @@ export default {
     'crouch': 'Pietupties',
     'stand': 'Piecelties',
     'cancel': 'Nolaist ieroci',
-    'capture': 'Klikšķini, lai turpinātu'
+    'capture': 'Klikšķini, lai turpinātu',
+    'metres': '{n} m',
+    'objective': {
+      'target': 'Likvidē komandieri',
+      'extract': 'Sasniedz evakuācijas laukumu'
+    }
   },
   'defeat': {
     'title': 'Mehs ir ticis',
-    'retry': 'Mēģināt vēlreiz'
+    'retry': 'Mēģināt vēlreiz',
+    'kept': 'Izglābti tehnikas lūžņi'
+  },
+  'base': {
+    'deploy': 'Sākt',
+    'threat': 'Draudu līmenis',
+    'locked': 'Vispirms izpildi {n}. līmeni',
+    'best': 'Labākais rezultāts',
+    'armory': 'Ieroču noliktava',
+    'chassis': 'Šasijas nodalījums',
+    'forge': 'Kalve',
+    'scrap': 'Tehnikas lūžņi',
+    'cores': 'Datu serdes',
+    'blueprints': 'Rasējumi'
+  },
+  'track': {
+    'sniperZoom': 'Optikas tuvinājums',
+    'sniperDamage': 'Šautenes bojājumi',
+    'sniperSilence': 'Trokšņa slāpētājs',
+    'minigunCooling': 'Dzesēšana',
+    'minigunDamage': 'Minipuļģa bojājumi',
+    'rocketBlast': 'Sprādziena rādiuss',
+    'rocketAmmo': 'Raķetes',
+    'armor': 'Bruņu plāksnes',
+    'speed': 'Servo ātrums',
+    'decoy': 'Mānekļa ilgums'
+  },
+  'workshop': {
+    'max': 'Maks.',
+    'buy': 'Uzlabot: {name}',
+    'level': '{n}. līmenis no {max}'
+  },
+  'forge': {
+    'tier': '{n}. pakāpe',
+    'build': 'Izgatavot',
+    'claim': 'Paņemt',
+    'finish': 'Pabeigt tagad',
+    'busy': 'Kalve aizņemta',
+    'top': 'Augstākā pakāpe'
+  },
+  'medal': {
+    'ghost': 'Rēgs',
+    'marksman': 'Šāvējs',
+    'swift': 'Veiklais'
   },
   'pause': {
     'title': 'PAUZE',
@@ -41,6 +97,7 @@ export default {
   },
   'options': {
     'killCams': 'Kill-cam',
+    'sensitivity': 'Skatīšanās jutība',
     'gameplay': 'Spēle',
     'title': 'Iestatījumi',
     'general': 'Vispārīgi',

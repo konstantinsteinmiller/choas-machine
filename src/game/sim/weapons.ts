@@ -54,11 +54,14 @@ export interface Arsenal {
   recoil: number
   /** Minigun barrel angle, radians. */
   spin: number
+  /** The minigun as fitted: seconds of fire to overheat, and cooling per second. */
+  heatSeconds: number
+  coolRate: number
 }
 
-export const makeArsenal = (rockets = ROCKETS_PER_MISSION): Arsenal => ({
+export const makeArsenal = (rockets = ROCKETS_PER_MISSION, heatSeconds = MINIGUN_HEAT_S, coolRate = MINIGUN_COOL_PER_S): Arsenal => ({
   current: 'sniper', switching: 0, sniperMag: SNIPER_MAG, bolt: 0, reloading: 0, spool: 0, heat: 0, overheated: false,
-  owed: 0, rocketLoaded: true, rocketReload: 0, rockets: Math.max(0, rockets - 1), recoil: 0, spin: 0
+  owed: 0, rocketLoaded: true, rocketReload: 0, rockets: Math.max(0, rockets - 1), recoil: 0, spin: 0, heatSeconds, coolRate
 })
 
 /** What the hands ask of the weapon this step. */
@@ -132,10 +135,10 @@ export const stepArsenal = (a: Arsenal, t: Trigger, dt: number): number => {
   a.spin += a.spool * 34 * dt
   const firing = a.current === 'minigun' && drawn && a.spool >= 1 && !a.overheated && (t.touch ? t.aimHeld : t.fireHeld)
   if (firing) {
-    a.heat = Math.min(1, a.heat + dt / MINIGUN_HEAT_S)
+    a.heat = Math.min(1, a.heat + dt / a.heatSeconds)
     if (a.heat >= 1) a.overheated = true
   } else {
-    a.heat = Math.max(0, a.heat - MINIGUN_COOL_PER_S * dt)
+    a.heat = Math.max(0, a.heat - a.coolRate * dt)
     if (a.overheated && a.heat <= MINIGUN_RESUME_AT) a.overheated = false
   }
 

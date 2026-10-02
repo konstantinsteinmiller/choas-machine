@@ -2,7 +2,15 @@ export default {
   'gameName': 'Chaos Machine',
   'close': 'Zatvori',
   'ok': 'Ok',
-  'rewards': 'NAGRADE',
+  'rewards': {
+    'title': 'Evakuacija završena',
+    'time': 'Vrijeme',
+    'kills': 'Eliminacije',
+    'headshots': 'Pogoci u glavu',
+    'score': 'Rezultat',
+    'continue': 'U bazu',
+    'newBest': 'Novi rekord!'
+  },
   'onlyAvailableOn': 'Ova igra dostupna je samo na',
   'ui': {
     'next': 'Dalje',
@@ -28,11 +36,59 @@ export default {
     'crouch': 'Čučni',
     'stand': 'Ustani',
     'cancel': 'Spusti oružje',
-    'capture': 'Klikni za nastavak'
+    'capture': 'Klikni za nastavak',
+    'metres': '{n} m',
+    'objective': {
+      'target': 'Ukloni zapovjednika',
+      'extract': 'Dođi do platforme za evakuaciju'
+    }
   },
   'defeat': {
     'title': 'Mech je pao',
-    'retry': 'Pokušaj ponovno'
+    'retry': 'Pokušaj ponovno',
+    'kept': 'Spašeni tehno-otpad'
+  },
+  'base': {
+    'deploy': 'Kreni',
+    'threat': 'Razina prijetnje',
+    'locked': 'Prvo prijeđi razinu {n}',
+    'best': 'Najbolji rezultat',
+    'armory': 'Oružarnica',
+    'chassis': 'Hangar šasije',
+    'forge': 'Kovačnica',
+    'scrap': 'Tehno-otpad',
+    'cores': 'Podatkovne jezgre',
+    'blueprints': 'Nacrti'
+  },
+  'track': {
+    'sniperZoom': 'Zum nišana',
+    'sniperDamage': 'Šteta puške',
+    'sniperSilence': 'Prigušivač',
+    'minigunCooling': 'Hlađenje',
+    'minigunDamage': 'Šteta minigana',
+    'rocketBlast': 'Radijus eksplozije',
+    'rocketAmmo': 'Rakete',
+    'armor': 'Oklop',
+    'speed': 'Brzina servo motora',
+    'decoy': 'Trajanje mamca'
+  },
+  'workshop': {
+    'max': 'Maks.',
+    'buy': 'Nadogradi: {name}',
+    'level': 'Razina {n} od {max}'
+  },
+  'forge': {
+    'tier': 'Stupanj {n}',
+    'build': 'Izradi',
+    'claim': 'Preuzmi',
+    'finish': 'Dovrši odmah',
+    'busy': 'Kovačnica je zauzeta',
+    'top': 'Najviši stupanj'
+  },
+  'medal': {
+    'ghost': 'Duh',
+    'marksman': 'Strijelac',
+    'swift': 'Brzi'
   },
   'pause': {
     'title': 'PAUZA',
@@ -41,6 +97,7 @@ export default {
   },
   'options': {
     'killCams': 'Kill-cam',
+    'sensitivity': 'Osjetljivost pogleda',
     'gameplay': 'Igranje',
     'title': 'Postavke',
     'general': 'Općenito',

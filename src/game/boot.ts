@@ -7,7 +7,9 @@ import { Mission } from './sim/mission'
 import { input } from './engine/inputState'
 import { buildProvingGround } from './data/fortresses/proving'
 import type { GameMode } from './engine/app'
-import { registerModeFactories, createBootMode } from './flow'
+import { registerModeFactories, createBootMode, flow } from './flow'
+import { CommandBase } from './scenes/commandBase'
+import { currentLoadout } from './state/progress'
 import { initProfile } from './state/profile'
 import { installSynth, loadSfxOverrides } from './audio/synth'
 
@@ -98,11 +100,10 @@ registerModeFactories({
     }
     const view = import.meta.env.DEV ? viewAngleFromUrl(search) : undefined
     if (view) return FortressView.create(buildProvingGround(), view, createSlicer(12), onProgress)
-    return Mission.create(buildProvingGround(), input, createSlicer(12), onProgress)
+    return Mission.create(buildProvingGround(), input, createSlicer(12), onProgress, flow.level, currentLoadout())
   },
-  // The Command Base is built in a later phase; until then the fortress on
-  // its turntable stands in for it.
-  base: (onProgress) => FortressView.create(buildProvingGround(), undefined, createSlicer(12), onProgress)
+  base: (onProgress) => CommandBase.create(createSlicer(12), onProgress),
+  prepare: (mode) => precompile(mode)
 })
 
 let prepared: GameMode | null = null

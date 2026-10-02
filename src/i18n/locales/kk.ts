@@ -2,7 +2,15 @@ export default {
   'gameName': 'Chaos Machine',
   'close': 'Жабу',
   'ok': 'Жарайды',
-  'rewards': 'СЫЙЛЫҚТАР',
+  'rewards': {
+    'title': 'Эвакуация аяқталды',
+    'time': 'Уақыт',
+    'kills': 'Жойылғандар',
+    'headshots': 'Басқа атулар',
+    'score': 'Ұпай',
+    'continue': 'Базаға',
+    'newBest': 'Жаңа рекорд!'
+  },
   'onlyAvailableOn': 'Бұл ойын тек мына жерде қолжетімді:',
   'ui': {
     'next': 'Келесі',
@@ -28,11 +36,59 @@ export default {
     'crouch': 'Бүгілу',
     'stand': 'Тұру',
     'cancel': 'Қаруды түсіру',
-    'capture': 'Жалғастыру үшін басыңыз'
+    'capture': 'Жалғастыру үшін басыңыз',
+    'metres': '{n} м',
+    'objective': {
+      'target': 'Қолбасшыны жойыңыз',
+      'extract': 'Эвакуация алаңына жетіңіз'
+    }
   },
   'defeat': {
     'title': 'Мех құлады',
-    'retry': 'Қайта көру'
+    'retry': 'Қайта көру',
+    'kept': 'Құтқарылған тех-сынықтар'
+  },
+  'base': {
+    'deploy': 'Жөнелту',
+    'threat': 'Қауіп деңгейі',
+    'locked': 'Алдымен {n}-деңгейді өтіңіз',
+    'best': 'Үздік ұпай',
+    'armory': 'Қарулар қоймасы',
+    'chassis': 'Шасси бөлімі',
+    'forge': 'Соғу цехы',
+    'scrap': 'Тех-сынықтар',
+    'cores': 'Дерек өзектері',
+    'blueprints': 'Сызбалар'
+  },
+  'track': {
+    'sniperZoom': 'Оптика ұлғайтуы',
+    'sniperDamage': 'Мылтық зияны',
+    'sniperSilence': 'Саңыраулағыш',
+    'minigunCooling': 'Салқындату',
+    'minigunDamage': 'Миниган зияны',
+    'rocketBlast': 'Жарылыс радиусы',
+    'rocketAmmo': 'Зымырандар',
+    'armor': 'Сауыт тақталары',
+    'speed': 'Серво жылдамдығы',
+    'decoy': 'Жалғандың ұзақтығы'
+  },
+  'workshop': {
+    'max': 'Максимум',
+    'buy': 'Жақсарту: {name}',
+    'level': '{n}-деңгей / {max}'
+  },
+  'forge': {
+    'tier': '{n}-саты',
+    'build': 'Жасау',
+    'claim': 'Алу',
+    'finish': 'Қазір аяқтау',
+    'busy': 'Цех бос емес',
+    'top': 'Ең жоғары саты'
+  },
+  'medal': {
+    'ghost': 'Елес',
+    'marksman': 'Мерген',
+    'swift': 'Жылдам'
   },
   'pause': {
     'title': 'КІДІРІС',
@@ -41,6 +97,7 @@ export default {
   },
   'options': {
     'killCams': 'Жою камерасы',
+    'sensitivity': 'Қарау сезімталдығы',
     'gameplay': 'Ойын',
     'title': 'Параметрлер',
     'general': 'Жалпы',

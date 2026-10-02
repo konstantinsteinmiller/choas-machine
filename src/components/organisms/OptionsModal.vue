@@ -11,6 +11,7 @@ import { LANGUAGES, LANGUAGE_AUTONYMS } from '@/utils/enums'
 import { bcp47For } from '@/i18n/localeTag'
 import { hapticsAvailable, hapticsEnabled, setHapticsEnabled } from '@/use/useHaptics'
 import { killCamsEnabled, setKillCamsEnabled } from '@/use/useKillCam'
+import { lookSensitivity, setLookSensitivity, LOOK_SENS_MIN, LOOK_SENS_MAX } from '@/use/useLookSensitivity'
 import { touchFirst } from '@/game/engine/input'
 import { ACTIONS, bindKey, bindingsChanged, isBindable, primaryCode, resetBindings, type Action } from '@/game/engine/keyBindings'
 import { keyboard, keyLabel, LAYOUTS, setAutoLayout, setManualLayout, type Layout } from '@/game/engine/keyLabels'
@@ -155,6 +156,13 @@ onUnmounted(stopCapture)
       )
 
     div.options-grid(v-else-if="currentTab === 'gameplay'")
+      //- How far a drag or a mouse move turns the camera.
+      FSlider(
+        :label="t('options.sensitivity')"
+        :model-value="lookSensitivity"
+        :min="LOOK_SENS_MIN" :max="LOOK_SENS_MAX" :step="0.05"
+        @update:model-value="setLookSensitivity($event)"
+      )
       //- The kill-cam: on by default; a player who switched it off from inside
       //- one turns it back on here.
       FSelect(

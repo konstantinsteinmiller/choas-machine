@@ -2,7 +2,15 @@ export default {
   'gameName': 'Chaos Machine',
   'close': 'Tutup',
   'ok': 'Oke',
-  'rewards': 'HADIAH',
+  'rewards': {
+    'title': 'Ekstraksi selesai',
+    'time': 'Waktu',
+    'kills': 'Penumbangan',
+    'headshots': 'Tembakan kepala',
+    'score': 'Skor',
+    'continue': 'Ke markas',
+    'newBest': 'Rekor baru!'
+  },
   'onlyAvailableOn': 'Gim ini hanya tersedia di',
   'ui': {
     'next': 'Lanjut',
@@ -28,11 +36,59 @@ export default {
     'crouch': 'Jongkok',
     'stand': 'Berdiri',
     'cancel': 'Turunkan senjata',
-    'capture': 'Klik untuk lanjut'
+    'capture': 'Klik untuk lanjut',
+    'metres': '{n} m',
+    'objective': {
+      'target': 'Lumpuhkan Komandan',
+      'extract': 'Capai landasan ekstraksi'
+    }
   },
   'defeat': {
     'title': 'Mech tumbang',
-    'retry': 'Coba lagi'
+    'retry': 'Coba lagi',
+    'kept': 'Rongsok Teknologi terselamatkan'
+  },
+  'base': {
+    'deploy': 'Berangkat',
+    'threat': 'Tingkat ancaman',
+    'locked': 'Selesaikan level {n} dulu',
+    'best': 'Skor terbaik',
+    'armory': 'Gudang Senjata',
+    'chassis': 'Bay Sasis',
+    'forge': 'Tempa',
+    'scrap': 'Rongsok Teknologi',
+    'cores': 'Inti Data',
+    'blueprints': 'Cetak Biru'
+  },
+  'track': {
+    'sniperZoom': 'Zoom teropong',
+    'sniperDamage': 'Daya senapan',
+    'sniperSilence': 'Peredam',
+    'minigunCooling': 'Pendinginan',
+    'minigunDamage': 'Daya mini-gun',
+    'rocketBlast': 'Radius ledakan',
+    'rocketAmmo': 'Roket',
+    'armor': 'Pelat baja',
+    'speed': 'Kecepatan servo',
+    'decoy': 'Durasi umpan'
+  },
+  'workshop': {
+    'max': 'Maks',
+    'buy': 'Tingkatkan {name}',
+    'level': 'Level {n} dari {max}'
+  },
+  'forge': {
+    'tier': 'Tingkat {n}',
+    'build': 'Buat',
+    'claim': 'Ambil',
+    'finish': 'Selesaikan sekarang',
+    'busy': 'Tempa sedang sibuk',
+    'top': 'Tingkat tertinggi'
+  },
+  'medal': {
+    'ghost': 'Hantu',
+    'marksman': 'Penembak jitu',
+    'swift': 'Gesit'
   },
   'pause': {
     'title': 'JEDA',
@@ -41,6 +97,7 @@ export default {
   },
   'options': {
     'killCams': 'Kamera kill',
+    'sensitivity': 'Sensitivitas pandangan',
     'gameplay': 'Permainan',
     'title': 'Opsi',
     'general': 'Umum',

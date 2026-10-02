@@ -2,7 +2,15 @@ export default {
   'gameName': 'Chaos Machine',
   'close': 'Затвори',
   'ok': 'ОК',
-  'rewards': 'НАГРАДИ',
+  'rewards': {
+    'title': 'Евакуацията е успешна',
+    'time': 'Време',
+    'kills': 'Обезвреждания',
+    'headshots': 'Попадения в главата',
+    'score': 'Резултат',
+    'continue': 'Към базата',
+    'newBest': 'Нов рекорд!'
+  },
   'onlyAvailableOn': 'Тази игра е достъпна само на',
   'ui': {
     'next': 'Напред',
@@ -28,11 +36,59 @@ export default {
     'crouch': 'Клекни',
     'stand': 'Изправи се',
     'cancel': 'Свали оръжието',
-    'capture': 'Кликни за продължение'
+    'capture': 'Кликни за продължение',
+    'metres': '{n} м',
+    'objective': {
+      'target': 'Елиминирай командира',
+      'extract': 'Стигни до площадката за евакуация'
+    }
   },
   'defeat': {
     'title': 'Мехът падна',
-    'retry': 'Опитай пак'
+    'retry': 'Опитай пак',
+    'kept': 'Спасен техно скрап'
+  },
+  'base': {
+    'deploy': 'Старт',
+    'threat': 'Ниво на заплаха',
+    'locked': 'Първо мини ниво {n}',
+    'best': 'Най-добър резултат',
+    'armory': 'Оръжейница',
+    'chassis': 'Шасита',
+    'forge': 'Ковачница',
+    'scrap': 'Техно скрап',
+    'cores': 'Дата ядра',
+    'blueprints': 'Чертежи'
+  },
+  'track': {
+    'sniperZoom': 'Увеличение',
+    'sniperDamage': 'Щета на пушката',
+    'sniperSilence': 'Заглушител',
+    'minigunCooling': 'Охлаждане',
+    'minigunDamage': 'Щета на минигана',
+    'rocketBlast': 'Радиус на взрива',
+    'rocketAmmo': 'Ракети',
+    'armor': 'Броня',
+    'speed': 'Скорост на серво',
+    'decoy': 'Време на примамката'
+  },
+  'workshop': {
+    'max': 'Макс',
+    'buy': 'Надгради {name}',
+    'level': 'Ниво {n} от {max}'
+  },
+  'forge': {
+    'tier': 'Клас {n}',
+    'build': 'Създай',
+    'claim': 'Вземи',
+    'finish': 'Завърши сега',
+    'busy': 'Ковачницата е заета',
+    'top': 'Най-висок клас'
+  },
+  'medal': {
+    'ghost': 'Призрак',
+    'marksman': 'Стрелец',
+    'swift': 'Бърз'
   },
   'pause': {
     'title': 'ПАУЗА',
@@ -41,6 +97,7 @@ export default {
   },
   'options': {
     'killCams': 'Финален кадър',
+    'sensitivity': 'Чувствителност на погледа',
     'gameplay': 'Геймплей',
     'title': 'Настройки',
     'general': 'Общи',

@@ -2,7 +2,15 @@ export default {
   'gameName': 'Chaos Machine',
   'close': 'Bağla',
   'ok': 'Oldu',
-  'rewards': 'MÜKAFATLAR',
+  'rewards': {
+    'title': 'Təxliyə tamamlandı',
+    'time': 'Vaxt',
+    'kills': 'Zərərsizləşdirmə',
+    'headshots': 'Başa atəş',
+    'score': 'Xal',
+    'continue': 'Bazaya',
+    'newBest': 'Yeni rekord!'
+  },
   'onlyAvailableOn': 'Bu oyun yalnız burada mövcuddur:',
   'ui': {
     'next': 'Növbəti',
@@ -28,11 +36,59 @@ export default {
     'crouch': 'Çömel',
     'stand': 'Ayağa qalx',
     'cancel': 'Silahı endir',
-    'capture': 'Davam üçün kliklə'
+    'capture': 'Davam üçün kliklə',
+    'metres': '{n} m',
+    'objective': {
+      'target': 'Komandiri aradan qaldır',
+      'extract': 'Təxliyə meydançasına çat'
+    }
   },
   'defeat': {
     'title': 'Meka məğlub oldu',
-    'retry': 'Yenidən cəhd et'
+    'retry': 'Yenidən cəhd et',
+    'kept': 'Xilas edilən tex-qırıntı'
+  },
+  'base': {
+    'deploy': 'Başla',
+    'threat': 'Təhlükə səviyyəsi',
+    'locked': 'Əvvəlcə {n}-ci səviyyəni bitir',
+    'best': 'Ən yaxşı nəticə',
+    'armory': 'Silahxana',
+    'chassis': 'Şassi bölməsi',
+    'forge': 'Zavod',
+    'scrap': 'Tex-qırıntı',
+    'cores': 'Data nüvələri',
+    'blueprints': 'Cizgilər'
+  },
+  'track': {
+    'sniperZoom': 'Optik yaxınlaşma',
+    'sniperDamage': 'Tüfəng zərəri',
+    'sniperSilence': 'Səssizlədici',
+    'minigunCooling': 'Soyutma',
+    'minigunDamage': 'Mini-qan zərəri',
+    'rocketBlast': 'Partlayış radiusu',
+    'rocketAmmo': 'Raketlər',
+    'armor': 'Zireh',
+    'speed': 'Servo sürəti',
+    'decoy': 'Yem müddəti'
+  },
+  'workshop': {
+    'max': 'Maks',
+    'buy': '{name} yüksəlt',
+    'level': 'Səviyyə {n}/{max}'
+  },
+  'forge': {
+    'tier': 'Pillə {n}',
+    'build': 'Qur',
+    'claim': 'Götür',
+    'finish': 'İndi bitir',
+    'busy': 'Zavod məşğuldur',
+    'top': 'Ən yüksək pillə'
+  },
+  'medal': {
+    'ghost': 'Kabus',
+    'marksman': 'Nişançı',
+    'swift': 'Cəld'
   },
   'pause': {
     'title': 'FASİLƏ',
@@ -41,6 +97,7 @@ export default {
   },
   'options': {
     'killCams': 'Qələbə kamerası',
+    'sensitivity': 'Baxış həssaslığı',
     'gameplay': 'Oyun',
     'title': 'Seçimlər',
     'general': 'Ümumi',

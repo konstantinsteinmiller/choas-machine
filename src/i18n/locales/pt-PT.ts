@@ -2,7 +2,15 @@ export default {
   'gameName': 'Chaos Machine',
   'close': 'Fechar',
   'ok': 'OK',
-  'rewards': 'RECOMPENSAS',
+  'rewards': {
+    'title': 'Extração concluída',
+    'time': 'Tempo',
+    'kills': 'Abates',
+    'headshots': 'Tiros na cabeça',
+    'score': 'Pontuação',
+    'continue': 'Para a base',
+    'newBest': 'Novo recorde!'
+  },
   'onlyAvailableOn': 'Este jogo só está disponível em',
   'ui': {
     'next': 'Seguinte',
@@ -28,11 +36,59 @@ export default {
     'crouch': 'Agachar',
     'stand': 'Levantar',
     'cancel': 'Baixar arma',
-    'capture': 'Clica para continuar'
+    'capture': 'Clica para continuar',
+    'metres': '{n} m',
+    'objective': {
+      'target': 'Elimina o Comandante',
+      'extract': 'Chega à zona de extração'
+    }
   },
   'defeat': {
     'title': 'Mech destruído',
-    'retry': 'Tentar novamente'
+    'retry': 'Tentar novamente',
+    'kept': 'Sucata Tech recuperada'
+  },
+  'base': {
+    'deploy': 'Iniciar',
+    'threat': 'Nível de ameaça',
+    'locked': 'Conclui primeiro o nível {n}',
+    'best': 'Melhor pontuação',
+    'armory': 'Arsenal',
+    'chassis': 'Oficina do chassis',
+    'forge': 'Forja',
+    'scrap': 'Sucata Tech',
+    'cores': 'Núcleos de Dados',
+    'blueprints': 'Planos'
+  },
+  'track': {
+    'sniperZoom': 'Zoom da mira',
+    'sniperDamage': 'Dano da espingarda',
+    'sniperSilence': 'Silenciador',
+    'minigunCooling': 'Arrefecimento',
+    'minigunDamage': 'Dano da minigun',
+    'rocketBlast': 'Raio da explosão',
+    'rocketAmmo': 'Foguetes',
+    'armor': 'Placas de blindagem',
+    'speed': 'Velocidade dos servos',
+    'decoy': 'Duração do engodo'
+  },
+  'workshop': {
+    'max': 'Máx.',
+    'buy': 'Melhorar {name}',
+    'level': 'Nível {n} de {max}'
+  },
+  'forge': {
+    'tier': 'Nível {n}',
+    'build': 'Construir',
+    'claim': 'Recolher',
+    'finish': 'Concluir agora',
+    'busy': 'Forja ocupada',
+    'top': 'Nível máximo'
+  },
+  'medal': {
+    'ghost': 'Fantasma',
+    'marksman': 'Atirador',
+    'swift': 'Veloz'
   },
   'pause': {
     'title': 'EM PAUSA',
@@ -41,6 +97,7 @@ export default {
   },
   'options': {
     'killCams': 'Kill-cam',
+    'sensitivity': 'Sensibilidade da câmara',
     'gameplay': 'Jogabilidade',
     'title': 'Opções',
     'general': 'Geral',

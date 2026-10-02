@@ -2,7 +2,15 @@ export default {
   'gameName': 'Chaos Machine',
   'close': 'Fermer',
   'ok': 'Ok',
-  'rewards': 'RÉCOMPENSES',
+  'rewards': {
+    'title': 'Extraction réussie',
+    'time': 'Temps',
+    'kills': 'Neutralisations',
+    'headshots': 'Tirs à la tête',
+    'score': 'Score',
+    'continue': 'À la base',
+    'newBest': 'Nouveau record !'
+  },
   'onlyAvailableOn': 'Ce jeu est uniquement disponible sur',
   'ui': {
     'next': 'Suivant',
@@ -28,11 +36,59 @@ export default {
     'crouch': 'S\'accroupir',
     'stand': 'Se relever',
     'cancel': 'Baisser l\'arme',
-    'capture': 'Cliquez pour continuer'
+    'capture': 'Cliquez pour continuer',
+    'metres': '{n} m',
+    'objective': {
+      'target': 'Élimine le commandant',
+      'extract': 'Rejoins la zone d\'extraction'
+    }
   },
   'defeat': {
     'title': 'Mécha à terre',
-    'retry': 'Réessayer'
+    'retry': 'Réessayer',
+    'kept': 'Ferraille tech sauvée'
+  },
+  'base': {
+    'deploy': 'Déployer',
+    'threat': 'Niveau de menace',
+    'locked': 'Finis d\'abord le niveau {n}',
+    'best': 'Meilleur score',
+    'armory': 'Armurerie',
+    'chassis': 'Baie de châssis',
+    'forge': 'Forge',
+    'scrap': 'Ferraille tech',
+    'cores': 'Noyaux de données',
+    'blueprints': 'Plans'
+  },
+  'track': {
+    'sniperZoom': 'Zoom de lunette',
+    'sniperDamage': 'Dégâts du fusil',
+    'sniperSilence': 'Silencieux',
+    'minigunCooling': 'Refroidissement',
+    'minigunDamage': 'Dégâts du minigun',
+    'rocketBlast': 'Rayon d\'explosion',
+    'rocketAmmo': 'Roquettes',
+    'armor': 'Blindage',
+    'speed': 'Vitesse des servos',
+    'decoy': 'Durée du leurre'
+  },
+  'workshop': {
+    'max': 'Max',
+    'buy': 'Améliorer {name}',
+    'level': 'Niveau {n} sur {max}'
+  },
+  'forge': {
+    'tier': 'Rang {n}',
+    'build': 'Fabriquer',
+    'claim': 'Récupérer',
+    'finish': 'Finir de suite',
+    'busy': 'Forge occupée',
+    'top': 'Rang maximal'
+  },
+  'medal': {
+    'ghost': 'Fantôme',
+    'marksman': 'Tireur d\'élite',
+    'swift': 'Rapide'
   },
   'pause': {
     'title': 'PAUSE',
@@ -41,6 +97,7 @@ export default {
   },
   'options': {
     'killCams': 'Kill-cam',
+    'sensitivity': 'Sensibilité de la vue',
     'gameplay': 'Jeu',
     'title': 'Options',
     'general': 'Général',

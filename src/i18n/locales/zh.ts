@@ -2,7 +2,15 @@ export default {
   'gameName': 'Chaos Machine',
   'close': '关闭',
   'ok': '确定',
-  'rewards': '奖励',
+  'rewards': {
+    'title': '撤离成功',
+    'time': '用时',
+    'kills': '击倒',
+    'headshots': '爆头',
+    'score': '得分',
+    'continue': '返回基地',
+    'newBest': '新纪录！'
+  },
   'onlyAvailableOn': '本游戏仅在以下平台提供：',
   'ui': {
     'next': '下一个',
@@ -28,11 +36,59 @@ export default {
     'crouch': '蹲下',
     'stand': '站起',
     'cancel': '放下武器',
-    'capture': '点击继续'
+    'capture': '点击继续',
+    'metres': '{n} 米',
+    'objective': {
+      'target': '击败指挥官',
+      'extract': '前往撤离点'
+    }
   },
   'defeat': {
     'title': '机甲倒下了',
-    'retry': '再试一次'
+    'retry': '再试一次',
+    'kept': '回收的科技废料'
+  },
+  'base': {
+    'deploy': '出击',
+    'threat': '威胁等级',
+    'locked': '请先通关第 {n} 关',
+    'best': '最高分',
+    'armory': '军械库',
+    'chassis': '底盘舱',
+    'forge': '锻造炉',
+    'scrap': '科技废料',
+    'cores': '数据核心',
+    'blueprints': '蓝图'
+  },
+  'track': {
+    'sniperZoom': '瞄准镜倍率',
+    'sniperDamage': '步枪伤害',
+    'sniperSilence': '消音器',
+    'minigunCooling': '冷却',
+    'minigunDamage': '机枪伤害',
+    'rocketBlast': '爆炸范围',
+    'rocketAmmo': '火箭弹',
+    'armor': '装甲板',
+    'speed': '伺服速度',
+    'decoy': '诱饵持续时间'
+  },
+  'workshop': {
+    'max': '已满级',
+    'buy': '升级{name}',
+    'level': '等级 {n}/{max}'
+  },
+  'forge': {
+    'tier': '第 {n} 阶',
+    'build': '制造',
+    'claim': '领取',
+    'finish': '立即完成',
+    'busy': '锻造炉占用中',
+    'top': '最高阶'
+  },
+  'medal': {
+    'ghost': '幽灵',
+    'marksman': '神射手',
+    'swift': '迅捷'
   },
   'pause': {
     'title': '已暂停',
@@ -41,6 +97,7 @@ export default {
   },
   'options': {
     'killCams': '击杀镜头',
+    'sensitivity': '视角灵敏度',
     'gameplay': '玩法',
     'title': '选项',
     'general': '通用',

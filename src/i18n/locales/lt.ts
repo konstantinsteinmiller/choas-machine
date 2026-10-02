@@ -2,7 +2,15 @@ export default {
   'gameName': 'Chaos Machine',
   'close': 'Uždaryti',
   'ok': 'Gerai',
-  'rewards': 'APDOVANOJIMAI',
+  'rewards': {
+    'title': 'Evakuacija baigta',
+    'time': 'Laikas',
+    'kills': 'Nukovimai',
+    'headshots': 'Šūviai į galvą',
+    'score': 'Rezultatas',
+    'continue': 'Į bazę',
+    'newBest': 'Naujas rekordas!'
+  },
   'onlyAvailableOn': 'Šį žaidimą galima žaisti tik',
   'ui': {
     'next': 'Toliau',
@@ -28,11 +36,59 @@ export default {
     'crouch': 'Pritūpti',
     'stand': 'Atsistoti',
     'cancel': 'Nuleisti ginklą',
-    'capture': 'Spustelėk ir tęsk'
+    'capture': 'Spustelėk ir tęsk',
+    'metres': '{n} m',
+    'objective': {
+      'target': 'Likviduokite vadą',
+      'extract': 'Pasiekite evakuacijos aikštelę'
+    }
   },
   'defeat': {
     'title': 'Mechas žlugo',
-    'retry': 'Bandyti dar kartą'
+    'retry': 'Bandyti dar kartą',
+    'kept': 'Išgelbėtas technikos laužas'
+  },
+  'base': {
+    'deploy': 'Pradėti',
+    'threat': 'Grėsmės lygis',
+    'locked': 'Pirmiausia įveikite {n} lygį',
+    'best': 'Geriausias rezultatas',
+    'armory': 'Ginklinė',
+    'chassis': 'Važiuoklės skyrius',
+    'forge': 'Kalvė',
+    'scrap': 'Technikos laužas',
+    'cores': 'Duomenų šerdys',
+    'blueprints': 'Brėžiniai'
+  },
+  'track': {
+    'sniperZoom': 'Taikiklio artinimas',
+    'sniperDamage': 'Šautuvo žala',
+    'sniperSilence': 'Duslintuvas',
+    'minigunCooling': 'Aušinimas',
+    'minigunDamage': 'Miniginklo žala',
+    'rocketBlast': 'Sprogimo spindulys',
+    'rocketAmmo': 'Raketos',
+    'armor': 'Šarvų plokštės',
+    'speed': 'Servo greitis',
+    'decoy': 'Kvailio trukmė'
+  },
+  'workshop': {
+    'max': 'Maks.',
+    'buy': 'Patobulinti: {name}',
+    'level': '{n} lygis iš {max}'
+  },
+  'forge': {
+    'tier': '{n} pakopa',
+    'build': 'Gaminti',
+    'claim': 'Pasiimti',
+    'finish': 'Baigti dabar',
+    'busy': 'Kalvė užimta',
+    'top': 'Aukščiausia pakopa'
+  },
+  'medal': {
+    'ghost': 'Vaiduoklis',
+    'marksman': 'Snaiperis',
+    'swift': 'Greitas'
   },
   'pause': {
     'title': 'PAUZĖ',
@@ -41,6 +97,7 @@ export default {
   },
   'options': {
     'killCams': 'Kill-cam kadrai',
+    'sensitivity': 'Žvalgymosi jautrumas',
     'gameplay': 'Žaidimas',
     'title': 'Nustatymai',
     'general': 'Bendra',

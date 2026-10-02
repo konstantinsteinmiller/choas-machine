@@ -2,7 +2,15 @@ export default {
   'gameName': 'Chaos Machine',
   'close': 'Kapat',
   'ok': 'Tamam',
-  'rewards': 'ÖDÜLLER',
+  'rewards': {
+    'title': 'Tahliye tamamlandı',
+    'time': 'Süre',
+    'kills': 'Etkisiz hale getirme',
+    'headshots': 'Kafadan vuruş',
+    'score': 'Skor',
+    'continue': 'Üsse dön',
+    'newBest': 'Yeni rekor!'
+  },
   'onlyAvailableOn': 'Bu oyun yalnızca şurada mevcut:',
   'ui': {
     'next': 'İleri',
@@ -28,11 +36,59 @@ export default {
     'crouch': 'Çömel',
     'stand': 'Ayağa kalk',
     'cancel': 'Silahı indir',
-    'capture': 'Devam için tıkla'
+    'capture': 'Devam için tıkla',
+    'metres': '{n} m',
+    'objective': {
+      'target': 'Komutanı etkisiz hale getir',
+      'extract': 'Tahliye alanına ulaş'
+    }
   },
   'defeat': {
     'title': 'Mech yenildi',
-    'retry': 'Tekrar dene'
+    'retry': 'Tekrar dene',
+    'kept': 'Kurtarılan Teknik Hurda'
+  },
+  'base': {
+    'deploy': 'Görevlendir',
+    'threat': 'Tehdit seviyesi',
+    'locked': 'Önce {n}. seviyeyi bitir',
+    'best': 'En iyi skor',
+    'armory': 'Cephanelik',
+    'chassis': 'Şasi Bölümü',
+    'forge': 'Demirhane',
+    'scrap': 'Teknik Hurda',
+    'cores': 'Veri Çekirdekleri',
+    'blueprints': 'Planlar'
+  },
+  'track': {
+    'sniperZoom': 'Dürbün yakınlaştırma',
+    'sniperDamage': 'Tüfek hasarı',
+    'sniperSilence': 'Susturucu',
+    'minigunCooling': 'Soğutma',
+    'minigunDamage': 'Minigun hasarı',
+    'rocketBlast': 'Patlama yarıçapı',
+    'rocketAmmo': 'Roketler',
+    'armor': 'Zırh plakaları',
+    'speed': 'Servo hızı',
+    'decoy': 'Tuzak süresi'
+  },
+  'workshop': {
+    'max': 'Maks',
+    'buy': '{name} yükselt',
+    'level': 'Seviye {n} / {max}'
+  },
+  'forge': {
+    'tier': 'Kademe {n}',
+    'build': 'Üret',
+    'claim': 'Teslim al',
+    'finish': 'Şimdi bitir',
+    'busy': 'Demirhane meşgul',
+    'top': 'En üst kademe'
+  },
+  'medal': {
+    'ghost': 'Hayalet',
+    'marksman': 'Nişancı',
+    'swift': 'Çevik'
   },
   'pause': {
     'title': 'DURAKLATILDI',
@@ -41,6 +97,7 @@ export default {
   },
   'options': {
     'killCams': 'Öldürme kamerası',
+    'sensitivity': 'Bakış hassasiyeti',
     'gameplay': 'Oynanış',
     'title': 'Seçenekler',
     'general': 'Genel',

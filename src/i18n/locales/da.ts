@@ -2,7 +2,15 @@ export default {
   'gameName': 'Chaos Machine',
   'close': 'Luk',
   'ok': 'Ok',
-  'rewards': 'BELØNNINGER',
+  'rewards': {
+    'title': 'Evakuering gennemført',
+    'time': 'Tid',
+    'kills': 'Nedtagninger',
+    'headshots': 'Hovedskud',
+    'score': 'Score',
+    'continue': 'Til basen',
+    'newBest': 'Ny rekord!'
+  },
   'onlyAvailableOn': 'Dette spil findes kun på',
   'ui': {
     'next': 'Næste',
@@ -28,11 +36,59 @@ export default {
     'crouch': 'Dukke sig',
     'stand': 'Rejs dig',
     'cancel': 'Sænk våbnet',
-    'capture': 'Klik for at fortsætte'
+    'capture': 'Klik for at fortsætte',
+    'metres': '{n} m',
+    'objective': {
+      'target': 'Tag kommandanten ud',
+      'extract': 'Nå evakueringsplatformen'
+    }
   },
   'defeat': {
     'title': 'Mechen er nede',
-    'retry': 'Prøv igen'
+    'retry': 'Prøv igen',
+    'kept': 'Reddet teknoskrot'
+  },
+  'base': {
+    'deploy': 'Udsend',
+    'threat': 'Trusselsniveau',
+    'locked': 'Klar bane {n} først',
+    'best': 'Bedste score',
+    'armory': 'Våbenkammer',
+    'chassis': 'Chassishal',
+    'forge': 'Smedje',
+    'scrap': 'Teknoskrot',
+    'cores': 'Datakerner',
+    'blueprints': 'Tegninger'
+  },
+  'track': {
+    'sniperZoom': 'Kikkertzoom',
+    'sniperDamage': 'Riffelskade',
+    'sniperSilence': 'Lyddæmper',
+    'minigunCooling': 'Køling',
+    'minigunDamage': 'Minigunskade',
+    'rocketBlast': 'Eksplosionsradius',
+    'rocketAmmo': 'Raketter',
+    'armor': 'Panser',
+    'speed': 'Servohastighed',
+    'decoy': 'Lokkeduens varighed'
+  },
+  'workshop': {
+    'max': 'Maks',
+    'buy': 'Opgradér {name}',
+    'level': 'Niveau {n} af {max}'
+  },
+  'forge': {
+    'tier': 'Trin {n}',
+    'build': 'Byg',
+    'claim': 'Hent',
+    'finish': 'Færdiggør nu',
+    'busy': 'Smedjen er optaget',
+    'top': 'Højeste trin'
+  },
+  'medal': {
+    'ghost': 'Spøgelse',
+    'marksman': 'Skarpskytte',
+    'swift': 'Hurtig'
   },
   'pause': {
     'title': 'PAUSE',
@@ -41,6 +97,7 @@ export default {
   },
   'options': {
     'killCams': 'Kill-cam',
+    'sensitivity': 'Følsomhed for kig',
     'gameplay': 'Spil',
     'title': 'Indstillinger',
     'general': 'Generelt',

@@ -2,7 +2,15 @@ export default {
   'gameName': 'Chaos Machine',
   'close': 'Stäng',
   'ok': 'Ok',
-  'rewards': 'BELÖNINGAR',
+  'rewards': {
+    'title': 'Evakuering klar',
+    'time': 'Tid',
+    'kills': 'Nedgångar',
+    'headshots': 'Skallskott',
+    'score': 'Poäng',
+    'continue': 'Till basen',
+    'newBest': 'Nytt rekord!'
+  },
   'onlyAvailableOn': 'Det här spelet finns bara på',
   'ui': {
     'next': 'Nästa',
@@ -28,11 +36,59 @@ export default {
     'crouch': 'Huka dig',
     'stand': 'Res dig',
     'cancel': 'Sänk vapnet',
-    'capture': 'Klicka för att fortsätta'
+    'capture': 'Klicka för att fortsätta',
+    'metres': '{n} m',
+    'objective': {
+      'target': 'Slå ut befälhavaren',
+      'extract': 'Nå evakueringsplatsen'
+    }
   },
   'defeat': {
     'title': 'Mechen är nere',
-    'retry': 'Försök igen'
+    'retry': 'Försök igen',
+    'kept': 'Räddat teknikskrot'
+  },
+  'base': {
+    'deploy': 'Utplacera',
+    'threat': 'Hotnivå',
+    'locked': 'Klara nivå {n} först',
+    'best': 'Bästa poäng',
+    'armory': 'Vapenförråd',
+    'chassis': 'Chassihall',
+    'forge': 'Smedja',
+    'scrap': 'Teknikskrot',
+    'cores': 'Datakärnor',
+    'blueprints': 'Ritningar'
+  },
+  'track': {
+    'sniperZoom': 'Kikarzoom',
+    'sniperDamage': 'Gevärsskada',
+    'sniperSilence': 'Ljuddämpare',
+    'minigunCooling': 'Kylning',
+    'minigunDamage': 'Minigun-skada',
+    'rocketBlast': 'Explosionsradie',
+    'rocketAmmo': 'Raketer',
+    'armor': 'Pansarplåt',
+    'speed': 'Servofart',
+    'decoy': 'Lockbetets varaktighet'
+  },
+  'workshop': {
+    'max': 'Max',
+    'buy': 'Uppgradera {name}',
+    'level': 'Nivå {n} av {max}'
+  },
+  'forge': {
+    'tier': 'Nivå {n}',
+    'build': 'Bygg',
+    'claim': 'Hämta',
+    'finish': 'Slutför nu',
+    'busy': 'Smedjan är upptagen',
+    'top': 'Högsta nivå'
+  },
+  'medal': {
+    'ghost': 'Spöke',
+    'marksman': 'Prickskytt',
+    'swift': 'Snabb'
   },
   'pause': {
     'title': 'PAUSAT',
@@ -41,6 +97,7 @@ export default {
   },
   'options': {
     'killCams': 'Kill-cam',
+    'sensitivity': 'Blickkänslighet',
     'gameplay': 'Spel',
     'title': 'Inställningar',
     'general': 'Allmänt',

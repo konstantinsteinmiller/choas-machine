@@ -2,7 +2,15 @@ export default {
   'gameName': 'Chaos Machine',
   'close': 'Закрыть',
   'ok': 'Ок',
-  'rewards': 'НАГРАДЫ',
+  'rewards': {
+    'title': 'Эвакуация завершена',
+    'time': 'Время',
+    'kills': 'Ликвидации',
+    'headshots': 'В голову',
+    'score': 'Счёт',
+    'continue': 'На базу',
+    'newBest': 'Новый рекорд!'
+  },
   'onlyAvailableOn': 'Эта игра доступна только на',
   'ui': {
     'next': 'Дальше',
@@ -28,11 +36,59 @@ export default {
     'crouch': 'Пригнуться',
     'stand': 'Встать',
     'cancel': 'Опустить оружие',
-    'capture': 'Нажмите, чтобы продолжить'
+    'capture': 'Нажмите, чтобы продолжить',
+    'metres': '{n} м',
+    'objective': {
+      'target': 'Устраните командира',
+      'extract': 'Доберитесь до точки эвакуации'
+    }
   },
   'defeat': {
     'title': 'Мех повержен',
-    'retry': 'Попробовать снова'
+    'retry': 'Попробовать снова',
+    'kept': 'Спасённый техлом'
+  },
+  'base': {
+    'deploy': 'В бой',
+    'threat': 'Уровень угрозы',
+    'locked': 'Сначала пройдите уровень {n}',
+    'best': 'Лучший счёт',
+    'armory': 'Оружейная',
+    'chassis': 'Отсек шасси',
+    'forge': 'Кузница',
+    'scrap': 'Техлом',
+    'cores': 'Ядра данных',
+    'blueprints': 'Чертежи'
+  },
+  'track': {
+    'sniperZoom': 'Кратность прицела',
+    'sniperDamage': 'Урон винтовки',
+    'sniperSilence': 'Глушитель',
+    'minigunCooling': 'Охлаждение',
+    'minigunDamage': 'Урон миниган',
+    'rocketBlast': 'Радиус взрыва',
+    'rocketAmmo': 'Ракеты',
+    'armor': 'Броневые плиты',
+    'speed': 'Скорость серв',
+    'decoy': 'Время действия приманки'
+  },
+  'workshop': {
+    'max': 'Макс.',
+    'buy': 'Улучшить: {name}',
+    'level': 'Уровень {n} из {max}'
+  },
+  'forge': {
+    'tier': 'Ранг {n}',
+    'build': 'Создать',
+    'claim': 'Забрать',
+    'finish': 'Завершить сейчас',
+    'busy': 'Кузница занята',
+    'top': 'Высший ранг'
+  },
+  'medal': {
+    'ghost': 'Призрак',
+    'marksman': 'Меткий',
+    'swift': 'Быстрый'
   },
   'pause': {
     'title': 'ПАУЗА',
@@ -41,6 +97,7 @@ export default {
   },
   'options': {
     'killCams': 'Камера добивания',
+    'sensitivity': 'Чувствительность обзора',
     'gameplay': 'Игра',
     'title': 'Настройки',
     'general': 'Общие',

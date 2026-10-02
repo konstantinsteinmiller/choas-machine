@@ -2,7 +2,15 @@ export default {
   'gameName': 'Chaos Machine',
   'close': 'Sluiten',
   'ok': 'Ok',
-  'rewards': 'BELONINGEN',
+  'rewards': {
+    'title': 'Extractie voltooid',
+    'time': 'Tijd',
+    'kills': 'Uitschakelingen',
+    'headshots': 'Headshots',
+    'score': 'Score',
+    'continue': 'Naar de basis',
+    'newBest': 'Nieuw record!'
+  },
   'onlyAvailableOn': 'Dit spel is alleen beschikbaar op',
   'ui': {
     'next': 'Volgende',
@@ -28,11 +36,59 @@ export default {
     'crouch': 'Bukken',
     'stand': 'Opstaan',
     'cancel': 'Wapen laten zakken',
-    'capture': 'Klik om verder te gaan'
+    'capture': 'Klik om verder te gaan',
+    'metres': '{n} m',
+    'objective': {
+      'target': 'Schakel de commandant uit',
+      'extract': 'Bereik het extractieplatform'
+    }
   },
   'defeat': {
     'title': 'Mech neergehaald',
-    'retry': 'Opnieuw proberen'
+    'retry': 'Opnieuw proberen',
+    'kept': 'Gered techschroot'
+  },
+  'base': {
+    'deploy': 'Inzetten',
+    'threat': 'Dreigingsniveau',
+    'locked': 'Voltooi eerst level {n}',
+    'best': 'Beste score',
+    'armory': 'Wapenkamer',
+    'chassis': 'Chassisbaai',
+    'forge': 'Smederij',
+    'scrap': 'Techschroot',
+    'cores': 'Datakernen',
+    'blueprints': 'Blauwdrukken'
+  },
+  'track': {
+    'sniperZoom': 'Scopezoom',
+    'sniperDamage': 'Geweerschade',
+    'sniperSilence': 'Demper',
+    'minigunCooling': 'Koeling',
+    'minigunDamage': 'Minigun-schade',
+    'rocketBlast': 'Explosieradius',
+    'rocketAmmo': 'Raketten',
+    'armor': 'Pantserplaten',
+    'speed': 'Servosnelheid',
+    'decoy': 'Duur van lokvogel'
+  },
+  'workshop': {
+    'max': 'Max',
+    'buy': '{name} upgraden',
+    'level': 'Level {n} van {max}'
+  },
+  'forge': {
+    'tier': 'Tier {n}',
+    'build': 'Bouwen',
+    'claim': 'Ophalen',
+    'finish': 'Nu afronden',
+    'busy': 'Smederij bezet',
+    'top': 'Hoogste tier'
+  },
+  'medal': {
+    'ghost': 'Spook',
+    'marksman': 'Scherpschutter',
+    'swift': 'Snel'
   },
   'pause': {
     'title': 'GEPAUZEERD',
@@ -41,6 +97,7 @@ export default {
   },
   'options': {
     'killCams': 'Kill-cam',
+    'sensitivity': 'Kijkgevoeligheid',
     'gameplay': 'Gameplay',
     'title': 'Opties',
     'general': 'Algemeen',

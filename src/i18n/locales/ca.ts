@@ -2,7 +2,15 @@ export default {
   'gameName': 'Chaos Machine',
   'close': 'Tanca',
   'ok': 'D\'acord',
-  'rewards': 'RECOMPENSES',
+  'rewards': {
+    'title': 'Extracció completada',
+    'time': 'Temps',
+    'kills': 'Eliminacions',
+    'headshots': 'Trets al cap',
+    'score': 'Puntuació',
+    'continue': 'A la base',
+    'newBest': 'Nou rècord!'
+  },
   'onlyAvailableOn': 'Aquest joc només està disponible a',
   'ui': {
     'next': 'Següent',
@@ -28,11 +36,59 @@ export default {
     'crouch': 'Ajupir-se',
     'stand': 'Aixecar-se',
     'cancel': 'Baixar l\'arma',
-    'capture': 'Clica per continuar'
+    'capture': 'Clica per continuar',
+    'metres': '{n} m',
+    'objective': {
+      'target': 'Elimina el comandant',
+      'extract': 'Arriba a la plataforma d\'extracció'
+    }
   },
   'defeat': {
     'title': 'Mecha a terra',
-    'retry': 'Torna-ho a provar'
+    'retry': 'Torna-ho a provar',
+    'kept': 'Ferralla tècnica recuperada'
+  },
+  'base': {
+    'deploy': 'Desplega',
+    'threat': 'Nivell d\'amenaça',
+    'locked': 'Supera primer el nivell {n}',
+    'best': 'Millor puntuació',
+    'armory': 'Armeria',
+    'chassis': 'Bàs del xassís',
+    'forge': 'Farga',
+    'scrap': 'Ferralla tècnica',
+    'cores': 'Nuclis de dades',
+    'blueprints': 'Plànols'
+  },
+  'track': {
+    'sniperZoom': 'Zoom de la mira',
+    'sniperDamage': 'Dany del rifle',
+    'sniperSilence': 'Silenciador',
+    'minigunCooling': 'Refrigeració',
+    'minigunDamage': 'Dany del minigun',
+    'rocketBlast': 'Radi d\'explosió',
+    'rocketAmmo': 'Coets',
+    'armor': 'Blindatge',
+    'speed': 'Velocitat dels servos',
+    'decoy': 'Durada del parany'
+  },
+  'workshop': {
+    'max': 'Màx',
+    'buy': 'Millora {name}',
+    'level': 'Nivell {n} de {max}'
+  },
+  'forge': {
+    'tier': 'Nivell {n}',
+    'build': 'Construeix',
+    'claim': 'Recull',
+    'finish': 'Acaba ara',
+    'busy': 'Farga ocupada',
+    'top': 'Nivell màxim'
+  },
+  'medal': {
+    'ghost': 'Fantasma',
+    'marksman': 'Tirador',
+    'swift': 'Àgil'
   },
   'pause': {
     'title': 'PAUSA',
@@ -41,6 +97,7 @@ export default {
   },
   'options': {
     'killCams': 'Càmera d\'abatiment',
+    'sensitivity': 'Sensibilitat de la mirada',
     'gameplay': 'Joc',
     'title': 'Opcions',
     'general': 'General',

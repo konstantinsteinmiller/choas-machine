@@ -2,7 +2,15 @@ export default {
   'gameName': 'Chaos Machine',
   'close': '關閉',
   'ok': '確定',
-  'rewards': '獎勵',
+  'rewards': {
+    'title': '撤離成功',
+    'time': '時間',
+    'kills': '擊倒',
+    'headshots': '爆頭',
+    'score': '得分',
+    'continue': '返回基地',
+    'newBest': '新紀錄！'
+  },
   'onlyAvailableOn': '本遊戲僅在以下平台提供：',
   'ui': {
     'next': '下一個',
@@ -28,11 +36,59 @@ export default {
     'crouch': '蹲下',
     'stand': '站起',
     'cancel': '放下武器',
-    'capture': '點擊繼續'
+    'capture': '點擊繼續',
+    'metres': '{n} 公尺',
+    'objective': {
+      'target': '擊敗指揮官',
+      'extract': '前往撤離點'
+    }
   },
   'defeat': {
     'title': '機甲倒下了',
-    'retry': '再試一次'
+    'retry': '再試一次',
+    'kept': '回收的科技廢料'
+  },
+  'base': {
+    'deploy': '出擊',
+    'threat': '威脅等級',
+    'locked': '請先通關第 {n} 關',
+    'best': '最高分',
+    'armory': '軍械庫',
+    'chassis': '底盤艙',
+    'forge': '鍛造爐',
+    'scrap': '科技廢料',
+    'cores': '資料核心',
+    'blueprints': '藍圖'
+  },
+  'track': {
+    'sniperZoom': '瞄準鏡倍率',
+    'sniperDamage': '步槍傷害',
+    'sniperSilence': '消音器',
+    'minigunCooling': '冷卻',
+    'minigunDamage': '機槍傷害',
+    'rocketBlast': '爆炸範圍',
+    'rocketAmmo': '火箭彈',
+    'armor': '裝甲板',
+    'speed': '伺服速度',
+    'decoy': '誘餌持續時間'
+  },
+  'workshop': {
+    'max': '已滿級',
+    'buy': '升級{name}',
+    'level': '等級 {n}/{max}'
+  },
+  'forge': {
+    'tier': '第 {n} 階',
+    'build': '製造',
+    'claim': '領取',
+    'finish': '立即完成',
+    'busy': '鍛造爐使用中',
+    'top': '最高階'
+  },
+  'medal': {
+    'ghost': '幽靈',
+    'marksman': '神射手',
+    'swift': '迅捷'
   },
   'pause': {
     'title': '已暫停',
@@ -41,6 +97,7 @@ export default {
   },
   'options': {
     'killCams': '擊殺鏡頭',
+    'sensitivity': '視角靈敏度',
     'gameplay': '遊戲玩法',
     'title': '選項',
     'general': '一般',

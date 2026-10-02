@@ -2,7 +2,15 @@ export default {
   'gameName': 'Chaos Machine',
   'close': 'Yopish',
   'ok': 'Ok',
-  'rewards': 'MUKOFOTLAR',
+  'rewards': {
+    'title': 'Evakuatsiya tugadi',
+    'time': 'Vaqt',
+    'kills': 'Yo\'q qilinganlar',
+    'headshots': 'Boshga otishlar',
+    'score': 'Hisob',
+    'continue': 'Bazaga',
+    'newBest': 'Yangi rekord!'
+  },
   'onlyAvailableOn': 'Bu oʻyin faqat quyidagi joyda mavjud:',
   'ui': {
     'next': 'Keyingi',
@@ -28,11 +36,59 @@ export default {
     'crouch': 'Cho\'kka tushish',
     'stand': 'Turish',
     'cancel': 'Qurolni tushirish',
-    'capture': 'Davom etish uchun bosing'
+    'capture': 'Davom etish uchun bosing',
+    'metres': '{n} m',
+    'objective': {
+      'target': 'Qo\'mondonni yo\'q qiling',
+      'extract': 'Evakuatsiya maydoniga yeting'
+    }
   },
   'defeat': {
     'title': 'Mech yiqildi',
-    'retry': 'Qayta urinish'
+    'retry': 'Qayta urinish',
+    'kept': 'Saqlab qolingan tex-parchalar'
+  },
+  'base': {
+    'deploy': 'Jo\'natish',
+    'threat': 'Xavf darajasi',
+    'locked': 'Avval {n}-bosqichni tugating',
+    'best': 'Eng yaxshi hisob',
+    'armory': 'Qurolxona',
+    'chassis': 'Shassi bo\'limi',
+    'forge': 'Temirchilik',
+    'scrap': 'Tex-parchalar',
+    'cores': 'Ma\'lumot yadrolari',
+    'blueprints': 'Chizmalar'
+  },
+  'track': {
+    'sniperZoom': 'Nishon kattalashtirishi',
+    'sniperDamage': 'Miltiq zarari',
+    'sniperSilence': 'Ovoz so\'ndirgich',
+    'minigunCooling': 'Sovutish',
+    'minigunDamage': 'Minigan zarari',
+    'rocketBlast': 'Portlash radiusi',
+    'rocketAmmo': 'Raketalar',
+    'armor': 'Zirh plitalari',
+    'speed': 'Servo tezligi',
+    'decoy': 'Aldamchi davomiyligi'
+  },
+  'workshop': {
+    'max': 'Maks.',
+    'buy': '{name} yaxshilash',
+    'level': '{n}-daraja / {max}'
+  },
+  'forge': {
+    'tier': '{n}-pog\'ona',
+    'build': 'Yasash',
+    'claim': 'Olish',
+    'finish': 'Hozir tugatish',
+    'busy': 'Temirchilik band',
+    'top': 'Eng yuqori pog\'ona'
+  },
+  'medal': {
+    'ghost': 'Arvoh',
+    'marksman': 'Merganlik',
+    'swift': 'Chaqqon'
   },
   'pause': {
     'title': 'PAUZA',
@@ -41,6 +97,7 @@ export default {
   },
   'options': {
     'killCams': 'Yoʻq qilish kamerasi',
+    'sensitivity': 'Qarash sezgirligi',
     'gameplay': 'Oʻyin',
     'title': 'Sozlamalar',
     'general': 'Umumiy',

@@ -2,7 +2,15 @@ export default {
   'gameName': 'Chaos Machine',
   'close': 'Chiudi',
   'ok': 'Ok',
-  'rewards': 'RICOMPENSE',
+  'rewards': {
+    'title': 'Estrazione completata',
+    'time': 'Tempo',
+    'kills': 'Eliminazioni',
+    'headshots': 'Colpi alla testa',
+    'score': 'Punteggio',
+    'continue': 'Alla base',
+    'newBest': 'Nuovo record!'
+  },
   'onlyAvailableOn': 'Questo gioco è disponibile solo su',
   'ui': {
     'next': 'Avanti',
@@ -28,11 +36,59 @@ export default {
     'crouch': 'Accovacciati',
     'stand': 'Alzati',
     'cancel': 'Abbassa l\'arma',
-    'capture': 'Clicca per continuare'
+    'capture': 'Clicca per continuare',
+    'metres': '{n} m',
+    'objective': {
+      'target': 'Elimina il comandante',
+      'extract': 'Raggiungi la piattaforma di estrazione'
+    }
   },
   'defeat': {
     'title': 'Mech a terra',
-    'retry': 'Riprova'
+    'retry': 'Riprova',
+    'kept': 'Rottami tech salvati'
+  },
+  'base': {
+    'deploy': 'Schiera',
+    'threat': 'Livello di minaccia',
+    'locked': 'Prima completa il livello {n}',
+    'best': 'Miglior punteggio',
+    'armory': 'Armeria',
+    'chassis': 'Baia telaio',
+    'forge': 'Fucina',
+    'scrap': 'Rottami tech',
+    'cores': 'Nuclei dati',
+    'blueprints': 'Progetti'
+  },
+  'track': {
+    'sniperZoom': 'Zoom mirino',
+    'sniperDamage': 'Danno del fucile',
+    'sniperSilence': 'Silenziatore',
+    'minigunCooling': 'Raffreddamento',
+    'minigunDamage': 'Danno minigun',
+    'rocketBlast': 'Raggio d\'esplosione',
+    'rocketAmmo': 'Razzi',
+    'armor': 'Corazza',
+    'speed': 'Velocità servo',
+    'decoy': 'Durata esca'
+  },
+  'workshop': {
+    'max': 'Max',
+    'buy': 'Potenzia {name}',
+    'level': 'Livello {n} di {max}'
+  },
+  'forge': {
+    'tier': 'Grado {n}',
+    'build': 'Costruisci',
+    'claim': 'Ritira',
+    'finish': 'Finisci ora',
+    'busy': 'Fucina occupata',
+    'top': 'Grado massimo'
+  },
+  'medal': {
+    'ghost': 'Fantasma',
+    'marksman': 'Tiratore',
+    'swift': 'Rapido'
   },
   'pause': {
     'title': 'IN PAUSA',
@@ -41,6 +97,7 @@ export default {
   },
   'options': {
     'killCams': 'Kill-cam',
+    'sensitivity': 'Sensibilità di visuale',
     'gameplay': 'Gioco',
     'title': 'Opzioni',
     'general': 'Generale',

@@ -2,7 +2,15 @@ export default {
   'gameName': 'Chaos Machine',
   'close': 'Đóng',
   'ok': 'OK',
-  'rewards': 'PHẦN THƯỞNG',
+  'rewards': {
+    'title': 'Triệt thoái hoàn tất',
+    'time': 'Thời gian',
+    'kills': 'Hạ gục',
+    'headshots': 'Bắn headshot',
+    'score': 'Điểm',
+    'continue': 'Về căn cứ',
+    'newBest': 'Kỷ lục mới!'
+  },
   'onlyAvailableOn': 'Trò chơi này chỉ có trên',
   'ui': {
     'next': 'Tiếp',
@@ -28,11 +36,59 @@ export default {
     'crouch': 'Cúi xuống',
     'stand': 'Đứng dậy',
     'cancel': 'Hạ vũ khí',
-    'capture': 'Nhấn để tiếp tục'
+    'capture': 'Nhấn để tiếp tục',
+    'metres': '{n} m',
+    'objective': {
+      'target': 'Hạ gục chỉ huy',
+      'extract': 'Đến bãi triệt thoái'
+    }
   },
   'defeat': {
     'title': 'Mech gục ngã',
-    'retry': 'Thử lại'
+    'retry': 'Thử lại',
+    'kept': 'Phế liệu công nghệ thu hồi'
+  },
+  'base': {
+    'deploy': 'Xuất kích',
+    'threat': 'Mức đe dọa',
+    'locked': 'Hãy qua màn {n} trước',
+    'best': 'Điểm cao nhất',
+    'armory': 'Kho vũ khí',
+    'chassis': 'Xưởng khung',
+    'forge': 'Lò rèn',
+    'scrap': 'Phế liệu công nghệ',
+    'cores': 'Lõi dữ liệu',
+    'blueprints': 'Bản thiết kế'
+  },
+  'track': {
+    'sniperZoom': 'Độ phóng đại',
+    'sniperDamage': 'Sát thương súng trường',
+    'sniperSilence': 'Giảm thanh',
+    'minigunCooling': 'Làm mát',
+    'minigunDamage': 'Sát thương minigun',
+    'rocketBlast': 'Bán kính nổ',
+    'rocketAmmo': 'Tên lửa',
+    'armor': 'Giáp tấm',
+    'speed': 'Tốc độ servo',
+    'decoy': 'Thời gian mồi nhử'
+  },
+  'workshop': {
+    'max': 'Tối đa',
+    'buy': 'Nâng cấp {name}',
+    'level': 'Cấp {n}/{max}'
+  },
+  'forge': {
+    'tier': 'Bậc {n}',
+    'build': 'Chế tạo',
+    'claim': 'Nhận',
+    'finish': 'Hoàn thành ngay',
+    'busy': 'Lò rèn đang bận',
+    'top': 'Bậc cao nhất'
+  },
+  'medal': {
+    'ghost': 'Bóng ma',
+    'marksman': 'Xạ thủ',
+    'swift': 'Thần tốc'
   },
   'pause': {
     'title': 'TẠM DỪNG',
@@ -41,6 +97,7 @@ export default {
   },
   'options': {
     'killCams': 'Camera hạ gục',
+    'sensitivity': 'Độ nhạy nhìn',
     'gameplay': 'Lối chơi',
     'title': 'Tùy chọn',
     'general': 'Chung',

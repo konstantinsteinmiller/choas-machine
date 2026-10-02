@@ -68,12 +68,14 @@ export interface Player {
   mantle: { fx: number; fy: number; fz: number; tx: number; ty: number; tz: number; t: number } | null
   /** Climb cycle angle on a ladder. */
   climbPhase: number
+  /** The chassis' speed upgrade: a multiplier on every ground speed. */
+  speedMul: number
 }
 
 export const makePlayer = (x: number, y: number, z: number, yaw = 0): Player => ({
   x, y, z, px: x, py: y, pz: z, yaw, pyaw: yaw, vx: 0, vz: 0, vy: 0,
   mode: 'ground', crouched: false, crouch: 0, stride: 0, speed01: 0,
-  ladder: null, cable: null, cableT: 0, airFrom: y, push: 0, mantle: null, climbPhase: 0
+  ladder: null, cable: null, cableT: 0, airFrom: y, push: 0, mantle: null, climbPhase: 0, speedMul: 1
 })
 
 /** What the hands ask of the body this step. */
@@ -244,7 +246,7 @@ export const stepPlayer = (p: Player, g: Grid, w: Wish, dt: number): PlayerEvent
   }
 
   // ── Walking, or falling ──
-  const top = p.crouched ? CROUCH_SPEED : w.aiming ? AIM_SPEED : RUN_SPEED
+  const top = (p.crouched ? CROUCH_SPEED : w.aiming ? AIM_SPEED : RUN_SPEED) * p.speedMul
   const control = p.mode === 'air' ? 0.25 : 1
   const k = Math.min(1, ACCEL * control * dt)
   p.vx += (dirX * mag * top - p.vx) * k
@@ -338,7 +340,7 @@ export const stepPlayer = (p: Player, g: Grid, w: Wish, dt: number): PlayerEvent
 
   // ── Heading and gait ──
   const flat = Math.hypot(p.vx, p.vz)
-  p.speed01 = Math.min(1, flat / RUN_SPEED)
+  p.speed01 = Math.min(1, flat / (RUN_SPEED * p.speedMul))
   p.stride += went * (p.crouched ? 3.2 : 2.3)
   if (w.aiming) p.yaw += angleDelta(p.yaw, w.aimYaw) * Math.min(1, dt * TURN_RATE * 1.6)
   else if (mag > 0.1) p.yaw += angleDelta(p.yaw, Math.atan2(dirX, dirZ)) * Math.min(1, dt * TURN_RATE)
