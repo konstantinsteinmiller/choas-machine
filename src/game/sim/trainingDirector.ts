@@ -4,9 +4,9 @@ import type { Fortress } from '../world/fortress'
 import { ROOM_WALL_H, TRAINING_ROOMS } from '../data/fortresses/training'
 import { buildMech, poseMech, restPose, type MechPose } from '../models/mech'
 import type { Rig } from '../models/kit'
-import { isAlive, type Garrison } from './garrison'
+import type { Garrison } from './garrison'
 import {
-  demoFrame, doorOf, entryOf, makeTraining, replayDemo, roomAt, stepTraining,
+  demoFrame, doorOf, entryOf, makeTraining, replayDemo, rewindRoom, roomAt, stepTraining,
   type Training, type TrainingContext, type TrainingEvent
 } from './training'
 import type { HintId } from './coach'
@@ -138,36 +138,7 @@ export class TrainingDirector {
     const t = this.state
     const room = Math.max(0, t.room)
     t.resets++
-    for (const u of this.gar.units) {
-      if (!isAlive(u) || roomAt(u.homeX) !== room) continue
-      u.x = u.px = u.homeX
-      u.z = u.pz = u.homeZ
-      u.yaw = u.pyaw = u.homeYaw
-      u.look = 0
-      u.state = 'patrol'
-      u.t = 0
-      u.detect = 0
-      u.sees = false
-      u.seenFor = 0
-      u.unseenFor = 9
-      u.lured = false
-      u.poke = false
-      u.path = []
-      u.wp = u.route.length > 1 ? 1 : 0
-      u.wait = u.route[0]?.wait ?? 0
-      u.shouted = false
-      u.fought = false
-      u.runner = -1
-      u.burst = 0
-      u.fireT = 0
-      u.aimT = 0
-      u.noise = 0
-      if (u.kind === 'searchlight' && u.route[0]) { u.spotX = u.route[0].x; u.spotZ = u.route[0].z }
-    }
-    this.gar.alert.level = 0
-    this.gar.alert.chaos = false
-    this.gar.lkp.t = -1e9
-    this.gar.runner = -1
+    rewindRoom(this.gar, room)
     const e = entryOf(room)
     place(e.x, e.z, Math.PI / 2)
   }

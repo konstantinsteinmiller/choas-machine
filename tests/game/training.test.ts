@@ -148,3 +148,28 @@ describe('the demos', () => {
     expect(cz).toBe(TRAINING_ROOMS[0]!.z0)
   })
 })
+
+describe('seen in a training room (#67)', () => {
+  it('the rewind calms a defender from another room too, so it cannot fire again on the next step', async () => {
+    const { makeGarrison } = await import('@/game/sim/garrison')
+    const { rewindRoom } = await import('@/game/sim/training')
+    const f = buildTrainingGround()
+    const gar = makeGarrison(f, 1)
+    // A sentry of an earlier room fighting the mech, now in a later room.
+    const other = gar.units.find(u => roomAt(u.homeX) === 1)!
+    const later = roomAt(gar.units.find(u => roomAt(u.homeX) >= 2)!.homeX)
+    expect(other).toBeTruthy()
+    other.state = 'combat'
+    other.x = other.homeX - 2
+    rewindRoom(gar, later)
+    expect(gar.units.filter(u => u.state === 'combat')).toEqual([])
+    expect(other.x).toBe(other.homeX)
+    // A defender elsewhere that is at peace is left where it is.
+    const calm = gar.units.find(u => u.state === 'patrol' && roomAt(u.homeX) !== later && u !== other)
+    if (calm) {
+      calm.x = calm.homeX + 1
+      rewindRoom(gar, later)
+      expect(calm.x).toBe(calm.homeX + 1)
+    }
+  })
+})

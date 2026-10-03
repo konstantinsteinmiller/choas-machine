@@ -2,6 +2,7 @@ import { CELL, cellMid } from '../world/grid'
 import { TRAINING_ROOMS, type LessonId } from '../data/fortresses/training'
 import type { WeaponId } from '../data/ids'
 import type { HintId } from './coach'
+import { isAlive, type Garrison } from './garrison'
 
 /**
  * ─── The training ground's lessons (#57, #58) ────────────────────────────────
@@ -151,6 +152,49 @@ const startDemo = (t: Training, plays: number): void => {
   t.demoT = 0
   t.demoLeft = plays - 1
   t.gap = 0
+}
+
+/**
+ * Seen in a training room: its defenders back at their places, at peace.
+ * Also every defender ANYWHERE that is not at peace: one from the room before
+ * (a sentry looking through the doorway) used to stay in combat, the mech was
+ * "seen" again on the very next step, and sent back to the door on every
+ * step after that, unable to move while it was shot (the #67 playtest: two of
+ * three new players ended their session there).
+ */
+export const rewindRoom = (gar: Garrison, room: number): void => {
+  for (const u of gar.units) {
+    if (!isAlive(u)) continue
+    const here = roomAt(u.homeX) === room
+    if (!here && (u.state === 'patrol' || u.state === 'dormant')) continue
+    u.x = u.px = u.homeX
+    u.z = u.pz = u.homeZ
+    u.yaw = u.pyaw = u.homeYaw
+    u.look = 0
+    u.state = 'patrol'
+    u.t = 0
+    u.detect = 0
+    u.sees = false
+    u.seenFor = 0
+    u.unseenFor = 9
+    u.lured = false
+    u.poke = false
+    u.path = []
+    u.wp = u.route.length > 1 ? 1 : 0
+    u.wait = u.route[0]?.wait ?? 0
+    u.shouted = false
+    u.fought = false
+    u.runner = -1
+    u.burst = 0
+    u.fireT = 0
+    u.aimT = 0
+    u.noise = 0
+    if (u.kind === 'searchlight' && u.route[0]) { u.spotX = u.route[0].x; u.spotZ = u.route[0].z }
+  }
+  gar.alert.level = 0
+  gar.alert.chaos = false
+  gar.lkp.t = -1e9
+  gar.runner = -1
 }
 
 /** Play the room's demo once more (the button). Not once the lesson is done. */
