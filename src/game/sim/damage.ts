@@ -88,7 +88,12 @@ export const blast = (
     const dist = Math.max(0, Math.hypot(u.x - x, u.z - z, u.y + spec.height * 0.5 - y) - spec.radius)
     if (dist > radius) continue
     let amount = BASE_DAMAGE.rocket * mul * (1 - 0.75 * (dist / radius))
-    if (u.id !== direct && !hasLineOfSight(g, x, y + 0.3, z, u.x, u.y + spec.height * 0.6, u.z)) amount *= 0.15
+    // Behind a wall, nothing reaches it (#69): the blast has to see some of it.
+    if (u.id !== direct) {
+      const from = y + 0.3
+      const open = [0.2, 0.6, 0.95].some(k => hasLineOfSight(g, x, from, z, u.x, u.y + spec.height * k, u.z))
+      if (!open) continue
+    }
     if (u.kind === 'goliath') {
       // From astern the blast gets into the vents; anywhere else it is plate.
       const astern = Math.abs(angleDelta(u.yaw + Math.PI, headingTo(u.x, u.z, x, z))) < REAR_ARC

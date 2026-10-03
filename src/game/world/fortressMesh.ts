@@ -263,6 +263,18 @@ const coverColour = (g: Grid, pal: Palette, cx: number, cz: number): Color => {
   return pal.cover[Math.floor(hash(sx, sz, 3) * pal.cover.length) % pal.cover.length]!
 }
 
+/**
+ * The height a cell SHOWS: its top, or for a cell under a solid prop the
+ * floor the prop stands on (the prop is narrower than the cell, so the cell's
+ * raised top is never drawn and must not hide a neighbour's face, #79).
+ */
+export const shownHeight = (g: Grid, cx: number, cz: number): number => {
+  const h = cellHeight(g, cx, cz)
+  if (h === VOID || cellSurf(g, cx, cz) !== Surf.Heap) return h
+  const b = g.base[cz * g.w + cx]!
+  return b === VOID ? h : b
+}
+
 /** Lit and glowing quads of one chunk. */
 const buildChunk = (g: Grid, pal: Palette, c0x: number, c0z: number, midX: number, midZ: number): { lit: Quads; glow: Quads } => {
   const lit = new Quads()
@@ -276,16 +288,31 @@ const buildChunk = (g: Grid, pal: Palette, c0x: number, c0z: number, midX: numbe
       const kind = cellKind(g, cx, cz)
       const surf = cellSurf(g, cx, cz)
       // A solid prop stands here and draws itself: all the mesh owes it is
-      // the ground it stands on, level with the ground round it.
+      // the floor it stands on, and that floor's sides down to any lower
+      // neighbour (a prop on a ledge's edge left a hole beside it, #79).
       if (surf === Surf.Heap) {
-        let gy = Infinity
-        for (const s of SIDES) {
-          const nh = cellHeight(g, cx + s.dx, cz + s.dz)
-          if (nh !== VOID) gy = Math.min(gy, nh)
-        }
-        if (gy === Infinity) gy = h
+        const gy = shownHeight(g, cx, cz)
         const c = pal.ground(cx, cz, false)
         lit.add([cx * CELL, gy, (cz + 1) * CELL, (cx + 1) * CELL, gy, (cz + 1) * CELL, (cx + 1) * CELL, gy, cz * CELL, cx * CELL, gy, cz * CELL], [0, 1, 0], c, c, c, c)
+        for (let si = 0; si < SIDES.length; si++) {
+          const s = SIDES[si]!
+          const nh = shownHeight(g, cx + s.dx, cz + s.dz)
+          const floor = nh === VOID ? gy - LIP_DEPTH : nh
+          if (floor >= gy - 1e-6) continue
+          const ax = cx * CELL + s.a[0] * CELL
+          const az = cz * CELL + s.a[1] * CELL
+          const bx = cx * CELL + s.b[0] * CELL
+          const bz = cz * CELL + s.b[1] * CELL
+          let y = gy
+          let k = 0
+          while (y > floor + 1e-6) {
+            const yb = Math.max(floor, y - CELL)
+            const base = hash(cx, cz, si * 16 + k) < 0.5 ? pal.blockSide : pal.blockSideAlt
+            lit.add([ax, y, az, ax, yb, az, bx, yb, bz, bx, y, bz], [s.dx, 0, s.dz], base, shade(base, FOOT_SHADE), shade(base, FOOT_SHADE), base, CELL_WALL, 0, (y - yb) / CELL)
+            y = yb
+            k++
+          }
+        }
         continue
       }
       const x0 = cx * CELL
@@ -296,7 +323,7 @@ const buildChunk = (g: Grid, pal: Palette, c0x: number, c0z: number, midX: numbe
       const bevel = !structure ? 0 : kind === CellKind.Stair ? BEVEL_STAIR : BEVEL
       /** Is this side's neighbour lower (so the side is drawn, and its top edge chamfered)? */
       const lower = (dx: number, dz: number): boolean => {
-        const nh = cellHeight(g, cx + dx, cz + dz)
+        const nh = shownHeight(g, cx + dx, cz + dz)
         return nh === VOID || nh < h - 1e-6
       }
       const open = { e: lower(1, 0), w: lower(-1, 0), s: lower(0, 1), n: lower(0, -1) }
@@ -341,7 +368,7 @@ const buildChunk = (g: Grid, pal: Palette, c0x: number, c0z: number, midX: numbe
       // ── Sides ──
       for (let si = 0; si < SIDES.length; si++) {
         const s = SIDES[si]!
-        const nh = cellHeight(g, cx + s.dx, cz + s.dz)
+        const nh = shownHeight(g, cx + s.dx, cz + s.dz)
         const ax = x0 + s.a[0] * CELL
         const az = z0 + s.a[1] * CELL
         const bx = x0 + s.b[0] * CELL

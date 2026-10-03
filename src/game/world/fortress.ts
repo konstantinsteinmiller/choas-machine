@@ -1,5 +1,5 @@
 import type { Answers } from '../sim/adapt'
-import { findHoles, CELL, cellHeight, CellKind, cellKind, cellMid, inGrid, makeGrid, Surf, VOID, type Grid, Shade } from './grid'
+import { addBox, findHoles, CELL, cellHeight, CellKind, cellKind, cellMid, inGrid, makeGrid, Surf, VOID, type Grid, Shade } from './grid'
 
 /**
  * ─── A fortress, as data ─────────────────────────────────────────────────────
@@ -72,6 +72,21 @@ export type DecorKind =
   | 'heap' | 'tires' | 'pipes' | 'crane' | 'generator' | 'girder' | 'tank' | 'spool' | 'stack' | 'cone'
   | 'net' | 'tangle' | 'rail'
 export interface Decor { kind: DecorKind; x: number; y: number; z: number; rot: number }
+
+/**
+ * The parts of a prop that are taller (or wider) than the cell it stands on
+ * carries, as boxes in the prop's own frame (x, y, z from its foot; turned
+ * with it): they stop rounds, sight and the camera (#69). A crane is solid to
+ * 2.4 m in the grid and drawn to 10.7 m, its boom reaching 8 m out.
+ */
+const PROP_BOXES: Partial<Record<DecorKind, ReadonlyArray<readonly [number, number, number, number, number, number]>>> = {
+  crane: [[-0.6, 0, -0.6, 0.6, 10.3, 0.6], [-0.75, 9.2, -2.6, 0.75, 10.75, 0.75], [-0.2, 10.3, 0.75, 0.2, 10.7, 7.95]],
+  stack: [[-0.42, 0, -0.42, 0.42, 4.8, 0.42]],
+  lamp: [[-0.12, 0, -0.12, 0.12, 3.4, 0.12], [-0.25, 3.0, 0.1, 0.25, 3.4, 0.85]],
+  antenna: [[-0.1, 0, -0.1, 0.1, 4.75, 0.1], [-0.5, 2.5, -0.5, 0.5, 2.7, 0.5]],
+  girder: [[-0.45, 0, -0.1, 0.65, 3.4, 1.05]],
+  generator: [[0.36, 1.0, -0.39, 0.64, 2.1, -0.11]]
+}
 
 /** A pile of salvage: where it lies, and how much it is worth. */
 export interface SalvageSpot {
@@ -428,6 +443,7 @@ export class FortressBuilder {
     if (base === VOID) throw new Error(`[fortress ${this.id}] heap at ${cx},${cz} is off the island`)
     this.set(cx, cz, base + HEAP_H, CellKind.Cover)
     this.grid.surf[cz * this.grid.w + cx] = Surf.Heap
+    this.grid.base[cz * this.grid.w + cx] = base
     this.decor.push({ kind: 'heap', x: cellMid(cx), y: base, z: cellMid(cz), rot })
     return this
   }
@@ -441,8 +457,30 @@ export class FortressBuilder {
     if (base === VOID) throw new Error(`[fortress ${this.id}] ${kind} at ${cx},${cz} is off the island`)
     this.set(cx, cz, base + h, CellKind.Cover)
     this.grid.surf[cz * this.grid.w + cx] = Surf.Heap
+    this.grid.base[cz * this.grid.w + cx] = base
     this.decor.push({ kind, x: cellMid(cx), y: base, z: cellMid(cz), rot })
+    this.propBoxes(kind, cellMid(cx), base, cellMid(cz), rot)
     return this
+  }
+
+  /** The tall parts of a prop, turned with it, into the grid's boxes. */
+  private propBoxes(kind: DecorKind, x: number, y: number, z: number, rot: number): void {
+    const c = Math.cos(rot)
+    const s = Math.sin(rot)
+    for (const [x0, y0, z0, x1, y1, z1] of PROP_BOXES[kind] ?? []) {
+      let ax = Infinity
+      let az = Infinity
+      let bx = -Infinity
+      let bz = -Infinity
+      for (const [lx, lz] of [[x0, z0], [x1, z0], [x0, z1], [x1, z1]] as const) {
+        // As three.js turns an object about y.
+        const wx = lx * c + lz * s
+        const wz = -lx * s + lz * c
+        ax = Math.min(ax, wx); bx = Math.max(bx, wx)
+        az = Math.min(az, wz); bz = Math.max(bz, wz)
+      }
+      addBox(this.grid, { x0: x + ax, y0: y + y0, z0: z + az, x1: x + bx, y1: y + y1, z1: z + bz })
+    }
   }
 
   /** An Enforcer mech, dormant until the alarm. */
@@ -464,6 +502,7 @@ export class FortressBuilder {
     const h = this.heightOf(cx, cz)
     if (h === VOID) throw new Error(`[fortress ${this.id}] ${kind} at ${cx},${cz} is off the island`)
     this.decor.push({ kind, x: cellMid(cx), y: h, z: cellMid(cz), rot })
+    this.propBoxes(kind, cellMid(cx), h, cellMid(cz), rot)
     return this
   }
 

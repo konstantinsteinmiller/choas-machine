@@ -1,8 +1,8 @@
 import {
-  BufferAttribute, BufferGeometry, CanvasTexture, CircleGeometry, Color, CylinderGeometry, DoubleSide, DynamicDrawUsage,
+  BufferAttribute, BufferGeometry, CanvasTexture, Color, CylinderGeometry, DoubleSide, DynamicDrawUsage,
   Group, Line, LineBasicMaterial, Mesh, MeshBasicMaterial, Sprite, SpriteMaterial, SRGBColorSpace, type Scene
 } from 'three'
-import { VOID, hasLineOfSight, heightAt, type Grid } from '../world/grid'
+import { VOID, hasLineOfSight, heightAt, raycast, type Grid } from '../world/grid'
 import { PAL } from '../models/palette'
 import { Wreckage } from '../fx/wreckage'
 import type { PostKind } from '../world/fortress'
@@ -15,7 +15,7 @@ import { makeBlobShadow } from '../fx/markers'
 import { poseRagdoll } from '../models/ragdollPose'
 import { DOG_STAND, HOUND_SCALE, buildRobodog, poseRobodog, restDogPose, type DogPose } from '../models/robodog'
 import { angleDelta } from './player'
-import { SPECS, SPOT_RADIUS, SUSPECT_AT, spotCentre, type Garrison, type Unit , isLight } from './garrison'
+import { SPECS, SPOT_RADIUS, SUSPECT_AT, spotCentre, viewerOf, type Garrison, type Unit , isLight } from './garrison'
 
 /**
  * ─── The garrison, drawn ─────────────────────────────────────────────────────
@@ -39,6 +39,12 @@ const CONE_PROBE_Y = 0.9
 /** Neighbouring grid points further apart in height than this are a cliff:
  *  nothing is drawn across it. */
 const CONE_CLIFF = 1.2
+/** A light's pool: a polar grid draped on the ground and clipped by whatever
+ *  stands between it and the lamp or the middle of the pool (#69). */
+const POOL_SEGS = 20
+const POOL_RINGS = 3
+const POOL_VERTS = POOL_SEGS * POOL_RINGS * 6
+const POOL_ALPHA = 0.24
 const CALM = new Color('#e9fdff')
 /** A tagged unit's diamond and round: the scope's own cyan. */
 const TAG = new Color('#5fe9ff')
@@ -54,6 +60,8 @@ interface UnitView {
   /** Drones: the light on the ground and the beam down to it. */
   spot: Mesh | null
   beam: Mesh | null
+  /** The pool's grid points, scratch: x, y, z, alpha. */
+  pool: Float32Array | null
   /** Index of its cone in the shared mesh, or −1. */
   cone: number
   guard: GuardPose | null
@@ -190,7 +198,7 @@ export class GarrisonView {
   /** Scratch for one cone's grid points: x, y, z, alpha. */
   private gx = new Float32Array((CONE_SEGS + 1) * (CONE_RINGS + 1) * 4)
   private textures: CanvasTexture[]
-  private spotGeo = new CircleGeometry(1, 28)
+  private frame = 0
   /** The helmet the base issues after too many headshots: a steel dome and a brow plate. */
   private helmetGeo = merge([
     paint(dome(0.275, Math.PI * 0.55, 10, 6).translate(0, 0.23, 0), PAL.steel),
@@ -227,12 +235,18 @@ export class GarrisonView {
       let spot: Mesh | null = null
       let beam: Mesh | null = null
       if (isLight(u)) {
-        spot = new Mesh(this.spotGeo, new MeshBasicMaterial({
-          color: CALM.clone(), transparent: true, opacity: 0.22, depthWrite: false, toneMapped: false,
+        const geo = new BufferGeometry()
+        const pos = new BufferAttribute(new Float32Array(POOL_VERTS * 3), 3)
+        const col = new BufferAttribute(new Float32Array(POOL_VERTS * 4), 4)
+        pos.setUsage(DynamicDrawUsage)
+        col.setUsage(DynamicDrawUsage)
+        geo.setAttribute('position', pos)
+        geo.setAttribute('color', col)
+        spot = new Mesh(geo, new MeshBasicMaterial({
+          color: CALM.clone(), vertexColors: true, transparent: true, depthWrite: false, side: DoubleSide, toneMapped: false,
           polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2
         }))
-        spot.rotation.x = -Math.PI / 2
-        spot.scale.setScalar(SPOT_RADIUS)
+        spot.frustumCulled = false
         spot.renderOrder = 2
         beam = new Mesh(this.beamGeo, new MeshBasicMaterial({
           // A searchlight's beam is the brighter one: it is how you read where it is looking.
@@ -241,7 +255,7 @@ export class GarrisonView {
         beam.renderOrder = 3
       }
       const v: UnitView = {
-        rig, shadow, mark, spot, beam,
+        rig, shadow, mark, spot, beam, pool: spot ? new Float32Array((POOL_SEGS + 1) * (POOL_RINGS + 1) * 4) : null,
         cone: human || u.kind === 'hound' ? this.coneCount++ : -1,
         guard: human ? { ...restGuardPose(), seed: (u.seed * 0.618) % 1, proud: u.kind === 'commander' } : null,
         drone: u.kind === 'drone' ? { time: 0, spin: 0, pitch: 0, roll: 0, eyeYaw: 0, eyePitch: 0.5, alarm: 0, deadT: 0, landed: false } : null,
@@ -345,6 +359,8 @@ export class GarrisonView {
       return
     }
     const spec = SPECS[u.kind]
+    // As wide and as far as it sees right now: wary, chatting, focused (#69).
+    const view = viewerOf(u)
     const g = this.grid
     const yaw = u.yaw + u.look
     const tint = u.state === 'patrol' && u.detect < SUSPECT_AT * 0.5 ? CALM : WARY
@@ -353,14 +369,14 @@ export class GarrisonView {
     const H = CONE_RINGS + 1
     // The grid's points: position and how strongly each is lit.
     for (let s = 0; s < W; s++) {
-      const a = yaw - spec.half + (2 * spec.half * s) / CONE_SEGS
+      const a = yaw - view.halfAngle + (2 * view.halfAngle * s) / CONE_SEGS
       const dx = Math.sin(a)
       const dz = Math.cos(a)
       for (let r = 0; r < H; r++) {
         const k = r / CONE_RINGS
         const o = (s * H + r) * 4
-        const x = u.x + dx * spec.range * k
-        const z = u.z + dz * spec.range * k
+        const x = u.x + dx * view.range * k
+        const z = u.z + dz * view.range * k
         const floor = r === 0 ? u.y : heightAt(g, x, z)
         const y = floor === VOID ? u.y : floor
         this.gx[o] = x
@@ -398,11 +414,72 @@ export class GarrisonView {
   }
 
   /**
+   * Rewrite one light's pool round (cx, cz): draped on the ground, and dark
+   * wherever a wall or a crate stands between the point and the lamp, or the
+   * point and the middle of the pool (the same test the simulation uses for
+   * being lit, so what is drawn lit IS lit, #69).
+   */
+  private writePool(v: UnitView, lx: number, ly: number, lz: number, cx: number, cz: number): void {
+    const g = this.grid
+    const gp = v.pool!
+    const mid = heightAt(g, cx, cz)
+    const midY = mid === VOID ? 0 : mid
+    const H = POOL_RINGS + 1
+    for (let s = 0; s <= POOL_SEGS; s++) {
+      const a = (s / POOL_SEGS) * Math.PI * 2
+      const dx = Math.sin(a)
+      const dz = Math.cos(a)
+      for (let r = 0; r < H; r++) {
+        const k = r / POOL_RINGS
+        const o = (s * H + r) * 4
+        const x = cx + dx * SPOT_RADIUS * k
+        const z = cz + dz * SPOT_RADIUS * k
+        const floor = r === 0 ? midY : heightAt(g, x, z)
+        const y = floor === VOID ? midY : floor
+        gp[o] = x
+        gp[o + 1] = y + 0.08
+        gp[o + 2] = z
+        const lit = floor !== VOID && (r === 0 || (hasLineOfSight(g, cx, midY + 1.0, cz, x, y + 0.3, z) && hasLineOfSight(g, lx, ly, lz, x, y + 0.3, z)))
+        gp[o + 3] = lit ? POOL_ALPHA * (1 - 0.45 * k) : 0
+      }
+    }
+    const geo = v.spot!.geometry
+    const p = geo.attributes.position!.array as Float32Array
+    const c = geo.attributes.color!.array as Float32Array
+    let w = 0
+    const put = (o: number, alpha: number): void => {
+      p[w * 3] = gp[o]!
+      p[w * 3 + 1] = gp[o + 1]!
+      p[w * 3 + 2] = gp[o + 2]!
+      c[w * 4] = 1
+      c[w * 4 + 1] = 1
+      c[w * 4 + 2] = 1
+      c[w * 4 + 3] = alpha
+      w++
+    }
+    for (let s = 0; s < POOL_SEGS; s++) {
+      for (let r = 0; r < POOL_RINGS; r++) {
+        const a = (s * H + r) * 4
+        const b = (s * H + r + 1) * 4
+        const d = ((s + 1) * H + r) * 4
+        const e = ((s + 1) * H + r + 1) * 4
+        const ys = [gp[a + 1]!, gp[b + 1]!, gp[d + 1]!, gp[e + 1]!]
+        const k = Math.max(...ys) - Math.min(...ys) < CONE_CLIFF ? 1 : 0
+        put(a, gp[a + 3]! * k); put(b, gp[b + 3]! * k); put(e, gp[e + 3]! * k)
+        put(a, gp[a + 3]! * k); put(e, gp[e + 3]! * k); put(d, gp[d + 3]! * k)
+      }
+    }
+    geo.attributes.position!.needsUpdate = true
+    geo.attributes.color!.needsUpdate = true
+  }
+
+  /**
    * Draw this frame: `alpha` between the last two steps, `dt` of real time,
    * the camera's position for the marks' size.
    */
   update(alpha: number, dt: number, time: number, camX: number, camY: number, camZ: number): void {
     const units = this.gar.units
+    this.frame++
     // A few cones per frame is plenty: a guard turns slowly.
     const budget = Math.min(units.length, 3)
     for (let k = 0; k < budget; k++) {
@@ -564,7 +641,11 @@ export class GarrisonView {
           const cz = c.z + (z - u.z)
           const g = heightAt(this.grid, cx, cz)
           const gy = g === VOID ? 0 : g
-          v.spot.position.set(cx, gy + 0.08, cz)
+          // Lights move: every other frame is plenty for the clipped pool.
+          if ((this.frame + u.id) % 2 === 0 || !v.spot.userData.drawn) {
+            this.writePool(v, x, y - 0.2, z, cx, cz)
+            v.spot.userData.drawn = true
+          }
           const tint = hot ? HOT : u.detect > 0.05 || wary ? WARY : CALM
           ;(v.spot.material as MeshBasicMaterial).color.lerp(tint, ease)
           ;(v.beam.material as MeshBasicMaterial).color.lerp(tint, ease)
@@ -573,8 +654,12 @@ export class GarrisonView {
           const dx = cx - x
           const dy = gy - (y - 0.1)
           const dz = cz - z
-          const len = Math.hypot(dx, dy, dz)
-          v.beam.scale.set(SPOT_RADIUS, len, SPOT_RADIUS)
+          let len = Math.hypot(dx, dy, dz)
+          // A beam stops at whatever it meets on the way down (#69).
+          const block = len > 0.5 ? raycast(this.grid, x, y - 0.1, z, dx / len, dy / len, dz / len, len - 0.3) : null
+          const cut = block?.hit ? block.t / len : 1
+          len *= cut
+          v.beam.scale.set(SPOT_RADIUS * cut, len, SPOT_RADIUS * cut)
           v.beam.rotation.set(0, 0, 0)
           // Tip the cylinder's −y axis along the beam.
           v.beam.rotation.order = 'YXZ'
@@ -663,12 +748,11 @@ export class GarrisonView {
       if (v.mark) v.mark.material.dispose()
       if (v.tag) v.tag.material.dispose()
       if (v.route) { v.route.geometry.dispose(); (v.route.material as LineBasicMaterial).dispose() }
-      if (v.spot) (v.spot.material as MeshBasicMaterial).dispose()
+      if (v.spot) { v.spot.geometry.dispose(); (v.spot.material as MeshBasicMaterial).dispose() }
       if (v.beam) (v.beam.material as MeshBasicMaterial).dispose()
     }
     this.wreckage.dispose()
     for (const t of this.textures) t.dispose()
-    this.spotGeo.dispose()
     this.helmetGeo.dispose()
     this.beamGeo.dispose()
     this.cones.geometry.dispose()

@@ -69,6 +69,20 @@ export interface Grid {
   surf: Uint8Array
   /** Cover of another kind (`Shade`): a pool of shadow, a thicket to crouch in. */
   shade: Uint8Array
+  /**
+   * Under a solid prop (`Surf.Heap`): the height of the floor it stands on,
+   * below the raised top the rules use. VOID elsewhere. Looks only: the mesh
+   * draws the floor and the faces down from there (#79).
+   */
+  base: Float32Array
+  /**
+   * Tall props the cells do not carry (a crane's mast and boom, lamp posts,
+   * vent stacks above their collision block): boxes that stop rounds, sight
+   * and the camera like a wall does (#69). `boxAt` lists, per cell, the boxes
+   * that reach into it.
+   */
+  boxes: Box[]
+  boxAt: Map<number, number[]>
   ladders: Ladder[]
   cables: Cable[]
 }
@@ -106,6 +120,9 @@ export const makeGrid = (w: number, d: number): Grid => ({
   kind: new Uint8Array(w * d),
   surf: new Uint8Array(w * d),
   shade: new Uint8Array(w * d),
+  base: new Float32Array(w * d).fill(VOID),
+  boxes: [],
+  boxAt: new Map(),
   ladders: [],
   cables: []
 })
@@ -206,6 +223,55 @@ export const moveCircle = (
 
 // ─── Rays: bullets and sight ─────────────────────────────────────────────────
 
+/** An axis-aligned box in the world (metres). */
+export interface Box { x0: number; y0: number; z0: number; x1: number; y1: number; z1: number }
+
+/** Put a solid box in the grid: rays stop at it from now on. */
+export const addBox = (g: Grid, b: Box): void => {
+  const i = g.boxes.length
+  g.boxes.push(b)
+  for (let cz = toCell(b.z0); cz <= toCell(b.z1); cz++) {
+    for (let cx = toCell(b.x0); cx <= toCell(b.x1); cx++) {
+      if (cx < 0 || cz < 0 || cx >= g.w || cz >= g.d) continue
+      const k = cz * g.w + cx
+      const list = g.boxAt.get(k)
+      if (list) list.push(i)
+      else g.boxAt.set(k, [i])
+    }
+  }
+}
+
+/** Where a ray enters a box, between `tMin` and `tMax`, or −1 (slab test). Writes the face's normal to `n`. */
+const enterBox = (b: Box, ox: number, oy: number, oz: number, dx: number, dy: number, dz: number, tMin: number, tMax: number, n: number[]): number => {
+  let t0 = tMin
+  let t1 = tMax
+  let axis = -1
+  let sign = 0
+  const lo = [b.x0, b.y0, b.z0]
+  const hi = [b.x1, b.y1, b.z1]
+  const o = [ox, oy, oz]
+  const d = [dx, dy, dz]
+  for (let a = 0; a < 3; a++) {
+    if (Math.abs(d[a]!) < 1e-12) {
+      if (o[a]! < lo[a]! || o[a]! > hi[a]!) return -1
+      continue
+    }
+    const inv = 1 / d[a]!
+    let ta = (lo[a]! - o[a]!) * inv
+    let tb = (hi[a]! - o[a]!) * inv
+    let s = -1
+    if (ta > tb) { const tmp = ta; ta = tb; tb = tmp; s = 1 }
+    if (ta > t0) { t0 = ta; axis = a; sign = s }
+    if (tb < t1) t1 = tb
+    if (t0 > t1) return -1
+  }
+  n[0] = axis === 0 ? sign : 0
+  n[1] = axis === 1 ? sign : axis === -1 ? 1 : 0
+  n[2] = axis === 2 ? sign : 0
+  return t0
+}
+const _n = [0, 0, 0]
+
 export interface RayHit {
   hit: boolean
   /** Distance along the ray to the hit, or `maxDist` when nothing was hit. */
@@ -245,6 +311,18 @@ export const raycast = (
   for (;;) {
     const t1 = Math.min(tMaxX, tMaxZ, maxDist)
     const top = cellHeight(g, cx, cz)
+    // A tall prop reaching into this cell, met before anything the cell has.
+    const props = g.boxes.length > 0 && cx >= 0 && cz >= 0 && cx < g.w && cz < g.d ? g.boxAt.get(cz * g.w + cx) : undefined
+    let bt = Infinity
+    let bnx = 0
+    let bny = 0
+    let bnz = 0
+    if (props) {
+      for (const bi of props) {
+        const t = enterBox(g.boxes[bi]!, ox, oy, oz, dx, dy, dz, t0, t1, _n)
+        if (t >= 0 && t < bt) { bt = t; bnx = _n[0]!; bny = _n[1]!; bnz = _n[2]! }
+      }
+    }
     if (top !== VOID) {
       const y0 = oy + dy * t0
       if (y0 < top - 1e-9) {
@@ -255,10 +333,13 @@ export const raycast = (
       }
       const y1 = oy + dy * t1
       if (y1 < top && dy < 0) {
-        // Sinks through the top inside this cell.
-        return { hit: true, t: (top - oy) / dy, nx: 0, ny: 1, nz: 0 }
+        // Sinks through the top inside this cell (unless a prop is first).
+        const t = (top - oy) / dy
+        if (bt < t) return { hit: true, t: bt, nx: bnx, ny: bny, nz: bnz }
+        return { hit: true, t, nx: 0, ny: 1, nz: 0 }
       }
     }
+    if (bt < Infinity) return { hit: true, t: bt, nx: bnx, ny: bny, nz: bnz }
     if (t1 >= maxDist) break
     if (tMaxX < tMaxZ) {
       cx += stepX

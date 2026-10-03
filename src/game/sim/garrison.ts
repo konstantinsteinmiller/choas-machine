@@ -773,7 +773,8 @@ const enter = (u: Unit, state: UnitState): void => {
 
 // ─── Sight ───────────────────────────────────────────────────────────────────
 
-const viewerOf = (u: Unit): Viewer => {
+/** Where a unit's eyes are and how far and wide they see right now (the drawn cone uses it too). */
+export const viewerOf = (u: Unit): Viewer => {
   const s = SPECS[u.kind]
   const k = u.wary ? 1 : 0
   // In a fight it keeps the mech in view a long way off (#59).
