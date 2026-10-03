@@ -96,6 +96,18 @@
         template(#badge)
           FHudBadge(v-if="hud.looting > 0" tone="warn") {{ Math.round(hud.looting * 100) }}%
 
+    //- A body within reach: the same tap grabs it; in tow, the tap lets go
+    //- (into a container, if one is at hand).
+    div.strike.drag(v-if="hud.drag && !hud.strike && !hud.loot && !hud.sabotage")
+      FHudButton(
+        :icon="hud.drag === 'grab' ? 'skull' : 'box'"
+        tone="cyan"
+        :attention="hud.drag === 'grab'"
+        :aria-label="t(hud.drag === 'grab' ? 'hud.dragBody' : 'hud.dropBody')"
+        data-testid="btn-drag"
+        @click="input.actQueued = true"
+      )
+
     //- The hook's offer at the foot of a wall; once it is out, the same
     //- place takes it back (red while somebody up there is wondering).
     div.strike.grapple(v-if="(hud.grapple || hud.grappling === 'up') && !hud.strike")

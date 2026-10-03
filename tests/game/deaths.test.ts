@@ -163,7 +163,7 @@ describe('how each one goes down is decided by what hit it', () => {
     expect(a.units.map(u => u.death)).toEqual(b.units.map(u => u.death))
   })
 
-  it('a wrecked drone on the ground is found like a body is', () => {
+  it('a drone shot down is noticed as a light gone out: somebody goes to look, the base is not raised (R22)', () => {
     const b = new FortressBuilder('t', 30, 30)
     b.ground(0, 0, 29, 29)
     b.insert(2, 2, 0)
@@ -179,9 +179,10 @@ describe('how each one goes down is decided by what hit it', () => {
     const away: Target = { x: cellMid(2), y: 0, z: cellMid(2), feetY: 0, height: 2.5, crouched: false, visible: false } as Target
     const events = []
     for (let i = 0; i < 60 * 12; i++) { stepGarrison(gar, f.grid, away, 1 / 60); events.push(...drainEvents(gar)) }
-    expect(events.filter(e => e.type === 'body')).toHaveLength(1)
-    expect(drone.found).toBe(true)
-    expect(gar.alert.level).toBeGreaterThan(0)
+    expect(events.filter(e => e.type === 'body')).toHaveLength(0)
+    expect(events.filter(e => e.type === 'change')).toHaveLength(1)
+    expect(gar.changes[0]!.found).toBe(true)
+    expect(gar.alert.chaos).toBe(false)
   })
 })
 

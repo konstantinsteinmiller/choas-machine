@@ -16,6 +16,8 @@ import { findHoles, CELL, cellHeight, CellKind, cellKind, cellMid, inGrid, makeG
 /** Heights the kit builds with, in metres. The mech stands 2.5 tall and
  *  crouches to 1.65, so cover hides it crouched and a wall hides it standing. */
 export const COVER_H = 1.8
+/** How long a chatting pair talks before one walks its round. */
+export const CHAT_S = 9
 export const WALL_H = 4
 export const TOWER_H = 8
 /** Rise of one stair tread: under the step-up limit, so a patrol walks it. */
@@ -58,6 +60,8 @@ export interface Post {
   boss?: 'warden' | 'foreman' | 'goliath'
   /** The Warden carries a riot shield: rounds from in front stop on it. */
   shield?: boolean
+  /** A guard it stands and chats with (an index into `posts`). */
+  partner?: number
 }
 
 export type DecorKind =
@@ -243,6 +247,25 @@ export class FortressBuilder {
   /** A guard walking a loop of cells: `[cx, cz, waitSeconds?]` each. */
   guard(route: ReadonlyArray<readonly [number, number, number?]>, facing = 0): this {
     return this.post('guard', route, facing)
+  }
+
+  /**
+   * A pair that chats (a routine, after Odyssey's forts): one guard stands at
+   * `at`; the other stands beside it talking for `chatS`, then walks `loop`
+   * and comes back to talk again. While they talk they watch each other, not
+   * the yard: a moment to slip past.
+   */
+  pair(at: readonly [number, number], loop: ReadonlyArray<readonly [number, number, number?]>, chatS = CHAT_S): this {
+    const [ax, az] = at
+    const a = this.posts.length
+    this.post('guard', [[ax, az]], Math.PI / 2)
+    this.post('guard', [[ax + 1, az, chatS], ...loop], -Math.PI / 2)
+    const b = this.posts[a + 1]!
+    // Standing to talk, it faces its partner.
+    b.route[0]!.look = -Math.PI / 2
+    this.posts[a]!.partner = a + 1
+    b.partner = a
+    return this
   }
 
   /**

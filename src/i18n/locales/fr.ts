@@ -47,6 +47,8 @@ export default {
     },
     'haul': 'Butin {n} sur {need}',
     'hide': 'Se cacher dans la caisse',
+    'dragBody': 'Drag the body',
+    'dropBody': 'Let go (into a container if one is at hand)',
     'sabotage': 'Sabotage the alarm beacon',
     'alarmRunner': 'A guard is running to raise the alarm',
     'alarmLit': 'The alarm is raised',

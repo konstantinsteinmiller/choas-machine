@@ -1,6 +1,6 @@
 import {
   BufferAttribute, BufferGeometry, CanvasTexture, CircleGeometry, Color, CylinderGeometry, DoubleSide, DynamicDrawUsage,
-  Group, Mesh, MeshBasicMaterial, Sprite, SpriteMaterial, SRGBColorSpace, type Scene
+  Group, Line, LineBasicMaterial, Mesh, MeshBasicMaterial, Sprite, SpriteMaterial, SRGBColorSpace, type Scene
 } from 'three'
 import { VOID, hasLineOfSight, heightAt, type Grid } from '../world/grid'
 import { PAL } from '../models/palette'
@@ -38,6 +38,8 @@ const CONE_PROBE_Y = 0.9
  *  nothing is drawn across it. */
 const CONE_CLIFF = 1.2
 const CALM = new Color('#e9fdff')
+/** A tagged unit's diamond and round: the scope's own cyan. */
+const TAG = new Color('#5fe9ff')
 const WARY = new Color('#ffe14d')
 /** Noticing, not yet looking: white (Odyssey's first band). */
 const NOTICE = new Color('#ffffff')
@@ -69,6 +71,9 @@ interface UnitView {
   bank: number
   /** The mark's pop when the state changes. */
   pop: number
+  /** Tagged through the scope: a diamond over it (seen through walls) and its round on the ground. */
+  tag: Sprite | null
+  route: Line | null
   lastState: string
   /** Seconds left of the flash a hit gives it. */
   flash: number
@@ -79,6 +84,33 @@ interface UnitView {
 }
 
 /** The "?" and the "!", drawn as shapes: no font, so no wait for one. */
+/** A small canvas sprite: a diamond (a tagged unit) or three dots (a pair talking). */
+const glyphTexture = (kind: 'tag' | 'chat'): CanvasTexture => {
+  const c = document.createElement('canvas')
+  c.width = c.height = 128
+  const g = c.getContext('2d')!
+  g.lineJoin = 'round'
+  g.lineCap = 'round'
+  const draw = (): void => {
+    if (kind === 'tag') {
+      g.beginPath()
+      g.moveTo(64, 30); g.lineTo(92, 64); g.lineTo(64, 98); g.lineTo(36, 64); g.closePath()
+      g.stroke()
+    } else {
+      for (const x of [38, 64, 90]) { g.beginPath(); g.arc(x, 70, 2, 0, Math.PI * 2); g.stroke() }
+    }
+  }
+  g.strokeStyle = '#150c2b'
+  g.lineWidth = kind === 'tag' ? 24 : 30
+  draw()
+  g.strokeStyle = '#ffffff'
+  g.lineWidth = kind === 'tag' ? 12 : 18
+  draw()
+  const t = new CanvasTexture(c)
+  t.colorSpace = SRGBColorSpace
+  return t
+}
+
 const markTexture = (bang: boolean, siren = false): CanvasTexture => {
   const c = document.createElement('canvas')
   c.width = c.height = 128
@@ -161,7 +193,7 @@ export class GarrisonView {
     const q = markTexture(false)
     const bang = markTexture(true)
     const siren = markTexture(false, true)
-    this.textures = [q, bang, siren]
+    this.textures = [q, bang, siren, glyphTexture('tag'), glyphTexture('chat')]
     this.beamGeo.translate(0, -0.5, 0)
 
     for (const u of gar.units) {
@@ -202,7 +234,8 @@ export class GarrisonView {
         enforcer: u.kind === 'enforcer' ? { time: 0, stride: 0, speed: 0, power: 0, aimYaw: 0, aimPitch: 0, recoilL: 0, recoilR: 0, deadT: 0 } : null,
         lamp: u.kind === 'searchlight' ? { time: 0, yaw: 0, pitch: 0.6, alarm: 0 } : null,
         goliath: u.kind === 'goliath' ? { time: 0, turretYaw: 0, barrelPitch: 0, recoil: 0, rumble: 0, dead: 0 } : null,
-        aim: 0, wary: 0, caution: 0, grip: 0, spin: 0, lastYaw: u.yaw, bank: 0, pop: 0, lastState: u.state, flash: 0, wrecked: false, landed: false
+        aim: 0, wary: 0, caution: 0, grip: 0, spin: 0, lastYaw: u.yaw, bank: 0, pop: 0, lastState: u.state, flash: 0, wrecked: false, landed: false,
+        tag: null, route: null
       }
       this.views.push(v)
       this.group.add(rig.root, shadow)
@@ -354,10 +387,15 @@ export class GarrisonView {
       const u = units[i]!
       const v = this.views[i]!
       // Not in the base yet: nothing of it is drawn.
-      const here = u.state !== 'reserve' && !v.wrecked
+      const here = u.state !== 'reserve' && !v.wrecked && !u.hidden
       v.rig.root.visible = here
       v.shadow.visible = here
-      if (!here) { if (v.mark) v.mark.visible = false; continue }
+      if (!here) {
+        if (v.mark) v.mark.visible = false
+        if (v.tag) v.tag.visible = false
+        if (v.route) v.route.visible = false
+        continue
+      }
       const x = u.px + (u.x - u.px) * alpha
       const y = u.py + (u.y - u.py) * alpha
       const z = u.pz + (u.z - u.pz) * alpha
@@ -500,7 +538,18 @@ export class GarrisonView {
       if (v.mark) {
         const m = v.mark.material as SpriteMaterial
         const show = !dead && (hot || wary || u.detect > 0.06)
-        v.mark.visible = show
+        const chat = !dead && !show && u.chatting
+        v.mark.visible = show || chat
+        if (chat) {
+          m.map = this.textures[4]!
+          m.color.copy(NOTICE)
+          m.opacity = 0.85
+          const top = SPECS[u.kind].height + 0.45
+          v.mark.position.set(x, y + top, z)
+          const d = Math.hypot(camX - x, camY - y, camZ - z)
+          const size = Math.min(Math.max(0.3, d * 0.04), 2.4)
+          v.mark.scale.set(size, size, 1)
+        }
         if (show) {
           const bang = hot
           const running = u.runner >= 0
@@ -515,6 +564,44 @@ export class GarrisonView {
           v.mark.scale.set(size, size, 1)
         }
       }
+
+      // Tagged: a diamond over it that shows through walls, and its round.
+      if (u.tagged && !v.tag) this.addTag(i)
+      if (v.tag) {
+        v.tag.visible = !dead
+        const top = isLight(u) ? 1.3 : SPECS[u.kind].height + 1.15
+        v.tag.position.set(x, y + top, z)
+        const d = Math.hypot(camX - x, camY - y, camZ - z)
+        const size = Math.min(Math.max(0.3, d * 0.04), 3) * (0.9 + 0.1 * Math.sin(time * 4 + i))
+        v.tag.scale.set(size, size, 1)
+      }
+      if (v.route) v.route.visible = !dead && u.state === 'patrol'
+    }
+  }
+
+  /** Mark a unit as tagged: the diamond, and its round drawn as a faint line. */
+  private addTag(i: number): void {
+    const u = this.gar.units[i]!
+    const v = this.views[i]!
+    const tag = new Sprite(new SpriteMaterial({ map: this.textures[3]!, color: TAG.clone(), transparent: true, depthTest: false, depthWrite: false, toneMapped: false }))
+    tag.renderOrder = 31
+    v.tag = tag
+    this.group.add(tag)
+    const pts = u.route.length > 1 ? u.route : []
+    if (pts.length > 1) {
+      const pos = new Float32Array((pts.length + 1) * 3)
+      pts.forEach((p, k) => {
+        const h = heightAt(this.grid, p.x, p.z)
+        pos.set([p.x, (h === VOID ? u.y : isLight(u) ? h : h) + 0.25, p.z], k * 3)
+      })
+      pos.set(pos.subarray(0, 3), pts.length * 3)
+      const geo = new BufferGeometry()
+      geo.setAttribute('position', new BufferAttribute(pos, 3))
+      const line = new Line(geo, new LineBasicMaterial({ color: TAG.clone(), transparent: true, opacity: 0.9, depthTest: false, depthWrite: false, toneMapped: false }))
+      line.renderOrder = 29
+      line.frustumCulled = false
+      v.route = line
+      this.group.add(line)
     }
   }
 
@@ -525,6 +612,8 @@ export class GarrisonView {
       v.rig.material.dispose()
       v.rig.glowMaterial.dispose()
       if (v.mark) v.mark.material.dispose()
+      if (v.tag) v.tag.material.dispose()
+      if (v.route) { v.route.geometry.dispose(); (v.route.material as LineBasicMaterial).dispose() }
       if (v.spot) (v.spot.material as MeshBasicMaterial).dispose()
       if (v.beam) (v.beam.material as MeshBasicMaterial).dispose()
     }

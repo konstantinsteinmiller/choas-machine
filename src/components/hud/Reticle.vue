@@ -7,6 +7,9 @@
       div.hair.v
       div.tick(v-for="n in 4" :key="n" :class="`t${n}`")
       div.scope-dot
+      //- Holding on a unit: a ring fills; full, it is tagged.
+      svg.tag-ring(v-if="hud.tagging > 0" viewBox="0 0 40 40")
+        circle(cx="20" cy="20" r="17" pathLength="1" :style="{ strokeDashoffset: 1 - hud.tagging }")
     //- Everywhere else: where a round would go.
     div.reticle(v-show="!hud.scoped" :class="[`w-${hud.weapon}`, { aiming: hud.aiming, hot: hud.overheated }]")
       div.spool(v-if="hud.weapon === 'minigun'" ref="spool")
@@ -177,6 +180,23 @@ onUnmounted(() => {
   border-radius: 50%
   background: var(--cm-pink)
   box-shadow: 0 0 0.35rem var(--cm-pink)
+
+// ─── The tagging ring ───────────────────────────────────────────────────────
+.tag-ring
+  position: absolute
+  left: 50%
+  top: 50%
+  width: clamp(2.4rem, 9vmin, 3.6rem)
+  height: clamp(2.4rem, 9vmin, 3.6rem)
+  translate: -50% -50%
+  rotate: -90deg
+  overflow: visible
+  circle
+    fill: none
+    stroke: #5fe9ff
+    stroke-width: 3
+    stroke-dasharray: 1
+    filter: drop-shadow(0 0 0.2rem rgba(95, 233, 255, 0.8))
 
 // ─── Hit ticks ──────────────────────────────────────────────────────────────
 .hitmark

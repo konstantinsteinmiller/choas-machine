@@ -86,6 +86,10 @@ export const hud = reactive({
   /** A pile within reach; and 0 … 1 of stripping one. */
   loot: false,
   looting: 0,
+  /** 0 … 1 of holding the scope on a unit to tag it. */
+  tagging: 0,
+  /** A body to grab ('grab'), or one in tow ('drop'). */
+  drag: '' as '' | 'grab' | 'drop',
   /** The control lessons on screen (replaced only when they change). */
   hints: [] as HintView[]
 })

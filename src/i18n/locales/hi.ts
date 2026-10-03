@@ -47,6 +47,8 @@ export default {
     },
     'haul': 'कबाड़ {n} / {need}',
     'hide': 'डिब्बे में छिपें',
+    'dragBody': 'Drag the body',
+    'dropBody': 'Let go (into a container if one is at hand)',
     'sabotage': 'Sabotage the alarm beacon',
     'alarmRunner': 'A guard is running to raise the alarm',
     'alarmLit': 'The alarm is raised',

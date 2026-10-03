@@ -96,6 +96,8 @@ export const CHECKIN_JITTER_S = 12
  * up close.
  */
 export const BOX_BUMP = 2.4
+/** Seconds a box must be seen creeping before a guard goes to poke it. */
+export const POKE_AFTER_S = 0.7
 const BOX_CREEP_SEEN = 0.35
 const BOX_CREEP_CAP = 0.85
 const BODY_NOTICE_S = 0.5
@@ -243,6 +245,17 @@ export interface Unit {
   shellZ: number
   /** 0 … 1 kick of its last shot, for the pose. */
   recoil: number
+  /** Tagged through the scope: its round is drawn and its mark shows through walls. */
+  tagged: boolean
+  /** A body tucked into a container: nobody will find it. */
+  hidden: boolean
+  /** The guard it chats with (−1 none), and whether they are talking right now. */
+  partner: number
+  chatting: boolean
+  /** It saw a box move and is going over to poke it. */
+  poke: boolean
+  /** Seconds it has been looking at something out of place. */
+  changeT: number
 }
 
 export interface Garrison {
@@ -268,6 +281,41 @@ export interface Garrison {
   beacons: Beacon[]
   runner: number
   runnerWait: number
+  /** Things out of place a guard on its round will notice: a pile stripped, a light out. */
+  changes: Change[]
+}
+
+/** Something out of place: a guard who sees it goes to look (yellow), but does not raise the base. */
+export interface Change {
+  x: number
+  y: number
+  z: number
+  kind: 'pile' | 'light'
+  found: boolean
+}
+
+/** How far a guard notices something out of place, and how long it must look. */
+export const CHANGE_RANGE = 18
+export const CHANGE_NOTICE_S = 1.2
+/** A chatting pair sees this much of its usual range, over this much of its cone. */
+export const CHAT_SIGHT = 0.55
+export const CHAT_CONE = 0.7
+/** A sentry calls the alarm this much further than a guard shouts. */
+export const SENTRY_CALL = 2
+/** Guards closing on the mech spread out this far either side (flanking in pairs). */
+export const FLANK_M = 6
+
+/** Something out of place for the guards to notice (the mission reports it). */
+export const noteChange = (gar: Garrison, x: number, y: number, z: number, kind: Change['kind']): void => {
+  gar.changes.push({ x, y, z, kind, found: false })
+}
+
+/** Hold the scope on a unit: tag it. */
+export const tagUnit = (gar: Garrison, id: number): boolean => {
+  const u = gar.units[id]
+  if (!u || u.tagged || !isAlive(u)) return false
+  u.tagged = true
+  return true
 }
 
 /** An alarm beacon: ready, being lit (0 … 1), lit, or put out of action by the mech. */
@@ -352,6 +400,9 @@ export type GarrisonEvent =
   | { type: 'alarm'; beacon: number }
   /** A full alert went cold: the base stands down (on its guard). */
   | { type: 'standDown' }
+  /** A guard saw a box move and goes to poke it; one noticed something out of place. */
+  | { type: 'poke'; id: number }
+  | { type: 'change'; id: number; kind: Change['kind'] }
   /** `id` noticed `corpse` missed its check-in and is going to look. */
   | { type: 'checkin'; id: number; corpse: number }
   | { type: 'kill'; id: number; death: DeathKind }
@@ -393,11 +444,12 @@ export const makeGarrison = (f: Fortress, level = 2): Garrison => {
       stride: 0, speed01: 0, homeX: p.x, homeZ: p.z, homeYaw: p.facing, altitude: p.altitude,
       spotX: spot.x, spotZ: spot.z,
       seed: (id * 2.399) % (Math.PI * 2),
-      power: mech ? 0 : 1, aimT: 0, fireT: 0, burst: 0, burstT: 0, shellT: 0, shellX: 0, shellZ: 0, recoil: 0
+      power: mech ? 0 : 1, aimT: 0, fireT: 0, burst: 0, burstT: 0, shellT: 0, shellX: 0, shellZ: 0, recoil: 0,
+      tagged: false, hidden: false, partner: p.partner ?? -1, chatting: false, poke: false, changeT: 0
     }
   })
   const beacons: Beacon[] = (f.beacons ?? []).map(b => ({ ...b, state: 'ready' as const, lit: 0 }))
-  return { units, alert: makeAlert(), time: 0, events: [], rng: mulberry32(hashSeed(f.id)), wave: 0, chaosT: 0, lures: [], threat, noiseSeq: 0, beacons, runner: -1, runnerWait: 0, lkp: { x: 0, z: 0, t: -1e9 } }
+  return { units, alert: makeAlert(), time: 0, events: [], rng: mulberry32(hashSeed(f.id)), wave: 0, chaosT: 0, lures: [], threat, noiseSeq: 0, beacons, runner: -1, runnerWait: 0, lkp: { x: 0, z: 0, t: -1e9 }, changes: [] }
 }
 
 // ─── Getting about ───────────────────────────────────────────────────────────
@@ -468,7 +520,9 @@ const viewerOf = (u: Unit): Viewer => {
   const k = u.wary ? 1 : 0
   // In a fight it keeps the mech in view a long way off (#59).
   const fight = u.state === 'combat' ? COMBAT_RANGE : 1
-  return { x: u.x, y: u.y + s.eye, z: u.z, yaw: u.yaw + u.look, halfAngle: s.half * (1 + (WARY_CONE - 1) * k), range: s.range * (1 + (WARY_RANGE - 1) * k) * fight }
+  // Talking: it watches its partner, not the yard.
+  const chat = u.chatting ? CHAT_SIGHT : 1
+  return { x: u.x, y: u.y + s.eye, z: u.z, yaw: u.yaw + u.look, halfAngle: s.half * (1 + (WARY_CONE - 1) * k) * (u.chatting ? CHAT_CONE : 1), range: s.range * (1 + (WARY_RANGE - 1) * k) * fight * chat }
 }
 
 /** Where a drone's searchlight falls. */
@@ -607,7 +661,7 @@ const shout = (gar: Garrison, u: Unit, target: Target): void => {
   gar.events.push({ type: 'shout', id: u.id })
   for (const o of gar.units) {
     if (o === u || !isAlive(o) || o.state === 'combat' || o.state === 'dormant' || o.gripped || isLight(o) || o.kind === 'goliath') continue
-    if (Math.hypot(o.x - u.x, o.z - u.z) > SHOUT_M) continue
+    if (Math.hypot(o.x - u.x, o.z - u.z) > SHOUT_M * (u.kind === 'sentry' ? SENTRY_CALL : 1)) continue
     o.shouted = true
     o.detect = 1
     o.seenX = target.x
@@ -753,7 +807,7 @@ const patrol = (u: Unit, g: Grid, time: number, dt: number): void => {
     }
     stand(u)
     turnToward(u, u.homeYaw, dt, 2.5)
-    u.look = Math.sin(time * 0.45 + u.seed) * 0.45
+    u.look = Math.sin(time * 0.45 + u.seed) * (u.chatting ? 0.12 : 0.45)
     return
   }
   if (u.wait > 0) {
@@ -761,7 +815,7 @@ const patrol = (u: Unit, g: Grid, time: number, dt: number): void => {
     stand(u)
     const stop = u.route[(u.wp + u.route.length - 1) % u.route.length]!
     if (stop.look !== undefined) turnToward(u, stop.look, dt, 2.5)
-    u.look = Math.sin(time * 0.7 + u.seed) * 0.6
+    u.look = Math.sin(time * 0.7 + u.seed) * (u.chatting ? 0.12 : 0.6)
     return
   }
   u.look *= Math.max(0, 1 - dt * 4)
@@ -947,7 +1001,12 @@ const fight = (u: Unit, g: Grid, gar: Garrison, target: Target, dt: number): voi
     if (dist > engage) {
       if (u.path.length === 0 || (u.repath -= dt) <= 0) {
         u.repath = HUNT_REPATH_S
-        goTo(u, g, target.x, target.z)
+        // Guards close in pairs from either side, not in a line.
+        const side = u.kind === 'guard' ? (u.id % 3) - 1 : 0
+        const away = headingTo(target.x, target.z, u.x, u.z)
+        const fx = target.x + Math.cos(away) * side * FLANK_M
+        const fz = target.z - Math.sin(away) * side * FLANK_M
+        if (side === 0 || !goTo(u, g, fx, fz)) goTo(u, g, target.x, target.z)
       }
       follow(u, g, spec.run, dt, turn)
     } else {
@@ -992,6 +1051,12 @@ export const stepGarrison = (gar: Garrison, g: Grid, target: Target, dt: number)
   if (gar.runnerWait > 0) gar.runnerWait -= dt
   if (gar.beacons.length > 0 && gar.runner < 0 && !gar.alert.chaos && gar.runnerWait <= 0 && gar.units.some(o => isAlive(o) && (o.state === 'combat' || (o.state !== 'patrol' && o.fought)) && !isLight(o))) sendRunner(gar, g)
   const seen: Seen = { x: target.x, feetY: target.y, z: target.z, height: target.height }
+  // Who is talking: a pair both on their round, standing, side by side.
+  for (const u of gar.units) {
+    const o = u.partner >= 0 ? gar.units[u.partner] : undefined
+    u.chatting = !!o && u.state === 'patrol' && o.state === 'patrol' && !u.gripped && !o.gripped
+      && u.speed01 < 0.05 && o.speed01 < 0.05 && Math.hypot(o.x - u.x, o.z - u.z) < 3.2
+  }
   let calm = true
   let watched = false
 
@@ -1026,6 +1091,12 @@ export const stepGarrison = (gar: Garrison, g: Grid, target: Target, dt: number)
     const boxedAway = !!target.box && Math.hypot(target.x - u.x, target.z - u.z) > BOX_BUMP
     if (boxedAway) exposed = target.box === 'still' ? 0 : exposed * BOX_CREEP_SEEN
     u.sees = exposed > 0
+    // A box seen moving: it goes over to give it a poke.
+    if (u.sees && boxedAway && target.box === 'creep' && u.seenFor > POKE_AFTER_S && !isLight(u) && u.state !== 'combat' && !u.poke) {
+      u.poke = true
+      u.detect = Math.max(u.detect, SUSPECT_AT + 0.02)
+      gar.events.push({ type: 'poke', id: u.id })
+    }
     if (u.sees) {
       u.seenFor += dt
       u.unseenFor = 0
@@ -1093,12 +1164,45 @@ export const stepGarrison = (gar: Garrison, g: Grid, target: Target, dt: number)
       u.lured = false
     }
 
+    // ── The poke: there, and the box is still there ──
+    if (u.poke) {
+      if (u.state === 'patrol' || u.state === 'combat' || !target.box) u.poke = false
+      else if (Math.hypot(target.x - u.x, target.z - u.z) < BOX_BUMP + 0.8) {
+        // A poke, and the box says ow.
+        u.poke = false
+        u.detect = 1
+        u.seenX = target.x
+        u.seenZ = target.z
+      }
+    }
+
+    // ── Things out of place ──
+    if (u.state === 'patrol' && !isLight(u) && gar.changes.length > 0) {
+      let looking = false
+      for (const c of gar.changes) {
+        if (c.found || Math.hypot(c.x - u.x, c.z - u.z) > CHANGE_RANGE) continue
+        if (sight(u, g, { x: c.x, feetY: c.y, z: c.z, height: 0.8 }) <= 0) continue
+        looking = true
+        u.changeT += dt
+        if (u.changeT >= CHANGE_NOTICE_S) {
+          c.found = true
+          u.changeT = 0
+          u.detect = Math.max(u.detect, SUSPECT_AT + 0.05)
+          gar.events.push({ type: 'change', id: u.id, kind: c.kind })
+          suspect(gar, u, c.x, c.z, false)
+        }
+        break
+      }
+      if (!looking) u.changeT = 0
+    }
+
     // ── Bodies ──
     if (u.state !== 'combat') {
       let looking = false
       for (const c of gar.units) {
         // A wreck counts once it is on the ground (a drone takes a second to fall).
-        if (c.state !== 'dead' || c.found || c.deadT < c.hold + (c.kind === 'drone' ? 1.2 : 0.6)) continue
+        // A body tucked into a container is not there to find.
+        if (c.state !== 'dead' || c.found || c.hidden || isLight(c) || c.deadT < c.hold + 0.6) continue
         if (Math.hypot(c.x - u.x, c.z - u.z) > BODY_RANGE) continue
         if (sight(u, g, { x: c.x, feetY: c.y, z: c.z, height: BODY_HEIGHT }) <= 0) continue
         looking = true
@@ -1187,6 +1291,12 @@ export const drainEvents = (gar: Garrison): GarrisonEvent[] => gar.events.splice
  * the way it falls.
  */
 export const killUnit = (gar: Garrison, id: number, fromX: number, fromZ: number, how: KillHow = 'shot'): void => {
+  const dying = gar.units[id]
+  if (dying && isLight(dying) && isAlive(dying)) {
+    // A light out: the guards on their round will notice the dark.
+    const c = spotCentre(dying)
+    noteChange(gar, c.x, dying.kind === 'drone' ? 0 : dying.y - 6, c.z, 'light')
+  }
   const u = gar.units[id]
   if (!u || !isAlive(u)) return
   const toSource = angleDelta(u.yaw, headingTo(u.x, u.z, fromX, fromZ))

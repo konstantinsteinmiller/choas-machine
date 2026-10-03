@@ -72,6 +72,10 @@ export interface GameEvents {
   /** The hide box comes down over the mech, or off it. */
   box: { on: boolean }
   /** The mech picked up an armour shard. */
+  /** The scope was held on a unit long enough: it is tagged. */
+  tagged: { id: number }
+  /** A body grabbed or let go of (and whether it went into a container). */
+  drag: { on: boolean; hidden?: boolean }
   shard: Record<string, never>
   /** A round landed on a boss: how much it took off. */
   bossHit: { amount: number }

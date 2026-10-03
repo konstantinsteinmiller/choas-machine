@@ -37,7 +37,8 @@ interface Gun {
 // put rounds near it from far off, just not many on it.
 export const GUNS: Readonly<Partial<Record<Unit['kind'], Gun>>> = {
   guard: { burst: 3, gap: 0.13, pauseMin: 1.2, pauseMax: 1.9, damage: 6, near: 0.5, far: 0.06, range: 55 },
-  sentry: { burst: 2, gap: 0.3, pauseMin: 1.6, pauseMax: 2.4, damage: 9, near: 0.6, far: 0.12, range: 70 },
+  // A sentry calls the alarm far and wide, and shoots badly (R22's roles).
+  sentry: { burst: 2, gap: 0.3, pauseMin: 1.8, pauseMax: 2.8, damage: 7, near: 0.32, far: 0.05, range: 70 },
   commander: { burst: 2, gap: 0.18, pauseMin: 1.0, pauseMax: 1.6, damage: 8, near: 0.55, far: 0.08, range: 50 },
   enforcer: { burst: 12, gap: 0.085, pauseMin: 1.3, pauseMax: 2.0, damage: 4, near: 0.42, far: 0.06, range: 45 }
 }

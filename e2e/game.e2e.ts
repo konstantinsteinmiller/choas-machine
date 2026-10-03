@@ -133,7 +133,8 @@ describe('the mission', () => {
     const g = await open()
     await waitPlaying(g)
     await g.page.mouse.click(640, 360)
-    const guard = await firstUnit(g, 'guard', 'patrol')
+    // A lone patrol: one of a chatting pair has its partner looking at its back.
+    const guard = await g.page.evaluate(() => window.__game.app.mode.garrison.units.find((x: any) => x.kind === 'guard' && x.state === 'patrol' && x.partner < 0).id)
     const at = await g.page.evaluate((id) => { const u = window.__game.app.mode.garrison.units[id]; return { x: u.x, z: u.z, yaw: u.yaw } }, guard)
     await teleport(g, at.x - Math.sin(at.yaw) * 1.6, at.z - Math.cos(at.yaw) * 1.6, at.yaw, -0.2)
     await g.page.waitForFunction(() => window.__game.hud.strike === 'backstab', null, { timeout: 5000 })

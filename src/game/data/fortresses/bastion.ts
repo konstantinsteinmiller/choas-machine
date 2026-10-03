@@ -68,8 +68,9 @@ export const buildBastion = (level = 1): Fortress => {
   b.insert(3, 50, Math.PI * 0.82).extract(25, 5)
 
   // ── The garrison: the night watch (every level) ──
-  // Two patrols in the yard, one in the north ward, and the Commander on the roof.
-  b.guard([[12, 36, 2], [22, 36], [22, 44, 2], [12, 44]])
+  // Two patrols in the yard (one of them a pair that stops to chat), one in
+  // the north ward, and the Commander on the roof.
+  b.pair([16, 40], [[22, 36], [22, 44, 2], [12, 44], [12, 36, 2]])
   b.guard([[39, 44, 2], [29, 44], [29, 36, 2], [39, 36]])
   b.guard([[11, 27, 3], [11, 13, 2], [17, 13, 3]])
   // The Warden: the Commander in an armoured helmet. From level IV he

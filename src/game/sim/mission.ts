@@ -8,7 +8,7 @@ import { consumeEdges, type Input } from '../engine/input'
 import { input as sharedInput, inputClock } from '../engine/inputState'
 import { emit, on } from '../bus'
 import { gun, hud, mirror, runHudTickers, setPhase, threats, vital, waypoint, MAX_THREATS } from '../state/hud'
-import { CELL, VOID, heightAt , raycast, hasLineOfSight } from '../world/grid'
+import { CELL, VOID, heightAt, raycast, hasLineOfSight, toCell, inGrid, cellKind, cellHeight, CellKind } from '../world/grid'
 import type { Fortress } from '../world/fortress'
 import { buildFortressMesh, type FortressMesh } from '../world/fortressMesh'
 import { buildDecor, type DecorMesh } from '../world/decor'
@@ -26,7 +26,7 @@ import { makePlayer, stepPlayer, eyeHeight, angleDelta, type Player } from './pl
 import { makeCam, lookCam, stepCam, placeCam, stickToWorld, camForward, type Cam } from './camera'
 import { alertSegments } from './alert'
 import {
-  SPECS, SUSPECT_AT, sabotageBeacon, searchForShooter, drainEvents, headingTo, killUnit, damageUnit, makeGarrison, noiseAt, hearAt, wonderAt, voidNoise, stepGarrison, alarmUnit, startleUnit, isLight,
+  SPECS, SUSPECT_AT, sabotageBeacon, searchForShooter, noteChange, tagUnit, drainEvents, headingTo, killUnit, damageUnit, makeGarrison, noiseAt, hearAt, wonderAt, voidNoise, stepGarrison, alarmUnit, startleUnit, isLight,
   type Garrison, type Target
 } from './garrison'
 import { GarrisonView } from './garrisonView'
@@ -45,6 +45,7 @@ import { fireRocket, stepRockets, type Rocket } from './rockets'
 import { stepFire } from './chaos'
 import { hurtArmor, makeArmor, stepArmor, type Armor } from './armor'
 import { flow, finishMission, failMission } from '../flow'
+import { COVER_H } from '../world/fortress'
 import { BASE_LOADOUT, type Loadout } from '../data/upgrades'
 import { makeKillCamState, wantsKillCam, type KillInfo } from './killcam'
 import {
@@ -127,6 +128,13 @@ const KILLCAM_SLOW = 0.16
 const EXTRACT_RADIUS = 1.9
 /** How far running feet are heard, in metres. */
 export const SPRINT_EARSHOT = 9
+/** Seconds the scope must rest on a unit to tag it. */
+const TAG_S = 2
+/** How near a body must be to grab it, and how far behind the mech it drags. */
+const DRAG_REACH = 2.2
+const DRAG_BEHIND = 1.5
+/** Dragging a body: the mech walks at this share of its pace. */
+export const DRAG_SLOW = 0.5
 /** How far the shoot lesson looks for a defender in clear sight. */
 const MARK_M = 60
 /** Armour shards: dropped by a blade or close kill in a fight; how many, what each gives back, how long they lie. */
@@ -499,6 +507,7 @@ export class Mission implements GameMode {
         // A pile within reach (and no blade on offer): the same key strips it.
         this.lootOffer = p.mode === 'ground' && !this.offer && !this.strike ? pileInReach(this.piles, p.x, p.y, p.z) : null
         if (i.actQueued && !this.offer && this.lootOffer && !this.strike) this.startLoot(this.lootOffer)
+        else if (i.actQueued && !this.offer && !this.strike && (this.dragId >= 0 || this.dragOffer >= 0)) { this.actDrag(); i.actQueued = false }
         // A wall too high to pull up onto, straight ahead: the hook can take it.
         this.hookSpot = p.mode === 'ground' && !this.strike ? findGrapple(this.fortress.grid, p.x, p.y, p.z, p.yaw, this.loadout.hookReach, this.loadout.hookMax) : null
         if (i.grappleQueued && this.hookSpot && !this.strike) this.throwHook(this.hookSpot)
@@ -1012,6 +1021,7 @@ export class Mission implements GameMode {
     this.salvageView.take(pile.id)
     this.stats.salvage += pile.amount
     this.stats.piles++
+    noteChange(this.garrison, pile.x, pile.y, pile.z, 'pile')
     this.fx.particles.riseRing(pile.x, pile.y + 0.2, pile.z, '#ffb14a', pile.big ? 1.3 : 0.9, 18)
     haptic('reward')
     mirror('salvageGot', this.stats.piles)
@@ -1198,6 +1208,9 @@ export class Mission implements GameMode {
         const b = gar.beacons[e.beacon]!
         this.fx.particles.riseRing(b.x, b.y + BEACON_TOP, b.z, PAL.glowRed, 2.2, 24)
         emit('beaconLit', { beacon: e.beacon })
+      } else if (e.type === 'poke' || e.type === 'change') {
+        // Going over to look: the same "huh?" as any suspicion.
+        emit('suspicious', { id: e.id, kind: gar.units[e.id]!.kind })
       } else {
         if (e.type === 'spotted') this.stats.spotted++
         emit(e.type, { id: e.id, kind: gar.units[e.id]!.kind })
@@ -1465,6 +1478,114 @@ export class Mission implements GameMode {
   }
 
   private mechFade = 0
+  /** The scope held on one unit: which, and for how long. */
+  private tagId = -1
+  private tagT = 0
+  private tagHit = makeShotHit()
+  /** The body being dragged (a unit id, −1 none), and one within reach. */
+  private dragId = -1
+  private dragOffer = -1
+
+  /** Hold the scope on a defender for TAG_S: it is tagged. */
+  private stepTag(dt: number): void {
+    let id = -1
+    if (hud.scoped && hud.phase === 'play') {
+      const cam = this.cam
+      const c = Math.cos(cam.pitch)
+      const fx = Math.sin(cam.yaw) * c
+      const fy = Math.sin(cam.pitch)
+      const fz = Math.cos(cam.yaw) * c
+      const cp = this.camera.position
+      const h = castShot(this.fortress.grid, this.garrison.units, cp.x, cp.y, cp.z, fx, fy, fz, SHOT_RANGE, this.tagHit)
+      if (h.unit >= 0) {
+        const u = this.garrison.units[h.unit]!
+        if (!u.tagged && u.state !== 'dead' && u.state !== 'reserve') id = u.id
+      }
+    }
+    if (id !== this.tagId) { this.tagId = id; this.tagT = 0 }
+    if (id >= 0) {
+      this.tagT += dt
+      if (this.tagT >= TAG_S && tagUnit(this.garrison, id)) {
+        emit('tagged', { id })
+        this.tagId = -1
+        this.tagT = 0
+      }
+    }
+    mirror('tagging', id >= 0 ? Math.min(1, this.tagT / TAG_S) : 0)
+  }
+
+  /** The body within reach to drag, or the one in tow. */
+  private bodyInReach(): number {
+    const p = this.player
+    let best = -1
+    let bestD = DRAG_REACH
+    for (const u of this.garrison.units) {
+      if (u.state !== 'dead' || u.hidden || u.found || u.deadT < u.hold + 0.8) continue
+      if (u.kind !== 'guard' && u.kind !== 'sentry') continue
+      if (u.death === 'burst' || Math.abs(u.y - p.y) > 1.2) continue
+      const d = Math.hypot(u.x - p.x, u.z - p.z)
+      if (d < bestD) { bestD = d; best = u.id }
+    }
+    return best
+  }
+
+  /** Grab a body, or let go of the one in tow (tucked away if a container is at hand). */
+  private actDrag(): void {
+    if (this.dragId >= 0) { this.dropBody(); return }
+    if (this.dragOffer < 0) return
+    this.dragId = this.dragOffer
+    this.dragOffer = -1
+    this.player.boxed = false
+    emit('drag', { on: true })
+  }
+
+  private dropBody(): void {
+    const u = this.garrison.units[this.dragId]
+    this.dragId = -1
+    if (!u) return
+    // Against a container (a tall cover block): in it goes, and it stays hidden.
+    const g = this.fortress.grid
+    const cx = toCell(u.x)
+    const cz = toCell(u.z)
+    let tuck = false
+    for (let dz = -1; dz <= 1 && !tuck; dz++) {
+      for (let dx = -1; dx <= 1 && !tuck; dx++) {
+        if (!inGrid(g, cx + dx, cz + dz) || cellKind(g, cx + dx, cz + dz) !== CellKind.Cover) continue
+        if (cellHeight(g, cx + dx, cz + dz) - heightAt(g, u.x, u.z) >= COVER_H - 0.1) tuck = true
+      }
+    }
+    if (tuck) {
+      u.hidden = true
+      this.fx.particles.sparks(u.x, u.y + 0.5, u.z, '#9d8cff', 8, 2, 0.2)
+    }
+    emit('drag', { on: false, hidden: tuck })
+  }
+
+  /** The body in tow follows behind the mech. */
+  private stepDrag(): void {
+    const p = this.player
+    if (this.dragId >= 0) {
+      const u = this.garrison.units[this.dragId]!
+      // Anything but walking lets go.
+      if (p.mode !== 'ground' || this.weaponUp() || p.sprinting || this.strike || u.found || hud.phase !== 'play') { this.dropBody(); return }
+      const bx = p.x - Math.sin(p.yaw) * DRAG_BEHIND
+      const bz = p.z - Math.cos(p.yaw) * DRAG_BEHIND
+      u.px = u.x; u.pz = u.z; u.py = u.y; u.pyaw = u.yaw
+      // It slides along behind, but not into a wall or over an edge.
+      const under = heightAt(this.fortress.grid, bx, bz)
+      if (under > VOID && Math.abs(under - p.y) < 0.7) { u.x = bx; u.z = bz }
+      const floor = heightAt(this.fortress.grid, u.x, u.z)
+      if (floor > VOID) u.y = floor
+      u.yaw = p.yaw
+      this.dragOffer = -1
+    } else {
+      this.dragOffer = p.mode === 'ground' && !this.offer && !this.strike && !this.lootOffer && this.beaconOffer < 0 && hud.phase === 'play' ? this.bodyInReach() : -1
+    }
+    // A body in tow is heavy: half pace.
+    p.speedMul = this.loadout.speed * (this.dragId >= 0 ? DRAG_SLOW : 1)
+    mirror('drag', this.dragId >= 0 ? 'drop' : this.dragOffer >= 0 ? 'grab' : '')
+  }
+
   /** Where the mech stood stripping its first pile. */
   private checkpoint: { x: number; y: number; z: number; yaw: number } | null = null
   /** Start on the perch with no drop-in (a retry), maybe from the checkpoint. */
@@ -1857,6 +1978,8 @@ export class Mission implements GameMode {
     }
 
     this.stepGhost(dt)
+    this.stepTag(dt)
+    this.stepDrag()
     this.stepShards(dt)
     for (let k = 0; k < this.beaconViews.length; k++) {
       const b = this.garrison.beacons[k]!

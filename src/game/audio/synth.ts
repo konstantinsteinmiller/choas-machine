@@ -390,6 +390,15 @@ const RECIPES: Record<SfxName, (pan: number, g: number) => void> = {
     burst({ dur: 0.9, vol: 0.12 * g, type: 'highpass', f0: 3500, f1: 6000 })
     tone({ wave: 'sine', f0: 300, f1: 120, dur: 0.3, vol: 0.06 * g })
   },
+  // A unit tagged through the scope: two short high blips.
+  tag: (_p, g) => {
+    tone({ wave: 'sine', f0: 1480, dur: 0.05, vol: 0.07 * g })
+    tone({ wave: 'sine', f0: 1980, dur: 0.07, vol: 0.07 * g, at: 0.07 })
+  },
+  // A body grabbed or let go: a low scrape.
+  drag: (_p, g) => {
+    burst({ dur: 0.22, vol: 0.06 * g, type: 'lowpass', f0: 700, f1: 260 })
+  },
   // An armour shard taken: a bright rising chime.
   shard: (_p, g) => {
     tone({ wave: 'tri', f0: 880, f1: 1320, dur: 0.12, vol: 0.1 * g })

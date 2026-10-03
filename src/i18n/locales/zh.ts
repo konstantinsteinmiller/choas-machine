@@ -47,6 +47,8 @@ export default {
     },
     'haul': '废料 {n}/{need}',
     'hide': '躲进箱子',
+    'dragBody': 'Drag the body',
+    'dropBody': 'Let go (into a container if one is at hand)',
     'sabotage': 'Sabotage the alarm beacon',
     'alarmRunner': 'A guard is running to raise the alarm',
     'alarmLit': 'The alarm is raised',
