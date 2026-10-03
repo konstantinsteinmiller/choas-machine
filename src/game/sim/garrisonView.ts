@@ -12,6 +12,7 @@ import {
   type DronePose, type EnforcerPose, type GoliathPose, type GuardPose
 } from '../models/garrison'
 import { makeBlobShadow } from '../fx/markers'
+import { poseRagdoll } from '../models/ragdollPose'
 import { DOG_STAND, HOUND_SCALE, buildRobodog, poseRobodog, restDogPose, type DogPose } from '../models/robodog'
 import { angleDelta } from './player'
 import { SPECS, SPOT_RADIUS, SUSPECT_AT, spotCentre, type Garrison, type Unit , isLight } from './garrison'
@@ -170,6 +171,9 @@ const WRECKS: Partial<Record<PostKind, {
   searchlight: { count: 7, size: [0.1, 0.26], half: [0.3, 0.25, 0.3], lift: -0.1, force: 4, colors: [PAL.steel, PAL.steelDeep, PAL.steelDark, PAL.glowWhite] },
   drone: { count: 9, size: [0.1, 0.24], half: [0.3, 0.15, 0.3], lift: 0, force: 4.5, colors: [PAL.steel, PAL.steelDeep, PAL.steelDark, PAL.glowRed] },
   enforcer: { count: 26, size: [0.22, 0.62], half: [0.8, 1.4, 0.6], lift: 0.4, force: 6.5, colors: [PAL.steel, PAL.steel, PAL.steelDeep, PAL.steelDeep, PAL.steelDark, PAL.steelDark, PAL.glowYellow] },
+  // A person blown apart in a kill-cam (#64): cloth, skin, boots and the helmet.
+  guard: { count: 16, size: [0.1, 0.28], half: [0.25, 0.8, 0.2], lift: 0.9, force: 7, colors: [PAL.uniform, PAL.uniformDeep, PAL.skin, PAL.boot, PAL.helmet, PAL.uniform] },
+  sentry: { count: 16, size: [0.1, 0.28], half: [0.25, 0.8, 0.2], lift: 0.9, force: 7, colors: [PAL.uniform, PAL.uniformDeep, PAL.skin, PAL.boot, PAL.helmet, PAL.uniform] },
   hound: { count: 10, size: [0.1, 0.26], half: [0.3, 0.3, 0.6], lift: 0.5, force: 4.5, colors: [PAL.steel, PAL.steelDeep, PAL.steelDark, PAL.glowRed] },
   goliath: { count: 54, size: [0.35, 1.1], half: [1.9, 1.1, 2.9], lift: 0.5, force: 9, colors: [PAL.steel, PAL.steel, PAL.steelDeep, PAL.steelDeep, PAL.steelDark, PAL.steelDark, PAL.steelDark, PAL.hazard] }
 }
@@ -473,7 +477,11 @@ export class GarrisonView {
         if (dead && u.hold <= 0) { s.gripped = 0; s.impaled = 0; s.limp = 0 }
         s.deadT = dead && !held ? Math.max(1e-3, u.deadT - u.hold) : 0
         s.death = u.death === 'front' || u.death === 'spin' || u.death === 'thrown' ? u.death : 'back'
-        poseGuard(v.rig, s)
+        // Fallen and let go: the ragdoll has the body now (#64).
+        if (u.rag && dead && u.deadT >= u.hold) {
+          poseRagdoll(v.rig, u.rag.p, u.rag.q, alpha)
+          v.rig.root.scale.setScalar(1)
+        } else poseGuard(v.rig, s)
       } else if (v.drone) {
         const s = v.drone
         // The rotors race when it is alarmed.

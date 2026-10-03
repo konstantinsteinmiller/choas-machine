@@ -42,6 +42,7 @@ import { blast, shotDamage } from './damage'
 import { SPREAD, ammoOf, makeArsenal, stepArsenal, type Arsenal, type Trigger } from './weapons'
 import { DECOYS_PER_MISSION, decoySpot, findStrike, stepDecoys, type Decoy, type Strike, type StrikeKind } from './melee'
 import { fireRocket, stepRockets, type Rocket } from './rockets'
+import { blastRagdoll, nearRay, push, wake as wakeRagdoll } from './ragdoll'
 import { stepFire } from './chaos'
 import { hurtArmor, makeArmor, stepArmor, type Armor } from './armor'
 import { flow, finishMission, failMission, finishTraining } from '../flow'
@@ -749,6 +750,14 @@ export class Mission implements GameMode {
     if (w === 'minigun') this.goLoud()
 
     const h = castShot(g, gar.units, ox, oy, oz, dx, dy, dz, SHOT_RANGE, this.hit)
+    // Minigun rounds into a body on the ground keep shoving it (#64).
+    if (w === 'minigun') {
+      for (const d of gar.units) {
+        if (!d.rag || d.state !== 'dead' || d.hidden || d.deadT < d.hold) continue
+        const j = nearRay(d.rag, ox, oy, oz, h.x, h.y, h.z, 0.5)
+        if (j >= 0) push(d.rag, j, dx * 4, 1.2, dz * 4, 1 / 60)
+      }
+    }
     if (h.kind === 'unit') {
       const u = gar.units[h.unit]!
       const soft = u.kind === 'guard' || u.kind === 'sentry' || u.kind === 'commander'
@@ -835,6 +844,10 @@ export class Mission implements GameMode {
       this.killBy = 'rocket'
       this.killHead = false
       const res = blast(this.garrison, g, b.x, b.y, b.z, b.direct, this.loadout.blastRadius, this.loadout.damage.rocket)
+      // The dead fly too (#64).
+      for (const d of this.garrison.units) {
+        if (d.rag && d.state === 'dead' && !d.hidden && d.deadT >= d.hold) blastRagdoll(d.rag, b.x, b.y, b.z, this.loadout.blastRadius * 1.3, 1 / 60)
+      }
       if (res.kills.length + res.hurt.length > 0) this.stats.hits++
       for (const id of res.hurt) alarmUnit(this.garrison, id, this.player.x, this.player.z)
       emit('blast', { x: b.x, y: b.y, z: b.z, weak: res.weakHit })
@@ -1280,7 +1293,15 @@ export class Mission implements GameMode {
           } else if (cut !== 'none') {
             // The blade and the last kill get the camera; a burst or a blast
             // in the middle of a fight only gets the slow beat.
-            if ((this.killBy === 'blade' || final) && cut === 'full') {
+            if (this.killBy === 'minigun' && u.rag && !u.boss && cut === 'full') {
+              // Now and then, on camera, a burst takes a person apart (#64).
+              u.rag = null
+              u.death = 'burst'
+              this.garrisonView.burst(e.id)
+              this.cine = { kind: 'orbit', t: 0, dur: 1.6, id: e.id, yaw: this.cam.yaw + Math.PI * 0.6, final }
+              mirror('cine', true)
+              emit('killcam', { kind: 'orbit', final })
+            } else if ((this.killBy === 'blade' || final) && cut === 'full') {
               this.cine = { kind: 'orbit', t: 0, dur: final ? 2.4 : 1.5, id: e.id, yaw: this.cam.yaw + Math.PI * 0.75, final }
               mirror('cine', true)
               emit('killcam', { kind: 'orbit', final })
@@ -1822,6 +1843,7 @@ export class Mission implements GameMode {
     const u = this.garrison.units[this.dragId]
     this.dragId = -1
     if (!u) return
+    if (u.rag) { u.rag.pin = null; wakeRagdoll(u.rag) }
     // Against a container (a tall cover block): in it goes, and it stays hidden.
     const g = this.fortress.grid
     const cx = toCell(u.x)
@@ -1853,6 +1875,11 @@ export class Mission implements GameMode {
       // It slides along behind, but not into a wall or over an edge.
       const under = heightAt(this.fortress.grid, bx, bz)
       if (under > VOID && Math.abs(under - p.y) < 0.7) { u.x = bx; u.z = bz }
+      // A ragdoll hangs from the mech's hand by its pelvis; the rest trails (#64).
+      if (u.rag) {
+        u.rag.pin = { x: u.x, y: heightAt(this.fortress.grid, u.x, u.z) + 0.55, z: u.z }
+        wakeRagdoll(u.rag)
+      }
       const floor = heightAt(this.fortress.grid, u.x, u.z)
       if (floor > VOID) u.y = floor
       u.yaw = p.yaw

@@ -1,4 +1,5 @@
 import type { Zone } from './hitscan'
+import { makeRagdoll, ragdollAt, stepRagdoll, strike, type Ragdoll } from './ragdoll'
 import { VOID, findPath, hasLineOfSight, heightAt, smoothPath, toCell, walkLine, type Grid } from '../world/grid'
 import type { Fortress, PostKind, Waypoint } from '../world/fortress'
 import { exposure, type Viewer, type Seen, fillRate, GRACE_S, CLOSE_M } from './perception'
@@ -265,6 +266,10 @@ export interface Unit {
   jobT: number
   /** The freshest scent it has followed (garrison time). */
   scentT: number
+  /** A fallen person's ragdoll (#64), how it was killed, and whether the blow has pushed it yet. */
+  rag: Ragdoll | null
+  ragHow: KillHow
+  ragStruck: boolean
   /** Wears a helmet (R26): the first round to the head takes it off instead. */
   helmet: boolean
   /** Seconds it has looked at a box that keeps too still (a box checker). */
@@ -687,6 +692,7 @@ export const makeGarrison = (f: Fortress, level = 2): Garrison => {
       power: mech ? 0 : 1, aimT: 0, fireT: 0, burst: 0, burstT: 0, shellT: 0, shellX: 0, shellZ: 0, recoil: 0,
       tagged: false, hidden: false, partner: p.partner ?? -1, chatting: false, poke: false, changeT: 0,
       role: p.role ?? null, job: null, jobT: 0, scentT: -1e9,
+      rag: null, ragHow: 'shot', ragStruck: false,
       helmet: !!f.answers?.helmets && (p.kind === 'guard' || p.kind === 'sentry'), boxLook: 0,
       jammed: false, shells: 0, overheat: 0, phase2: false, glintT: 0, dashT: 0, dashX: 0, dashZ: 0, dashCool: 2, dashHit: false
     }
@@ -1392,6 +1398,19 @@ export const stepGarrison = (gar: Garrison, g: Grid, target: Target, dt: number)
     u.t += dt
     if (u.state === 'dead') {
       u.deadT += dt
+      // A ragdoll: pushed once by the killing blow, then left to fall and settle.
+      // The body is wherever its pelvis lies (for whoever finds it, or drags it).
+      if (u.rag && u.deadT >= u.hold && !u.hidden) {
+        if (!u.ragStruck) {
+          u.ragStruck = true
+          strike(u.rag, u.ragHow, u.hitX, u.hitZ, u.seed + u.id * 0.37, dt)
+        }
+        stepRagdoll(u.rag, g, dt)
+        const at = ragdollAt(u.rag, g)
+        u.x = at.x
+        u.z = at.z
+        u.y = at.y
+      }
       // A drone drops out of the sky.
       if (u.kind === 'drone') {
         const floor = heightAt(g, u.x, u.z)
@@ -1658,6 +1677,11 @@ export const killUnit = (gar: Garrison, id: number, fromX: number, fromZ: number
     u.death = how === 'blast' ? 'thrown' : how === 'spray' ? 'spin' : how === 'blade' ? 'front' : u.fallDir < 0 ? 'back' : 'front'
     // A blast throws it away from the blast, whichever way it was facing.
     if (how === 'blast') u.fallDir = -1
+    // It falls as a ragdoll (#64), pushed by what killed it (the blade's push
+    // waits until the mech lets go: `u.hold`).
+    u.rag = makeRagdoll(u.x, u.y, u.z, u.yaw)
+    u.ragHow = how
+    u.ragStruck = false
   } else {
     // Its own number decides, so the same machine dies the same way in a replay.
     const roll = (((u.seed * 7.13 + u.id * 0.37) % 1) + 1) % 1
