@@ -2,7 +2,7 @@ import {
   BackSide, BufferGeometry, Color, CylinderGeometry, DirectionalLight, Euler, Float32BufferAttribute, Fog, Group, HemisphereLight,
   InstancedMesh, Matrix4, Mesh, MeshBasicMaterial, Quaternion, Scene, SphereGeometry, Vector3
 } from 'three'
-import { rbox, rock, sph, torus, paint, paintBy } from '../models/kit'
+import { merge, rbox, rock, sph, torus, paint, paintBy } from '../models/kit'
 import { toonVCInstanced } from '../models/toon'
 import { mulberry32 } from './rng'
 import { sceneQuality } from '../engine/quality'
@@ -159,7 +159,7 @@ const buildClouds = (c: SkyColors, count: number, centre: Vector3): { mesh: Inst
 export const CLOUD_SEA_Y = -32
 
 const buildCloudSea = (c: SkyColors, count: number, centre: Vector3, inner: number): InstancedMesh => {
-  const geo = paint(sph(1, 16, 9), c.cloud) as BufferGeometry
+  const geo = paint(sph(1, 12, 7), c.cloud) as BufferGeometry
   const pos = geo.attributes.position!
   const col = geo.attributes.color!
   const under = new Color(c.mid)
@@ -179,7 +179,7 @@ const buildCloudSea = (c: SkyColors, count: number, centre: Vector3, inner: numb
     const dist = inner + Math.sqrt(rng()) * (360 - inner)
     _p.set(centre.x + Math.cos(a) * dist, centre.y + CLOUD_SEA_Y + rng() * 4, centre.z + Math.sin(a) * dist)
     _q.setFromAxisAngle(_axis, rng() * Math.PI)
-    _s.set(26 + rng() * 34, 5 + rng() * 5, 20 + rng() * 26)
+    _s.set(34 + rng() * 40, 5 + rng() * 5, 26 + rng() * 30)
     mesh.setMatrixAt(i, _m.compose(_p, _q, _s))
   }
   mesh.instanceMatrix.needsUpdate = true
@@ -271,7 +271,9 @@ const buildChains = (c: SkyColors, ends: ReadonlyArray<{ a: Vector3; b: Vector3 
   mesh.instanceMatrix.needsUpdate = true
   mesh.computeBoundingSphere()
   group.add(mesh)
-  for (const g of anchors) group.add(new Mesh(g, toonVCInstanced()))
+  // The anchors: one mesh for all four.
+  group.add(new Mesh(merge(anchors), toonVCInstanced()))
+  for (const g of anchors) g.dispose()
   return group
 }
 
@@ -308,7 +310,7 @@ export const buildSky = (scene: Scene, centre: Vector3, c: SkyColors = DUSK, gro
   // The mountain the base stands on, the cloud sea, spires out of it, and
   // (round a fortress) two chains to the nearest spires.
   const half = ground ? Math.max(ground.w, ground.d) / 2 : 40
-  const sea = buildCloudSea(c, low ? 55 : 120, centre, ground ? half * 0.5 : 20)
+  const sea = buildCloudSea(c, low ? 36 : 70, centre, ground ? half * 0.5 : 20)
   const rng = mulberry32(31337)
   const spots: Array<{ x: number; z: number; h: number; r: number }> = []
   const nSpires = low ? 7 : 12

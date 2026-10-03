@@ -47,32 +47,32 @@ export default {
     },
     'haul': 'Chatarra {n} de {need}',
     'hide': 'Esconderse en la caja',
-    'zoom': 'Zoom the scope',
-    'cutPower': 'Cut the power',
-    'jamServo': 'Jam the servo',
-    'noBlade': 'No blade will take this one',
-    'dragBody': 'Drag the body',
-    'dropBody': 'Let go (into a container if one is at hand)',
-    'sabotage': 'Sabotage the alarm beacon',
-    'alarmRunner': 'A guard is running to raise the alarm',
-    'alarmLit': 'The alarm is raised',
+    'zoom': 'Ampliar la mira',
+    'cutPower': 'Cortar la corriente',
+    'jamServo': 'Bloquear el servo',
+    'noBlade': 'Ninguna hoja acabará con este',
+    'dragBody': 'Arrastrar el cuerpo',
+    'dropBody': 'Soltar (en un contenedor si hay uno cerca)',
+    'sabotage': 'Sabotear la baliza de alarma',
+    'alarmRunner': 'Un guardia corre a dar la alarma',
+    'alarmLit': 'La alarma ha saltado',
     'boss': 'Vida del jefe {n} %',
     'loot': 'Desguazar la chatarra'
   },
   'defeat': {
     'title': 'Mech fuera de combate',
     'retry': 'Reintentar',
-    'resume': 'From the first pile',
+    'resume': 'Desde la primera pila',
     'kept': 'Chatarra tech rescatada'
   },
   'base': {
     'deploy': 'Desplegar',
-    'training': 'Training',
-    'learned': 'The base has learned',
+    'training': 'Entrenamiento',
+    'learned': 'La base ha aprendido',
     'answer': {
-      'helmets': 'Helmets: your headshots were noticed',
-      'boxCheck': 'Box checkers: a box that sits still gets poked',
-      'perchLight': 'A searchlight now sweeps the perch'
+      'helmets': 'Cascos: se fijaron en tus tiros a la cabeza',
+      'boxCheck': 'Revisacajas: a la caja quieta le dan un toque',
+      'perchLight': 'Ahora un foco barre la atalaya'
     },
     'threat': 'Nivel de amenaza',
     'locked': 'Supera antes el nivel {n}',
@@ -95,11 +95,11 @@ export default {
     'armor': 'Blindaje',
     'speed': 'Velocidad de servos',
     'decoy': 'Duración del señuelo',
-    'hook': 'Hook reach'
+    'hook': 'Alcance del gancho'
   },
   'trackVerb': {
-    'speed': 'Level 1: a quieter sprint',
-    'decoy': 'Level 1: one more decoy'
+    'speed': 'Nivel 1: sprint más silencioso',
+    'decoy': 'Nivel 1: un señuelo más'
   },
   'workshop': {
     'max': 'Máx.',
@@ -149,10 +149,10 @@ export default {
     'tabGlobal': 'Global'
   },
   'training': {
-    'replay': 'Show me again',
-    'progress': 'Training: {n} of {total} lessons done',
-    'scrapWhy': 'Scrap buys upgrades for your weapons back at the Command Base.',
-    'skip': 'Skip training'
+    'replay': 'Muéstramelo otra vez',
+    'progress': 'Entrenamiento: {n} de {total} lecciones hechas',
+    'scrapWhy': 'La chatarra tech compra mejoras para tus armas en la base de mando.',
+    'skip': 'Saltar entrenamiento'
   },
   'pause': {
     'title': 'PAUSA',
@@ -162,7 +162,7 @@ export default {
   'options': {
     'killCams': 'Cámara de derribo',
     'sensitivity': 'Sensibilidad de cámara',
-    'scopeSensitivity': 'Scope sensitivity',
+    'scopeSensitivity': 'Sensibilidad de mira',
     'gameplay': 'Jugabilidad',
     'title': 'Opciones',
     'general': 'General',

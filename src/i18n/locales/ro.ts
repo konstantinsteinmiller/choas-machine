@@ -47,32 +47,32 @@ export default {
     },
     'haul': 'Fier vechi {n} din {need}',
     'hide': 'Ascunde-te în cutie',
-    'zoom': 'Zoom the scope',
-    'cutPower': 'Cut the power',
-    'jamServo': 'Jam the servo',
-    'noBlade': 'No blade will take this one',
-    'dragBody': 'Drag the body',
-    'dropBody': 'Let go (into a container if one is at hand)',
-    'sabotage': 'Sabotage the alarm beacon',
-    'alarmRunner': 'A guard is running to raise the alarm',
-    'alarmLit': 'The alarm is raised',
+    'zoom': 'Mărește luneta',
+    'cutPower': 'Taie curentul',
+    'jamServo': 'Blochează servo-ul',
+    'noBlade': 'Nicio lamă nu-l poate răpune',
+    'dragBody': 'Târăște corpul',
+    'dropBody': 'Lasă-l (într-un container, dacă e aproape)',
+    'sabotage': 'Sabotează farul de alarmă',
+    'alarmRunner': 'Un paznic fuge să dea alarma',
+    'alarmLit': 'Alarma a fost dată',
     'boss': 'Viața șefului {n}%',
     'loot': 'Dezmembrează fierul vechi'
   },
   'defeat': {
     'title': 'Mech doborât',
     'retry': 'Încearcă din nou',
-    'resume': 'From the first pile',
+    'resume': 'De la prima grămadă',
     'kept': 'Fier vechi tech salvat'
   },
   'base': {
     'deploy': 'Desfășoară',
-    'training': 'Training',
-    'learned': 'The base has learned',
+    'training': 'Antrenament',
+    'learned': 'Baza a învățat',
     'answer': {
-      'helmets': 'Helmets: your headshots were noticed',
-      'boxCheck': 'Box checkers: a box that sits still gets poked',
-      'perchLight': 'A searchlight now sweeps the perch'
+      'helmets': 'Căști: loviturile tale în cap au fost observate',
+      'boxCheck': 'Controlori de cutii: o cutie nemișcată e împunsă',
+      'perchLight': 'Un reflector mătură acum turnul'
     },
     'threat': 'Nivel de amenințare',
     'locked': 'Termină mai întâi nivelul {n}',
@@ -95,11 +95,11 @@ export default {
     'armor': 'Plăci blindate',
     'speed': 'Viteză servo',
     'decoy': 'Durata momelii',
-    'hook': 'Hook reach'
+    'hook': 'Raza cârligului'
   },
   'trackVerb': {
-    'speed': 'Level 1: a quieter sprint',
-    'decoy': 'Level 1: one more decoy'
+    'speed': 'Nivelul 1: sprint mai silențios',
+    'decoy': 'Nivelul 1: încă o momeală'
   },
   'workshop': {
     'max': 'Max',
@@ -149,10 +149,10 @@ export default {
     'tabGlobal': 'Global'
   },
   'training': {
-    'replay': 'Show me again',
-    'progress': 'Training: {n} of {total} lessons done',
-    'scrapWhy': 'Scrap buys upgrades for your weapons back at the Command Base.',
-    'skip': 'Skip training'
+    'replay': 'Arată-mi din nou',
+    'progress': 'Antrenament: {n} din {total} lecții terminate',
+    'scrapWhy': 'Cu fier vechi tech îți îmbunătățești armele la Baza de Comandă.',
+    'skip': 'Sari peste antrenament'
   },
   'pause': {
     'title': 'PAUZĂ',
@@ -162,7 +162,7 @@ export default {
   'options': {
     'killCams': 'Kill-cam',
     'sensitivity': 'Sensibilitate privire',
-    'scopeSensitivity': 'Scope sensitivity',
+    'scopeSensitivity': 'Sensibilitate lunetă',
     'gameplay': 'Joc',
     'title': 'Opțiuni',
     'general': 'General',

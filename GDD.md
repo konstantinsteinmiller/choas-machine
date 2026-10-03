@@ -27,6 +27,8 @@ The game begins with the base unaware of the player's presence.
     *   *Hidden Blade:* A completely silent, retractable energy blade on the right arm.
     *   *Assassinations:* Context-sensitive prompts allow backstabs from behind, or "Drop Assassinations" from ledges, towers, or ropes. 
 *   **Decoys:** The player can deploy holographic decoys (cyan/pink neon projections) to distract humans and machines, opening them up for backstabs or grouping them for an explosive attack.
+*   **Detection (after *Odyssey*'s fort guards):** A guard who glimpses the Mech fills a white mark slowly (a glance is forgiven; slower crouched, at the cone's edge and in shadow); yellow, it walks to where it saw something; red, it is sure: it shouts (the guards round it join the fight) and the nearest guard runs to light an alarm beacon. Stop the runner, or sabotage the beacons first, and the base never reaches full alert. Lost, the guards search the last known position, then return to their rounds warier. Things out of place (a stripped pile, a light shot out) are noticed; bodies can be dragged into containers; crouched in a thicket the Mech is unseen unless a guard is right on top of it.
+*   **Training ground:** A wordless tutorial of ten small rooms, each opened by a ghost of the Mech showing the lesson (twice, and again on request).
 
 ### 2.2 The Action Phase (Chaos)
 If the player misses a shot, leaves a body in plain sight, or makes too much noise, the **Alert Level** rises. If the base goes on full alert, the gameplay shifts drastically.
@@ -38,9 +40,7 @@ If the player misses a shot, leaves a body in plain sight, or makes too much noi
 
 ### 2.3 The Kill-Cam System
 To reward precision and add cinematic flair, the game features a dynamic kill-cam system:
-*   **Trigger Rates:** 
-    *   ~50% of all Sniper Headshots trigger a slow-motion kill-cam.
-    *   ~20% of all other kills (heavy weapons, drop assassinations) trigger a kill-cam.
+*   **Trigger Rates:** A kill is scored by distance, the target's movement and the body part; the better the shot, the likelier the kill-cam (from about a quarter for a plain close body shot to about four in five for a moving headshot at range). The first headshot of a player's life is always shown; a boss's last blow gets its own slow orbit; after two kills in quick succession a good one gets a short cam and a plain one none.
 *   **Visuals:** Bullet-time tracking, x-ray damage on heavy machines, and dramatic camera angles for hidden blade assassinations.
 
 ---
@@ -59,7 +59,8 @@ Inspired by *Elder Scrolls: Blades*, the game features a deep, satisfying meta-l
 ### 3.2 Mobile Command Base (The Hub)
 A visual hub menu (rendered in the pink/cyan UI) where the player upgrades their Mech.
 *   **The Armory:** Upgrade the Sniper (zoom, damage, silence level), Mini-gun (cooling rate, damage), and Rocket Launcher (blast radius, ammo capacity).
-*   **Chassis Bay:** Upgrade the Mech's armor (for the loud phases), movement speed, and Decoy duration.
+*   **Chassis Bay:** Upgrade the Mech's armor (for the loud phases), movement speed (level 1 also quiets the sprint), Decoy duration (level 1 also packs one more decoy) and the grappling hook's reach.
+*   **The base learns:** The last raid's habits are answered in the next (helmets after many headshots, box checkers after much use of the hide box, a searchlight on the perch after snipes from it), and the threat card says so.
 *   **The Forge:** Wait-timers (which can be sped up with premium currency) to construct new weapon tiers from gathered blueprints.
 
 ---
@@ -68,10 +69,14 @@ A visual hub menu (rendered in the pink/cyan UI) where the player upgrades their
 
 | Enemy Type | Behavior | Weakness | Threat Level |
 | :--- | :--- | :--- | :--- |
-| **Human Guard** | Patrols base. Triggers alarms if bodies are found. | Headshots, Backstabs | Low |
+| **Human Guard** | Patrols base (some stop to chat). Notices bodies and things out of place; runs for alarm beacons. | Headshots (a body takes two rounds, the legs three), Backstabs | Low |
+| **Sentry** | Watches from a tower. Calls the alarm far and wide; a poor shot. | Silenced Sniper | Low |
+| **Engineer** | A guard who mends sabotaged beacons and shot-out searchlights. | Headshots, Backstabs | Low |
+| **Scrap Hound** | A robot dog: follows the Mech's scent and noises, smells bodies through walls, barks the guards over, bites. | Any round | Medium |
 | **Surveillance Drone** | Flies in patterns. Spots player in cover. | Silenced Sniper | Medium (Summons Heavies) |
 | **Enforcer Mech** | Powers up only during Alerts. Suppressive fire. | Rockets, Mini-gun to joints | High |
-| **Goliath Tank** | Boss enemy at the end of large bases. | Decoys + Flanking + Rockets | Extreme |
+| **Goliath Tank** | Boss enemy at the end of large bases. Overheats after three shells, its vents swinging toward the Mech. | Decoys (it shells itself) + its rear vents + Rockets | Extreme |
+| **The Warden** | The base commander, a boss on the keep's roof. A powered shield from level IV; past half health he drops it and dashes with a glint. | Cut his generator; step aside from the dash | High |
 
 ---
 

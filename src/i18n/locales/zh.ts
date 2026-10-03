@@ -47,32 +47,32 @@ export default {
     },
     'haul': '废料 {n}/{need}',
     'hide': '躲进箱子',
-    'zoom': 'Zoom the scope',
-    'cutPower': 'Cut the power',
-    'jamServo': 'Jam the servo',
-    'noBlade': 'No blade will take this one',
-    'dragBody': 'Drag the body',
-    'dropBody': 'Let go (into a container if one is at hand)',
-    'sabotage': 'Sabotage the alarm beacon',
-    'alarmRunner': 'A guard is running to raise the alarm',
-    'alarmLit': 'The alarm is raised',
+    'zoom': '放大瞄准镜',
+    'cutPower': '切断电源',
+    'jamServo': '卡住伺服',
+    'noBlade': '刀刃无法击倒它',
+    'dragBody': '拖动尸体',
+    'dropBody': '放下（附近有容器就放进去）',
+    'sabotage': '破坏警报信标',
+    'alarmRunner': '守卫正跑去拉响警报',
+    'alarmLit': '警报已拉响',
     'boss': '首领生命 {n}%',
     'loot': '拆解废料'
   },
   'defeat': {
     'title': '机甲倒下了',
     'retry': '再试一次',
-    'resume': 'From the first pile',
+    'resume': '从第一堆开始',
     'kept': '回收的科技废料'
   },
   'base': {
     'deploy': '出击',
-    'training': 'Training',
-    'learned': 'The base has learned',
+    'training': '训练',
+    'learned': '基地吸取了教训',
     'answer': {
-      'helmets': 'Helmets: your headshots were noticed',
-      'boxCheck': 'Box checkers: a box that sits still gets poked',
-      'perchLight': 'A searchlight now sweeps the perch'
+      'helmets': '头盔：你的爆头被注意到了',
+      'boxCheck': '查箱：不动的箱子会被戳',
+      'perchLight': '探照灯如今扫过狙击塔'
     },
     'threat': '威胁等级',
     'locked': '请先通关第 {n} 关',
@@ -95,11 +95,11 @@ export default {
     'armor': '装甲板',
     'speed': '伺服速度',
     'decoy': '诱饵持续时间',
-    'hook': 'Hook reach'
+    'hook': '抓钩距离'
   },
   'trackVerb': {
-    'speed': 'Level 1: a quieter sprint',
-    'decoy': 'Level 1: one more decoy'
+    'speed': '等级 1：冲刺更安静',
+    'decoy': '等级 1：多一个诱饵'
   },
   'workshop': {
     'max': '已满级',
@@ -149,10 +149,10 @@ export default {
     'tabGlobal': '全球'
   },
   'training': {
-    'replay': 'Show me again',
-    'progress': 'Training: {n} of {total} lessons done',
-    'scrapWhy': 'Scrap buys upgrades for your weapons back at the Command Base.',
-    'skip': 'Skip training'
+    'replay': '再演示一次',
+    'progress': '训练：已完成 {n}/{total} 课',
+    'scrapWhy': '废料可在指挥基地升级你的武器。',
+    'skip': '跳过训练'
   },
   'pause': {
     'title': '已暂停',
@@ -162,7 +162,7 @@ export default {
   'options': {
     'killCams': '击杀镜头',
     'sensitivity': '视角灵敏度',
-    'scopeSensitivity': 'Scope sensitivity',
+    'scopeSensitivity': '瞄准镜灵敏度',
     'gameplay': '玩法',
     'title': '选项',
     'general': '通用',

@@ -47,32 +47,32 @@ export default {
     },
     'haul': 'Skrot {n} av {need}',
     'hide': 'Göm dig i lådan',
-    'zoom': 'Zoom the scope',
-    'cutPower': 'Cut the power',
-    'jamServo': 'Jam the servo',
-    'noBlade': 'No blade will take this one',
-    'dragBody': 'Drag the body',
-    'dropBody': 'Let go (into a container if one is at hand)',
-    'sabotage': 'Sabotage the alarm beacon',
-    'alarmRunner': 'A guard is running to raise the alarm',
-    'alarmLit': 'The alarm is raised',
+    'zoom': 'Zooma kikarsiktet',
+    'cutPower': 'Bryt strömmen',
+    'jamServo': 'Blockera servot',
+    'noBlade': 'Inget blad biter på den här',
+    'dragBody': 'Dra kroppen',
+    'dropBody': 'Släpp (i en behållare om en finns nära)',
+    'sabotage': 'Sabotera larmfyren',
+    'alarmRunner': 'En vakt springer för att slå larm',
+    'alarmLit': 'Larmet har gått',
     'boss': 'Bossens hälsa {n} %',
     'loot': 'Plocka isär skrotet'
   },
   'defeat': {
     'title': 'Mechen är nere',
     'retry': 'Försök igen',
-    'resume': 'From the first pile',
+    'resume': 'Från första högen',
     'kept': 'Räddat teknikskrot'
   },
   'base': {
     'deploy': 'Utplacera',
-    'training': 'Training',
-    'learned': 'The base has learned',
+    'training': 'Träning',
+    'learned': 'Basen har lärt sig',
     'answer': {
-      'helmets': 'Helmets: your headshots were noticed',
-      'boxCheck': 'Box checkers: a box that sits still gets poked',
-      'perchLight': 'A searchlight now sweeps the perch'
+      'helmets': 'Hjälmar: dina skallskott märktes',
+      'boxCheck': 'Lådkollare: en låda som står still får en knuff',
+      'perchLight': 'En strålkastare sveper nu över tornet'
     },
     'threat': 'Hotnivå',
     'locked': 'Klara nivå {n} först',
@@ -95,11 +95,11 @@ export default {
     'armor': 'Pansarplåt',
     'speed': 'Servofart',
     'decoy': 'Lockbetets varaktighet',
-    'hook': 'Hook reach'
+    'hook': 'Hakens räckvidd'
   },
   'trackVerb': {
-    'speed': 'Level 1: a quieter sprint',
-    'decoy': 'Level 1: one more decoy'
+    'speed': 'Nivå 1: tystare spurt',
+    'decoy': 'Nivå 1: ett lockbete till'
   },
   'workshop': {
     'max': 'Max',
@@ -149,10 +149,10 @@ export default {
     'tabGlobal': 'Global'
   },
   'training': {
-    'replay': 'Show me again',
-    'progress': 'Training: {n} of {total} lessons done',
-    'scrapWhy': 'Scrap buys upgrades for your weapons back at the Command Base.',
-    'skip': 'Skip training'
+    'replay': 'Visa igen',
+    'progress': 'Träning: {n} av {total} lektioner klara',
+    'scrapWhy': 'Skrot köper vapenuppgraderingar hemma på basen.',
+    'skip': 'Hoppa över träningen'
   },
   'pause': {
     'title': 'PAUSAT',
@@ -162,7 +162,7 @@ export default {
   'options': {
     'killCams': 'Kill-cam',
     'sensitivity': 'Blickkänslighet',
-    'scopeSensitivity': 'Scope sensitivity',
+    'scopeSensitivity': 'Kikarkänslighet',
     'gameplay': 'Spel',
     'title': 'Inställningar',
     'general': 'Allmänt',

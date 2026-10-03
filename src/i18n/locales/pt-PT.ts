@@ -47,32 +47,32 @@ export default {
     },
     'haul': 'Sucata {n} de {need}',
     'hide': 'Esconder-se na caixa',
-    'zoom': 'Zoom the scope',
-    'cutPower': 'Cut the power',
-    'jamServo': 'Jam the servo',
-    'noBlade': 'No blade will take this one',
-    'dragBody': 'Drag the body',
-    'dropBody': 'Let go (into a container if one is at hand)',
-    'sabotage': 'Sabotage the alarm beacon',
-    'alarmRunner': 'A guard is running to raise the alarm',
-    'alarmLit': 'The alarm is raised',
+    'zoom': 'Zoom da mira',
+    'cutPower': 'Cortar a energia',
+    'jamServo': 'Encravar o servo',
+    'noBlade': 'Nenhuma lâmina derruba este',
+    'dragBody': 'Arrastar o corpo',
+    'dropBody': 'Largar (num contentor, se houver um perto)',
+    'sabotage': 'Sabotar o farol de alarme',
+    'alarmRunner': 'Um guarda corre para dar o alarme',
+    'alarmLit': 'O alarme disparou',
     'boss': 'Vida do chefe {n}%',
     'loot': 'Desmontar a sucata'
   },
   'defeat': {
     'title': 'Mech destruído',
     'retry': 'Tentar novamente',
-    'resume': 'From the first pile',
+    'resume': 'Desde o primeiro monte',
     'kept': 'Sucata Tech recuperada'
   },
   'base': {
     'deploy': 'Iniciar',
-    'training': 'Training',
-    'learned': 'The base has learned',
+    'training': 'Treino',
+    'learned': 'A base aprendeu',
     'answer': {
-      'helmets': 'Helmets: your headshots were noticed',
-      'boxCheck': 'Box checkers: a box that sits still gets poked',
-      'perchLight': 'A searchlight now sweeps the perch'
+      'helmets': 'Capacetes: repararam nos teus tiros na cabeça',
+      'boxCheck': 'Revistadores de caixas: caixa parada leva um toque',
+      'perchLight': 'Agora um holofote varre o posto alto'
     },
     'threat': 'Nível de ameaça',
     'locked': 'Conclui primeiro o nível {n}',
@@ -95,11 +95,11 @@ export default {
     'armor': 'Placas de blindagem',
     'speed': 'Velocidade dos servos',
     'decoy': 'Duração do engodo',
-    'hook': 'Hook reach'
+    'hook': 'Alcance do gancho'
   },
   'trackVerb': {
-    'speed': 'Level 1: a quieter sprint',
-    'decoy': 'Level 1: one more decoy'
+    'speed': 'Nível 1: corrida mais silenciosa',
+    'decoy': 'Nível 1: mais um isco'
   },
   'workshop': {
     'max': 'Máx.',
@@ -149,10 +149,10 @@ export default {
     'tabGlobal': 'Global'
   },
   'training': {
-    'replay': 'Show me again',
-    'progress': 'Training: {n} of {total} lessons done',
-    'scrapWhy': 'Scrap buys upgrades for your weapons back at the Command Base.',
-    'skip': 'Skip training'
+    'replay': 'Mostrar outra vez',
+    'progress': 'Treino: {n} de {total} lições concluídas',
+    'scrapWhy': 'A Sucata Tech compra melhorias para as tuas armas na base de comando.',
+    'skip': 'Saltar treino'
   },
   'pause': {
     'title': 'EM PAUSA',
@@ -162,7 +162,7 @@ export default {
   'options': {
     'killCams': 'Kill-cam',
     'sensitivity': 'Sensibilidade da câmara',
-    'scopeSensitivity': 'Scope sensitivity',
+    'scopeSensitivity': 'Sensibilidade da mira',
     'gameplay': 'Jogabilidade',
     'title': 'Opções',
     'general': 'Geral',

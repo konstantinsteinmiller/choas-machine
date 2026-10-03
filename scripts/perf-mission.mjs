@@ -98,6 +98,10 @@ const runOnce = async (arm) => {
       queueMicrotask(() => document.dispatchEvent(new Event('pointerlockchange')))
     }
   })
+  // A player who has been through the training ground: the first scene is the Bastion.
+  await page.addInitScript(() => {
+    if (!localStorage.getItem('cmachine_state')) localStorage.setItem('cmachine_state', JSON.stringify({ cm_v: 1, cm_seen: ['training'] }))
+  })
   const errors = []
   page.on('pageerror', e => errors.push(e.message))
   try {

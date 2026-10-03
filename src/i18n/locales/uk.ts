@@ -47,32 +47,32 @@ export default {
     },
     'haul': 'Брухт {n} з {need}',
     'hide': 'Сховатися в ящику',
-    'zoom': 'Zoom the scope',
-    'cutPower': 'Cut the power',
-    'jamServo': 'Jam the servo',
-    'noBlade': 'No blade will take this one',
-    'dragBody': 'Drag the body',
-    'dropBody': 'Let go (into a container if one is at hand)',
-    'sabotage': 'Sabotage the alarm beacon',
-    'alarmRunner': 'A guard is running to raise the alarm',
-    'alarmLit': 'The alarm is raised',
+    'zoom': 'Наблизити приціл',
+    'cutPower': 'Вимкнути живлення',
+    'jamServo': 'Заклинити серво',
+    'noBlade': 'Клинком його не взяти',
+    'dragBody': 'Тягти тіло',
+    'dropBody': 'Відпустити (у контейнер, якщо він поруч)',
+    'sabotage': 'Вивести з ладу маяк тривоги',
+    'alarmRunner': 'Охоронець біжить підняти тривогу',
+    'alarmLit': 'Тривогу піднято',
     'boss': 'Здоров’я боса {n}%',
     'loot': 'Розібрати брухт'
   },
   'defeat': {
     'title': 'Мех упав',
     'retry': 'Спробувати ще',
-    'resume': 'From the first pile',
+    'resume': 'З першої купи',
     'kept': 'Врятований техломіт'
   },
   'base': {
     'deploy': 'У бій',
-    'training': 'Training',
-    'learned': 'The base has learned',
+    'training': 'Тренування',
+    'learned': 'База зробила висновки',
     'answer': {
-      'helmets': 'Helmets: your headshots were noticed',
-      'boxCheck': 'Box checkers: a box that sits still gets poked',
-      'perchLight': 'A searchlight now sweeps the perch'
+      'helmets': 'Шоломи: твої хедшоти помітили',
+      'boxCheck': 'Перевірка ящиків: нерухомий ящик штрикають',
+      'perchLight': 'Тепер вежу обшукує прожектор'
     },
     'threat': 'Рівень загрози',
     'locked': 'Спершу пройдіть рівень {n}',
@@ -95,11 +95,11 @@ export default {
     'armor': 'Бронеплити',
     'speed': 'Швидкість серв',
     'decoy': 'Тривалість принади',
-    'hook': 'Hook reach'
+    'hook': 'Дальність гака'
   },
   'trackVerb': {
-    'speed': 'Level 1: a quieter sprint',
-    'decoy': 'Level 1: one more decoy'
+    'speed': 'Рівень 1: тихіший біг',
+    'decoy': 'Рівень 1: ще одна принада'
   },
   'workshop': {
     'max': 'Макс.',
@@ -149,10 +149,10 @@ export default {
     'tabGlobal': 'Світовий'
   },
   'training': {
-    'replay': 'Show me again',
-    'progress': 'Training: {n} of {total} lessons done',
-    'scrapWhy': 'Scrap buys upgrades for your weapons back at the Command Base.',
-    'skip': 'Skip training'
+    'replay': 'Покажи ще раз',
+    'progress': 'Тренування: пройдено уроків {n} з {total}',
+    'scrapWhy': 'За техломіт на Командній базі можна покращити зброю.',
+    'skip': 'Пропустити тренування'
   },
   'pause': {
     'title': 'ПАУЗА',
@@ -162,7 +162,7 @@ export default {
   'options': {
     'killCams': 'Камера добивання',
     'sensitivity': 'Чутливість огляду',
-    'scopeSensitivity': 'Scope sensitivity',
+    'scopeSensitivity': 'Чутливість приціла',
     'gameplay': 'Гра',
     'title': 'Налаштування',
     'general': 'Загальні',

@@ -47,32 +47,32 @@ export default {
     },
     'haul': 'Σκραπ {n} από {need}',
     'hide': 'Κρύψου στο κουτί',
-    'zoom': 'Zoom the scope',
-    'cutPower': 'Cut the power',
-    'jamServo': 'Jam the servo',
-    'noBlade': 'No blade will take this one',
-    'dragBody': 'Drag the body',
-    'dropBody': 'Let go (into a container if one is at hand)',
-    'sabotage': 'Sabotage the alarm beacon',
-    'alarmRunner': 'A guard is running to raise the alarm',
-    'alarmLit': 'The alarm is raised',
+    'zoom': 'Ζουμ σκόπευτρου',
+    'cutPower': 'Κόψε το ρεύμα',
+    'jamServo': 'Μπλόκαρε το σέρβο',
+    'noBlade': 'Καμία λεπίδα δεν το ρίχνει',
+    'dragBody': 'Σύρε το σώμα',
+    'dropBody': 'Άφησέ το (σε κοντέινερ, αν υπάρχει κοντά)',
+    'sabotage': 'Σαμποτάρισε τον φάρο συναγερμού',
+    'alarmRunner': 'Ένας φρουρός τρέχει να σημάνει συναγερμό',
+    'alarmLit': 'Ο συναγερμός σήμανε',
     'boss': 'Ζωή του αρχηγού {n}%',
     'loot': 'Ξήλωσε το σκραπ'
   },
   'defeat': {
     'title': 'Το μεκ έπεσε',
     'retry': 'Δοκίμασε ξανά',
-    'resume': 'From the first pile',
+    'resume': 'Από τον πρώτο σωρό',
     'kept': 'Τεχνο-σκραπ που σώθηκε'
   },
   'base': {
     'deploy': 'Εκκίνηση',
-    'training': 'Training',
-    'learned': 'The base has learned',
+    'training': 'Εκπαίδευση',
+    'learned': 'Η βάση πήρε το μάθημά της',
     'answer': {
-      'helmets': 'Helmets: your headshots were noticed',
-      'boxCheck': 'Box checkers: a box that sits still gets poked',
-      'perchLight': 'A searchlight now sweeps the perch'
+      'helmets': 'Κράνη: οι βολές σου στο κεφάλι έγιναν αντιληπτές',
+      'boxCheck': 'Έλεγχος κουτιών: ένα ακίνητο κουτί δέχεται σκουντήματα',
+      'perchLight': 'Ένας προβολέας σαρώνει πλέον τον πύργο'
     },
     'threat': 'Επίπεδο απειλής',
     'locked': 'Ολοκλήρωσε πρώτα το επίπεδο {n}',
@@ -95,11 +95,11 @@ export default {
     'armor': 'Θωράκιση',
     'speed': 'Ταχύτητα σέρβο',
     'decoy': 'Διάρκεια δολώματος',
-    'hook': 'Hook reach'
+    'hook': 'Εμβέλεια γάντζου'
   },
   'trackVerb': {
-    'speed': 'Level 1: a quieter sprint',
-    'decoy': 'Level 1: one more decoy'
+    'speed': 'Επίπεδο 1: πιο αθόρυβο σπριντ',
+    'decoy': 'Επίπεδο 1: ένα δόλωμα ακόμα'
   },
   'workshop': {
     'max': 'Μέγιστο',
@@ -149,10 +149,10 @@ export default {
     'tabGlobal': 'Παγκόσμια'
   },
   'training': {
-    'replay': 'Show me again',
-    'progress': 'Training: {n} of {total} lessons done',
-    'scrapWhy': 'Scrap buys upgrades for your weapons back at the Command Base.',
-    'skip': 'Skip training'
+    'replay': 'Δείξε ξανά',
+    'progress': 'Εκπαίδευση: {n} από {total} μαθήματα',
+    'scrapWhy': 'Με το τεχνο-σκραπ αναβαθμίζεις τα όπλα σου στη Βάση Διοίκησης.',
+    'skip': 'Παράλειψη εκπαίδευσης'
   },
   'pause': {
     'title': 'ΠΑΥΣΗ',
@@ -162,7 +162,7 @@ export default {
   'options': {
     'killCams': 'Κάμερα φινάλε',
     'sensitivity': 'Ευαισθησία κάμερας',
-    'scopeSensitivity': 'Scope sensitivity',
+    'scopeSensitivity': 'Ευαισθησία σκόπευτρου',
     'gameplay': 'Παιχνίδι',
     'title': 'Ρυθμίσεις',
     'general': 'Γενικά',

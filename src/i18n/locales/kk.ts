@@ -47,32 +47,32 @@ export default {
     },
     'haul': 'Сынық {n} / {need}',
     'hide': 'Жәшікке жасырыну',
-    'zoom': 'Zoom the scope',
-    'cutPower': 'Cut the power',
-    'jamServo': 'Jam the servo',
-    'noBlade': 'No blade will take this one',
-    'dragBody': 'Drag the body',
-    'dropBody': 'Let go (into a container if one is at hand)',
-    'sabotage': 'Sabotage the alarm beacon',
-    'alarmRunner': 'A guard is running to raise the alarm',
-    'alarmLit': 'The alarm is raised',
+    'zoom': 'Оптиканы жақындату',
+    'cutPower': 'Қуатты өшіру',
+    'jamServo': 'Сервоны кептелту',
+    'noBlade': 'Бұған жүз өтпейді',
+    'dragBody': 'Денені сүйреу',
+    'dropBody': 'Жіберу (жақында контейнер болса, ішіне)',
+    'sabotage': 'Дабыл шамшырағын бүлдіру',
+    'alarmRunner': 'Күзетші дабыл қағуға жүгіріп барады',
+    'alarmLit': 'Дабыл қағылды',
     'boss': 'Бастың денсаулығы {n}%',
     'loot': 'Сынықты бөлшектеу'
   },
   'defeat': {
     'title': 'Мех құлады',
     'retry': 'Қайта көру',
-    'resume': 'From the first pile',
+    'resume': 'Бірінші үйіндіден',
     'kept': 'Құтқарылған тех-сынықтар'
   },
   'base': {
     'deploy': 'Жөнелту',
-    'training': 'Training',
-    'learned': 'The base has learned',
+    'training': 'Жаттығу',
+    'learned': 'База сабақ алды',
     'answer': {
-      'helmets': 'Helmets: your headshots were noticed',
-      'boxCheck': 'Box checkers: a box that sits still gets poked',
-      'perchLight': 'A searchlight now sweeps the perch'
+      'helmets': 'Дулығалар: басқа дәл атқаның байқалды',
+      'boxCheck': 'Жәшік тексерушілер: қозғалмай тұрған жәшікті түртеді',
+      'perchLight': 'Енді прожектор мұнараны шолып тұр'
     },
     'threat': 'Қауіп деңгейі',
     'locked': 'Алдымен {n}-деңгейді өтіңіз',
@@ -95,11 +95,11 @@ export default {
     'armor': 'Сауыт тақталары',
     'speed': 'Серво жылдамдығы',
     'decoy': 'Жалғандың ұзақтығы',
-    'hook': 'Hook reach'
+    'hook': 'Ілмек қашықтығы'
   },
   'trackVerb': {
-    'speed': 'Level 1: a quieter sprint',
-    'decoy': 'Level 1: one more decoy'
+    'speed': '1-деңгей: тынышырақ жүгіру',
+    'decoy': '1-деңгей: тағы бір алдамшы'
   },
   'workshop': {
     'max': 'Максимум',
@@ -149,10 +149,10 @@ export default {
     'tabGlobal': 'Әлемдік'
   },
   'training': {
-    'replay': 'Show me again',
-    'progress': 'Training: {n} of {total} lessons done',
-    'scrapWhy': 'Scrap buys upgrades for your weapons back at the Command Base.',
-    'skip': 'Skip training'
+    'replay': 'Қайта көрсету',
+    'progress': 'Жаттығу: {total} сабақтың {n} өтті',
+    'scrapWhy': 'Тех-сынықтарға базада қаруыңды жақсартасың.',
+    'skip': 'Жаттығуды өткізу'
   },
   'pause': {
     'title': 'КІДІРІС',
@@ -162,7 +162,7 @@ export default {
   'options': {
     'killCams': 'Жою камерасы',
     'sensitivity': 'Қарау сезімталдығы',
-    'scopeSensitivity': 'Scope sensitivity',
+    'scopeSensitivity': 'Оптика сезімталдығы',
     'gameplay': 'Ойын',
     'title': 'Параметрлер',
     'general': 'Жалпы',

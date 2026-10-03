@@ -47,32 +47,32 @@ export default {
     },
     'haul': 'Chatarra {n} de {need}',
     'hide': 'Agocharse na caixa',
-    'zoom': 'Zoom the scope',
-    'cutPower': 'Cut the power',
-    'jamServo': 'Jam the servo',
-    'noBlade': 'No blade will take this one',
-    'dragBody': 'Drag the body',
-    'dropBody': 'Let go (into a container if one is at hand)',
-    'sabotage': 'Sabotage the alarm beacon',
-    'alarmRunner': 'A guard is running to raise the alarm',
-    'alarmLit': 'The alarm is raised',
+    'zoom': 'Ampliar a mira',
+    'cutPower': 'Cortar a corrente',
+    'jamServo': 'Bloquear o servo',
+    'noBlade': 'Ningunha folla acabará con este',
+    'dragBody': 'Arrastrar o corpo',
+    'dropBody': 'Soltar (nun contedor se hai un preto)',
+    'sabotage': 'Sabotar a baliza de alarma',
+    'alarmRunner': 'Un garda corre a dar a alarma',
+    'alarmLit': 'A alarma saltou',
     'boss': 'Vida do xefe {n} %',
     'loot': 'Desmontar a chatarra'
   },
   'defeat': {
     'title': 'Mecha fóra de combate',
     'retry': 'Tentar de novo',
-    'resume': 'From the first pile',
+    'resume': 'Desde a primeira morea',
     'kept': 'Chatarra tec rescatada'
   },
   'base': {
     'deploy': 'Despregar',
-    'training': 'Training',
-    'learned': 'The base has learned',
+    'training': 'Adestramento',
+    'learned': 'A base aprendeu',
     'answer': {
-      'helmets': 'Helmets: your headshots were noticed',
-      'boxCheck': 'Box checkers: a box that sits still gets poked',
-      'perchLight': 'A searchlight now sweeps the perch'
+      'helmets': 'Cascos: fixáronse nos teus tiros á cabeza',
+      'boxCheck': 'Revisacaixas: á caixa queda dánlle un toque',
+      'perchLight': 'Agora un foco varre a atalaia'
     },
     'threat': 'Nivel de ameaza',
     'locked': 'Supera antes o nivel {n}',
@@ -95,11 +95,11 @@ export default {
     'armor': 'Blindaxe',
     'speed': 'Velocidade dos servos',
     'decoy': 'Duración do engano',
-    'hook': 'Hook reach'
+    'hook': 'Alcance do gancho'
   },
   'trackVerb': {
-    'speed': 'Level 1: a quieter sprint',
-    'decoy': 'Level 1: one more decoy'
+    'speed': 'Nivel 1: esprint máis silandeiro',
+    'decoy': 'Nivel 1: un reclamo máis'
   },
   'workshop': {
     'max': 'Máx.',
@@ -149,10 +149,10 @@ export default {
     'tabGlobal': 'Global'
   },
   'training': {
-    'replay': 'Show me again',
-    'progress': 'Training: {n} of {total} lessons done',
-    'scrapWhy': 'Scrap buys upgrades for your weapons back at the Command Base.',
-    'skip': 'Skip training'
+    'replay': 'Amósamo outra vez',
+    'progress': 'Adestramento: {n} de {total} leccións feitas',
+    'scrapWhy': 'A chatarra tec compra melloras para as túas armas na base de mando.',
+    'skip': 'Saltar o adestramento'
   },
   'pause': {
     'title': 'PAUSA',
@@ -162,7 +162,7 @@ export default {
   'options': {
     'killCams': 'Cámara de derrube',
     'sensitivity': 'Sensibilidade da cámara',
-    'scopeSensitivity': 'Scope sensitivity',
+    'scopeSensitivity': 'Sensibilidade da mira',
     'gameplay': 'Xogabilidade',
     'title': 'Opcións',
     'general': 'Xeral',

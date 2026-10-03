@@ -47,32 +47,32 @@ export default {
     },
     'haul': 'Скрап {n} от {need}',
     'hide': 'Скрий се в кутията',
-    'zoom': 'Zoom the scope',
-    'cutPower': 'Cut the power',
-    'jamServo': 'Jam the servo',
-    'noBlade': 'No blade will take this one',
-    'dragBody': 'Drag the body',
-    'dropBody': 'Let go (into a container if one is at hand)',
-    'sabotage': 'Sabotage the alarm beacon',
-    'alarmRunner': 'A guard is running to raise the alarm',
-    'alarmLit': 'The alarm is raised',
+    'zoom': 'Увеличи мерника',
+    'cutPower': 'Спри тока',
+    'jamServo': 'Блокирай сервото',
+    'noBlade': 'Острие не може да го убие',
+    'dragBody': 'Влачи тялото',
+    'dropBody': 'Пусни (в контейнер, ако има наблизо)',
+    'sabotage': 'Саботирай алармения маяк',
+    'alarmRunner': 'Пазач тича да вдигне тревога',
+    'alarmLit': 'Тревогата е вдигната',
     'boss': 'Живот на боса {n}%',
     'loot': 'Разглоби скрапа'
   },
   'defeat': {
     'title': 'Мехът падна',
     'retry': 'Опитай пак',
-    'resume': 'From the first pile',
+    'resume': 'От първата купчина',
     'kept': 'Спасен техно скрап'
   },
   'base': {
     'deploy': 'Старт',
-    'training': 'Training',
-    'learned': 'The base has learned',
+    'training': 'Тренировка',
+    'learned': 'Базата си взе поука',
     'answer': {
-      'helmets': 'Helmets: your headshots were noticed',
-      'boxCheck': 'Box checkers: a box that sits still gets poked',
-      'perchLight': 'A searchlight now sweeps the perch'
+      'helmets': 'Каски: изстрелите ти в главата са забелязани',
+      'boxCheck': 'Проверка на кутии: неподвижна кутия бива ръгана',
+      'perchLight': 'Прожектор вече обхожда кулата'
     },
     'threat': 'Ниво на заплаха',
     'locked': 'Първо мини ниво {n}',
@@ -95,11 +95,11 @@ export default {
     'armor': 'Броня',
     'speed': 'Скорост на серво',
     'decoy': 'Време на примамката',
-    'hook': 'Hook reach'
+    'hook': 'Обхват на куката'
   },
   'trackVerb': {
-    'speed': 'Level 1: a quieter sprint',
-    'decoy': 'Level 1: one more decoy'
+    'speed': 'Ниво 1: по-тих спринт',
+    'decoy': 'Ниво 1: още една примамка'
   },
   'workshop': {
     'max': 'Макс',
@@ -149,10 +149,10 @@ export default {
     'tabGlobal': 'Световна'
   },
   'training': {
-    'replay': 'Show me again',
-    'progress': 'Training: {n} of {total} lessons done',
-    'scrapWhy': 'Scrap buys upgrades for your weapons back at the Command Base.',
-    'skip': 'Skip training'
+    'replay': 'Покажи пак',
+    'progress': 'Тренировка: {n} от {total} урока завършени',
+    'scrapWhy': 'С техно скрап подобряваш оръжията си в Командната база.',
+    'skip': 'Пропусни тренировката'
   },
   'pause': {
     'title': 'ПАУЗА',
@@ -162,7 +162,7 @@ export default {
   'options': {
     'killCams': 'Финален кадър',
     'sensitivity': 'Чувствителност на погледа',
-    'scopeSensitivity': 'Scope sensitivity',
+    'scopeSensitivity': 'Чувствителност на мерника',
     'gameplay': 'Геймплей',
     'title': 'Настройки',
     'general': 'Общи',

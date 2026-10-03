@@ -47,32 +47,32 @@ export default {
     },
     'haul': 'Šrot {n} z {need}',
     'hide': 'Schovat se v bedně',
-    'zoom': 'Zoom the scope',
-    'cutPower': 'Cut the power',
-    'jamServo': 'Jam the servo',
-    'noBlade': 'No blade will take this one',
-    'dragBody': 'Drag the body',
-    'dropBody': 'Let go (into a container if one is at hand)',
-    'sabotage': 'Sabotage the alarm beacon',
-    'alarmRunner': 'A guard is running to raise the alarm',
-    'alarmLit': 'The alarm is raised',
+    'zoom': 'Přiblížit zaměřovač',
+    'cutPower': 'Vypnout napájení',
+    'jamServo': 'Zablokovat servo',
+    'noBlade': 'Tohle žádná čepel nezabije',
+    'dragBody': 'Táhnout tělo',
+    'dropBody': 'Pustit (do kontejneru, je-li po ruce)',
+    'sabotage': 'Sabotovat poplašný maják',
+    'alarmRunner': 'Strážný běží spustit poplach',
+    'alarmLit': 'Poplach je spuštěn',
     'boss': 'Zdraví bosse {n} %',
     'loot': 'Rozebrat šrot'
   },
   'defeat': {
     'title': 'Mech je venku',
     'retry': 'Zkusit znovu',
-    'resume': 'From the first pile',
+    'resume': 'Od první hromady',
     'kept': 'Zachráněný techno šrot'
   },
   'base': {
     'deploy': 'Nasadit',
-    'training': 'Training',
-    'learned': 'The base has learned',
+    'training': 'Výcvik',
+    'learned': 'Základna se poučila',
     'answer': {
-      'helmets': 'Helmets: your headshots were noticed',
-      'boxCheck': 'Box checkers: a box that sits still gets poked',
-      'perchLight': 'A searchlight now sweeps the perch'
+      'helmets': 'Helmy: všimli si tvých zásahů do hlavy',
+      'boxCheck': 'Kontroloři beden: do nehybné bedny se šťouchá',
+      'perchLight': 'Věž teď přejíždí světlomet'
     },
     'threat': 'Úroveň hrozby',
     'locked': 'Nejdřív dokonči úroveň {n}',
@@ -95,11 +95,11 @@ export default {
     'armor': 'Pancíř',
     'speed': 'Rychlost serv',
     'decoy': 'Trvání návnady',
-    'hook': 'Hook reach'
+    'hook': 'Dosah háku'
   },
   'trackVerb': {
-    'speed': 'Level 1: a quieter sprint',
-    'decoy': 'Level 1: one more decoy'
+    'speed': 'Úroveň 1: tišší sprint',
+    'decoy': 'Úroveň 1: o návnadu víc'
   },
   'workshop': {
     'max': 'Max',
@@ -149,10 +149,10 @@ export default {
     'tabGlobal': 'Světový'
   },
   'training': {
-    'replay': 'Show me again',
-    'progress': 'Training: {n} of {total} lessons done',
-    'scrapWhy': 'Scrap buys upgrades for your weapons back at the Command Base.',
-    'skip': 'Skip training'
+    'replay': 'Ukaž znovu',
+    'progress': 'Výcvik: hotovo {n} z {total} lekcí',
+    'scrapWhy': 'Za techno šrot si na Velitelské základně vylepšíš zbraně.',
+    'skip': 'Přeskočit výcvik'
   },
   'pause': {
     'title': 'PAUZA',
@@ -162,7 +162,7 @@ export default {
   'options': {
     'killCams': 'Kill-cam',
     'sensitivity': 'Citlivost rozhlížení',
-    'scopeSensitivity': 'Scope sensitivity',
+    'scopeSensitivity': 'Citlivost zaměřovače',
     'gameplay': 'Hratelnost',
     'title': 'Možnosti',
     'general': 'Obecné',

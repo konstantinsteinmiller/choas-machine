@@ -47,32 +47,32 @@ export default {
     },
     'haul': 'Butin {n} sur {need}',
     'hide': 'Se cacher dans la caisse',
-    'zoom': 'Zoom the scope',
-    'cutPower': 'Cut the power',
-    'jamServo': 'Jam the servo',
-    'noBlade': 'No blade will take this one',
-    'dragBody': 'Drag the body',
-    'dropBody': 'Let go (into a container if one is at hand)',
-    'sabotage': 'Sabotage the alarm beacon',
-    'alarmRunner': 'A guard is running to raise the alarm',
-    'alarmLit': 'The alarm is raised',
+    'zoom': 'Zoomer la lunette',
+    'cutPower': 'Couper le courant',
+    'jamServo': 'Bloquer le servo',
+    'noBlade': 'Aucune lame n\'en viendra à bout',
+    'dragBody': 'Traîner le corps',
+    'dropBody': 'Lâcher (dans un conteneur s\'il y en a un)',
+    'sabotage': 'Saboter la balise d\'alarme',
+    'alarmRunner': 'Un garde court donner l\'alarme',
+    'alarmLit': 'L\'alarme est donnée',
     'boss': 'Vie du boss {n} %',
     'loot': 'Récupérer le butin'
   },
   'defeat': {
     'title': 'Mécha à terre',
     'retry': 'Réessayer',
-    'resume': 'From the first pile',
+    'resume': 'Depuis le premier tas',
     'kept': 'Ferraille tech sauvée'
   },
   'base': {
     'deploy': 'Déployer',
-    'training': 'Training',
-    'learned': 'The base has learned',
+    'training': 'Entraînement',
+    'learned': 'La base a appris',
     'answer': {
-      'helmets': 'Helmets: your headshots were noticed',
-      'boxCheck': 'Box checkers: a box that sits still gets poked',
-      'perchLight': 'A searchlight now sweeps the perch'
+      'helmets': 'Casques : tes tirs à la tête ont été remarqués',
+      'boxCheck': 'Fouille-caisses : une caisse immobile se fait tâter',
+      'perchLight': 'Un projecteur balaie désormais le perchoir'
     },
     'threat': 'Niveau de menace',
     'locked': 'Finis d\'abord le niveau {n}',
@@ -95,11 +95,11 @@ export default {
     'armor': 'Blindage',
     'speed': 'Vitesse des servos',
     'decoy': 'Durée du leurre',
-    'hook': 'Hook reach'
+    'hook': 'Portée du grappin'
   },
   'trackVerb': {
-    'speed': 'Level 1: a quieter sprint',
-    'decoy': 'Level 1: one more decoy'
+    'speed': 'Niveau 1 : un sprint plus discret',
+    'decoy': 'Niveau 1 : un leurre de plus'
   },
   'workshop': {
     'max': 'Max',
@@ -149,10 +149,10 @@ export default {
     'tabGlobal': 'Mondial'
   },
   'training': {
-    'replay': 'Show me again',
-    'progress': 'Training: {n} of {total} lessons done',
-    'scrapWhy': 'Scrap buys upgrades for your weapons back at the Command Base.',
-    'skip': 'Skip training'
+    'replay': 'Remontre-moi',
+    'progress': 'Entraînement : {n} leçons sur {total} terminées',
+    'scrapWhy': 'La ferraille tech achète des améliorations d\'armes à la base de commandement.',
+    'skip': 'Passer l\'entraînement'
   },
   'pause': {
     'title': 'PAUSE',
@@ -162,7 +162,7 @@ export default {
   'options': {
     'killCams': 'Kill-cam',
     'sensitivity': 'Sensibilité de la vue',
-    'scopeSensitivity': 'Scope sensitivity',
+    'scopeSensitivity': 'Sensibilité de la lunette',
     'gameplay': 'Jeu',
     'title': 'Options',
     'general': 'Général',

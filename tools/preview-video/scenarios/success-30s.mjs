@@ -22,6 +22,8 @@ export default {
     await boot(ctx)
     const sentry = await unit(ctx, 'sentry', 0)
     sentryId = sentry.id
+    // The rebuilt Bastion hides most of the base from the perch: stand where the line is clear.
+    await vantage(ctx, sentryId, 30)
     await hands.crouch(ctx)
     await ctx.wait(500)
     await hands.aim(ctx, true)

@@ -5,7 +5,10 @@ neon fortress: snipe guards and drones from a perch, strike with the energy
 blade from behind, lure patrols with holographic decoys, and go loud with
 minigun and rockets when the base goes on full alert. Strip the salvage the
 raid is for, reach the pad, and a jet-powered robo dog flies the mech out; back
-home the salvage is forged into upgrades in a three-step smithy.
+home the salvage is forged into upgrades in a three-step smithy. A wordless
+training ground comes first; the fortress stands on a mountain top in a sea of
+clouds, its guards detect like Odyssey's fort guards (white, yellow, red; a
+shout, a runner, a beacon), and it learns the player's habits from raid to raid.
 
 - Design: [GDD.md](GDD.md)
 - Plan and resume point: [game-implementation-plan.md](game-implementation-plan.md)
@@ -34,6 +37,7 @@ Dev-only URLs:
 |---|---|
 | `?level=3` | start at threat level III (1 to 5) |
 | `?fort=proving` | the kit's test layout instead of the Bastion |
+| `?fort=training` / `?fort=bastion` | the training ground / the Bastion, whatever the profile |
 | `?view=az,el,dist` | a fixed inspection camera |
 | `?art=off` | play without painted drop-ins (works in any build) |
 | `?preview=1` | publish `window.__preview`, the seam the video recorder and the cover-art tool drive the game through |
@@ -51,9 +55,11 @@ src/game/models/     the mech, the garrison, the robo dog, the hide box: meshes 
 src/game/sim/        the rules, with no renderer and no DOM in them:
                        perception, alert, garrison AI, weapons, hit-scan,
                        damage, melee, rockets, armor, kill-cam, cinematics,
-                       rewards, coach (the wordless lessons)
+                       rewards, coach (the wordless lessons), training
+                       (the training ground's lessons), adapt (what the
+                       base learns between raids)
 src/game/sim/mission.ts   the one place that wires input, sim, view and HUD
-src/game/data/       the fortress (bastion.ts) and the upgrade tracks
+src/game/data/       the fortresses (bastion.ts, training.ts) and the upgrade tracks
 src/game/state/      hud.ts (what the HUD reads) and progress.ts (the save)
 src/game/flow.ts     which scene is on: mission, Command Base, results
 src/game/audio/      synthesised effects and code-composed music

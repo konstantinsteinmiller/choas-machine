@@ -47,32 +47,32 @@ export default {
     },
     'haul': 'Otpad {n} od {need}',
     'hide': 'Sakrij se u kutiju',
-    'zoom': 'Zoom the scope',
-    'cutPower': 'Cut the power',
-    'jamServo': 'Jam the servo',
-    'noBlade': 'No blade will take this one',
-    'dragBody': 'Drag the body',
-    'dropBody': 'Let go (into a container if one is at hand)',
-    'sabotage': 'Sabotage the alarm beacon',
-    'alarmRunner': 'A guard is running to raise the alarm',
-    'alarmLit': 'The alarm is raised',
+    'zoom': 'Približi nišan',
+    'cutPower': 'Prekini struju',
+    'jamServo': 'Zaglavi servo',
+    'noBlade': 'Ovo nijedna oštrica ne ubija',
+    'dragBody': 'Vuci tijelo',
+    'dropBody': 'Pusti (u spremnik, ako je pri ruci)',
+    'sabotage': 'Sabotiraj alarmni svjetionik',
+    'alarmRunner': 'Stražar trči podići uzbunu',
+    'alarmLit': 'Uzbuna je podignuta',
     'boss': 'Zdravlje bossa {n} %',
     'loot': 'Rastavi otpad'
   },
   'defeat': {
     'title': 'Mech je pao',
     'retry': 'Pokušaj ponovno',
-    'resume': 'From the first pile',
+    'resume': 'Od prve hrpe',
     'kept': 'Spašeni tehno-otpad'
   },
   'base': {
     'deploy': 'Kreni',
-    'training': 'Training',
-    'learned': 'The base has learned',
+    'training': 'Trening',
+    'learned': 'Baza je naučila lekciju',
     'answer': {
-      'helmets': 'Helmets: your headshots were noticed',
-      'boxCheck': 'Box checkers: a box that sits still gets poked',
-      'perchLight': 'A searchlight now sweeps the perch'
+      'helmets': 'Kacige: primijetili su tvoje pogotke u glavu',
+      'boxCheck': 'Provjera kutija: nepomičnu kutiju bockaju',
+      'perchLight': 'Reflektor sada prelazi preko tornja'
     },
     'threat': 'Razina prijetnje',
     'locked': 'Prvo prijeđi razinu {n}',
@@ -95,11 +95,11 @@ export default {
     'armor': 'Oklop',
     'speed': 'Brzina servo motora',
     'decoy': 'Trajanje mamca',
-    'hook': 'Hook reach'
+    'hook': 'Doseg kuke'
   },
   'trackVerb': {
-    'speed': 'Level 1: a quieter sprint',
-    'decoy': 'Level 1: one more decoy'
+    'speed': 'Razina 1: tiši sprint',
+    'decoy': 'Razina 1: još jedan mamac'
   },
   'workshop': {
     'max': 'Maks.',
@@ -149,10 +149,10 @@ export default {
     'tabGlobal': 'Svjetska'
   },
   'training': {
-    'replay': 'Show me again',
-    'progress': 'Training: {n} of {total} lessons done',
-    'scrapWhy': 'Scrap buys upgrades for your weapons back at the Command Base.',
-    'skip': 'Skip training'
+    'replay': 'Pokaži ponovno',
+    'progress': 'Trening: završeno {n} od {total} lekcija',
+    'scrapWhy': 'Tehno-otpadom u Zapovjednoj bazi nadograđuješ oružje.',
+    'skip': 'Preskoči trening'
   },
   'pause': {
     'title': 'PAUZA',
@@ -162,7 +162,7 @@ export default {
   'options': {
     'killCams': 'Kill-cam',
     'sensitivity': 'Osjetljivost pogleda',
-    'scopeSensitivity': 'Scope sensitivity',
+    'scopeSensitivity': 'Osjetljivost nišana',
     'gameplay': 'Igranje',
     'title': 'Postavke',
     'general': 'Općenito',

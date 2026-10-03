@@ -47,32 +47,32 @@ export default {
     },
     'haul': 'เศษเหล็ก {n} จาก {need}',
     'hide': 'ซ่อนในกล่อง',
-    'zoom': 'Zoom the scope',
-    'cutPower': 'Cut the power',
-    'jamServo': 'Jam the servo',
-    'noBlade': 'No blade will take this one',
-    'dragBody': 'Drag the body',
-    'dropBody': 'Let go (into a container if one is at hand)',
-    'sabotage': 'Sabotage the alarm beacon',
-    'alarmRunner': 'A guard is running to raise the alarm',
-    'alarmLit': 'The alarm is raised',
+    'zoom': 'ซูมกล้องเล็ง',
+    'cutPower': 'ตัดไฟ',
+    'jamServo': 'ทำเซอร์โวขัด',
+    'noBlade': 'ใบมีดล้มตัวนี้ไม่ได้',
+    'dragBody': 'ลากร่าง',
+    'dropBody': 'ปล่อย (ลงตู้ถ้ามีอยู่ใกล้)',
+    'sabotage': 'ก่อวินาศสัญญาณเตือนภัย',
+    'alarmRunner': 'ยามกำลังวิ่งไปเปิดสัญญาณเตือน',
+    'alarmLit': 'สัญญาณเตือนดังแล้ว',
     'boss': 'พลังชีวิตบอส {n}%',
     'loot': 'รื้อเศษเหล็ก'
   },
   'defeat': {
     'title': 'เม็คล้มแล้ว',
     'retry': 'ลองอีกครั้ง',
-    'resume': 'From the first pile',
+    'resume': 'จากกองแรก',
     'kept': 'เศษเทคที่กู้ได้'
   },
   'base': {
     'deploy': 'ออกปฏิบัติการ',
-    'training': 'Training',
-    'learned': 'The base has learned',
+    'training': 'ฝึกซ้อม',
+    'learned': 'ฐานได้เรียนรู้แล้ว',
     'answer': {
-      'helmets': 'Helmets: your headshots were noticed',
-      'boxCheck': 'Box checkers: a box that sits still gets poked',
-      'perchLight': 'A searchlight now sweeps the perch'
+      'helmets': 'หมวกเหล็ก: ศัตรูรู้ทันการยิงหัวของคุณ',
+      'boxCheck': 'ตรวจกล่อง: กล่องที่นิ่งจะถูกจิ้ม',
+      'perchLight': 'ไฟฉายส่องกวาดหอซุ่มยิงแล้ว'
     },
     'threat': 'ระดับภัยคุกคาม',
     'locked': 'ผ่านด่าน {n} ก่อน',
@@ -95,11 +95,11 @@ export default {
     'armor': 'แผ่นเกราะ',
     'speed': 'ความเร็วเซอร์โว',
     'decoy': 'ระยะเวลาตัวล่อ',
-    'hook': 'Hook reach'
+    'hook': 'ระยะตะขอ'
   },
   'trackVerb': {
-    'speed': 'Level 1: a quieter sprint',
-    'decoy': 'Level 1: one more decoy'
+    'speed': 'เลเวล 1: วิ่งเงียบขึ้น',
+    'decoy': 'เลเวล 1: ตัวล่อเพิ่มหนึ่ง'
   },
   'workshop': {
     'max': 'สูงสุด',
@@ -149,10 +149,10 @@ export default {
     'tabGlobal': 'ทั่วโลก'
   },
   'training': {
-    'replay': 'Show me again',
-    'progress': 'Training: {n} of {total} lessons done',
-    'scrapWhy': 'Scrap buys upgrades for your weapons back at the Command Base.',
-    'skip': 'Skip training'
+    'replay': 'ดูอีกครั้ง',
+    'progress': 'ฝึกซ้อม: เสร็จ {n} จาก {total} บทเรียน',
+    'scrapWhy': 'เศษเทคใช้ซื้ออัปเกรดอาวุธที่ฐานบัญชาการ',
+    'skip': 'ข้ามการฝึก'
   },
   'pause': {
     'title': 'หยุดชั่วคราว',
@@ -162,7 +162,7 @@ export default {
   'options': {
     'killCams': 'กล้องจังหวะปิดฉาก',
     'sensitivity': 'ความไวการมอง',
-    'scopeSensitivity': 'Scope sensitivity',
+    'scopeSensitivity': 'ความไวกล้องเล็ง',
     'gameplay': 'การเล่น',
     'title': 'ตัวเลือก',
     'general': 'ทั่วไป',

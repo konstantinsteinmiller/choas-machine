@@ -47,32 +47,32 @@ export default {
     },
     'haul': 'Temir-tersak {n} / {need}',
     'hide': 'Qutiga yashirinish',
-    'zoom': 'Zoom the scope',
-    'cutPower': 'Cut the power',
-    'jamServo': 'Jam the servo',
-    'noBlade': 'No blade will take this one',
-    'dragBody': 'Drag the body',
-    'dropBody': 'Let go (into a container if one is at hand)',
-    'sabotage': 'Sabotage the alarm beacon',
-    'alarmRunner': 'A guard is running to raise the alarm',
-    'alarmLit': 'The alarm is raised',
+    'zoom': 'Optikani yaqinlashtirish',
+    'cutPower': 'Quvvatni uzish',
+    'jamServo': 'Servoni tiqib qo\'yish',
+    'noBlade': 'Bunga pichoq o\'tmaydi',
+    'dragBody': 'Jasadni sudrash',
+    'dropBody': 'Qo\'yib yuborish (yaqinda konteyner bo\'lsa, ichiga)',
+    'sabotage': 'Xavf mayog\'ini buzish',
+    'alarmRunner': 'Qo\'riqchi xavf ko\'tarish uchun yugurmoqda',
+    'alarmLit': 'Xavf e\'lon qilindi',
     'boss': 'Boshliq salomatligi {n}%',
     'loot': 'Temir-tersakni qismlarga ajratish'
   },
   'defeat': {
     'title': 'Mech yiqildi',
     'retry': 'Qayta urinish',
-    'resume': 'From the first pile',
+    'resume': 'Birinchi uyumdan',
     'kept': 'Saqlab qolingan tex-parchalar'
   },
   'base': {
     'deploy': 'Jo\'natish',
-    'training': 'Training',
-    'learned': 'The base has learned',
+    'training': 'Mashq',
+    'learned': 'Baza saboq oldi',
     'answer': {
-      'helmets': 'Helmets: your headshots were noticed',
-      'boxCheck': 'Box checkers: a box that sits still gets poked',
-      'perchLight': 'A searchlight now sweeps the perch'
+      'helmets': 'Dubulg\'alar: boshga otishlaringiz sezildi',
+      'boxCheck': 'Quti tekshiruvchilar: qimirlamagan qutini turtishadi',
+      'perchLight': 'Endi projektor minorani yoritmoqda'
     },
     'threat': 'Xavf darajasi',
     'locked': 'Avval {n}-bosqichni tugating',
@@ -95,11 +95,11 @@ export default {
     'armor': 'Zirh plitalari',
     'speed': 'Servo tezligi',
     'decoy': 'Aldamchi davomiyligi',
-    'hook': 'Hook reach'
+    'hook': 'Ilgak masofasi'
   },
   'trackVerb': {
-    'speed': 'Level 1: a quieter sprint',
-    'decoy': 'Level 1: one more decoy'
+    'speed': '1-daraja: jimroq yugurish',
+    'decoy': '1-daraja: yana bitta yem'
   },
   'workshop': {
     'max': 'Maks.',
@@ -149,10 +149,10 @@ export default {
     'tabGlobal': 'Jahon'
   },
   'training': {
-    'replay': 'Show me again',
-    'progress': 'Training: {n} of {total} lessons done',
-    'scrapWhy': 'Scrap buys upgrades for your weapons back at the Command Base.',
-    'skip': 'Skip training'
+    'replay': 'Yana ko\'rsatish',
+    'progress': 'Mashq: {total} darsdan {n} tasi tugadi',
+    'scrapWhy': 'Tex-parchalar evaziga bazada qurollaringizni yaxshilaysiz.',
+    'skip': 'Mashqni o\'tkazib yuborish'
   },
   'pause': {
     'title': 'PAUZA',
@@ -162,7 +162,7 @@ export default {
   'options': {
     'killCams': 'Yoʻq qilish kamerasi',
     'sensitivity': 'Qarash sezgirligi',
-    'scopeSensitivity': 'Scope sensitivity',
+    'scopeSensitivity': 'Optika sezgirligi',
     'gameplay': 'Oʻyin',
     'title': 'Sozlamalar',
     'general': 'Umumiy',

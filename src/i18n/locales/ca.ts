@@ -47,32 +47,32 @@ export default {
     },
     'haul': 'Ferralla {n} de {need}',
     'hide': 'Amagar-se a la caixa',
-    'zoom': 'Zoom the scope',
-    'cutPower': 'Cut the power',
-    'jamServo': 'Jam the servo',
-    'noBlade': 'No blade will take this one',
-    'dragBody': 'Drag the body',
-    'dropBody': 'Let go (into a container if one is at hand)',
-    'sabotage': 'Sabotage the alarm beacon',
-    'alarmRunner': 'A guard is running to raise the alarm',
-    'alarmLit': 'The alarm is raised',
+    'zoom': 'Ampliar la mira',
+    'cutPower': 'Tallar el corrent',
+    'jamServo': 'Bloquejar el servo',
+    'noBlade': 'Cap fulla no podrà amb aquest',
+    'dragBody': 'Arrossegar el cos',
+    'dropBody': 'Deixar anar (en un contenidor si n\'hi ha un a prop)',
+    'sabotage': 'Sabotejar la balisa d\'alarma',
+    'alarmRunner': 'Un guàrdia corre a donar l\'alarma',
+    'alarmLit': 'L\'alarma ha saltat',
     'boss': 'Vida del cap {n} %',
     'loot': 'Desmuntar la ferralla'
   },
   'defeat': {
     'title': 'Mecha a terra',
     'retry': 'Torna-ho a provar',
-    'resume': 'From the first pile',
+    'resume': 'Des de la primera pila',
     'kept': 'Ferralla tècnica recuperada'
   },
   'base': {
     'deploy': 'Desplega',
-    'training': 'Training',
-    'learned': 'The base has learned',
+    'training': 'Entrenament',
+    'learned': 'La base ha après',
     'answer': {
-      'helmets': 'Helmets: your headshots were noticed',
-      'boxCheck': 'Box checkers: a box that sits still gets poked',
-      'perchLight': 'A searchlight now sweeps the perch'
+      'helmets': 'Cascos: s\'han fixat en els teus trets al cap',
+      'boxCheck': 'Revisacaixes: a la caixa quieta li donen un toc',
+      'perchLight': 'Ara un focus escombra la talaia'
     },
     'threat': 'Nivell d\'amenaça',
     'locked': 'Supera primer el nivell {n}',
@@ -95,11 +95,11 @@ export default {
     'armor': 'Blindatge',
     'speed': 'Velocitat dels servos',
     'decoy': 'Durada del parany',
-    'hook': 'Hook reach'
+    'hook': 'Abast del ganxo'
   },
   'trackVerb': {
-    'speed': 'Level 1: a quieter sprint',
-    'decoy': 'Level 1: one more decoy'
+    'speed': 'Nivell 1: esprint més silenciós',
+    'decoy': 'Nivell 1: un parany més'
   },
   'workshop': {
     'max': 'Màx',
@@ -149,10 +149,10 @@ export default {
     'tabGlobal': 'Global'
   },
   'training': {
-    'replay': 'Show me again',
-    'progress': 'Training: {n} of {total} lessons done',
-    'scrapWhy': 'Scrap buys upgrades for your weapons back at the Command Base.',
-    'skip': 'Skip training'
+    'replay': 'Torna-m\'ho a ensenyar',
+    'progress': 'Entrenament: {n} de {total} lliçons fetes',
+    'scrapWhy': 'La ferralla tècnica compra millores per a les teves armes a la base de comandament.',
+    'skip': 'Ometre l\'entrenament'
   },
   'pause': {
     'title': 'PAUSA',
@@ -162,7 +162,7 @@ export default {
   'options': {
     'killCams': 'Càmera d\'abatiment',
     'sensitivity': 'Sensibilitat de la mirada',
-    'scopeSensitivity': 'Scope sensitivity',
+    'scopeSensitivity': 'Sensibilitat de la mira',
     'gameplay': 'Joc',
     'title': 'Opcions',
     'general': 'General',

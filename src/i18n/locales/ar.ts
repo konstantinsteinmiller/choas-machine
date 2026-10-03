@@ -47,32 +47,32 @@ export default {
     },
     'haul': 'خردة {n} من {need}',
     'hide': 'اختبئ في الصندوق',
-    'zoom': 'Zoom the scope',
-    'cutPower': 'Cut the power',
-    'jamServo': 'Jam the servo',
-    'noBlade': 'No blade will take this one',
-    'dragBody': 'Drag the body',
-    'dropBody': 'Let go (into a container if one is at hand)',
-    'sabotage': 'Sabotage the alarm beacon',
-    'alarmRunner': 'A guard is running to raise the alarm',
-    'alarmLit': 'The alarm is raised',
+    'zoom': 'تكبير المنظار',
+    'cutPower': 'اقطع الطاقة',
+    'jamServo': 'عطّل المحرك',
+    'noBlade': 'لا يقتله أي نصل',
+    'dragBody': 'اسحب الجثة',
+    'dropBody': 'اتركها (في حاوية إن وُجدت قريبًا)',
+    'sabotage': 'خرّب منارة الإنذار',
+    'alarmRunner': 'حارس يركض لإطلاق الإنذار',
+    'alarmLit': 'انطلق الإنذار',
     'boss': 'صحة الزعيم {n}%',
     'loot': 'فكّ الخردة'
   },
   'defeat': {
     'title': 'تحطّم الميكا',
     'retry': 'حاول مجددًا',
-    'resume': 'From the first pile',
+    'resume': 'من أول كومة',
     'kept': 'خردة تقنية تم إنقاذها'
   },
   'base': {
     'deploy': 'انطلاق',
-    'training': 'Training',
-    'learned': 'The base has learned',
+    'training': 'التدريب',
+    'learned': 'القاعدة تعلّمت',
     'answer': {
-      'helmets': 'Helmets: your headshots were noticed',
-      'boxCheck': 'Box checkers: a box that sits still gets poked',
-      'perchLight': 'A searchlight now sweeps the perch'
+      'helmets': 'خوذ: لاحظوا طلقاتك في الرأس',
+      'boxCheck': 'فاحصو الصناديق: الصندوق الساكن يُنكز',
+      'perchLight': 'كشّاف يمسح البرج الآن'
     },
     'threat': 'مستوى الخطر',
     'locked': 'أكمل المستوى {n} أولاً',
@@ -95,11 +95,11 @@ export default {
     'armor': 'دروع الحماية',
     'speed': 'سرعة المحركات',
     'decoy': 'مدة الشرَك',
-    'hook': 'Hook reach'
+    'hook': 'مدى الخطاف'
   },
   'trackVerb': {
-    'speed': 'Level 1: a quieter sprint',
-    'decoy': 'Level 1: one more decoy'
+    'speed': 'المستوى 1: ركض أهدأ',
+    'decoy': 'المستوى 1: طُعم إضافي'
   },
   'workshop': {
     'max': 'الأقصى',
@@ -149,10 +149,10 @@ export default {
     'tabGlobal': 'عالمي'
   },
   'training': {
-    'replay': 'Show me again',
-    'progress': 'Training: {n} of {total} lessons done',
-    'scrapWhy': 'Scrap buys upgrades for your weapons back at the Command Base.',
-    'skip': 'Skip training'
+    'replay': 'أرني مجددًا',
+    'progress': 'التدريب: {n} من {total} دروس مكتملة',
+    'scrapWhy': 'الخردة تشتري ترقيات لأسلحتك في قاعدة القيادة.',
+    'skip': 'تخطَّ التدريب'
   },
   'pause': {
     'title': 'متوقف مؤقتاً',
@@ -162,7 +162,7 @@ export default {
   'options': {
     'killCams': 'كاميرا الإسقاط',
     'sensitivity': 'حساسية النظر',
-    'scopeSensitivity': 'Scope sensitivity',
+    'scopeSensitivity': 'حساسية المنظار',
     'gameplay': 'أسلوب اللعب',
     'title': 'الخيارات',
     'general': 'عام',

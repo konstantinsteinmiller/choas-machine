@@ -47,32 +47,32 @@ export default {
     },
     'haul': 'Rottami {n} su {need}',
     'hide': 'Nasconditi nella cassa',
-    'zoom': 'Zoom the scope',
-    'cutPower': 'Cut the power',
-    'jamServo': 'Jam the servo',
-    'noBlade': 'No blade will take this one',
-    'dragBody': 'Drag the body',
-    'dropBody': 'Let go (into a container if one is at hand)',
-    'sabotage': 'Sabotage the alarm beacon',
-    'alarmRunner': 'A guard is running to raise the alarm',
-    'alarmLit': 'The alarm is raised',
+    'zoom': 'Zoom del mirino',
+    'cutPower': 'Togli la corrente',
+    'jamServo': 'Blocca il servo',
+    'noBlade': 'Nessuna lama lo abbatterà',
+    'dragBody': 'Trascina il corpo',
+    'dropBody': 'Lascia (in un contenitore, se ce n\'è uno vicino)',
+    'sabotage': 'Sabota il faro d\'allarme',
+    'alarmRunner': 'Una guardia corre a dare l\'allarme',
+    'alarmLit': 'L\'allarme è scattato',
     'boss': 'Vita del boss {n}%',
     'loot': 'Smonta i rottami'
   },
   'defeat': {
     'title': 'Mech a terra',
     'retry': 'Riprova',
-    'resume': 'From the first pile',
+    'resume': 'Dal primo mucchio',
     'kept': 'Rottami tech salvati'
   },
   'base': {
     'deploy': 'Schiera',
-    'training': 'Training',
-    'learned': 'The base has learned',
+    'training': 'Addestramento',
+    'learned': 'La base ha imparato',
     'answer': {
-      'helmets': 'Helmets: your headshots were noticed',
-      'boxCheck': 'Box checkers: a box that sits still gets poked',
-      'perchLight': 'A searchlight now sweeps the perch'
+      'helmets': 'Elmetti: i tuoi colpi alla testa sono stati notati',
+      'boxCheck': 'Controllori di casse: una cassa ferma viene punzecchiata',
+      'perchLight': 'Ora un riflettore spazza la postazione'
     },
     'threat': 'Livello di minaccia',
     'locked': 'Prima completa il livello {n}',
@@ -95,11 +95,11 @@ export default {
     'armor': 'Corazza',
     'speed': 'Velocità servo',
     'decoy': 'Durata esca',
-    'hook': 'Hook reach'
+    'hook': 'Portata del rampino'
   },
   'trackVerb': {
-    'speed': 'Level 1: a quieter sprint',
-    'decoy': 'Level 1: one more decoy'
+    'speed': 'Livello 1: scatto più silenzioso',
+    'decoy': 'Livello 1: un\'esca in più'
   },
   'workshop': {
     'max': 'Max',
@@ -149,10 +149,10 @@ export default {
     'tabGlobal': 'Globale'
   },
   'training': {
-    'replay': 'Show me again',
-    'progress': 'Training: {n} of {total} lessons done',
-    'scrapWhy': 'Scrap buys upgrades for your weapons back at the Command Base.',
-    'skip': 'Skip training'
+    'replay': 'Mostramelo di nuovo',
+    'progress': 'Addestramento: {n} lezioni su {total} completate',
+    'scrapWhy': 'I rottami tech comprano potenziamenti per le tue armi alla base di comando.',
+    'skip': 'Salta l\'addestramento'
   },
   'pause': {
     'title': 'IN PAUSA',
@@ -162,7 +162,7 @@ export default {
   'options': {
     'killCams': 'Kill-cam',
     'sensitivity': 'Sensibilità di visuale',
-    'scopeSensitivity': 'Scope sensitivity',
+    'scopeSensitivity': 'Sensibilità del mirino',
     'gameplay': 'Gioco',
     'title': 'Opzioni',
     'general': 'Generale',

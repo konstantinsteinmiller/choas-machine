@@ -47,32 +47,32 @@ export default {
     },
     'haul': '고철 {n}/{need}',
     'hide': '상자에 숨기',
-    'zoom': 'Zoom the scope',
-    'cutPower': 'Cut the power',
-    'jamServo': 'Jam the servo',
-    'noBlade': 'No blade will take this one',
-    'dragBody': 'Drag the body',
-    'dropBody': 'Let go (into a container if one is at hand)',
-    'sabotage': 'Sabotage the alarm beacon',
-    'alarmRunner': 'A guard is running to raise the alarm',
-    'alarmLit': 'The alarm is raised',
+    'zoom': '스코프 확대',
+    'cutPower': '전원 차단',
+    'jamServo': '서보 고장내기',
+    'noBlade': '칼날로는 쓰러뜨릴 수 없음',
+    'dragBody': '시체 끌기',
+    'dropBody': '놓기 (근처에 컨테이너가 있으면 안으로)',
+    'sabotage': '경보 비콘 파괴',
+    'alarmRunner': '경비가 경보를 울리러 달려간다',
+    'alarmLit': '경보가 울렸다',
     'boss': '보스 체력 {n}%',
     'loot': '고철 분해'
   },
   'defeat': {
     'title': '메카 파괴',
     'retry': '다시 도전',
-    'resume': 'From the first pile',
+    'resume': '첫 고철 더미부터',
     'kept': '회수한 테크 스크랩'
   },
   'base': {
     'deploy': '출격',
-    'training': 'Training',
-    'learned': 'The base has learned',
+    'training': '훈련',
+    'learned': '기지가 학습했다',
     'answer': {
-      'helmets': 'Helmets: your headshots were noticed',
-      'boxCheck': 'Box checkers: a box that sits still gets poked',
-      'perchLight': 'A searchlight now sweeps the perch'
+      'helmets': '헬멧: 헤드샷이 간파당했다',
+      'boxCheck': '상자 검사: 가만히 있는 상자는 찔린다',
+      'perchLight': '이제 탐조등이 저격탑을 비춘다'
     },
     'threat': '위협 등급',
     'locked': '먼저 레벨 {n} 클리어',
@@ -95,11 +95,11 @@ export default {
     'armor': '장갑판',
     'speed': '서보 속도',
     'decoy': '디코이 지속시간',
-    'hook': 'Hook reach'
+    'hook': '갈고리 사거리'
   },
   'trackVerb': {
-    'speed': 'Level 1: a quieter sprint',
-    'decoy': 'Level 1: one more decoy'
+    'speed': '레벨 1: 더 조용한 질주',
+    'decoy': '레벨 1: 미끼 하나 추가'
   },
   'workshop': {
     'max': '최대',
@@ -149,10 +149,10 @@ export default {
     'tabGlobal': '전 세계'
   },
   'training': {
-    'replay': 'Show me again',
-    'progress': 'Training: {n} of {total} lessons done',
-    'scrapWhy': 'Scrap buys upgrades for your weapons back at the Command Base.',
-    'skip': 'Skip training'
+    'replay': '다시 보기',
+    'progress': '훈련: {total}개 중 {n}개 완료',
+    'scrapWhy': '스크랩으로 지휘 기지에서 무기를 업그레이드할 수 있습니다.',
+    'skip': '훈련 건너뛰기'
   },
   'pause': {
     'title': '일시정지',
@@ -162,7 +162,7 @@ export default {
   'options': {
     'killCams': '킬캠',
     'sensitivity': '시점 감도',
-    'scopeSensitivity': 'Scope sensitivity',
+    'scopeSensitivity': '스코프 감도',
     'gameplay': '게임플레이',
     'title': '설정',
     'general': '일반',

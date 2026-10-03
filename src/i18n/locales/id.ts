@@ -47,32 +47,32 @@ export default {
     },
     'haul': 'Rongsokan {n} dari {need}',
     'hide': 'Sembunyi di dalam kotak',
-    'zoom': 'Zoom the scope',
-    'cutPower': 'Cut the power',
-    'jamServo': 'Jam the servo',
-    'noBlade': 'No blade will take this one',
-    'dragBody': 'Drag the body',
-    'dropBody': 'Let go (into a container if one is at hand)',
-    'sabotage': 'Sabotage the alarm beacon',
-    'alarmRunner': 'A guard is running to raise the alarm',
-    'alarmLit': 'The alarm is raised',
+    'zoom': 'Perbesar teropong',
+    'cutPower': 'Putus listrik',
+    'jamServo': 'Macetkan servo',
+    'noBlade': 'Tak ada pedang yang mempan',
+    'dragBody': 'Seret tubuh',
+    'dropBody': 'Lepaskan (ke wadah jika ada di dekat)',
+    'sabotage': 'Sabotase suar alarm',
+    'alarmRunner': 'Penjaga berlari membunyikan alarm',
+    'alarmLit': 'Alarm berbunyi',
     'boss': 'Nyawa bos {n}%',
     'loot': 'Bongkar rongsokan'
   },
   'defeat': {
     'title': 'Mech tumbang',
     'retry': 'Coba lagi',
-    'resume': 'From the first pile',
+    'resume': 'Dari tumpukan pertama',
     'kept': 'Rongsok Teknologi terselamatkan'
   },
   'base': {
     'deploy': 'Berangkat',
-    'training': 'Training',
-    'learned': 'The base has learned',
+    'training': 'Latihan',
+    'learned': 'Markas telah belajar',
     'answer': {
-      'helmets': 'Helmets: your headshots were noticed',
-      'boxCheck': 'Box checkers: a box that sits still gets poked',
-      'perchLight': 'A searchlight now sweeps the perch'
+      'helmets': 'Helm: tembakan kepalamu ketahuan',
+      'boxCheck': 'Pemeriksa kotak: kotak yang diam akan disodok',
+      'perchLight': 'Lampu sorot kini menyapu menara'
     },
     'threat': 'Tingkat ancaman',
     'locked': 'Selesaikan level {n} dulu',
@@ -95,11 +95,11 @@ export default {
     'armor': 'Pelat baja',
     'speed': 'Kecepatan servo',
     'decoy': 'Durasi umpan',
-    'hook': 'Hook reach'
+    'hook': 'Jangkauan kait'
   },
   'trackVerb': {
-    'speed': 'Level 1: a quieter sprint',
-    'decoy': 'Level 1: one more decoy'
+    'speed': 'Level 1: lari lebih senyap',
+    'decoy': 'Level 1: satu umpan lagi'
   },
   'workshop': {
     'max': 'Maks',
@@ -149,10 +149,10 @@ export default {
     'tabGlobal': 'Global'
   },
   'training': {
-    'replay': 'Show me again',
-    'progress': 'Training: {n} of {total} lessons done',
-    'scrapWhy': 'Scrap buys upgrades for your weapons back at the Command Base.',
-    'skip': 'Skip training'
+    'replay': 'Tunjukkan lagi',
+    'progress': 'Latihan: {n} dari {total} pelajaran selesai',
+    'scrapWhy': 'Rongsokan membeli peningkatan senjatamu di Markas Komando.',
+    'skip': 'Lewati latihan'
   },
   'pause': {
     'title': 'JEDA',
@@ -162,7 +162,7 @@ export default {
   'options': {
     'killCams': 'Kamera kill',
     'sensitivity': 'Sensitivitas pandangan',
-    'scopeSensitivity': 'Scope sensitivity',
+    'scopeSensitivity': 'Sensitivitas teropong',
     'gameplay': 'Permainan',
     'title': 'Opsi',
     'general': 'Umum',

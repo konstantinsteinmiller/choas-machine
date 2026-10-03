@@ -47,32 +47,32 @@ export default {
     },
     'haul': 'Skrap {n} av {need}',
     'hide': 'Gjem deg i kassen',
-    'zoom': 'Zoom the scope',
-    'cutPower': 'Cut the power',
-    'jamServo': 'Jam the servo',
-    'noBlade': 'No blade will take this one',
-    'dragBody': 'Drag the body',
-    'dropBody': 'Let go (into a container if one is at hand)',
-    'sabotage': 'Sabotage the alarm beacon',
-    'alarmRunner': 'A guard is running to raise the alarm',
-    'alarmLit': 'The alarm is raised',
+    'zoom': 'Zoom siktet',
+    'cutPower': 'Kutt strømmen',
+    'jamServo': 'Blokker servoen',
+    'noBlade': 'Ingen klinge biter på denne',
+    'dragBody': 'Dra kroppen',
+    'dropBody': 'Slipp (i en container hvis det er en i nærheten)',
+    'sabotage': 'Saboter alarmfyret',
+    'alarmRunner': 'En vakt løper for å slå alarm',
+    'alarmLit': 'Alarmen har gått',
     'boss': 'Bossens helse {n} %',
     'loot': 'Ta fra hverandre skrapet'
   },
   'defeat': {
     'title': 'Mechen er nede',
     'retry': 'Prøv igjen',
-    'resume': 'From the first pile',
+    'resume': 'Fra den første haugen',
     'kept': 'Berget teknoskrap'
   },
   'base': {
     'deploy': 'Utplasser',
-    'training': 'Training',
-    'learned': 'The base has learned',
+    'training': 'Trening',
+    'learned': 'Basen har lært',
     'answer': {
-      'helmets': 'Helmets: your headshots were noticed',
-      'boxCheck': 'Box checkers: a box that sits still gets poked',
-      'perchLight': 'A searchlight now sweeps the perch'
+      'helmets': 'Hjelmer: hodeskuddene dine ble lagt merke til',
+      'boxCheck': 'Kassesjekkere: en kasse som står stille, får et dytt',
+      'perchLight': 'En lyskaster sveiper nå over tårnet'
     },
     'threat': 'Trusselnivå',
     'locked': 'Fullfør nivå {n} først',
@@ -95,11 +95,11 @@ export default {
     'armor': 'Panserplater',
     'speed': 'Servofart',
     'decoy': 'Lokkevarighet',
-    'hook': 'Hook reach'
+    'hook': 'Hakens rekkevidde'
   },
   'trackVerb': {
-    'speed': 'Level 1: a quieter sprint',
-    'decoy': 'Level 1: one more decoy'
+    'speed': 'Nivå 1: stillere sprint',
+    'decoy': 'Nivå 1: én lokkedue til'
   },
   'workshop': {
     'max': 'Maks',
@@ -149,10 +149,10 @@ export default {
     'tabGlobal': 'Global'
   },
   'training': {
-    'replay': 'Show me again',
-    'progress': 'Training: {n} of {total} lessons done',
-    'scrapWhy': 'Scrap buys upgrades for your weapons back at the Command Base.',
-    'skip': 'Skip training'
+    'replay': 'Vis meg igjen',
+    'progress': 'Trening: {n} av {total} leksjoner fullført',
+    'scrapWhy': 'Skrap kjøper våpenoppgraderinger hjemme på basen.',
+    'skip': 'Hopp over trening'
   },
   'pause': {
     'title': 'PAUSE',
@@ -162,7 +162,7 @@ export default {
   'options': {
     'killCams': 'Kill-cam',
     'sensitivity': 'Blikkfølsomhet',
-    'scopeSensitivity': 'Scope sensitivity',
+    'scopeSensitivity': 'Siktefølsomhet',
     'gameplay': 'Spilling',
     'title': 'Innstillinger',
     'general': 'Generelt',

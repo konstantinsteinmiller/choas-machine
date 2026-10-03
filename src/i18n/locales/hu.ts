@@ -47,32 +47,32 @@ export default {
     },
     'haul': 'Hulladék: {n}/{need}',
     'hide': 'Elbújni a ládában',
-    'zoom': 'Zoom the scope',
-    'cutPower': 'Cut the power',
-    'jamServo': 'Jam the servo',
-    'noBlade': 'No blade will take this one',
-    'dragBody': 'Drag the body',
-    'dropBody': 'Let go (into a container if one is at hand)',
-    'sabotage': 'Sabotage the alarm beacon',
-    'alarmRunner': 'A guard is running to raise the alarm',
-    'alarmLit': 'The alarm is raised',
+    'zoom': 'Távcső nagyítása',
+    'cutPower': 'Áram lekapcsolása',
+    'jamServo': 'Szervó beragasztása',
+    'noBlade': 'Ezt penge nem viszi',
+    'dragBody': 'Test vonszolása',
+    'dropBody': 'Elengedés (konténerbe, ha van a közelben)',
+    'sabotage': 'Riasztójeladó szabotálása',
+    'alarmRunner': 'Egy őr riasztani fut',
+    'alarmLit': 'Megszólalt a riasztás',
     'boss': 'A főellenség élete {n}%',
     'loot': 'Hulladék szétszedése'
   },
   'defeat': {
     'title': 'A mech kiesett',
     'retry': 'Próbáld újra',
-    'resume': 'From the first pile',
+    'resume': 'Az első kupactól',
     'kept': 'Megmentett techhulladék'
   },
   'base': {
     'deploy': 'Indulás',
-    'training': 'Training',
-    'learned': 'The base has learned',
+    'training': 'Gyakorlás',
+    'learned': 'A bázis tanult',
     'answer': {
-      'helmets': 'Helmets: your headshots were noticed',
-      'boxCheck': 'Box checkers: a box that sits still gets poked',
-      'perchLight': 'A searchlight now sweeps the perch'
+      'helmets': 'Sisakok: feltűntek a fejlövéseid',
+      'boxCheck': 'Ládaellenőrök: a mozdulatlan ládát megbökik',
+      'perchLight': 'Most fényszóró pásztázza a tornyot'
     },
     'threat': 'Veszélyszint',
     'locked': 'Előbb teljesítsd a(z) {n}. szintet',
@@ -95,11 +95,11 @@ export default {
     'armor': 'Páncélzat',
     'speed': 'Szervósebesség',
     'decoy': 'Csalétek időtartama',
-    'hook': 'Hook reach'
+    'hook': 'Kampó hatótávja'
   },
   'trackVerb': {
-    'speed': 'Level 1: a quieter sprint',
-    'decoy': 'Level 1: one more decoy'
+    'speed': '1. szint: halkabb sprint',
+    'decoy': '1. szint: még egy csali'
   },
   'workshop': {
     'max': 'Max',
@@ -149,10 +149,10 @@ export default {
     'tabGlobal': 'Globális'
   },
   'training': {
-    'replay': 'Show me again',
-    'progress': 'Training: {n} of {total} lessons done',
-    'scrapWhy': 'Scrap buys upgrades for your weapons back at the Command Base.',
-    'skip': 'Skip training'
+    'replay': 'Mutasd újra',
+    'progress': 'Gyakorlás: {total} leckéből {n} kész',
+    'scrapWhy': 'A techhulladékból a Parancsnoki bázison fejlesztheted a fegyvereidet.',
+    'skip': 'Gyakorlás kihagyása'
   },
   'pause': {
     'title': 'SZÜNET',
@@ -162,7 +162,7 @@ export default {
   'options': {
     'killCams': 'Kill-cam',
     'sensitivity': 'Nézési érzékenység',
-    'scopeSensitivity': 'Scope sensitivity',
+    'scopeSensitivity': 'Távcső-érzékenység',
     'gameplay': 'Játékmenet',
     'title': 'Beállítások',
     'general': 'Általános',

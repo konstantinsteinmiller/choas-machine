@@ -120,6 +120,30 @@ this says neither "regressed" nor "fine". Re-measure on a quiet machine before
 release; if the quiet phase is slower, the first suspects are the scrapyard
 decor's triangles (R6) and the per-pile groups (R7).
 
+## Round 3 check (2026-10-03): counts measured, timings inconclusive
+
+Round 3 rebuilt the Bastion bigger (60 × 64 cells, was 52 × 56), put it on a
+mountain in a sea of clouds (a massif, spires, two chains), added thickets,
+rails, helmets, the training ground's ghost and gates, the hound and more
+props. What can be counted without a quiet machine, from the perch at
+1280 × 720, `drawcount` probe over the dev build:
+
+| | draw calls | triangles | meshes in the scene |
+|---|---|---|---|
+| before round 3's level work (cc2c98e) | 138 | 85.8 k | 154 |
+| first cut of R24 | 165 | 121.8 k | 183 |
+| after trimming the cloud sea (70 puffs of 12 × 7, was 120 of 16 × 9) and merging the chain anchors | 163 | 112.9 k | 180 |
+
+The rest of the rise is the level itself: 32 % more cells (more fortress
+chunks), the thickets and the new props. Timings, interleaved stealth pairs
+at 4× CPU (`perf-mission.mjs --stealth`), with another session's job holding
+half the machine: the OLD build 20 to 24 ms work p50, the new one 25 to 32;
+one pair each way, the spread as wide as the difference. Re-measure on a
+quiet machine before release; the suspects in order are the triangle count
+(fortress chunks, cloud puffs), the extra draw calls (Open 4), and the
+garrison step (scent trail, rigs, chat checks: 3 to 8 ms in the loaded runs,
+1 to 2 before).
+
 ## Open
 
 1. **The loud phase's tail.** Work p95 reaches 100 ms at 4× CPU, with tens of
@@ -133,7 +157,7 @@ decor's triangles (R6) and the per-pile groups (R7).
    RGB and with RGBA vertex colours.
 3. **Bone textures.** `texSubImage2D` is 1.5 %: one upload per skinned rig per
    frame. Rigs out of sight could skip their pose.
-4. **Draw calls.** About 124 calls and 71 k triangles from the perch. Not a
+4. **Draw calls.** About 163 calls and 113 k triangles from the perch (round 3; 124 and 71 k before round 2). Not a
    limit on this GPU; it will be on a phone's. Merging the fortress's static
    pieces per area and culling by area is the known recipe.
 5. **Vision cones** cost 91 ray-casts per defender per frame. They did not

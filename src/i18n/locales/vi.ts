@@ -47,32 +47,32 @@ export default {
     },
     'haul': 'Phế liệu {n}/{need}',
     'hide': 'Trốn trong thùng',
-    'zoom': 'Zoom the scope',
-    'cutPower': 'Cut the power',
-    'jamServo': 'Jam the servo',
-    'noBlade': 'No blade will take this one',
-    'dragBody': 'Drag the body',
-    'dropBody': 'Let go (into a container if one is at hand)',
-    'sabotage': 'Sabotage the alarm beacon',
-    'alarmRunner': 'A guard is running to raise the alarm',
-    'alarmLit': 'The alarm is raised',
+    'zoom': 'Phóng ống ngắm',
+    'cutPower': 'Cắt điện',
+    'jamServo': 'Làm kẹt servo',
+    'noBlade': 'Lưỡi kiếm không hạ được nó',
+    'dragBody': 'Kéo xác',
+    'dropBody': 'Thả ra (vào thùng chứa nếu ở gần)',
+    'sabotage': 'Phá đèn báo động',
+    'alarmRunner': 'Một lính gác đang chạy đi báo động',
+    'alarmLit': 'Báo động đã vang',
     'boss': 'Máu trùm {n}%',
     'loot': 'Tháo phế liệu'
   },
   'defeat': {
     'title': 'Mech gục ngã',
     'retry': 'Thử lại',
-    'resume': 'From the first pile',
+    'resume': 'Từ đống đầu tiên',
     'kept': 'Phế liệu công nghệ thu hồi'
   },
   'base': {
     'deploy': 'Xuất kích',
-    'training': 'Training',
-    'learned': 'The base has learned',
+    'training': 'Huấn luyện',
+    'learned': 'Căn cứ đã rút kinh nghiệm',
     'answer': {
-      'helmets': 'Helmets: your headshots were noticed',
-      'boxCheck': 'Box checkers: a box that sits still gets poked',
-      'perchLight': 'A searchlight now sweeps the perch'
+      'helmets': 'Mũ sắt: cú bắn đầu của bạn đã bị để ý',
+      'boxCheck': 'Kiểm tra thùng: thùng đứng yên sẽ bị chọc',
+      'perchLight': 'Đèn pha giờ quét tháp bắn tỉa'
     },
     'threat': 'Mức đe dọa',
     'locked': 'Hãy qua màn {n} trước',
@@ -95,11 +95,11 @@ export default {
     'armor': 'Giáp tấm',
     'speed': 'Tốc độ servo',
     'decoy': 'Thời gian mồi nhử',
-    'hook': 'Hook reach'
+    'hook': 'Tầm móc câu'
   },
   'trackVerb': {
-    'speed': 'Level 1: a quieter sprint',
-    'decoy': 'Level 1: one more decoy'
+    'speed': 'Cấp 1: chạy êm hơn',
+    'decoy': 'Cấp 1: thêm một mồi nhử'
   },
   'workshop': {
     'max': 'Tối đa',
@@ -149,10 +149,10 @@ export default {
     'tabGlobal': 'Toàn cầu'
   },
   'training': {
-    'replay': 'Show me again',
-    'progress': 'Training: {n} of {total} lessons done',
-    'scrapWhy': 'Scrap buys upgrades for your weapons back at the Command Base.',
-    'skip': 'Skip training'
+    'replay': 'Xem lại',
+    'progress': 'Huấn luyện: xong {n}/{total} bài',
+    'scrapWhy': 'Phế liệu dùng để nâng cấp vũ khí tại Căn cứ chỉ huy.',
+    'skip': 'Bỏ qua huấn luyện'
   },
   'pause': {
     'title': 'TẠM DỪNG',
@@ -162,7 +162,7 @@ export default {
   'options': {
     'killCams': 'Camera hạ gục',
     'sensitivity': 'Độ nhạy nhìn',
-    'scopeSensitivity': 'Scope sensitivity',
+    'scopeSensitivity': 'Độ nhạy ống ngắm',
     'gameplay': 'Lối chơi',
     'title': 'Tùy chọn',
     'general': 'Chung',

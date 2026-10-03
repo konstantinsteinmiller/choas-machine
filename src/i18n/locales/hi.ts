@@ -47,32 +47,32 @@ export default {
     },
     'haul': 'कबाड़ {n} / {need}',
     'hide': 'डिब्बे में छिपें',
-    'zoom': 'Zoom the scope',
-    'cutPower': 'Cut the power',
-    'jamServo': 'Jam the servo',
-    'noBlade': 'No blade will take this one',
-    'dragBody': 'Drag the body',
-    'dropBody': 'Let go (into a container if one is at hand)',
-    'sabotage': 'Sabotage the alarm beacon',
-    'alarmRunner': 'A guard is running to raise the alarm',
-    'alarmLit': 'The alarm is raised',
+    'zoom': 'स्कोप ज़ूम करें',
+    'cutPower': 'बिजली काटें',
+    'jamServo': 'सर्वो जाम करें',
+    'noBlade': 'इसे कोई ब्लेड नहीं मार सकता',
+    'dragBody': 'शरीर घसीटें',
+    'dropBody': 'छोड़ें (पास में कंटेनर हो तो उसमें)',
+    'sabotage': 'अलार्म बीकन बिगाड़ें',
+    'alarmRunner': 'एक गार्ड अलार्म बजाने दौड़ रहा है',
+    'alarmLit': 'अलार्म बज गया',
     'boss': 'बॉस की सेहत {n}%',
     'loot': 'कबाड़ खोलें'
   },
   'defeat': {
     'title': 'मेक गिर गया',
     'retry': 'फिर से कोशिश करें',
-    'resume': 'From the first pile',
+    'resume': 'पहले ढेर से',
     'kept': 'बचा टेक स्क्रैप'
   },
   'base': {
     'deploy': 'तैनात करें',
-    'training': 'Training',
-    'learned': 'The base has learned',
+    'training': 'प्रशिक्षण',
+    'learned': 'बेस ने सबक सीखा',
     'answer': {
-      'helmets': 'Helmets: your headshots were noticed',
-      'boxCheck': 'Box checkers: a box that sits still gets poked',
-      'perchLight': 'A searchlight now sweeps the perch'
+      'helmets': 'हेलमेट: आपके हेडशॉट पर ध्यान गया',
+      'boxCheck': 'डिब्बा जाँचक: स्थिर डिब्बे को कोंचा जाता है',
+      'perchLight': 'अब सर्चलाइट मचान पर घूमती है'
     },
     'threat': 'खतरे का स्तर',
     'locked': 'पहले लेवल {n} पूरा करें',
@@ -95,11 +95,11 @@ export default {
     'armor': 'कवच',
     'speed': 'सर्वो स्पीड',
     'decoy': 'डिकॉय अवधि',
-    'hook': 'Hook reach'
+    'hook': 'कांटे की पहुँच'
   },
   'trackVerb': {
-    'speed': 'Level 1: a quieter sprint',
-    'decoy': 'Level 1: one more decoy'
+    'speed': 'लेवल 1: शांत दौड़',
+    'decoy': 'लेवल 1: एक और डिकॉय'
   },
   'workshop': {
     'max': 'अधिकतम',
@@ -149,10 +149,10 @@ export default {
     'tabGlobal': 'वैश्विक'
   },
   'training': {
-    'replay': 'Show me again',
-    'progress': 'Training: {n} of {total} lessons done',
-    'scrapWhy': 'Scrap buys upgrades for your weapons back at the Command Base.',
-    'skip': 'Skip training'
+    'replay': 'फिर से दिखाएँ',
+    'progress': 'प्रशिक्षण: {total} में से {n} पाठ पूरे',
+    'scrapWhy': 'स्क्रैप से कमांड बेस पर आपके हथियारों के अपग्रेड खरीदे जाते हैं।',
+    'skip': 'प्रशिक्षण छोड़ें'
   },
   'pause': {
     'title': 'रुका हुआ',
@@ -162,7 +162,7 @@ export default {
   'options': {
     'killCams': 'किल-कैम',
     'sensitivity': 'लुक सेंसिटिविटी',
-    'scopeSensitivity': 'Scope sensitivity',
+    'scopeSensitivity': 'स्कोप सेंसिटिविटी',
     'gameplay': 'गेमप्ले',
     'title': 'विकल्प',
     'general': 'सामान्य',

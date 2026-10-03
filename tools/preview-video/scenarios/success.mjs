@@ -1,4 +1,4 @@
-import { aimAt, behind, boot, budget, forceKillcam, freeze, hands, logState, loot, roll, settled, unit } from './_drive.mjs'
+import { aimAt, behind, boot, budget, forceKillcam, freeze, hands, logState, loot, roll, settled, unit, vantage } from './_drive.mjs'
 
 /**
  * SUCCESS, the short cut (10 s, and Poki's 5 s square): "one shot, one blade".
@@ -25,6 +25,8 @@ export default {
   async setup(ctx) {
     await boot(ctx)
     const sentry = await unit(ctx, 'sentry', 0)
+    // The rebuilt Bastion hides most of the base from the perch: stand where the line is clear.
+    await vantage(ctx, sentry.id, 30)
     await hands.crouch(ctx)
     await ctx.wait(500)
     await hands.aim(ctx, true)

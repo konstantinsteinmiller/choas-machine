@@ -47,32 +47,32 @@ export default {
     },
     'haul': 'Лом {n} из {need}',
     'hide': 'Спрятаться в ящике',
-    'zoom': 'Zoom the scope',
-    'cutPower': 'Cut the power',
-    'jamServo': 'Jam the servo',
-    'noBlade': 'No blade will take this one',
-    'dragBody': 'Drag the body',
-    'dropBody': 'Let go (into a container if one is at hand)',
-    'sabotage': 'Sabotage the alarm beacon',
-    'alarmRunner': 'A guard is running to raise the alarm',
-    'alarmLit': 'The alarm is raised',
+    'zoom': 'Приблизить прицел',
+    'cutPower': 'Отключить питание',
+    'jamServo': 'Заклинить серво',
+    'noBlade': 'Клинком его не взять',
+    'dragBody': 'Тащить тело',
+    'dropBody': 'Отпустить (в контейнер, если он рядом)',
+    'sabotage': 'Вывести из строя маяк тревоги',
+    'alarmRunner': 'Охранник бежит поднять тревогу',
+    'alarmLit': 'Тревога поднята',
     'boss': 'Здоровье босса {n}%',
     'loot': 'Разобрать лом'
   },
   'defeat': {
     'title': 'Мех повержен',
     'retry': 'Попробовать снова',
-    'resume': 'From the first pile',
+    'resume': 'С первой кучи',
     'kept': 'Спасённый техлом'
   },
   'base': {
     'deploy': 'В бой',
-    'training': 'Training',
-    'learned': 'The base has learned',
+    'training': 'Тренировка',
+    'learned': 'База сделала выводы',
     'answer': {
-      'helmets': 'Helmets: your headshots were noticed',
-      'boxCheck': 'Box checkers: a box that sits still gets poked',
-      'perchLight': 'A searchlight now sweeps the perch'
+      'helmets': 'Шлемы: твои хедшоты заметили',
+      'boxCheck': 'Проверка ящиков: неподвижный ящик тычут',
+      'perchLight': 'Теперь вышку обшаривает прожектор'
     },
     'threat': 'Уровень угрозы',
     'locked': 'Сначала пройдите уровень {n}',
@@ -95,11 +95,11 @@ export default {
     'armor': 'Броневые плиты',
     'speed': 'Скорость серв',
     'decoy': 'Время действия приманки',
-    'hook': 'Hook reach'
+    'hook': 'Дальность крюка'
   },
   'trackVerb': {
-    'speed': 'Level 1: a quieter sprint',
-    'decoy': 'Level 1: one more decoy'
+    'speed': 'Уровень 1: тише бег',
+    'decoy': 'Уровень 1: ещё одна приманка'
   },
   'workshop': {
     'max': 'Макс.',
@@ -149,10 +149,10 @@ export default {
     'tabGlobal': 'Мировой'
   },
   'training': {
-    'replay': 'Show me again',
-    'progress': 'Training: {n} of {total} lessons done',
-    'scrapWhy': 'Scrap buys upgrades for your weapons back at the Command Base.',
-    'skip': 'Skip training'
+    'replay': 'Покажи ещё раз',
+    'progress': 'Тренировка: пройдено уроков {n} из {total}',
+    'scrapWhy': 'За техлом на Командной базе можно улучшить оружие.',
+    'skip': 'Пропустить тренировку'
   },
   'pause': {
     'title': 'ПАУЗА',
@@ -162,7 +162,7 @@ export default {
   'options': {
     'killCams': 'Камера добивания',
     'sensitivity': 'Чувствительность обзора',
-    'scopeSensitivity': 'Scope sensitivity',
+    'scopeSensitivity': 'Чувствительность прицела',
     'gameplay': 'Игра',
     'title': 'Настройки',
     'general': 'Общие',

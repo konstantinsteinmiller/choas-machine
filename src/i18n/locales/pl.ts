@@ -47,32 +47,32 @@ export default {
     },
     'haul': 'Złom {n} z {need}',
     'hide': 'Schowaj się w skrzyni',
-    'zoom': 'Zoom the scope',
-    'cutPower': 'Cut the power',
-    'jamServo': 'Jam the servo',
-    'noBlade': 'No blade will take this one',
-    'dragBody': 'Drag the body',
-    'dropBody': 'Let go (into a container if one is at hand)',
-    'sabotage': 'Sabotage the alarm beacon',
-    'alarmRunner': 'A guard is running to raise the alarm',
-    'alarmLit': 'The alarm is raised',
+    'zoom': 'Przybliż lunetę',
+    'cutPower': 'Odetnij zasilanie',
+    'jamServo': 'Zablokuj serwo',
+    'noBlade': 'Żadne ostrze tego nie pokona',
+    'dragBody': 'Ciągnij ciało',
+    'dropBody': 'Puść (do pojemnika, jeśli jest obok)',
+    'sabotage': 'Sabotuj nadajnik alarmu',
+    'alarmRunner': 'Strażnik biegnie podnieść alarm',
+    'alarmLit': 'Alarm podniesiony',
     'boss': 'Życie bossa {n}%',
     'loot': 'Rozbierz złom'
   },
   'defeat': {
     'title': 'Mech padł',
     'retry': 'Spróbuj ponownie',
-    'resume': 'From the first pile',
+    'resume': 'Od pierwszej sterty',
     'kept': 'Odzyskany złom techniczny'
   },
   'base': {
     'deploy': 'Wyrusz',
-    'training': 'Training',
-    'learned': 'The base has learned',
+    'training': 'Trening',
+    'learned': 'Baza wyciągnęła wnioski',
     'answer': {
-      'helmets': 'Helmets: your headshots were noticed',
-      'boxCheck': 'Box checkers: a box that sits still gets poked',
-      'perchLight': 'A searchlight now sweeps the perch'
+      'helmets': 'Hełmy: zauważono twoje strzały w głowę',
+      'boxCheck': 'Kontrola skrzyń: nieruchoma skrzynia dostaje szturchańca',
+      'perchLight': 'Reflektor omiata teraz wieżę'
     },
     'threat': 'Poziom zagrożenia',
     'locked': 'Najpierw ukończ poziom {n}',
@@ -95,11 +95,11 @@ export default {
     'armor': 'Płyty pancerne',
     'speed': 'Prędkość serw',
     'decoy': 'Czas wabika',
-    'hook': 'Hook reach'
+    'hook': 'Zasięg haka'
   },
   'trackVerb': {
-    'speed': 'Level 1: a quieter sprint',
-    'decoy': 'Level 1: one more decoy'
+    'speed': 'Poziom 1: cichszy sprint',
+    'decoy': 'Poziom 1: jeszcze jeden wabik'
   },
   'workshop': {
     'max': 'Maks.',
@@ -149,10 +149,10 @@ export default {
     'tabGlobal': 'Światowy'
   },
   'training': {
-    'replay': 'Show me again',
-    'progress': 'Training: {n} of {total} lessons done',
-    'scrapWhy': 'Scrap buys upgrades for your weapons back at the Command Base.',
-    'skip': 'Skip training'
+    'replay': 'Pokaż jeszcze raz',
+    'progress': 'Trening: ukończono {n} z {total} lekcji',
+    'scrapWhy': 'Za złom ulepszysz broń w Bazie Dowodzenia.',
+    'skip': 'Pomiń trening'
   },
   'pause': {
     'title': 'PAUZA',
@@ -162,7 +162,7 @@ export default {
   'options': {
     'killCams': 'Kill-cam',
     'sensitivity': 'Czułość rozglądania',
-    'scopeSensitivity': 'Scope sensitivity',
+    'scopeSensitivity': 'Czułość lunety',
     'gameplay': 'Rozgrywka',
     'title': 'Opcje',
     'general': 'Ogólne',

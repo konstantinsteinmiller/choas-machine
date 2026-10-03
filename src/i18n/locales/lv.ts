@@ -47,32 +47,32 @@ export default {
     },
     'haul': 'Lūžņi {n} no {need}',
     'hide': 'Paslēpties kastē',
-    'zoom': 'Zoom the scope',
-    'cutPower': 'Cut the power',
-    'jamServo': 'Jam the servo',
-    'noBlade': 'No blade will take this one',
-    'dragBody': 'Drag the body',
-    'dropBody': 'Let go (into a container if one is at hand)',
-    'sabotage': 'Sabotage the alarm beacon',
-    'alarmRunner': 'A guard is running to raise the alarm',
-    'alarmLit': 'The alarm is raised',
+    'zoom': 'Tuvināt optiku',
+    'cutPower': 'Atslēgt strāvu',
+    'jamServo': 'Iesprūdināt servo',
+    'noBlade': 'Asmens šo neņems',
+    'dragBody': 'Vilkt ķermeni',
+    'dropBody': 'Atlaist (konteinerā, ja tas ir blakus)',
+    'sabotage': 'Sabotēt trauksmes bāku',
+    'alarmRunner': 'Sargs skrien celt trauksmi',
+    'alarmLit': 'Trauksme ir izsludināta',
     'boss': 'Bosa veselība {n}%',
     'loot': 'Izjaukt lūžņus'
   },
   'defeat': {
     'title': 'Mehs ir ticis',
     'retry': 'Mēģināt vēlreiz',
-    'resume': 'From the first pile',
+    'resume': 'No pirmās kaudzes',
     'kept': 'Izglābti tehnikas lūžņi'
   },
   'base': {
     'deploy': 'Sākt',
-    'training': 'Training',
-    'learned': 'The base has learned',
+    'training': 'Treniņš',
+    'learned': 'Bāze ir mācījusies',
     'answer': {
-      'helmets': 'Helmets: your headshots were noticed',
-      'boxCheck': 'Box checkers: a box that sits still gets poked',
-      'perchLight': 'A searchlight now sweeps the perch'
+      'helmets': 'Ķiveres: tavi trāpījumi galvā tika pamanīti',
+      'boxCheck': 'Kastu pārbaudītāji: kasti, kas stāv uz vietas, pabaksta',
+      'perchLight': 'Prožektors tagad pārskata torni'
     },
     'threat': 'Draudu līmenis',
     'locked': 'Vispirms izpildi {n}. līmeni',
@@ -95,11 +95,11 @@ export default {
     'armor': 'Bruņu plāksnes',
     'speed': 'Servo ātrums',
     'decoy': 'Mānekļa ilgums',
-    'hook': 'Hook reach'
+    'hook': 'Āķa sniedzamība'
   },
   'trackVerb': {
-    'speed': 'Level 1: a quieter sprint',
-    'decoy': 'Level 1: one more decoy'
+    'speed': '1. līmenis: klusāks sprints',
+    'decoy': '1. līmenis: vēl viena ēsma'
   },
   'workshop': {
     'max': 'Maks.',
@@ -149,10 +149,10 @@ export default {
     'tabGlobal': 'Pasaules'
   },
   'training': {
-    'replay': 'Show me again',
-    'progress': 'Training: {n} of {total} lessons done',
-    'scrapWhy': 'Scrap buys upgrades for your weapons back at the Command Base.',
-    'skip': 'Skip training'
+    'replay': 'Parādi vēlreiz',
+    'progress': 'Treniņš: pabeigtas {n} no {total} nodarbībām',
+    'scrapWhy': 'Par lūžņiem bāzē var uzlabot ieročus.',
+    'skip': 'Izlaist treniņu'
   },
   'pause': {
     'title': 'PAUZE',
@@ -162,7 +162,7 @@ export default {
   'options': {
     'killCams': 'Kill-cam',
     'sensitivity': 'Skatīšanās jutība',
-    'scopeSensitivity': 'Scope sensitivity',
+    'scopeSensitivity': 'Optikas jutība',
     'gameplay': 'Spēle',
     'title': 'Iestatījumi',
     'general': 'Vispārīgi',

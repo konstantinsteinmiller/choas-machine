@@ -114,7 +114,10 @@ export default {
 
   urlParams: {
     // The scripting handle (`window.__preview`), on EVERY recording URL.
-    preview: '1'
+    preview: '1',
+    // The Bastion, though the recording profile is a new one (it would open
+    // in the training ground).
+    fort: 'bastion'
   },
 
   // A headless Chrome still takes the REAL pointer lock, which grabs the mouse

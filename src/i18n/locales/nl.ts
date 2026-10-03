@@ -47,32 +47,32 @@ export default {
     },
     'haul': 'Schroot {n} van {need}',
     'hide': 'Verstoppen in de kist',
-    'zoom': 'Zoom the scope',
-    'cutPower': 'Cut the power',
-    'jamServo': 'Jam the servo',
-    'noBlade': 'No blade will take this one',
-    'dragBody': 'Drag the body',
-    'dropBody': 'Let go (into a container if one is at hand)',
-    'sabotage': 'Sabotage the alarm beacon',
-    'alarmRunner': 'A guard is running to raise the alarm',
-    'alarmLit': 'The alarm is raised',
+    'zoom': 'Scope inzoomen',
+    'cutPower': 'Stroom afsluiten',
+    'jamServo': 'Servo blokkeren',
+    'noBlade': 'Geen mes krijgt deze neer',
+    'dragBody': 'Lichaam slepen',
+    'dropBody': 'Loslaten (in een container als die dichtbij is)',
+    'sabotage': 'Alarmbaken saboteren',
+    'alarmRunner': 'Een bewaker rent om alarm te slaan',
+    'alarmLit': 'Het alarm is geslagen',
     'boss': 'Levens van de baas {n}%',
     'loot': 'Schroot slopen'
   },
   'defeat': {
     'title': 'Mech neergehaald',
     'retry': 'Opnieuw proberen',
-    'resume': 'From the first pile',
+    'resume': 'Vanaf de eerste stapel',
     'kept': 'Gered techschroot'
   },
   'base': {
     'deploy': 'Inzetten',
     'training': 'Training',
-    'learned': 'The base has learned',
+    'learned': 'De basis heeft geleerd',
     'answer': {
-      'helmets': 'Helmets: your headshots were noticed',
-      'boxCheck': 'Box checkers: a box that sits still gets poked',
-      'perchLight': 'A searchlight now sweeps the perch'
+      'helmets': 'Helmen: je headshots zijn opgemerkt',
+      'boxCheck': 'Kistcontroleurs: een stilstaande kist krijgt een por',
+      'perchLight': 'Een zoeklicht veegt nu over de uitkijkpost'
     },
     'threat': 'Dreigingsniveau',
     'locked': 'Voltooi eerst level {n}',
@@ -95,11 +95,11 @@ export default {
     'armor': 'Pantserplaten',
     'speed': 'Servosnelheid',
     'decoy': 'Duur van lokvogel',
-    'hook': 'Hook reach'
+    'hook': 'Haakbereik'
   },
   'trackVerb': {
-    'speed': 'Level 1: a quieter sprint',
-    'decoy': 'Level 1: one more decoy'
+    'speed': 'Niveau 1: stillere sprint',
+    'decoy': 'Niveau 1: één lokvogel extra'
   },
   'workshop': {
     'max': 'Max',
@@ -149,10 +149,10 @@ export default {
     'tabGlobal': 'Wereldwijd'
   },
   'training': {
-    'replay': 'Show me again',
-    'progress': 'Training: {n} of {total} lessons done',
-    'scrapWhy': 'Scrap buys upgrades for your weapons back at the Command Base.',
-    'skip': 'Skip training'
+    'replay': 'Nog eens laten zien',
+    'progress': 'Training: {n} van {total} lessen klaar',
+    'scrapWhy': 'Met techschroot koop je upgrades voor je wapens in de commandobasis.',
+    'skip': 'Training overslaan'
   },
   'pause': {
     'title': 'GEPAUZEERD',
@@ -162,7 +162,7 @@ export default {
   'options': {
     'killCams': 'Kill-cam',
     'sensitivity': 'Kijkgevoeligheid',
-    'scopeSensitivity': 'Scope sensitivity',
+    'scopeSensitivity': 'Scopegevoeligheid',
     'gameplay': 'Gameplay',
     'title': 'Opties',
     'general': 'Algemeen',

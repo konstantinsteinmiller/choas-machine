@@ -47,32 +47,32 @@ export default {
     },
     'haul': 'Laužo {n} iš {need}',
     'hide': 'Pasislėpti dėžėje',
-    'zoom': 'Zoom the scope',
-    'cutPower': 'Cut the power',
-    'jamServo': 'Jam the servo',
-    'noBlade': 'No blade will take this one',
-    'dragBody': 'Drag the body',
-    'dropBody': 'Let go (into a container if one is at hand)',
-    'sabotage': 'Sabotage the alarm beacon',
-    'alarmRunner': 'A guard is running to raise the alarm',
-    'alarmLit': 'The alarm is raised',
+    'zoom': 'Priartinti taikiklį',
+    'cutPower': 'Išjungti maitinimą',
+    'jamServo': 'Užblokuoti servą',
+    'noBlade': 'Ašmenys jo neįveiks',
+    'dragBody': 'Vilkti kūną',
+    'dropBody': 'Paleisti (į konteinerį, jei šalia)',
+    'sabotage': 'Sugadinti signalizacijos švyturį',
+    'alarmRunner': 'Sargybinis bėga kelti pavojaus',
+    'alarmLit': 'Paskelbtas pavojus',
     'boss': 'Boso gyvybė {n} %',
     'loot': 'Išardyti laužą'
   },
   'defeat': {
     'title': 'Mechas žlugo',
     'retry': 'Bandyti dar kartą',
-    'resume': 'From the first pile',
+    'resume': 'Nuo pirmos krūvos',
     'kept': 'Išgelbėtas technikos laužas'
   },
   'base': {
     'deploy': 'Pradėti',
-    'training': 'Training',
-    'learned': 'The base has learned',
+    'training': 'Treniruotė',
+    'learned': 'Bazė pasimokė',
     'answer': {
-      'helmets': 'Helmets: your headshots were noticed',
-      'boxCheck': 'Box checkers: a box that sits still gets poked',
-      'perchLight': 'A searchlight now sweeps the perch'
+      'helmets': 'Šalmai: tavo šūviai į galvą pastebėti',
+      'boxCheck': 'Dėžių tikrintojai: nejudanti dėžė gauna bakstelėjimą',
+      'perchLight': 'Dabar bokštą šluoja prožektorius'
     },
     'threat': 'Grėsmės lygis',
     'locked': 'Pirmiausia įveikite {n} lygį',
@@ -95,11 +95,11 @@ export default {
     'armor': 'Šarvų plokštės',
     'speed': 'Servo greitis',
     'decoy': 'Kvailio trukmė',
-    'hook': 'Hook reach'
+    'hook': 'Kablio siekis'
   },
   'trackVerb': {
-    'speed': 'Level 1: a quieter sprint',
-    'decoy': 'Level 1: one more decoy'
+    'speed': '1 lygis: tylesnis sprintas',
+    'decoy': '1 lygis: dar vienas masalas'
   },
   'workshop': {
     'max': 'Maks.',
@@ -149,10 +149,10 @@ export default {
     'tabGlobal': 'Pasaulinė'
   },
   'training': {
-    'replay': 'Show me again',
-    'progress': 'Training: {n} of {total} lessons done',
-    'scrapWhy': 'Scrap buys upgrades for your weapons back at the Command Base.',
-    'skip': 'Skip training'
+    'replay': 'Parodyk dar kartą',
+    'progress': 'Treniruotė: baigta {n} iš {total} pamokų',
+    'scrapWhy': 'Už technikos laužą Vadavietėje patobulinsi ginklus.',
+    'skip': 'Praleisti treniruotę'
   },
   'pause': {
     'title': 'PAUZĖ',
@@ -162,7 +162,7 @@ export default {
   'options': {
     'killCams': 'Kill-cam kadrai',
     'sensitivity': 'Žvalgymosi jautrumas',
-    'scopeSensitivity': 'Scope sensitivity',
+    'scopeSensitivity': 'Taikiklio jautrumas',
     'gameplay': 'Žaidimas',
     'title': 'Nustatymai',
     'general': 'Bendra',

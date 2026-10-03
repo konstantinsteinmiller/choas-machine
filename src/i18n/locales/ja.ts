@@ -47,32 +47,32 @@ export default {
     },
     'haul': 'スクラップ {n}/{need}',
     'hide': '箱に隠れる',
-    'zoom': 'Zoom the scope',
-    'cutPower': 'Cut the power',
-    'jamServo': 'Jam the servo',
-    'noBlade': 'No blade will take this one',
-    'dragBody': 'Drag the body',
-    'dropBody': 'Let go (into a container if one is at hand)',
-    'sabotage': 'Sabotage the alarm beacon',
-    'alarmRunner': 'A guard is running to raise the alarm',
-    'alarmLit': 'The alarm is raised',
+    'zoom': 'スコープを拡大',
+    'cutPower': '電源を切る',
+    'jamServo': 'サーボを妨害',
+    'noBlade': '刃では倒せない',
+    'dragBody': '体を引きずる',
+    'dropBody': '放す（近くにコンテナがあれば中へ）',
+    'sabotage': '警報ビーコンを破壊',
+    'alarmRunner': '警備兵が警報を鳴らしに走っている',
+    'alarmLit': '警報が鳴った',
     'boss': 'ボスの体力 {n}%',
     'loot': 'スクラップを解体'
   },
   'defeat': {
     'title': 'メカ撃破',
     'retry': 'もう一度',
-    'resume': 'From the first pile',
+    'resume': '最初の山から',
     'kept': '回収したテックスクラップ'
   },
   'base': {
     'deploy': '出撃',
-    'training': 'Training',
-    'learned': 'The base has learned',
+    'training': '訓練',
+    'learned': '基地は学習した',
     'answer': {
-      'helmets': 'Helmets: your headshots were noticed',
-      'boxCheck': 'Box checkers: a box that sits still gets poked',
-      'perchLight': 'A searchlight now sweeps the perch'
+      'helmets': 'ヘルメット：ヘッドショットが警戒された',
+      'boxCheck': '箱チェック：動かない箱はつつかれる',
+      'perchLight': 'サーチライトが狙撃塔を照らす'
     },
     'threat': '脅威レベル',
     'locked': '先にレベル{n}をクリア',
@@ -95,11 +95,11 @@ export default {
     'armor': '装甲',
     'speed': 'サーボ速度',
     'decoy': 'デコイ持続時間',
-    'hook': 'Hook reach'
+    'hook': 'フック射程'
   },
   'trackVerb': {
-    'speed': 'Level 1: a quieter sprint',
-    'decoy': 'Level 1: one more decoy'
+    'speed': 'レベル1：静かなダッシュ',
+    'decoy': 'レベル1：デコイ+1'
   },
   'workshop': {
     'max': '最大',
@@ -149,10 +149,10 @@ export default {
     'tabGlobal': '世界'
   },
   'training': {
-    'replay': 'Show me again',
-    'progress': 'Training: {n} of {total} lessons done',
-    'scrapWhy': 'Scrap buys upgrades for your weapons back at the Command Base.',
-    'skip': 'Skip training'
+    'replay': 'もう一度見る',
+    'progress': '訓練：{total}中{n}レッスン完了',
+    'scrapWhy': 'スクラップは司令基地で武器の強化に使えます。',
+    'skip': '訓練をスキップ'
   },
   'pause': {
     'title': 'ポーズ中',
@@ -162,7 +162,7 @@ export default {
   'options': {
     'killCams': 'キルカメラ',
     'sensitivity': '視点感度',
-    'scopeSensitivity': 'Scope sensitivity',
+    'scopeSensitivity': 'スコープ感度',
     'gameplay': 'ゲームプレイ',
     'title': '設定',
     'general': '一般',

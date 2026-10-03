@@ -47,32 +47,32 @@ export default {
     },
     'haul': 'Hurda {n}/{need}',
     'hide': 'Kutuya saklan',
-    'zoom': 'Zoom the scope',
-    'cutPower': 'Cut the power',
-    'jamServo': 'Jam the servo',
-    'noBlade': 'No blade will take this one',
-    'dragBody': 'Drag the body',
-    'dropBody': 'Let go (into a container if one is at hand)',
-    'sabotage': 'Sabotage the alarm beacon',
-    'alarmRunner': 'A guard is running to raise the alarm',
-    'alarmLit': 'The alarm is raised',
+    'zoom': 'Dürbünü yakınlaştır',
+    'cutPower': 'Gücü kes',
+    'jamServo': 'Servoyu kilitle',
+    'noBlade': 'Bunu hiçbir bıçak alamaz',
+    'dragBody': 'Bedeni sürükle',
+    'dropBody': 'Bırak (yakında konteyner varsa içine)',
+    'sabotage': 'Alarm işaretini sabote et',
+    'alarmRunner': 'Bir muhafız alarm vermeye koşuyor',
+    'alarmLit': 'Alarm verildi',
     'boss': 'Boss canı %{n}',
     'loot': 'Hurdayı sök'
   },
   'defeat': {
     'title': 'Mech yenildi',
     'retry': 'Tekrar dene',
-    'resume': 'From the first pile',
+    'resume': 'İlk yığından',
     'kept': 'Kurtarılan Teknik Hurda'
   },
   'base': {
     'deploy': 'Görevlendir',
-    'training': 'Training',
-    'learned': 'The base has learned',
+    'training': 'Eğitim',
+    'learned': 'Üs ders aldı',
     'answer': {
-      'helmets': 'Helmets: your headshots were noticed',
-      'boxCheck': 'Box checkers: a box that sits still gets poked',
-      'perchLight': 'A searchlight now sweeps the perch'
+      'helmets': 'Kasklar: kafa vuruşların fark edildi',
+      'boxCheck': 'Kutu kontrolcüleri: kıpırdamayan kutu dürtülür',
+      'perchLight': 'Artık bir projektör kuleyi tarıyor'
     },
     'threat': 'Tehdit seviyesi',
     'locked': 'Önce {n}. seviyeyi bitir',
@@ -95,11 +95,11 @@ export default {
     'armor': 'Zırh plakaları',
     'speed': 'Servo hızı',
     'decoy': 'Tuzak süresi',
-    'hook': 'Hook reach'
+    'hook': 'Kanca menzili'
   },
   'trackVerb': {
-    'speed': 'Level 1: a quieter sprint',
-    'decoy': 'Level 1: one more decoy'
+    'speed': 'Seviye 1: daha sessiz koşu',
+    'decoy': 'Seviye 1: bir yem daha'
   },
   'workshop': {
     'max': 'Maks',
@@ -149,10 +149,10 @@ export default {
     'tabGlobal': 'Dünya'
   },
   'training': {
-    'replay': 'Show me again',
-    'progress': 'Training: {n} of {total} lessons done',
-    'scrapWhy': 'Scrap buys upgrades for your weapons back at the Command Base.',
-    'skip': 'Skip training'
+    'replay': 'Tekrar göster',
+    'progress': 'Eğitim: {total} dersten {n} tanesi bitti',
+    'scrapWhy': 'Hurdayla üste silahlarına yükseltme alırsın.',
+    'skip': 'Eğitimi atla'
   },
   'pause': {
     'title': 'DURAKLATILDI',
@@ -162,7 +162,7 @@ export default {
   'options': {
     'killCams': 'Öldürme kamerası',
     'sensitivity': 'Bakış hassasiyeti',
-    'scopeSensitivity': 'Scope sensitivity',
+    'scopeSensitivity': 'Dürbün hassasiyeti',
     'gameplay': 'Oynanış',
     'title': 'Seçenekler',
     'general': 'Genel',

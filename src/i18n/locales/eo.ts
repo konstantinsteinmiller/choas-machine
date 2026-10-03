@@ -47,32 +47,32 @@ export default {
     },
     'haul': 'Rubaĵo {n} el {need}',
     'hide': 'Kaŝiĝi en la kesto',
-    'zoom': 'Zoom the scope',
-    'cutPower': 'Cut the power',
-    'jamServo': 'Jam the servo',
-    'noBlade': 'No blade will take this one',
-    'dragBody': 'Drag the body',
-    'dropBody': 'Let go (into a container if one is at hand)',
-    'sabotage': 'Sabotage the alarm beacon',
-    'alarmRunner': 'A guard is running to raise the alarm',
-    'alarmLit': 'The alarm is raised',
+    'zoom': 'Zomi la celilon',
+    'cutPower': 'Tranĉi la kurenton',
+    'jamServo': 'Bloki la servilon',
+    'noBlade': 'Neniu klingo venkos ĉi tiun',
+    'dragBody': 'Treni la korpon',
+    'dropBody': 'Lasi (en ujon, se iu estas proksime)',
+    'sabotage': 'Saboti la alarmlumilon',
+    'alarmRunner': 'Gardisto kuras por alarmi',
+    'alarmLit': 'La alarmo sonas',
     'boss': 'Vivo de la estro {n}%',
     'loot': 'Malmunti la rubaĵon'
   },
   'defeat': {
     'title': 'Meĥo falis',
     'retry': 'Reprovu',
-    'resume': 'From the first pile',
+    'resume': 'De la unua amaso',
     'kept': 'Savitaj teknorestaĵoj'
   },
   'base': {
     'deploy': 'Ek!',
-    'training': 'Training',
-    'learned': 'The base has learned',
+    'training': 'Trejnado',
+    'learned': 'La bazo lernis',
     'answer': {
-      'helmets': 'Helmets: your headshots were noticed',
-      'boxCheck': 'Box checkers: a box that sits still gets poked',
-      'perchLight': 'A searchlight now sweeps the perch'
+      'helmets': 'Kaskoj: oni rimarkis viajn kappafojn',
+      'boxCheck': 'Kestokontrolistoj: senmova kesto estas pikata',
+      'perchLight': 'Serĉlumo nun balaas la gvatejon'
     },
     'threat': 'Danĝera nivelo',
     'locked': 'Unue finu nivelon {n}',
@@ -95,11 +95,11 @@ export default {
     'armor': 'Kirasado',
     'speed': 'Servo-rapido',
     'decoy': 'Logaĵa daŭro',
-    'hook': 'Hook reach'
+    'hook': 'Atingo de la hoko'
   },
   'trackVerb': {
-    'speed': 'Level 1: a quieter sprint',
-    'decoy': 'Level 1: one more decoy'
+    'speed': 'Nivelo 1: pli silenta spurto',
+    'decoy': 'Nivelo 1: unu plia logaĵo'
   },
   'workshop': {
     'max': 'Maks.',
@@ -149,10 +149,10 @@ export default {
     'tabGlobal': 'Tutmonda'
   },
   'training': {
-    'replay': 'Show me again',
-    'progress': 'Training: {n} of {total} lessons done',
-    'scrapWhy': 'Scrap buys upgrades for your weapons back at the Command Base.',
-    'skip': 'Skip training'
+    'replay': 'Montru denove',
+    'progress': 'Trejnado: {n} el {total} lecionoj faritaj',
+    'scrapWhy': 'Teknorestaĵoj aĉetas plibonigojn por viaj armiloj en la komandobazo.',
+    'skip': 'Preterpasi trejnadon'
   },
   'pause': {
     'title': 'PAŬZITA',
@@ -162,7 +162,7 @@ export default {
   'options': {
     'killCams': 'Venko-kamerao',
     'sensitivity': 'Rigarda sentemo',
-    'scopeSensitivity': 'Scope sensitivity',
+    'scopeSensitivity': 'Celila sentemo',
     'gameplay': 'Ludado',
     'title': 'Agordoj',
     'general': 'Ĝenerale',

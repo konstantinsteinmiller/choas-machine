@@ -47,32 +47,32 @@ export default {
     },
     'haul': 'Romua {n}/{need}',
     'hide': 'Piiloudu laatikkoon',
-    'zoom': 'Zoom the scope',
-    'cutPower': 'Cut the power',
-    'jamServo': 'Jam the servo',
-    'noBlade': 'No blade will take this one',
-    'dragBody': 'Drag the body',
-    'dropBody': 'Let go (into a container if one is at hand)',
-    'sabotage': 'Sabotage the alarm beacon',
-    'alarmRunner': 'A guard is running to raise the alarm',
-    'alarmLit': 'The alarm is raised',
+    'zoom': 'Zoomaa tähtäintä',
+    'cutPower': 'Katkaise virta',
+    'jamServo': 'Jumita servo',
+    'noBlade': 'Terä ei tähän pure',
+    'dragBody': 'Raahaa ruumis',
+    'dropBody': 'Päästä irti (säiliöön, jos sellainen on lähellä)',
+    'sabotage': 'Sabotoi hälytysmajakka',
+    'alarmRunner': 'Vartija juoksee tekemään hälytyksen',
+    'alarmLit': 'Hälytys on annettu',
     'boss': 'Pomon terveys {n} %',
     'loot': 'Pura romu'
   },
   'defeat': {
     'title': 'Mecha kaatui',
     'retry': 'Yritä uudelleen',
-    'resume': 'From the first pile',
+    'resume': 'Ensimmäisestä kasasta',
     'kept': 'Pelastettu teknoromu'
   },
   'base': {
     'deploy': 'Lähde',
-    'training': 'Training',
-    'learned': 'The base has learned',
+    'training': 'Harjoitus',
+    'learned': 'Tukikohta on oppinut',
     'answer': {
-      'helmets': 'Helmets: your headshots were noticed',
-      'boxCheck': 'Box checkers: a box that sits still gets poked',
-      'perchLight': 'A searchlight now sweeps the perch'
+      'helmets': 'Kypärät: pääosumasi huomattiin',
+      'boxCheck': 'Laatikkotarkastajat: paikallaan pysyvää laatikkoa tökitään',
+      'perchLight': 'Valonheitin pyyhkii nyt tornia'
     },
     'threat': 'Uhkataso',
     'locked': 'Suorita ensin taso {n}',
@@ -95,11 +95,11 @@ export default {
     'armor': 'Panssarointi',
     'speed': 'Servojen nopeus',
     'decoy': 'Houkuttimen kesto',
-    'hook': 'Hook reach'
+    'hook': 'Koukun ulottuvuus'
   },
   'trackVerb': {
-    'speed': 'Level 1: a quieter sprint',
-    'decoy': 'Level 1: one more decoy'
+    'speed': 'Taso 1: hiljaisempi pikajuoksu',
+    'decoy': 'Taso 1: yksi houkutin lisää'
   },
   'workshop': {
     'max': 'Maks.',
@@ -149,10 +149,10 @@ export default {
     'tabGlobal': 'Globaali'
   },
   'training': {
-    'replay': 'Show me again',
-    'progress': 'Training: {n} of {total} lessons done',
-    'scrapWhy': 'Scrap buys upgrades for your weapons back at the Command Base.',
-    'skip': 'Skip training'
+    'replay': 'Näytä uudelleen',
+    'progress': 'Harjoitus: {n}/{total} oppituntia tehty',
+    'scrapWhy': 'Romulla ostat aseillesi päivityksiä tukikohdassa.',
+    'skip': 'Ohita harjoitus'
   },
   'pause': {
     'title': 'TAUKO',
@@ -162,7 +162,7 @@ export default {
   'options': {
     'killCams': 'Tuhokamera',
     'sensitivity': 'Katseen herkkyys',
-    'scopeSensitivity': 'Scope sensitivity',
+    'scopeSensitivity': 'Tähtäimen herkkyys',
     'gameplay': 'Pelattavuus',
     'title': 'Asetukset',
     'general': 'Yleiset',
