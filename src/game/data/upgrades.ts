@@ -4,8 +4,8 @@ import type { GameIconName } from '@/components/icons/iconNames'
 /**
  * ─── What the Command Base sells ─────────────────────────────────────────────
  *
- * The Armory's and the Chassis Bay's upgrade tracks (GDD 3.2), the Forge's
- * weapon tiers, and the one function that turns a save into the numbers a
+ * The Armory's and the Chassis Bay's upgrade tracks (GDD 3.2), the weapon
+ * tiers the smithy makes, and the one function that turns a save into the numbers a
  * mission plays with (`loadoutOf`). Pure data and arithmetic: the balance
  * test runs on this file alone.
  */
@@ -56,21 +56,15 @@ export const trackTotalCost = (): number => {
 // ─── The Forge ───────────────────────────────────────────────────────────────
 
 export const TIER_MAX = 5
-/** Seconds to build tier 2, 3, 4, 5 (plan G15: 1 min, 10 min, 1 h, 4 h). */
-const TIER_BUILD_S: Readonly<Record<number, number>> = { 2: 60, 3: 600, 4: 3600, 5: 14400 }
 /** Blueprints of the weapon, and Tech Scrap, to start building a tier. */
 const TIER_BLUEPRINTS: Readonly<Record<number, number>> = { 2: 2, 3: 3, 4: 4, 5: 5 }
 const TIER_SCRAP: Readonly<Record<number, number>> = { 2: 120, 3: 260, 4: 520, 5: 980 }
 /** Each tier is this much more damage than the one before it. */
 export const TIER_DAMAGE_STEP = 0.18
-/** A Data Core buys this many seconds off a build. */
-export const CORE_SKIP_S = 600
-
-export const tierBuildSeconds = (tier: number): number => TIER_BUILD_S[tier] ?? 0
 export const tierBlueprints = (tier: number): number => TIER_BLUEPRINTS[tier] ?? 0
 export const tierScrap = (tier: number): number => TIER_SCRAP[tier] ?? 0
-/** Data Cores to finish a build with `remaining` seconds left. */
-export const skipCost = (remaining: number): number => (remaining <= 0 ? 0 : Math.max(1, Math.ceil(remaining / CORE_SKIP_S)))
+/** Data Cores to cut a smithy wait short: one, whatever is left of it. */
+export const skipCost = (remaining: number): number => (remaining <= 0 ? 0 : 1)
 
 // ─── What a mission plays with ───────────────────────────────────────────────
 

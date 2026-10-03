@@ -81,7 +81,7 @@ const showWeapon = (w: WeaponId): void => {
   if (s) s.weapon = w
 }
 
-// A finished build waits to be collected: the Forge button says so.
+// The smithy has a game ready to play: the Forge button says so.
 const now = ref(Date.now())
 let timer = 0
 onMounted(() => {

@@ -17,6 +17,8 @@ export const GAME_ICON_NAMES = [
   'menu', 'home', 'back', 'forward', 'close', 'check',
   // Meta screens
   'settings', 'forge', 'info', 'help', 'map', 'fortress',
+  // The smithy's three stations: the furnace, the anvil, the quench
+  'flame', 'hammer', 'drop',
   // Audio
   'music', 'music-off', 'sound', 'sound-off',
   // Progression

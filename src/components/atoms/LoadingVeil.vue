@@ -45,6 +45,10 @@ import { flow } from '@/game/flow'
   transition: opacity 140ms ease-out
 .veil-leave-active
   transition: opacity 320ms ease-in
+  // The next scene is live: a veil fading off it takes no presses. (Its fade
+  // can stall for a second while that scene's first frames compile, and it
+  // ate the Command Base's first tap.)
+  pointer-events: none
 .veil-enter-from, .veil-leave-to
   opacity: 0
 </style>

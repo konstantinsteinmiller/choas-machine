@@ -28,7 +28,7 @@ export type SfxName =
   // The mission's beats
   | 'objective' | 'extract' | 'dropIn' | 'boardJump' | 'bark' | 'killcam' | 'lesson' | 'medal'
   // The Command Base and the interface
-  | 'buy' | 'forgeStart' | 'forgeDone' | 'denied' | 'uiClick' | 'uiOpen' | 'uiClose' | 'uiConfirm'
+  | 'buy' | 'forgeStart' | 'forgeDone' | 'bellows' | 'melt' | 'clang' | 'clangOff' | 'hiss' | 'denied' | 'uiClick' | 'uiOpen' | 'uiClose' | 'uiConfirm'
 
 type Player = (name: SfxName, pan: number, gain: number, muffle: number) => void
 let player: Player | null = null

@@ -362,6 +362,34 @@ const RECIPES: Record<SfxName, (pan: number, g: number) => void> = {
     arp([67, 74, 79, 86, 91], 0.08, 'p25', 0.15 * g, 0.2)
     tone({ wave: 'saw', f0: 120, f1: 620, dur: 1.4, vol: 0.06 * g, exp: false })
   },
+  // ── The smithy ──
+  // A push of the bellows: a soft rush of air into the coals.
+  bellows: (_p, g) => {
+    burst({ dur: 0.35, vol: 0.07 * g, type: 'lowpass', f0: 900, f1: 400 })
+  },
+  // The crucible full: a deep bubbling glug.
+  melt: (_p, g) => {
+    tone({ wave: 'sine', f0: 140, f1: 90, dur: 0.25, vol: 0.14 * g })
+    tone({ wave: 'sine', f0: 180, f1: 110, dur: 0.2, vol: 0.1 * g, at: 0.18 })
+    tone({ wave: 'tri', f0: 660, f1: 990, dur: 0.18, vol: 0.06 * g, at: 0.3 })
+  },
+  // Hammer on hot steel: a bright ring over a thud.
+  clang: (_p, g) => {
+    tone({ wave: 'tri', f0: 1480, f1: 1420, dur: 0.35, vol: 0.12 * g })
+    tone({ wave: 'sine', f0: 2960, f1: 2900, dur: 0.22, vol: 0.05 * g })
+    burst({ dur: 0.06, vol: 0.12 * g, type: 'bandpass', f0: 2500, q: 1.2 })
+    tone({ wave: 'sine', f0: 110, f1: 70, dur: 0.12, vol: 0.12 * g })
+  },
+  // A strike off the beat: a dull clunk.
+  clangOff: (_p, g) => {
+    tone({ wave: 'tri', f0: 420, f1: 380, dur: 0.12, vol: 0.09 * g })
+    burst({ dur: 0.08, vol: 0.08 * g, type: 'lowpass', f0: 1200 })
+  },
+  // Into the water: a hiss of steam.
+  hiss: (_p, g) => {
+    burst({ dur: 0.9, vol: 0.12 * g, type: 'highpass', f0: 3500, f1: 6000 })
+    tone({ wave: 'sine', f0: 300, f1: 120, dur: 0.3, vol: 0.06 * g })
+  },
   // The jet board: a rising whoosh past, then the hop off it.
   boardJump: (_p, g) => {
     burst({ dur: 0.5, vol: 0.1 * g, type: 'bandpass', f0: 900, f1: 3200, q: 0.9 })

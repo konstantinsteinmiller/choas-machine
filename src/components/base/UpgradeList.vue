@@ -1,6 +1,7 @@
 <template lang="pug">
   //- One station's upgrade tracks: what each is, where it stands, what the
-  //- next level makes of it, and the button that buys it.
+  //- next level makes of it, and the button that pays for it (the smithy
+  //- then makes it).
   ul.upgrades
     li.row(v-for="id in ids" :key="id" :class="{ maxed: level(id) >= TRACK_MAX }")
       GameIcon.icon(:name="TRACKS[id].icon")
@@ -20,7 +21,7 @@
         icon="scrap"
         icon-position="left"
         :is-disabled="!canBuyTrack(id)"
-        :aria-label="`${t('workshop.buy', { name: t(`track.${id}`) })}: ${fmt(trackCost(level(id)))} ${t('base.scrap')}`"
+        :aria-label="busy ? t('forge.busy') : `${t('workshop.buy', { name: t(`track.${id}`) })}: ${fmt(trackCost(level(id)))} ${t('base.scrap')}`"
         :data-testid="`buy-${id}`"
         @click="buy(id)"
       ) {{ fmt(trackCost(level(id))) }}
@@ -35,7 +36,7 @@ import { useI18n } from 'vue-i18n'
 import FButton from '@/components/atoms/FButton.vue'
 import GameIcon from '@/components/icons/GameIcon.vue'
 import { TRACKS, TRACK_IDS, TRACK_MAX, trackCost, trackValue, type Station, type TrackId } from '@/game/data/upgrades'
-import { buyTrack, canBuyTrack, trackLevel } from '@/game/state/progress'
+import { buyTrack, canBuyTrack, smithBusy, trackLevel } from '@/game/state/progress'
 import { sfx } from '@/game/audio/sfx'
 import { haptic } from '@/use/useHaptics'
 import { formatAmount } from '@/utils/formatAmount'
@@ -46,6 +47,8 @@ const { t, locale } = useI18n()
 
 const ids = computed(() => TRACK_IDS.filter(id => TRACKS[id].station === props.station))
 const level = (id: TrackId): number => trackLevel(id)
+/** The smithy is making something: nothing else can be ordered until it is done. */
+const busy = computed(() => smithBusy())
 const fmt = (n: number): string => formatAmount(n, locale.value)
 
 /** How each track's figure is written. The unit marks are symbols, the same

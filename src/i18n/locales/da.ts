@@ -90,6 +90,14 @@ export default {
     'busy': 'Smedjen er optaget',
     'top': 'Højeste trin'
   },
+  'smithy': {
+    'furnace': 'Furnace: hold the bellows to keep the heat in the band',
+    'anvil': 'Anvil: strike when the ring meets the mark',
+    'quench': 'Quench: dip it when it glows cherry red',
+    'pump': 'Pump the bellows',
+    'dip': 'Dip it',
+    'stars': '{n} of 3 stars'
+  },
   'medal': {
     'ghost': 'Spøgelse',
     'marksman': 'Skarpskytte',

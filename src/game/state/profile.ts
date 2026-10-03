@@ -1,4 +1,6 @@
 import { reactive, toRaw, watch } from 'vue'
+import { SMITH_STEPS, tierWait, trackWait, type SmithStep } from '../sim/smithy'
+import { TIER_MAX, TRACK_IDS, TRACK_MAX } from '../data/upgrades'
 import { getState, setStates } from '@/use/useGameState'
 import { saveDataVersion } from '@/use/useSaveStatus'
 import {
@@ -43,16 +45,29 @@ export interface ArsenalSave {
   unlocks: UnlockId[]
 }
 
+/**
+ * The smithy's job (`sim/smithy.ts`): a weapon tier, or an upgrade track's
+ * next level, on its way through the furnace, the anvil and the quench.
+ */
 export interface ForgeSave {
+  /** The weapon a tier is for (an upgrade's weapon, or the sniper for the chassis). */
   weapon: WeaponId
-  /** The tier being built. */
+  /** The tier being built; for an upgrade, the level it goes to. */
   tier: number
-  /** Build time in seconds. */
+  /** Set when the job is an upgrade track rather than a weapon tier. */
+  track?: string
+  /** The next game to play. */
+  step: SmithStep
+  /** The wait before that game, in seconds (the melt, then the cooling). */
   total: number
   /** Seconds still owed, as of `stamp`. */
   remaining: number
   /** Wall clock (ms) when `remaining` was last settled. */
   stamp: number
+  /** 0 … 1 how each game so far went. */
+  scores: number[]
+  /** Tech Scrap paid for it: the stars refund a share. */
+  paid: number
 }
 
 export interface StatsSave {
@@ -128,14 +143,24 @@ const readFortress = (v: unknown): FortressSave => {
 const readForge = (v: unknown): ForgeSave | null => {
   const f = record(v)
   if (!WEAPON_IDS.includes(f.weapon as WeaponId)) return null
-  const total = int(f.total, 0)
-  if (total <= 0) return null
+  const track = typeof f.track === 'string' && (TRACK_IDS as readonly string[]).includes(f.track) ? f.track : undefined
+  const tier = track ? int(f.tier, 1, 1, TRACK_MAX) : int(f.tier, 2, 2, TIER_MAX)
+  // A build from before the smithy (an hour-long timer): it goes on to the
+  // quench, with what is left of its wait cut to the smithy's.
+  const step = SMITH_STEPS.includes(f.step as SmithStep) ? (f.step as SmithStep) : 'quench'
+  const longest = track ? trackWait(tier) : tierWait(tier)
+  const total = Math.min(longest, int(f.total, longest, 0))
+  const scores = Array.isArray(f.scores) ? f.scores.filter((s): s is number => typeof s === 'number' && s >= 0 && s <= 1).slice(0, 2) : []
   return {
     weapon: f.weapon as WeaponId,
-    tier: int(f.tier, 2, 2, 5),
+    tier,
+    ...(track ? { track } : {}),
+    step,
     total,
     remaining: int(f.remaining, total, 0, total),
-    stamp: int(f.stamp, 0)
+    stamp: int(f.stamp, 0),
+    scores,
+    paid: int(f.paid, 0)
   }
 }
 

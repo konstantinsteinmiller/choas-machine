@@ -64,7 +64,7 @@ describe('saving', () => {
     f.medals.ghost = true
     f.bestScore = 8800
     f.bestTime = 171
-    P.profile.forge = { weapon: 'rocket', tier: 2, total: 60, remaining: 41, stamp: 1_790_000_000_000 }
+    P.profile.forge = { weapon: 'rocket', tier: 2, step: 'anvil', total: 14, remaining: 9, stamp: 1_790_000_000_000, scores: [0.75], paid: 120 }
     P.profile.lessons.touch.scope = 3
     P.profile.seen.push('firstLaunch')
     P.profile.stats.headshots = 12
@@ -133,10 +133,16 @@ describe('loading a damaged or partial save', () => {
     expect(P.profile.stats.kills).toBe(0)
   })
 
-  it('keeps a running forge build and clamps its clock', () => {
-    S.setStates({ cm_forge: { weapon: 'sniper', tier: 9, total: 600, remaining: 9999, stamp: 5 } })
+  it('keeps a running smithy job and clamps its clock', () => {
+    S.setStates({ cm_forge: { weapon: 'sniper', tier: 3, track: 'sniperZoom', step: 'anvil', total: 12, remaining: 9999, stamp: 5, scores: [0.5, 7, 'x'], paid: 96 } })
     P.loadProfile()
-    expect(P.profile.forge).toEqual({ weapon: 'sniper', tier: 5, total: 600, remaining: 600, stamp: 5 })
+    expect(P.profile.forge).toEqual({ weapon: 'sniper', tier: 3, track: 'sniperZoom', step: 'anvil', total: 12, remaining: 12, stamp: 5, scores: [0.5], paid: 96 })
+  })
+
+  it('an hour-long build from before the smithy goes on to the quench, its wait cut short', () => {
+    S.setStates({ cm_forge: { weapon: 'rocket', tier: 9, total: 3600, remaining: 2000, stamp: 5 } })
+    P.loadProfile()
+    expect(P.profile.forge).toEqual({ weapon: 'rocket', tier: 5, step: 'quench', total: 20, remaining: 20, stamp: 5, scores: [], paid: 0 })
   })
 })
 

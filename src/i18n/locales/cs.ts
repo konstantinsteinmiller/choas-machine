@@ -90,6 +90,14 @@ export default {
     'busy': 'Kovárna je obsazená',
     'top': 'Nejvyšší stupeň'
   },
+  'smithy': {
+    'furnace': 'Furnace: hold the bellows to keep the heat in the band',
+    'anvil': 'Anvil: strike when the ring meets the mark',
+    'quench': 'Quench: dip it when it glows cherry red',
+    'pump': 'Pump the bellows',
+    'dip': 'Dip it',
+    'stars': '{n} of 3 stars'
+  },
   'medal': {
     'ghost': 'Duch',
     'marksman': 'Střelec',

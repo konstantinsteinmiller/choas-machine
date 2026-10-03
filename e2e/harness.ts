@@ -160,7 +160,7 @@ export interface Snapshot {
   missions: number
   upgrades: Record<string, number>
   blueprints: Record<string, number>
-  forge: { weapon: string; tier: number; remaining: number } | null
+  forge: { weapon: string; tier: number; step: string; remaining: number } | null
   storageKeys: string[]
 }
 
@@ -171,7 +171,7 @@ export const snapshot = (g: Game): Promise<Snapshot> => g.page.evaluate(() => {
     alert: hud.alert, chaos: hud.chaos, weapon: hud.weapon,
     scrap: profile.scrap, cores: profile.cores, missions: profile.missions,
     upgrades: { ...profile.arsenal.upgrades }, blueprints: { ...profile.arsenal.blueprints },
-    forge: profile.forge ? { weapon: profile.forge.weapon, tier: profile.forge.tier, remaining: profile.forge.remaining } : null,
+    forge: profile.forge ? { weapon: profile.forge.weapon, tier: profile.forge.tier, step: profile.forge.step, remaining: profile.forge.remaining } : null,
     storageKeys: Object.keys(localStorage).sort()
   }
 })

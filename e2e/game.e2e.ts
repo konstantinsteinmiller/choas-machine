@@ -178,7 +178,7 @@ describe('the mission', () => {
 })
 
 describe('the loop, and the save', () => {
-  it('win → tally → base → upgrade → Forge → reload: everything comes back from one key', async () => {
+  it('win → tally → base → upgrade → smithy → reload: everything comes back from one key', async () => {
     const g = await open()
     await waitPlaying(g)
     // The Commander (for the bonus), then the salvage the raid needs, pile by
@@ -220,18 +220,48 @@ describe('the loop, and the save', () => {
     await g.page.waitForSelector('[data-testid="buy-sniperZoom"]')
     await g.page.waitForTimeout(400)
     await g.page.click('[data-testid="buy-sniperZoom"]', { force: true })
-    await g.page.waitForFunction(() => window.__game.profile.arsenal.upgrades.sniperZoom === 1)
+    await g.page.waitForFunction(() => window.__game.profile.forge?.track === 'sniperZoom')
     const bought = await snapshot(g)
     expect(bought.scrap).toBe(won.scrap - 60)
+    expect(bought.upgrades.sniperZoom ?? 0).toBe(0)
 
-    // Give the Forge what a build needs (a later save would have it), and start one.
+    // It is made in the smithy: the furnace, the anvil, the quench, with the
+    // real keys. The waits between are cut short with Data Cores.
+    await g.page.evaluate(() => { window.__game.profile.cores += 2 })
+    const station = async (name: string): Promise<void> => {
+      await g.page.waitForSelector('[data-testid="smith-start"]', { timeout: 20_000 })
+      await g.page.click('[data-testid="smith-start"]', { force: true })
+      await g.page.waitForSelector(`[data-testid="smith-${name}"]`)
+    }
+    const skipWait = async (): Promise<void> => {
+      await g.page.waitForSelector('[data-testid="forge-skip"]', { timeout: 20_000 })
+      await g.page.click('[data-testid="forge-skip"]', { force: true })
+    }
+    await station('furnace')
+    for (let i = 0; i < 16 && await g.page.locator('[data-testid="smith-furnace"]').count(); i++) {
+      await g.page.keyboard.down('Space'); await g.page.waitForTimeout(260); await g.page.keyboard.up('Space'); await g.page.waitForTimeout(320)
+    }
+    await skipWait()
+    await station('anvil')
+    for (let i = 0; i < 4; i++) { await g.page.waitForTimeout(i === 0 ? 1050 : 950); await g.page.keyboard.press('Space') }
+    await skipWait()
+    await station('quench')
+    await g.page.waitForTimeout(1200)
+    await g.page.keyboard.press('Space')
+    await g.page.waitForSelector('[data-testid="smith-result"]', { timeout: 10_000 })
+    await g.page.click('[data-testid="smith-collect"]', { force: true })
+    const made = await snapshot(g)
+    expect(made.upgrades.sniperZoom).toBe(1)
+    expect(made.forge).toBeNull()
+    expect(made.scrap).toBeGreaterThanOrEqual(bought.scrap)
+
+    // Give the smithy what a weapon tier needs (a later save would have it), and start one.
     await g.page.evaluate(() => { const p = window.__game.profile; p.scrap += 500; p.arsenal.blueprints.sniper = 3 })
-    await g.page.click('[data-testid="workshop"] .f-modal__tabs button:nth-of-type(3)', { force: true })
     await g.page.waitForSelector('[data-testid="forge-build-sniper"]')
     await g.page.click('[data-testid="forge-build-sniper"]', { force: true })
     await g.page.waitForFunction(() => window.__game.profile.forge?.weapon === 'sniper')
     const before = await snapshot(g)
-    expect(before.forge).toMatchObject({ weapon: 'sniper', tier: 2 })
+    expect(before.forge).toMatchObject({ weapon: 'sniper', tier: 2, step: 'furnace' })
     expect(before.storageKeys.filter(k => k.startsWith('cm'))).toEqual(['cmachine_state'])
 
     // The save is written with a short debounce: give it that, then reload.
@@ -246,9 +276,7 @@ describe('the loop, and the save', () => {
     expect(after.cores).toBe(before.cores)
     expect(after.upgrades).toEqual(before.upgrades)
     expect(after.blueprints).toEqual(before.blueprints)
-    expect(after.forge).toMatchObject({ weapon: 'sniper', tier: 2 })
-    // The build went on while the page was closed.
-    expect(after.forge!.remaining).toBeLessThanOrEqual(before.forge!.remaining)
+    expect(after.forge).toMatchObject({ weapon: 'sniper', tier: 2, step: 'furnace' })
     expect(after.level).toBe(2)
     expect(g.errors).toEqual([])
 

@@ -246,6 +246,12 @@ onUnmounted(() => {
 
 .f-modal-leave-active
   transition: opacity 140ms ease-in
+  // On its way out it takes no taps: they are for what is under it. (The
+  // leave can outlast its 140 ms by a lot when the next screen is being
+  // built on the same thread: the rewards modal ate the Armory's first tap.)
+  pointer-events: none
+  :deep(*)
+    pointer-events: none !important
 
   .f-modal__panel
     transition: transform 140ms ease-in

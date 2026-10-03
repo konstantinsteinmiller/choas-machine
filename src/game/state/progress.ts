@@ -1,7 +1,8 @@
 import { MEDAL_IDS, type WeaponId } from '../data/ids'
 import {
-  TIER_MAX, TRACK_MAX, loadoutOf, skipCost, tierBlueprints, tierBuildSeconds, tierScrap, trackCost, type Loadout, type TrackId
+  TIER_MAX, TRACKS, TRACK_MAX, loadoutOf, skipCost, tierBlueprints, tierScrap, trackCost, type Loadout, type TrackId
 } from '../data/upgrades'
+import { refundOf, starsOf, tierWait, trackWait } from '../sim/smithy'
 import { THREAT_LEVELS, defeatScrap, payout, type MissionResult, type Payout } from '../sim/rewards'
 import { fortressSave, profile, saveProfile, type ForgeSave } from './profile'
 
@@ -9,7 +10,7 @@ import { fortressSave, profile, saveProfile, type ForgeSave } from './profile'
  * ─── The player's progress ───────────────────────────────────────────────────
  *
  * Everything that CHANGES the profile, in one place: banking a mission,
- * buying an upgrade, running the Forge. Each action checks that it is
+ * buying an upgrade, running the smithy. Each action checks that it is
  * allowed, applies itself, and saves; the screens only call these and read
  * the profile.
  */
@@ -91,36 +92,47 @@ export const bankDefeat = (r: MissionResult, level: number): number => {
 
 export const trackLevel = (id: TrackId): number => Math.min(TRACK_MAX, profile.arsenal.upgrades[id] ?? 0)
 
+/** The smithy makes one thing at a time. */
+export const smithBusy = (): boolean => !!profile.forge
+
 export const canBuyTrack = (id: TrackId): boolean => {
   const l = trackLevel(id)
-  return l < TRACK_MAX && profile.scrap >= trackCost(l)
+  return l < TRACK_MAX && profile.scrap >= trackCost(l) && !smithBusy()
 }
 
-export const buyTrack = (id: TrackId): boolean => {
+/**
+ * Pay for a track's next level and put it in the smithy. The level is the
+ * player's once the part has been through the quench (`smithStep`).
+ */
+export const buyTrack = (id: TrackId, now: number = Date.now()): boolean => {
   if (!canBuyTrack(id)) return false
   const l = trackLevel(id)
-  profile.scrap -= trackCost(l)
-  profile.arsenal.upgrades[id] = l + 1
+  const cost = trackCost(l)
+  profile.scrap -= cost
+  profile.forge = {
+    weapon: TRACKS[id].weapon ?? 'sniper', tier: l + 1, track: id,
+    step: 'furnace', total: trackWait(l + 1), remaining: 0, stamp: now, scores: [], paid: cost
+  }
   saveProfile()
   return true
 }
 
-// ─── The Forge ───────────────────────────────────────────────────────────────
+// ─── The smithy ──────────────────────────────────────────────────────────────
 
 /**
- * Seconds still owed on a build as of `now` (ms).
+ * Seconds still owed on the smithy's wait as of `now` (ms).
  *
- * The save's `stamp` is the LATEST wall clock the build has ever been looked
+ * The save's `stamp` is the LATEST wall clock the job has ever been looked
  * at, and it never moves back: a device clock wound back credits nothing
  * until it has passed that mark again, so winding it back and then forward
- * cannot finish a build.
+ * cannot finish a wait.
  */
 export const forgeRemaining = (f: ForgeSave, now: number): number => {
   const elapsed = Math.max(0, (now - f.stamp) / 1000)
   return Math.max(0, f.remaining - elapsed)
 }
 
-/** Fold the time that has passed into the save (call when the Forge is shown). */
+/** Fold the time that has passed into the save (call when the smithy is shown). */
 export const settleForge = (now: number = Date.now()): void => {
   const f = profile.forge
   if (!f) return
@@ -130,29 +142,32 @@ export const settleForge = (now: number = Date.now()): void => {
   saveProfile()
 }
 
+/** The next game can be played now. */
+export const smithReady = (now: number = Date.now()): boolean => !!profile.forge && forgeRemaining(profile.forge, now) <= 0
+
 export const canForge = (w: WeaponId): boolean => {
   const next = profile.arsenal.tiers[w] + 1
-  return !profile.forge && next <= TIER_MAX
+  return !smithBusy() && next <= TIER_MAX
     && profile.arsenal.blueprints[w] >= tierBlueprints(next) && profile.scrap >= tierScrap(next)
 }
 
-/** Start building the next tier of a weapon. One build at a time. */
+/** Put the next tier of a weapon in the smithy. */
 export const startForge = (w: WeaponId, now: number = Date.now()): boolean => {
   if (!canForge(w)) return false
   const tier = profile.arsenal.tiers[w] + 1
   profile.arsenal.blueprints[w] -= tierBlueprints(tier)
-  profile.scrap -= tierScrap(tier)
-  const total = tierBuildSeconds(tier)
-  profile.forge = { weapon: w, tier, total, remaining: total, stamp: now }
+  const cost = tierScrap(tier)
+  profile.scrap -= cost
+  profile.forge = { weapon: w, tier, step: 'furnace', total: tierWait(tier), remaining: 0, stamp: now, scores: [], paid: cost }
   saveProfile()
   return true
 }
 
-/** Data Cores to finish the running build now; 0 when there is none or it is done. */
+/** Data Cores to finish the running wait now; 0 when there is none or it is over. */
 export const forgeSkipCost = (now: number = Date.now()): number =>
   profile.forge ? skipCost(forgeRemaining(profile.forge, now)) : 0
 
-/** Spend Data Cores to finish the build now. */
+/** Spend a Data Core to finish the wait now. */
 export const skipForge = (now: number = Date.now()): boolean => {
   const f = profile.forge
   if (!f) return false
@@ -165,12 +180,38 @@ export const skipForge = (now: number = Date.now()): boolean => {
   return true
 }
 
-/** Take a finished build out of the Forge: the weapon is now that tier. */
-export const claimForge = (now: number = Date.now()): boolean => {
+export interface SmithResult {
+  stars: 1 | 2 | 3
+  refund: number
+  weapon: WeaponId
+  tier: number
+  track?: TrackId
+}
+
+/**
+ * One of the smithy's games was played, with that quality (0 … 1). The
+ * furnace and the anvil move the job on to its next wait; the quench
+ * finishes it: the tier or the level is the player's, and the stars refund
+ * some scrap. Returns the result then; null before, or when it was not ready.
+ */
+export const smithStep = (quality: number, now: number = Date.now()): SmithResult | null => {
   const f = profile.forge
-  if (!f || forgeRemaining(f, now) > 0) return false
-  profile.arsenal.tiers[f.weapon] = Math.max(profile.arsenal.tiers[f.weapon], f.tier)
+  if (!f || forgeRemaining(f, now) > 0) return null
+  f.scores.push(Math.max(0, Math.min(1, quality)))
+  if (f.step !== 'quench') {
+    f.step = f.step === 'furnace' ? 'anvil' : 'quench'
+    f.remaining = f.total
+    f.stamp = Math.max(f.stamp, now)
+    saveProfile()
+    return null
+  }
+  const stars = starsOf(f.scores)
+  const refund = refundOf(f.paid, stars)
+  const track = f.track as TrackId | undefined
+  if (track) profile.arsenal.upgrades[track] = Math.max(trackLevel(track), f.tier)
+  else profile.arsenal.tiers[f.weapon] = Math.max(profile.arsenal.tiers[f.weapon], f.tier)
+  profile.scrap += refund
   profile.forge = null
   saveProfile()
-  return true
+  return { stars, refund, weapon: f.weapon, tier: f.tier, ...(track ? { track } : {}) }
 }
