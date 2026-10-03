@@ -5,8 +5,9 @@ import { getState, setStates } from '@/use/useGameState'
 import { saveDataVersion } from '@/use/useSaveStatus'
 import {
   SCHEMA_KEY, CLEARED_KEY, MEDALS_KEY, MISSIONS_DONE_KEY, SCRAP_KEY, CORES_KEY, ARSENAL_KEY,
-  FORTRESSES_KEY, FORGE_KEY, LESSONS_KEY, SEEN_KEY, STATS_KEY
+  FORTRESSES_KEY, FORGE_KEY, LESSONS_KEY, SEEN_KEY, STATS_KEY, HABITS_KEY
 } from '@/keys'
+import type { Habits } from '../sim/adapt'
 import { MEDAL_IDS, UNLOCK_IDS, WEAPON_IDS, type InputFamily, type MedalId, type UnlockId, type WeaponId } from '../data/ids'
 
 /**
@@ -91,6 +92,8 @@ export interface Profile {
   lessons: Record<InputFamily, Record<string, number>>
   seen: string[]
   stats: StatsSave
+  /** The last raid's habits, answered by the base in the next (R26). */
+  habits: Habits | null
 }
 
 const perWeapon = (n: number): Record<WeaponId, number> =>
@@ -108,7 +111,8 @@ export const defaultProfile = (): Profile => ({
   forge: null,
   lessons: { touch: {}, desk: {} },
   seen: [],
-  stats: { kills: 0, headshots: 0, stealthKills: 0, bladeKills: 0, alerts: 0, deaths: 0, playSeconds: 0 }
+  stats: { kills: 0, headshots: 0, stealthKills: 0, bladeKills: 0, alerts: 0, deaths: 0, playSeconds: 0 },
+  habits: null
 })
 
 export const profile = reactive<Profile>(defaultProfile())
@@ -175,7 +179,7 @@ type RawFields = Record<string, unknown>
 const MIGRATIONS: Record<number, (raw: RawFields) => void> = {}
 
 const FIELD_KEYS = [
-  SCRAP_KEY, CORES_KEY, MISSIONS_DONE_KEY, ARSENAL_KEY, FORTRESSES_KEY, FORGE_KEY, LESSONS_KEY, SEEN_KEY, STATS_KEY
+  SCRAP_KEY, CORES_KEY, MISSIONS_DONE_KEY, ARSENAL_KEY, FORTRESSES_KEY, FORGE_KEY, LESSONS_KEY, SEEN_KEY, STATS_KEY, HABITS_KEY
 ] as const
 
 /** Fill the profile from the blob. Tolerates any missing or broken field. */
@@ -217,6 +221,10 @@ export const loadProfile = (): void => {
   const stats = record(raw[STATS_KEY])
   for (const k of Object.keys(d.stats) as (keyof StatsSave)[]) d.stats[k] = int(stats[k], 0)
   profile.stats = d.stats
+
+  const h = raw[HABITS_KEY]
+  const hr = record(h)
+  profile.habits = h && typeof h === 'object' ? { headshots: int(hr.headshots, 0), boxUses: int(hr.boxUses, 0), perchKills: int(hr.perchKills, 0) } : null
 }
 
 // ─── Headline numbers ────────────────────────────────────────────────────────
@@ -254,7 +262,8 @@ export const saveProfile = (): void => {
     [FORGE_KEY]: profile.forge ? plain(profile.forge) : null,
     [LESSONS_KEY]: plain(profile.lessons),
     [SEEN_KEY]: plain(profile.seen),
-    [STATS_KEY]: plain(profile.stats)
+    [STATS_KEY]: plain(profile.stats),
+    [HABITS_KEY]: profile.habits ? plain(profile.habits) : null
   })
 }
 

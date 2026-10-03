@@ -46,6 +46,8 @@ export const LESSONS_KEY = 'cm_lessons'
 export const SEEN_KEY = 'cm_seen'
 /** `StatsSave` — lifetime counters. */
 export const STATS_KEY = 'cm_stats'
+/** The last raid's habits (`sim/adapt.ts`): what the base answers next time. */
+export const HABITS_KEY = 'cm_habits'
 
 // ─── User settings ──────────────────────────────────────────────────────────
 

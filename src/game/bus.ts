@@ -87,6 +87,8 @@ export interface GameEvents {
   /** A body grabbed or let go of (and whether it went into a container). */
   drag: { on: boolean; hidden?: boolean }
   shard: Record<string, never>
+  /** A round knocked a guard's helmet off (R26). */
+  helmet: { id: number }
   /** A boss shows its hand: a shield gone, past half health, the glint before a dash, overheating, hit by its own shell. */
   bossTell: { id: number; what: 'shield' | 'phase' | 'glint' | 'overheat' | 'selfHit' }
   /** A round landed on a boss: how much it took off. */

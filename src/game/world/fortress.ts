@@ -1,3 +1,4 @@
+import type { Answers } from '../sim/adapt'
 import { findHoles, CELL, cellHeight, CellKind, cellKind, cellMid, inGrid, makeGrid, Surf, VOID, type Grid, Shade } from './grid'
 
 /**
@@ -98,6 +99,8 @@ export interface Fortress {
   beacons: Array<{ x: number; y: number; z: number }>
   /** Generators: one cut, the Warden's shield has no power. */
   generators?: Array<{ x: number; y: number; z: number }>
+  /** What the base learned from the last raid (`sim/adapt.ts`). */
+  answers?: Answers
 }
 
 const DIRS = { n: [0, -1], s: [0, 1], e: [1, 0], w: [-1, 0] } as const

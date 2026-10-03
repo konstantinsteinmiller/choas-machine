@@ -68,6 +68,8 @@ describe('saving', () => {
     P.profile.lessons.touch.scope = 3
     P.profile.seen.push('firstLaunch')
     P.profile.stats.headshots = 12
+    // The last raid's habits (R26): what the base answers next.
+    P.profile.habits = { headshots: 5, boxUses: 1, perchKills: 2 }
     P.saveProfile()
     const before = JSON.parse(JSON.stringify(P.profile))
     S.flushPersist()

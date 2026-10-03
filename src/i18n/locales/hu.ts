@@ -68,6 +68,12 @@ export default {
   'base': {
     'deploy': 'Indulás',
     'training': 'Training',
+    'learned': 'The base has learned',
+    'answer': {
+      'helmets': 'Helmets: your headshots were noticed',
+      'boxCheck': 'Box checkers: a box that sits still gets poked',
+      'perchLight': 'A searchlight now sweeps the perch'
+    },
     'threat': 'Veszélyszint',
     'locked': 'Előbb teljesítsd a(z) {n}. szintet',
     'best': 'Legjobb pontszám',

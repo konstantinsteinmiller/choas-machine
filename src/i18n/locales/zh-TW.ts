@@ -68,6 +68,12 @@ export default {
   'base': {
     'deploy': '出擊',
     'training': 'Training',
+    'learned': 'The base has learned',
+    'answer': {
+      'helmets': 'Helmets: your headshots were noticed',
+      'boxCheck': 'Box checkers: a box that sits still gets poked',
+      'perchLight': 'A searchlight now sweeps the perch'
+    },
     'threat': '威脅等級',
     'locked': '請先通關第 {n} 關',
     'best': '最高分',

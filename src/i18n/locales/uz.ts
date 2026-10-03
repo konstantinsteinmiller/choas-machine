@@ -68,6 +68,12 @@ export default {
   'base': {
     'deploy': 'Jo\'natish',
     'training': 'Training',
+    'learned': 'The base has learned',
+    'answer': {
+      'helmets': 'Helmets: your headshots were noticed',
+      'boxCheck': 'Box checkers: a box that sits still gets poked',
+      'perchLight': 'A searchlight now sweeps the perch'
+    },
     'threat': 'Xavf darajasi',
     'locked': 'Avval {n}-bosqichni tugating',
     'best': 'Eng yaxshi hisob',

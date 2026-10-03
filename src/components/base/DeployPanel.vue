@@ -32,6 +32,12 @@
       div.best(v-if="record && record.bestScore > 0")
         span.best-label {{ t('base.best') }}
         span.best-value {{ fmt(record.bestScore) }}
+    //- What the base learned from the last raid, and will do about it (R26).
+    div.learned(v-if="answers.length" data-testid="learned")
+      span.learned-label {{ t('base.learned') }}
+      span.answer(v-for="a in answers" :key="a")
+        GameIcon(:name="ANSWER_ICONS[a]")
+        | {{ t(`base.answer.${a}`) }}
     FButton.go(size="xl" icon="play" block attention data-testid="btn-deploy" @click="deploy") {{ t('base.deploy') }}
     //- The training ground, any time.
     FButton.train(type="ghost" size="sm" icon="replay" icon-position="left" data-testid="btn-training" @click="train") {{ t('base.training') }}
@@ -50,12 +56,17 @@ import { MEDAL_IDS } from '@/game/data/ids'
 import { MEDAL_ICONS } from '@/components/base/medals'
 import { sfx } from '@/game/audio/sfx'
 import { formatAmount } from '@/utils/formatAmount'
+import { ANSWER_IDS, answersTo, type AnswerId } from '@/game/sim/adapt'
+import type { GameIconName } from '@/components/icons/iconNames'
 
 const { t, locale } = useI18n()
 /** The numerals on the chips are marks, not words: the same in every language. */
 const NUMERALS = ['I', 'II', 'III', 'IV', 'V'] as const
 
 const open = computed(() => unlockedLevel())
+/** The answers in force for the next raid. */
+const answers = computed<AnswerId[]>(() => { const a = answersTo(profile.habits); return ANSWER_IDS.filter(id => a[id]) })
+const ANSWER_ICONS: Readonly<Record<AnswerId, GameIconName>> = { helmets: 'shield', boxCheck: 'box', perchLight: 'eye' }
 const clears = (n: number): number => profile.fortresses[levelKey(n)]?.clears ?? 0
 const record = computed(() => profile.fortresses[levelKey(flow.level)])
 const fmt = (n: number): string => formatAmount(n, locale.value)
@@ -70,6 +81,26 @@ const train = (): void => { void startTraining() }
 </script>
 
 <style scoped lang="sass">
+.learned
+  display: flex
+  flex-direction: column
+  gap: 0.25em
+  padding: 0.4em 0.6em
+  border-radius: 0.6em
+  background: rgba(255, 64, 96, 0.12)
+  font-size: var(--cm-fs-xs, 0.75em)
+.learned-label
+  color: #ff8aa0
+  text-transform: uppercase
+  letter-spacing: 0.04em
+.answer
+  display: flex
+  align-items: center
+  gap: 0.4em
+  :deep(svg)
+    width: 1.1em
+    height: 1.1em
+    flex: none
 .deploy
   display: flex
   flex-direction: column

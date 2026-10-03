@@ -1,3 +1,4 @@
+import type { Habits } from '../sim/adapt'
 import { MEDAL_IDS, type WeaponId } from '../data/ids'
 import {
   TIER_MAX, TRACKS, TRACK_MAX, loadoutOf, skipCost, tierBlueprints, tierScrap, trackCost, type Loadout, type TrackId
@@ -61,6 +62,9 @@ const addStats = (r: MissionResult): void => {
 }
 
 /** Bank an extraction. Returns what was paid, for the rewards screen. */
+/** What the base saw of the raid: its habits (`sim/adapt.ts`). */
+const habitsOf = (r: MissionResult): Habits => ({ headshots: r.headshots, boxUses: r.boxUses ?? 0, perchKills: r.perchKills ?? 0 })
+
 export const bankMission = (r: MissionResult, level: number): Payout => {
   const rec = fortressSave(levelKey(level))
   const pay = payout(r, level, rec, profile.missions)
@@ -70,6 +74,7 @@ export const bankMission = (r: MissionResult, level: number): Payout => {
   const t = Math.round(r.time)
   rec.bestTime = rec.bestTime > 0 ? Math.min(rec.bestTime, t) : t
   profile.missions++
+  profile.habits = habitsOf(r)
   profile.scrap += pay.scrap
   profile.cores += pay.cores
   for (const w of pay.blueprints) profile.arsenal.blueprints[w]++
@@ -82,6 +87,7 @@ export const bankMission = (r: MissionResult, level: number): Payout => {
 export const bankDefeat = (r: MissionResult, level: number): number => {
   const kept = defeatScrap(r, level)
   profile.scrap += kept
+  profile.habits = habitsOf(r)
   profile.stats.deaths++
   addStats(r)
   saveProfile()

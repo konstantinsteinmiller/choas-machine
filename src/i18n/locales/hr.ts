@@ -68,6 +68,12 @@ export default {
   'base': {
     'deploy': 'Kreni',
     'training': 'Training',
+    'learned': 'The base has learned',
+    'answer': {
+      'helmets': 'Helmets: your headshots were noticed',
+      'boxCheck': 'Box checkers: a box that sits still gets poked',
+      'perchLight': 'A searchlight now sweeps the perch'
+    },
     'threat': 'Razina prijetnje',
     'locked': 'Prvo prijeđi razinu {n}',
     'best': 'Najbolji rezultat',

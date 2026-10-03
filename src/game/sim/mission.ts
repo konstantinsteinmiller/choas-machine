@@ -26,7 +26,7 @@ import { makePlayer, stepPlayer, eyeHeight, angleDelta, type Player } from './pl
 import { makeCam, lookCam, stepCam, placeCam, stickToWorld, camForward, type Cam } from './camera'
 import { alertSegments } from './alert'
 import {
-  SPECS, SUSPECT_AT, sabotageBeacon, searchForShooter, noteChange, tagUnit, cutRig, drainEvents, headingTo, killUnit, damageUnit, makeGarrison, noiseAt, hearAt, wonderAt, voidNoise, stepGarrison, alarmUnit, startleUnit, isLight,
+  SPECS, SUSPECT_AT, sabotageBeacon, searchForShooter, noteChange, tagUnit, cutRig, helmetTakes, drainEvents, headingTo, killUnit, damageUnit, makeGarrison, noiseAt, hearAt, wonderAt, voidNoise, stepGarrison, alarmUnit, startleUnit, isLight,
   type Garrison, type Target
 } from './garrison'
 import { GarrisonView } from './garrisonView'
@@ -132,6 +132,8 @@ const EXTRACT_RADIUS = 1.9
 export const SPRINT_EARSHOT = 9
 /** The scope's zoom notches: the loadout's field of view divided by these. */
 export const SCOPE_ZOOMS = [1, 1.7, 2.6] as const
+/** A rifle kill this near the insertion point counts as one from the perch. */
+const PERCH_M = 7
 /** The bosses: how far a generator or a servo is reached; a jammed Foreman's joints and an overheated Goliath's vents take this much more; the glint's flash. */
 const RIG_REACH = 2.6
 const JAMMED_JOINTS = 1.5
@@ -173,6 +175,9 @@ export interface MissionStats {
   piles: number
   /** The Commander (and his tank, where there is one) went down. */
   bossDown: boolean
+  /** Habits the base remembers (R26). */
+  boxUses: number
+  perchKills: number
 }
 
 export type KillBy = WeaponId | 'blade'
@@ -187,7 +192,7 @@ export class Mission implements GameMode {
   readonly armor: Armor
   readonly decoys: Decoy[] = []
   readonly rockets: Rocket[] = []
-  readonly stats: MissionStats = { time: 0, shots: 0, hits: 0, headshots: 0, kills: 0, bladeKills: 0, spotted: 0, bodiesFound: 0, loud: false, salvage: 0, piles: 0, bossDown: false }
+  readonly stats: MissionStats = { time: 0, shots: 0, hits: 0, headshots: 0, kills: 0, bladeKills: 0, spotted: 0, bodiesFound: 0, loud: false, salvage: 0, piles: 0, bossDown: false, boxUses: 0, perchKills: 0 }
   decoysLeft = DECOYS_PER_MISSION
   /** The threat level this mission is played at, 1 … 5. */
   readonly level: number
@@ -745,7 +750,14 @@ export class Mission implements GameMode {
       if (head) this.stats.headshots++
       this.killBy = w
       this.killHead = head
-      const damage = shotDamage(w, u.kind, h.zone, this.loadout.damage[w], u.maxHp)
+      // A helmet takes the first round to the head, and comes off (R26).
+      const zone = helmetTakes(u, h.zone)
+      if (zone !== h.zone) {
+        this.fx.particles.sparks(h.x, h.y, h.z, '#d8ccff', 12, 4, 0.2)
+        this.garrisonView.popHelmet(u.id, h.nx, h.nz)
+        emit('helmet', { id: u.id })
+      }
+      const damage = shotDamage(w, u.kind, zone, this.loadout.damage[w], u.maxHp)
         * (u.jammed && h.zone === 'joint' ? JAMMED_JOINTS : 1) * (u.overheat > 0 && h.zone === 'weak' ? OPEN_VENTS : 1)
       if (u.boss) emit('bossHit', { amount: Math.round(Math.min(damage, Math.max(0, u.hp))) })
       // A sniper round that is going to kill may be given the kill-cam: then
@@ -1211,7 +1223,13 @@ export class Mission implements GameMode {
       } else if (e.type === 'kill') {
         const u = gar.units[e.id]!
         this.stats.kills++
-        if (this.killBy === 'sniper') this.sniperKills++
+        if (this.killBy === 'sniper') {
+          this.sniperKills++
+          // From the perch: the base will remember that (R26).
+          const ins = this.fortress.insert
+          const pb = this.player
+          if (Math.hypot(pb.x - ins.x, pb.z - ins.z) < PERCH_M && Math.abs(pb.y - heightAt(this.fortress.grid, ins.x, ins.z)) < 1.5) this.stats.perchKills++
+        }
         // In a fight, a kill by the blade or close in drops armour shards:
         // pushing in heals, hiding does not.
         if (u.fought && (this.killBy === 'blade' || Math.hypot(u.x - this.player.x, u.z - this.player.z) < SHARD_CLOSE_M)) this.dropShards(u.x, u.y, u.z)
@@ -1471,6 +1489,7 @@ export class Mission implements GameMode {
     if (p.sprinting && !this.wasSprinting) this.learn('sprint')
     if (p.boxed && !this.wasBoxed) this.learn('hide')
     if (p.boxed !== this.wasBoxed) emit('box', { on: p.boxed })
+    if (p.boxed && !this.wasBoxed) this.stats.boxUses++
     this.wasBoxed = p.boxed
     this.wasSprinting = p.sprinting
     const views = stepCoach(this.coach, c, dt)

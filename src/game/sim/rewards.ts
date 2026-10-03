@@ -35,6 +35,9 @@ export interface MissionResult {
   piles?: number
   /** The Commander, and his tank where there was one, went down. */
   bossDown?: boolean
+  /** Habits the base remembers (R26): times under the box, rifle kills from the perch. */
+  boxUses?: number
+  perchKills?: number
 }
 
 /** Seconds under which a clear earns the Swift medal, by threat level. */

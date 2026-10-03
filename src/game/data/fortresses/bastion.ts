@@ -1,5 +1,6 @@
 import { FortressBuilder, TOWER_H, type Fortress } from '../../world/fortress'
 import { mulberry32 } from '../../world/rng'
+import { NO_ANSWERS, type Answers } from '../../sim/adapt'
 
 /**
  * ─── Bastion ─────────────────────────────────────────────────────────────────
@@ -58,7 +59,7 @@ const PILES: ReadonlyArray<readonly [number, number, number, boolean?]> = [
 /** Always live: the teaching pile and the big one on the keep. */
 const ALWAYS = [0, 8]
 
-export const buildBastion = (level = 1, run = 0): Fortress => {
+export const buildBastion = (level = 1, run = 0, answers: Answers = NO_ANSWERS): Fortress => {
   const rng = mulberry32(0xba5 + run * 7919)
   const b = new FortressBuilder('bastion', 60, 64).island(2)
   // The mountain top: a level plateau under the whole curtain.
@@ -210,5 +211,11 @@ export const buildBastion = (level = 1, run = 0): Fortress => {
   b.prop('antenna', 30, 23).prop('antenna', 53, 55).prop('flag', 7, 8).prop('flag', 53, 8).prop('flag', 19, 54)
   b.solid('stack', 21, 31, 1.4).solid('stack', 40, 21, 1.4)
 
-  return b.build()
+  // ── What the base learned last time (R26) ──
+  // Rifle kills from the perch: a light on the battery's corner sweeps it.
+  if (answers.perchLight) b.searchlight(7, 54, [[3, 58, 1.2], [4, 57, 1], [2, 57, 1.2], [3, 59, 1]])
+
+  const f = b.build()
+  f.answers = { ...answers }
+  return f
 }

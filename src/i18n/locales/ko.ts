@@ -68,6 +68,12 @@ export default {
   'base': {
     'deploy': '출격',
     'training': 'Training',
+    'learned': 'The base has learned',
+    'answer': {
+      'helmets': 'Helmets: your headshots were noticed',
+      'boxCheck': 'Box checkers: a box that sits still gets poked',
+      'perchLight': 'A searchlight now sweeps the perch'
+    },
     'threat': '위협 등급',
     'locked': '먼저 레벨 {n} 클리어',
     'best': '최고 점수',

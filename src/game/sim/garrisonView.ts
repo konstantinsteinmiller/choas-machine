@@ -6,7 +6,7 @@ import { VOID, hasLineOfSight, heightAt, type Grid } from '../world/grid'
 import { PAL } from '../models/palette'
 import { Wreckage } from '../fx/wreckage'
 import type { PostKind } from '../world/fortress'
-import type { Rig } from '../models/kit'
+import { dome, paint, rbox, merge, type Rig } from '../models/kit'
 import {
   buildDrone, buildEnforcer, buildGoliath, buildGuard, buildSearchlight, poseSearchlight, type SearchlightPose, restGuardPose, poseDrone, poseEnforcer, poseGoliath, poseGuard,
   type DronePose, type EnforcerPose, type GoliathPose, type GuardPose
@@ -187,6 +187,11 @@ export class GarrisonView {
   private gx = new Float32Array((CONE_SEGS + 1) * (CONE_RINGS + 1) * 4)
   private textures: CanvasTexture[]
   private spotGeo = new CircleGeometry(1, 28)
+  /** The helmet the base issues after too many headshots: a steel dome and a brow plate. */
+  private helmetGeo = merge([
+    paint(dome(0.275, Math.PI * 0.55, 10, 6).translate(0, 0.23, 0), PAL.steel),
+    paint(rbox(0.42, 0.06, 0.1, 0.5, 6, 4).translate(0, 0.25, 0.21), PAL.steelDeep)
+  ])
   /** Every machine taken apart in this mission, in one mesh. */
   readonly wreckage: Wreckage
   private beamGeo = new CylinderGeometry(0.03, 1, 1, 16, 1, true)
@@ -246,6 +251,12 @@ export class GarrisonView {
       this.views.push(v)
       this.group.add(rig.root, shadow)
       if (mark) this.group.add(mark)
+      // A helmet (R26): a steel cap on the head bone, over the guard's own.
+      if (u.helmet && rig.bones.head) {
+        const cap = new Mesh(this.helmetGeo, rig.material)
+        cap.name = 'helmet'
+        rig.bones.head.add(cap)
+      }
       if (spot) this.group.add(spot)
       if (beam) this.group.add(beam)
     }
@@ -292,6 +303,16 @@ export class GarrisonView {
       count: spec.count, size: spec.size, colors: spec.colors, force: spec.force,
       dirX: u.hitX, dirZ: u.hitZ
     })
+  }
+
+  /** A round took a guard's helmet off: the cap goes, in a few pieces. */
+  popHelmet(id: number, dirX: number, dirZ: number): void {
+    const v = this.views[id]
+    const u = this.gar.units[id]
+    const cap = v?.rig.bones.head?.getObjectByName('helmet')
+    if (!v || !u || !cap) return
+    cap.removeFromParent()
+    this.wreckage.burst({ x: u.x, y: u.y + 1.8, z: u.z, hx: 0.15, hy: 0.1, hz: 0.15, count: 3, size: [0.1, 0.18], colors: [PAL.steel, PAL.steelDeep], force: 3.5, dirX: -dirX, dirZ: -dirZ })
   }
 
   /** Light a defender up for a moment (a hit, the x-ray of a kill-cam). */
@@ -637,6 +658,7 @@ export class GarrisonView {
     this.wreckage.dispose()
     for (const t of this.textures) t.dispose()
     this.spotGeo.dispose()
+    this.helmetGeo.dispose()
     this.beamGeo.dispose()
     this.cones.geometry.dispose()
     ;(this.cones.material as MeshBasicMaterial).dispose()

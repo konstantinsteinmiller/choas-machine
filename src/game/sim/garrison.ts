@@ -1,3 +1,4 @@
+import type { Zone } from './hitscan'
 import { VOID, findPath, hasLineOfSight, heightAt, smoothPath, toCell, walkLine, type Grid } from '../world/grid'
 import type { Fortress, PostKind, Waypoint } from '../world/fortress'
 import { exposure, type Viewer, type Seen, fillRate, GRACE_S, CLOSE_M } from './perception'
@@ -264,6 +265,10 @@ export interface Unit {
   jobT: number
   /** The freshest scent it has followed (garrison time). */
   scentT: number
+  /** Wears a helmet (R26): the first round to the head takes it off instead. */
+  helmet: boolean
+  /** Seconds it has looked at a box that keeps too still (a box checker). */
+  boxLook: number
   /** The Foreman: its servo jammed on its pad (slow to wake, slow to turn, soft at the joints). */
   jammed: boolean
   /** The Goliath: shells since it last cooled, and seconds of overheat left (its vents open). */
@@ -313,6 +318,8 @@ export interface Garrison {
   drill: boolean
   /** What the mech can sabotage besides beacons: the Warden's generator, the Foreman's servo. */
   rigs: Rig[]
+  /** The base has learned the box (R26): a box that sits too still in plain view gets a look, and a poke. */
+  boxCheck: boolean
 }
 
 export interface Rig {
@@ -362,6 +369,17 @@ export const DASH_EVERY_S = 4.5
 /** A jammed Foreman wakes this much slower, and moves and turns at this share. */
 export const JAM_WAKE = 2.5
 export const JAM_SLOW = 0.4
+
+/** A box checker looks this long at a still box this near before it pokes it. */
+export const BOX_CHECK_M = 9
+export const BOX_CHECK_S = 2.5
+
+/** A round to the head of a guard in a helmet: the helmet takes it (and is gone). Returns the zone that is hit. */
+export const helmetTakes = (u: Unit, zone: Zone): Zone => {
+  if (zone !== 'head' || !u.helmet) return zone
+  u.helmet = false
+  return 'body'
+}
 
 /** Cut a generator or jam a servo. True if it was one that still worked. */
 export const cutRig = (gar: Garrison, i: number): boolean => {
@@ -669,6 +687,7 @@ export const makeGarrison = (f: Fortress, level = 2): Garrison => {
       power: mech ? 0 : 1, aimT: 0, fireT: 0, burst: 0, burstT: 0, shellT: 0, shellX: 0, shellZ: 0, recoil: 0,
       tagged: false, hidden: false, partner: p.partner ?? -1, chatting: false, poke: false, changeT: 0,
       role: p.role ?? null, job: null, jobT: 0, scentT: -1e9,
+      helmet: !!f.answers?.helmets && (p.kind === 'guard' || p.kind === 'sentry'), boxLook: 0,
       jammed: false, shells: 0, overheat: 0, phase2: false, glintT: 0, dashT: 0, dashX: 0, dashZ: 0, dashCool: 2, dashHit: false
     }
   })
@@ -678,7 +697,7 @@ export const makeGarrison = (f: Fortress, level = 2): Garrison => {
     ...(f.generators ?? []).map(gn => ({ kind: 'generator' as const, ...gn, unit: -1, cut: false })),
     ...units.filter(u => u.boss === 'foreman').map(u => ({ kind: 'servo' as const, x: u.x, y: u.y, z: u.z, unit: u.id, cut: false }))
   ]
-  return { units, alert: makeAlert(), time: 0, events: [], rng: mulberry32(hashSeed(f.id)), wave: 0, chaosT: 0, lures: [], threat, noiseSeq: 0, beacons, runner: -1, runnerWait: 0, lkp: { x: 0, z: 0, t: -1e9 }, changes: [], scent: [], scentT: 0, unreachable: new Set(), drill: false, rigs }
+  return { units, alert: makeAlert(), time: 0, events: [], rng: mulberry32(hashSeed(f.id)), wave: 0, chaosT: 0, lures: [], threat, noiseSeq: 0, beacons, runner: -1, runnerWait: 0, lkp: { x: 0, z: 0, t: -1e9 }, changes: [], scent: [], scentT: 0, unreachable: new Set(), drill: false, rigs, boxCheck: !!f.answers?.boxCheck }
 }
 
 // ─── Getting about ───────────────────────────────────────────────────────────
@@ -1392,6 +1411,18 @@ export const stepGarrison = (gar: Garrison, g: Grid, target: Target, dt: number)
 
     // ── What it sees of the mech ──
     let exposed = target.visible ? sight(u, g, seen) : 0
+    // A box checker (R26): a box that sits still in plain view, near, gets a long look, then a poke.
+    if (gar.boxCheck && target.box === 'still' && exposed > 0 && !isLight(u) && u.state !== 'combat' && Math.hypot(target.x - u.x, target.z - u.z) < BOX_CHECK_M) {
+      u.boxLook += dt
+      if (u.boxLook > BOX_CHECK_S && !u.poke) {
+        u.poke = true
+        u.detect = Math.max(u.detect, SUSPECT_AT + 0.02)
+        u.seenX = target.x
+        u.seenZ = target.z
+        suspect(gar, u, target.x, target.z, false)
+        gar.events.push({ type: 'poke', id: u.id })
+      }
+    } else u.boxLook = 0
     // In a thicket, crouched: nobody sees it but from right on top of it (Odyssey's bushes).
     if (target.brush && Math.hypot(target.x - u.x, target.z - u.z) > BRUSH_SEEN_M) exposed = 0
     // Under the box: a box is a box, unless it moves, or somebody walks into it.
