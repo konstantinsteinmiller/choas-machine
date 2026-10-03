@@ -266,11 +266,14 @@ describe('the garrison', () => {
     target.visible = false
     run(gar, f, target, 4)
     expect(gar.units.every(u => u.state === 'combat')).toBe(true)
-    // The walker closes in; the base never calms down again.
+    // The walker closes in on where the noise was.
     expect(Math.hypot(gar.units[1]!.x - target.x, gar.units[1]!.z - target.z)).toBeLessThan(before[1]! - 4)
-    run(gar, f, target, 60)
-    expect(gar.alert.chaos).toBe(true)
-    expect(gar.units.every(u => u.state === 'combat')).toBe(true)
+    // Nobody finds anything for long enough: the base stands down (round 3,
+    // after Odyssey), and the walker goes back to its round on its guard.
+    const later = run(gar, f, target, 90)
+    expect(types(later)).toContain('standDown')
+    expect(gar.alert.chaos).toBe(false)
+    expect(gar.units[1]!.state).not.toBe('combat')
   })
 
   it('machines stay dormant through the stealth phase', () => {

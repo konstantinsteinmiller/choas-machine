@@ -1133,6 +1133,8 @@ export class Mission implements GameMode {
       } else if (e.type === 'checkin') {
         // A radio that has been quiet too long: somebody goes to see.
         emit('checkin', { id: e.id, kind: gar.units[e.id]!.kind, corpse: e.corpse })
+      } else if (e.type === 'standDown') {
+        emit('standDown', {})
       } else if (e.type === 'shout') {
         emit('shout', { id: e.id, kind: gar.units[e.id]!.kind })
       } else if (e.type === 'ping') {

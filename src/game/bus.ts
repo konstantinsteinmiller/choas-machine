@@ -66,6 +66,8 @@ export interface GameEvents {
   shout: { id: number; kind: PostKind }
   runner: { id: number; beacon: number }
   beaconLit: { beacon: number }
+  /** A full alert went cold: the base stands down, on its guard. */
+  standDown: Record<string, never>
   sabotage: { beat: 'start' | 'stop' | 'done'; beacon: number }
   /** The hide box comes down over the mech, or off it. */
   box: { on: boolean }

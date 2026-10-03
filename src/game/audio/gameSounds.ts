@@ -84,6 +84,11 @@ export const installGameSounds = (): void => {
     sfx('alarm')
     setMusicTrack('chaos')
   })
+  // The hunt went cold: the base stands down, and the music goes quiet again.
+  on('standDown', () => {
+    sfx('alertDown')
+    setMusicTrack('stealth')
+  })
   on('incoming', ({ hit }) => {
     sfx('enemyShot', 0, 0.8)
     if (!hit) sfx('whizz')
