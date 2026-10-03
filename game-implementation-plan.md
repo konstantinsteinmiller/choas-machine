@@ -712,7 +712,7 @@ on CrazyGames; Q7 the intro plays once after training. Replaced: G2, G9, G16,
 D9/R8, C5, G5, C4, R27's "any kill".
 
 - [x] **R29 Aim and weapon feel** (#80 #81 #84 #77a)
-- [ ] **R30 Kill-cams** (#85 #91 #77b)
+- [x] **R30 Kill-cams** (#85 #91 #77b)
 - [ ] **R31 Walls and sight** (#79a #69)
 - [ ] **R32 HUD and keys** (#82 #83 #74)
 - [ ] **R33 Senses** (#68 #70 #98)
@@ -732,6 +732,8 @@ D9/R8, C5, G5, C4, R27's "any kill".
 - [ ] **R47 Balance and regression** (translations, docs, e2e, clips, perf)
 
 R29 done. #80: the loud weapons no longer swing the camera to a new arm pitch; the follow camera slides forward ALONG ITS OWN LINE OF SIGHT until the mech's head is 3.1 m ahead (less if a wall already pulled the arm in), so whatever was under the crosshair stays under it (a test sweeps six pitches and checks the camera only ever moves along its view). #81: the weapon arm's aim pitch had the wrong sign and ignored the trunk's lean; it now takes the view's pitch net of hips, spine and chest, so the barrel matches the view within 3 deg standing, crouched and walking (rig test over all three weapons); muzzle flashes, trails and rockets start at the weapon's muzzle (traced from the shoulder, so never through a wall). #84: a reload ring round the reticle and a bar under the ammo pips (rifle and launcher), the pips sized from the loadout (up to 11 rockets), and a reload pose (weapon across the chest, the free hand working the breech). #77a: helmets still fly off but no longer save a guard: one rifle round to the head drops any guard or sentry at every threat level (tested I-V with helmets); every sniper shot leaves a bright trail with a white core that hangs about 0.6 s, the kill-cam's round too. Verified: 134 files / 1537 tests, type-check, browser shots of the minigun aimed level/down/up, the rocket reload ring and bar, the sniper trail.
+
+R30 done. #85: a kill-cam needs a quiet raid (no full alert, nobody fighting the mech or hunting it after a fight) and either a rifle headshot on a person or a round in a machine's weak spot (eye, vents, joints, head); lamps, bursts, blasts, blade kills and body shots never get one. A boss gets its orbit only when the killing blow is a headshot (owner, Q5). #91: from the moment the round lands, and through every orbit or dip, the base holds still: nobody thinks, walks or shoots, the base's clock stops, nothing hurts the mech; only the fallen go on falling (stepFallen). Measured in the browser: garrison clock and every living unit's position unchanged across a 1.1 s cam, then resuming. #77b: the round goes on through and out of the far side (a burst along its line 0.42 m past a head, sparks and bolts for a machine, a streak carrying on), and the bullet is seen flying on for 0.3 s of slow time. Verified: 135 files / 1539 tests, type-check, browser.
 
 ### Round 4 deferred
 

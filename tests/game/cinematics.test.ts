@@ -14,9 +14,9 @@ describe('the kill-cam director (R27)', () => {
     expect(s.shown).toBe(1)
   })
 
-  it("a boss's last blow gets its own orbit; the objective's last kill is always shown", () => {
+  it("a boss's last blow, if a headshot, gets its own orbit; the objective's last headshot is always shown", () => {
     expect(chooseKillCam(makeKillCamState(), kill({ boss: true, final: true }), 0.999, true)).toBe('boss')
-    expect(chooseKillCam(makeKillCamState(), kill({ head: false, final: true }), 0.999, true)).toBe('full')
+    expect(chooseKillCam(makeKillCamState(), kill({ final: true }), 0.999, true)).toBe('full')
   })
 
   it('a better shot is likelier shown: far, moving, in the head', () => {
@@ -57,6 +57,27 @@ describe('the kill-cam director (R27)', () => {
     expect(chooseKillCam(t, kill({ time: 10, dist: 50 }), 0, true)).toBe('full')
     expect(chooseKillCam(t, kill({ time: 10 + KILLCAM_GAP_S - 0.5, dist: 50 }), 0, true)).toBe('none')
     expect(chooseKillCam(t, kill({ time: 15, final: true }), 0.99, true)).toBe('full')
+  })
+
+  it('only stealth headshots and weak-spot hits get a camera (#85)', () => {
+    const cut = (info: Partial<KillInfo>): string => chooseKillCam(makeKillCamState(), kill({ dist: 50, moving: 1, final: true, ...info }), 0, true)
+    // A person: only the rifle to the head.
+    expect(cut({ kind: 'human', stealth: true })).toBe('full')
+    expect(cut({ kind: 'human', stealth: true, head: false, zone: 'body' })).toBe('none')
+    expect(cut({ kind: 'human', stealth: true, by: 'minigun', head: false })).toBe('none')
+    expect(cut({ kind: 'human', stealth: true, by: 'blade', head: false })).toBe('none')
+    // A machine: a round in its weak spot.
+    expect(cut({ kind: 'machine', stealth: true, head: false, zone: 'weak' })).toBe('full')
+    expect(cut({ kind: 'machine', stealth: true, head: false, zone: 'joint' })).toBe('full')
+    expect(cut({ kind: 'machine', stealth: true, head: false, zone: 'other' })).toBe('none')
+    // A lamp never; a loud raid never.
+    expect(cut({ kind: 'light', stealth: true, head: false, zone: 'other' })).toBe('none')
+    expect(cut({ kind: 'human', stealth: false })).toBe('none')
+    expect(cut({ kind: 'machine', stealth: false, head: false, zone: 'weak' })).toBe('none')
+    // A boss: its orbit for a headshot even in a fight, nothing for anything else.
+    expect(cut({ kind: 'human', boss: true, stealth: false })).toBe('boss')
+    expect(cut({ kind: 'human', boss: true, stealth: false, head: false, zone: 'body' })).toBe('none')
+    expect(cut({ kind: 'machine', boss: true, stealth: false, head: false, zone: 'weak', by: 'rocket' })).toBe('none')
   })
 
   it('shows nothing once it is switched off, and still counts the headshot', () => {

@@ -1362,6 +1362,42 @@ const wardenDash = (u: Unit, g: Grid, gar: Garrison, target: Target, dt: number)
  * Advance the whole garrison by one step. What happened is queued on
  * `gar.events` for the mission to turn into sound, markers and score.
  */
+/** The fallen go on falling: a ragdoll settles, a drone drops out of the sky. */
+const stepDead = (u: Unit, g: Grid, dt: number): void => {
+  u.deadT += dt
+  // A ragdoll: pushed once by the killing blow, then left to fall and settle.
+  // The body is wherever its pelvis lies (for whoever finds it, or drags it).
+  if (u.rag && u.deadT >= u.hold && !u.hidden) {
+    if (!u.ragStruck) {
+      u.ragStruck = true
+      strike(u.rag, u.ragHow, u.hitX, u.hitZ, u.seed + u.id * 0.37, dt)
+    }
+    stepRagdoll(u.rag, g, dt)
+    const at = ragdollAt(u.rag, g)
+    u.x = at.x
+    u.z = at.z
+    u.y = at.y
+  }
+  if (u.kind === 'drone') {
+    const floor = heightAt(g, u.x, u.z)
+    u.y = Math.max((floor === VOID ? 0 : floor) + 0.2, u.y - (4 + u.deadT * 14) * dt)
+  }
+}
+
+/**
+ * A kill-cam (#91): the whole base holds still, nobody thinks, walks or
+ * shoots; only the fallen go on falling. The base's own clock stops too.
+ */
+export const stepFallen = (gar: Garrison, g: Grid, dt: number): void => {
+  for (const u of gar.units) {
+    u.px = u.x
+    u.py = u.y
+    u.pz = u.z
+    u.pyaw = u.yaw
+    if (u.state === 'dead') stepDead(u, g, dt)
+  }
+}
+
 export const stepGarrison = (gar: Garrison, g: Grid, target: Target, dt: number): void => {
   gar.time += dt
   checkIns(gar)
@@ -1401,25 +1437,7 @@ export const stepGarrison = (gar: Garrison, g: Grid, target: Target, dt: number)
     u.pyaw = u.yaw
     u.t += dt
     if (u.state === 'dead') {
-      u.deadT += dt
-      // A ragdoll: pushed once by the killing blow, then left to fall and settle.
-      // The body is wherever its pelvis lies (for whoever finds it, or drags it).
-      if (u.rag && u.deadT >= u.hold && !u.hidden) {
-        if (!u.ragStruck) {
-          u.ragStruck = true
-          strike(u.rag, u.ragHow, u.hitX, u.hitZ, u.seed + u.id * 0.37, dt)
-        }
-        stepRagdoll(u.rag, g, dt)
-        const at = ragdollAt(u.rag, g)
-        u.x = at.x
-        u.z = at.z
-        u.y = at.y
-      }
-      // A drone drops out of the sky.
-      if (u.kind === 'drone') {
-        const floor = heightAt(g, u.x, u.z)
-        u.y = Math.max((floor === VOID ? 0 : floor) + 0.2, u.y - (4 + u.deadT * 14) * dt)
-      }
+      stepDead(u, g, dt)
       continue
     }
     if (u.state === 'dormant' || u.state === 'reserve') continue

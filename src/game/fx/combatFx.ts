@@ -199,6 +199,33 @@ export class CombatFx {
     p.emit({ x: x + nx * 0.1, y: y + ny * 0.1, z: z + nz * 0.1, vx: nx * 1.2, vy: ny * 1.2 + 0.5, vz: nz * 1.2, color: '#8f84c9', size: 0.35, sizeEnd: 0.9, life: 0.35, drag: 3 })
   }
 
+  /**
+   * The round comes out of the far side (#77): a burst along its line,
+   * `through` metres past where it went in. Confetti for a person (no gore),
+   * sparks and bolts for a machine; a short streak carries on.
+   */
+  exitShot(x: number, y: number, z: number, dx: number, dy: number, dz: number, through: number, machine: boolean): void {
+    const p = this.particles
+    const ex = x + dx * through
+    const ey = y + dy * through
+    const ez = z + dz * through
+    p.flash(ex, ey, ez, '#ffffff', 0.8, 0.09)
+    for (let k = 0; k < 18; k++) {
+      const s = 5 + Math.random() * 7
+      p.emit({
+        x: ex, y: ey, z: ez,
+        vx: dx * s + (Math.random() - 0.5) * 3, vy: dy * s + (Math.random() - 0.2) * 3, vz: dz * s + (Math.random() - 0.5) * 3,
+        color: machine ? (k % 3 ? '#ffd88a' : '#9aa0b8') : k % 3 === 0 ? '#ffffff' : k % 3 === 1 ? PAL.glowPink : PAL.glowCyan,
+        size: machine ? 0.13 : 0.17, sizeEnd: 0.03, life: 0.45 + Math.random() * 0.35, gravity: machine ? 12 : 7, drag: 1.2
+      })
+    }
+    // The streak it leaves going on.
+    for (let k = 1; k <= 14; k++) {
+      const t = through + k * 0.18
+      p.emit({ x: x + dx * t, y: y + dy * t, z: z + dz * t, color: '#7ff4ff', size: 0.16, sizeEnd: 0.02, life: 0.5 + k * 0.02 })
+    }
+  }
+
   /** A rocket goes off. */
   explosion(x: number, y: number, z: number, floorY: number): void {
     const p = this.particles

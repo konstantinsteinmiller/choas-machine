@@ -1,4 +1,6 @@
 import type { WeaponId } from '../data/ids'
+import type { PostKind } from '../world/fortress'
+import type { Zone } from './hitscan'
 
 /**
  * ─── The kill-cam director ───────────────────────────────────────────────────
@@ -6,6 +8,12 @@ import type { WeaponId } from '../data/ids'
  * Decides WHICH kills get the slow-motion treatment, and how much of it
  * (round 3, R27). A kill is scored by how far it was, whether the target was
  * moving, and where it was hit; the better the shot, the likelier the cam.
+ *
+ * Only a stealth kill can have one at all (#85): nobody fighting or hunting
+ * the mech, and the shot a rifle headshot on a person or a round in a
+ * machine's weak spot. Never a lamp, never a barrel, never a burst into a
+ * fight. A boss gets its orbit only when the killing blow is a headshot.
+ *
  * Rules over the dice:
  *  - the first landed headshot of a player's LIFE is always shown in full;
  *  - a boss's last blow gets its own slow orbit;
@@ -53,16 +61,38 @@ export interface KillInfo {
   /** 0 standing … 1 at a run: the target's movement. */
   moving?: number
   /** Where the round went in (a headshot is `head` too). */
-  zone?: 'head' | 'body' | 'limb' | 'other'
+  zone?: 'head' | 'body' | 'limb' | 'weak' | 'joint' | 'other'
   /** The kill is a boss's. */
   boss?: boolean
+  /** What fell: a person, a machine, or a lamp (searchlights). */
+  kind?: 'human' | 'machine' | 'light'
+  /** Nobody is fighting or hunting the mech: the raid is still quiet. */
+  stealth?: boolean
   /** No headshot has ever been shown to this player (the profile says). */
   firstOfLife?: boolean
 }
 
+/**
+ * May this kill have a camera at all (#85)? A quiet raid, and either a rifle
+ * headshot on a person or a round in a machine's weak spot (its eye, vents,
+ * joints or head). Lamps never.
+ */
+export const camWorthy = (k: KillInfo): boolean => {
+  if (k.stealth === false || k.kind === 'light') return false
+  if (k.kind === 'machine') return k.zone === 'weak' || k.zone === 'joint' || k.zone === 'head'
+  return k.by === 'sniper' && (k.head || k.zone === 'head')
+}
+
+/** A hit zone as the director scores it. */
+export const camZone = (z: Zone): NonNullable<KillInfo['zone']> => (z === 'armor' ? 'other' : z)
+
+/** What a unit kind is to the director. */
+export const camKind = (k: PostKind): NonNullable<KillInfo['kind']> =>
+  k === 'searchlight' ? 'light' : k === 'guard' || k === 'sentry' || k === 'commander' ? 'human' : 'machine'
+
 /** How good a kill was, 0 … 1: distance, the target's movement, where it was hit. */
 export const killScore = (k: KillInfo): number => {
-  const part = k.by === 'blade' ? 0.55 : k.head || k.zone === 'head' ? 1 : k.zone === 'limb' ? 0.35 : k.zone === 'body' ? 0.45 : 0.3
+  const part = k.by === 'blade' ? 0.55 : k.head || k.zone === 'head' || k.zone === 'weak' ? 1 : k.zone === 'joint' ? 0.7 : k.zone === 'limb' ? 0.35 : k.zone === 'body' ? 0.45 : 0.3
   const far = Math.min(1, Math.max(0, (k.dist ?? 0) / FAR_M))
   const moving = Math.min(1, Math.max(0, k.moving ?? 0))
   return 0.4 * part + 0.35 * far + 0.25 * moving
@@ -82,7 +112,9 @@ export const chooseKillCam = (s: KillCamState, k: KillInfo, roll: number, enable
   if (!enabled) return 'none'
   const score = killScore(k)
   let cut: CamCut
-  if (k.boss && k.final) cut = 'boss'
+  // A boss's fall gets its orbit only for a headshot, loud raid or not.
+  if (k.boss) cut = k.final && (k.head || k.zone === 'head') ? 'boss' : 'none'
+  else if (!camWorthy(k)) cut = 'none'
   else if (headshot && k.firstOfLife) cut = 'full'
   else if (k.final) cut = 'full'
   else if (quick) cut = score >= SHORT_SCORE && k.time - s.last >= 2 ? 'short' : 'none'

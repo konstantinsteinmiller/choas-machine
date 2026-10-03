@@ -26,7 +26,7 @@ import { makePlayer, stepPlayer, eyeHeight, angleDelta, type Player } from './pl
 import { makeCam, lookCam, stepCam, placeCam, stickToWorld, camForward, type Cam } from './camera'
 import { alertSegments } from './alert'
 import {
-  SPECS, SUSPECT_AT, sabotageBeacon, searchForShooter, noteChange, tagUnit, cutRig, helmetPops, drainEvents, headingTo, killUnit, damageUnit, makeGarrison, noiseAt, hearAt, wonderAt, voidNoise, stepGarrison, alarmUnit, startleUnit, isLight,
+  SPECS, SUSPECT_AT, sabotageBeacon, searchForShooter, noteChange, tagUnit, cutRig, helmetPops, isAlive, stepFallen, drainEvents, headingTo, killUnit, damageUnit, makeGarrison, noiseAt, hearAt, wonderAt, voidNoise, stepGarrison, alarmUnit, startleUnit, isLight,
   type Garrison, type Target
 } from './garrison'
 import { GarrisonView } from './garrisonView'
@@ -50,7 +50,7 @@ import { TrainingDirector } from './trainingDirector'
 import { TRAINING_ID, TRAINING_ROOMS } from '../data/fortresses/training'
 import { COVER_H } from '../world/fortress'
 import { BASE_LOADOUT, type Loadout } from '../data/upgrades'
-import { chooseKillCam, makeKillCamState, type CamCut, type KillInfo } from './killcam'
+import { camKind, camZone, chooseKillCam, makeKillCamState, type CamCut, type KillInfo } from './killcam'
 import {
   DROP_LANDED, blendPose, bulletAt, bulletCam, bulletFlightS, dropHeight, introCam, liftHeight, makeCinePose, orbitCam, outroCam,
   type CinePose
@@ -131,6 +131,8 @@ type Cine =
 const CALLOUT_S = 2.4
 /** How slow the world runs while a kill-cam holds on its kill. */
 const KILLCAM_SLOW = 0.16
+/** Kill-cam seconds the round is still seen flying on out of the target (#77). */
+const EXIT_S = 0.3
 /** A short bullet cam joins the round this far into its flight; a boss's orbit lasts this long. */
 const SHORT_FROM = 0.55
 const BOSS_ORBIT_S = 3.6
@@ -480,8 +482,14 @@ export class Mission implements GameMode {
     // Any press skips a scripted shot (once it has had a moment to register).
     // (A takedown needs a later press: the one that started it is still going down.)
     if (this.cine && i.anyPressed && this.cine.t > (this.cine.kind === 'stab' ? 0.7 : 0.3)) this.skipCine()
-    // The bullet in flight: the world holds its breath.
+    // The bullet in flight: the world holds its breath. After it lands, and
+    // through any kill-cam, nothing moves but the fallen (#91).
     if (this.cine?.kind === 'bullet' && !this.cine.hit) {
+      consumeEdges(i)
+      return
+    }
+    if (hud.phase === 'play' && this.killcamOn()) {
+      stepFallen(this.garrison, this.fortress.grid, dt)
       consumeEdges(i)
       return
     }
@@ -793,7 +801,7 @@ export class Mission implements GameMode {
         const final = this.isLastTarget(u.id)
         const cut = this.rollKillcam({
           by: 'sniper', head: zone === 'head', final, time: this.stats.time, dist: Math.hypot(u.x - this.player.x, u.z - this.player.z),
-          moving: u.speed01, zone: zone === 'head' || zone === 'body' || zone === 'limb' ? zone : 'other', boss: !!u.boss
+          moving: u.speed01, zone: camZone(zone), boss: !!u.boss, kind: camKind(u.kind), stealth: this.quietRaid()
         })
         if (cut === 'full' || cut === 'short') {
           const dist = Math.hypot(h.x - ox, h.y - oy, h.z - oz)
@@ -1293,7 +1301,10 @@ export class Mission implements GameMode {
         const bossLast = !!u.boss && final
         if ((this.killBy !== 'sniper' || (bossLast && this.bossCam)) && !this.cine && hud.phase === 'play') {
           this.bossCam = false
-          const info: KillInfo = { by: this.killBy, head: false, final, time: this.stats.time, dist: Math.hypot(u.x - this.player.x, u.z - this.player.z), moving: u.speed01, zone: 'body', boss: !!u.boss }
+          const info: KillInfo = {
+            by: this.killBy, head: false, final, time: this.stats.time, dist: Math.hypot(u.x - this.player.x, u.z - this.player.z),
+            moving: u.speed01, zone: 'other', boss: !!u.boss, kind: camKind(u.kind), stealth: this.quietRaid()
+          }
           const cut = this.killBy === 'sniper' ? 'boss' : this.rollKillcam(info)
           if (cut === 'boss') {
             // A boss's last blow: its own long, slow orbit.
@@ -1449,8 +1460,9 @@ export class Mission implements GameMode {
 
   /** The mech takes damage from the direction of (fromX, fromZ). */
   private hurt(amount: number, fromX: number, fromZ: number): void {
-    // A takedown is the mech's moment: nothing lands on it until it is over.
-    if (this.strike?.full) return
+    // A takedown is the mech's moment, and a kill-cam the world's pause:
+    // nothing lands on it until it is over.
+    if (this.strike?.full || this.killcamOn()) return
     if (hud.phase !== 'play') return
     const p = this.player
     const down = hurtArmor(this.armor, amount)
@@ -1580,6 +1592,22 @@ export class Mission implements GameMode {
   }
 
   /** Ask the director whether this kill is shown. */
+  /**
+   * The raid is still quiet (#85): no full alert, and nobody is fighting the
+   * mech or hunting for it.
+   */
+  private quietRaid(): boolean {
+    const gar = this.garrison
+    if (gar.alert.chaos) return false
+    return !gar.units.some(o => isAlive(o) && (o.state === 'combat' || (o.state === 'search' && o.fought)))
+  }
+
+  /** A kill-cam is on: the world holds still for it (#91). */
+  private killcamOn(): boolean {
+    const c = this.cine
+    return !!c && ((c.kind === 'bullet' && c.hit) || c.kind === 'orbit' || c.kind === 'dip')
+  }
+
   private rollKillcam(info: KillInfo): CamCut {
     if (this.forceKillcam) {
       // The preview recorder's call: this one is shown, whatever the dice say.
@@ -1636,6 +1664,10 @@ export class Mission implements GameMode {
     // The round's trail, all the way from the barrel, hangs a moment (#77).
     this.fx.tracer(c.ox, c.oy, c.oz, c.hx, c.hy, c.hz, 'sniper')
     this.fx.impact(c.hx, c.hy, c.hz, c.nx, c.ny, c.nz, true, 'sniper')
+    // ...and goes on through, out of the far side (#77).
+    const len = Math.hypot(c.hx - c.ox, c.hy - c.oy, c.hz - c.oz) || 1
+    const through = c.head ? 0.42 : camKind(u.kind) === 'machine' ? 0.6 : 0.55
+    this.fx.exitShot(c.hx, c.hy, c.hz, (c.hx - c.ox) / len, (c.hy - c.oy) / len, (c.hz - c.oz) / len, through, camKind(u.kind) === 'machine')
     this.garrisonView.flash(c.id, PAL.glowCyan, 0.6)
     // The plate sits on the head itself, not on the point of entry.
     if (c.head) this.fx.showXray(u.x, u.y + HEAD_Y, u.z, 1.05)
@@ -2100,6 +2132,15 @@ export class Mission implements GameMode {
         if (k >= 1) this.landBullet(c)
         return true
       }
+      // The round flies on out of the far side for a moment, in slow time.
+      if (c.t < EXIT_S) {
+        const len = Math.hypot(c.hx - c.ox, c.hy - c.oy, c.hz - c.oz) || 1
+        const dx = (c.hx - c.ox) / len
+        const dy = (c.hy - c.oy) / len
+        const dz = (c.hz - c.oz) / len
+        const s = 0.3 + (c.t / EXIT_S) * 2.6
+        this.fx.showBullet(c.hx + dx * s, c.hy + dy * s, c.hz + dz * s, dx, dy, dz)
+      } else this.fx.hideBullet()
       // On the target: a slow turn round it as it goes down.
       const u = this.garrison.units[c.id]!
       orbitCam(out, c.t, u.x, u.y + 1.2, u.z, c.yaw, 3.3, 0.5, 0.55, this.baseFov * 0.62)
