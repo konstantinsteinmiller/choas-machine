@@ -6,6 +6,7 @@ import { angleDelta } from './sim/player'
 import { cellKind, CellKind, heightAt, toCell, VOID, walkLine } from './world/grid'
 import { textureReference } from './world/textures'
 import { castShot, makeShotHit } from './sim/hitscan'
+import { isLight } from './sim/garrison'
 import type { Mission } from './sim/mission'
 
 /**
@@ -64,7 +65,8 @@ const install = (): void => {
       if (!u) continue
       u.x = u.px = p.x
       u.z = u.pz = p.z
-      u.y = u.py = heightAt(m.fortress.grid, p.x, p.z)
+      // A drone or a lamp is held where it flies, not set down on the floor.
+      u.y = u.py = isLight(u) ? u.altitude : heightAt(m.fortress.grid, p.x, p.z)
       u.yaw = p.yaw
     }
     if (!shot) return

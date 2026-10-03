@@ -16,6 +16,8 @@ import type { Zone } from './hitscan'
  */
 
 export const BASE_DAMAGE: Readonly<Record<WeaponId, number>> = { sniper: 34, minigun: 9, rocket: 400 }
+/** What a drone's shell lets through of a sniper round (its eye takes all of it). */
+export const DRONE_SHELL = 0.32
 const KILL = 1e6
 
 const isHuman = (k: PostKind): boolean => k === 'guard' || k === 'sentry' || k === 'commander'
@@ -27,7 +29,10 @@ const isHuman = (k: PostKind): boolean => k === 'guard' || k === 'sentry' || k =
 export const shotDamage = (weapon: WeaponId, kind: PostKind, zone: Zone, mul = 1): number => {
   const base = BASE_DAMAGE[weapon] * mul
   if (weapon === 'sniper') {
-    if (kind === 'drone' || kind === 'searchlight') return KILL
+    // A drone dies to a round in its eye; its shell takes a third of one.
+    // A lamp is a lamp: any round puts it out.
+    if (kind === 'drone') return zone === 'weak' ? KILL : base * DRONE_SHELL
+    if (kind === 'searchlight') return KILL
     if (isHuman(kind)) return zone === 'head' ? KILL : base
     if (kind === 'enforcer') return zone === 'head' ? base * 2.5 : zone === 'joint' ? base * 1.5 : base * 0.6
     return zone === 'weak' ? base : base * 0.1

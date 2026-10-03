@@ -26,7 +26,7 @@ import { makePlayer, stepPlayer, eyeHeight, angleDelta, type Player } from './pl
 import { makeCam, lookCam, stepCam, placeCam, stickToWorld, camForward, type Cam } from './camera'
 import { alertSegments } from './alert'
 import {
-  SPECS, drainEvents, headingTo, killUnit, damageUnit, makeGarrison, noiseAt, hearAt, wonderAt, voidNoise, stepGarrison, alarmUnit, isLight,
+  SPECS, drainEvents, headingTo, killUnit, damageUnit, makeGarrison, noiseAt, hearAt, wonderAt, voidNoise, stepGarrison, alarmUnit, startleUnit, isLight,
   type Garrison, type Target
 } from './garrison'
 import { GarrisonView } from './garrisonView'
@@ -210,6 +210,7 @@ export class Mission implements GameMode {
   private waypointDist = 0
   private looting: { pile: Pile; t: number } | null = null
   private sparkleT = 0
+  private smokeT = 0
   private ropeDir = new Vector3()
   /** How far above its feet the mech is drawn (the drop, the lift). */
   private lift = 0
@@ -626,7 +627,11 @@ export class Mission implements GameMode {
       this.fx.tracer(ox, oy, oz, h.x, h.y, h.z, w)
       this.fx.impact(h.x, h.y, h.z, h.nx, h.ny, h.nz, soft, w)
       emit('hit', { id: u.id, weapon: w, zone: h.zone })
-      if (!damageUnit(gar, u.id, damage, ox, oz, w === 'minigun' ? 'spray' : 'shot')) alarmUnit(gar, u.id, this.player.x, this.player.z)
+      if (!damageUnit(gar, u.id, damage, ox, oz, w === 'minigun' ? 'spray' : 'shot')) {
+        // A silenced round in a drone's shell: it does not know what hit it.
+        if (u.kind === 'drone' && w === 'sniper') startleUnit(gar, u.id, this.player.x, this.player.z)
+        else alarmUnit(gar, u.id, this.player.x, this.player.z)
+      }
     } else if (h.kind === 'world') {
       this.fx.tracer(ox, oy, oz, h.x, h.y, h.z, w)
       this.fx.impact(h.x, h.y, h.z, h.nx, h.ny, h.nz, false, w)
@@ -1536,6 +1541,16 @@ export class Mission implements GameMode {
     // Surfing the board: knees bent, weight low.
     if (this.riding) s.crouch = Math.max(s.crouch, 0.35)
     poseMech(this.rig, s)
+
+    // A drone with a hole in its shell trails smoke.
+    this.smokeT -= dt
+    if (this.smokeT <= 0) {
+      this.smokeT = 0.12
+      for (const u of this.garrison.units) {
+        if (u.kind !== 'drone' || u.state === 'dead' || u.hp >= SPECS.drone.hp) continue
+        this.fx.particles.emit({ x: u.x, y: u.y + 0.1, z: u.z, vy: 0.9, vx: (Math.random() - 0.5) * 0.4, vz: (Math.random() - 0.5) * 0.4, color: '#3b3355', size: 0.22, sizeEnd: 0.55, life: 1.1, drag: 0.6 })
+      }
+    }
 
     // The piles still lying there glint now and then.
     this.salvageView.update(dt, this.time)

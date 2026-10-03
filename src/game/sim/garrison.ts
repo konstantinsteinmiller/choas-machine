@@ -900,6 +900,19 @@ export const alarmUnit = (gar: Garrison, id: number, fromX: number, fromZ: numbe
   raise(gar, 'seen', target)
 }
 
+/**
+ * A drone hit and still flying. The first time, it does not know what hit it:
+ * it turns suspicious and goes to look where the round came from (no alarm).
+ * Hit again while it is already wary, it knows, and calls it in.
+ */
+export const startleUnit = (gar: Garrison, id: number, fromX: number, fromZ: number): void => {
+  const u = gar.units[id]
+  if (!u || !isAlive(u)) return
+  if (u.state !== 'patrol') { alarmUnit(gar, id, fromX, fromZ); return }
+  u.detect = Math.max(u.detect, SUSPECT_AT + 0.15)
+  suspect(gar, u, fromX, fromZ, false)
+}
+
 /** Hurt a unit; kills it when its health runs out. True if it died. */
 export const damageUnit = (gar: Garrison, id: number, amount: number, fromX: number, fromZ: number, how: KillHow = 'shot'): boolean => {
   const u = gar.units[id]

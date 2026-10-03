@@ -530,7 +530,11 @@ them. Tick the roadmap item when its phase is committed.
 - [x] **R8 Furnace and smithing** (#31): the upgrade minigame and its economy.
 - [x] **R9 Interface look** (#32): futuristic and cute.
 - [x] **R10 Lessons** (#33): wordless teaching for everything, old and new.
-- [ ] **R11 Regression**: e2e, clips, perf, documents.
+- [x] **R12 Drone weak point** (#37): only the eye kills a drone outright, and only with enough power; a hit elsewhere damages it and makes it suspicious of where the shot came from.
+- [ ] **R13 Bodies are found; a box to hide in** (#38): patrols walk past the places the dead lie and raise the alarm when they see them; a cardboard box / metal shield the mech can duck under and stay unseen while still.
+- [ ] **R14 The rope walk** (#39, second half; the jump off the robo dog landed in R7): the mech goes hand over hand along a cable instead of sliding.
+- [ ] **R15 Bosses** (#40): one or two per level that a sniper cannot drop in one shot, varied by level; a hit on one alarms the whole fortress, so the weak ones are cleared first.
+- [ ] **R11 Regression** (moved after R12-R15 so it is done once): translations of every new key into the 38 locales, e2e, clips re-recorded, perf, documents.
 
 ### Decisions (defaults taken; nobody was asked)
 
@@ -556,6 +560,7 @@ Salvage piles (8 in the Bastion, 3+ needed by level, one big one on the keep) ar
 Smithy replaces the hour timers and the instant buy: every upgrade and weapon tier is made in three short games (furnace: hold the bellows to keep the heat in a wandering band; anvil: four strikes as rings close on glowing marks; quench: dip at cherry red), with 8-16 s (upgrade) / 14-20 s (tier) melt and cool waits between, one Data Core skips a wait; 1-3 stars refund 0/10/25% of the scrap. Old hour-long builds carry over to the quench. Fixed two tap-eaters found by the e2e: a leaving modal and a fading loading veil swallowed the Command Base's first tap. Open for R9: on a 320 px phone in German the workshop's third tab is off screen.
 One material for the whole kit, set in tokens: ink outlines with a drop (stickers on glass), glossy crowns, lit surfaces. Modal panels get a thick cyan-to-pink rim, breathing corner brackets, a striped title plate with a glowing seam and a dot; buttons are candy keys with a gloss and sparkle, and the main CTA catches a sweep of light; HUD chips, capsules, wallet, rank, keycaps and the deploy panel wear the same; upgrade and smithy rows get round sticker icons. Tabs sit in a trough, and on a narrow screen only the open tab shows its name (the workshop's third tab was off screen on a 320 px phone). No scale transforms; reduced motion stops the idle motion.
 Four more wordless lessons in the coach, each in its context and earned away by use, per input family: the marker (it sends out rings, and a desktop card shows a little pin, until the first pile is reached), stripping a pile (E / the loot chip pulses), the grappling hook at the foot of a wall (G / its chip), and sprinting on a long way with nobody about (Shift / the sprint chip). The smithy's three games carry a finger on the control (hold the bellows, tap the anvil, tap the dip) until each has been played well once. New guard test: every component's template compiles as the dev server compiles it (a patch had put CSS into two templates, which the type-check does not see). Fixed a white box round the hold glyph's ring: its class collided with Tailwind's ring utility.
+The drone's eye is its weak point: a hit zone (r 0.19, from in front only) where a sniper round kills; the shell lets through a third of a round, so two shell hits bring it down. A drone hit in the shell does not know what hit it: it turns suspicious and goes to look where the round came from, no alarm; hit again while wary, it calls it in. A damaged drone trails smoke. The minigun still shreds drones; a searchlight is still put out by any round. Preview pin keeps flyers at their altitude.
 
 ## Resume notes
 

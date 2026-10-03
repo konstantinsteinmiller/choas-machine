@@ -38,6 +38,9 @@ export const HEAD_Y = 1.54
 export const HEAD_R = 0.3
 const BODY_R = 0.3
 const DRONE_R = 0.5
+/** The drone's eye: where it is in the drone's own frame, and how big. It is
+ *  the drone's one weak point (`sim/damage.ts`). */
+export const DRONE_EYE = { z: 0.3, y: -0.06, r: 0.19 } as const
 
 /** Distance to a sphere along a unit ray, or Infinity. Hits from inside do
  *  not count: a muzzle that pokes into a body must not hit it at t = 0. */
@@ -131,7 +134,17 @@ const take = (t: number, zone: Zone): void => {
  *  leaves the zone in `bestZone`), or Infinity. */
 const hitUnit = (u: Unit, ox: number, oy: number, oz: number, dx: number, dy: number, dz: number, maxT: number): number => {
   bestT = maxT
-  if (u.kind === 'drone' || u.kind === 'searchlight') {
+  if (u.kind === 'drone') {
+    // The eye sits inside the shell's hit sphere: a round that finds it is an
+    // eye hit, whatever it crossed first. Only from in front, though: a
+    // round through its back does not get to the eye.
+    const body = raySphere(ox, oy, oz, dx, dy, dz, u.x, u.y, u.z, DRONE_R)
+    const e = local(u, 0, DRONE_EYE.z)
+    const facing = dx * Math.sin(u.yaw) + dz * Math.cos(u.yaw) < 0.25
+    const eye = facing ? raySphere(ox, oy, oz, dx, dy, dz, e.x, u.y + DRONE_EYE.y, e.z, DRONE_EYE.r) : Infinity
+    if (eye < Infinity) take(Math.min(eye, body), 'weak')
+    else take(body, 'body')
+  } else if (u.kind === 'searchlight') {
     take(raySphere(ox, oy, oz, dx, dy, dz, u.x, u.y, u.z, DRONE_R), 'body')
   } else if (u.kind === 'enforcer') {
     take(rayCylinder(ox, oy, oz, dx, dy, dz, u.x, u.z, 0.8, u.y + 1.15, u.y + 2.45), 'armor')
