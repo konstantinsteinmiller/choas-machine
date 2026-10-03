@@ -1525,7 +1525,8 @@ export class Mission implements GameMode {
     const s = this.pose
     s.time = this.time
     s.stride = p.stride
-    s.speed = p.mode === 'ground' ? p.speed01 : 0
+    // A cable is walked, not slid along: the legs step at its pace.
+    s.speed = p.mode === 'ground' || p.mode === 'cable' ? p.speed01 : 0
     // Down: it folds where it stands.
     s.crouch = this.armor.down ? Math.min(1, Math.max(p.crouch, this.downT / MECH_KNEEL_S)) : p.crouch
     s.down = this.armor.down ? Math.max(1e-3, this.downT) : 0

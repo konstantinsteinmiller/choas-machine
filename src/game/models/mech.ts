@@ -218,8 +218,9 @@ export const poseMech = (rig: Rig, s: MechPose): void => {
   for (const [tag, sign] of [['L', 1], ['R', -1]] as const) {
     const sw = swing * sign
     const li = lift * sign
-    const walkThigh = -sw * (0.62 + 0.2 * run) * walk
-    const walkKnee = (0.3 + Math.max(0, li) * (0.75 + 0.35 * run)) * walk
+    // On a cable the steps are short and careful: less reach, a higher lift.
+    const walkThigh = -sw * (0.62 + 0.2 * run - 0.22 * s.cable) * walk
+    const walkKnee = (0.3 + Math.max(0, li) * (0.75 + 0.35 * run + 0.45 * s.cable)) * walk
     const crouchThigh = -CROUCH_THIGH * s.crouch
     const crouchKnee = CROUCH_KNEE * s.crouch
     const climbThigh = -(0.5 + Math.sin(s.climbPhase * sign) * 0.5) * s.climb
@@ -228,7 +229,9 @@ export const poseMech = (rig: Rig, s: MechPose): void => {
     const airKnee = 0.7 * s.air
     const thigh = walkThigh + crouchThigh + climbThigh + airThigh
     const knee = walkKnee + crouchKnee + climbKnee + airKnee
-    pose(rig, `thigh${tag}`, thigh, 0, sign * -0.05 * s.cable)
+    // On a cable each foot is set down on the line under the middle of the
+    // body, one in front of the other: the thighs swing in to meet it.
+    pose(rig, `thigh${tag}`, thigh, 0, sign * -0.2 * s.cable)
     pose(rig, `shin${tag}`, knee, 0, 0)
     // The sole stays flat in a crouch (it carries the weight) and rolls
     // heel to toe in a stride.
@@ -241,13 +244,15 @@ export const poseMech = (rig: Rig, s: MechPose): void => {
   const grounded = (1 - s.climb) * (1 - s.air)
   const sink = (LEG_LEN - reach) * grounded
   nudge(rig, 'hips', 0, -sink + s.air * 0.05 - 0.12 * fall + thud * 0.06, -0.12 * s.crouch + 0.55 * fall)
-  pose(rig, 'hips', hipPitch + 1.25 * fall, 0, 0.12 * fall)
+  // Balancing: the hips sway over whichever foot is down, slow and wide.
+  const balance = s.cable * (Math.sin(s.stride) * 0.09 + Math.sin(s.time * 1.7) * 0.05)
+  pose(rig, 'hips', hipPitch + 1.25 * fall, 0, 0.12 * fall + balance)
   pose(rig, 'spine', 0.5 * s.crouch * (1 - fall) + (0.08 + 0.2 * s.sprint) * walk - s.aimPitch * 0.25 * s.aim, 0, swing * 0.06 * walk)
   nudge(rig, 'chest', 0, breathe, 0)
-  pose(rig, 'chest', 0.3 * s.crouch * (1 - fall) - s.aimPitch * 0.25 * s.aim, -swing * (0.1 + 0.12 * run) * walk, 0)
+  pose(rig, 'chest', 0.3 * s.crouch * (1 - fall) - s.aimPitch * 0.25 * s.aim + 0.08 * s.cable, -swing * (0.1 + 0.12 * run) * walk * (1 - s.cable), -balance * 1.6)
   pose(
     rig, 'head',
-    -0.7 * s.crouch * (1 - fall) + (s.down > 0 ? 0.5 * (1 - fall) : 0) - 0.16 * run - s.aimPitch * 0.4 * s.aim,
+    -0.7 * s.crouch * (1 - fall) + (s.down > 0 ? 0.5 * (1 - fall) : 0) - 0.16 * run - s.aimPitch * 0.4 * s.aim + 0.3 * s.cable,
     0.6 * fall,
     Math.sin(s.time * 0.7) * 0.03 * (1 - s.aim)
   )
@@ -256,6 +261,8 @@ export const poseMech = (rig: Rig, s: MechPose): void => {
   // Left arm: swings with the walk, comes up to steady the weapon, reaches on
   // a ladder, spreads on a cable.
   const hang = 1 - Math.max(s.aim, s.climb, s.cable)
+  // Out wide on a cable, and see-sawing against the sway.
+  const seesaw = Math.sin(s.time * 2.3) * 0.22 + Math.sin(s.stride) * 0.12
   // In a takedown the free hand goes over the target's far shoulder: up,
   // forward and across (`GRAB_*` point the arm at it from where the mech
   // stands, `TAKEDOWN.reach` behind).
@@ -266,9 +273,10 @@ export const poseMech = (rig: Rig, s: MechPose): void => {
       GRAB_PITCH, s.grab
     ),
     -0.55 * s.aim * (1 - s.grab),
-    lerp(-1.35 * s.cable - 0.12 * hang - 0.5 * fall, GRAB_ROLL, s.grab)
+    // Out to the side (the roll that spreads it is this way round for the left arm).
+    lerp((1.35 + seesaw) * s.cable - 0.12 * hang - 0.5 * fall, GRAB_ROLL, s.grab)
   )
-  pose(rig, 'foreL', lerp(-(0.25 + 0.9 * run) * hang - 0.9 * s.aim - 0.5 * s.climb, -0.1, s.grab), 0, 0)
+  pose(rig, 'foreL', lerp(-(0.25 + 0.9 * run) * hang - 0.9 * s.aim - 0.5 * s.climb - 0.25 * s.cable, -0.1, s.grab), 0, 0)
 
   // Right arm: the weapon arm. A stab swings it forward and across.
   const thrust = s.stab > 0 ? Math.sin(Math.min(1, s.stab) * Math.PI) : 0
@@ -289,7 +297,7 @@ export const poseMech = (rig: Rig, s: MechPose): void => {
       PLUNGE_PITCH, s.plunge
     ),
     0.5 * thrust * (1 - td),
-    lerp(lerp(1.35 * s.cable + 0.12 * hang, DRAW_ROLL, s.draw), PLUNGE_ROLL, s.plunge)
+    lerp(lerp(-(1.35 - seesaw) * s.cable + 0.12 * hang, DRAW_ROLL, s.draw), PLUNGE_ROLL, s.plunge)
   )
   pose(
     rig, 'foreR',

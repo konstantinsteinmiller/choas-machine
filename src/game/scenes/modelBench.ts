@@ -63,7 +63,7 @@ export class ModelBench implements GameMode {
       if (poseName === 'aim') { p.aim = 1; p.aimPitch = Math.sin(t) * 0.25; p.recoil = Math.max(0, 1 - (t % 1.5) * 4) }
       if (poseName === 'stab') { p.blade = 1; p.stab = (t % 1.2) / 0.5 <= 1 ? (t % 1.2) / 0.5 : 0 }
       if (poseName === 'climb') { p.climb = 1; p.climbPhase = t * 6 }
-      if (poseName === 'cable') { p.cable = 1; p.stride = t * 4; p.speed = 0.5 }
+      if (poseName === 'cable') { p.cable = 1; p.stride = t * 7.5; p.speed = 1 }
       if (poseName === 'air') p.air = 1
       return p
     }
