@@ -73,6 +73,10 @@ export const hud = reactive({
   salvageNeed: 0,
   /** Under the hide box. */
   boxed: false,
+  /** The boss whose bar is up ('' none), its health 0 … 1, and whether it carries a shield. */
+  bossKind: '' as '' | 'warden' | 'foreman' | 'goliath',
+  bossHp: 1,
+  bossShield: false,
   /** A pile within reach; and 0 … 1 of stripping one. */
   loot: false,
   looting: 0,

@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { FortressBuilder, WALL_H } from '@/game/world/fortress'
 import { cellMid } from '@/game/world/grid'
 import { WEAPON_IDS } from '@/game/data/ids'
-import { makeGarrison, drainEvents, stepGarrison, isUnaware, type Target } from '@/game/sim/garrison'
+import { makeGarrison, drainEvents, stepGarrison, isUnaware, SPECS, type Target } from '@/game/sim/garrison'
 import { castShot, makeShotHit, rayBox, rayCylinder, raySphere, HEAD_Y } from '@/game/sim/hitscan'
 import { BASE_DAMAGE, BLAST_RADIUS, blast, shotDamage } from '@/game/sim/damage'
 import {
@@ -96,9 +96,9 @@ describe('what a shot hits', () => {
 })
 
 describe('what a hit is worth', () => {
-  it('one sniper round to the head ends any human; to the body, a guard but not the Commander', () => {
+  it('one sniper round to the head ends a guard; the Warden (the Commander) is a boss and takes several', () => {
     expect(shotDamage('sniper', 'guard', 'head')).toBeGreaterThan(1000)
-    expect(shotDamage('sniper', 'commander', 'head')).toBeGreaterThan(1000)
+    expect(shotDamage('sniper', 'commander', 'head')).toBeLessThan(SPECS.commander.hp)
     expect(shotDamage('sniper', 'guard', 'body')).toBeGreaterThanOrEqual(30)
     expect(shotDamage('sniper', 'commander', 'body')).toBeLessThan(60)
   })

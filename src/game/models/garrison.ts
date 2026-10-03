@@ -27,7 +27,7 @@ const G_THIGH = 0.32
 const G_SHIN = 0.3
 const G_LEG = G_THIGH + G_SHIN
 
-export const buildGuard = (commander = false): Rig => {
+export const buildGuard = (commander = false, shield = false): Rig => {
   const cloth = commander ? PAL.commander : PAL.uniform
   const clothDeep = commander ? PAL.commanderDeep : PAL.uniformDeep
   const trim = commander ? PAL.commanderTrim : PAL.uniformTrim
@@ -42,9 +42,16 @@ export const buildGuard = (commander = false): Rig => {
   // A big friendly head under a helmet (or the Commander's cap).
   b.part('head', sph(0.22, 10, 8), PAL.skin, { p: [0, 0.2, 0] })
   if (commander) {
-    b.part('head', rcyl(0.25, 0.1, 0.03, 10), cloth, { p: [0, 0.37, 0] })
-    b.part('head', rbox(0.3, 0.03, 0.18, 0.6, 6, 4), PAL.boot, { p: [0, 0.33, 0.19] })
-    b.part('head', sph(0.035, 6, 5), trim, { p: [0, 0.38, 0.23], glow: true, outline: false })
+    // The Warden: an armoured helm with a glowing visor and a crest, and
+    // heavy plates on the shoulders. One round does not do it.
+    b.part('head', dome(0.27, Math.PI * 0.56, 12, 7), PAL.steelDeep, { p: [0, 0.21, 0] })
+    b.part('head', rbox(0.4, 0.07, 0.08, 0.6, 6, 4), PAL.glowRed, { p: [0, 0.22, 0.22], glow: true, outline: false })
+    b.part('head', rbox(0.06, 0.16, 0.34, 0.5, 4, 6), cloth, { p: [0, 0.48, -0.02] })
+    b.part('head', sph(0.04, 6, 5), trim, { p: [0, 0.57, 0.12], glow: true, outline: false })
+    b.mirror((side) => {
+      b.part('chest', sph(0.13, 8, 6), PAL.steelDeep, { p: [side * 0.3, 0.38, 0] })
+    })
+    b.part('chest', rbox(0.38, 0.2, 0.06, 0.5, 6, 4), PAL.steelDeep, { p: [0, 0.18, 0.16] })
   } else {
     b.part('head', dome(0.245, Math.PI * 0.52, 10, 6), PAL.helmet, { p: [0, 0.22, 0] })
     b.part('head', rbox(0.34, 0.04, 0.1, 0.6, 6, 4), PAL.helmet, { p: [0, 0.24, 0.2] })
@@ -69,6 +76,15 @@ export const buildGuard = (commander = false): Rig => {
     b.part(`shin${tag}`, cap(0.08, 0.16, 6, 3), clothDeep, { p: [0, -0.14, 0] })
     b.part(`foot${tag}`, rbox(0.17, 0.12, 0.3, 0.5, 6, 6), PAL.boot, { p: [0, 0, 0.05] })
   })
+
+  // The Warden's riot shield, held square in front of him: a steel plate
+  // with a hazard rim and a little window to look through.
+  if (shield) {
+    b.part('chest', rbox(0.72, 1.24, 0.06, 0.25, 6, 8), PAL.steelDeep, { p: [0.08, 0.04, 0.42] })
+    b.part('chest', rbox(0.76, 0.08, 0.07, 0.4, 6, 3), PAL.hazard, { p: [0.08, 0.65, 0.42] })
+    b.part('chest', rbox(0.76, 0.08, 0.07, 0.4, 6, 3), PAL.hazard, { p: [0.08, -0.57, 0.42] })
+    b.part('chest', rbox(0.34, 0.08, 0.02, 0.6, 4, 3), PAL.glowCyan, { p: [0.08, 0.38, 0.455], glow: true, outline: false })
+  }
 
   // The rifle, in the right hand, barrel along the forearm.
   b.bone('rifle', 'foreR', [0, -0.25, 0.03])
@@ -533,7 +549,7 @@ export const ENFORCER_RADIUS = 0.95
 /** The joints the minigun chews through: knees and shoulders, by bone. */
 export const ENFORCER_JOINTS = ['kneeL', 'kneeR', 'armL', 'armR'] as const
 
-export const buildEnforcer = (): Rig => {
+export const buildEnforcer = (foreman = false): Rig => {
   const b = new RigBuilder()
   b.bone('hips', null, [0, 1.45, 0])
   b.bone('torso', 'hips', [0, 0.3, 0])
@@ -545,6 +561,12 @@ export const buildEnforcer = (): Rig => {
   // The sensor head: a visor slit that lights when it wakes.
   b.part('head', rbox(0.56, 0.3, 0.46, 0.45, 8, 6), PAL.steelDeep)
   b.part('head', rbox(0.42, 0.08, 0.06, 0.6, 6, 4), PAL.glowRed, { p: [0, 0, 0.22], glow: true, outline: false })
+  if (foreman) {
+    // The Foreman: a hazard-striped crest on its head and plates on its
+    // chest, so it is told from the others across the yard.
+    for (let i = 0; i < 5; i++) b.part('head', rbox(0.11, 0.4, 0.5, 0.4, 4, 4), i % 2 ? PAL.steelDeep : PAL.hazard, { p: [(i - 2) * 0.11, 0.32, -0.02] })
+    b.part('torso', rbox(0.9, 0.5, 0.12, 0.3, 6, 5), PAL.hazard, { p: [0, 0.55, 0.58] })
+  }
   b.mirror((side, tag) => {
     const x = -side
     b.bone(`arm${tag}`, 'torso', [x * 1.0, 0.75, 0])

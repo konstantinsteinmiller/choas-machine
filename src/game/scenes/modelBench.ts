@@ -104,7 +104,7 @@ export class ModelBench implements GameMode {
     }
     for (const commander of [false, true]) {
       if (all || which === (commander ? 'commander' : 'guard')) {
-        const rig = buildGuard(commander)
+        const rig = buildGuard(commander, commander && q.has('shield'))
         add(rig, 0, (t) => poseGuard(rig, {
           ...restGuardPose(),
           time: t,
@@ -128,7 +128,7 @@ export class ModelBench implements GameMode {
       add(rig, 2.2, (t) => poseDrone(rig, { time: t, spin: t * 40, pitch: 0.12, roll: Math.sin(t) * 0.1, eyeYaw: 0, eyePitch: 0.7, alarm: poseName === 'wary' ? 1 : 0, deadT: poseName === 'die' ? Math.max(1e-3, t) : 0, landed: poseName === 'die' && t > 0.8 }))
     }
     if (all || which === 'enforcer') {
-      const rig = buildEnforcer()
+      const rig = buildEnforcer(q.has('foreman'))
       add(rig, 0, (t) => poseEnforcer(rig, {
         time: t,
         stride: t * 4,

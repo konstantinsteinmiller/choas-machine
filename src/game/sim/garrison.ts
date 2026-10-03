@@ -50,7 +50,8 @@ export const SPECS: Readonly<Record<PostKind, Spec>> = {
   guard: { ...HUMAN, range: 22, half: 0.96, hp: 30 },
   // A sentry watches one way, far and narrow: the thing a sniper deals with first.
   sentry: { ...HUMAN, range: 30, half: 0.55, hp: 30 },
-  commander: { ...HUMAN, range: 20, half: 0.96, hp: 60 },
+  // The Warden: armoured. A sniper headshot takes about a third of him.
+  commander: { ...HUMAN, range: 20, half: 0.96, hp: 180 },
   drone: { eye: 0, height: 0.5, radius: 0.45, walk: 2.6, look: 1.2, run: 3.6, range: 0, half: 0, hp: 20 },
   // A lamp on a mast. The speeds are its BEAM's, across the ground.
   searchlight: { eye: 0, height: 0.6, radius: 0.5, walk: 3.4, look: 5, run: 8, range: 0, half: 0, hp: 20 },
@@ -70,6 +71,9 @@ const DECAY_PER_S = 0.3
 const DECAY_WARY_PER_S = 0.1
 /** A unit already looking for something notices faster. */
 const WARY_GAIN = 1.6
+
+/** The Foreman is an Enforcer this much tougher. */
+const FOREMAN_HP = 1.6
 
 /** How far a body can be told for what it is, and how long a look takes. */
 const BODY_RANGE = 18
@@ -190,6 +194,10 @@ export interface Unit {
   hitZ: number
   /** A body, and somebody has already raised the alarm over it. */
   found: boolean
+  /** A boss (`Post.boss`), and its health at full; the Warden's shield. */
+  boss: 'warden' | 'foreman' | 'goliath' | null
+  maxHp: number
+  shield: boolean
   /** When its missed check-in sends somebody to look (garrison time); and whether it has. */
   checkAt: number
   checked: boolean
@@ -310,7 +318,7 @@ export const makeGarrison = (f: Fortress, level = 2): Garrison => {
       yaw: p.facing, pyaw: p.facing, look: 0,
       state: p.reserve ? 'reserve' : mech ? 'dormant' : 'patrol', t: 0, detect: 0, sees: false, seenX: p.x, seenZ: p.z, lured: false,
       route: p.route, wp: p.route.length > 1 ? 1 : 0, wait: p.route[0]?.wait ?? 0,
-      path: [], pathI: 0, repath: 0, bodyT: 0, checkAt: Infinity, checked: false, hp: Math.round(SPECS[p.kind].hp * threat.hp), deadT: 0, fallDir: 1, huh: HUH_S, noise: 0, gripped: false, hold: 0, death: 'back', hitX: 0, hitZ: 0, found: false,
+      path: [], pathI: 0, repath: 0, bodyT: 0, checkAt: Infinity, checked: false, hp: Math.round(SPECS[p.kind].hp * threat.hp * (p.boss === 'foreman' ? FOREMAN_HP : 1)), maxHp: Math.round(SPECS[p.kind].hp * threat.hp * (p.boss === 'foreman' ? FOREMAN_HP : 1)), boss: p.boss ?? null, shield: !!p.shield, deadT: 0, fallDir: 1, huh: HUH_S, noise: 0, gripped: false, hold: 0, death: 'back', hitX: 0, hitZ: 0, found: false,
       stride: 0, speed01: 0, homeX: p.x, homeZ: p.z, homeYaw: p.facing, altitude: p.altitude,
       spotX: spot.x, spotZ: spot.z,
       seed: (id * 2.399) % (Math.PI * 2),

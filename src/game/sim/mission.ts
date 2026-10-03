@@ -215,6 +215,8 @@ export class Mission implements GameMode {
   private looting: { pile: Pile; t: number } | null = null
   private sparkleT = 0
   private smokeT = 0
+  /** The boss whose bar is up: the last one hit. */
+  private bossFocus = -1
   private ropeDir = new Vector3()
   /** How far above its feet the mech is drawn (the drop, the lift). */
   private lift = 0
@@ -484,6 +486,12 @@ export class Mission implements GameMode {
     mirror('grappleHeard', this.grapple?.heard ?? 0)
     mirror('loot', !this.looting && !!this.lootOffer && hud.phase === 'play')
     mirror('boxed', this.player.boxed)
+    const boss = this.bossFocus >= 0 ? this.garrison.units[this.bossFocus] : undefined
+    if (boss && boss.boss) {
+      mirror('bossKind', boss.boss)
+      mirror('bossHp', Math.max(0, boss.hp) / boss.maxHp)
+      mirror('bossShield', boss.shield)
+    } else mirror('bossKind', '')
     mirror('looting', this.looting ? Math.min(1, this.looting.t / SALVAGE_S) : 0)
     consumeEdges(i)
   }
@@ -635,6 +643,9 @@ export class Mission implements GameMode {
       this.fx.tracer(ox, oy, oz, h.x, h.y, h.z, w)
       this.fx.impact(h.x, h.y, h.z, h.nx, h.ny, h.nz, soft, w)
       emit('hit', { id: u.id, weapon: w, zone: h.zone })
+      // A boss hit is a boss told: the whole base comes.
+      if (u.boss) { this.bossFocus = u.id; this.goLoud() }
+      if (u.shield && h.zone === 'armor') this.fx.particles.sparks(h.x, h.y, h.z, '#ffe98f', 14, 5, 0.25)
       if (!damageUnit(gar, u.id, damage, ox, oz, w === 'minigun' ? 'spray' : 'shot')) {
         // A silenced round in a drone's shell: it does not know what hit it.
         if (u.kind === 'drone' && w === 'sniper') startleUnit(gar, u.id, this.player.x, this.player.z)

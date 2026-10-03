@@ -72,7 +72,9 @@ export const buildBastion = (level = 1): Fortress => {
   b.guard([[12, 36, 2], [22, 36], [22, 44, 2], [12, 44]])
   b.guard([[39, 44, 2], [29, 44], [29, 36, 2], [39, 36]])
   b.guard([[11, 27, 3], [11, 13, 2], [17, 13, 3]])
-  b.commander([[21, 20, 4], [30, 20, 4], [30, 22, 4], [21, 22, 4]], Math.PI)
+  // The Warden: the Commander in an armoured helmet. From level IV he
+  // carries a riot shield too, and must be taken from the side or behind.
+  b.commander([[21, 20, 4], [30, 20, 4], [30, 22, 4], [21, 22, 4]], Math.PI, { shield: level >= 4 })
   b.drone([[12, 34], [39, 34], [39, 44], [12, 44]], 7)
   // A searchlight on the south-east tower, sweeping the east half of the yard.
   b.searchlight(43, 47, [[36, 42, 1.5], [31, 37, 1], [38, 34, 1.5], [33, 44, 1]])
@@ -82,7 +84,9 @@ export const buildBastion = (level = 1): Fortress => {
     b.sentry(42, 46, Math.PI * 1.25).sentry(8, 10, Math.PI * 0.25)
     b.guard([[26, 32, 4], [26, 28, 4]], Math.PI)
     b.drone([[12, 13], [40, 13], [40, 27], [12, 27]], 9)
-    b.enforcer(29, 28, Math.PI).enforcer(34, 13, Math.PI * 0.5)
+    // The one on the keep road is the Foreman at level II: the second boss
+    // there. From III the Goliath is the second, and he is a plain Enforcer.
+    b.enforcer(29, 28, Math.PI, level === 2).enforcer(34, 13, Math.PI * 0.5)
     // The keep's own light, over the main gate and the road up to it.
     b.searchlight(26, 24, [[25, 28, 1.2], [20, 27, 1.2], [26, 34, 1.5], [31, 27, 1.2]])
   }

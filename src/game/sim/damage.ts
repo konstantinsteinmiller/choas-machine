@@ -20,7 +20,10 @@ export const BASE_DAMAGE: Readonly<Record<WeaponId, number>> = { sniper: 34, min
 export const DRONE_SHELL = 0.32
 const KILL = 1e6
 
-const isHuman = (k: PostKind): boolean => k === 'guard' || k === 'sentry' || k === 'commander'
+const isHuman = (k: PostKind): boolean => k === 'guard' || k === 'sentry'
+/** The Warden's helmet takes the edge off a headshot; his shield stops a round dead. */
+export const WARDEN_HEAD = 2
+const WARDEN_BODY = 0.7
 
 /**
  * Damage of one round of `weapon` on `kind`, hit in `zone`. `mul` is the
@@ -34,12 +37,14 @@ export const shotDamage = (weapon: WeaponId, kind: PostKind, zone: Zone, mul = 1
     if (kind === 'drone') return zone === 'weak' ? KILL : base * DRONE_SHELL
     if (kind === 'searchlight') return KILL
     if (isHuman(kind)) return zone === 'head' ? KILL : base
+    if (kind === 'commander') return zone === 'armor' ? 0 : zone === 'head' ? base * WARDEN_HEAD : base * WARDEN_BODY
     if (kind === 'enforcer') return zone === 'head' ? base * 2.5 : zone === 'joint' ? base * 1.5 : base * 0.6
     return zone === 'weak' ? base : base * 0.1
   }
   if (weapon === 'minigun') {
     if (kind === 'drone' || kind === 'searchlight') return base * 2
     if (isHuman(kind)) return zone === 'head' ? base * 2 : base
+    if (kind === 'commander') return zone === 'armor' ? base * 0.1 : zone === 'head' ? base * 2 : base
     if (kind === 'enforcer') return zone === 'joint' ? base * 3 : zone === 'head' ? base : base * 0.5
     return zone === 'weak' ? base * 1.5 : base * 0.1
   }

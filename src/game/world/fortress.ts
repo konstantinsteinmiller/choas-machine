@@ -49,6 +49,15 @@ export interface Post {
   altitude: number
   /** Held back: arrives with a reinforcement wave once the base is on full alert. */
   reserve?: boolean
+  /**
+   * A boss (#40): no sniper drops it with one round, no blade takes it from
+   * behind, and the first hit on it sends the whole base to full alert. The
+   * Warden is the Commander; the Foreman a marked Enforcer; the Goliath is
+   * the Goliath.
+   */
+  boss?: 'warden' | 'foreman' | 'goliath'
+  /** The Warden carries a riot shield: rounds from in front stop on it. */
+  shield?: boolean
 }
 
 export type DecorKind =
@@ -249,8 +258,12 @@ export class FortressBuilder {
   }
 
   /** The base commander: the target of a medium fortress. */
-  commander(route: ReadonlyArray<readonly [number, number, number?]>, facing = 0): this {
-    return this.post('commander', route, facing)
+  commander(route: ReadonlyArray<readonly [number, number, number?]>, facing = 0, opts: { shield?: boolean } = {}): this {
+    this.post('commander', route, facing)
+    const p = this.posts[this.posts.length - 1]!
+    p.boss = 'warden'
+    if (opts.shield) p.shield = true
+    return this
   }
 
   /** A surveillance drone flying a loop at `altitude` metres above the ground. */
@@ -327,13 +340,17 @@ export class FortressBuilder {
   }
 
   /** An Enforcer mech, dormant until the alarm. */
-  enforcer(cx: number, cz: number, facing = 0): this {
-    return this.post('enforcer', [[cx, cz]], facing)
+  enforcer(cx: number, cz: number, facing = 0, foreman = false): this {
+    this.post('enforcer', [[cx, cz]], facing)
+    if (foreman) this.posts[this.posts.length - 1]!.boss = 'foreman'
+    return this
   }
 
   /** The Goliath Tank: the target of a large fortress. */
   goliath(cx: number, cz: number, facing = 0): this {
-    return this.post('goliath', [[cx, cz]], facing)
+    this.post('goliath', [[cx, cz]], facing)
+    this.posts[this.posts.length - 1]!.boss = 'goliath'
+    return this
   }
 
   /** Dressing with no gameplay: a lamp, an antenna. Stands on the cell's top. */

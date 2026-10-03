@@ -51,6 +51,7 @@ export default {
     },
     'haul': 'Salvage {n} of {need}',
     'hide': 'Hide in the box',
+    'boss': 'Boss health {n}%',
     'loot': 'Strip the salvage'
   },
   'defeat': {

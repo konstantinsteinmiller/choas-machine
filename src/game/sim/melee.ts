@@ -35,7 +35,8 @@ export const findStrike = (gar: Garrison, g: Grid, x: number, y: number, z: numb
   let best: Strike | null = null
   let bestScore = Infinity
   for (const u of gar.units) {
-    if (u.state === 'dead' || u.state === 'reserve' || !isHuman(u)) continue
+    // A boss is not taken quietly: no blade reaches it.
+    if (u.state === 'dead' || u.state === 'reserve' || !isHuman(u) || u.boss) continue
     const dist = Math.hypot(u.x - x, u.z - z)
     const above = y - u.y
     let kind: StrikeKind | null = null

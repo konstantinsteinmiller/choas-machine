@@ -20,6 +20,19 @@
       )
         GameIcon(name="scrap")
         span {{ hud.salvageGot }}/{{ hud.salvageNeed }}
+      //- The boss that was hit: its health, in ten plates. A shield glyph when
+      //- it carries one (go round it).
+      div.boss-bar(
+        v-if="hud.bossKind"
+        :class="hud.bossKind"
+        role="img"
+        :aria-label="t('hud.boss', { n: Math.round(hud.bossHp * 100) })"
+        data-testid="boss-bar"
+      )
+        GameIcon(:name="hud.bossKind === 'warden' ? 'skull' : 'warning'")
+        div.plates
+          span.plate(v-for="n in 10" :key="n" :class="{ on: n <= Math.ceil(hud.bossHp * 10) }")
+        GameIcon.shield(v-if="hud.bossShield" name="shield")
 
     div.top-right
       //- The lessons, back on request.
@@ -231,6 +244,35 @@ onUnmounted(() => window.clearTimeout(closeTimer))
   &.done
     border-color: var(--cm-ok)
     color: var(--cm-ok)
+
+.boss-bar
+  display: flex
+  align-items: center
+  gap: 0.35em
+  margin-top: 0.35em
+  padding: 0.25em 0.6em
+  border: var(--cm-rim-w) solid var(--cm-danger)
+  border-radius: 999px
+  background: var(--cm-gloss), var(--cm-surface-soft)
+  box-shadow: var(--cm-sticker), 0 0 0.8rem rgba(255, 85, 118, 0.45)
+  color: var(--cm-danger)
+  pointer-events: none
+  :deep(svg)
+    width: 1.2em
+    height: 1.2em
+  .shield
+    color: var(--cm-cyan-hi)
+.plates
+  display: flex
+  gap: 0.12em
+.plate
+  width: clamp(0.6rem, 2.2vmin, 0.9rem)
+  height: clamp(0.4rem, 1.4vmin, 0.6rem)
+  border-radius: 0.15rem
+  background: rgba(246, 241, 255, 0.15)
+  &.on
+    background: linear-gradient(180deg, #ff96ab, var(--cm-danger))
+    box-shadow: 0 0 0.3rem rgba(255, 85, 118, 0.7)
 
 .top-centre
   position: absolute

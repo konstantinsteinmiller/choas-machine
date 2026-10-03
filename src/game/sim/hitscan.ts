@@ -41,6 +41,8 @@ const DRONE_R = 0.5
 /** The drone's eye: where it is in the drone's own frame, and how big. It is
  *  the drone's one weak point (`sim/damage.ts`). */
 export const DRONE_EYE = { z: 0.3, y: -0.06, r: 0.19 } as const
+/** The Warden's riot shield, in his own frame: how far in front, its middle's height, half its width and height. */
+export const RIOT_SHIELD = { z: 0.42, y: 0.95, hw: 0.36, hh: 0.62 } as const
 
 /** Distance to a sphere along a unit ray, or Infinity. Hits from inside do
  *  not count: a muzzle that pokes into a body must not hit it at t = 0. */
@@ -160,6 +162,12 @@ const hitUnit = (u: Unit, ox: number, oy: number, oz: number, dx: number, dy: nu
     const v = local(u, GOLIATH_VENT_SPOT[0], GOLIATH_VENT_SPOT[2])
     take(raySphere(ox, oy, oz, dx, dy, dz, v.x, u.y + GOLIATH_VENT_SPOT[1], v.z, GOLIATH_VENT_SPOT[3]), 'weak')
   } else {
+    // The Warden's riot shield: a plate held in front of him. A round that
+    // meets it first stops there.
+    if (u.shield) {
+      const s = local(u, -0.08, RIOT_SHIELD.z)
+      take(rayBox(ox, oy, oz, dx, dy, dz, s.x, u.y + RIOT_SHIELD.y, s.z, u.yaw, RIOT_SHIELD.hw, RIOT_SHIELD.hh, 0.05), 'armor')
+    }
     take(rayCylinder(ox, oy, oz, dx, dy, dz, u.x, u.z, BODY_R, u.y + 0.1, u.y + 1.3), 'body')
     take(raySphere(ox, oy, oz, dx, dy, dz, u.x, u.y + HEAD_Y, u.z, HEAD_R), 'head')
   }

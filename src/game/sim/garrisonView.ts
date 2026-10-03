@@ -152,9 +152,9 @@ export class GarrisonView {
       const human = u.kind === 'guard' || u.kind === 'sentry' || u.kind === 'commander'
       const rig = u.kind === 'drone' ? buildDrone()
         : u.kind === 'searchlight' ? buildSearchlight()
-        : u.kind === 'enforcer' ? buildEnforcer()
+        : u.kind === 'enforcer' ? buildEnforcer(u.boss === 'foreman')
           : u.kind === 'goliath' ? buildGoliath()
-            : buildGuard(u.kind === 'commander')
+            : buildGuard(u.kind === 'commander', u.shield)
       const shadow = makeBlobShadow(SPECS[u.kind].radius * 1.5)
       let mark: Sprite | null = null
       if (human || isLight(u)) {
