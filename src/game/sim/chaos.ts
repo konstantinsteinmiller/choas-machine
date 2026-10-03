@@ -52,6 +52,14 @@ export const GUNS: Readonly<Partial<Record<Unit['kind'], Gun>>> = {
  */
 export const SUPPRESS_S = 2
 const SUPPRESS_HIT = 0.2
+/**
+ * Beyond its aimed range, out to this, a defender that has the mech in view
+ * still puts rounds its way (#70): few hit, and none settle, but a sniper on
+ * a far perch is no longer left in peace.
+ */
+export const VOLLEY_RANGE = 120
+const VOLLEY_HIT = 0.35
+const VOLLEY_PAUSE = 1.6
 
 /** The Goliath's cannon. */
 export const SHELL_WARN_S = 1.15
@@ -91,7 +99,8 @@ export const stepFire = (gar: Garrison, g: Grid, target: Target, dt: number): vo
     const gun = GUNS[u.kind]
     if (!gun) continue
     const dist = Math.hypot(target.x - u.x, target.z - u.z)
-    if (!u.sees || dist > gun.range) {
+    const volley = dist > gun.range && u.kind !== 'hound'
+    if (!u.sees || dist > (volley ? VOLLEY_RANGE : gun.range)) {
       // Lost the line: the burst is cut, and it takes a moment to re-acquire.
       u.burst = 0
       u.fireT = Math.max(u.fireT, 0.5)
@@ -105,9 +114,11 @@ export const stepFire = (gar: Garrison, g: Grid, target: Target, dt: number): vo
       u.burst--
       u.burstT = gun.gap
       u.recoil = 1
-      const hit = gar.rng() < hitChance(gun, dist, target) * (u.aimT < SUPPRESS_S ? SUPPRESS_HIT : 1)
+      // Out past its range only a volley: the far end's chance, cut again.
+      const p = volley ? gun.far * VOLLEY_HIT : hitChance(gun, dist, target) * (u.aimT < SUPPRESS_S ? SUPPRESS_HIT : 1)
+      const hit = gar.rng() < p
       gar.events.push({ type: 'fire', id: u.id, damage: hit ? Math.max(1, Math.round(gun.damage * gar.threat.damage)) : 0 })
-      if (u.burst === 0) u.fireT = gun.pauseMin + gar.rng() * (gun.pauseMax - gun.pauseMin)
+      if (u.burst === 0) u.fireT = (gun.pauseMin + gar.rng() * (gun.pauseMax - gun.pauseMin)) * (volley ? VOLLEY_PAUSE : 1)
       continue
     }
     u.fireT -= dt

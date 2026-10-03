@@ -26,7 +26,7 @@ import { makePlayer, stepPlayer, eyeHeight, angleDelta, type Player } from './pl
 import { makeCam, lookCam, stepCam, placeCam, stickToWorld, camForward, type Cam } from './camera'
 import { alertSegments } from './alert'
 import {
-  SPECS, SUSPECT_AT, sabotageBeacon, searchForShooter, noteChange, tagUnit, cutRig, helmetPops, isAlive, stepFallen, drainEvents, headingTo, killUnit, damageUnit, makeGarrison, noiseAt, hearAt, wonderAt, voidNoise, stepGarrison, alarmUnit, startleUnit, isLight,
+  SPECS, SUSPECT_AT, sabotageBeacon, searchForShooter, noteChange, tagUnit, cutRig, helmetPops, isAlive, stepFallen, estimateShot, shotPassed, IMPACT_M, drainEvents, headingTo, killUnit, damageUnit, makeGarrison, noiseAt, hearAt, wonderAt, voidNoise, stepGarrison, alarmUnit, startleUnit, isLight,
   type Garrison, type Target, type Unit
 } from './garrison'
 import { GarrisonView } from './garrisonView'
@@ -80,6 +80,8 @@ const UP = new Vector3(0, 1, 0)
 
 /** How far a round flies. */
 const SHOT_RANGE = 260
+/** The silenced rifle is heard this near its muzzle (#68). */
+const RIFLE_EARSHOT_M = 4
 /** From the shoulder point `aimLine` traces from out to each weapon's muzzle (m). */
 const MUZZLE_REACH: Readonly<Record<WeaponId, number>> = { sniper: 1.75, minigun: 1.45, rocket: 1.3 }
 /** The scope's sway, radians: standing, and steadied in a crouch. */
@@ -772,6 +774,14 @@ export class Mission implements GameMode {
     if (w === 'minigun') this.goLoud()
 
     const h = castShot(g, gar.units, ox, oy, oz, dx, dy, dz, SHOT_RANGE, this.hit)
+    // A rifle round is quiet, not unnoticed (#68, #70): whoever it lands near,
+    // or passes close to, turns to where the base guesses it came from.
+    const p0 = this.player
+    const from = w === 'sniper' ? estimateShot(gar, p0.x, p0.y, p0.z, h.x, h.z) : null
+    if (from) {
+      const hitId = h.kind === 'unit' ? h.unit : -1
+      shotPassed(gar, this.target, from, ox, oy, oz, h.x, h.y, h.z, h.kind === 'world' ? Math.max(IMPACT_M, this.loadout.missEarshot) : IMPACT_M, RIFLE_EARSHOT_M, hitId, h.kind === 'world' ? 'miss' : null)
+    }
     // Minigun rounds into a body on the ground keep shoving it (#64).
     if (w === 'minigun') {
       for (const d of gar.units) {
@@ -831,18 +841,18 @@ export class Mission implements GameMode {
       if (u.shield && h.zone === 'armor') this.fx.particles.sparks(h.x, h.y, h.z, '#ffe98f', 14, 5, 0.25)
       if (!damageUnit(gar, u.id, damage, ox, oz, w === 'minigun' ? 'spray' : 'shot')) {
         // A silenced round in a drone's shell: it does not know what hit it.
-        if (u.kind === 'drone' && w === 'sniper') startleUnit(gar, u.id, this.player.x, this.player.z)
+        if (u.kind === 'drone' && w === 'sniper') startleUnit(gar, u.id, from?.x ?? this.player.x, from?.z ?? this.player.z)
         else {
-          alarmUnit(gar, u.id, this.player.x, this.player.z)
+          // It knows it was shot, and about where from (#70); the loud weapons give the place away.
+          const at = from ?? { x: this.player.x, z: this.player.z }
+          alarmUnit(gar, u.id, at.x, at.z)
           // A guard who took a round and lives: those near it go to look for the shooter (#60).
-          if (w === 'sniper') searchForShooter(gar, u.id, this.player.x, this.player.z)
+          if (w === 'sniper') searchForShooter(gar, u.id, at.x, at.z)
         }
       }
     } else if (h.kind === 'world') {
       this.fx.tracer(mx, my, mz, h.x, h.y, h.z, w)
       this.fx.impact(h.x, h.y, h.z, h.nx, h.ny, h.nz, false, w)
-      // A silenced round is still heard where it lands.
-      if (w === 'sniper') noiseAt(gar, this.target, h.x, h.z, this.loadout.missEarshot, 'miss')
     } else {
       this.fx.tracer(mx, my, mz, h.x, h.y, h.z, w)
     }
@@ -1404,9 +1414,11 @@ export class Mission implements GameMode {
         this.garrisonView.flash(e.id, '#ffffff', 0.6)
         emit('bossHit', { amount: e.damage })
         emit('bossTell', { id: e.id, what: 'selfHit' })
-      } else if (e.type === 'poke' || e.type === 'change') {
+      } else if (e.type === 'poke' || e.type === 'change' || e.type === 'called') {
         // Going over to look: the same "huh?" as any suspicion.
         emit('suspicious', { id: e.id, kind: gar.units[e.id]!.kind })
+      } else if (e.type === 'heightened') {
+        emit('heightened', {})
       } else {
         if (e.type === 'spotted') {
           this.stats.spotted++

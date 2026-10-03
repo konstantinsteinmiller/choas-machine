@@ -287,6 +287,10 @@ export interface Unit {
   dashZ: number
   dashCool: number
   dashHit: boolean
+  /** Focused (#68): seconds left of sharper eyes after a shot, an impact or a near miss nearby. */
+  focusT: number
+  /** Searching the ground round a body it found (or was called to) for a minute (#98). */
+  bodySearch: boolean
 }
 
 export interface Garrison {
@@ -307,7 +311,16 @@ export interface Garrison {
   /** Counts noises, so each has a token of its own (`wonderAt`). */
   noiseSeq: number
   /** Where the mech was last seen by anyone, and when (garrison time): the base shares it. */
-  lkp: { x: number; z: number; t: number }
+  lkp: { x: number; y: number; z: number; t: number }
+  /**
+   * Where the last shots came from, roughly, and how many from about there
+   * (#70): each one from the same spot narrows the guess, the third is exact.
+   */
+  shotSpot: { x: number; z: number; n: number; t: number }
+  /** Bodies found this raid; at two the base is heightened (#98). */
+  bodiesFound: number
+  /** Heightened for the rest of the raid: everyone a little warier (#98, #89). */
+  heightened: boolean
   /** The alarm beacons, the unit running to light one (−1 none), and the wait before another tries. */
   beacons: Beacon[]
   runner: number
@@ -581,8 +594,39 @@ const ALERT_AFTER = 0.6
 /** On alert patrol, sight is this much wider and further. */
 export const WARY_CONE = 1.25
 export const WARY_RANGE = 1.15
-/** In a fight, sight reaches this much further. */
+/** In a fight, sight reaches this much further, and at least this far (#70: a sniper far off is still seen by those hunting it). */
 export const COMBAT_RANGE = 2.5
+export const COMBAT_SIGHT_M = 110
+/**
+ * Focus (#68): a shot heard, an impact this near or a round this near its
+ * head puts a defender on edge for FOCUS_S: it looks toward where the shot
+ * came from and sees FOCUS_RANGE times as far, over a wide cone.
+ */
+export const FOCUS_S = 20
+export const FOCUS_RANGE = 3
+const FOCUS_HALF = 1.31
+export const IMPACT_M = 6
+export const NEAR_MISS_M = 3
+/**
+ * Where a shot came from (#70): the guess is off by a share of the distance
+ * (between SHOT_ERR_MIN and SHOT_ERR_MAX metres), halved by a second shot
+ * from within SHOT_SPOT_M of the first, exact from the third.
+ */
+const SHOT_ERR_SHARE = 0.22
+const SHOT_ERR_MIN = 2
+const SHOT_ERR_MAX = 22
+const SHOT_SPOT_M = 15
+const SHOT_SPOT_S = 60
+/** A body found (#98): the finder calls this many guards from this near, and they search round it this long. */
+export const BODY_CALL_M = 30
+const BODY_CALL_N = 2
+export const BODY_SEARCH_S = 60
+const BODY_SPREAD = 10
+/** Heightened (#98): two bodies found and everyone sees this much further. */
+const HEIGHTENED_RANGE = 1.1
+/** A hunter looks for a high point (the mech up a wall or a tower) from a spot that can see it, this far out. */
+const VANTAGE_MIN_M = 7
+const VANTAGE_MAX_M = 18
 
 /** A sure guard shouts: everyone this near joins the fight. */
 export const SHOUT_M = 16
@@ -633,6 +677,9 @@ export type GarrisonEvent =
   | { type: 'spotted'; id: number }
   | { type: 'calm'; id: number }
   | { type: 'body'; id: number; corpse: number }
+  /** The finder of a body called `id` over to search with it (#98); the base is heightened for the raid. */
+  | { type: 'called'; id: number; by: number }
+  | { type: 'heightened' }
   /** A sure guard shouted; a drone called a guard; a guard runs for a beacon; a beacon was lit. */
   | { type: 'shout'; id: number }
   | { type: 'ping'; id: number; guard: number }
@@ -697,7 +744,7 @@ export const makeGarrison = (f: Fortress, level = 2): Garrison => {
       tagged: false, hidden: false, partner: p.partner ?? -1, chatting: false, poke: false, changeT: 0,
       role: p.role ?? null, job: null, jobT: 0, scentT: -1e9,
       rag: null, ragHow: 'shot', ragStruck: false,
-      helmet: !!f.answers?.helmets && (p.kind === 'guard' || p.kind === 'sentry'), boxLook: 0,
+      helmet: !!f.answers?.helmets && (p.kind === 'guard' || p.kind === 'sentry'), boxLook: 0, focusT: 0, bodySearch: false,
       jammed: false, shells: 0, overheat: 0, phase2: false, glintT: 0, dashT: 0, dashX: 0, dashZ: 0, dashCool: 2, dashHit: false
     }
   })
@@ -707,7 +754,7 @@ export const makeGarrison = (f: Fortress, level = 2): Garrison => {
     ...(f.generators ?? []).map(gn => ({ kind: 'generator' as const, ...gn, unit: -1, cut: false })),
     ...units.filter(u => u.boss === 'foreman').map(u => ({ kind: 'servo' as const, x: u.x, y: u.y, z: u.z, unit: u.id, cut: false }))
   ]
-  return { units, alert: makeAlert(), time: 0, events: [], rng: mulberry32(hashSeed(f.id)), wave: 0, chaosT: 0, lures: [], threat, noiseSeq: 0, beacons, runner: -1, runnerWait: 0, lkp: { x: 0, z: 0, t: -1e9 }, changes: [], scent: [], scentT: 0, unreachable: new Set(), drill: false, rigs, boxCheck: !!f.answers?.boxCheck }
+  return { units, alert: makeAlert(), time: 0, events: [], rng: mulberry32(hashSeed(f.id)), wave: 0, chaosT: 0, lures: [], threat, noiseSeq: 0, beacons, runner: -1, runnerWait: 0, lkp: { x: 0, y: 0, z: 0, t: -1e9 }, shotSpot: { x: 0, z: 0, n: 0, t: -1e9 }, bodiesFound: 0, heightened: false, changes: [], scent: [], scentT: 0, unreachable: new Set(), drill: false, rigs, boxCheck: !!f.answers?.boxCheck }
 }
 
 // ─── Getting about ───────────────────────────────────────────────────────────
@@ -774,14 +821,21 @@ const enter = (u: Unit, state: UnitState): void => {
 // ─── Sight ───────────────────────────────────────────────────────────────────
 
 /** Where a unit's eyes are and how far and wide they see right now (the drawn cone uses it too). */
-export const viewerOf = (u: Unit): Viewer => {
+export const viewerOf = (u: Unit, heightened = false): Viewer => {
   const s = SPECS[u.kind]
   const k = u.wary ? 1 : 0
-  // In a fight it keeps the mech in view a long way off (#59).
-  const fight = u.state === 'combat' ? COMBAT_RANGE : 1
   // Talking: it watches its partner, not the yard.
   const chat = u.chatting ? CHAT_SIGHT : 1
-  return { x: u.x, y: u.y + s.eye, z: u.z, yaw: u.yaw + u.look, halfAngle: s.half * (1 + (WARY_CONE - 1) * k) * (u.chatting ? CHAT_CONE : 1), range: s.range * (1 + (WARY_RANGE - 1) * k) * fight * chat }
+  let range = s.range * (1 + (WARY_RANGE - 1) * k) * chat * (heightened ? HEIGHTENED_RANGE : 1)
+  let half = s.half * (1 + (WARY_CONE - 1) * k) * (u.chatting ? CHAT_CONE : 1)
+  // Focused (#68): three times as far, over a wide cone, toward the trouble.
+  if (u.focusT > 0 && u.kind !== 'hound') {
+    range *= FOCUS_RANGE
+    half = Math.max(half, FOCUS_HALF)
+  }
+  // In a fight it keeps the mech in view a long way off (#59, #70).
+  if (u.state === 'combat' && u.kind !== 'hound') range = Math.max(range * COMBAT_RANGE, COMBAT_SIGHT_M)
+  return { x: u.x, y: u.y + s.eye, z: u.z, yaw: u.yaw + u.look, halfAngle: half, range }
 }
 
 /** Where a drone's searchlight falls. */
@@ -805,8 +859,8 @@ const moveSpot = (u: Unit, dx: number, dz: number): void => {
 }
 
 /** How much of something a unit can see: 0, 0.5 or 1. */
-const sight = (u: Unit, g: Grid, t: Seen): number => {
-  if (!isLight(u)) return exposure(g, viewerOf(u), t)
+const sight = (u: Unit, g: Grid, t: Seen, gar: Garrison): number => {
+  if (!isLight(u)) return exposure(g, viewerOf(u, gar.heightened), t)
   const c = spotCentre(u)
   if (Math.hypot(t.x - c.x, t.z - c.z) > SPOT_RADIUS) return 0
   // In the shadow of a wall or a crate that stands between the light pool
@@ -896,15 +950,23 @@ const alertCap = (gar: Garrison): number => (gar.beacons.length > 0 ? BEACON_CAP
  * look about there, and every so often try another. Units spread by their
  * own seeds, so two searching guards do not stand on the same spot.
  */
-const huntAround = (u: Unit, g: Grid, gar: Garrison, dt: number): void => {
+const huntAround = (u: Unit, g: Grid, gar: Garrison, dt: number, body = false): void => {
   u.hop -= dt
-  if (u.hop <= 0 && gar.lkp.t > -1e8) {
+  const cx = body ? u.seenX : gar.lkp.x
+  const cz = body ? u.seenZ : gar.lkp.z
+  if (u.hop <= 0 && (body || gar.lkp.t > -1e8)) {
     u.hop = SEARCH_HOP_S
-    const a = (u.seed * 6.283 + gar.time * 0.37 + u.id * 1.7) % 6.283
-    const r = SEARCH_SPREAD * (0.4 + 0.6 * ((u.seed * 7.3 + gar.time * 0.11) % 1))
-    const x = gar.lkp.x + Math.sin(a) * r
-    const z = gar.lkp.z + Math.cos(a) * r
-    if (!goTo(u, g, x, z)) goTo(u, g, gar.lkp.x, gar.lkp.z)
+    // Up a wall or a tower, where it cannot walk to: it looks for a spot on
+    // the ground that can see up there (#70).
+    if (!body && !vantage(u, g, gar)) {
+      const a = (u.seed * 6.283 + gar.time * 0.37 + u.id * 1.7) % 6.283
+      const r = SEARCH_SPREAD * (0.4 + 0.6 * ((u.seed * 7.3 + gar.time * 0.11) % 1))
+      if (!goTo(u, g, cx + Math.sin(a) * r, cz + Math.cos(a) * r)) goTo(u, g, cx, cz)
+    } else if (body) {
+      const a = (u.seed * 6.283 + gar.time * 0.53 + u.id * 2.3) % 6.283
+      const r = BODY_SPREAD * (0.5 + 0.8 * ((u.seed * 5.1 + gar.time * 0.17) % 1))
+      if (!goTo(u, g, cx + Math.sin(a) * r, cz + Math.cos(a) * r)) goTo(u, g, cx, cz)
+    }
   }
   if (u.path.length > 0) {
     if (follow(u, g, SPECS[u.kind].look, dt)) u.path = []
@@ -914,6 +976,28 @@ const huntAround = (u: Unit, g: Grid, gar: Garrison, dt: number): void => {
   stand(u)
   u.look = Math.sin(u.t * 1.9 + u.seed) * 1.1
   u.yaw += Math.sin(u.t * 0.8 + u.seed) * 0.6 * dt
+}
+
+/**
+ * The last known position is up high (a wall top, a tower, the perch): walk
+ * to a point on the ground that has it in view, if there is one within reach.
+ * True if it set off for one.
+ */
+const vantage = (u: Unit, g: Grid, gar: Garrison): boolean => {
+  const floor = heightAt(g, u.x, u.z)
+  if (gar.lkp.t < -1e8 || gar.lkp.y - floor < 2.5) return false
+  const eye = SPECS[u.kind].eye
+  for (let k = 0; k < 8; k++) {
+    const a = (k / 8) * Math.PI * 2 + u.seed
+    const r = VANTAGE_MIN_M + ((k * 0.37 + u.seed) % 1) * (VANTAGE_MAX_M - VANTAGE_MIN_M)
+    const x = gar.lkp.x + Math.sin(a) * r
+    const z = gar.lkp.z + Math.cos(a) * r
+    const y = heightAt(g, x, z)
+    if (y === VOID || Math.abs(y - floor) > 1.2) continue
+    if (!hasLineOfSight(g, x, y + eye, z, gar.lkp.x, gar.lkp.y + 1.5, gar.lkp.z)) continue
+    if (goTo(u, g, x, z)) return true
+  }
+  return false
 }
 
 /** A sure guard shouts: the guards near it join the fight at once. */
@@ -1030,8 +1114,96 @@ export const searchForShooter = (gar: Garrison, id: number, fromX: number, fromZ
     if (o === u || !isAlive(o) || o.state === 'combat' || o.state === 'dormant' || isLight(o) || o.kind === 'goliath') continue
     if (Math.hypot(o.x - u.x, o.z - u.z) > SHOUT_M) continue
     o.detect = Math.max(o.detect, SUSPECT_AT + 0.1)
+    o.focusT = Math.max(o.focusT, FOCUS_S)
     suspect(gar, o, fromX, fromZ, false)
   }
+}
+
+/**
+ * A body found (#98): the finder and the one or two guards nearest it (within
+ * BODY_CALL_M) search the ground round it for a minute, sharp-eyed, then let
+ * it go. The second body found this raid puts the base on edge for good.
+ */
+const bodyAlarm = (gar: Garrison, finder: Unit, corpse: Unit): void => {
+  if (gar.drill) return
+  finder.bodySearch = true
+  finder.focusT = Math.max(finder.focusT, FOCUS_S)
+  const near = gar.units
+    .filter(o => o !== finder && isAlive(o) && isHuman(o) && o.state === 'patrol' && !o.gripped && Math.hypot(o.x - corpse.x, o.z - corpse.z) <= BODY_CALL_M)
+    .sort((a, b) => Math.hypot(a.x - corpse.x, a.z - corpse.z) - Math.hypot(b.x - corpse.x, b.z - corpse.z))
+    .slice(0, BODY_CALL_N)
+  for (const o of near) {
+    o.detect = Math.max(o.detect, SUSPECT_AT + 0.05)
+    o.bodySearch = true
+    o.focusT = Math.max(o.focusT, FOCUS_S)
+    suspect(gar, o, corpse.x, corpse.z, false)
+    gar.events.push({ type: 'called', id: o.id, by: finder.id })
+  }
+  gar.bodiesFound++
+  if (gar.bodiesFound >= 2 && !gar.heightened) {
+    gar.heightened = true
+    gar.events.push({ type: 'heightened' })
+  }
+}
+
+/**
+ * Where the base thinks a shot came from (#70): the shooter's spot, off by
+ * a share of how far the round flew, halved by a second shot from about the
+ * same place and exact from the third. Moving on (SHOT_SPOT_M) starts the
+ * count again. Rolls come from the garrison's own dice.
+ */
+export const estimateShot = (gar: Garrison, sx: number, sy: number, sz: number, hx: number, hz: number): { x: number; y: number; z: number } => {
+  const s = gar.shotSpot
+  if (Math.hypot(sx - s.x, sz - s.z) < SHOT_SPOT_M && gar.time - s.t < SHOT_SPOT_S) s.n++
+  else { s.n = 1; s.x = sx; s.z = sz }
+  s.t = gar.time
+  const far = Math.hypot(sx - hx, sz - hz)
+  const err = s.n >= 3 ? 0 : Math.min(SHOT_ERR_MAX, Math.max(SHOT_ERR_MIN, far * SHOT_ERR_SHARE)) / s.n
+  const a = gar.rng() * Math.PI * 2
+  const r = err * Math.sqrt(gar.rng())
+  return { x: sx + Math.sin(a) * r, y: sy, z: sz + Math.cos(a) * r }
+}
+
+/**
+ * A round went by (#68): everyone near where it landed (IMPACT_M), everyone
+ * it passed close to (NEAR_MISS_M of its line) and everyone within `earshot`
+ * of the shooter turns toward where it came from (the base's guess, `from`),
+ * focused, and goes to look. Nobody fighting is distracted by it. Returns how
+ * many it reached. `hit` is the unit the round struck (it has its own news).
+ */
+export const shotPassed = (
+  gar: Garrison, target: Target, from: { x: number; y: number; z: number },
+  ox: number, oy: number, oz: number, hx: number, hy: number, hz: number,
+  impactM: number, earshot: number, hit = -1, cause: AlertCause | null = null
+): number => {
+  if (gar.drill) return 0
+  let n = 0
+  const lx = hx - ox
+  const ly = hy - oy
+  const lz = hz - oz
+  const len2 = lx * lx + ly * ly + lz * lz || 1
+  for (const u of gar.units) {
+    if (u.id === hit || !isAlive(u) || u.state === 'dormant' || u.state === 'combat' || u.gripped || u.kind === 'goliath') continue
+    const eyeY = u.y + SPECS[u.kind].eye
+    const k = Math.max(0, Math.min(1, ((u.x - ox) * lx + (eyeY - oy) * ly + (u.z - oz) * lz) / len2))
+    const line = Math.hypot(ox + lx * k - u.x, oy + ly * k - eyeY, oz + lz * k - u.z)
+    const impact = Math.hypot(hx - u.x, hz - u.z)
+    const heard = Math.hypot(ox - u.x, oz - u.z) <= earshot
+    if (line > NEAR_MISS_M && impact > impactM && !heard) continue
+    u.focusT = Math.max(u.focusT, FOCUS_S)
+    u.detect = Math.max(u.detect, SUSPECT_AT + 0.05)
+    u.lured = false
+    suspect(gar, u, from.x, from.z, false)
+    n++
+  }
+  if (n > 0) {
+    gar.lkp.x = from.x
+    gar.lkp.y = from.y
+    gar.lkp.z = from.z
+    gar.lkp.t = gar.time
+    if (cause) raise(gar, cause, target)
+  }
+  return n
 }
 
 /** The mech put a beacon out of action. True if it was one that could still be lit. */
@@ -1437,6 +1609,7 @@ export const stepGarrison = (gar: Garrison, g: Grid, target: Target, dt: number)
     u.pz = u.z
     u.pyaw = u.yaw
     u.t += dt
+    if (u.focusT > 0) u.focusT = Math.max(0, u.focusT - dt)
     if (u.state === 'dead') {
       stepDead(u, g, dt)
       continue
@@ -1452,7 +1625,7 @@ export const stepGarrison = (gar: Garrison, g: Grid, target: Target, dt: number)
     }
 
     // ── What it sees of the mech ──
-    let exposed = target.visible ? sight(u, g, seen) : 0
+    let exposed = target.visible ? sight(u, g, seen, gar) : 0
     // A box checker (R26): a box that sits still in plain view, near, gets a long look, then a poke.
     if (gar.boxCheck && target.box === 'still' && exposed > 0 && !isLight(u) && u.state !== 'combat' && Math.hypot(target.x - u.x, target.z - u.z) < BOX_CHECK_M) {
       u.boxLook += dt
@@ -1487,7 +1660,7 @@ export const stepGarrison = (gar: Garrison, g: Grid, target: Target, dt: number)
       if (isLight(u)) {
         rate = (band * exposed * (target.crouched ? 0.7 : 1)) / (SPOT_NOTICE_S * (yellow ? 0.8 : 1.2))
       } else {
-        const v = viewerOf(u)
+        const v = viewerOf(u, gar.heightened)
         const off = Math.abs(angleDelta(v.yaw, headingTo(u.x, u.z, target.x, target.z))) / Math.max(0.01, v.halfAngle)
         rate = fillRate({ dist, range: SPECS[u.kind].range, exposed, crouched: target.crouched, off, shadow: !!target.shadow, yellow }, band)
       }
@@ -1501,6 +1674,7 @@ export const stepGarrison = (gar: Garrison, g: Grid, target: Target, dt: number)
       u.seenX = target.x
       u.seenZ = target.z
       gar.lkp.x = target.x
+      gar.lkp.y = target.y
       gar.lkp.z = target.z
       gar.lkp.t = gar.time
     } else {
@@ -1570,7 +1744,7 @@ export const stepGarrison = (gar: Garrison, g: Grid, target: Target, dt: number)
       let looking = false
       for (const c of gar.changes) {
         if (c.found || Math.hypot(c.x - u.x, c.z - u.z) > CHANGE_RANGE) continue
-        if (sight(u, g, { x: c.x, feetY: c.y, z: c.z, height: 0.8 }) <= 0) continue
+        if (sight(u, g, { x: c.x, feetY: c.y, z: c.z, height: 0.8 }, gar) <= 0) continue
         looking = true
         u.changeT += dt
         if (u.changeT >= CHANGE_NOTICE_S) {
@@ -1593,7 +1767,7 @@ export const stepGarrison = (gar: Garrison, g: Grid, target: Target, dt: number)
         // A body tucked into a container is not there to find.
         if (c.state !== 'dead' || c.found || c.hidden || isLight(c) || c.deadT < c.hold + 0.6) continue
         if (Math.hypot(c.x - u.x, c.z - u.z) > BODY_RANGE) continue
-        if (sight(u, g, { x: c.x, feetY: c.y, z: c.z, height: BODY_HEIGHT }) <= 0) continue
+        if (sight(u, g, { x: c.x, feetY: c.y, z: c.z, height: BODY_HEIGHT }, gar) <= 0) continue
         looking = true
         u.bodyT += dt
         if (u.bodyT >= BODY_NOTICE_S) {
@@ -1602,6 +1776,7 @@ export const stepGarrison = (gar: Garrison, g: Grid, target: Target, dt: number)
           u.detect = Math.max(u.detect, 0.6)
           gar.events.push({ type: 'body', id: u.id, corpse: c.id })
           suspect(gar, u, c.x, c.z, false)
+          bodyAlarm(gar, u, c)
           raise(gar, 'body', target)
           fillPost(gar, c)
         }
@@ -1620,17 +1795,22 @@ export const stepGarrison = (gar: Garrison, g: Grid, target: Target, dt: number)
         investigate(u, g, dt)
         break
       case 'search': {
-        // After a fight: a proper hunt round the last known position.
+        // After a fight: a proper hunt round the last known position. Round
+        // a body: a minute's search of the ground about it (#98).
         const hunt = u.fought && !u.lured && !isLight(u)
+        const body = u.bodySearch && !hunt && !isLight(u)
         if (hunt) huntAround(u, g, gar, dt)
+        else if (body) huntAround(u, g, gar, dt, true)
         else investigate(u, g, dt)
-        const limit = u.lured ? SCAN_LURED_S : hunt ? SEARCH_HOT_S : gar.alert.level > 0 ? HUNT_SCAN_S : SCAN_S
+        const limit = u.lured ? SCAN_LURED_S : hunt ? SEARCH_HOT_S : body ? BODY_SEARCH_S : gar.alert.level > 0 ? HUNT_SCAN_S : SCAN_S
+        if (body && u.focusT < 1) u.focusT = 1
         if (u.t > limit && !u.sees) {
           u.lured = false
+          u.bodySearch = false
           u.detect = Math.min(u.detect, SUSPECT_AT * 0.5)
           u.path = []
-          // A hunt that found nothing leaves it on its guard.
-          if (hunt) u.wary = true
+          // A hunt that found nothing leaves it on its guard; so does a heightened base.
+          if (hunt || gar.heightened) u.wary = true
           enter(u, 'patrol')
           gar.events.push({ type: 'calm', id: u.id })
         }
@@ -1748,8 +1928,13 @@ export const alarmUnit = (gar: Garrison, id: number, fromX: number, fromZ: numbe
   u.lured = false
   u.path = []
   u.repath = 0
+  u.focusT = Math.max(u.focusT, FOCUS_S)
   enter(u, 'combat')
   gar.events.push({ type: 'spotted', id })
+  // The base has somewhere to look now: a stale sighting must not win (#70).
+  gar.lkp.x = fromX
+  gar.lkp.z = fromZ
+  gar.lkp.t = gar.time
   const target: Target = { x: fromX, y: 0, z: fromZ, height: 0, crouched: false, visible: false }
   raise(gar, 'seen', target)
 }

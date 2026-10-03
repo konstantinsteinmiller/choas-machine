@@ -360,7 +360,7 @@ export class GarrisonView {
     }
     const spec = SPECS[u.kind]
     // As wide and as far as it sees right now: wary, chatting, focused (#69).
-    const view = viewerOf(u)
+    const view = viewerOf(u, this.gar.heightened)
     const g = this.grid
     const yaw = u.yaw + u.look
     const tint = u.state === 'patrol' && u.detect < SUSPECT_AT * 0.5 ? CALM : WARY

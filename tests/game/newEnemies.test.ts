@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest'
 import { FortressBuilder } from '@/game/world/fortress'
 import { cellMid } from '@/game/world/grid'
 import {
-  HOUND_NOSE, REPAIR_S, drainEvents, killUnit, makeGarrison, noteChange, sabotageBeacon, stepGarrison,
+  BODY_SEARCH_S, HOUND_NOSE, REPAIR_S, drainEvents, killUnit, makeGarrison, noteChange, sabotageBeacon, stepGarrison,
   type GarrisonEvent, type Target
 } from '@/game/sim/garrison'
 import { stepFire } from '@/game/sim/chaos'
@@ -118,7 +118,8 @@ describe('an empty post is filled', () => {
     const f = yard().guard([[10, 10]], 0).guard([[10, 16], [16, 16]]).build()
     const gar = makeGarrison(f, 1)
     killUnit(gar, 0, cellMid(10), cellMid(30), 'shot')
-    run(gar, f, at(cellMid(40), cellMid(40), { visible: false }), 40)
+    // It finds the body, searches the ground round it for a minute (#98), then takes the post.
+    run(gar, f, at(cellMid(40), cellMid(40), { visible: false }), 40 + BODY_SEARCH_S)
     const g = gar.units[1]!
     expect(g.route).toHaveLength(0)
     expect(Math.hypot(g.x - cellMid(10), g.z - cellMid(10))).toBeLessThan(1.5)
