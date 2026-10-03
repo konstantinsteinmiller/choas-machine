@@ -32,6 +32,7 @@ const selectTab = (value: string | number): void => {
       type="button"
       role="tab"
       :aria-selected="modelValue === tab.value"
+      :aria-label="tab.label"
       :class="{ 'is-active': modelValue === tab.value }"
       @click="selectTab(tab.value)"
     )
@@ -46,6 +47,12 @@ const selectTab = (value: string | number): void => {
   gap: clamp(0.2rem, 1vmin, 0.5rem)
   min-width: 0
   max-width: 100%
+  // A trough the tabs sit in, sunk into the title plate.
+  width: fit-content
+  padding: clamp(0.15rem, 0.7vmin, 0.3rem)
+  border-radius: calc(var(--cm-radius-m) + 0.2rem)
+  background: rgba(10, 5, 24, 0.55)
+  box-shadow: inset 0 0.12em 0.3em rgba(0, 0, 0, 0.5), 0 0.08em 0 rgba(255, 255, 255, 0.08)
   overflow-x: auto
   overflow-y: hidden
   scrollbar-width: none
@@ -66,8 +73,8 @@ const selectTab = (value: string | number): void => {
   min-height: 2.5rem
   padding: clamp(0.25rem, 1.2vmin, 0.5rem) clamp(0.6rem, 2.8vmin, 1.2rem)
   border: var(--cm-edge) solid transparent
-  border-radius: var(--cm-radius-s)
-  background: rgba(255, 255, 255, 0.06)
+  border-radius: var(--cm-radius-m)
+  background: transparent
   color: var(--cm-dim)
   font-size: var(--cm-fs-s)
   cursor: pointer
@@ -77,7 +84,7 @@ const selectTab = (value: string | number): void => {
 
   &:hover
     color: var(--cm-text)
-    background: rgba(255, 255, 255, 0.12)
+    background: rgba(255, 255, 255, 0.08)
 
   &:focus-visible
     outline: var(--cm-edge) solid var(--cm-text)
@@ -86,10 +93,13 @@ const selectTab = (value: string | number): void => {
   // The active tab lights up in place. It does not lift or grow: nothing a
   // scrolling row could clip, and no neighbour moves when it changes.
   &.is-active
-    border-color: var(--cm-cyan)
-    background: rgba(77, 232, 255, 0.16)
-    color: var(--cm-cyan-hi)
-    box-shadow: inset 0 0 0.8em rgba(77, 232, 255, 0.25)
+    border-color: var(--cm-cyan-hi)
+    background: var(--cm-gloss), linear-gradient(180deg, var(--cm-cyan-hi), var(--cm-cyan) 70%, #2bb8d8)
+    color: var(--cm-ink)
+    box-shadow: 0 0 0 var(--cm-outline) var(--cm-ink), 0 0 0.7em rgba(77, 232, 255, 0.45)
+
+    .f-tabs__label
+      text-shadow: 0 0.06em 0 rgba(255, 255, 255, 0.5)
 
 .f-tabs__label
   text-transform: uppercase
@@ -101,4 +111,13 @@ const selectTab = (value: string | number): void => {
   flex: 0 0 auto
   width: 1.2em
   height: 1.2em
+
+// A narrow screen: only the open tab says its name, the others are their
+// glyph (named for a screen reader by `aria-label`). Three long German labels
+// no longer push the last tab out of sight.
+@media (max-width: 560px)
+  .f-tabs__tab:not(.is-active):has(.f-tabs__icon)
+    padding-inline: clamp(0.5rem, 2.4vmin, 0.8rem)
+    .f-tabs__label
+      display: none
 </style>

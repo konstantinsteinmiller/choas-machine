@@ -197,11 +197,18 @@ const skip = (): void => {
   align-items: center
   gap: clamp(0.4rem, 2vmin, 0.9rem)
 .job-icon, .w-icon, .made
-  width: clamp(1.6rem, 6.5vmin, 2.4rem)
-  height: clamp(1.6rem, 6.5vmin, 2.4rem)
-  color: var(--cm-warn)
+  box-sizing: border-box
+  width: clamp(2rem, 8vmin, 2.9rem)
+  height: clamp(2rem, 8vmin, 2.9rem)
+  padding: 0.38em
+  border-radius: 50%
+  background: radial-gradient(circle at 35% 30%, rgba(255, 233, 143, 0.4), rgba(255, 177, 74, 0.14) 55%, rgba(21, 12, 43, 0.6))
+  box-shadow: 0 0 0 var(--cm-outline) var(--cm-ink), inset 0 0 0 var(--cm-edge) rgba(255, 177, 74, 0.75)
+  color: #ffe98f
 .w-icon
-  color: var(--cm-cyan)
+  background: radial-gradient(circle at 35% 30%, rgba(168, 245, 255, 0.35), rgba(77, 232, 255, 0.12) 55%, rgba(21, 12, 43, 0.6))
+  box-shadow: 0 0 0 var(--cm-outline) var(--cm-ink), inset 0 0 0 var(--cm-edge) rgba(77, 232, 255, 0.7)
+  color: var(--cm-cyan-hi)
 .job-name, .w-name
   color: var(--cm-text)
   font-size: var(--cm-fs-s)
@@ -334,8 +341,9 @@ const skip = (): void => {
   gap: clamp(0.4rem, 2vmin, 0.9rem)
   padding: clamp(0.35rem, 1.5vmin, 0.6rem) clamp(0.45rem, 2vmin, 0.8rem)
   border-radius: var(--cm-radius-m)
-  border: var(--cm-edge) solid rgba(154, 120, 255, 0.5)
-  background: rgba(21, 12, 43, 0.5)
+  border: var(--cm-edge) solid rgba(154, 120, 255, 0.6)
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0) 50%), rgba(21, 12, 43, 0.55)
+  box-shadow: 0 calc(var(--cm-outline) * 1.6) 0 rgba(10, 5, 24, 0.55)
 .w-body
   min-width: 0
   display: flex

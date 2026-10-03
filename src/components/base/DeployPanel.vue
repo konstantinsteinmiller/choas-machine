@@ -73,10 +73,10 @@ const deploy = (): void => { void startMission(flow.level) }
   gap: clamp(0.35rem, 1.6vmin, 0.7rem)
   padding: clamp(0.5rem, 2.2vmin, 1rem)
   box-sizing: border-box
-  border: var(--cm-edge) solid var(--cm-cyan)
+  border: var(--cm-rim-w) solid transparent
   border-radius: var(--cm-radius-l)
-  background: var(--cm-glass)
-  box-shadow: var(--cm-glow-cyan)
+  background: var(--cm-surface) padding-box, var(--cm-rim) border-box
+  box-shadow: var(--cm-sticker), var(--cm-glow-cyan), var(--cm-inner-glow)
 .label
   margin: 0
   color: var(--cm-dim)

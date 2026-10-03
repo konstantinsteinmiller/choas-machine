@@ -32,9 +32,10 @@ const fmt = (n: number): string => formatAmount(n, locale.value)
   min-height: clamp(1.7rem, 6.4vmin, 2.4rem)
   padding: 0 clamp(0.5rem, 2vmin, 0.85rem) 0 clamp(0.35rem, 1.4vmin, 0.55rem)
   box-sizing: border-box
-  border: var(--cm-edge) solid var(--cm-warn)
+  border: var(--cm-rim-w) solid var(--cm-warn)
   border-radius: 999px
-  background: var(--cm-glass)
+  background: var(--cm-gloss), var(--cm-surface)
+  box-shadow: var(--cm-sticker)
   color: var(--cm-warn)
   &.cores
     border-color: var(--cm-cyan)

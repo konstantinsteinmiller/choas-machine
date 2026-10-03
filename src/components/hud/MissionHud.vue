@@ -205,8 +205,9 @@ onUnmounted(() => window.clearTimeout(closeTimer))
   margin-top: 0.35em
   padding: 0.2em 0.7em
   border-radius: 999px
-  background: var(--cm-glass-soft)
-  border: var(--cm-edge) solid rgba(255, 177, 74, 0.7)
+  background: var(--cm-gloss), var(--cm-surface-soft)
+  border: var(--cm-rim-w) solid rgba(255, 177, 74, 0.85)
+  box-shadow: var(--cm-sticker)
   color: #ffd27a
   font-size: var(--cm-fs-s)
   text-shadow: var(--cm-text-outline)

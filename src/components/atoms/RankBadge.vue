@@ -120,9 +120,10 @@ const ariaLabel = computed(() =>
   align-items: baseline
   gap: 0.3em
   padding: clamp(0.15rem, 0.9vmin, 0.3rem) clamp(0.4rem, 2vmin, 0.7rem)
-  border: 2px solid rgba(255, 217, 60, 0.45)
+  border: var(--cm-rim-w) solid rgba(255, 217, 60, 0.7)
   border-radius: 999px
-  background-color: rgba(255, 217, 60, 0.1)
+  background: var(--cm-gloss), var(--cm-surface-soft)
+  box-shadow: var(--cm-sticker)
   color: #ffd93c
 
 .rank-badge__icon

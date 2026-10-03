@@ -105,7 +105,7 @@ const sizeVars = computed<Record<string, string>>(() => {
         '--fbtn-py': 'clamp(0.3rem, 1.2vmin, 0.5rem)',
         '--fbtn-min-w': 'clamp(3.5rem, 18vmin, 6rem)',
         '--fbtn-min-h': '2.5rem',
-        '--fbtn-radius': 'clamp(0.5rem, 2vmin, 0.85rem)'
+        '--fbtn-radius': 'clamp(0.7rem, 2.8vmin, 1.1rem)'
       }
     case 'lg':
       return {
@@ -114,7 +114,7 @@ const sizeVars = computed<Record<string, string>>(() => {
         '--fbtn-py': 'clamp(0.55rem, 2.2vmin, 0.95rem)',
         '--fbtn-min-w': 'clamp(6.5rem, 34vmin, 12rem)',
         '--fbtn-min-h': '3rem',
-        '--fbtn-radius': 'clamp(0.75rem, 3vmin, 1.35rem)'
+        '--fbtn-radius': 'clamp(1rem, 4vmin, 1.8rem)'
       }
     case 'xl':
       return {
@@ -123,7 +123,7 @@ const sizeVars = computed<Record<string, string>>(() => {
         '--fbtn-py': 'clamp(0.65rem, 2.6vmin, 1.15rem)',
         '--fbtn-min-w': 'clamp(8rem, 42vmin, 15rem)',
         '--fbtn-min-h': '3.25rem',
-        '--fbtn-radius': 'clamp(0.85rem, 3.4vmin, 1.6rem)'
+        '--fbtn-radius': 'clamp(1.15rem, 4.6vmin, 2.1rem)'
       }
     default:
       return {
@@ -132,7 +132,7 @@ const sizeVars = computed<Record<string, string>>(() => {
         '--fbtn-py': 'clamp(0.45rem, 1.8vmin, 0.75rem)',
         '--fbtn-min-w': 'clamp(5rem, 26vmin, 9rem)',
         '--fbtn-min-h': '2.75rem',
-        '--fbtn-radius': 'clamp(0.65rem, 2.6vmin, 1.1rem)'
+        '--fbtn-radius': 'clamp(0.85rem, 3.4vmin, 1.4rem)'
       }
   }
 })
@@ -279,9 +279,11 @@ const styleVars = computed(() => {
   position: absolute
   inset: 0
   font-size: var(--fbtn-font)
-  transform: translateY(0.22em)
+  transform: translateY(0.26em)
   border-radius: var(--fbtn-radius)
   background-color: var(--fbtn-shadow)
+  // The ink outline wraps the plate too, so key and plate read as one toy.
+  box-shadow: 0 0 0 var(--cm-outline) var(--cm-ink), 0 0.12em 0 var(--cm-outline) rgba(10, 5, 24, 0.6)
 
 .f-button__body
   position: relative
@@ -298,17 +300,46 @@ const styleVars = computed(() => {
   padding: var(--fbtn-py) var(--fbtn-px)
   border: var(--cm-edge) solid var(--fbtn-edge)
   border-radius: var(--fbtn-radius)
-  background-image: linear-gradient(to bottom, var(--fbtn-from), var(--fbtn-to))
-  box-shadow: var(--fbtn-glow)
+  background-image: linear-gradient(to bottom, var(--fbtn-from), var(--fbtn-to) 70%, color-mix(in srgb, var(--fbtn-to) 82%, var(--fbtn-shadow)))
+  box-shadow: var(--fbtn-glow), 0 0 0 var(--cm-outline) var(--cm-ink), inset 0 -0.14em 0 rgba(0, 0, 0, 0.14)
   overflow: hidden
   transition: transform 90ms ease-out
 
+// A glossy crown: a rounded highlight inset from the edges, and one small
+// sparkle at its left end. It is what makes the key look like candy.
 .f-button__shine
   position: absolute
-  inset-inline: 0
-  top: 0
-  height: 46%
-  background-image: linear-gradient(to bottom, rgba(255, 255, 255, 0.42), rgba(255, 255, 255, 0.08))
+  inset-inline: 7%
+  top: 7%
+  height: 40%
+  border-radius: var(--cm-radius-pill)
+  background-image: linear-gradient(to bottom, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0.06))
+  pointer-events: none
+
+  &::after
+    content: ''
+    position: absolute
+    left: 4%
+    top: 22%
+    width: 0.32em
+    height: 0.32em
+    border-radius: 50%
+    background: #fff
+    opacity: 0.85
+
+// The one action a screen is for catches the light now and then: a band of
+// light sweeps across it, then it rests.
+.is-primary .f-button__body::after, .attention-bounce .f-button__body::after
+  content: ''
+  position: absolute
+  top: -20%
+  bottom: -20%
+  left: 0
+  width: 28%
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.45), rgba(255, 255, 255, 0))
+  rotate: 18deg
+  translate: -160% 0
+  animation: fbtn-sheen 4.2s ease-in-out infinite
   pointer-events: none
 
 // Nested rather than written flat, and that is load-bearing: `GameIcon`'s own
@@ -358,7 +389,16 @@ const styleVars = computed(() => {
   to
     translate: 0 -0.3em
 
+@keyframes fbtn-sheen
+  0%, 62%
+    translate: -160% 0
+  86%, 100%
+    translate: 520% 0
+
 @media (prefers-reduced-motion: reduce)
   .attention-bounce
     animation: none
+  .is-primary .f-button__body::after, .attention-bounce .f-button__body::after
+    animation: none
+    display: none
 </style>

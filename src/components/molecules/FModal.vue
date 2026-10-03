@@ -137,11 +137,12 @@ onUnmounted(() => {
   width: 100%
   max-width: min(42rem, 100%)
   max-height: 100%
-  border: var(--cm-edge) solid var(--cm-cyan)
+  // A thick rim that runs cyan to pink round the corner, over an ink ground,
+  // with the panel's lit surface inside it.
+  border: var(--cm-rim-w) solid transparent
   border-radius: var(--cm-radius-l)
-  background: var(--cm-glass)
-  // The hologram: a cyan rim light outside, a faint pink wash inside.
-  box-shadow: var(--cm-glow-cyan), inset 0 0 2.5em rgba(255, 79, 182, 0.12)
+  background: radial-gradient(circle at 1px 1px, rgba(203, 188, 255, 0.07) 1px, transparent 1.4px) 0 0 / 1.1rem 1.1rem padding-box, var(--cm-surface) padding-box, var(--cm-rim) border-box
+  box-shadow: var(--cm-sticker), 0 0 1.6em rgba(77, 232, 255, 0.28), var(--cm-inner-glow)
   color: var(--cm-text)
   overflow: hidden
 
@@ -150,8 +151,22 @@ onUnmounted(() => {
     content: ''
     position: absolute
     inset: 0
-    background-image: repeating-linear-gradient(to bottom, rgba(255, 255, 255, 0.035) 0 1px, transparent 1px 4px)
+    background-image: repeating-linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 0 1px, transparent 1px 4px)
     pointer-events: none
+
+  // Targeting brackets in the four corners, breathing slowly: the panel is a
+  // projection that is alive, not a box.
+  &::after
+    --b: clamp(0.7rem, 2.6vmin, 1.2rem)
+    --t: clamp(2px, 0.5vmin, 3px)
+    content: ''
+    position: absolute
+    inset: clamp(0.25rem, 1vmin, 0.45rem)
+    border-radius: calc(var(--cm-radius-l) * 0.6)
+    background: linear-gradient(var(--cm-cyan-hi), var(--cm-cyan-hi)) top left / var(--b) var(--t) no-repeat, linear-gradient(var(--cm-cyan-hi), var(--cm-cyan-hi)) top left / var(--t) var(--b) no-repeat, linear-gradient(var(--cm-pink-hi), var(--cm-pink-hi)) top right / var(--b) var(--t) no-repeat, linear-gradient(var(--cm-pink-hi), var(--cm-pink-hi)) top right / var(--t) var(--b) no-repeat, linear-gradient(var(--cm-cyan-hi), var(--cm-cyan-hi)) bottom left / var(--b) var(--t) no-repeat, linear-gradient(var(--cm-cyan-hi), var(--cm-cyan-hi)) bottom left / var(--t) var(--b) no-repeat, linear-gradient(var(--cm-pink-hi), var(--cm-pink-hi)) bottom right / var(--b) var(--t) no-repeat, linear-gradient(var(--cm-pink-hi), var(--cm-pink-hi)) bottom right / var(--t) var(--b) no-repeat
+    opacity: 0.7
+    pointer-events: none
+    animation: f-modal-breathe 2.8s ease-in-out infinite alternate
 
 .f-modal__header
   position: relative
@@ -160,8 +175,19 @@ onUnmounted(() => {
   gap: clamp(0.4rem, 2vmin, 0.9rem)
   min-width: 0
   padding: clamp(0.4rem, 1.8vmin, 0.8rem) clamp(0.5rem, 2.4vmin, 1.1rem)
-  border-bottom: var(--cm-edge) solid rgba(77, 232, 255, 0.35)
-  background: linear-gradient(to right, rgba(255, 79, 182, 0.22), rgba(77, 232, 255, 0.1))
+  // A title plate: lit from above, hazard stripes fading in at the far end.
+  background: repeating-linear-gradient(-55deg, rgba(255, 79, 182, 0.16) 0 0.45em, transparent 0.45em 0.9em) right / 38% 100% no-repeat, linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0) 70%), linear-gradient(to right, rgba(255, 79, 182, 0.28), rgba(77, 232, 255, 0.12))
+
+  // Its lower edge is a glowing seam rather than a hairline.
+  &::after
+    content: ''
+    position: absolute
+    left: 0
+    right: 0
+    bottom: 0
+    height: var(--cm-edge)
+    background: linear-gradient(to right, transparent, var(--cm-cyan) 18%, var(--cm-pink) 82%, transparent)
+    box-shadow: 0 0 0.5em rgba(77, 232, 255, 0.6)
 
 .f-modal__tabs, .f-modal__title, .f-modal__spacer
   flex: 1 1 auto
@@ -171,6 +197,17 @@ onUnmounted(() => {
   margin: 0
   color: var(--cm-text)
   font-size: var(--cm-fs-l)
+  // A little sticker of a dot before the title, in the rim's colours.
+  &::before
+    content: ''
+    display: inline-block
+    width: 0.5em
+    height: 0.5em
+    margin-right: 0.45em
+    border-radius: 50%
+    vertical-align: 0.12em
+    background: radial-gradient(circle at 35% 35%, #fff, var(--cm-cyan) 45%, var(--cm-cyan-deep))
+    box-shadow: 0 0 0 0.08em var(--cm-ink), 0 0 0.5em var(--cm-cyan)
   font-weight: 400
   line-height: 1.15
   text-transform: uppercase
@@ -190,9 +227,11 @@ onUnmounted(() => {
   min-height: 2.5rem
   padding: 0
   border: var(--cm-edge) solid var(--cm-pink-hi)
-  border-radius: var(--cm-radius-s)
-  background: var(--cm-pink)
+  border-radius: var(--cm-radius-m)
+  background: var(--cm-gloss), linear-gradient(180deg, var(--cm-pink-hi), var(--cm-pink) 60%, var(--cm-pink-deep))
+  box-shadow: var(--cm-sticker)
   color: var(--cm-text)
+  filter: drop-shadow(0 0 0.4em rgba(255, 79, 182, 0.45))
   cursor: pointer
   -webkit-tap-highlight-color: transparent
   transition: filter 90ms ease-out
@@ -212,6 +251,7 @@ onUnmounted(() => {
   .f-modal__close-icon
     width: 46%
     height: 46%
+    filter: drop-shadow(0.05em 0.07em 0 var(--cm-ink))
 
 .f-modal__content
   position: relative
@@ -235,7 +275,8 @@ onUnmounted(() => {
   justify-content: center
   gap: clamp(0.4rem, 2vmin, 1rem)
   padding: clamp(0.4rem, 1.8vmin, 0.8rem) clamp(0.5rem, 2.4vmin, 1.1rem)
-  border-top: var(--cm-edge) solid rgba(77, 232, 255, 0.35)
+  border-top: var(--cm-edge) solid rgba(77, 232, 255, 0.25)
+  background: linear-gradient(0deg, rgba(10, 5, 24, 0.35), transparent)
 
 // The panel flickers on like a projection; it does not bounce.
 .f-modal-enter-active
@@ -262,9 +303,17 @@ onUnmounted(() => {
   .f-modal__panel
     transform: scaleY(0.86)
 
+@keyframes f-modal-breathe
+  from
+    opacity: 0.45
+  to
+    opacity: 0.95
+
 @media (prefers-reduced-motion: reduce)
   .f-modal-enter-active .f-modal__panel, .f-modal-leave-active .f-modal__panel
     transition: none
+  .f-modal__panel::after
+    animation: none
 
 // ─── Short viewports (landscape phone, embedded iframe) ─────────────────────
 // The panel may use the full width, and the header and footer tighten, so the

@@ -103,8 +103,8 @@ const resolvedAriaLabel = computed<string | undefined>(
   -webkit-tap-highlight-color: transparent
 
   &:hover:not(.is-disabled) .f-hud-button__body
-    background: var(--cm-panel-hi)
-    box-shadow: var(--fhb-glow)
+    background: var(--cm-gloss), var(--cm-panel-hi)
+    box-shadow: var(--cm-sticker), var(--fhb-glow)
 
   &:active:not(.is-disabled) .f-hud-button__body
     translate: 0 0.12rem
@@ -127,9 +127,10 @@ const resolvedAriaLabel = computed<string | undefined>(
   width: 100%
   height: 100%
   box-sizing: border-box
-  border: var(--cm-edge) solid var(--fhb-tone)
+  border: var(--cm-rim-w) solid var(--fhb-tone)
   border-radius: var(--cm-radius-m)
-  background: var(--cm-glass-soft)
+  background: var(--cm-gloss), var(--cm-surface-soft)
+  box-shadow: var(--cm-sticker), inset 0 0 0.8em color-mix(in srgb, var(--fhb-tone) 22%, transparent)
   color: var(--fhb-tone-hi)
   transition: background-color 110ms ease-out, box-shadow 110ms ease-out
 
@@ -138,6 +139,7 @@ const resolvedAriaLabel = computed<string | undefined>(
   .f-hud-button__glyph
     width: 56%
     height: 56%
+    filter: drop-shadow(0.05em 0.07em 0 var(--cm-ink))
 
   // Both element types, deliberately: a slotted <img> that is not sized here
   // renders at its natural size and bursts out of the chip.
@@ -148,9 +150,9 @@ const resolvedAriaLabel = computed<string | undefined>(
 
 // Switched on: the chip fills with its tone and the glyph goes dark on it.
 .is-active .f-hud-button__body
-  background: var(--fhb-tone)
+  background: var(--cm-gloss), linear-gradient(180deg, var(--fhb-tone-hi), var(--fhb-tone))
   color: var(--cm-ink)
-  box-shadow: var(--fhb-glow)
+  box-shadow: var(--cm-sticker), var(--fhb-glow)
 
 .f-hud-button__badge
   position: absolute

@@ -33,9 +33,10 @@ const { t } = useI18n()
   min-height: clamp(1.6rem, 6vmin, 2.2rem)
   padding: clamp(0.2rem, 0.9vmin, 0.35rem) clamp(0.45rem, 1.8vmin, 0.7rem)
   box-sizing: border-box
-  border: var(--cm-edge) solid rgba(77, 232, 255, 0.55)
+  border: var(--cm-rim-w) solid rgba(77, 232, 255, 0.7)
   border-radius: var(--cm-radius-pill, 999px)
-  background: var(--cm-glass)
+  background: var(--cm-gloss), var(--cm-surface-soft)
+  box-shadow: var(--cm-sticker)
   color: var(--cm-cyan)
   transition: border-color 200ms ease-out, color 200ms ease-out, opacity 300ms ease-out
   &.quiet
@@ -47,7 +48,7 @@ const { t } = useI18n()
   &.chaos
     border-color: var(--cm-danger)
     color: var(--cm-danger)
-    box-shadow: 0 0 0.9rem rgba(255, 59, 92, 0.6)
+    box-shadow: var(--cm-sticker), 0 0 0.9rem rgba(255, 59, 92, 0.6)
 .eye
   flex: none
   width: clamp(1rem, 4.2vmin, 1.5rem)

@@ -50,9 +50,10 @@ onUnmounted(() => off?.())
   min-height: clamp(1.5rem, 5.5vmin, 2rem)
   padding: clamp(0.18rem, 0.8vmin, 0.3rem) clamp(0.45rem, 1.8vmin, 0.7rem)
   box-sizing: border-box
-  border: var(--cm-edge) solid rgba(154, 120, 255, 0.7)
+  border: var(--cm-rim-w) solid rgba(154, 120, 255, 0.85)
   border-radius: 999px
-  background: var(--cm-glass-soft)
+  background: var(--cm-gloss), var(--cm-surface-soft)
+  box-shadow: var(--cm-sticker)
   color: var(--cm-lilac)
   &.low
     border-color: var(--cm-danger)

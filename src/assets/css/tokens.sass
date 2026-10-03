@@ -63,3 +63,18 @@
 
   // One HUD control: never under the 40 px touch floor.
   --cm-chip: clamp(2.5rem, 9.5vmin, 3.5rem)
+
+  // ─── The material: stickers on glass, not wireframes ──────────────────────
+  // Every control and capsule wears a dark ink outline with a little drop
+  // under it, a glossy crown, and a surface lit from above: chunky and toy-
+  // like, still holographic. Changed here, it changes everywhere.
+  --cm-outline: clamp(1.5px, 0.42vmin, 3px)
+  --cm-rim-w: clamp(2px, 0.55vmin, 4px)
+  --cm-sticker: 0 0 0 var(--cm-outline) var(--cm-ink), 0 calc(var(--cm-outline) * 2.4) 0 var(--cm-outline) rgba(10, 5, 24, 0.7)
+  --cm-gloss: linear-gradient(180deg, rgba(255, 255, 255, 0.26) 0%, rgba(255, 255, 255, 0.07) 44%, rgba(255, 255, 255, 0) 54%)
+  --cm-surface: linear-gradient(180deg, #45307f 0%, #2a1a5e 55%, #1f1246 100%)
+  --cm-surface-soft: linear-gradient(180deg, rgba(69, 48, 127, 0.86) 0%, rgba(36, 22, 80, 0.82) 60%, rgba(27, 16, 60, 0.82) 100%)
+  // A panel's rim runs cyan to violet to pink, corner to corner.
+  --cm-rim: linear-gradient(135deg, var(--cm-cyan-hi) 0%, var(--cm-cyan) 22%, var(--cm-violet) 55%, var(--cm-pink) 100%)
+  --cm-inner-glow: inset 0 0 1.4em rgba(77, 232, 255, 0.14), inset 0 0.14em 0 rgba(255, 255, 255, 0.16)
+  --cm-radius-pill: 999px

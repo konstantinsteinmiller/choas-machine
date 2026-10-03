@@ -47,9 +47,10 @@ onUnmounted(() => off?.())
   min-height: clamp(1.5rem, 5.5vmin, 2rem)
   padding: clamp(0.18rem, 0.8vmin, 0.3rem) clamp(0.45rem, 1.8vmin, 0.7rem)
   box-sizing: border-box
-  border: var(--cm-edge) solid rgba(77, 232, 255, 0.5)
+  border: var(--cm-rim-w) solid rgba(77, 232, 255, 0.7)
   border-radius: 999px
-  background: var(--cm-glass-soft)
+  background: var(--cm-gloss), var(--cm-surface-soft)
+  box-shadow: var(--cm-sticker)
   color: var(--cm-cyan)
   &.w-minigun
     border-color: rgba(255, 210, 63, 0.6)
