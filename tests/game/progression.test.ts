@@ -47,16 +47,29 @@ describe('upgrade tracks', () => {
       expect(TRACKS[id].icon).toBeTruthy()
       if (TRACKS[id].station === 'armory') expect(WEAPON_IDS).toContain(TRACKS[id].weapon)
     }
-    // GDD 3.2: three sniper tracks, two each for the minigun and the launcher, three for the chassis.
+    // GDD 3.2: three sniper tracks, two each for the minigun and the launcher; the chassis has four (R21: the hook).
     const count = (w: string): number => TRACK_IDS.filter(id => TRACKS[id].weapon === w).length
     expect([count('sniper'), count('minigun'), count('rocket')]).toEqual([3, 2, 2])
-    expect(TRACK_IDS.filter(id => TRACKS[id].station === 'chassis')).toHaveLength(3)
+    expect(TRACK_IDS.filter(id => TRACKS[id].station === 'chassis')).toHaveLength(4)
   })
 
   it('each level costs more than the last, and the top costs nothing more', () => {
     for (let l = 1; l < TRACK_MAX; l++) expect(trackCost(l)).toBeGreaterThan(trackCost(l - 1))
     expect(trackCost(TRACK_MAX)).toBe(0)
     expect(trackTotalCost()).toBe([0, 1, 2, 3, 4].reduce((n, l) => n + trackCost(l), 0))
+  })
+
+  it('the first level of any track is cheap: the first raid buys something', () => {
+    expect(trackCost(0)).toBe(30)
+  })
+
+  it('the first level of servo speed quiets the sprint; the first of the decoy track packs one more', () => {
+    const bare = loadoutOf({ tiers: tiers1(), upgrades: {} })
+    const fast = loadoutOf({ tiers: tiers1(), upgrades: { speed: 1 } })
+    const lure = loadoutOf({ tiers: tiers1(), upgrades: { decoy: 1 } })
+    expect(fast.sprintEarshot).toBeLessThan(bare.sprintEarshot * 0.7)
+    expect(lure.decoys).toBe(bare.decoys + 1)
+    expect(loadoutOf({ tiers: tiers1(), upgrades: { speed: 5 } }).sprintEarshot).toBeGreaterThan(2)
   })
 
   it('a bare mech plays with the factory numbers', () => {
@@ -74,7 +87,8 @@ describe('upgrade tracks', () => {
       rocketAmmo: (a, b) => b.rockets > a.rockets,
       armor: (a, b) => b.armor > a.armor,
       speed: (a, b) => b.speed > a.speed,
-      decoy: (a, b) => b.decoySeconds > a.decoySeconds
+      decoy: (a, b) => b.decoySeconds > a.decoySeconds,
+      hook: (a, b) => b.hookReach > a.hookReach && b.hookMax > a.hookMax
     }
     for (const id of TRACK_IDS) {
       let prev = loadoutOf({ tiers: tiers1(), upgrades: {} })

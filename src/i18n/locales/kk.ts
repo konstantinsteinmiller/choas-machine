@@ -56,6 +56,7 @@ export default {
   'defeat': {
     'title': 'Мех құлады',
     'retry': 'Қайта көру',
+    'resume': 'From the first pile',
     'kept': 'Құтқарылған тех-сынықтар'
   },
   'base': {
@@ -80,7 +81,12 @@ export default {
     'rocketAmmo': 'Зымырандар',
     'armor': 'Сауыт тақталары',
     'speed': 'Серво жылдамдығы',
-    'decoy': 'Жалғандың ұзақтығы'
+    'decoy': 'Жалғандың ұзақтығы',
+    'hook': 'Hook reach'
+  },
+  'trackVerb': {
+    'speed': 'Level 1: a quieter sprint',
+    'decoy': 'Level 1: one more decoy'
   },
   'workshop': {
     'max': 'Максимум',

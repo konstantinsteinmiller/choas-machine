@@ -56,6 +56,7 @@ export default {
   'defeat': {
     'title': 'เม็คล้มแล้ว',
     'retry': 'ลองอีกครั้ง',
+    'resume': 'From the first pile',
     'kept': 'เศษเทคที่กู้ได้'
   },
   'base': {
@@ -80,7 +81,12 @@ export default {
     'rocketAmmo': 'จรวด',
     'armor': 'แผ่นเกราะ',
     'speed': 'ความเร็วเซอร์โว',
-    'decoy': 'ระยะเวลาตัวล่อ'
+    'decoy': 'ระยะเวลาตัวล่อ',
+    'hook': 'Hook reach'
+  },
+  'trackVerb': {
+    'speed': 'Level 1: a quieter sprint',
+    'decoy': 'Level 1: one more decoy'
   },
   'workshop': {
     'max': 'สูงสุด',

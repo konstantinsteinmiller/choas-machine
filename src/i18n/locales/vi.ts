@@ -56,6 +56,7 @@ export default {
   'defeat': {
     'title': 'Mech gục ngã',
     'retry': 'Thử lại',
+    'resume': 'From the first pile',
     'kept': 'Phế liệu công nghệ thu hồi'
   },
   'base': {
@@ -80,7 +81,12 @@ export default {
     'rocketAmmo': 'Tên lửa',
     'armor': 'Giáp tấm',
     'speed': 'Tốc độ servo',
-    'decoy': 'Thời gian mồi nhử'
+    'decoy': 'Thời gian mồi nhử',
+    'hook': 'Hook reach'
+  },
+  'trackVerb': {
+    'speed': 'Level 1: a quieter sprint',
+    'decoy': 'Level 1: one more decoy'
   },
   'workshop': {
     'max': 'Tối đa',

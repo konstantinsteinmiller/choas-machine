@@ -56,6 +56,7 @@ export default {
   'defeat': {
     'title': '메카 파괴',
     'retry': '다시 도전',
+    'resume': 'From the first pile',
     'kept': '회수한 테크 스크랩'
   },
   'base': {
@@ -80,7 +81,12 @@ export default {
     'rocketAmmo': '로켓',
     'armor': '장갑판',
     'speed': '서보 속도',
-    'decoy': '디코이 지속시간'
+    'decoy': '디코이 지속시간',
+    'hook': 'Hook reach'
+  },
+  'trackVerb': {
+    'speed': 'Level 1: a quieter sprint',
+    'decoy': 'Level 1: one more decoy'
   },
   'workshop': {
     'max': '최대',

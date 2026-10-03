@@ -56,6 +56,7 @@ export default {
   'defeat': {
     'title': 'Mech je pao',
     'retry': 'Pokušaj ponovno',
+    'resume': 'From the first pile',
     'kept': 'Spašeni tehno-otpad'
   },
   'base': {
@@ -80,7 +81,12 @@ export default {
     'rocketAmmo': 'Rakete',
     'armor': 'Oklop',
     'speed': 'Brzina servo motora',
-    'decoy': 'Trajanje mamca'
+    'decoy': 'Trajanje mamca',
+    'hook': 'Hook reach'
+  },
+  'trackVerb': {
+    'speed': 'Level 1: a quieter sprint',
+    'decoy': 'Level 1: one more decoy'
   },
   'workshop': {
     'max': 'Maks.',

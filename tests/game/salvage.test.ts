@@ -69,9 +69,9 @@ describe('the haul pays', () => {
     expect(p.scrap).toBeLessThan(baseScrap(1) * 2 + 80)
   })
 
-  it('a defeat keeps a share of what was carried, and is never for nothing', () => {
+  it('a defeat keeps every stripped pile whole, and is never for nothing', () => {
     const none = defeatScrap(run({ salvage: 0 }), 1)
     expect(none).toBeGreaterThan(0)
-    expect(defeatScrap(run({ salvage: 100 }), 1) - none).toBe(Math.round(100 * 0.3))
+    expect(defeatScrap(run({ salvage: 100 }), 1) - none).toBe(100)
   })
 })

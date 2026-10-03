@@ -56,6 +56,7 @@ export default {
   'defeat': {
     'title': 'Mech fuera de combate',
     'retry': 'Reintentar',
+    'resume': 'From the first pile',
     'kept': 'Chatarra tech rescatada'
   },
   'base': {
@@ -80,7 +81,12 @@ export default {
     'rocketAmmo': 'Cohetes',
     'armor': 'Blindaje',
     'speed': 'Velocidad de servos',
-    'decoy': 'Duración del señuelo'
+    'decoy': 'Duración del señuelo',
+    'hook': 'Hook reach'
+  },
+  'trackVerb': {
+    'speed': 'Level 1: a quieter sprint',
+    'decoy': 'Level 1: one more decoy'
   },
   'workshop': {
     'max': 'Máx.',

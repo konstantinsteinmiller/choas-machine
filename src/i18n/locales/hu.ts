@@ -56,6 +56,7 @@ export default {
   'defeat': {
     'title': 'A mech kiesett',
     'retry': 'Próbáld újra',
+    'resume': 'From the first pile',
     'kept': 'Megmentett techhulladék'
   },
   'base': {
@@ -80,7 +81,12 @@ export default {
     'rocketAmmo': 'Rakéták',
     'armor': 'Páncélzat',
     'speed': 'Szervósebesség',
-    'decoy': 'Csalétek időtartama'
+    'decoy': 'Csalétek időtartama',
+    'hook': 'Hook reach'
+  },
+  'trackVerb': {
+    'speed': 'Level 1: a quieter sprint',
+    'decoy': 'Level 1: one more decoy'
   },
   'workshop': {
     'max': 'Max',

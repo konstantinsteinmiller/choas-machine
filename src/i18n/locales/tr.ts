@@ -56,6 +56,7 @@ export default {
   'defeat': {
     'title': 'Mech yenildi',
     'retry': 'Tekrar dene',
+    'resume': 'From the first pile',
     'kept': 'Kurtarılan Teknik Hurda'
   },
   'base': {
@@ -80,7 +81,12 @@ export default {
     'rocketAmmo': 'Roketler',
     'armor': 'Zırh plakaları',
     'speed': 'Servo hızı',
-    'decoy': 'Tuzak süresi'
+    'decoy': 'Tuzak süresi',
+    'hook': 'Hook reach'
+  },
+  'trackVerb': {
+    'speed': 'Level 1: a quieter sprint',
+    'decoy': 'Level 1: one more decoy'
   },
   'workshop': {
     'max': 'Maks',

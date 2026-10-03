@@ -56,6 +56,7 @@ export default {
   'defeat': {
     'title': 'Mech außer Gefecht',
     'retry': 'Nochmal versuchen',
+    'resume': 'From the first pile',
     'kept': 'Geretteter Techschrott'
   },
   'base': {
@@ -80,7 +81,12 @@ export default {
     'rocketAmmo': 'Raketen',
     'armor': 'Panzerung',
     'speed': 'Servotempo',
-    'decoy': 'Köderdauer'
+    'decoy': 'Köderdauer',
+    'hook': 'Hook reach'
+  },
+  'trackVerb': {
+    'speed': 'Level 1: a quieter sprint',
+    'decoy': 'Level 1: one more decoy'
   },
   'workshop': {
     'max': 'Max',

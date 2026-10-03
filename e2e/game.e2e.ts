@@ -1,4 +1,5 @@
 import { afterAll, afterEach, describe, expect, it } from 'vitest'
+import { FIRST_LEVEL_COST } from '../src/game/data/upgrades'
 import {
   RETURNING_SAVE, aimAtHead, closeBrowser, firstUnit, layout, openGame, snapshot, teleport, waitBooted, waitPlaying,
   type Game
@@ -222,7 +223,7 @@ describe('the loop, and the save', () => {
     await g.page.click('[data-testid="buy-sniperZoom"]', { force: true })
     await g.page.waitForFunction(() => window.__game.profile.forge?.track === 'sniperZoom')
     const bought = await snapshot(g)
-    expect(bought.scrap).toBe(won.scrap - 60)
+    expect(bought.scrap).toBe(won.scrap - FIRST_LEVEL_COST)
     expect(bought.upgrades.sniperZoom ?? 0).toBe(0)
 
     // It is made in the smithy: the furnace, the anvil, the quench, with the

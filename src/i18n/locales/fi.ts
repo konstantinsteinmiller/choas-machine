@@ -56,6 +56,7 @@ export default {
   'defeat': {
     'title': 'Mecha kaatui',
     'retry': 'Yritä uudelleen',
+    'resume': 'From the first pile',
     'kept': 'Pelastettu teknoromu'
   },
   'base': {
@@ -80,7 +81,12 @@ export default {
     'rocketAmmo': 'Raketit',
     'armor': 'Panssarointi',
     'speed': 'Servojen nopeus',
-    'decoy': 'Houkuttimen kesto'
+    'decoy': 'Houkuttimen kesto',
+    'hook': 'Hook reach'
+  },
+  'trackVerb': {
+    'speed': 'Level 1: a quieter sprint',
+    'decoy': 'Level 1: one more decoy'
   },
   'workshop': {
     'max': 'Maks.',

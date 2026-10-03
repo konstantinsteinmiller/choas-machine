@@ -11,6 +11,8 @@
     template(#footer)
       div.actions
         FButton(type="ghost" size="md" icon="home" icon-position="left" data-testid="btn-defeat-base" @click="toBase") {{ t('rewards.continue') }}
+        //- From the first stripped pile, with what was stripped still stripped.
+        FButton(v-if="flow.checkpoint" type="secondary" size="md" icon="scrap" icon-position="left" data-testid="btn-resume-pile" @click="resume") {{ t('defeat.resume') }}
         FButton(size="lg" icon="replay" data-testid="btn-retry" @click="retry") {{ t('defeat.retry') }}
 </template>
 
@@ -29,6 +31,7 @@ import { formatAmount } from '@/utils/formatAmount'
 const { t, locale } = useI18n()
 const fmt = (n: number): string => formatAmount(n, locale.value)
 const retry = (): void => { void leaveResults('retry') }
+const resume = (): void => { void leaveResults('resume') }
 const toBase = (): void => { void leaveResults('base') }
 </script>
 

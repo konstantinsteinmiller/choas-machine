@@ -56,6 +56,7 @@ export default {
   'defeat': {
     'title': 'Mechas žlugo',
     'retry': 'Bandyti dar kartą',
+    'resume': 'From the first pile',
     'kept': 'Išgelbėtas technikos laužas'
   },
   'base': {
@@ -80,7 +81,12 @@ export default {
     'rocketAmmo': 'Raketos',
     'armor': 'Šarvų plokštės',
     'speed': 'Servo greitis',
-    'decoy': 'Kvailio trukmė'
+    'decoy': 'Kvailio trukmė',
+    'hook': 'Hook reach'
+  },
+  'trackVerb': {
+    'speed': 'Level 1: a quieter sprint',
+    'decoy': 'Level 1: one more decoy'
   },
   'workshop': {
     'max': 'Maks.',

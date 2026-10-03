@@ -56,6 +56,7 @@ export default {
   'defeat': {
     'title': 'Mech padł',
     'retry': 'Spróbuj ponownie',
+    'resume': 'From the first pile',
     'kept': 'Odzyskany złom techniczny'
   },
   'base': {
@@ -80,7 +81,12 @@ export default {
     'rocketAmmo': 'Rakiety',
     'armor': 'Płyty pancerne',
     'speed': 'Prędkość serw',
-    'decoy': 'Czas wabika'
+    'decoy': 'Czas wabika',
+    'hook': 'Hook reach'
+  },
+  'trackVerb': {
+    'speed': 'Level 1: a quieter sprint',
+    'decoy': 'Level 1: one more decoy'
   },
   'workshop': {
     'max': 'Maks.',

@@ -56,6 +56,7 @@ export default {
   'defeat': {
     'title': 'Mech je venku',
     'retry': 'Zkusit znovu',
+    'resume': 'From the first pile',
     'kept': 'Zachráněný techno šrot'
   },
   'base': {
@@ -80,7 +81,12 @@ export default {
     'rocketAmmo': 'Rakety',
     'armor': 'Pancíř',
     'speed': 'Rychlost serv',
-    'decoy': 'Trvání návnady'
+    'decoy': 'Trvání návnady',
+    'hook': 'Hook reach'
+  },
+  'trackVerb': {
+    'speed': 'Level 1: a quieter sprint',
+    'decoy': 'Level 1: one more decoy'
   },
   'workshop': {
     'max': 'Max',

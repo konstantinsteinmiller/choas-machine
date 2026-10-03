@@ -12,7 +12,7 @@ import type { GameIconName } from '@/components/icons/iconNames'
 
 export const TRACK_IDS = [
   'sniperZoom', 'sniperDamage', 'sniperSilence', 'minigunCooling', 'minigunDamage', 'rocketBlast', 'rocketAmmo',
-  'armor', 'speed', 'decoy'
+  'armor', 'speed', 'decoy', 'hook'
 ] as const
 export type TrackId = (typeof TRACK_IDS)[number]
 export type Station = 'armory' | 'chassis'
@@ -35,16 +35,26 @@ export const TRACKS: Readonly<Record<TrackId, Track>> = {
   rocketAmmo: { id: 'rocketAmmo', station: 'armory', icon: 'plus', weapon: 'rocket' },
   armor: { id: 'armor', station: 'chassis', icon: 'armor' },
   speed: { id: 'speed', station: 'chassis', icon: 'mech' },
-  decoy: { id: 'decoy', station: 'chassis', icon: 'decoy' }
+  decoy: { id: 'decoy', station: 'chassis', icon: 'decoy' },
+  hook: { id: 'hook', station: 'chassis', icon: 'hook' }
 }
+
+/**
+ * Tracks whose first level brings a new verb, not just a bigger number: the
+ * Base says so on the row until it is bought.
+ */
+export const VERB_TRACKS: readonly TrackId[] = ['speed', 'decoy']
 
 export const TRACK_MAX = 5
 const TRACK_BASE_COST = 60
 const TRACK_COST_GROWTH = 1.6
 
+/** The first level of any track: cheap, so the first raid buys something. */
+export const FIRST_LEVEL_COST = 30
+
 /** Tech Scrap for the next level of a track that stands at `level`; 0 at the top. */
 export const trackCost = (level: number): number =>
-  level >= TRACK_MAX ? 0 : Math.round((TRACK_BASE_COST * Math.pow(TRACK_COST_GROWTH, level)) / 5) * 5
+  level >= TRACK_MAX ? 0 : level === 0 ? FIRST_LEVEL_COST : Math.round((TRACK_BASE_COST * Math.pow(TRACK_COST_GROWTH, level)) / 5) * 5
 
 /** Everything a track costs from nothing to its top. */
 export const trackTotalCost = (): number => {
@@ -83,6 +93,13 @@ export interface Loadout {
   armor: number
   speed: number
   decoySeconds: number
+  /** Decoys the mech carries into a raid. */
+  decoys: number
+  /** How far a sprint is heard, metres. */
+  sprintEarshot: number
+  /** How far ahead a wall may be for the hook, and how high it reaches. */
+  hookReach: number
+  hookMax: number
 }
 
 /** The mech as it leaves the factory. */
@@ -96,7 +113,11 @@ export const BASE_LOADOUT: Readonly<Loadout> = {
   rockets: 6,
   armor: 100,
   speed: 1,
-  decoySeconds: 9
+  decoySeconds: 9,
+  decoys: 3,
+  sprintEarshot: 9,
+  hookReach: 3.2,
+  hookMax: 9.5
 }
 
 export interface LoadoutSource {
@@ -123,7 +144,13 @@ export const loadoutOf = (src: LoadoutSource): Loadout => {
     rockets: BASE_LOADOUT.rockets + level(src, 'rocketAmmo'),
     armor: BASE_LOADOUT.armor + 20 * level(src, 'armor'),
     speed: BASE_LOADOUT.speed + 0.04 * level(src, 'speed'),
-    decoySeconds: BASE_LOADOUT.decoySeconds + 2 * level(src, 'decoy')
+    decoySeconds: BASE_LOADOUT.decoySeconds + 2 * level(src, 'decoy'),
+    // The verbs: the first level of servo speed quiets the sprint, the first
+    // of the decoy track packs one more.
+    decoys: BASE_LOADOUT.decoys + (level(src, 'decoy') >= 1 ? 1 : 0),
+    sprintEarshot: level(src, 'speed') >= 1 ? BASE_LOADOUT.sprintEarshot * 0.6 - 0.3 * (level(src, 'speed') - 1) : BASE_LOADOUT.sprintEarshot,
+    hookReach: BASE_LOADOUT.hookReach + 0.6 * level(src, 'hook'),
+    hookMax: BASE_LOADOUT.hookMax + 1.2 * level(src, 'hook')
   }
 }
 
@@ -144,5 +171,6 @@ export const trackValue = (id: TrackId, lvl: number): number => {
     case 'armor': return l.armor
     case 'speed': return Math.round(l.speed * 100)
     case 'decoy': return l.decoySeconds
+    case 'hook': return Math.round(l.hookMax * 10) / 10
   }
 }

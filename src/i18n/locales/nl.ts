@@ -56,6 +56,7 @@ export default {
   'defeat': {
     'title': 'Mech neergehaald',
     'retry': 'Opnieuw proberen',
+    'resume': 'From the first pile',
     'kept': 'Gered techschroot'
   },
   'base': {
@@ -80,7 +81,12 @@ export default {
     'rocketAmmo': 'Raketten',
     'armor': 'Pantserplaten',
     'speed': 'Servosnelheid',
-    'decoy': 'Duur van lokvogel'
+    'decoy': 'Duur van lokvogel',
+    'hook': 'Hook reach'
+  },
+  'trackVerb': {
+    'speed': 'Level 1: a quieter sprint',
+    'decoy': 'Level 1: one more decoy'
   },
   'workshop': {
     'max': 'Max',

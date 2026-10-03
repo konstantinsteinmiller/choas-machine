@@ -56,12 +56,12 @@ export interface GrappleSpot {
  * for the line. Null when the way is clear, the obstacle is low, or it is a
  * cliff with nothing to stand on at the top.
  */
-export const findGrapple = (g: Grid, x: number, y: number, z: number, yaw: number): GrappleSpot | null => {
+export const findGrapple = (g: Grid, x: number, y: number, z: number, yaw: number, reach = GRAPPLE_REACH, max = GRAPPLE_MAX): GrappleSpot | null => {
   const dx = Math.sin(yaw)
   const dz = Math.cos(yaw)
   let pcx = toCell(x)
   let pcz = toCell(z)
-  for (let d = 0.3; d <= GRAPPLE_REACH; d += 0.15) {
+  for (let d = 0.3; d <= reach; d += 0.15) {
     const cx = toCell(x + dx * d)
     const cz = toCell(z + dz * d)
     if (cx === pcx && cz === pcz) continue
@@ -72,7 +72,7 @@ export const findGrapple = (g: Grid, x: number, y: number, z: number, yaw: numbe
     if (rise <= STEP_UP) { pcx = cx; pcz = cz; continue }
     // Something low: that is the mantle's, not the hook's.
     if (rise <= MANTLE_MAX) return null
-    if (rise > GRAPPLE_MAX) return null
+    if (rise > max) return null
     if (cellKind(g, cx, cz) === CellKind.Cover) return null
     // The face it came through: the neighbour it stepped from.
     let nx = pcx - cx

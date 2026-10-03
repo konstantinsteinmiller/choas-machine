@@ -56,6 +56,7 @@ export default {
   'defeat': {
     'title': 'Мех упав',
     'retry': 'Спробувати ще',
+    'resume': 'From the first pile',
     'kept': 'Врятований техломіт'
   },
   'base': {
@@ -80,7 +81,12 @@ export default {
     'rocketAmmo': 'Ракети',
     'armor': 'Бронеплити',
     'speed': 'Швидкість серв',
-    'decoy': 'Тривалість принади'
+    'decoy': 'Тривалість принади',
+    'hook': 'Hook reach'
+  },
+  'trackVerb': {
+    'speed': 'Level 1: a quieter sprint',
+    'decoy': 'Level 1: one more decoy'
   },
   'workshop': {
     'max': 'Макс.',

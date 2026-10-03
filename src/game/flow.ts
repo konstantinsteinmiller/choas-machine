@@ -39,8 +39,25 @@ export const flow = reactive({
   /** The run the rewards or defeat screen is about. */
   run: null as MissionResult | null,
   /** Tech Scrap kept from the last defeat. */
-  kept: 0
+  kept: 0,
+  /** Where a downed raid can pick up again: beside the first pile it
+   *  stripped, with the piles it had stripped still stripped. */
+  checkpoint: null as Checkpoint | null,
+  /** The next mission starts straight on the perch (a retry): no drop-in. */
+  quick: false,
+  /** The next mission resumes from `checkpoint`. */
+  resume: false
 })
+
+export interface Checkpoint {
+  level: number
+  x: number
+  y: number
+  z: number
+  yaw: number
+  /** The piles stripped by the time the mech went down. */
+  piles: number[]
+}
 
 type Progress = (p01: number) => void
 type ModeFactory = (onProgress: Progress) => Promise<GameMode>
@@ -122,8 +139,9 @@ export const finishMission = (run: MissionResult): void => {
 
 /** The mech is down: bank the share that survives it. The mission opens the
  *  defeat screen itself, a beat later. */
-export const failMission = (run: MissionResult): void => {
+export const failMission = (run: MissionResult, checkpoint: Checkpoint | null = null): void => {
   flow.run = { ...run }
+  flow.checkpoint = checkpoint
   flow.kept = bankDefeat(run, flow.level)
 }
 
@@ -154,7 +172,7 @@ let leaving = false
  * pacing clock (`canShowInterstitial`) decides whether an ad actually runs.
  * There are no rewarded placements in this game.
  */
-export const leaveResults = async (next: 'base' | 'retry'): Promise<void> => {
+export const leaveResults = async (next: 'base' | 'retry' | 'resume'): Promise<void> => {
   if (leaving) return
   leaving = true
   flow.modal = ''
@@ -166,7 +184,14 @@ export const leaveResults = async (next: 'base' | 'retry'): Promise<void> => {
     await waitForAdGate()
   } finally {
     leaving = false
-    if (next === 'retry') void startMission()
-    else void goBase()
+    if (next === 'base') {
+      flow.checkpoint = null
+      void goBase()
+    } else {
+      // Back onto the perch, without the drop-in; from the pile, if asked.
+      flow.quick = true
+      flow.resume = next === 'resume' && !!flow.checkpoint
+      void startMission()
+    }
   }
 }

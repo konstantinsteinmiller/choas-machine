@@ -56,6 +56,7 @@ export default {
   'defeat': {
     'title': 'Meka məğlub oldu',
     'retry': 'Yenidən cəhd et',
+    'resume': 'From the first pile',
     'kept': 'Xilas edilən tex-qırıntı'
   },
   'base': {
@@ -80,7 +81,12 @@ export default {
     'rocketAmmo': 'Raketlər',
     'armor': 'Zireh',
     'speed': 'Servo sürəti',
-    'decoy': 'Yem müddəti'
+    'decoy': 'Yem müddəti',
+    'hook': 'Hook reach'
+  },
+  'trackVerb': {
+    'speed': 'Level 1: a quieter sprint',
+    'decoy': 'Level 1: one more decoy'
   },
   'workshop': {
     'max': 'Maks',

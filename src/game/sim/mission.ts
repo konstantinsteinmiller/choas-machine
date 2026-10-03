@@ -8,7 +8,7 @@ import { consumeEdges, type Input } from '../engine/input'
 import { input as sharedInput, inputClock } from '../engine/inputState'
 import { emit, on } from '../bus'
 import { gun, hud, mirror, runHudTickers, setPhase, threats, vital, waypoint, MAX_THREATS } from '../state/hud'
-import { CELL, VOID, heightAt , raycast } from '../world/grid'
+import { CELL, VOID, heightAt , raycast, hasLineOfSight } from '../world/grid'
 import type { Fortress } from '../world/fortress'
 import { buildFortressMesh, type FortressMesh } from '../world/fortressMesh'
 import { buildDecor, type DecorMesh } from '../world/decor'
@@ -127,6 +127,8 @@ const KILLCAM_SLOW = 0.16
 const EXTRACT_RADIUS = 1.9
 /** How far running feet are heard, in metres. */
 export const SPRINT_EARSHOT = 9
+/** How far the shoot lesson looks for a defender in clear sight. */
+const MARK_M = 60
 /** Armour shards: dropped by a blade or close kill in a fight; how many, what each gives back, how long they lie. */
 const SHARD_CLOSE_M = 6
 const SHARD_COUNT = 3
@@ -282,6 +284,7 @@ export class Mission implements GameMode {
     this.armor = makeArmor(loadout.armor * (level === 1 ? 1.5 : 1))
     this.player = makePlayer(x, heightAt(g, x, z), z, facing)
     this.player.speedMul = loadout.speed
+    this.decoysLeft = loadout.decoys
     this.cam = makeCam(facing)
     this.garrison = makeGarrison(fortress, level)
     this.garrison.lures = this.decoys
@@ -381,6 +384,25 @@ export class Mission implements GameMode {
     // The drop-in: five seconds the first time, three once it has been seen.
     this.cine = { kind: 'intro', t: 0, dur: profile.seen.includes('intro') ? 3.4 : 5, landed: false, jumped: false }
     this.lift = 1.6
+    // A retry skips it: straight onto the perch, or back beside the pile.
+    this.quickStart = flow.quick
+    flow.quick = false
+    const cp = flow.resume ? flow.checkpoint : null
+    flow.resume = false
+    if (cp && cp.level === this.level) {
+      // The piles already stripped stay stripped and count toward the job;
+      // their scrap was banked when the mech went down, so it is not paid again.
+      for (const id of cp.piles) {
+        const q = this.piles[id]
+        if (!q || q.taken) continue
+        q.taken = true
+        this.salvageView.take(q.id)
+        this.stats.piles++
+      }
+      mirror('salvageGot', this.stats.piles)
+      this.checkpoint = { x: cp.x, y: cp.y, z: cp.z, yaw: cp.yaw }
+      this.resumeAt = this.checkpoint
+    }
   }
 
   resize(w: number, h: number): void {
@@ -395,6 +417,20 @@ export class Mission implements GameMode {
     const p = this.player
     this.time += dt
     inputClock.tick()
+    if (this.quickStart) {
+      this.quickStart = false
+      if (this.cine?.kind === 'intro') this.endCine()
+      const r = this.resumeAt
+      if (r) {
+        this.resumeAt = null
+        p.x = p.px = r.x
+        p.y = p.py = r.y
+        p.z = p.pz = r.z
+        p.yaw = p.pyaw = r.yaw
+        this.cam.yaw = r.yaw
+        if (this.objective === 'salvage' && this.stats.piles >= this.salvageNeed) this.openExtraction()
+      }
+    }
 
     // Any press skips a scripted shot (once it has had a moment to register).
     // (A takedown needs a later press: the one that started it is still going down.)
@@ -448,7 +484,7 @@ export class Mission implements GameMode {
           this.lastStep = Math.floor(p.stride / Math.PI)
           emit('step', { sprint: p.sprinting })
           // Running feet carry: whoever is near turns to see what that was.
-          if (p.sprinting) hearAt(this.garrison, p.x, p.z, SPRINT_EARSHOT)
+          if (p.sprinting) hearAt(this.garrison, p.x, p.z, this.loadout.sprintEarshot)
         }
         if (p.crouched !== wasCrouched) {
           emit('crouch', { crouched: p.crouched })
@@ -464,7 +500,7 @@ export class Mission implements GameMode {
         this.lootOffer = p.mode === 'ground' && !this.offer && !this.strike ? pileInReach(this.piles, p.x, p.y, p.z) : null
         if (i.actQueued && !this.offer && this.lootOffer && !this.strike) this.startLoot(this.lootOffer)
         // A wall too high to pull up onto, straight ahead: the hook can take it.
-        this.hookSpot = p.mode === 'ground' && !this.strike ? findGrapple(this.fortress.grid, p.x, p.y, p.z, p.yaw) : null
+        this.hookSpot = p.mode === 'ground' && !this.strike ? findGrapple(this.fortress.grid, p.x, p.y, p.z, p.yaw, this.loadout.hookReach, this.loadout.hookMax) : null
         if (i.grappleQueued && this.hookSpot && !this.strike) this.throwHook(this.hookSpot)
         if (i.decoyQueued) this.throwDecoy()
         // On the pad with the job done: the line comes down.
@@ -970,6 +1006,8 @@ export class Mission implements GameMode {
     // Stripped.
     const pile = l.pile
     pile.taken = true
+    // The first pile is the checkpoint: a downed raid can pick up here.
+    if (!this.checkpoint) this.checkpoint = { x: p.x, y: p.y, z: p.z, yaw: p.yaw }
     this.looting = null
     this.salvageView.take(pile.id)
     this.stats.salvage += pile.amount
@@ -1231,7 +1269,7 @@ export class Mission implements GameMode {
       this.offer = null
       this.strike = null
       setPhase('dead')
-      failMission(this.stats)
+      failMission(this.stats, this.checkpoint ? { ...this.checkpoint, level: this.level, piles: this.piles.filter(q => q.taken).map(q => q.id) } : null)
       emit('defeat', {})
     }
   }
@@ -1285,6 +1323,12 @@ export class Mission implements GameMode {
       if (!isLight(u) && u.state === 'patrol' && Math.hypot(u.x - p.x, u.z - p.z) < 24 && Math.abs(u.y - p.y) < 3) near = true
     }
     c.enemies = enemies
+    // Every half second: is somebody in clear sight, within the rifle's reach?
+    if (Math.floor(this.time * 2) !== Math.floor((this.time - dt) * 2)) {
+      const eye = p.y + 2.2
+      c.mark = gar.units.some(u => !isLight(u) && u.state !== 'dead' && u.state !== 'reserve' && u.state !== 'dormant'
+        && Math.hypot(u.x - p.x, u.z - p.z) < MARK_M && hasLineOfSight(g, p.x, eye, p.z, u.x, u.y + 1.4, u.z))
+    }
     c.threat = threat
     c.guardNear = near
     // A ladder or a cable within a few steps, on the mech's own storey.
@@ -1421,6 +1465,11 @@ export class Mission implements GameMode {
   }
 
   private mechFade = 0
+  /** Where the mech stood stripping its first pile. */
+  private checkpoint: { x: number; y: number; z: number; yaw: number } | null = null
+  /** Start on the perch with no drop-in (a retry), maybe from the checkpoint. */
+  private quickStart = false
+  private resumeAt: { x: number; y: number; z: number; yaw: number } | null = null
   /** Armour shards lying where a defender fell: walk over one to take it. */
   private shards: Array<{ mesh: Mesh; x: number; y: number; z: number; t: number }> = []
   private shardGeo = new OctahedronGeometry(0.22)

@@ -56,6 +56,7 @@ export default {
   'defeat': {
     'title': 'Mech destruído',
     'retry': 'Tentar de novo',
+    'resume': 'From the first pile',
     'kept': 'Sucata Tech recuperada'
   },
   'base': {
@@ -80,7 +81,12 @@ export default {
     'rocketAmmo': 'Foguetes',
     'armor': 'Placas de blindagem',
     'speed': 'Velocidade dos servos',
-    'decoy': 'Duração do chamariz'
+    'decoy': 'Duração do chamariz',
+    'hook': 'Hook reach'
+  },
+  'trackVerb': {
+    'speed': 'Level 1: a quieter sprint',
+    'decoy': 'Level 1: one more decoy'
   },
   'workshop': {
     'max': 'Máx.',

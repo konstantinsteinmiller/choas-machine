@@ -56,6 +56,7 @@ export default {
   'defeat': {
     'title': 'Мех повержен',
     'retry': 'Попробовать снова',
+    'resume': 'From the first pile',
     'kept': 'Спасённый техлом'
   },
   'base': {
@@ -80,7 +81,12 @@ export default {
     'rocketAmmo': 'Ракеты',
     'armor': 'Броневые плиты',
     'speed': 'Скорость серв',
-    'decoy': 'Время действия приманки'
+    'decoy': 'Время действия приманки',
+    'hook': 'Hook reach'
+  },
+  'trackVerb': {
+    'speed': 'Level 1: a quieter sprint',
+    'decoy': 'Level 1: one more decoy'
   },
   'workshop': {
     'max': 'Макс.',

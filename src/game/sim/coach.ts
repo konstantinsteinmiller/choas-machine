@@ -152,6 +152,8 @@ export interface CoachContext {
   turned: number
   /** There is somebody left to deal with. */
   enemies: boolean
+  /** A defender stands in clear sight within the rifle's reach. */
+  mark?: boolean
   /** The weapon is up. */
   aiming: boolean
   /** The base is on full alert. */
@@ -206,7 +208,8 @@ export const stepCoach = (c: Coach, ctx: CoachContext, dt: number): HintView[] |
   const wanted: Record<HintId, boolean> = {
     move: true,
     look: true,
-    scope: ctx.enemies && quiet && (thumbs || c.time > SCOPE_AFTER_S),
+    // A defender in clear sight from the perch is the lesson's own target.
+    scope: ctx.enemies && quiet && (thumbs || c.time > SCOPE_AFTER_S || (!!ctx.mark && hintDone(c, 'look'))),
     fire: ctx.aiming,
     crouch: quiet && (ctx.threat > 0.12 || ctx.guardNear),
     blade: ctx.strike,

@@ -7,6 +7,8 @@
       GameIcon.icon(:name="TRACKS[id].icon")
       div.body
         div.name {{ t(`track.${id}`) }}
+        //- A first level that brings a new verb says so until it is bought.
+        div.verb(v-if="VERB_TRACKS.includes(id) && level(id) < 1") {{ t(`trackVerb.${id}`) }}
         div.pips(role="img" :aria-label="t('workshop.level', { n: level(id), max: TRACK_MAX })")
           span.pip(v-for="n in TRACK_MAX" :key="n" :class="{ on: n <= level(id) }")
         div.values
@@ -35,7 +37,7 @@ import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import FButton from '@/components/atoms/FButton.vue'
 import GameIcon from '@/components/icons/GameIcon.vue'
-import { TRACKS, TRACK_IDS, TRACK_MAX, trackCost, trackValue, type Station, type TrackId } from '@/game/data/upgrades'
+import { TRACKS, TRACK_IDS, TRACK_MAX, VERB_TRACKS, trackCost, trackValue, type Station, type TrackId } from '@/game/data/upgrades'
 import { buyTrack, canBuyTrack, smithBusy, trackLevel } from '@/game/state/progress'
 import { sfx } from '@/game/audio/sfx'
 import { haptic } from '@/use/useHaptics'
@@ -55,7 +57,7 @@ const fmt = (n: number): string => formatAmount(n, locale.value)
  *  in every language. */
 const UNITS: Readonly<Record<TrackId, string>> = {
   sniperZoom: '×', sniperDamage: '%', sniperSilence: ' m', minigunCooling: ' s', minigunDamage: '%',
-  rocketBlast: ' m', rocketAmmo: '', armor: '', speed: '%', decoy: ' s'
+  rocketBlast: ' m', rocketAmmo: '', armor: '', speed: '%', decoy: ' s', hook: ' m'
 }
 const value = (id: TrackId, lvl: number): string => {
   const v = new Intl.NumberFormat(locale.value, { maximumFractionDigits: 1 }).format(trackValue(id, lvl))
@@ -71,6 +73,9 @@ const buy = (id: TrackId): void => {
 </script>
 
 <style scoped lang="sass">
+.verb
+  color: var(--cm-warn, #ffd27a)
+  font-size: var(--cm-fs-xs, 0.75em)
 .upgrades
   list-style: none
   margin: 0

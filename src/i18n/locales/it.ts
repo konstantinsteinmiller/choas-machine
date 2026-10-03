@@ -56,6 +56,7 @@ export default {
   'defeat': {
     'title': 'Mech a terra',
     'retry': 'Riprova',
+    'resume': 'From the first pile',
     'kept': 'Rottami tech salvati'
   },
   'base': {
@@ -80,7 +81,12 @@ export default {
     'rocketAmmo': 'Razzi',
     'armor': 'Corazza',
     'speed': 'Velocità servo',
-    'decoy': 'Durata esca'
+    'decoy': 'Durata esca',
+    'hook': 'Hook reach'
+  },
+  'trackVerb': {
+    'speed': 'Level 1: a quieter sprint',
+    'decoy': 'Level 1: one more decoy'
   },
   'workshop': {
     'max': 'Max',

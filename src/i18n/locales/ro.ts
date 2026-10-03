@@ -56,6 +56,7 @@ export default {
   'defeat': {
     'title': 'Mech doborât',
     'retry': 'Încearcă din nou',
+    'resume': 'From the first pile',
     'kept': 'Fier vechi tech salvat'
   },
   'base': {
@@ -80,7 +81,12 @@ export default {
     'rocketAmmo': 'Rachete',
     'armor': 'Plăci blindate',
     'speed': 'Viteză servo',
-    'decoy': 'Durata momelii'
+    'decoy': 'Durata momelii',
+    'hook': 'Hook reach'
+  },
+  'trackVerb': {
+    'speed': 'Level 1: a quieter sprint',
+    'decoy': 'Level 1: one more decoy'
   },
   'workshop': {
     'max': 'Max',

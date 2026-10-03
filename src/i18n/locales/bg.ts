@@ -56,6 +56,7 @@ export default {
   'defeat': {
     'title': 'Мехът падна',
     'retry': 'Опитай пак',
+    'resume': 'From the first pile',
     'kept': 'Спасен техно скрап'
   },
   'base': {
@@ -80,7 +81,12 @@ export default {
     'rocketAmmo': 'Ракети',
     'armor': 'Броня',
     'speed': 'Скорост на серво',
-    'decoy': 'Време на примамката'
+    'decoy': 'Време на примамката',
+    'hook': 'Hook reach'
+  },
+  'trackVerb': {
+    'speed': 'Level 1: a quieter sprint',
+    'decoy': 'Level 1: one more decoy'
   },
   'workshop': {
     'max': 'Макс',

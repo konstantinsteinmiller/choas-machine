@@ -56,6 +56,7 @@ export default {
   'defeat': {
     'title': 'Mecha fóra de combate',
     'retry': 'Tentar de novo',
+    'resume': 'From the first pile',
     'kept': 'Chatarra tec rescatada'
   },
   'base': {
@@ -80,7 +81,12 @@ export default {
     'rocketAmmo': 'Foguetes',
     'armor': 'Blindaxe',
     'speed': 'Velocidade dos servos',
-    'decoy': 'Duración do engano'
+    'decoy': 'Duración do engano',
+    'hook': 'Hook reach'
+  },
+  'trackVerb': {
+    'speed': 'Level 1: a quieter sprint',
+    'decoy': 'Level 1: one more decoy'
   },
   'workshop': {
     'max': 'Máx.',

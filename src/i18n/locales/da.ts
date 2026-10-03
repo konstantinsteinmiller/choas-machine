@@ -56,6 +56,7 @@ export default {
   'defeat': {
     'title': 'Mechen er nede',
     'retry': 'Prøv igen',
+    'resume': 'From the first pile',
     'kept': 'Reddet teknoskrot'
   },
   'base': {
@@ -80,7 +81,12 @@ export default {
     'rocketAmmo': 'Raketter',
     'armor': 'Panser',
     'speed': 'Servohastighed',
-    'decoy': 'Lokkeduens varighed'
+    'decoy': 'Lokkeduens varighed',
+    'hook': 'Hook reach'
+  },
+  'trackVerb': {
+    'speed': 'Level 1: a quieter sprint',
+    'decoy': 'Level 1: one more decoy'
   },
   'workshop': {
     'max': 'Maks',

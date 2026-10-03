@@ -56,6 +56,7 @@ export default {
   'defeat': {
     'title': 'Mech yiqildi',
     'retry': 'Qayta urinish',
+    'resume': 'From the first pile',
     'kept': 'Saqlab qolingan tex-parchalar'
   },
   'base': {
@@ -80,7 +81,12 @@ export default {
     'rocketAmmo': 'Raketalar',
     'armor': 'Zirh plitalari',
     'speed': 'Servo tezligi',
-    'decoy': 'Aldamchi davomiyligi'
+    'decoy': 'Aldamchi davomiyligi',
+    'hook': 'Hook reach'
+  },
+  'trackVerb': {
+    'speed': 'Level 1: a quieter sprint',
+    'decoy': 'Level 1: one more decoy'
   },
   'workshop': {
     'max': 'Maks.',

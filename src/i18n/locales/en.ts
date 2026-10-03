@@ -60,6 +60,7 @@ export default {
   'defeat': {
     'title': 'Mech down',
     'retry': 'Try again',
+    'resume': 'From the first pile',
     'kept': 'Tech Scrap salvaged'
   },
   'base': {
@@ -84,7 +85,12 @@ export default {
     'rocketAmmo': 'Rockets',
     'armor': 'Armor plating',
     'speed': 'Servo speed',
-    'decoy': 'Decoy duration'
+    'decoy': 'Decoy duration',
+    'hook': 'Hook reach'
+  },
+  'trackVerb': {
+    'speed': 'Level 1: a quieter sprint',
+    'decoy': 'Level 1: one more decoy'
   },
   'workshop': {
     'max': 'Max',

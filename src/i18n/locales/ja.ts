@@ -56,6 +56,7 @@ export default {
   'defeat': {
     'title': 'メカ撃破',
     'retry': 'もう一度',
+    'resume': 'From the first pile',
     'kept': '回収したテックスクラップ'
   },
   'base': {
@@ -80,7 +81,12 @@ export default {
     'rocketAmmo': 'ロケット弾',
     'armor': '装甲',
     'speed': 'サーボ速度',
-    'decoy': 'デコイ持続時間'
+    'decoy': 'デコイ持続時間',
+    'hook': 'Hook reach'
+  },
+  'trackVerb': {
+    'speed': 'Level 1: a quieter sprint',
+    'decoy': 'Level 1: one more decoy'
   },
   'workshop': {
     'max': '最大',

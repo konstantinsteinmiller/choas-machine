@@ -56,6 +56,7 @@ export default {
   'defeat': {
     'title': 'Mécha à terre',
     'retry': 'Réessayer',
+    'resume': 'From the first pile',
     'kept': 'Ferraille tech sauvée'
   },
   'base': {
@@ -80,7 +81,12 @@ export default {
     'rocketAmmo': 'Roquettes',
     'armor': 'Blindage',
     'speed': 'Vitesse des servos',
-    'decoy': 'Durée du leurre'
+    'decoy': 'Durée du leurre',
+    'hook': 'Hook reach'
+  },
+  'trackVerb': {
+    'speed': 'Level 1: a quieter sprint',
+    'decoy': 'Level 1: one more decoy'
   },
   'workshop': {
     'max': 'Max',

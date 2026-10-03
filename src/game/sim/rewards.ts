@@ -121,5 +121,6 @@ export const DEFEAT_KEEP = 0.3
 
 /** Tech Scrap kept when the mech goes down. */
 export const defeatScrap = (r: MissionResult, level: number): number =>
-  // A share of what was carried, and a little for turning up at all.
-  Math.round((baseScrap(level) * 0.25 + (r.salvage ?? baseScrap(level) * 0.25) + r.kills * 4 + r.headshots * 4) * DEFEAT_KEEP)
+  // Every pile stripped is kept whole (it was taken; the Base has it); a
+  // share of the rest, and a little for turning up at all.
+  Math.round((r.salvage ?? 0) + (baseScrap(level) * 0.25 + r.kills * 4 + r.headshots * 4) * DEFEAT_KEEP)

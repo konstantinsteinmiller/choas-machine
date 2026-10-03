@@ -56,6 +56,7 @@ export default {
   'defeat': {
     'title': 'मेक गिर गया',
     'retry': 'फिर से कोशिश करें',
+    'resume': 'From the first pile',
     'kept': 'बचा टेक स्क्रैप'
   },
   'base': {
@@ -80,7 +81,12 @@ export default {
     'rocketAmmo': 'रॉकेट',
     'armor': 'कवच',
     'speed': 'सर्वो स्पीड',
-    'decoy': 'डिकॉय अवधि'
+    'decoy': 'डिकॉय अवधि',
+    'hook': 'Hook reach'
+  },
+  'trackVerb': {
+    'speed': 'Level 1: a quieter sprint',
+    'decoy': 'Level 1: one more decoy'
   },
   'workshop': {
     'max': 'अधिकतम',

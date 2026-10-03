@@ -56,6 +56,7 @@ export default {
   'defeat': {
     'title': 'Mech tumbang',
     'retry': 'Coba lagi',
+    'resume': 'From the first pile',
     'kept': 'Rongsok Teknologi terselamatkan'
   },
   'base': {
@@ -80,7 +81,12 @@ export default {
     'rocketAmmo': 'Roket',
     'armor': 'Pelat baja',
     'speed': 'Kecepatan servo',
-    'decoy': 'Durasi umpan'
+    'decoy': 'Durasi umpan',
+    'hook': 'Hook reach'
+  },
+  'trackVerb': {
+    'speed': 'Level 1: a quieter sprint',
+    'decoy': 'Level 1: one more decoy'
   },
   'workshop': {
     'max': 'Maks',

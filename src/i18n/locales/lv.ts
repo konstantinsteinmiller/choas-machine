@@ -56,6 +56,7 @@ export default {
   'defeat': {
     'title': 'Mehs ir ticis',
     'retry': 'Mēģināt vēlreiz',
+    'resume': 'From the first pile',
     'kept': 'Izglābti tehnikas lūžņi'
   },
   'base': {
@@ -80,7 +81,12 @@ export default {
     'rocketAmmo': 'Raķetes',
     'armor': 'Bruņu plāksnes',
     'speed': 'Servo ātrums',
-    'decoy': 'Mānekļa ilgums'
+    'decoy': 'Mānekļa ilgums',
+    'hook': 'Hook reach'
+  },
+  'trackVerb': {
+    'speed': 'Level 1: a quieter sprint',
+    'decoy': 'Level 1: one more decoy'
   },
   'workshop': {
     'max': 'Maks.',

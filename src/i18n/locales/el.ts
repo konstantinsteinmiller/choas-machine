@@ -56,6 +56,7 @@ export default {
   'defeat': {
     'title': 'Το μεκ έπεσε',
     'retry': 'Δοκίμασε ξανά',
+    'resume': 'From the first pile',
     'kept': 'Τεχνο-σκραπ που σώθηκε'
   },
   'base': {
@@ -80,7 +81,12 @@ export default {
     'rocketAmmo': 'Ρουκέτες',
     'armor': 'Θωράκιση',
     'speed': 'Ταχύτητα σέρβο',
-    'decoy': 'Διάρκεια δολώματος'
+    'decoy': 'Διάρκεια δολώματος',
+    'hook': 'Hook reach'
+  },
+  'trackVerb': {
+    'speed': 'Level 1: a quieter sprint',
+    'decoy': 'Level 1: one more decoy'
   },
   'workshop': {
     'max': 'Μέγιστο',

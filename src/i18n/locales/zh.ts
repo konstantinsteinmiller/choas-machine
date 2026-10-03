@@ -56,6 +56,7 @@ export default {
   'defeat': {
     'title': '机甲倒下了',
     'retry': '再试一次',
+    'resume': 'From the first pile',
     'kept': '回收的科技废料'
   },
   'base': {
@@ -80,7 +81,12 @@ export default {
     'rocketAmmo': '火箭弹',
     'armor': '装甲板',
     'speed': '伺服速度',
-    'decoy': '诱饵持续时间'
+    'decoy': '诱饵持续时间',
+    'hook': 'Hook reach'
+  },
+  'trackVerb': {
+    'speed': 'Level 1: a quieter sprint',
+    'decoy': 'Level 1: one more decoy'
   },
   'workshop': {
     'max': '已满级',

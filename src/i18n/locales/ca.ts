@@ -56,6 +56,7 @@ export default {
   'defeat': {
     'title': 'Mecha a terra',
     'retry': 'Torna-ho a provar',
+    'resume': 'From the first pile',
     'kept': 'Ferralla tècnica recuperada'
   },
   'base': {
@@ -80,7 +81,12 @@ export default {
     'rocketAmmo': 'Coets',
     'armor': 'Blindatge',
     'speed': 'Velocitat dels servos',
-    'decoy': 'Durada del parany'
+    'decoy': 'Durada del parany',
+    'hook': 'Hook reach'
+  },
+  'trackVerb': {
+    'speed': 'Level 1: a quieter sprint',
+    'decoy': 'Level 1: one more decoy'
   },
   'workshop': {
     'max': 'Màx',

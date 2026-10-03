@@ -56,6 +56,7 @@ export default {
   'defeat': {
     'title': 'Meĥo falis',
     'retry': 'Reprovu',
+    'resume': 'From the first pile',
     'kept': 'Savitaj teknorestaĵoj'
   },
   'base': {
@@ -80,7 +81,12 @@ export default {
     'rocketAmmo': 'Raketoj',
     'armor': 'Kirasado',
     'speed': 'Servo-rapido',
-    'decoy': 'Logaĵa daŭro'
+    'decoy': 'Logaĵa daŭro',
+    'hook': 'Hook reach'
+  },
+  'trackVerb': {
+    'speed': 'Level 1: a quieter sprint',
+    'decoy': 'Level 1: one more decoy'
   },
   'workshop': {
     'max': 'Maks.',
