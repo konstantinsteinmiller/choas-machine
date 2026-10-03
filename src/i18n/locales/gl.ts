@@ -47,6 +47,7 @@ export default {
     },
     'haul': 'Chatarra {n} de {need}',
     'hide': 'Agocharse na caixa',
+    'zoom': 'Zoom the scope',
     'dragBody': 'Drag the body',
     'dropBody': 'Let go (into a container if one is at hand)',
     'sabotage': 'Sabotage the alarm beacon',
@@ -63,6 +64,7 @@ export default {
   },
   'base': {
     'deploy': 'Despregar',
+    'training': 'Training',
     'threat': 'Nivel de ameaza',
     'locked': 'Supera antes o nivel {n}',
     'best': 'Mellor puntuación',
@@ -136,6 +138,12 @@ export default {
     'yourRank': 'Es o #{n} de {total}',
     'of': 'de {n} xogadores',
     'tabGlobal': 'Global'
+  },
+  'training': {
+    'replay': 'Show me again',
+    'progress': 'Training: {n} of {total} lessons done',
+    'scrapWhy': 'Scrap buys upgrades for your weapons back at the Command Base.',
+    'skip': 'Skip training'
   },
   'pause': {
     'title': 'PAUSA',

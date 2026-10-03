@@ -47,6 +47,7 @@ export default {
     },
     'haul': 'Σκραπ {n} από {need}',
     'hide': 'Κρύψου στο κουτί',
+    'zoom': 'Zoom the scope',
     'dragBody': 'Drag the body',
     'dropBody': 'Let go (into a container if one is at hand)',
     'sabotage': 'Sabotage the alarm beacon',
@@ -63,6 +64,7 @@ export default {
   },
   'base': {
     'deploy': 'Εκκίνηση',
+    'training': 'Training',
     'threat': 'Επίπεδο απειλής',
     'locked': 'Ολοκλήρωσε πρώτα το επίπεδο {n}',
     'best': 'Καλύτερο σκορ',
@@ -136,6 +138,12 @@ export default {
     'yourRank': 'Είσαι #{n} από {total}',
     'of': 'από {n} παίκτες',
     'tabGlobal': 'Παγκόσμια'
+  },
+  'training': {
+    'replay': 'Show me again',
+    'progress': 'Training: {n} of {total} lessons done',
+    'scrapWhy': 'Scrap buys upgrades for your weapons back at the Command Base.',
+    'skip': 'Skip training'
   },
   'pause': {
     'title': 'ΠΑΥΣΗ',

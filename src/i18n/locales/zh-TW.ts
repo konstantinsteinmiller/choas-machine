@@ -47,6 +47,7 @@ export default {
     },
     'haul': '廢料 {n}/{need}',
     'hide': '躲進箱子',
+    'zoom': 'Zoom the scope',
     'dragBody': 'Drag the body',
     'dropBody': 'Let go (into a container if one is at hand)',
     'sabotage': 'Sabotage the alarm beacon',
@@ -63,6 +64,7 @@ export default {
   },
   'base': {
     'deploy': '出擊',
+    'training': 'Training',
     'threat': '威脅等級',
     'locked': '請先通關第 {n} 關',
     'best': '最高分',
@@ -136,6 +138,12 @@ export default {
     'yourRank': '{total} 人中排名 #{n}',
     'of': '共 {n} 名玩家',
     'tabGlobal': '全球'
+  },
+  'training': {
+    'replay': 'Show me again',
+    'progress': 'Training: {n} of {total} lessons done',
+    'scrapWhy': 'Scrap buys upgrades for your weapons back at the Command Base.',
+    'skip': 'Skip training'
   },
   'pause': {
     'title': '已暫停',

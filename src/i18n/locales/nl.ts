@@ -47,6 +47,7 @@ export default {
     },
     'haul': 'Schroot {n} van {need}',
     'hide': 'Verstoppen in de kist',
+    'zoom': 'Zoom the scope',
     'dragBody': 'Drag the body',
     'dropBody': 'Let go (into a container if one is at hand)',
     'sabotage': 'Sabotage the alarm beacon',
@@ -63,6 +64,7 @@ export default {
   },
   'base': {
     'deploy': 'Inzetten',
+    'training': 'Training',
     'threat': 'Dreigingsniveau',
     'locked': 'Voltooi eerst level {n}',
     'best': 'Beste score',
@@ -136,6 +138,12 @@ export default {
     'yourRank': 'Jij bent #{n} van {total}',
     'of': 'van {n} spelers',
     'tabGlobal': 'Wereldwijd'
+  },
+  'training': {
+    'replay': 'Show me again',
+    'progress': 'Training: {n} of {total} lessons done',
+    'scrapWhy': 'Scrap buys upgrades for your weapons back at the Command Base.',
+    'skip': 'Skip training'
   },
   'pause': {
     'title': 'GEPAUZEERD',

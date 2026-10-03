@@ -47,6 +47,7 @@ export default {
     },
     'haul': '고철 {n}/{need}',
     'hide': '상자에 숨기',
+    'zoom': 'Zoom the scope',
     'dragBody': 'Drag the body',
     'dropBody': 'Let go (into a container if one is at hand)',
     'sabotage': 'Sabotage the alarm beacon',
@@ -63,6 +64,7 @@ export default {
   },
   'base': {
     'deploy': '출격',
+    'training': 'Training',
     'threat': '위협 등급',
     'locked': '먼저 레벨 {n} 클리어',
     'best': '최고 점수',
@@ -136,6 +138,12 @@ export default {
     'yourRank': '{total}명 중 #{n}위',
     'of': '{n}명 중',
     'tabGlobal': '전 세계'
+  },
+  'training': {
+    'replay': 'Show me again',
+    'progress': 'Training: {n} of {total} lessons done',
+    'scrapWhy': 'Scrap buys upgrades for your weapons back at the Command Base.',
+    'skip': 'Skip training'
   },
   'pause': {
     'title': '일시정지',

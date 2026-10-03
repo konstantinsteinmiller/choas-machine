@@ -47,6 +47,7 @@ export default {
     },
     'haul': 'Romua {n}/{need}',
     'hide': 'Piiloudu laatikkoon',
+    'zoom': 'Zoom the scope',
     'dragBody': 'Drag the body',
     'dropBody': 'Let go (into a container if one is at hand)',
     'sabotage': 'Sabotage the alarm beacon',
@@ -63,6 +64,7 @@ export default {
   },
   'base': {
     'deploy': 'Lähde',
+    'training': 'Training',
     'threat': 'Uhkataso',
     'locked': 'Suorita ensin taso {n}',
     'best': 'Paras tulos',
@@ -136,6 +138,12 @@ export default {
     'yourRank': 'Olet sijalla #{n}, pelaajia yhteensä {total}',
     'of': '{n} pelaajasta',
     'tabGlobal': 'Globaali'
+  },
+  'training': {
+    'replay': 'Show me again',
+    'progress': 'Training: {n} of {total} lessons done',
+    'scrapWhy': 'Scrap buys upgrades for your weapons back at the Command Base.',
+    'skip': 'Skip training'
   },
   'pause': {
     'title': 'TAUKO',

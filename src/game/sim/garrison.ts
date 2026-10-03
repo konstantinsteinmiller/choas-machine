@@ -296,6 +296,8 @@ export interface Garrison {
   scentT: number
   /** Jobs an Engineer has given up on (somewhere it cannot walk to). */
   unreachable: Set<string>
+  /** The training ground: no alarm, no check-ins, no voices; a hit dummy stays a dummy. */
+  drill: boolean
 }
 
 /** Something out of place: a guard who sees it goes to look (yellow), but does not raise the base. */
@@ -605,7 +607,7 @@ export const makeGarrison = (f: Fortress, level = 2): Garrison => {
     }
   })
   const beacons: Beacon[] = (f.beacons ?? []).map(b => ({ ...b, state: 'ready' as const, lit: 0 }))
-  return { units, alert: makeAlert(), time: 0, events: [], rng: mulberry32(hashSeed(f.id)), wave: 0, chaosT: 0, lures: [], threat, noiseSeq: 0, beacons, runner: -1, runnerWait: 0, lkp: { x: 0, z: 0, t: -1e9 }, changes: [], scent: [], scentT: 0, unreachable: new Set() }
+  return { units, alert: makeAlert(), time: 0, events: [], rng: mulberry32(hashSeed(f.id)), wave: 0, chaosT: 0, lures: [], threat, noiseSeq: 0, beacons, runner: -1, runnerWait: 0, lkp: { x: 0, z: 0, t: -1e9 }, changes: [], scent: [], scentT: 0, unreachable: new Set(), drill: false }
 }
 
 // ─── Getting about ───────────────────────────────────────────────────────────
@@ -723,6 +725,7 @@ const sight = (u: Unit, g: Grid, t: Seen): number => {
  * walks: nobody checks.
  */
 const checkIns = (gar: Garrison): void => {
+  if (gar.drill) return
   for (const c of gar.units) {
     if (c.state !== 'dead' || c.found || c.checked || gar.time < c.checkAt) continue
     c.checked = true
@@ -744,6 +747,7 @@ const checkIns = (gar: Garrison): void => {
 
 /** The base goes to full alert: every defender still standing comes for the mech. */
 const goChaos = (gar: Garrison, target: Target): void => {
+  if (gar.drill) return
   gar.events.push({ type: 'chaos' })
   for (const u of gar.units) {
     if (!isAlive(u)) continue
@@ -779,6 +783,7 @@ const wakeNearest = (gar: Garrison, x: number, z: number): void => {
 }
 
 const raise = (gar: Garrison, cause: AlertCause, target: Target): void => {
+  if (gar.drill) return
   if (raiseAlert(gar.alert, cause, alertCap(gar))) goChaos(gar, target)
 }
 
@@ -812,7 +817,7 @@ const huntAround = (u: Unit, g: Grid, gar: Garrison, dt: number): void => {
 
 /** A sure guard shouts: the guards near it join the fight at once. */
 const shout = (gar: Garrison, u: Unit, target: Target): void => {
-  if (u.shouted) return
+  if (u.shouted || gar.drill) return
   u.shouted = true
   gar.events.push({ type: 'shout', id: u.id })
   for (const o of gar.units) {
@@ -919,7 +924,7 @@ const runToBeacon = (u: Unit, g: Grid, gar: Garrison, target: Target, dt: number
  */
 export const searchForShooter = (gar: Garrison, id: number, fromX: number, fromZ: number): void => {
   const u = gar.units[id]
-  if (!u) return
+  if (!u || gar.drill) return
   for (const o of gar.units) {
     if (o === u || !isAlive(o) || o.state === 'combat' || o.state === 'dormant' || isLight(o) || o.kind === 'goliath') continue
     if (Math.hypot(o.x - u.x, o.z - u.z) > SHOUT_M) continue
@@ -1519,7 +1524,7 @@ export const killUnit = (gar: Garrison, id: number, fromX: number, fromZ: number
  */
 export const alarmUnit = (gar: Garrison, id: number, fromX: number, fromZ: number): void => {
   const u = gar.units[id]
-  if (!u || !isAlive(u) || u.state === 'combat') return
+  if (!u || !isAlive(u) || u.state === 'combat' || gar.drill) return
   // A machine that is hit wakes up.
   if (u.state === 'dormant') { wake(gar, u, fromX, fromZ); return }
   u.detect = 1

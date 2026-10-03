@@ -47,6 +47,7 @@ export default {
     },
     'haul': 'Fier vechi {n} din {need}',
     'hide': 'Ascunde-te în cutie',
+    'zoom': 'Zoom the scope',
     'dragBody': 'Drag the body',
     'dropBody': 'Let go (into a container if one is at hand)',
     'sabotage': 'Sabotage the alarm beacon',
@@ -63,6 +64,7 @@ export default {
   },
   'base': {
     'deploy': 'Desfășoară',
+    'training': 'Training',
     'threat': 'Nivel de amenințare',
     'locked': 'Termină mai întâi nivelul {n}',
     'best': 'Cel mai bun scor',
@@ -136,6 +138,12 @@ export default {
     'yourRank': 'Ești #{n} din {total}',
     'of': 'din {n} jucători',
     'tabGlobal': 'Global'
+  },
+  'training': {
+    'replay': 'Show me again',
+    'progress': 'Training: {n} of {total} lessons done',
+    'scrapWhy': 'Scrap buys upgrades for your weapons back at the Command Base.',
+    'skip': 'Skip training'
   },
   'pause': {
     'title': 'PAUZĂ',

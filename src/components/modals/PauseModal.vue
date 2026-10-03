@@ -15,6 +15,8 @@
         @update:model-value="chooseLanguage($event)"
       )
     template(#footer)
+      //- The training ground, once finished before, can be left for the first raid.
+      FButton(v-if="flow.training && profile.seen.includes('training')" type="ghost" size="md" icon="skip-forward" data-testid="btn-skip-training" @click="skip") {{ t('training.skip') }}
       FButton(size="lg" icon="play" data-testid="btn-resume" @click="resume") {{ t('pause.resume') }}
 </template>
 
@@ -30,7 +32,8 @@ import FModal from '@/components/molecules/FModal.vue'
 import FButton from '@/components/atoms/FButton.vue'
 import FMuteButton from '@/components/atoms/FMuteButton.vue'
 import SettingsButton from '@/components/organisms/SettingsButton.vue'
-import { flow } from '@/game/flow'
+import { flow, finishTraining } from '@/game/flow'
+import { profile } from '@/game/state/profile'
 
 /**
  * The pause menu. Open, it holds the pause gate (through FModal), so the
@@ -50,6 +53,10 @@ const chooseLanguage = (code: string): void => {
 const resume = (): void => {
   flow.modal = ''
   emit('resume')
+}
+const skip = (): void => {
+  flow.modal = ''
+  void finishTraining()
 }
 </script>
 

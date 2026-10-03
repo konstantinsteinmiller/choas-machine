@@ -47,6 +47,7 @@ export default {
     },
     'haul': 'Phế liệu {n}/{need}',
     'hide': 'Trốn trong thùng',
+    'zoom': 'Zoom the scope',
     'dragBody': 'Drag the body',
     'dropBody': 'Let go (into a container if one is at hand)',
     'sabotage': 'Sabotage the alarm beacon',
@@ -63,6 +64,7 @@ export default {
   },
   'base': {
     'deploy': 'Xuất kích',
+    'training': 'Training',
     'threat': 'Mức đe dọa',
     'locked': 'Hãy qua màn {n} trước',
     'best': 'Điểm cao nhất',
@@ -136,6 +138,12 @@ export default {
     'yourRank': 'Bạn xếp #{n} trong {total}',
     'of': 'trong {n} người chơi',
     'tabGlobal': 'Toàn cầu'
+  },
+  'training': {
+    'replay': 'Show me again',
+    'progress': 'Training: {n} of {total} lessons done',
+    'scrapWhy': 'Scrap buys upgrades for your weapons back at the Command Base.',
+    'skip': 'Skip training'
   },
   'pause': {
     'title': 'TẠM DỪNG',

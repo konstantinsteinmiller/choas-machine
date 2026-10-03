@@ -47,6 +47,7 @@ export default {
     },
     'haul': 'Брухт {n} з {need}',
     'hide': 'Сховатися в ящику',
+    'zoom': 'Zoom the scope',
     'dragBody': 'Drag the body',
     'dropBody': 'Let go (into a container if one is at hand)',
     'sabotage': 'Sabotage the alarm beacon',
@@ -63,6 +64,7 @@ export default {
   },
   'base': {
     'deploy': 'У бій',
+    'training': 'Training',
     'threat': 'Рівень загрози',
     'locked': 'Спершу пройдіть рівень {n}',
     'best': 'Найкращий рахунок',
@@ -136,6 +138,12 @@ export default {
     'yourRank': 'Ти #{n} з {total}',
     'of': 'з {n} гравців',
     'tabGlobal': 'Світовий'
+  },
+  'training': {
+    'replay': 'Show me again',
+    'progress': 'Training: {n} of {total} lessons done',
+    'scrapWhy': 'Scrap buys upgrades for your weapons back at the Command Base.',
+    'skip': 'Skip training'
   },
   'pause': {
     'title': 'ПАУЗА',

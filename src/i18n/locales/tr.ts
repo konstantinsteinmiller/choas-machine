@@ -47,6 +47,7 @@ export default {
     },
     'haul': 'Hurda {n}/{need}',
     'hide': 'Kutuya saklan',
+    'zoom': 'Zoom the scope',
     'dragBody': 'Drag the body',
     'dropBody': 'Let go (into a container if one is at hand)',
     'sabotage': 'Sabotage the alarm beacon',
@@ -63,6 +64,7 @@ export default {
   },
   'base': {
     'deploy': 'Görevlendir',
+    'training': 'Training',
     'threat': 'Tehdit seviyesi',
     'locked': 'Önce {n}. seviyeyi bitir',
     'best': 'En iyi skor',
@@ -136,6 +138,12 @@ export default {
     'yourRank': '{total} oyuncu içinde #{n}. sıradasın',
     'of': '{n} oyuncu içinde',
     'tabGlobal': 'Dünya'
+  },
+  'training': {
+    'replay': 'Show me again',
+    'progress': 'Training: {n} of {total} lessons done',
+    'scrapWhy': 'Scrap buys upgrades for your weapons back at the Command Base.',
+    'skip': 'Skip training'
   },
   'pause': {
     'title': 'DURAKLATILDI',

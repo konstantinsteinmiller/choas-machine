@@ -47,6 +47,7 @@ export default {
     },
     'haul': 'Temir-tersak {n} / {need}',
     'hide': 'Qutiga yashirinish',
+    'zoom': 'Zoom the scope',
     'dragBody': 'Drag the body',
     'dropBody': 'Let go (into a container if one is at hand)',
     'sabotage': 'Sabotage the alarm beacon',
@@ -63,6 +64,7 @@ export default {
   },
   'base': {
     'deploy': 'Jo\'natish',
+    'training': 'Training',
     'threat': 'Xavf darajasi',
     'locked': 'Avval {n}-bosqichni tugating',
     'best': 'Eng yaxshi hisob',
@@ -136,6 +138,12 @@ export default {
     'yourRank': '{total} o\'yinchidan #{n}-o\'rindasiz',
     'of': '{n} o\'yinchidan',
     'tabGlobal': 'Jahon'
+  },
+  'training': {
+    'replay': 'Show me again',
+    'progress': 'Training: {n} of {total} lessons done',
+    'scrapWhy': 'Scrap buys upgrades for your weapons back at the Command Base.',
+    'skip': 'Skip training'
   },
   'pause': {
     'title': 'PAUZA',

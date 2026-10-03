@@ -47,6 +47,7 @@ export default {
     },
     'haul': 'خردة {n} من {need}',
     'hide': 'اختبئ في الصندوق',
+    'zoom': 'Zoom the scope',
     'dragBody': 'Drag the body',
     'dropBody': 'Let go (into a container if one is at hand)',
     'sabotage': 'Sabotage the alarm beacon',
@@ -63,6 +64,7 @@ export default {
   },
   'base': {
     'deploy': 'انطلاق',
+    'training': 'Training',
     'threat': 'مستوى الخطر',
     'locked': 'أكمل المستوى {n} أولاً',
     'best': 'أفضل نتيجة',
@@ -136,6 +138,12 @@ export default {
     'yourRank': 'أنت #{n} من {total}',
     'of': 'من {n} لاعب',
     'tabGlobal': 'عالمي'
+  },
+  'training': {
+    'replay': 'Show me again',
+    'progress': 'Training: {n} of {total} lessons done',
+    'scrapWhy': 'Scrap buys upgrades for your weapons back at the Command Base.',
+    'skip': 'Skip training'
   },
   'pause': {
     'title': 'متوقف مؤقتاً',

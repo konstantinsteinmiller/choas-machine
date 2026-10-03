@@ -47,6 +47,7 @@ export default {
     },
     'haul': 'Lūžņi {n} no {need}',
     'hide': 'Paslēpties kastē',
+    'zoom': 'Zoom the scope',
     'dragBody': 'Drag the body',
     'dropBody': 'Let go (into a container if one is at hand)',
     'sabotage': 'Sabotage the alarm beacon',
@@ -63,6 +64,7 @@ export default {
   },
   'base': {
     'deploy': 'Sākt',
+    'training': 'Training',
     'threat': 'Draudu līmenis',
     'locked': 'Vispirms izpildi {n}. līmeni',
     'best': 'Labākais rezultāts',
@@ -136,6 +138,12 @@ export default {
     'yourRank': 'Tu esi #{n} no {total}',
     'of': 'no {n} spēlētājiem',
     'tabGlobal': 'Pasaules'
+  },
+  'training': {
+    'replay': 'Show me again',
+    'progress': 'Training: {n} of {total} lessons done',
+    'scrapWhy': 'Scrap buys upgrades for your weapons back at the Command Base.',
+    'skip': 'Skip training'
   },
   'pause': {
     'title': 'PAUZE',

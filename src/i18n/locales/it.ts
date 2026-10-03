@@ -47,6 +47,7 @@ export default {
     },
     'haul': 'Rottami {n} su {need}',
     'hide': 'Nasconditi nella cassa',
+    'zoom': 'Zoom the scope',
     'dragBody': 'Drag the body',
     'dropBody': 'Let go (into a container if one is at hand)',
     'sabotage': 'Sabotage the alarm beacon',
@@ -63,6 +64,7 @@ export default {
   },
   'base': {
     'deploy': 'Schiera',
+    'training': 'Training',
     'threat': 'Livello di minaccia',
     'locked': 'Prima completa il livello {n}',
     'best': 'Miglior punteggio',
@@ -136,6 +138,12 @@ export default {
     'yourRank': 'Sei #{n} su {total}',
     'of': 'su {n} giocatori',
     'tabGlobal': 'Globale'
+  },
+  'training': {
+    'replay': 'Show me again',
+    'progress': 'Training: {n} of {total} lessons done',
+    'scrapWhy': 'Scrap buys upgrades for your weapons back at the Command Base.',
+    'skip': 'Skip training'
   },
   'pause': {
     'title': 'IN PAUSA',

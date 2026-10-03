@@ -390,6 +390,15 @@ const RECIPES: Record<SfxName, (pan: number, g: number) => void> = {
     burst({ dur: 0.9, vol: 0.12 * g, type: 'highpass', f0: 3500, f1: 6000 })
     tone({ wave: 'sine', f0: 300, f1: 120, dur: 0.3, vol: 0.06 * g })
   },
+  // A training gate opens: a rising sweep and a chime.
+  gate: (_p, g) => {
+    tone({ wave: 'tri', f0: 330, f1: 990, dur: 0.35, vol: 0.08 * g })
+    tone({ wave: 'sine', f0: 1320, dur: 0.25, vol: 0.06 * g, at: 0.3 })
+  },
+  // The scope's zoom clicks a notch.
+  zoom: (_p, g) => {
+    burst({ dur: 0.04, vol: 0.05 * g, type: 'bandpass', f0: 3200, q: 4 })
+  },
   // A hound's bark: two short, gruff, falling yaps through a speaker.
   growl: (p, g) => {
     tone({ wave: 'p12', f0: 520, f1: 260, dur: 0.09, vol: 0.07 * g, pan: p })

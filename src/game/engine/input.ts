@@ -77,6 +77,8 @@ export interface Input {
   weaponQueued: 0 | 1 | 2 | 3
   /** Draw the next weapon. */
   cycleQueued: boolean
+  /** Wheel notches this step: −1 up (zoom in), +1 down. Off the scope, a notch is a weapon change. */
+  wheelQueued: number
   pauseQueued: boolean
   /** Any fresh press on the scene this step — a touch, a mouse button, a key
    *  (not a modifier or F-key on its own). A cutscene's skip. */
@@ -139,7 +141,7 @@ export const createInput = (): Input => ({
   moveX: 0, moveY: 0, turn: 0, lookDX: 0, lookDY: 0,
   aimHeld: false, aimPressed: false, aimReleased: false, aimCancelled: false, fireHeld: false, firePressed: false,
   sprintHeld: false,
-  actQueued: false, grappleQueued: false, crouchQueued: false, hideQueued: false, decoyQueued: false, reloadQueued: false, weaponQueued: 0, cycleQueued: false,
+  actQueued: false, grappleQueued: false, crouchQueued: false, hideQueued: false, decoyQueued: false, reloadQueued: false, weaponQueued: 0, cycleQueued: false, wheelQueued: 0,
   pauseQueued: false, anyPressed: false,
   joyActive: false, joyOriginX: 0, joyOriginY: 0, joyX: 0, joyY: 0, joyHomeX: 0, joyHomeY: 0, joyHomeR: 0, joyRadius: 56,
   holdX: 0, holdY: 0, hold01: 0,
@@ -168,6 +170,7 @@ export const consumeEdges = (i: Input): void => {
   i.reloadQueued = false
   i.weaponQueued = 0
   i.cycleQueued = false
+  i.wheelQueued = 0
   i.pauseQueued = false
   i.anyPressed = false
 }
@@ -563,7 +566,7 @@ export const attachInput = (surface: HTMLElement, input: Input, opts: InputOptio
 
   const onWheel = (e: WheelEvent) => {
     if (touchOnly || !input.locked) return
-    if (e.deltaY !== 0) input.cycleQueued = true
+    if (e.deltaY !== 0) input.wheelQueued += Math.sign(e.deltaY)
   }
 
   const onKeyDown = (e: KeyboardEvent) => {

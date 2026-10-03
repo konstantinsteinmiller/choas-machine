@@ -72,6 +72,13 @@ export interface GameEvents {
   /** The hide box comes down over the mech, or off it. */
   box: { on: boolean }
   /** The mech picked up an armour shard. */
+  /** The training ground: a lesson done; the demo asked for again; seen and sent back. */
+  lessonDone: { room: number }
+  trainingReplay: Record<string, never>
+  trainingReset: Record<string, never>
+  /** The scope's zoom changed (the touch chip asks with `zoom`). */
+  zoomed: { level: number }
+  zoom: Record<string, never>
   /** A hound barked; an Engineer fixed something. */
   bark: { id: number }
   repair: { id: number }

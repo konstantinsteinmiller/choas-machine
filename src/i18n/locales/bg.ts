@@ -47,6 +47,7 @@ export default {
     },
     'haul': 'Скрап {n} от {need}',
     'hide': 'Скрий се в кутията',
+    'zoom': 'Zoom the scope',
     'dragBody': 'Drag the body',
     'dropBody': 'Let go (into a container if one is at hand)',
     'sabotage': 'Sabotage the alarm beacon',
@@ -63,6 +64,7 @@ export default {
   },
   'base': {
     'deploy': 'Старт',
+    'training': 'Training',
     'threat': 'Ниво на заплаха',
     'locked': 'Първо мини ниво {n}',
     'best': 'Най-добър резултат',
@@ -136,6 +138,12 @@ export default {
     'yourRank': 'Ти си #{n} от {total}',
     'of': 'от {n} играчи',
     'tabGlobal': 'Световна'
+  },
+  'training': {
+    'replay': 'Show me again',
+    'progress': 'Training: {n} of {total} lessons done',
+    'scrapWhy': 'Scrap buys upgrades for your weapons back at the Command Base.',
+    'skip': 'Skip training'
   },
   'pause': {
     'title': 'ПАУЗА',

@@ -47,6 +47,7 @@ export default {
     },
     'haul': 'Сынық {n} / {need}',
     'hide': 'Жәшікке жасырыну',
+    'zoom': 'Zoom the scope',
     'dragBody': 'Drag the body',
     'dropBody': 'Let go (into a container if one is at hand)',
     'sabotage': 'Sabotage the alarm beacon',
@@ -63,6 +64,7 @@ export default {
   },
   'base': {
     'deploy': 'Жөнелту',
+    'training': 'Training',
     'threat': 'Қауіп деңгейі',
     'locked': 'Алдымен {n}-деңгейді өтіңіз',
     'best': 'Үздік ұпай',
@@ -136,6 +138,12 @@ export default {
     'yourRank': '{total} ойыншының ішінде #{n} орындасың',
     'of': '{n} ойыншыдан',
     'tabGlobal': 'Әлемдік'
+  },
+  'training': {
+    'replay': 'Show me again',
+    'progress': 'Training: {n} of {total} lessons done',
+    'scrapWhy': 'Scrap buys upgrades for your weapons back at the Command Base.',
+    'skip': 'Skip training'
   },
   'pause': {
     'title': 'КІДІРІС',

@@ -47,6 +47,7 @@ export default {
     },
     'haul': 'Hurda {n} / {need}',
     'hide': 'Qutuda gizlən',
+    'zoom': 'Zoom the scope',
     'dragBody': 'Drag the body',
     'dropBody': 'Let go (into a container if one is at hand)',
     'sabotage': 'Sabotage the alarm beacon',
@@ -63,6 +64,7 @@ export default {
   },
   'base': {
     'deploy': 'Başla',
+    'training': 'Training',
     'threat': 'Təhlükə səviyyəsi',
     'locked': 'Əvvəlcə {n}-ci səviyyəni bitir',
     'best': 'Ən yaxşı nəticə',
@@ -136,6 +138,12 @@ export default {
     'yourRank': 'Sən {total} oyunçudan #{n} yerdəsən',
     'of': '{n} oyunçudan',
     'tabGlobal': 'Qlobal'
+  },
+  'training': {
+    'replay': 'Show me again',
+    'progress': 'Training: {n} of {total} lessons done',
+    'scrapWhy': 'Scrap buys upgrades for your weapons back at the Command Base.',
+    'skip': 'Skip training'
   },
   'pause': {
     'title': 'FASİLƏ',

@@ -51,6 +51,7 @@ export default {
     },
     'haul': 'Salvage {n} of {need}',
     'hide': 'Hide in the box',
+    'zoom': 'Zoom the scope',
     'dragBody': 'Drag the body',
     'dropBody': 'Let go (into a container if one is at hand)',
     'sabotage': 'Sabotage the alarm beacon',
@@ -67,6 +68,7 @@ export default {
   },
   'base': {
     'deploy': 'Deploy',
+    'training': 'Training',
     'threat': 'Threat level',
     'locked': 'Clear level {n} first',
     'best': 'Best score',
@@ -140,6 +142,12 @@ export default {
     'yourRank': 'You are #{n} of {total}',
     'of': 'of {n} players',
     'tabGlobal': 'Global'
+  },
+  'training': {
+    'replay': 'Show me again',
+    'progress': 'Training: {n} of {total} lessons done',
+    'scrapWhy': 'Scrap buys upgrades for your weapons back at the Command Base.',
+    'skip': 'Skip training'
   },
   'pause': {
     'title': 'PAUSED',

@@ -87,8 +87,10 @@ export interface Game {
 
 export interface OpenOptions {
   device?: Device
-  /** The save to start from (the `cmachine_state` blob). Absent = a new player. */
+  /** The save to start from (the `cmachine_state` blob). Absent = a new player who has done the training ground. */
   save?: Record<string, unknown>
+  /** A brand-new player: not even the training ground done (it is the first scene then). */
+  brandNew?: boolean
   /** Query string, e.g. `?level=3`. */
   query?: string
 }
@@ -109,11 +111,13 @@ export const openGame = async (opts: OpenOptions = {}): Promise<Game> => {
   })
   const page = await context.newPage()
   await page.addInitScript(NO_POINTER_LOCK)
-  if (opts.save) {
+  // A new player who has been through the training ground lands in the Bastion.
+  const save = opts.save ?? (opts.brandNew ? undefined : NEW_AFTER_TRAINING)
+  if (save) {
     await page.addInitScript((save) => {
       // Only on the first load: a reload must find what the GAME wrote.
       if (!localStorage.getItem('cmachine_state')) localStorage.setItem('cmachine_state', JSON.stringify(save))
-    }, opts.save)
+    }, save)
   }
   const errors: string[] = []
   page.on('console', (m) => { if (m.type() === 'error') errors.push(m.text().slice(0, 300)) })
@@ -237,6 +241,9 @@ export const layout = (g: Game, selectors: Record<string, string>, allowed: Arra
   }, [selectors, allowed] as const)
 
 /** A returning player's save: two levels cleared, things to spend, a build in the Forge. */
+/** A new player who has only been through the training ground. */
+export const NEW_AFTER_TRAINING: Record<string, unknown> = { cm_v: 1, cm_seen: ['training'] }
+
 export const RETURNING_SAVE = (language = 'en'): Record<string, unknown> => ({
   cm_v: 1, cm_cleared: 2, cm_medals: 4, cm_missions: 7, cm_scrap: 1234, cm_cores: 6,
   cm_arsenal: {

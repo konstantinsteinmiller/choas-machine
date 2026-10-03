@@ -1,7 +1,7 @@
 import { reactive } from 'vue'
 import { app, type GameMode } from './engine/app'
 import { setPhase } from './state/hud'
-import { isFreshProfile } from './state/profile'
+import { isFreshProfile, profile, saveProfile } from './state/profile'
 import { bankDefeat, bankMission, campaignScore, highestCleared, unlockedLevel } from './state/progress'
 import { reportRun } from '@/use/useLeaderboard'
 import { showMidgameAd } from '@/use/useAds'
@@ -46,7 +46,9 @@ export const flow = reactive({
   /** The next mission starts straight on the perch (a retry): no drop-in. */
   quick: false,
   /** The next mission resumes from `checkpoint`. */
-  resume: false
+  resume: false,
+  /** The mission being built (or played) is the training ground. */
+  training: false
 })
 
 export interface Checkpoint {
@@ -82,6 +84,8 @@ export const createBootMode = async (onProgress: Progress = () => {}): Promise<G
   if (!factories) throw new Error('[flow] no mode factories registered')
   const fresh = isFreshProfile()
   flow.level = fresh ? 1 : unlockedLevel()
+  // A new player's first scene is the training ground (#57, #58).
+  flow.training = fresh && !profile.seen.includes('training')
   const mode = await (fresh ? factories.mission : factories.base)(onProgress)
   onProgress(1)
   flow.screen = fresh ? 'mission' : 'base'
@@ -118,8 +122,27 @@ const swap = async (screen: Screen, factory: ModeFactory, phase: 'intro' | 'base
 /** Drop into the fortress, at `level` (default: the one picked). */
 export const startMission = async (level: number = flow.level): Promise<void> => {
   if (!factories) return
+  flow.training = false
   flow.level = Math.min(unlockedLevel(), Math.max(1, level))
   await swap('mission', factories.mission, 'intro')
+}
+
+/** The training ground: the first thing a new player plays, and again from the Base. */
+export const startTraining = async (): Promise<void> => {
+  if (!factories) return
+  flow.training = true
+  flow.level = 1
+  await swap('mission', factories.mission, 'intro')
+}
+
+/** The training ground is done (or skipped): straight on into the first raid. */
+export const finishTraining = async (): Promise<void> => {
+  if (!profile.seen.includes('training')) {
+    profile.seen.push('training')
+    saveProfile()
+  }
+  flow.training = false
+  await startMission(1)
 }
 
 /** Leave whatever is running for the Command Base. */

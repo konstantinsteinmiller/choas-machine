@@ -1,4 +1,4 @@
-# Chaos Machine — store copy
+# Chaos Machine
 
 ## Short description (max 150 characters)
 

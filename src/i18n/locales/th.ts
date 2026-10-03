@@ -47,6 +47,7 @@ export default {
     },
     'haul': 'เศษเหล็ก {n} จาก {need}',
     'hide': 'ซ่อนในกล่อง',
+    'zoom': 'Zoom the scope',
     'dragBody': 'Drag the body',
     'dropBody': 'Let go (into a container if one is at hand)',
     'sabotage': 'Sabotage the alarm beacon',
@@ -63,6 +64,7 @@ export default {
   },
   'base': {
     'deploy': 'ออกปฏิบัติการ',
+    'training': 'Training',
     'threat': 'ระดับภัยคุกคาม',
     'locked': 'ผ่านด่าน {n} ก่อน',
     'best': 'คะแนนสูงสุด',
@@ -136,6 +138,12 @@ export default {
     'yourRank': 'คุณอยู่อันดับ #{n} จาก {total}',
     'of': 'จากผู้เล่น {n} คน',
     'tabGlobal': 'ทั่วโลก'
+  },
+  'training': {
+    'replay': 'Show me again',
+    'progress': 'Training: {n} of {total} lessons done',
+    'scrapWhy': 'Scrap buys upgrades for your weapons back at the Command Base.',
+    'skip': 'Skip training'
   },
   'pause': {
     'title': 'หยุดชั่วคราว',

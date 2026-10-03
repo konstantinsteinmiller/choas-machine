@@ -47,6 +47,7 @@ export default {
     },
     'haul': 'Rubaĵo {n} el {need}',
     'hide': 'Kaŝiĝi en la kesto',
+    'zoom': 'Zoom the scope',
     'dragBody': 'Drag the body',
     'dropBody': 'Let go (into a container if one is at hand)',
     'sabotage': 'Sabotage the alarm beacon',
@@ -63,6 +64,7 @@ export default {
   },
   'base': {
     'deploy': 'Ek!',
+    'training': 'Training',
     'threat': 'Danĝera nivelo',
     'locked': 'Unue finu nivelon {n}',
     'best': 'Plej bona poentaro',
@@ -136,6 +138,12 @@ export default {
     'yourRank': 'Vi estas #{n} el {total}',
     'of': 'el {n} ludantoj',
     'tabGlobal': 'Tutmonda'
+  },
+  'training': {
+    'replay': 'Show me again',
+    'progress': 'Training: {n} of {total} lessons done',
+    'scrapWhy': 'Scrap buys upgrades for your weapons back at the Command Base.',
+    'skip': 'Skip training'
   },
   'pause': {
     'title': 'PAŬZITA',

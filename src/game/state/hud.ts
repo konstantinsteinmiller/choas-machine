@@ -86,6 +86,10 @@ export const hud = reactive({
   /** A pile within reach; and 0 … 1 of stripping one. */
   loot: false,
   looting: 0,
+  /** The scope's zoom (1 = the loadout's own). */
+  zoom: 1,
+  /** The training ground: which room, lessons done of how many, whether the demo can be asked for again, the scrap line. */
+  training: { on: false, room: -1, done: 0, total: 0, replay: false, scrapWhy: false },
   /** 0 … 1 of holding the scope on a unit to tag it. */
   tagging: 0,
   /** A body to grab ('grab'), or one in tow ('drop'). */

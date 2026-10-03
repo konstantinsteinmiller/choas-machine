@@ -33,6 +33,8 @@
         span.best-label {{ t('base.best') }}
         span.best-value {{ fmt(record.bestScore) }}
     FButton.go(size="xl" icon="play" block attention data-testid="btn-deploy" @click="deploy") {{ t('base.deploy') }}
+    //- The training ground, any time.
+    FButton.train(type="ghost" size="sm" icon="replay" icon-position="left" data-testid="btn-training" @click="train") {{ t('base.training') }}
 </template>
 
 <script setup lang="ts">
@@ -40,7 +42,7 @@ import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import FButton from '@/components/atoms/FButton.vue'
 import GameIcon from '@/components/icons/GameIcon.vue'
-import { flow, startMission } from '@/game/flow'
+import { flow, startMission, startTraining } from '@/game/flow'
 import { profile } from '@/game/state/profile'
 import { levelKey, unlockedLevel } from '@/game/state/progress'
 import { THREAT_LEVELS } from '@/game/sim/rewards'
@@ -64,6 +66,7 @@ const pick = (n: number): void => {
   flow.level = n
 }
 const deploy = (): void => { void startMission(flow.level) }
+const train = (): void => { void startTraining() }
 </script>
 
 <style scoped lang="sass">

@@ -10,6 +10,7 @@
 
     div.top-centre
       AlertMeter
+      TrainingHud
       //- The raid's haul: piles stripped of those it needs. Glyph and digits only.
       div.haul(
         v-if="hud.salvageNeed > 0"
@@ -124,6 +125,17 @@
 
     //- The right thumb's column, above where it rests.
     div.actions
+      //- On touch, on the scope: a chip that zooms a notch (and round again).
+      FHudButton(
+        v-if="hud.scoped && hud.device === 'touch'"
+        icon="scope"
+        tone="cyan"
+        :aria-label="t('hud.zoom')"
+        data-testid="btn-zoom"
+        @click="busEmit('zoom', {})"
+      )
+        template(#badge)
+          FHudBadge(tone="cyan") ×{{ hud.zoom }}
       //- On touch, while aiming: a button that fires (letting go of the screen does too).
       FHudButton(
         v-if="hud.aiming && hud.device === 'touch'"
@@ -224,6 +236,7 @@ import AimHold from '@/components/hud/AimHold.vue'
 import AlertMeter from '@/components/hud/AlertMeter.vue'
 import ThreatArcs from '@/components/hud/ThreatArcs.vue'
 import ObjectiveMarker from '@/components/hud/ObjectiveMarker.vue'
+import TrainingHud from '@/components/hud/TrainingHud.vue'
 import ControlHints from '@/components/hud/ControlHints.vue'
 import { emit as busEmit, on } from '@/game/bus'
 import Reticle from '@/components/hud/Reticle.vue'

@@ -47,6 +47,7 @@ export default {
     },
     'haul': 'Bergegut {n} von {need}',
     'hide': 'In der Kiste verstecken',
+    'zoom': 'Zoom the scope',
     'dragBody': 'Drag the body',
     'dropBody': 'Let go (into a container if one is at hand)',
     'sabotage': 'Sabotage the alarm beacon',
@@ -63,6 +64,7 @@ export default {
   },
   'base': {
     'deploy': 'Einsatz',
+    'training': 'Training',
     'threat': 'Bedrohungsstufe',
     'locked': 'Erst Level {n} schaffen',
     'best': 'Bestwert',
@@ -136,6 +138,12 @@ export default {
     'yourRank': 'Du bist #{n} von {total}',
     'of': 'von {n} Spielern',
     'tabGlobal': 'Global'
+  },
+  'training': {
+    'replay': 'Show me again',
+    'progress': 'Training: {n} of {total} lessons done',
+    'scrapWhy': 'Scrap buys upgrades for your weapons back at the Command Base.',
+    'skip': 'Skip training'
   },
   'pause': {
     'title': 'PAUSIERT',

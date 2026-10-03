@@ -47,6 +47,7 @@ export default {
     },
     'haul': 'कबाड़ {n} / {need}',
     'hide': 'डिब्बे में छिपें',
+    'zoom': 'Zoom the scope',
     'dragBody': 'Drag the body',
     'dropBody': 'Let go (into a container if one is at hand)',
     'sabotage': 'Sabotage the alarm beacon',
@@ -63,6 +64,7 @@ export default {
   },
   'base': {
     'deploy': 'तैनात करें',
+    'training': 'Training',
     'threat': 'खतरे का स्तर',
     'locked': 'पहले लेवल {n} पूरा करें',
     'best': 'सर्वश्रेष्ठ स्कोर',
@@ -136,6 +138,12 @@ export default {
     'yourRank': '{total} में से आप #{n} पर हैं',
     'of': '{n} खिलाड़ियों में से',
     'tabGlobal': 'वैश्विक'
+  },
+  'training': {
+    'replay': 'Show me again',
+    'progress': 'Training: {n} of {total} lessons done',
+    'scrapWhy': 'Scrap buys upgrades for your weapons back at the Command Base.',
+    'skip': 'Skip training'
   },
   'pause': {
     'title': 'रुका हुआ',

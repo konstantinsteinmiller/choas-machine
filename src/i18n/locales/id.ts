@@ -47,6 +47,7 @@ export default {
     },
     'haul': 'Rongsokan {n} dari {need}',
     'hide': 'Sembunyi di dalam kotak',
+    'zoom': 'Zoom the scope',
     'dragBody': 'Drag the body',
     'dropBody': 'Let go (into a container if one is at hand)',
     'sabotage': 'Sabotage the alarm beacon',
@@ -63,6 +64,7 @@ export default {
   },
   'base': {
     'deploy': 'Berangkat',
+    'training': 'Training',
     'threat': 'Tingkat ancaman',
     'locked': 'Selesaikan level {n} dulu',
     'best': 'Skor terbaik',
@@ -136,6 +138,12 @@ export default {
     'yourRank': 'Kamu #{n} dari {total}',
     'of': 'dari {n} pemain',
     'tabGlobal': 'Global'
+  },
+  'training': {
+    'replay': 'Show me again',
+    'progress': 'Training: {n} of {total} lessons done',
+    'scrapWhy': 'Scrap buys upgrades for your weapons back at the Command Base.',
+    'skip': 'Skip training'
   },
   'pause': {
     'title': 'JEDA',

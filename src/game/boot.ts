@@ -6,6 +6,7 @@ import { FortressView, viewAngleFromUrl } from './scenes/fortressView'
 import { Mission } from './sim/mission'
 import { input } from './engine/inputState'
 import { buildProvingGround } from './data/fortresses/proving'
+import { buildTrainingGround } from './data/fortresses/training'
 import { buildBastion } from './data/fortresses/bastion'
 import type { GameMode } from './engine/app'
 import { registerModeFactories, createBootMode, flow } from './flow'
@@ -104,7 +105,9 @@ registerModeFactories({
     // DEV ONLY: `?fort=proving` plays the kit's test layout instead of the campaign's.
     const proving = import.meta.env.DEV && new URLSearchParams(search).get('fort') === 'proving'
     const level = import.meta.env.DEV ? Number(new URLSearchParams(search).get('level')) || flow.level : flow.level
-    const fortress = proving ? buildProvingGround() : buildBastion(level)
+    // DEV ONLY: `?fort=training` too. The training ground is the flow's call otherwise.
+    const training = flow.training || (import.meta.env.DEV && new URLSearchParams(search).get('fort') === 'training')
+    const fortress = training ? buildTrainingGround() : proving ? buildProvingGround() : buildBastion(level)
     if (view) return FortressView.create(fortress, view, createSlicer(12), onProgress)
     return Mission.create(fortress, input, createSlicer(12), onProgress, level, currentLoadout())
   },

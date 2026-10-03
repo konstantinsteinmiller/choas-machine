@@ -47,6 +47,7 @@ export default {
     },
     'haul': 'Sucata {n} de {need}',
     'hide': 'Esconder-se na caixa',
+    'zoom': 'Zoom the scope',
     'dragBody': 'Drag the body',
     'dropBody': 'Let go (into a container if one is at hand)',
     'sabotage': 'Sabotage the alarm beacon',
@@ -63,6 +64,7 @@ export default {
   },
   'base': {
     'deploy': 'Iniciar',
+    'training': 'Training',
     'threat': 'Nível de ameaça',
     'locked': 'Conclua o nível {n} primeiro',
     'best': 'Melhor pontuação',
@@ -136,6 +138,12 @@ export default {
     'yourRank': 'Você é o #{n} de {total}',
     'of': 'de {n} jogadores',
     'tabGlobal': 'Global'
+  },
+  'training': {
+    'replay': 'Show me again',
+    'progress': 'Training: {n} of {total} lessons done',
+    'scrapWhy': 'Scrap buys upgrades for your weapons back at the Command Base.',
+    'skip': 'Skip training'
   },
   'pause': {
     'title': 'PAUSADO',

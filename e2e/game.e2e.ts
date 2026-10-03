@@ -33,6 +33,22 @@ const HUD = {
 const HUD_ALLOWED: Array<[string, string]> = [['hint', 'stick']]
 
 describe('first launch', () => {
+  it('a brand-new player starts in the training ground: a lesson per room, the demo playing, nothing overlapping', async () => {
+    for (const device of ['desktop', 'phone-portrait'] as const) {
+      const g = await open({ device, brandNew: true })
+      await waitPlaying(g)
+      const s = await g.page.evaluate(() => ({ fort: window.__game.app.mode.fortress.id, training: window.__game.hud.training }))
+      expect(s.fort).toBe('training')
+      expect(s.training.on).toBe(true)
+      expect(s.training.room).toBe(0)
+      expect(await g.page.locator('[data-testid="training"]').count()).toBe(1)
+      const l = await layout(g, { ...HUD, pips: '.training-hud .pips' }, HUD_ALLOWED)
+      expect(l.overlaps, device).toEqual([])
+      expect(g.errors).toEqual([])
+      await g.close()
+    }
+  })
+
   it('opens straight in the fortress: no menu, a drop-in that any press skips, then control', async () => {
     const g = await open()
     await waitBooted(g)

@@ -44,7 +44,9 @@ import { DECOYS_PER_MISSION, decoySpot, findStrike, stepDecoys, type Decoy, type
 import { fireRocket, stepRockets, type Rocket } from './rockets'
 import { stepFire } from './chaos'
 import { hurtArmor, makeArmor, stepArmor, type Armor } from './armor'
-import { flow, finishMission, failMission } from '../flow'
+import { flow, finishMission, failMission, finishTraining } from '../flow'
+import { TrainingDirector } from './trainingDirector'
+import { TRAINING_ID, TRAINING_ROOMS } from '../data/fortresses/training'
 import { COVER_H } from '../world/fortress'
 import { BASE_LOADOUT, type Loadout } from '../data/upgrades'
 import { makeKillCamState, wantsKillCam, type KillInfo } from './killcam'
@@ -128,6 +130,8 @@ const KILLCAM_SLOW = 0.16
 const EXTRACT_RADIUS = 1.9
 /** How far running feet are heard, in metres. */
 export const SPRINT_EARSHOT = 9
+/** The scope's zoom notches: the loadout's field of view divided by these. */
+export const SCOPE_ZOOMS = [1, 1.7, 2.6] as const
 /** Seconds the scope must rest on a unit to tag it. */
 const TAG_S = 2
 /** How near a body must be to grab it, and how far behind the mech it drags. */
@@ -295,6 +299,8 @@ export class Mission implements GameMode {
     this.decoysLeft = loadout.decoys
     this.cam = makeCam(facing)
     this.garrison = makeGarrison(fortress, level)
+    // The training ground's defenders are a drill: no alarm, no voices.
+    if (fortress.id === TRAINING_ID) this.garrison.drill = true
     this.garrison.lures = this.decoys
     this.markers.floorY = (mx, mz) => heightAt(g, mx, mz)
     this.target = { x, y: this.player.y, z, height: MECH_HEIGHT, crouched: false, visible: true }
@@ -359,6 +365,7 @@ export class Mission implements GameMode {
     m.hook = new Mesh(new ConeGeometry(0.16, 0.34, 3), new MeshBasicMaterial({ color: PAL.glowCyan, toneMapped: false }))
     m.hook.visible = false
     m.scene.add(m.rope, m.hook)
+    if (fortress.id === TRAINING_ID) m.training = new TrainingDirector(m.scene, fortress, m.garrison)
     m.salvageView = new SalvageView(m.piles)
     m.scene.add(m.salvageView.group)
     m.scene.add(
@@ -381,6 +388,10 @@ export class Mission implements GameMode {
     mirror('armorLow', false)
     mirror('cine', false)
     mirror('objective', 'salvage')
+    hud.training.on = !!this.training
+    hud.training.room = -1
+    this.scopeZoom = 0
+    mirror('zoom', 1)
     mirror('salvageGot', 0)
     mirror('salvageNeed', this.salvageNeed)
     this.newCoach()
@@ -388,6 +399,10 @@ export class Mission implements GameMode {
     this.lastPitch = this.cam.pitch
     this.offHelp?.()
     this.offHelp = on('help', () => coachHelp(this.coach))
+    this.offReplay?.()
+    this.offReplay = on('trainingReplay', () => { this.training?.replay() })
+    this.offZoom?.()
+    this.offZoom = on('zoom', () => this.zoomStep(1, true))
     this.mirrorWeapons()
     // The drop-in: five seconds the first time, three once it has been seen.
     this.cine = { kind: 'intro', t: 0, dur: profile.seen.includes('intro') ? 3.4 : 5, landed: false, jumped: false }
@@ -527,6 +542,7 @@ export class Mission implements GameMode {
         emit('finale', {})
       }
       this.stepGarrison(dt)
+      this.stepTraining(dt)
       stepArmor(this.armor, dt)
       this.stepCoach(dt)
       vital.armor = this.armor.hp / this.armor.max
@@ -612,9 +628,13 @@ export class Mission implements GameMode {
     t.fireHeld = free && i.fireHeld
     t.reload = i.reloadQueued
     t.select = i.weaponQueued ? WEAPON_IDS[i.weaponQueued - 1]! : null
-    t.cycle = i.cycleQueued
+    // The wheel: on the scope it zooms; off it, it changes weapon.
+    if (i.wheelQueued !== 0 && hud.scoped) this.zoomStep(i.wheelQueued < 0 ? 1 : -1)
+    t.cycle = i.cycleQueued || (i.wheelQueued !== 0 && !hud.scoped)
     const was = a.current
     const rounds = stepArsenal(a, t, dt)
+    if (a.overheated && !this.wasHot) this.overheats++
+    this.wasHot = a.overheated
     if (a.current !== was) {
       emit('weapon', { weapon: a.current })
       this.learn('weapon')
@@ -699,6 +719,7 @@ export class Mission implements GameMode {
 
     if (w === 'rocket') {
       fireRocket(this.rockets, ox, oy, oz, dx, dy, dz)
+      this.rocketsFired++
       this.goLoud()
       return
     }
@@ -759,7 +780,8 @@ export class Mission implements GameMode {
 
   /** A weapon nobody can miss: the whole base hears it. */
   private goLoud(): void {
-    if (this.garrison.alert.chaos) return
+    // The training ground has no alarm.
+    if (this.garrison.alert.chaos || this.garrison.drill) return
     noiseAt(this.garrison, this.target, this.player.x, this.player.z, 1e4, 'loud')
     this.flushGarrison()
   }
@@ -970,6 +992,7 @@ export class Mission implements GameMode {
     if (s.t < SABOTAGE_S) return
     this.sabotaging = null
     if (sabotageBeacon(this.garrison, s.beacon)) {
+      this.sabotaged++
       this.fx.particles.sparks(b.x, b.y + BEACON_TOP, b.z, '#ffffff', 18, 4, 0.3)
       haptic('reward')
       emit('sabotage', { beat: 'done', beacon: s.beacon })
@@ -1137,6 +1160,7 @@ export class Mission implements GameMode {
       } else if (e.type === 'kill') {
         const u = gar.units[e.id]!
         this.stats.kills++
+        if (this.killBy === 'sniper') this.sniperKills++
         // In a fight, a kill by the blade or close in drops armour shards:
         // pushing in heals, hiding does not.
         if (u.fought && (this.killBy === 'blade' || Math.hypot(u.x - this.player.x, u.z - this.player.z) < SHARD_CLOSE_M)) this.dropShards(u.x, u.y, u.z)
@@ -1482,12 +1506,92 @@ export class Mission implements GameMode {
     } else if (c.kind === 'outro') {
       this.dog.root.visible = false
       setPhase('done')
-      finishMission(this.stats)
+      if (this.training) void finishTraining()
+      else finishMission(this.stats)
       emit('extracted', {})
     }
   }
 
   private mechFade = 0
+  /** The training ground's lessons, gates and ghost (only there). */
+  private training: TrainingDirector | null = null
+  private offReplay: (() => void) | null = null
+  private offZoom: (() => void) | null = null
+  /** What the training ground counts: rounds, heat, zoom, beacons. */
+  private sniperKills = 0
+  private rocketsFired = 0
+  private overheats = 0
+  private wasHot = false
+  private zooms = 0
+  private sabotaged = 0
+  /** The scope's zoom: an index into SCOPE_ZOOMS. */
+  private scopeZoom = 0
+
+  /** Zoom the scope a notch in (+1) or out (−1); `wrap` cycles (the touch chip). */
+  private zoomStep(dir: number, wrap = false): void {
+    const n = SCOPE_ZOOMS.length
+    const next = wrap ? (this.scopeZoom + dir + n) % n : Math.min(n - 1, Math.max(0, this.scopeZoom + dir))
+    if (next === this.scopeZoom) return
+    this.scopeZoom = next
+    this.zooms++
+    mirror('zoom', SCOPE_ZOOMS[next]!)
+    emit('zoomed', { level: next })
+  }
+
+  /** The training ground, each step: lessons, gates, the demo's glyph, a seen mech sent back. */
+  private stepTraining(dt: number): void {
+    const tr = this.training
+    if (!tr) return
+    const p = this.player
+    const ev = tr.step({
+      x: p.x, y: p.y, z: p.z, bladeKills: this.stats.bladeKills, sniperKills: this.sniperKills, rockets: this.rocketsFired,
+      overheats: this.overheats, zooms: this.zooms, sabotaged: this.sabotaged, piles: this.stats.piles
+    }, dt)
+    for (const e of ev) {
+      if (e.type === 'done') {
+        haptic('reward')
+        emit('lessonDone', { room: e.room })
+      }
+    }
+    // The demo's control: its glyph pulses while the ghost does it.
+    const h = tr.hint()
+    if (h) {
+      this.coach.recalled.add(h)
+      this.coach.until[h] = Math.max(this.coach.until[h], this.coach.time + 0.5)
+    }
+    // Seen: back to the room's door, the room as it was.
+    if (this.garrison.units.some(u => u.state === 'combat' && u.state as string !== 'dead')) {
+      tr.resetRoom((x, z, yaw) => {
+        p.x = p.px = x
+        p.z = p.pz = z
+        const floor = heightAt(this.fortress.grid, x, z)
+        p.y = p.py = floor > VOID ? floor : 0
+        p.vx = p.vz = 0
+        p.yaw = p.pyaw = yaw
+        p.boxed = false
+        p.crouched = false
+        this.cam.yaw = yaw
+        this.armor.hp = this.armor.max
+        this.looting = null
+        this.sabotaging = null
+        if (this.dragId >= 0) this.dropBody()
+      })
+      emit('trainingReset', {})
+    }
+    const s = tr.state
+    const room = s.room
+    const lesson = room >= 0 ? TRAINING_ROOMS[room]!.lesson : ''
+    hud.training.on = true
+    if (hud.training.room !== room) hud.training.room = room
+    const done = s.done.filter(Boolean).length
+    if (hud.training.done !== done) hud.training.done = done
+    hud.training.total = s.done.length
+    const replay = room >= 0 && !s.done[room] && s.demoT < 0 && s.gap <= 0
+    if (hud.training.replay !== replay) hud.training.replay = replay
+    const why = lesson === 'salvage' && !s.done[room]
+    if (hud.training.scrapWhy !== why) hud.training.scrapWhy = why
+  }
+
   /** The scope held on one unit: which, and for how long. */
   private tagId = -1
   private tagT = 0
@@ -1895,7 +1999,7 @@ export class Mission implements GameMode {
     const jy = this.shake > 0 ? (Math.random() - 0.5) * this.shake * 0.03 : 0
     this.cam.yaw += sway.yaw + jx
     this.cam.pitch += sway.pitch + kick + jy
-    const follow = placeCam(this.cam, g, x, y, z, eyeHeight(p), a.current, this.baseFov, this.loadout.scopeFov, dt)
+    const follow = placeCam(this.cam, g, x, y, z, eyeHeight(p), a.current, this.baseFov, this.loadout.scopeFov / SCOPE_ZOOMS[this.scopeZoom]!, dt)
     this.cam.yaw -= sway.yaw + jx
     this.cam.pitch -= sway.pitch + kick + jy
 
@@ -1988,6 +2092,7 @@ export class Mission implements GameMode {
     }
 
     this.stepGhost(dt)
+    this.training?.update(dt, this.time)
     this.stepTag(dt)
     this.stepDrag()
     this.stepShards(dt)
@@ -2061,7 +2166,11 @@ export class Mission implements GameMode {
     let wy = 0
     let wz = 0
     let has = false
-    if (this.objective === 'extract') {
+    // The training ground: each room's own goal, or nothing.
+    const tw = this.training ? this.training.waypoint() : null
+    if (this.training) {
+      if (tw) { wx = tw.x; wy = tw.y; wz = tw.z; has = true }
+    } else if (this.objective === 'extract') {
       const e = this.fortress.extract
       wx = e.x
       wy = heightAt(this.fortress.grid, e.x, e.z) + 1.2
@@ -2096,6 +2205,9 @@ export class Mission implements GameMode {
   }
 
   dispose(): void {
+    this.training?.dispose()
+    this.offReplay?.()
+    this.offZoom?.()
     this.mesh.dispose()
     this.decor.dispose()
     this.sky.dispose()

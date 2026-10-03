@@ -26,7 +26,7 @@ export type SfxName =
   | 'suspicious' | 'spotted' | 'body' | 'alertUp' | 'alertDown' | 'alarm' | 'enemyShot' | 'whizz' | 'wake'
   | 'telegraph' | 'shell' | 'wave'
   // The mission's beats
-  | 'objective' | 'extract' | 'dropIn' | 'boardJump' | 'bark' | 'radio' | 'boxOn' | 'boxOff' | 'shout' | 'crank' | 'zap' | 'shard' | 'tag' | 'drag' | 'growl' | 'repair' | 'killcam' | 'lesson' | 'medal'
+  | 'objective' | 'extract' | 'dropIn' | 'boardJump' | 'bark' | 'radio' | 'boxOn' | 'boxOff' | 'shout' | 'crank' | 'zap' | 'shard' | 'tag' | 'drag' | 'growl' | 'repair' | 'gate' | 'zoom' | 'killcam' | 'lesson' | 'medal'
   // The Command Base and the interface
   | 'buy' | 'forgeStart' | 'forgeDone' | 'bellows' | 'melt' | 'clang' | 'clangOff' | 'hiss' | 'denied' | 'uiClick' | 'uiOpen' | 'uiClose' | 'uiConfirm'
 

@@ -47,6 +47,7 @@ export default {
     },
     'haul': 'Лом {n} из {need}',
     'hide': 'Спрятаться в ящике',
+    'zoom': 'Zoom the scope',
     'dragBody': 'Drag the body',
     'dropBody': 'Let go (into a container if one is at hand)',
     'sabotage': 'Sabotage the alarm beacon',
@@ -63,6 +64,7 @@ export default {
   },
   'base': {
     'deploy': 'В бой',
+    'training': 'Training',
     'threat': 'Уровень угрозы',
     'locked': 'Сначала пройдите уровень {n}',
     'best': 'Лучший счёт',
@@ -136,6 +138,12 @@ export default {
     'yourRank': 'Ты #{n} из {total}',
     'of': 'из {n} игроков',
     'tabGlobal': 'Мировой'
+  },
+  'training': {
+    'replay': 'Show me again',
+    'progress': 'Training: {n} of {total} lessons done',
+    'scrapWhy': 'Scrap buys upgrades for your weapons back at the Command Base.',
+    'skip': 'Skip training'
   },
   'pause': {
     'title': 'ПАУЗА',

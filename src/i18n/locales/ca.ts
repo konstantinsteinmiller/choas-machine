@@ -47,6 +47,7 @@ export default {
     },
     'haul': 'Ferralla {n} de {need}',
     'hide': 'Amagar-se a la caixa',
+    'zoom': 'Zoom the scope',
     'dragBody': 'Drag the body',
     'dropBody': 'Let go (into a container if one is at hand)',
     'sabotage': 'Sabotage the alarm beacon',
@@ -63,6 +64,7 @@ export default {
   },
   'base': {
     'deploy': 'Desplega',
+    'training': 'Training',
     'threat': 'Nivell d\'amenaça',
     'locked': 'Supera primer el nivell {n}',
     'best': 'Millor puntuació',
@@ -136,6 +138,12 @@ export default {
     'yourRank': 'Ets el #{n} de {total}',
     'of': 'de {n} jugadors',
     'tabGlobal': 'Global'
+  },
+  'training': {
+    'replay': 'Show me again',
+    'progress': 'Training: {n} of {total} lessons done',
+    'scrapWhy': 'Scrap buys upgrades for your weapons back at the Command Base.',
+    'skip': 'Skip training'
   },
   'pause': {
     'title': 'PAUSA',
