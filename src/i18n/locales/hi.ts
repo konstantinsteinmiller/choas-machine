@@ -46,6 +46,7 @@ export default {
       'extract': 'निकासी पैड तक पहुँचें'
     },
     'haul': 'Salvage {n} of {need}',
+    'hide': 'Hide in the box',
     'loot': 'Strip the salvage'
   },
   'defeat': {
@@ -161,6 +162,7 @@ export default {
       'crouch': 'झुकना',
       'act': 'वार / उपयोग',
       'grapple': 'Grappling hook',
+      'hide': 'Hide box',
       'decoy': 'डिकॉय लगाएँ',
       'reload': 'रीलोड',
       'weapon1': 'स्नाइपर राइफल',

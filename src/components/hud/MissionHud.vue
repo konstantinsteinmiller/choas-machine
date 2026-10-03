@@ -112,6 +112,18 @@
       )
         template(#badge)
           FHudBadge(tone="cyan") {{ hud.decoys }}
+      //- The hide box: down over the mech, and off again.
+      FHudButton(
+        icon="box"
+        tone="violet"
+        :active="hud.boxed"
+        :pressed="hud.boxed"
+        :is-disabled="hud.mode !== 'ground'"
+        :attention="teaching('hide')"
+        :aria-label="t('hud.hide')"
+        data-testid="btn-hide"
+        @click="input.hideQueued = true"
+      )
       //- A thumb has no Shift key: sprint is a switch here. It lets go by
       //- itself when the stick does.
       FHudButton(

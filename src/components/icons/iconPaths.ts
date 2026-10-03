@@ -364,6 +364,14 @@ export const ICON_PATHS: Record<GameIconName, string[]> = {
     'M4 18.6h16v2.6H4Z'
   ],
   // The grappling hook: an eye for the line, a shank, two flukes.
+  // The hide box: a crate with a lid, peering out of two slits (punched
+  // counter-clockwise, so they are holes).
+  'box': [
+    'M4.6 7.4H19.4A1.4 1.4 0 0 1 20.8 8.8V19.2A1.4 1.4 0 0 1 19.4 20.6H4.6A1.4 1.4 0 0 1 3.2 19.2V8.8A1.4 1.4 0 0 1 4.6 7.4Z',
+    'M3.6 3.6H20.4A1 1 0 0 1 21.4 4.6V6A0.6 0.6 0 0 1 20.8 6.6H3.2A0.6 0.6 0 0 1 2.6 6V4.6A1 1 0 0 1 3.6 3.6Z',
+    'M7.2 11.2V12.8H10.4V11.2Z',
+    'M13.6 11.2V12.8H16.8V11.2Z'
+  ],
   'hook': [
     'M12 2.4A2.3 2.3 0 1 1 12 7A2.3 2.3 0 1 1 12 2.4Z',
     'M10.8 6.4h2.4v10.2h-2.4Z',

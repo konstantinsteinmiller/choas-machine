@@ -46,6 +46,7 @@ export default {
       'extract': 'Arriba a la plataforma d\'extracció'
     },
     'haul': 'Salvage {n} of {need}',
+    'hide': 'Hide in the box',
     'loot': 'Strip the salvage'
   },
   'defeat': {
@@ -161,6 +162,7 @@ export default {
       'crouch': 'Ajupir-se',
       'act': 'Cop / utilitzar',
       'grapple': 'Grappling hook',
+      'hide': 'Hide box',
       'decoy': 'Desplegar parany',
       'reload': 'Recarregar',
       'weapon1': 'Rifle franctirador',

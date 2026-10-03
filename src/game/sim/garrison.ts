@@ -72,7 +72,23 @@ const DECAY_WARY_PER_S = 0.1
 const WARY_GAIN = 1.6
 
 /** How far a body can be told for what it is, and how long a look takes. */
-const BODY_RANGE = 14
+const BODY_RANGE = 18
+/**
+ * The missed check-in: this long after a defender goes down (plus up to
+ * CHECKIN_JITTER_S, by its seed), its radio has been quiet too long and the
+ * nearest walking patrol goes to see what became of it.
+ */
+export const CHECKIN_S = 28
+export const CHECKIN_JITTER_S = 12
+/**
+ * The hide box. A box standing still is a box; nobody gives it a second look
+ * from further than BOX_BUMP. A box that creeps is odd: a watcher sees a
+ * little of it and can get as far as suspicious, never sure, until it walks
+ * up close.
+ */
+export const BOX_BUMP = 2.4
+const BOX_CREEP_SEEN = 0.35
+const BOX_CREEP_CAP = 0.85
 const BODY_NOTICE_S = 0.5
 const BODY_HEIGHT = 0.45
 
@@ -174,6 +190,9 @@ export interface Unit {
   hitZ: number
   /** A body, and somebody has already raised the alarm over it. */
   found: boolean
+  /** When its missed check-in sends somebody to look (garrison time); and whether it has. */
+  checkAt: number
+  checked: boolean
   stride: number
   speed01: number
   homeX: number
@@ -232,6 +251,8 @@ export interface Target {
   visible: boolean
   /** 0 standing still … 1 at a run: a moving mech is harder to hit. */
   moving?: number
+  /** Under the hide box, standing still or creeping. */
+  box?: 'still' | 'creep'
 }
 
 /**
@@ -252,6 +273,8 @@ export type GarrisonEvent =
   | { type: 'spotted'; id: number }
   | { type: 'calm'; id: number }
   | { type: 'body'; id: number; corpse: number }
+  /** `id` noticed `corpse` missed its check-in and is going to look. */
+  | { type: 'checkin'; id: number; corpse: number }
   | { type: 'kill'; id: number; death: DeathKind }
   | { type: 'chaos' }
   /** A machine powers up. */
@@ -287,7 +310,7 @@ export const makeGarrison = (f: Fortress, level = 2): Garrison => {
       yaw: p.facing, pyaw: p.facing, look: 0,
       state: p.reserve ? 'reserve' : mech ? 'dormant' : 'patrol', t: 0, detect: 0, sees: false, seenX: p.x, seenZ: p.z, lured: false,
       route: p.route, wp: p.route.length > 1 ? 1 : 0, wait: p.route[0]?.wait ?? 0,
-      path: [], pathI: 0, repath: 0, bodyT: 0, hp: Math.round(SPECS[p.kind].hp * threat.hp), deadT: 0, fallDir: 1, huh: HUH_S, noise: 0, gripped: false, hold: 0, death: 'back', hitX: 0, hitZ: 0, found: false,
+      path: [], pathI: 0, repath: 0, bodyT: 0, checkAt: Infinity, checked: false, hp: Math.round(SPECS[p.kind].hp * threat.hp), deadT: 0, fallDir: 1, huh: HUH_S, noise: 0, gripped: false, hold: 0, death: 'back', hitX: 0, hitZ: 0, found: false,
       stride: 0, speed01: 0, homeX: p.x, homeZ: p.z, homeYaw: p.facing, altitude: p.altitude,
       spotX: spot.x, spotZ: spot.z,
       seed: (id * 2.399) % (Math.PI * 2),
@@ -390,6 +413,30 @@ const sight = (u: Unit, g: Grid, t: Seen): number => {
   if (hasLineOfSight(g, u.x, u.y - 0.2, u.z, t.x, t.feetY + t.height * 0.92, t.z)) seen += 0.5
   if (hasLineOfSight(g, u.x, u.y - 0.2, u.z, t.x, t.feetY + t.height * 0.5, t.z)) seen += 0.5
   return seen
+}
+
+/**
+ * The missed check-in. A body nobody has found, whose radio has been quiet
+ * long enough: the nearest walking patrol goes to where it lies, and the
+ * body check does the rest when it gets there and sees it. Nobody left who
+ * walks: nobody checks.
+ */
+const checkIns = (gar: Garrison): void => {
+  for (const c of gar.units) {
+    if (c.state !== 'dead' || c.found || c.checked || gar.time < c.checkAt) continue
+    c.checked = true
+    let best: Unit | null = null
+    let bestD = Infinity
+    for (const u of gar.units) {
+      if (!isAlive(u) || u.state !== 'patrol' || isLight(u) || u.kind === 'goliath' || u.gripped) continue
+      const d = Math.hypot(u.x - c.x, u.z - c.z)
+      if (d < bestD) { best = u; bestD = d }
+    }
+    if (!best) continue
+    best.detect = Math.max(best.detect, SUSPECT_AT + 0.05)
+    suspect(gar, best, c.x, c.z, false)
+    gar.events.push({ type: 'checkin', id: best.id, corpse: c.id })
+  }
 }
 
 // ─── One step ────────────────────────────────────────────────────────────────
@@ -690,6 +737,7 @@ const fight = (u: Unit, g: Grid, gar: Garrison, target: Target, dt: number): voi
  */
 export const stepGarrison = (gar: Garrison, g: Grid, target: Target, dt: number): void => {
   gar.time += dt
+  checkIns(gar)
   const seen: Seen = { x: target.x, feetY: target.y, z: target.z, height: target.height }
   let calm = true
   let watched = false
@@ -720,14 +768,17 @@ export const stepGarrison = (gar: Garrison, g: Grid, target: Target, dt: number)
     }
 
     // ── What it sees of the mech ──
-    const exposed = target.visible ? sight(u, g, seen) : 0
+    let exposed = target.visible ? sight(u, g, seen) : 0
+    // Under the box: a box is a box, unless it moves, or somebody walks into it.
+    const boxedAway = !!target.box && Math.hypot(target.x - u.x, target.z - u.z) > BOX_BUMP
+    if (boxedAway) exposed = target.box === 'still' ? 0 : exposed * BOX_CREEP_SEEN
     u.sees = exposed > 0
     if (u.sees) {
       const wary = u.state === 'suspicious' || u.state === 'search' ? WARY_GAIN : 1
       const rate = isLight(u)
         ? (exposed * (target.crouched ? 0.7 : 1)) / SPOT_NOTICE_S
         : noticeRate(Math.hypot(target.x - u.x, target.z - u.z), SPECS[u.kind].range, exposed, target.crouched)
-      u.detect = Math.min(1, u.detect + rate * wary * gar.threat.notice * dt)
+      u.detect = Math.min(boxedAway && u.state !== 'combat' ? BOX_CREEP_CAP : 1, u.detect + rate * wary * gar.threat.notice * dt)
       u.seenX = target.x
       u.seenZ = target.z
     } else if (u.state !== 'combat') {
@@ -874,6 +925,9 @@ export const killUnit = (gar: Garrison, id: number, fromX: number, fromZ: number
   // Wreckage is evidence like a body is: a patrol that sees a drone in
   // pieces on the ground knows somebody is in the base.
   u.found = u.kind === 'searchlight'
+  // Its radio goes quiet; in a while somebody notices.
+  u.checkAt = gar.time + CHECKIN_S + u.seed * CHECKIN_JITTER_S
+  u.checked = u.kind === 'searchlight'
   gar.events.push({ type: 'kill', id, death: u.death })
   // A light that goes out is noticed: whoever is near wonders why.
   if (u.kind === 'searchlight') wonderAt(gar, u.x, u.z, 14)

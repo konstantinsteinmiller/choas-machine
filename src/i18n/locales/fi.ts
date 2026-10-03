@@ -46,6 +46,7 @@ export default {
       'extract': 'Pääse noutoalustalle'
     },
     'haul': 'Salvage {n} of {need}',
+    'hide': 'Hide in the box',
     'loot': 'Strip the salvage'
   },
   'defeat': {
@@ -161,6 +162,7 @@ export default {
       'crouch': 'Kyyristy',
       'act': 'Isku / käytä',
       'grapple': 'Grappling hook',
+      'hide': 'Hide box',
       'decoy': 'Aseta houkute',
       'reload': 'Lataa',
       'weapon1': 'Tarkkuuskivääri',

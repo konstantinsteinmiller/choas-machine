@@ -46,6 +46,7 @@ export default {
       'extract': 'Nå evakueringsplatsen'
     },
     'haul': 'Salvage {n} of {need}',
+    'hide': 'Hide in the box',
     'loot': 'Strip the salvage'
   },
   'defeat': {
@@ -161,6 +162,7 @@ export default {
       'crouch': 'Huka',
       'act': 'Hugga / använd',
       'grapple': 'Grappling hook',
+      'hide': 'Hide box',
       'decoy': 'Placera lockbete',
       'reload': 'Ladda om',
       'weapon1': 'Prickskyttegevär',

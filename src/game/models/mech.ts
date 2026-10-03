@@ -150,6 +150,8 @@ export interface MechPose {
   down: number
   /** 0 … 1 kneeling at a pile with both hands in it. */
   loot: number
+  /** 0 … 1 under the hide box (the gun is stowed). */
+  boxed: number
   /** A takedown: the free hand on the target, the blade arm cocked, the blade arm through. Each 0 … 1. */
   grab: number
   draw: number
@@ -158,7 +160,7 @@ export interface MechPose {
 
 export const restPose = (): MechPose => ({
   time: 0, stride: 0, speed: 0, crouch: 0, sprint: 0, aim: 0, aimPitch: 0, weapon: 'sniper', recoil: 0, spin: 0,
-  blade: 0, stab: 0, climb: 0, climbPhase: 0, cable: 0, air: 0, down: 0, loot: 0, grab: 0, draw: 0, plunge: 0
+  blade: 0, stab: 0, climb: 0, climbPhase: 0, cable: 0, air: 0, down: 0, loot: 0, boxed: 0, grab: 0, draw: 0, plunge: 0
 })
 
 const HIDDEN = 0.001
@@ -296,8 +298,8 @@ export const poseMech = (rig: Rig, s: MechPose): void => {
   )
 
   // ── What is in the hand ──
-  // The gun is put away for a stab, a climb and a cable walk.
-  const armed = s.stab > 0 || td > 0 || s.grab > 0 || s.climb > 0.5 || s.cable > 0.5 ? null : s.weapon
+  // The gun is put away for a stab, a climb, a cable walk and the hide box.
+  const armed = s.stab > 0 || td > 0 || s.grab > 0 || s.climb > 0.5 || s.cable > 0.5 || s.boxed > 0.5 ? null : s.weapon
   for (const w of ['sniper', 'minigun', 'rocket'] as const) scaleBone(rig, w, w === armed ? 1 : HIDDEN)
   rig.bones.minigunBarrels!.rotation.y = s.spin
   if (s.loot > 0) {

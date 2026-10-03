@@ -46,6 +46,7 @@ export default {
       'extract': 'Bereik het extractieplatform'
     },
     'haul': 'Salvage {n} of {need}',
+    'hide': 'Hide in the box',
     'loot': 'Strip the salvage'
   },
   'defeat': {
@@ -161,6 +162,7 @@ export default {
       'crouch': 'Bukken',
       'act': 'Steken / gebruiken',
       'grapple': 'Grappling hook',
+      'hide': 'Hide box',
       'decoy': 'Lokvogel plaatsen',
       'reload': 'Herladen',
       'weapon1': 'Sluipschuttersgeweer',

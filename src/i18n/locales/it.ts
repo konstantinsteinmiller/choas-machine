@@ -46,6 +46,7 @@ export default {
       'extract': 'Raggiungi la piattaforma di estrazione'
     },
     'haul': 'Salvage {n} of {need}',
+    'hide': 'Hide in the box',
     'loot': 'Strip the salvage'
   },
   'defeat': {
@@ -161,6 +162,7 @@ export default {
       'crouch': 'Accovacciarsi',
       'act': 'Colpisci / usa',
       'grapple': 'Grappling hook',
+      'hide': 'Hide box',
       'decoy': 'Piazza esca',
       'reload': 'Ricarica',
       'weapon1': 'Fucile di precisione',

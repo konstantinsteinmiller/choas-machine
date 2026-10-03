@@ -20,6 +20,7 @@
           KeyCap(v-else-if="h.id === 'blade'" action="act")
           KeyCap(v-else-if="h.id === 'decoy'" action="decoy")
           KeyCap(v-else-if="h.id === 'sprint'" action="sprint")
+          KeyCap(v-else-if="h.id === 'hide'" action="hide")
           KeyCap(v-else-if="h.id === 'grapple'" action="grapple")
           KeyCap(v-else-if="h.id === 'loot'" action="act")
           //- Where to go: the marker itself, small, with the mech walking to it.
@@ -65,7 +66,7 @@ const { t } = useI18n()
 /** What each control is FOR, as a picture beside its key. */
 const ICONS: Readonly<Record<HintId, GameIconName>> = {
   move: 'mech', look: 'eye', scope: 'scope', fire: 'sniper', crouch: 'crouch', blade: 'blade',
-  climb: 'up', cable: 'up', decoy: 'decoy', weapon: 'minigun', sprint: 'sprint', grapple: 'hook', loot: 'scrap', goal: 'mech'
+  climb: 'up', cable: 'up', decoy: 'decoy', weapon: 'minigun', sprint: 'sprint', grapple: 'hook', loot: 'scrap', goal: 'mech', hide: 'box'
 }
 /** Touch: where on the screen a gesture's finger is drawn. */
 const SPOTS: Readonly<Partial<Record<HintId, 'stick' | 'right'>>> = {
@@ -78,7 +79,7 @@ const FINGER: Readonly<Partial<Record<HintId, 'drag' | 'swipe' | 'hold' | 'relea
 const LABELS: Readonly<Record<HintId, string>> = {
   move: 'options.actions.forward', look: 'hint.look', scope: 'hint.scope', fire: 'hint.fire',
   crouch: 'hud.crouch', blade: 'hud.strike', climb: 'hint.climb', cable: 'hint.climb', decoy: 'hud.decoy', weapon: 'hud.weapons',
-  sprint: 'hud.sprint', grapple: 'hud.grapple', loot: 'hud.loot', goal: 'hud.objective.salvage'
+  sprint: 'hud.sprint', grapple: 'hud.grapple', loot: 'hud.loot', goal: 'hud.objective.salvage', hide: 'hud.hide'
 }
 const label = (id: HintId): string => t(LABELS[id])
 

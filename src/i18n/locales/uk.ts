@@ -46,6 +46,7 @@ export default {
       'extract': 'Дістаньтеся точки евакуації'
     },
     'haul': 'Salvage {n} of {need}',
+    'hide': 'Hide in the box',
     'loot': 'Strip the salvage'
   },
   'defeat': {
@@ -161,6 +162,7 @@ export default {
       'crouch': 'Присідання',
       'act': 'Удар / дія',
       'grapple': 'Grappling hook',
+      'hide': 'Hide box',
       'decoy': 'Поставити приманку',
       'reload': 'Перезарядка',
       'weapon1': 'Снайперська гвинтівка',

@@ -46,6 +46,7 @@ export default {
       'extract': 'اصل إلى منصة الإخلاء'
     },
     'haul': 'Salvage {n} of {need}',
+    'hide': 'Hide in the box',
     'loot': 'Strip the salvage'
   },
   'defeat': {
@@ -161,6 +162,7 @@ export default {
       'crouch': 'انحناء',
       'act': 'طعن / استخدام',
       'grapple': 'Grappling hook',
+      'hide': 'Hide box',
       'decoy': 'نشر طُعم',
       'reload': 'إعادة التعبئة',
       'weapon1': 'بندقية قنص',

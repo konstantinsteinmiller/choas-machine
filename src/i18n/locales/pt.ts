@@ -46,6 +46,7 @@ export default {
       'extract': 'Chegue à área de extração'
     },
     'haul': 'Salvage {n} of {need}',
+    'hide': 'Hide in the box',
     'loot': 'Strip the salvage'
   },
   'defeat': {
@@ -161,6 +162,7 @@ export default {
       'crouch': 'Agachar',
       'act': 'Golpear / usar',
       'grapple': 'Grappling hook',
+      'hide': 'Hide box',
       'decoy': 'Lançar isca',
       'reload': 'Recarregar',
       'weapon1': 'Rifle sniper',

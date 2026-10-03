@@ -46,6 +46,7 @@ export default {
       'extract': 'Təxliyə meydançasına çat'
     },
     'haul': 'Salvage {n} of {need}',
+    'hide': 'Hide in the box',
     'loot': 'Strip the salvage'
   },
   'defeat': {
@@ -161,6 +162,7 @@ export default {
       'crouch': 'Çömelmə',
       'act': 'Zərbə / istifadə',
       'grapple': 'Grappling hook',
+      'hide': 'Hide box',
       'decoy': 'Yem yerləşdir',
       'reload': 'Doldur',
       'weapon1': 'Snayper tüfəngi',

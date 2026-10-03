@@ -46,6 +46,7 @@ export default {
       'extract': 'Dođi do platforme za evakuaciju'
     },
     'haul': 'Salvage {n} of {need}',
+    'hide': 'Hide in the box',
     'loot': 'Strip the salvage'
   },
   'defeat': {
@@ -161,6 +162,7 @@ export default {
       'crouch': 'Čučanj',
       'act': 'Ubod / upotreba',
       'grapple': 'Grappling hook',
+      'hide': 'Hide box',
       'decoy': 'Postavi mamac',
       'reload': 'Napuni',
       'weapon1': 'Snajper',

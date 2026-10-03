@@ -46,6 +46,7 @@ export default {
       'extract': 'Dojdi na evakuační plošinu'
     },
     'haul': 'Salvage {n} of {need}',
+    'hide': 'Hide in the box',
     'loot': 'Strip the salvage'
   },
   'defeat': {
@@ -161,6 +162,7 @@ export default {
       'crouch': 'Dřep',
       'act': 'Úder / použít',
       'grapple': 'Grappling hook',
+      'hide': 'Hide box',
       'decoy': 'Nasadit návnadu',
       'reload': 'Přebít',
       'weapon1': 'Odstřelovačka',

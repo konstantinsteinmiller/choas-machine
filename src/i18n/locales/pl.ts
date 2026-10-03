@@ -46,6 +46,7 @@ export default {
       'extract': 'Dotrzyj do punktu ewakuacji'
     },
     'haul': 'Salvage {n} of {need}',
+    'hide': 'Hide in the box',
     'loot': 'Strip the salvage'
   },
   'defeat': {
@@ -161,6 +162,7 @@ export default {
       'crouch': 'Kucanie',
       'act': 'Cios / użyj',
       'grapple': 'Grappling hook',
+      'hide': 'Hide box',
       'decoy': 'Rozstaw przynętę',
       'reload': 'Przeładuj',
       'weapon1': 'Karabin snajperski',

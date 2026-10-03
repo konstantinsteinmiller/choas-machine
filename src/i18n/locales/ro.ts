@@ -46,6 +46,7 @@ export default {
       'extract': 'Ajunge la zona de extracție'
     },
     'haul': 'Salvage {n} of {need}',
+    'hide': 'Hide in the box',
     'loot': 'Strip the salvage'
   },
   'defeat': {
@@ -161,6 +162,7 @@ export default {
       'crouch': 'Ghemuit',
       'act': 'Înjunghie / folosește',
       'grapple': 'Grappling hook',
+      'hide': 'Hide box',
       'decoy': 'Plasează momeală',
       'reload': 'Reîncarcă',
       'weapon1': 'Pușcă de lunetist',

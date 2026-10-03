@@ -46,6 +46,7 @@ export default {
       'extract': 'Φτάσε στην πλατφόρμα εκκένωσης'
     },
     'haul': 'Salvage {n} of {need}',
+    'hide': 'Hide in the box',
     'loot': 'Strip the salvage'
   },
   'defeat': {
@@ -161,6 +162,7 @@ export default {
       'crouch': 'Σκύψιμο',
       'act': 'Μαχαίρωμα / χρήση',
       'grapple': 'Grappling hook',
+      'hide': 'Hide box',
       'decoy': 'Τοποθέτηση δολώματος',
       'reload': 'Ανατροφοδότηση',
       'weapon1': 'Ελεύθερος σκοπευτής',

@@ -1,5 +1,5 @@
 import {
-  PerspectiveCamera, Sprite, SpriteMaterial, AdditiveBlending, Vector3, Mesh, ConeGeometry, CylinderGeometry, MeshBasicMaterial, DoubleSide
+  PerspectiveCamera, Sprite, SpriteMaterial, AdditiveBlending, Vector3, Mesh, ConeGeometry, CylinderGeometry, MeshBasicMaterial, DoubleSide, Group
 } from 'three'
 import { getRenderer, fovForAspect } from '../engine/renderer'
 import { app, newScene, type GameMode } from '../engine/app'
@@ -52,6 +52,7 @@ import {
   type CinePose
 } from './cine'
 import { buildRobodog, poseRobodog, restDogPose, type DogPose } from '../models/robodog'
+import { buildHideBox, disposeHideBox } from '../models/hideBox'
 import { introFrame, makeDogFrame, makeRiderFrame, outroFrame, RIDER_JUMP } from './robodog'
 import { killCamsEnabled } from '@/use/useKillCam'
 import { markSeen, profile, saveProfile } from '../state/profile'
@@ -183,6 +184,9 @@ export class Mission implements GameMode {
   private cinePose = makeCinePose()
   private followPose = makeCinePose()
   private killcam = makeKillCamState()
+  /** The hide box, and whether the mech was under it last step. */
+  private hideBox!: Group
+  private wasBoxed = false
   /** The ride in and out: the robo dog, which folds into a jet board. */
   private dog!: Rig
   private dogPose: DogPose = restDogPose()
@@ -220,7 +224,7 @@ export class Mission implements GameMode {
   private coach: Coach = makeCoach('desk')
   private coachCtx: CoachContext = {
     playing: false, walked: 0, turned: 0, enemies: true, aiming: false, chaos: false, threat: 0, guardNear: false,
-    strike: false, nearLadder: false, nearCable: false, decoys: 0, loot: false, hook: false, seeking: false, far: false
+    strike: false, nearLadder: false, nearCable: false, decoys: 0, loot: false, hook: false, seeking: false, far: false, boxed: false
   }
   private lastYaw = 0
   private lastPitch = 0
@@ -290,6 +294,8 @@ export class Mission implements GameMode {
     m.strikeMark.renderOrder = 31
     m.strikeMark.visible = false
     await slice()
+    m.hideBox = buildHideBox()
+    m.scene.add(m.hideBox)
     m.dog = buildRobodog()
     m.dog.root.visible = false
     // The way out: a column of light on the pad, lit once the target is down.
@@ -388,6 +394,7 @@ export class Mission implements GameMode {
           mx: dir.x,
           mz: dir.z,
           crouch: i.crouchQueued,
+          box: i.hideQueued,
           sprint: i.sprintHeld,
           aiming: this.weaponUp(),
           aimYaw: this.cam.yaw
@@ -476,6 +483,7 @@ export class Mission implements GameMode {
     mirror('grappling', !this.grapple ? '' : canCancel(this.grapple) ? 'up' : 'over')
     mirror('grappleHeard', this.grapple?.heard ?? 0)
     mirror('loot', !this.looting && !!this.lootOffer && hud.phase === 'play')
+    mirror('boxed', this.player.boxed)
     mirror('looting', this.looting ? Math.min(1, this.looting.t / SALVAGE_S) : 0)
     consumeEdges(i)
   }
@@ -814,6 +822,7 @@ export class Mission implements GameMode {
 
   private startLoot(pile: Pile): void {
     const p = this.player
+    p.boxed = false
     this.looting = { pile, t: 0 }
     this.lootOffer = null
     p.vx = p.vz = 0
@@ -942,6 +951,8 @@ export class Mission implements GameMode {
     t.z = p.z
     t.height = MECH_HEIGHT + (MECH_HEIGHT_CROUCH - MECH_HEIGHT) * p.crouch
     t.crouched = p.crouched
+    // Under the box: still is a box; creeping is a box that moves.
+    t.box = p.boxed && p.box > 0.9 ? (Math.hypot(p.vx, p.vz) > 0.35 ? 'creep' : 'still') : undefined
     t.moving = p.mode === 'ground' ? p.speed01 : 0.6
     stepGarrison(this.garrison, this.fortress.grid, t, dt)
     stepFire(this.garrison, this.fortress.grid, t, dt)
@@ -1017,6 +1028,9 @@ export class Mission implements GameMode {
         const u = gar.units[e.id]!
         this.fx.particles.riseRing(u.x, u.y + 0.2, u.z, PAL.glowRed, SPECS[u.kind].radius * 1.4, 20)
         emit('wake', { id: e.id, kind: u.kind })
+      } else if (e.type === 'checkin') {
+        // A radio that has been quiet too long: somebody goes to see.
+        emit('checkin', { id: e.id, kind: gar.units[e.id]!.kind, corpse: e.corpse })
       } else {
         if (e.type === 'spotted') this.stats.spotted++
         emit(e.type, { id: e.id, kind: gar.units[e.id]!.kind })
@@ -1153,6 +1167,7 @@ export class Mission implements GameMode {
       (Math.hypot(k.ax - cx, k.az - cz) < 1.8 && Math.abs(heightAt(g, (k.ax + 0.5) * CELL, (k.az + 0.5) * CELL) - p.y) < 1)
       || (Math.hypot(k.bx - cx, k.bz - cz) < 1.8 && Math.abs(heightAt(g, (k.bx + 0.5) * CELL, (k.bz + 0.5) * CELL) - p.y) < 1))
     c.loot = !!this.lootOffer
+    c.boxed = p.boxed
     c.hook = !!this.hookSpot && !this.grapple
     c.seeking = this.objective === 'salvage' && this.stats.piles === 0
     // The way is long when the waypoint is: the marker's own target.
@@ -1160,6 +1175,9 @@ export class Mission implements GameMode {
     // Reaching a pile is what the marker was for.
     if (this.lootOffer) this.learn('goal')
     if (p.sprinting && !this.wasSprinting) this.learn('sprint')
+    if (p.boxed && !this.wasBoxed) this.learn('hide')
+    if (p.boxed !== this.wasBoxed) emit('box', { on: p.boxed })
+    this.wasBoxed = p.boxed
     this.wasSprinting = p.sprinting
     const views = stepCoach(this.coach, c, dt)
     if (views) hud.hints = views
@@ -1512,6 +1530,7 @@ export class Mission implements GameMode {
     s.crouch = this.armor.down ? Math.min(1, Math.max(p.crouch, this.downT / MECH_KNEEL_S)) : p.crouch
     s.down = this.armor.down ? Math.max(1e-3, this.downT) : 0
     s.sprint = p.mode === 'ground' ? p.sprint : 0
+    s.boxed = p.box
     // Stripping a pile: down on one knee, both hands in the scrap.
     s.loot = this.looting ? Math.min(1, this.looting.t / 0.2) * Math.min(1, (SALVAGE_S - this.looting.t) / 0.15 + 0.2) : 0
     if (this.looting) s.crouch = Math.max(s.crouch, s.loot)
@@ -1550,6 +1569,14 @@ export class Mission implements GameMode {
         if (u.kind !== 'drone' || u.state === 'dead' || u.hp >= SPECS.drone.hp) continue
         this.fx.particles.emit({ x: u.x, y: u.y + 0.1, z: u.z, vy: 0.9, vx: (Math.random() - 0.5) * 0.4, vz: (Math.random() - 0.5) * 0.4, color: '#3b3355', size: 0.22, sizeEnd: 0.55, life: 1.1, drag: 0.6 })
       }
+    }
+
+    // The hide box drops over the mech, and lifts off it.
+    const bx = this.player.box
+    this.hideBox.visible = bx > 0.01
+    if (this.hideBox.visible) {
+      this.hideBox.position.set(x, y + (1 - bx) * (1 - bx) * 2.6, z)
+      this.hideBox.rotation.y = yaw
     }
 
     // The piles still lying there glint now and then.
@@ -1661,6 +1688,7 @@ export class Mission implements GameMode {
     this.offHelp?.()
     hud.hints = []
     app.setTimeScale(1)
+    disposeHideBox(this.hideBox)
     this.dog.mesh.geometry.dispose()
     this.dog.material.dispose()
     this.dog.glowMaterial.dispose()

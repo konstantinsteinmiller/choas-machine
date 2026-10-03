@@ -21,6 +21,8 @@ export const RUN_SPEED = 5.6
 /** Flat out: fast, upright and loud (`SPRINT_EARSHOT` in the mission). */
 export const SPRINT_SPEED = 8.1
 export const CROUCH_SPEED = 2.7
+/** Creeping about under the hide box. */
+export const BOX_SPEED = 1.6
 export const AIM_SPEED = 2.2
 export const LADDER_SPEED = 3.2
 export const CABLE_SPEED = 3.4
@@ -74,6 +76,9 @@ export interface Player {
   speedMul: number
   /** Flat out this step, and the same eased 0 … 1 for the body's pose. */
   sprinting: boolean
+  /** Under the hide box; and 0 … 1 how far down it has come. */
+  boxed: boolean
+  box: number
   sprint: number
 }
 
@@ -81,7 +86,7 @@ export const makePlayer = (x: number, y: number, z: number, yaw = 0): Player => 
   x, y, z, px: x, py: y, pz: z, yaw, pyaw: yaw, vx: 0, vz: 0, vy: 0,
   mode: 'ground', crouched: false, crouch: 0, stride: 0, speed01: 0,
   ladder: null, cable: null, cableT: 0, airFrom: y, push: 0, mantle: null, climbPhase: 0, speedMul: 1,
-  sprinting: false, sprint: 0
+  sprinting: false, sprint: 0, boxed: false, box: 0
 })
 
 /** What the hands ask of the body this step. */
@@ -95,6 +100,8 @@ export interface Wish {
   /** Sprint while this is held: not crouched, not aiming. Optional so a
    *  caller that never sprints can leave it out. */
   sprint?: boolean
+  /** Toggle the hide box this step. Optional, like sprint. */
+  box?: boolean
   /** The weapon is up: the mech walks slowly and faces `aimYaw`. */
   aiming: boolean
   aimYaw: number
@@ -185,7 +192,13 @@ export const stepPlayer = (p: Player, g: Grid, w: Wish, dt: number): PlayerEvent
   p.pz = p.z
   p.pyaw = p.yaw
 
-  if (w.crouch && (p.mode === 'ground')) p.crouched = !p.crouched
+  if (w.crouch && (p.mode === 'ground') && !p.boxed) p.crouched = !p.crouched
+  // The hide box: down over a crouched mech, or off again. Raising the
+  // weapon, running, or anything but the ground throws it off.
+  if (w.box && p.mode === 'ground') p.boxed = !p.boxed
+  if (p.boxed && (w.aiming || w.sprint || p.mode !== 'ground')) p.boxed = false
+  if (p.boxed) p.crouched = true
+  p.box = approach(p.box, p.boxed ? 1 : 0, dt * 7)
   // Sprinting out of a crouch stands the mech up: one intent, one key.
   const wantSprint = !!w.sprint && !w.aiming && p.mode === 'ground' && Math.hypot(w.mx, w.mz) > 0.5
   if (wantSprint && p.crouched) p.crouched = false
@@ -260,7 +273,7 @@ export const stepPlayer = (p: Player, g: Grid, w: Wish, dt: number): PlayerEvent
   }
 
   // ── Walking, or falling ──
-  const top = (p.crouched ? CROUCH_SPEED : w.aiming ? AIM_SPEED : p.sprinting ? SPRINT_SPEED : RUN_SPEED) * p.speedMul
+  const top = (p.boxed ? BOX_SPEED : p.crouched ? CROUCH_SPEED : w.aiming ? AIM_SPEED : p.sprinting ? SPRINT_SPEED : RUN_SPEED) * p.speedMul
   const control = p.mode === 'air' ? 0.25 : 1
   const k = Math.min(1, ACCEL * control * dt)
   p.vx += (dirX * mag * top - p.vx) * k

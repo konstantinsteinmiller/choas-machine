@@ -46,6 +46,7 @@ export default {
       'extract': 'Erreiche die Extraktionsplattform'
     },
     'haul': 'Salvage {n} of {need}',
+    'hide': 'Hide in the box',
     'loot': 'Strip the salvage'
   },
   'defeat': {
@@ -161,6 +162,7 @@ export default {
       'crouch': 'Ducken',
       'act': 'Zustechen / benutzen',
       'grapple': 'Grappling hook',
+      'hide': 'Hide box',
       'decoy': 'Köder platzieren',
       'reload': 'Nachladen',
       'weapon1': 'Scharfschützengewehr',

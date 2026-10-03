@@ -46,6 +46,7 @@ export default {
       'extract': 'Эвакуация алаңына жетіңіз'
     },
     'haul': 'Salvage {n} of {need}',
+    'hide': 'Hide in the box',
     'loot': 'Strip the salvage'
   },
   'defeat': {
@@ -161,6 +162,7 @@ export default {
       'crouch': 'Бүгілу',
       'act': 'Шанышу / қолдану',
       'grapple': 'Grappling hook',
+      'hide': 'Hide box',
       'decoy': 'Жем қою',
       'reload': 'Оқтау',
       'weapon1': 'Снайпер мылтығы',

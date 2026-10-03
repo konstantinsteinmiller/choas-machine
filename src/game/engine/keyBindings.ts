@@ -21,7 +21,7 @@ import { KEY_BINDINGS_KEY } from '@/keys'
 
 export type Action =
   | 'forward' | 'back' | 'left' | 'right' | 'turnLeft' | 'turnRight'
-  | 'sprint' | 'crouch' | 'act' | 'grapple' | 'decoy' | 'reload'
+  | 'sprint' | 'crouch' | 'hide' | 'act' | 'grapple' | 'decoy' | 'reload'
   | 'weapon1' | 'weapon2' | 'weapon3' | 'cycle' | 'pause'
 
 /** Defaults: the first code is the action's main key, the rest alternates.
@@ -36,6 +36,8 @@ export const DEFAULT_BINDINGS: Readonly<Record<Action, readonly string[]>> = {
   // Held. Shift is where every PC game puts it.
   sprint: ['ShiftLeft', 'ShiftRight'],
   crouch: ['KeyC'],
+  // The hide box: down over the mech, and off again.
+  hide: ['KeyB'],
   act: ['KeyE', 'KeyF'],
   grapple: ['KeyG'],
   decoy: ['KeyQ'],

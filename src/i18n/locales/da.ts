@@ -46,6 +46,7 @@ export default {
       'extract': 'Nå evakueringsplatformen'
     },
     'haul': 'Salvage {n} of {need}',
+    'hide': 'Hide in the box',
     'loot': 'Strip the salvage'
   },
   'defeat': {
@@ -161,6 +162,7 @@ export default {
       'crouch': 'Dukke sig',
       'act': 'Stik / brug',
       'grapple': 'Grappling hook',
+      'hide': 'Hide box',
       'decoy': 'Udsæt lokkedue',
       'reload': 'Genlad',
       'weapon1': 'Snigskytteriffel',

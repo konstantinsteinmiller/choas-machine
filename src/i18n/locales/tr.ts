@@ -46,6 +46,7 @@ export default {
       'extract': 'Tahliye alanına ulaş'
     },
     'haul': 'Salvage {n} of {need}',
+    'hide': 'Hide in the box',
     'loot': 'Strip the salvage'
   },
   'defeat': {
@@ -161,6 +162,7 @@ export default {
       'crouch': 'Çömelme',
       'act': 'Bıçakla / kullan',
       'grapple': 'Grappling hook',
+      'hide': 'Hide box',
       'decoy': 'Yem yerleştir',
       'reload': 'Doldur',
       'weapon1': 'Keskin nişancı tüfeği',

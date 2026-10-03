@@ -46,6 +46,7 @@ export default {
       'extract': 'Evakuatsiya maydoniga yeting'
     },
     'haul': 'Salvage {n} of {need}',
+    'hide': 'Hide in the box',
     'loot': 'Strip the salvage'
   },
   'defeat': {
@@ -161,6 +162,7 @@ export default {
       'crouch': 'Cho\'kka tushish',
       'act': 'Sanchish / ishlatish',
       'grapple': 'Grappling hook',
+      'hide': 'Hide box',
       'decoy': 'Yem qo\'yish',
       'reload': 'Qayta o\'qlash',
       'weapon1': 'Snayper miltig\'i',

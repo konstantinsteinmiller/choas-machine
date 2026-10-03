@@ -46,6 +46,7 @@ export default {
       'extract': 'Pasiekite evakuacijos aikštelę'
     },
     'haul': 'Salvage {n} of {need}',
+    'hide': 'Hide in the box',
     'loot': 'Strip the salvage'
   },
   'defeat': {
@@ -161,6 +162,7 @@ export default {
       'crouch': 'Pritūpimas',
       'act': 'Durti / naudoti',
       'grapple': 'Grappling hook',
+      'hide': 'Hide box',
       'decoy': 'Padėti masalą',
       'reload': 'Perkrauti',
       'weapon1': 'Snaiperio šautuvas',

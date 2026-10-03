@@ -390,6 +390,21 @@ const RECIPES: Record<SfxName, (pan: number, g: number) => void> = {
     burst({ dur: 0.9, vol: 0.12 * g, type: 'highpass', f0: 3500, f1: 6000 })
     tone({ wave: 'sine', f0: 300, f1: 120, dur: 0.3, vol: 0.06 * g })
   },
+  // A radio that gets no answer: static, two hopeful beeps, static.
+  radio: (_p, g) => {
+    burst({ dur: 0.25, vol: 0.07 * g, type: 'bandpass', f0: 2400, q: 1.5 })
+    tone({ wave: 'p50', f0: 1320, dur: 0.07, vol: 0.06 * g, at: 0.28 })
+    tone({ wave: 'p50', f0: 1320, dur: 0.07, vol: 0.06 * g, at: 0.42 })
+    burst({ dur: 0.3, vol: 0.05 * g, type: 'bandpass', f0: 2000, q: 1.5, at: 0.6 })
+  },
+  // The hide box: down with a hollow clunk; up with a lighter one.
+  boxOn: (_p, g) => {
+    tone({ wave: 'tri', f0: 220, f1: 140, dur: 0.14, vol: 0.14 * g })
+    burst({ dur: 0.1, vol: 0.08 * g, type: 'lowpass', f0: 900 })
+  },
+  boxOff: (_p, g) => {
+    tone({ wave: 'tri', f0: 260, f1: 360, dur: 0.1, vol: 0.1 * g })
+  },
   // The jet board: a rising whoosh past, then the hop off it.
   boardJump: (_p, g) => {
     burst({ dur: 0.5, vol: 0.1 * g, type: 'bandpass', f0: 900, f1: 3200, q: 0.9 })

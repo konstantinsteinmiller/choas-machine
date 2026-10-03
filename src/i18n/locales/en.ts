@@ -50,6 +50,7 @@ export default {
       'extract': 'Reach the extraction pad'
     },
     'haul': 'Salvage {n} of {need}',
+    'hide': 'Hide in the box',
     'loot': 'Strip the salvage'
   },
   'defeat': {
@@ -165,6 +166,7 @@ export default {
       'crouch': 'Crouch',
       'act': 'Strike / use',
       'grapple': 'Grappling hook',
+      'hide': 'Hide box',
       'decoy': 'Deploy decoy',
       'reload': 'Reload',
       'weapon1': 'Sniper rifle',

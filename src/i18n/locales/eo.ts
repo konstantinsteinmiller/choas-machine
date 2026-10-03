@@ -46,6 +46,7 @@ export default {
       'extract': 'Atingu la evakuan platformon'
     },
     'haul': 'Salvage {n} of {need}',
+    'hide': 'Hide in the box',
     'loot': 'Strip the salvage'
   },
   'defeat': {
@@ -161,6 +162,7 @@ export default {
       'crouch': 'Kaŝkaŭri',
       'act': 'Piki / uzi',
       'grapple': 'Grappling hook',
+      'hide': 'Hide box',
       'decoy': 'Meti logaĵon',
       'reload': 'Reŝargi',
       'weapon1': 'Ŝtelpafila fusilo',

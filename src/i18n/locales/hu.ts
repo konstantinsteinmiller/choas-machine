@@ -46,6 +46,7 @@ export default {
       'extract': 'Érj a kimentési platformra'
     },
     'haul': 'Salvage {n} of {need}',
+    'hide': 'Hide in the box',
     'loot': 'Strip the salvage'
   },
   'defeat': {
@@ -161,6 +162,7 @@ export default {
       'crouch': 'Guggolás',
       'act': 'Szúrás / használat',
       'grapple': 'Grappling hook',
+      'hide': 'Hide box',
       'decoy': 'Csali kihelyezése',
       'reload': 'Újratöltés',
       'weapon1': 'Mesterlövész puska',

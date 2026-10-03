@@ -46,6 +46,7 @@ export default {
       'extract': '추출 지점에 도달하라'
     },
     'haul': 'Salvage {n} of {need}',
+    'hide': 'Hide in the box',
     'loot': 'Strip the salvage'
   },
   'defeat': {
@@ -161,6 +162,7 @@ export default {
       'crouch': '앉기',
       'act': '찌르기 / 사용',
       'grapple': 'Grappling hook',
+      'hide': 'Hide box',
       'decoy': '미끼 설치',
       'reload': '재장전',
       'weapon1': '저격 소총',

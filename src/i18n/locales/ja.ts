@@ -46,6 +46,7 @@ export default {
       'extract': '脱出パッドへ向かえ'
     },
     'haul': 'Salvage {n} of {need}',
+    'hide': 'Hide in the box',
     'loot': 'Strip the salvage'
   },
   'defeat': {
@@ -161,6 +162,7 @@ export default {
       'crouch': 'しゃがむ',
       'act': '攻撃 / 使用',
       'grapple': 'Grappling hook',
+      'hide': 'Hide box',
       'decoy': 'デコイ設置',
       'reload': 'リロード',
       'weapon1': 'スナイパーライフル',

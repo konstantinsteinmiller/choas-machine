@@ -46,6 +46,7 @@ export default {
       'extract': 'Nå evakueringsplassen'
     },
     'haul': 'Salvage {n} of {need}',
+    'hide': 'Hide in the box',
     'loot': 'Strip the salvage'
   },
   'defeat': {
@@ -161,6 +162,7 @@ export default {
       'crouch': 'Huk',
       'act': 'Stikk / bruk',
       'grapple': 'Grappling hook',
+      'hide': 'Hide box',
       'decoy': 'Plasser lokkemiddel',
       'reload': 'Lad om',
       'weapon1': 'Snikskytterrifle',

@@ -46,6 +46,7 @@ export default {
       'extract': 'Chega á plataforma de extracción'
     },
     'haul': 'Salvage {n} of {need}',
+    'hide': 'Hide in the box',
     'loot': 'Strip the salvage'
   },
   'defeat': {
@@ -161,6 +162,7 @@ export default {
       'crouch': 'Agacharse',
       'act': 'Apuñalar / usar',
       'grapple': 'Grappling hook',
+      'hide': 'Hide box',
       'decoy': 'Colocar reclamo',
       'reload': 'Recargar',
       'weapon1': 'Rifle de francotirador',

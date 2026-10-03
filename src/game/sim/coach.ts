@@ -24,7 +24,7 @@ import type { InputFamily } from '../data/ids'
  */
 
 export const HINT_IDS = [
-  'move', 'look', 'scope', 'fire', 'crouch', 'blade', 'climb', 'cable', 'decoy', 'weapon', 'sprint', 'grapple', 'loot', 'goal'
+  'move', 'look', 'scope', 'fire', 'crouch', 'blade', 'climb', 'cable', 'decoy', 'weapon', 'sprint', 'grapple', 'loot', 'goal', 'hide'
 ] as const
 export type HintId = (typeof HINT_IDS)[number]
 
@@ -44,6 +44,8 @@ export const HINTS: Readonly<Record<HintId, HintDef>> = {
   climb: { goal: 1, priority: 8 },
   cable: { goal: 1, priority: 8 },
   crouch: { goal: 1, priority: 7 },
+  // Somebody is about to be sure: the box.
+  hide: { goal: 1, priority: 7.5 },
   // The thumbs are never crowded out by the scope: a player who cannot move
   // or look has no use for it yet.
   move: { goal: 3, priority: 5 },
@@ -168,6 +170,8 @@ export interface CoachContext {
   seeking: boolean
   /** The waypoint is a long walk away. */
   far: boolean
+  /** Under the hide box already. */
+  boxed: boolean
 }
 
 /**
@@ -211,7 +215,9 @@ export const stepCoach = (c: Coach, ctx: CoachContext, dt: number): HintView[] |
     grapple: ctx.hook && hintDone(c, 'move'),
     // Once the thumbs are learned: then the marker is the next thing to find.
     goal: ctx.seeking && thumbs,
-    sprint: quiet && ctx.far && !ctx.guardNear && hintDone(c, 'move')
+    sprint: quiet && ctx.far && !ctx.guardNear && hintDone(c, 'move'),
+    // Taught once crouching is, when a guard is half-way to sure.
+    hide: quiet && !ctx.boxed && ctx.threat > 0.3 && hintDone(c, 'crouch')
   }
 
   const shown: HintId[] = []

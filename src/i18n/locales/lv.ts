@@ -46,6 +46,7 @@ export default {
       'extract': 'Sasniedz evakuācijas laukumu'
     },
     'haul': 'Salvage {n} of {need}',
+    'hide': 'Hide in the box',
     'loot': 'Strip the salvage'
   },
   'defeat': {
@@ -161,6 +162,7 @@ export default {
       'crouch': 'Pietupšanās',
       'act': 'Dūriens / lietot',
       'grapple': 'Grappling hook',
+      'hide': 'Hide box',
       'decoy': 'Novietot ēsmu',
       'reload': 'Pārlādēt',
       'weapon1': 'Snaipera šautene',

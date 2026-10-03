@@ -71,6 +71,8 @@ export const hud = reactive({
   /** Piles stripped, and how many the raid needs. */
   salvageGot: 0,
   salvageNeed: 0,
+  /** Under the hide box. */
+  boxed: false,
   /** A pile within reach; and 0 … 1 of stripping one. */
   loot: false,
   looting: 0,

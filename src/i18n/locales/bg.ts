@@ -46,6 +46,7 @@ export default {
       'extract': 'Стигни до площадката за евакуация'
     },
     'haul': 'Salvage {n} of {need}',
+    'hide': 'Hide in the box',
     'loot': 'Strip the salvage'
   },
   'defeat': {
@@ -161,6 +162,7 @@ export default {
       'crouch': 'Клякане',
       'act': 'Удар / използване',
       'grapple': 'Grappling hook',
+      'hide': 'Hide box',
       'decoy': 'Постави примамка',
       'reload': 'Презареди',
       'weapon1': 'Снайпер',

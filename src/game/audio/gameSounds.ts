@@ -96,6 +96,8 @@ export const installGameSounds = (): void => {
   on('objective', () => sfx('objective'))
   on('extracting', () => { sfx('extract'); sfx('bark') })
   on('jump', () => sfx('boardJump'))
+  on('checkin', () => sfx('radio'))
+  on('box', ({ on: down }) => sfx(down ? 'boxOn' : 'boxOff'))
   on('extracted', () => playJingle('victory'))
 
   // ── What the HUD mirror says ──

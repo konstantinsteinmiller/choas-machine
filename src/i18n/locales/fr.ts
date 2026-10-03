@@ -46,6 +46,7 @@ export default {
       'extract': 'Rejoins la zone d\'extraction'
     },
     'haul': 'Salvage {n} of {need}',
+    'hide': 'Hide in the box',
     'loot': 'Strip the salvage'
   },
   'defeat': {
@@ -161,6 +162,7 @@ export default {
       'crouch': 'S\'accroupir',
       'act': 'Frapper / utiliser',
       'grapple': 'Grappling hook',
+      'hide': 'Hide box',
       'decoy': 'Poser un leurre',
       'reload': 'Recharger',
       'weapon1': 'Fusil de précision',

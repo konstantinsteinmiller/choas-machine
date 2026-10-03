@@ -46,6 +46,7 @@ export default {
       'extract': '前往撤離點'
     },
     'haul': 'Salvage {n} of {need}',
+    'hide': 'Hide in the box',
     'loot': 'Strip the salvage'
   },
   'defeat': {
@@ -161,6 +162,7 @@ export default {
       'crouch': '蹲下',
       'act': '突刺 / 使用',
       'grapple': 'Grappling hook',
+      'hide': 'Hide box',
       'decoy': '放置誘餌',
       'reload': '換彈',
       'weapon1': '狙擊槍',

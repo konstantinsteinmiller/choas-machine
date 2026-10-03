@@ -46,6 +46,7 @@ export default {
       'extract': 'ไปที่จุดอพยพ'
     },
     'haul': 'Salvage {n} of {need}',
+    'hide': 'Hide in the box',
     'loot': 'Strip the salvage'
   },
   'defeat': {
@@ -161,6 +162,7 @@ export default {
       'crouch': 'ย่อตัว',
       'act': 'แทง / ใช้งาน',
       'grapple': 'Grappling hook',
+      'hide': 'Hide box',
       'decoy': 'วางตัวล่อ',
       'reload': 'โหลดกระสุน',
       'weapon1': 'ปืนสไนเปอร์',

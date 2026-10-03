@@ -29,6 +29,8 @@ export interface GameEvents {
   /** A defender is curious, is sure, or has given up looking. */
   suspicious: { id: number; kind: PostKind }
   spotted: { id: number; kind: PostKind }
+  /** `id` noticed `corpse` missed its radio check-in and is going to look. */
+  checkin: { id: number; kind: PostKind; corpse: number }
   calm: { id: number }
   /** A defender found a body. */
   body: { id: number; corpse: number }
@@ -60,6 +62,8 @@ export interface GameEvents {
   takedown: { beat: 'draw' | 'stab' | 'pull'; id: number }
   /** The objective moved on: the salvage is in hand, the way out is open. */
   objective: { state: 'extract' }
+  /** The hide box comes down over the mech, or off it. */
+  box: { on: boolean }
   /** The mech jumps off the board onto its perch. */
   jump: Record<string, never>
   /** A pile of salvage: started, given up, stripped (`amount` of it). */

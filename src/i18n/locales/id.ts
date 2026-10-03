@@ -46,6 +46,7 @@ export default {
       'extract': 'Capai landasan ekstraksi'
     },
     'haul': 'Salvage {n} of {need}',
+    'hide': 'Hide in the box',
     'loot': 'Strip the salvage'
   },
   'defeat': {
@@ -161,6 +162,7 @@ export default {
       'crouch': 'Jongkok',
       'act': 'Tikam / gunakan',
       'grapple': 'Grappling hook',
+      'hide': 'Hide box',
       'decoy': 'Pasang umpan',
       'reload': 'Isi ulang',
       'weapon1': 'Senapan sniper',
