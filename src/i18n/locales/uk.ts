@@ -137,6 +137,7 @@ export default {
   'options': {
     'killCams': 'Камера добивання',
     'sensitivity': 'Чутливість огляду',
+    'scopeSensitivity': 'Scope sensitivity',
     'gameplay': 'Гра',
     'title': 'Налаштування',
     'general': 'Загальні',

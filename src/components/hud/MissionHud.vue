@@ -44,6 +44,9 @@
         div.plates
           span.plate(v-for="n in 10" :key="n" :class="{ on: n <= Math.ceil(hud.bossHp * 10) }")
         GameIcon.shield(v-if="hud.bossShield" name="shield")
+      //- What each round took off the boss: numbers that pop and float away.
+      div.boss-pops(v-if="hud.bossKind" aria-hidden="true")
+        span.pop(v-for="p in pops" :key="p.id") −{{ p.amount }}
 
     div.top-right
       //- The lessons, back on request.
@@ -109,6 +112,15 @@
 
     //- The right thumb's column, above where it rests.
     div.actions
+      //- On touch, while aiming: a button that fires (letting go of the screen does too).
+      FHudButton(
+        v-if="hud.aiming && hud.device === 'touch'"
+        :icon="hud.weapon"
+        tone="pink"
+        :aria-label="t('hint.fire')"
+        data-testid="btn-fire"
+        @click="input.firePressed = true"
+      )
       FHudButton(
         v-if="hud.aiming && hud.device === 'touch'"
         icon="close"
@@ -126,6 +138,7 @@
             :icon="w"
             :tone="TONES[w]"
             :active="hud.weapon === w"
+            :attention="flare"
             :aria-label="t(`options.actions.weapon${n + 1}`)"
             :data-testid="`btn-weapon-${w}`"
             @click="pick(n)"
@@ -200,7 +213,7 @@ import AlertMeter from '@/components/hud/AlertMeter.vue'
 import ThreatArcs from '@/components/hud/ThreatArcs.vue'
 import ObjectiveMarker from '@/components/hud/ObjectiveMarker.vue'
 import ControlHints from '@/components/hud/ControlHints.vue'
-import { emit as busEmit } from '@/game/bus'
+import { emit as busEmit, on } from '@/game/bus'
 import Reticle from '@/components/hud/Reticle.vue'
 import AmmoStrip from '@/components/hud/AmmoStrip.vue'
 import ArmorBar from '@/components/hud/ArmorBar.vue'
@@ -225,8 +238,31 @@ const TONES: Record<WeaponId, 'cyan' | 'warn' | 'danger'> = { sniper: 'cyan', mi
 /** A control lesson is on for this chip: it pulses until it has been used. */
 const teaching = (id: HintId): boolean => hud.device === 'touch' && hud.hints.some(h => h.id === id)
 
+// ── Boss damage: a number pops for each round that landed ──
+const pops = ref<Array<{ id: number; amount: number }>>([])
+let popId = 0
+const offBoss = on('bossHit', ({ amount }) => {
+  if (amount <= 0) return
+  const id = ++popId
+  pops.value = [...pops.value.slice(-3), { id, amount }]
+  window.setTimeout(() => { pops.value = pops.value.filter(p => p.id !== id) }, 900)
+})
+onUnmounted(offBoss)
+
 // ── The weapon wheel ──
 const wheelOpen = ref(false)
+// The first time the base goes loud, the wheel fans open with every chip
+// pulsing: the moment the other guns are for.
+const flare = ref(false)
+let flared = false
+const offChaos = on('chaos', () => {
+  if (flared) return
+  flared = true
+  flare.value = true
+  wheelOpen.value = true
+  window.setTimeout(() => { flare.value = false }, 3500)
+})
+onUnmounted(offChaos)
 let closeTimer = 0
 const pick = (n: number): void => {
   input.weaponQueued = (n + 1) as 1 | 2 | 3
@@ -308,6 +344,29 @@ onUnmounted(() => window.clearTimeout(closeTimer))
   .alarm.s1 :deep(svg)
     animation: none
 
+.boss-pops
+  position: relative
+  height: 0
+  .pop
+    position: absolute
+    left: 50%
+    top: 0.2em
+    color: #ffd27a
+    font-family: var(--font-display, inherit)
+    font-size: var(--cm-fs-m)
+    text-shadow: var(--cm-text-outline)
+    animation: boss-pop 0.9s ease-out forwards
+    pointer-events: none
+@keyframes boss-pop
+  from
+    opacity: 1
+    translate: -50% 0
+  to
+    opacity: 0
+    translate: -50% -1.6em
+@media (prefers-reduced-motion: reduce)
+  .boss-pops .pop
+    animation: none
 .boss-bar
   display: flex
   align-items: center

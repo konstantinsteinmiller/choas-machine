@@ -137,6 +137,7 @@ export default {
   'options': {
     'killCams': 'Финален кадър',
     'sensitivity': 'Чувствителност на погледа',
+    'scopeSensitivity': 'Scope sensitivity',
     'gameplay': 'Геймплей',
     'title': 'Настройки',
     'general': 'Общи',

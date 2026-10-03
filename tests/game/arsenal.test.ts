@@ -99,7 +99,9 @@ describe('what a hit is worth', () => {
   it('one sniper round to the head ends a guard; the Warden (the Commander) is a boss and takes several', () => {
     expect(shotDamage('sniper', 'guard', 'head')).toBeGreaterThan(1000)
     expect(shotDamage('sniper', 'commander', 'head')).toBeLessThan(SPECS.commander.hp)
-    expect(shotDamage('sniper', 'guard', 'body')).toBeGreaterThanOrEqual(30)
+    // #60: two rounds to the body, three to the legs.
+    expect(shotDamage('sniper', 'guard', 'body', 1, 30)).toBeLessThan(30)
+    expect(shotDamage('sniper', 'guard', 'body', 1, 30) * 2).toBeGreaterThanOrEqual(30)
     expect(shotDamage('sniper', 'commander', 'body')).toBeLessThan(60)
   })
   it('the minigun is for joints, not plate', () => {

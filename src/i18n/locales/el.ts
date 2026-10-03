@@ -137,6 +137,7 @@ export default {
   'options': {
     'killCams': 'Κάμερα φινάλε',
     'sensitivity': 'Ευαισθησία κάμερας',
+    'scopeSensitivity': 'Scope sensitivity',
     'gameplay': 'Παιχνίδι',
     'title': 'Ρυθμίσεις',
     'general': 'Γενικά',

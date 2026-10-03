@@ -57,6 +57,7 @@ export const LANGUAGE_KEY = 'cm_user_language'
 export const LANGUAGE_CHOSEN_KEY = 'cm_user_language_chosen'
 /** Look sensitivity multiplier (number, 0.4–2.0). Absent = 1. */
 export const LOOK_SENS_KEY = 'cm_user_look_sensitivity'
+export const SCOPE_SENS_KEY = 'cm_user_scope_sensitivity'
 /** Mobile-only hard audio mute (boolean). */
 export const MOBILE_MUTE_KEY = 'cm_mobile_mute'
 /** Vibration on / off (boolean). Absent means ON — see `useHaptics.ts`. */

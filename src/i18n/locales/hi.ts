@@ -137,6 +137,7 @@ export default {
   'options': {
     'killCams': 'किल-कैम',
     'sensitivity': 'लुक सेंसिटिविटी',
+    'scopeSensitivity': 'Scope sensitivity',
     'gameplay': 'गेमप्ले',
     'title': 'विकल्प',
     'general': 'सामान्य',

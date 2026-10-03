@@ -33,12 +33,22 @@ interface Gun {
   range: number
 }
 
+// Ranges reach across the base (#59): anyone who has spotted the mech can
+// put rounds near it from far off, just not many on it.
 export const GUNS: Readonly<Partial<Record<Unit['kind'], Gun>>> = {
-  guard: { burst: 3, gap: 0.13, pauseMin: 1.2, pauseMax: 1.9, damage: 6, near: 0.5, far: 0.12, range: 26 },
-  sentry: { burst: 2, gap: 0.3, pauseMin: 1.6, pauseMax: 2.4, damage: 9, near: 0.6, far: 0.25, range: 34 },
-  commander: { burst: 2, gap: 0.18, pauseMin: 1.0, pauseMax: 1.6, damage: 8, near: 0.55, far: 0.15, range: 24 },
-  enforcer: { burst: 12, gap: 0.085, pauseMin: 1.3, pauseMax: 2.0, damage: 4, near: 0.42, far: 0.1, range: 30 }
+  guard: { burst: 3, gap: 0.13, pauseMin: 1.2, pauseMax: 1.9, damage: 6, near: 0.5, far: 0.06, range: 55 },
+  sentry: { burst: 2, gap: 0.3, pauseMin: 1.6, pauseMax: 2.4, damage: 9, near: 0.6, far: 0.12, range: 70 },
+  commander: { burst: 2, gap: 0.18, pauseMin: 1.0, pauseMax: 1.6, damage: 8, near: 0.55, far: 0.08, range: 50 },
+  enforcer: { burst: 12, gap: 0.085, pauseMin: 1.3, pauseMax: 2.0, damage: 4, near: 0.42, far: 0.06, range: 45 }
 }
+
+/**
+ * Suppressing fire: for this long after a defender opens up on the mech,
+ * its rounds mostly miss (loud, visible tracers, little damage): the moment
+ * to move, before it settles its aim.
+ */
+export const SUPPRESS_S = 2
+const SUPPRESS_HIT = 0.2
 
 /** The Goliath's cannon. */
 export const SHELL_WARN_S = 1.15
@@ -77,15 +87,17 @@ export const stepFire = (gar: Garrison, g: Grid, target: Target, dt: number): vo
       // Lost the line: the burst is cut, and it takes a moment to re-acquire.
       u.burst = 0
       u.fireT = Math.max(u.fireT, 0.5)
+      u.aimT = 0
       continue
     }
+    u.aimT += dt
     if (u.burst > 0) {
       u.burstT -= dt
       if (u.burstT > 0) continue
       u.burst--
       u.burstT = gun.gap
       u.recoil = 1
-      const hit = gar.rng() < hitChance(gun, dist, target)
+      const hit = gar.rng() < hitChance(gun, dist, target) * (u.aimT < SUPPRESS_S ? SUPPRESS_HIT : 1)
       gar.events.push({ type: 'fire', id: u.id, damage: hit ? Math.max(1, Math.round(gun.damage * gar.threat.damage)) : 0 })
       if (u.burst === 0) u.fireT = gun.pauseMin + gar.rng() * (gun.pauseMax - gun.pauseMin)
       continue

@@ -1,5 +1,5 @@
 import {
-  PerspectiveCamera, Sprite, SpriteMaterial, AdditiveBlending, Vector3, Mesh, ConeGeometry, CylinderGeometry, MeshBasicMaterial, DoubleSide, Group
+  PerspectiveCamera, Sprite, SpriteMaterial, AdditiveBlending, Vector3, Mesh, ConeGeometry, CylinderGeometry, MeshBasicMaterial, DoubleSide, Group, OctahedronGeometry
 } from 'three'
 import { getRenderer, fovForAspect } from '../engine/renderer'
 import { app, newScene, type GameMode } from '../engine/app'
@@ -21,12 +21,12 @@ import { buildMech, poseMech, restPose, MECH_HEIGHT, MECH_HEIGHT_CROUCH, type Me
 import { PAL } from '../models/palette'
 import { WEAPON_IDS, type WeaponId } from '../data/ids'
 import { haptic } from '@/use/useHaptics'
-import { lookSensitivity } from '@/use/useLookSensitivity'
+import { lookSensitivity, scopeSensitivity } from '@/use/useLookSensitivity'
 import { makePlayer, stepPlayer, eyeHeight, angleDelta, type Player } from './player'
 import { makeCam, lookCam, stepCam, placeCam, stickToWorld, camForward, type Cam } from './camera'
 import { alertSegments } from './alert'
 import {
-  SPECS, SUSPECT_AT, sabotageBeacon, drainEvents, headingTo, killUnit, damageUnit, makeGarrison, noiseAt, hearAt, wonderAt, voidNoise, stepGarrison, alarmUnit, startleUnit, isLight,
+  SPECS, SUSPECT_AT, sabotageBeacon, searchForShooter, drainEvents, headingTo, killUnit, damageUnit, makeGarrison, noiseAt, hearAt, wonderAt, voidNoise, stepGarrison, alarmUnit, startleUnit, isLight,
   type Garrison, type Target
 } from './garrison'
 import { GarrisonView } from './garrisonView'
@@ -127,6 +127,11 @@ const KILLCAM_SLOW = 0.16
 const EXTRACT_RADIUS = 1.9
 /** How far running feet are heard, in metres. */
 export const SPRINT_EARSHOT = 9
+/** Armour shards: dropped by a blade or close kill in a fight; how many, what each gives back, how long they lie. */
+const SHARD_CLOSE_M = 6
+const SHARD_COUNT = 3
+const SHARD_ARMOR = 12
+const SHARD_LIFE_S = 20
 /** How near a beacon the mech must be to sabotage it, and how long it takes. */
 const SABOTAGE_REACH = 1.9
 const SABOTAGE_S = 1.4
@@ -272,7 +277,9 @@ export class Mission implements GameMode {
     this.piles = makePiles(fortress.salvage)
     this.salvageNeed = salvageNeed(level, this.piles.length)
     this.arsenal = makeArsenal(loadout.rockets, loadout.heatSeconds, loadout.coolRate)
-    this.armor = makeArmor(loadout.armor)
+    // Level I is gentler: half again the armour (the curve comes from more
+    // defenders at the higher levels, not from rounds that hurt more).
+    this.armor = makeArmor(loadout.armor * (level === 1 ? 1.5 : 1))
     this.player = makePlayer(x, heightAt(g, x, z), z, facing)
     this.player.speedMul = loadout.speed
     this.cam = makeCam(facing)
@@ -661,7 +668,8 @@ export class Mission implements GameMode {
       if (head) this.stats.headshots++
       this.killBy = w
       this.killHead = head
-      const damage = shotDamage(w, u.kind, h.zone, this.loadout.damage[w])
+      const damage = shotDamage(w, u.kind, h.zone, this.loadout.damage[w], u.maxHp)
+      if (u.boss) emit('bossHit', { amount: Math.round(Math.min(damage, Math.max(0, u.hp))) })
       // A sniper round that is going to kill may be given the kill-cam: then
       // it has not landed yet, and the camera rides it in.
       if (w === 'sniper' && u.hp - damage <= 0) {
@@ -687,7 +695,11 @@ export class Mission implements GameMode {
       if (!damageUnit(gar, u.id, damage, ox, oz, w === 'minigun' ? 'spray' : 'shot')) {
         // A silenced round in a drone's shell: it does not know what hit it.
         if (u.kind === 'drone' && w === 'sniper') startleUnit(gar, u.id, this.player.x, this.player.z)
-        else alarmUnit(gar, u.id, this.player.x, this.player.z)
+        else {
+          alarmUnit(gar, u.id, this.player.x, this.player.z)
+          // A guard who took a round and lives: those near it go to look for the shooter (#60).
+          if (w === 'sniper') searchForShooter(gar, u.id, this.player.x, this.player.z)
+        }
       }
     } else if (h.kind === 'world') {
       this.fx.tracer(ox, oy, oz, h.x, h.y, h.z, w)
@@ -1077,6 +1089,9 @@ export class Mission implements GameMode {
       } else if (e.type === 'kill') {
         const u = gar.units[e.id]!
         this.stats.kills++
+        // In a fight, a kill by the blade or close in drops armour shards:
+        // pushing in heals, hiding does not.
+        if (u.fought && (this.killBy === 'blade' || Math.hypot(u.x - this.player.x, u.z - this.player.z) < SHARD_CLOSE_M)) this.dropShards(u.x, u.y, u.z)
         this.fx.kill(u.x, u.y, u.z, u.kind)
         // Apart, in pieces that stay where they land.
         if (e.death === 'burst') {
@@ -1406,6 +1421,47 @@ export class Mission implements GameMode {
   }
 
   private mechFade = 0
+  /** Armour shards lying where a defender fell: walk over one to take it. */
+  private shards: Array<{ mesh: Mesh; x: number; y: number; z: number; t: number }> = []
+  private shardGeo = new OctahedronGeometry(0.22)
+  private shardMat = new MeshBasicMaterial({ color: '#5fe9ff', transparent: true, opacity: 0.9, blending: AdditiveBlending, toneMapped: false })
+
+  private dropShards(x: number, y: number, z: number): void {
+    for (let k = 0; k < SHARD_COUNT; k++) {
+      if (this.shards.length >= 12) this.removeShard(0)
+      const mesh = new Mesh(this.shardGeo, this.shardMat)
+      const a = (k / SHARD_COUNT) * Math.PI * 2 + Math.random()
+      const sx = x + Math.sin(a) * 0.9
+      const sz = z + Math.cos(a) * 0.9
+      mesh.position.set(sx, y + 0.5, sz)
+      this.scene.add(mesh)
+      this.shards.push({ mesh, x: sx, y, z: sz, t: 0 })
+    }
+  }
+
+  private removeShard(k: number): void {
+    const s = this.shards[k]!
+    this.scene.remove(s.mesh)
+    this.shards.splice(k, 1)
+  }
+
+  private stepShards(dt: number): void {
+    const p = this.player
+    for (let k = this.shards.length - 1; k >= 0; k--) {
+      const s = this.shards[k]!
+      s.t += dt
+      s.mesh.rotation.y += dt * 3
+      s.mesh.position.y = s.y + 0.5 + Math.sin(s.t * 4 + k) * 0.12
+      if (s.t > SHARD_LIFE_S) { this.removeShard(k); continue }
+      if (Math.hypot(s.x - p.x, s.z - p.z) < 1.6 && Math.abs(s.y - p.y) < 1.5 && !this.armor.down) {
+        this.armor.hp = Math.min(this.armor.max, this.armor.hp + SHARD_ARMOR)
+        this.fx.particles.sparks(s.x, s.y + 0.6, s.z, '#5fe9ff', 8, 3, 0.2)
+        emit('shard', {})
+        this.removeShard(k)
+      }
+    }
+  }
+
   /** The ghost at the last known position, and where that is. */
   private ghost!: Rig
   private ghostMat!: MeshBasicMaterial
@@ -1648,7 +1704,7 @@ export class Mission implements GameMode {
     const aiming = playing && this.weaponUp()
 
     // The look: applied here, at the display's rate, and consumed here.
-    lookCam(this.cam, i.lookDX, i.lookDY, i.turn, dt, lookSensitivity.value, this.camera.fov, this.baseFov)
+    lookCam(this.cam, i.lookDX, i.lookDY, i.turn, dt, lookSensitivity.value * (hud.scoped ? scopeSensitivity.value : 1), this.camera.fov, this.baseFov)
     i.lookDX = 0
     i.lookDY = 0
     stepCam(this.cam, aiming, dt)
@@ -1752,6 +1808,7 @@ export class Mission implements GameMode {
     }
 
     this.stepGhost(dt)
+    this.stepShards(dt)
     for (let k = 0; k < this.beaconViews.length; k++) {
       const b = this.garrison.beacons[k]!
       poseBeacon(this.beaconViews[k]!, b.state, b.lit, this.time)
@@ -1870,6 +1927,8 @@ export class Mission implements GameMode {
     for (const v of this.beaconViews) disposeBeacon(v)
     this.ghost.mesh.geometry.dispose()
     this.ghostMat.dispose()
+    this.shardGeo.dispose()
+    this.shardMat.dispose()
     this.ghost.material.dispose()
     this.ghost.glowMaterial.dispose()
     this.dog.mesh.geometry.dispose()

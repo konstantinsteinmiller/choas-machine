@@ -137,6 +137,7 @@ export default {
   'options': {
     'killCams': 'Yoʻq qilish kamerasi',
     'sensitivity': 'Qarash sezgirligi',
+    'scopeSensitivity': 'Scope sensitivity',
     'gameplay': 'Oʻyin',
     'title': 'Sozlamalar',
     'general': 'Umumiy',

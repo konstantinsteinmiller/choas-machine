@@ -137,6 +137,7 @@ export default {
   'options': {
     'killCams': 'Kamera kill',
     'sensitivity': 'Sensitivitas pandangan',
+    'scopeSensitivity': 'Scope sensitivity',
     'gameplay': 'Permainan',
     'title': 'Opsi',
     'general': 'Umum',

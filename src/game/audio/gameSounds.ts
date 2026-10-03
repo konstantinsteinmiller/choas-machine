@@ -103,6 +103,7 @@ export const installGameSounds = (): void => {
   on('jump', () => sfx('boardJump'))
   on('checkin', () => sfx('radio'))
   on('shout', () => sfx('shout'))
+  on('shard', () => sfx('shard'))
   on('runner', () => sfx('radio'))
   on('sabotage', ({ beat }) => { if (beat === 'done') sfx('zap'); else if (beat === 'start') sfx('loot') })
   on('box', ({ on: down }) => sfx(down ? 'boxOn' : 'boxOff'))

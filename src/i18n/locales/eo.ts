@@ -137,6 +137,7 @@ export default {
   'options': {
     'killCams': 'Venko-kamerao',
     'sensitivity': 'Rigarda sentemo',
+    'scopeSensitivity': 'Scope sensitivity',
     'gameplay': 'Ludado',
     'title': 'Agordoj',
     'general': 'Ĝenerale',

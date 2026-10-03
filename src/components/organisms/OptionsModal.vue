@@ -11,7 +11,7 @@ import { LANGUAGES, LANGUAGE_AUTONYMS } from '@/utils/enums'
 import { bcp47For } from '@/i18n/localeTag'
 import { hapticsAvailable, hapticsEnabled, setHapticsEnabled } from '@/use/useHaptics'
 import { killCamsEnabled, setKillCamsEnabled } from '@/use/useKillCam'
-import { lookSensitivity, setLookSensitivity, LOOK_SENS_MIN, LOOK_SENS_MAX } from '@/use/useLookSensitivity'
+import { lookSensitivity, setLookSensitivity, scopeSensitivity, setScopeSensitivity, LOOK_SENS_MIN, LOOK_SENS_MAX } from '@/use/useLookSensitivity'
 import { touchFirst } from '@/game/engine/input'
 import { ACTIONS, bindKey, bindingsChanged, isBindable, primaryCode, resetBindings, type Action } from '@/game/engine/keyBindings'
 import { keyboard, keyLabel, LAYOUTS, setAutoLayout, setManualLayout, type Layout } from '@/game/engine/keyLabels'
@@ -162,6 +162,13 @@ onUnmounted(stopCapture)
         :model-value="lookSensitivity"
         :min="LOOK_SENS_MIN" :max="LOOK_SENS_MAX" :step="0.05"
         @update:model-value="setLookSensitivity($event)"
+      )
+      //- Through the scope: how far the same move turns the steadied view.
+      FSlider(
+        :label="t('options.scopeSensitivity')"
+        :model-value="scopeSensitivity"
+        :min="LOOK_SENS_MIN" :max="LOOK_SENS_MAX" :step="0.05"
+        @update:model-value="setScopeSensitivity($event)"
       )
       //- The kill-cam: on by default; a player who switched it off from inside
       //- one turns it back on here.

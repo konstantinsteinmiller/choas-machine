@@ -29,21 +29,29 @@ const WARDEN_BODY = 0.7
  * Damage of one round of `weapon` on `kind`, hit in `zone`. `mul` is the
  * weapon's tier and damage track (`data/upgrades`).
  */
-export const shotDamage = (weapon: WeaponId, kind: PostKind, zone: Zone, mul = 1): number => {
+/**
+ * A guard or a sentry and the sniper (#60): one round to the head, two to the
+ * body, three to the limbs. Shares of its full health, so the counts hold at
+ * every threat level; the damage track still shortens them.
+ */
+export const HUMAN_BODY = 0.51
+export const HUMAN_LIMB = 0.34
+
+export const shotDamage = (weapon: WeaponId, kind: PostKind, zone: Zone, mul = 1, maxHp = 30): number => {
   const base = BASE_DAMAGE[weapon] * mul
   if (weapon === 'sniper') {
     // A drone dies to a round in its eye; its shell takes a third of one.
     // A lamp is a lamp: any round puts it out.
     if (kind === 'drone') return zone === 'weak' ? KILL : base * DRONE_SHELL
     if (kind === 'searchlight') return KILL
-    if (isHuman(kind)) return zone === 'head' ? KILL : base
-    if (kind === 'commander') return zone === 'armor' ? 0 : zone === 'head' ? base * WARDEN_HEAD : base * WARDEN_BODY
+    if (isHuman(kind)) return zone === 'head' ? KILL : maxHp * (zone === 'limb' ? HUMAN_LIMB : HUMAN_BODY) * mul
+    if (kind === 'commander') return zone === 'armor' ? 0 : zone === 'head' ? base * WARDEN_HEAD : zone === 'limb' ? base * WARDEN_BODY * 0.7 : base * WARDEN_BODY
     if (kind === 'enforcer') return zone === 'head' ? base * 2.5 : zone === 'joint' ? base * 1.5 : base * 0.6
     return zone === 'weak' ? base : base * 0.1
   }
   if (weapon === 'minigun') {
     if (kind === 'drone' || kind === 'searchlight') return base * 2
-    if (isHuman(kind)) return zone === 'head' ? base * 2 : base
+    if (isHuman(kind)) return zone === 'head' ? base * 2 : zone === 'limb' ? base * 0.7 : base
     if (kind === 'commander') return zone === 'armor' ? base * 0.1 : zone === 'head' ? base * 2 : base
     if (kind === 'enforcer') return zone === 'joint' ? base * 3 : zone === 'head' ? base : base * 0.5
     return zone === 'weak' ? base * 1.5 : base * 0.1

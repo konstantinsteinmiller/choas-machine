@@ -137,6 +137,7 @@ export default {
   'options': {
     'killCams': 'Жою камерасы',
     'sensitivity': 'Қарау сезімталдығы',
+    'scopeSensitivity': 'Scope sensitivity',
     'gameplay': 'Ойын',
     'title': 'Параметрлер',
     'general': 'Жалпы',

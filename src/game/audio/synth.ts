@@ -390,6 +390,11 @@ const RECIPES: Record<SfxName, (pan: number, g: number) => void> = {
     burst({ dur: 0.9, vol: 0.12 * g, type: 'highpass', f0: 3500, f1: 6000 })
     tone({ wave: 'sine', f0: 300, f1: 120, dur: 0.3, vol: 0.06 * g })
   },
+  // An armour shard taken: a bright rising chime.
+  shard: (_p, g) => {
+    tone({ wave: 'tri', f0: 880, f1: 1320, dur: 0.12, vol: 0.1 * g })
+    tone({ wave: 'sine', f0: 1760, dur: 0.1, vol: 0.06 * g, at: 0.06 })
+  },
   // A guard who is sure: a short two-note squawk, "hey!".
   shout: (_p, g) => {
     tone({ wave: 'p25', f0: 520, f1: 760, dur: 0.12, vol: 0.12 * g })

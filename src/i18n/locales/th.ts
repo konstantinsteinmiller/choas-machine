@@ -137,6 +137,7 @@ export default {
   'options': {
     'killCams': 'กล้องจังหวะปิดฉาก',
     'sensitivity': 'ความไวการมอง',
+    'scopeSensitivity': 'Scope sensitivity',
     'gameplay': 'การเล่น',
     'title': 'ตัวเลือก',
     'general': 'ทั่วไป',

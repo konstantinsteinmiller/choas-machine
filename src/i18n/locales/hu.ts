@@ -137,6 +137,7 @@ export default {
   'options': {
     'killCams': 'Kill-cam',
     'sensitivity': 'Nézési érzékenység',
+    'scopeSensitivity': 'Scope sensitivity',
     'gameplay': 'Játékmenet',
     'title': 'Beállítások',
     'general': 'Általános',

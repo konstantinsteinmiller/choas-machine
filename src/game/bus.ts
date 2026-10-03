@@ -71,6 +71,10 @@ export interface GameEvents {
   sabotage: { beat: 'start' | 'stop' | 'done'; beacon: number }
   /** The hide box comes down over the mech, or off it. */
   box: { on: boolean }
+  /** The mech picked up an armour shard. */
+  shard: Record<string, never>
+  /** A round landed on a boss: how much it took off. */
+  bossHit: { amount: number }
   /** The mech jumps off the board onto its perch. */
   jump: Record<string, never>
   /** A pile of salvage: started, given up, stripped (`amount` of it). */

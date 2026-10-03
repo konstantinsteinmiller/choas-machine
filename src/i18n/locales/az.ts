@@ -137,6 +137,7 @@ export default {
   'options': {
     'killCams': 'Qələbə kamerası',
     'sensitivity': 'Baxış həssaslığı',
+    'scopeSensitivity': 'Scope sensitivity',
     'gameplay': 'Oyun',
     'title': 'Seçimlər',
     'general': 'Ümumi',

@@ -137,6 +137,7 @@ export default {
   'options': {
     'killCams': 'Camera hạ gục',
     'sensitivity': 'Độ nhạy nhìn',
+    'scopeSensitivity': 'Scope sensitivity',
     'gameplay': 'Lối chơi',
     'title': 'Tùy chọn',
     'general': 'Chung',

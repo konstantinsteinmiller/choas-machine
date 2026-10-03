@@ -137,6 +137,7 @@ export default {
   'options': {
     'killCams': 'Tuhokamera',
     'sensitivity': 'Katseen herkkyys',
+    'scopeSensitivity': 'Scope sensitivity',
     'gameplay': 'Pelattavuus',
     'title': 'Asetukset',
     'general': 'Yleiset',

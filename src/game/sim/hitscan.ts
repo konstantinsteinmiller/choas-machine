@@ -12,7 +12,7 @@ import type { Unit } from './garrison'
  * Pure: plain numbers in, one reused record out.
  */
 
-export type Zone = 'head' | 'body' | 'joint' | 'weak' | 'armor'
+export type Zone = 'head' | 'body' | 'limb' | 'joint' | 'weak' | 'armor'
 
 export interface ShotHit {
   kind: 'none' | 'world' | 'unit'
@@ -36,6 +36,8 @@ export const makeShotHit = (): ShotHit => ({ kind: 'none', t: 0, x: 0, y: 0, z: 
  *  pixel-hunted on a phone. */
 export const HEAD_Y = 1.54
 export const HEAD_R = 0.3
+/** Below this (the hips) a round is in the legs. */
+export const LIMB_TOP = 0.75
 const BODY_R = 0.3
 const DRONE_R = 0.5
 /** The drone's eye: where it is in the drone's own frame, and how big. It is
@@ -168,7 +170,9 @@ const hitUnit = (u: Unit, ox: number, oy: number, oz: number, dx: number, dy: nu
       const s = local(u, -0.08, RIOT_SHIELD.z)
       take(rayBox(ox, oy, oz, dx, dy, dz, s.x, u.y + RIOT_SHIELD.y, s.z, u.yaw, RIOT_SHIELD.hw, RIOT_SHIELD.hh, 0.05), 'armor')
     }
-    take(rayCylinder(ox, oy, oz, dx, dy, dz, u.x, u.z, BODY_R, u.y + 0.1, u.y + 1.3), 'body')
+    // The legs below the hips are limbs; the torso above is the body.
+    take(rayCylinder(ox, oy, oz, dx, dy, dz, u.x, u.z, BODY_R, u.y + 0.1, u.y + LIMB_TOP), 'limb')
+    take(rayCylinder(ox, oy, oz, dx, dy, dz, u.x, u.z, BODY_R, u.y + LIMB_TOP, u.y + 1.3), 'body')
     take(raySphere(ox, oy, oz, dx, dy, dz, u.x, u.y + HEAD_Y, u.z, HEAD_R), 'head')
   }
   return bestT < maxT ? bestT : Infinity

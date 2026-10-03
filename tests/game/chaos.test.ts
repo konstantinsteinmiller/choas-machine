@@ -73,7 +73,7 @@ describe('the base shoots back', () => {
   it('a round is likelier to hit up close, on a standing, still mech', () => {
     const gun = GUNS.guard!
     const t = mech(0, 0)
-    expect(hitChance(gun, 2, t)).toBeGreaterThan(hitChance(gun, 22, t) * 2)
+    expect(hitChance(gun, 2, t)).toBeGreaterThan(hitChance(gun, gun.range * 0.8, t) * 2)
     expect(hitChance(gun, 10, { ...t, moving: 1 })).toBeLessThan(hitChance(gun, 10, t) * 0.7)
     expect(hitChance(gun, 10, { ...t, crouched: true })).toBeLessThan(hitChance(gun, 10, t))
   })

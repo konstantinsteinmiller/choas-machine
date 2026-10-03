@@ -232,6 +232,8 @@ export interface Unit {
   power: number
   /** Seconds until it may start its next burst (or shell). */
   fireT: number
+  /** Seconds it has had the mech in its sights this time (suppressing fire first). */
+  aimT: number
   /** Rounds left in the burst it is firing, and seconds to the next one. */
   burst: number
   burstT: number
@@ -293,6 +295,8 @@ const ALERT_AFTER = 0.6
 /** On alert patrol, sight is this much wider and further. */
 export const WARY_CONE = 1.25
 export const WARY_RANGE = 1.15
+/** In a fight, sight reaches this much further. */
+export const COMBAT_RANGE = 2.5
 
 /** A sure guard shouts: everyone this near joins the fight. */
 export const SHOUT_M = 16
@@ -389,7 +393,7 @@ export const makeGarrison = (f: Fortress, level = 2): Garrison => {
       stride: 0, speed01: 0, homeX: p.x, homeZ: p.z, homeYaw: p.facing, altitude: p.altitude,
       spotX: spot.x, spotZ: spot.z,
       seed: (id * 2.399) % (Math.PI * 2),
-      power: mech ? 0 : 1, fireT: 0, burst: 0, burstT: 0, shellT: 0, shellX: 0, shellZ: 0, recoil: 0
+      power: mech ? 0 : 1, aimT: 0, fireT: 0, burst: 0, burstT: 0, shellT: 0, shellX: 0, shellZ: 0, recoil: 0
     }
   })
   const beacons: Beacon[] = (f.beacons ?? []).map(b => ({ ...b, state: 'ready' as const, lit: 0 }))
@@ -462,7 +466,9 @@ const enter = (u: Unit, state: UnitState): void => {
 const viewerOf = (u: Unit): Viewer => {
   const s = SPECS[u.kind]
   const k = u.wary ? 1 : 0
-  return { x: u.x, y: u.y + s.eye, z: u.z, yaw: u.yaw + u.look, halfAngle: s.half * (1 + (WARY_CONE - 1) * k), range: s.range * (1 + (WARY_RANGE - 1) * k) }
+  // In a fight it keeps the mech in view a long way off (#59).
+  const fight = u.state === 'combat' ? COMBAT_RANGE : 1
+  return { x: u.x, y: u.y + s.eye, z: u.z, yaw: u.yaw + u.look, halfAngle: s.half * (1 + (WARY_CONE - 1) * k), range: s.range * (1 + (WARY_RANGE - 1) * k) * fight }
 }
 
 /** Where a drone's searchlight falls. */
@@ -695,6 +701,21 @@ const runToBeacon = (u: Unit, g: Grid, gar: Garrison, target: Target, dt: number
   gar.alert.chaos = true
   gar.events.push({ type: 'alarm', beacon: gar.beacons.indexOf(b) })
   goChaos(gar, target)
+}
+
+/**
+ * A guard hit by a round it lived through: those near it (not already in the
+ * fight) go to look where the round came from (#60).
+ */
+export const searchForShooter = (gar: Garrison, id: number, fromX: number, fromZ: number): void => {
+  const u = gar.units[id]
+  if (!u) return
+  for (const o of gar.units) {
+    if (o === u || !isAlive(o) || o.state === 'combat' || o.state === 'dormant' || isLight(o) || o.kind === 'goliath') continue
+    if (Math.hypot(o.x - u.x, o.z - u.z) > SHOUT_M) continue
+    o.detect = Math.max(o.detect, SUSPECT_AT + 0.1)
+    suspect(gar, o, fromX, fromZ, false)
+  }
 }
 
 /** The mech put a beacon out of action. True if it was one that could still be lit. */

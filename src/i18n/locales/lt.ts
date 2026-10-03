@@ -137,6 +137,7 @@ export default {
   'options': {
     'killCams': 'Kill-cam kadrai',
     'sensitivity': 'Žvalgymosi jautrumas',
+    'scopeSensitivity': 'Scope sensitivity',
     'gameplay': 'Žaidimas',
     'title': 'Nustatymai',
     'general': 'Bendra',

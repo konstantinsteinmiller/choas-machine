@@ -137,6 +137,7 @@ export default {
   'options': {
     'killCams': 'Kill-cam',
     'sensitivity': 'Skatīšanās jutība',
+    'scopeSensitivity': 'Scope sensitivity',
     'gameplay': 'Spēle',
     'title': 'Iestatījumi',
     'general': 'Vispārīgi',
