@@ -39,6 +39,8 @@ const CONE_PROBE_Y = 0.9
 const CONE_CLIFF = 1.2
 const CALM = new Color('#e9fdff')
 const WARY = new Color('#ffe14d')
+/** Noticing, not yet looking: white (Odyssey's first band). */
+const NOTICE = new Color('#ffffff')
 const HOT = new Color('#ff3b5c')
 
 interface UnitView {
@@ -488,8 +490,8 @@ export class GarrisonView {
         if (show) {
           const bang = hot
           m.map = this.textures[bang ? 1 : 0]!
-          m.color.copy(bang ? HOT : WARY)
-          m.opacity = bang || wary ? 1 : Math.min(1, 0.25 + u.detect / SUSPECT_AT)
+          m.color.copy(bang ? HOT : wary ? WARY : NOTICE)
+          m.opacity = bang || wary ? 1 : Math.min(1, 0.3 + 0.7 * (u.detect / SUSPECT_AT))
           const top = isLight(u) ? 0.8 : SPECS[u.kind].height + 0.55
           v.mark.position.set(x, y + top, z)
           // Keep it readable from sniping range: grow with distance.

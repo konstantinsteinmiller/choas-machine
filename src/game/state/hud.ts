@@ -129,8 +129,10 @@ export const MAX_THREATS = 4
 export const threats = {
   n: 0,
   angle: new Float32Array(MAX_THREATS),
+  /** 0 … 1 within its band. */
   level: new Float32Array(MAX_THREATS),
-  hot: new Uint8Array(MAX_THREATS)
+  /** 0 white (noticing), 1 yellow (looking), 2 red (sure). */
+  stage: new Uint8Array(MAX_THREATS)
 }
 
 // ─── HUD tickers: per-frame DOM writes, outside Vue ──────────────────────────

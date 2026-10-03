@@ -26,7 +26,7 @@ import { makePlayer, stepPlayer, eyeHeight, angleDelta, type Player } from './pl
 import { makeCam, lookCam, stepCam, placeCam, stickToWorld, camForward, type Cam } from './camera'
 import { alertSegments } from './alert'
 import {
-  SPECS, drainEvents, headingTo, killUnit, damageUnit, makeGarrison, noiseAt, hearAt, wonderAt, voidNoise, stepGarrison, alarmUnit, startleUnit, isLight,
+  SPECS, SUSPECT_AT, drainEvents, headingTo, killUnit, damageUnit, makeGarrison, noiseAt, hearAt, wonderAt, voidNoise, stepGarrison, alarmUnit, startleUnit, isLight,
   type Garrison, type Target
 } from './garrison'
 import { GarrisonView } from './garrisonView'
@@ -285,6 +285,15 @@ export class Mission implements GameMode {
     m.decor = buildDecor(fortress.decor)
     await slice()
     m.rig = buildMech()
+    // The last known position: a ghost of the mech where it was last seen,
+    // there while anybody is out looking for it.
+    m.ghost = buildMech()
+    // One glowing, see-through material for the whole silhouette.
+    m.ghostMat = new MeshBasicMaterial({ color: '#bfeaff', transparent: true, opacity: 0.4, blending: AdditiveBlending, depthWrite: false, toneMapped: false })
+    m.ghost.mesh.material = m.ghostMat
+    if (m.ghost.outline) m.ghost.outline.visible = false
+    m.ghost.root.visible = false
+    m.scene.add(m.ghost.root)
     m.shadow = makeBlobShadow(0.7)
     await slice()
     m.garrisonView = new GarrisonView(m.garrison, fortress.grid)
@@ -1302,6 +1311,41 @@ export class Mission implements GameMode {
   }
 
   private mechFade = 0
+  /** The ghost at the last known position, and where that is. */
+  private ghost!: Rig
+  private ghostMat!: MeshBasicMaterial
+  private lkp = { x: 0, y: 0, z: 0, yaw: 0, crouched: false, set: false }
+  private ghostPose: MechPose = restPose()
+
+  /** Where the mech was last seen, and whether somebody is out looking for it there. */
+  private stepGhost(dt: number): void {
+    const gar = this.garrison
+    const p = this.player
+    let seen = false
+    for (const u of gar.units) if (u.sees && u.state !== 'dead') { seen = true; break }
+    if (seen) Object.assign(this.lkp, { x: p.x, y: p.y, z: p.z, yaw: p.yaw, crouched: p.crouched, set: true })
+    let hunting = false
+    if (this.lkp.set && !seen) {
+      for (const u of gar.units) {
+        if (u.state !== 'suspicious' && u.state !== 'search' && u.state !== 'combat') continue
+        if (u.lured || Math.hypot(u.seenX - this.lkp.x, u.seenZ - this.lkp.z) > 1.5) continue
+        hunting = true
+        break
+      }
+    }
+    const g = this.ghost
+    g.root.visible = hunting && hud.phase === 'play'
+    if (!g.root.visible) return
+    g.root.position.set(this.lkp.x, this.lkp.y, this.lkp.z)
+    g.root.rotation.y = this.lkp.yaw
+    const s = this.ghostPose
+    s.time = this.time
+    s.crouch = this.lkp.crouched ? 1 : 0
+    poseMech(g, s)
+    this.ghostMat.opacity = 0.32 + 0.12 * Math.sin(this.time * 4)
+    void dt
+  }
+
   private fadeMech(k: number): void {
     const f = Math.round(k * 20) / 20
     if (f === this.mechFade) return
@@ -1472,21 +1516,23 @@ export class Mission implements GameMode {
     let n = 0
     for (const u of this.garrison.units) {
       if (u.state === 'dead' || u.state === 'dormant') continue
-      const hot = u.state === 'combat'
-      const level = hot ? 1 : u.state === 'search' || (u.state === 'suspicious' && !u.lured) ? Math.max(u.detect, 0.45) : u.detect
-      if (level < 0.06) continue
+      // Odyssey's ring: white while it notices, yellow while it looks, red when sure.
+      const stage = u.state === 'combat' ? 2 : u.detect >= SUSPECT_AT || u.state === 'search' || (u.state === 'suspicious' && !u.lured) ? 1 : 0
+      const level = stage === 2 ? 1 : stage === 1 ? Math.max(0.08, (u.detect - SUSPECT_AT) / (1 - SUSPECT_AT)) : u.detect / SUSPECT_AT
+      if (stage === 0 && level < 0.08) continue
+      const rank = stage + level
       // Keep the strongest few: replace the weakest once the list is full.
       let slot = n
       if (n === MAX_THREATS) {
         slot = 0
-        for (let k = 1; k < MAX_THREATS; k++) if (threats.level[k]! < threats.level[slot]!) slot = k
-        if (threats.level[slot]! >= level) continue
+        for (let k = 1; k < MAX_THREATS; k++) if (threats.stage[k]! + threats.level[k]! < threats.stage[slot]! + threats.level[slot]!) slot = k
+        if (threats.stage[slot]! + threats.level[slot]! >= rank) continue
       } else {
         n++
       }
       threats.angle[slot] = angleDelta(this.cam.yaw, headingTo(x, z, u.x, u.z))
       threats.level[slot] = level
-      threats.hot[slot] = hot ? 1 : 0
+      threats.stage[slot] = stage
     }
     threats.n = n
   }
@@ -1609,6 +1655,8 @@ export class Mission implements GameMode {
       this.hideBox.rotation.y = yaw
     }
 
+    this.stepGhost(dt)
+
     // The piles still lying there glint now and then.
     this.salvageView.update(dt, this.time)
     this.sparkleT -= dt
@@ -1719,6 +1767,10 @@ export class Mission implements GameMode {
     hud.hints = []
     app.setTimeScale(1)
     disposeHideBox(this.hideBox)
+    this.ghost.mesh.geometry.dispose()
+    this.ghostMat.dispose()
+    this.ghost.material.dispose()
+    this.ghost.glowMaterial.dispose()
     this.dog.mesh.geometry.dispose()
     this.dog.material.dispose()
     this.dog.glowMaterial.dispose()

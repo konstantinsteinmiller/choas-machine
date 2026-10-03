@@ -1,6 +1,8 @@
 <template lang="pug">
-  //- Who is noticing the mech, and from where: an arc round the aim point for
-  //- each curious defender, pointing at it and filling as its suspicion grows.
+  //- Who is noticing the mech, and from where (Assassin's Creed: Odyssey's
+  //- ring): an arc round the aim point for each defender, pointing at it. It
+  //- fills white while it notices, refills yellow while it comes to look, and
+  //- goes red when it is sure.
   div.threat-arcs(aria-hidden="true")
     div.arc(v-for="n in MAX_THREATS" :key="n" :ref="(el) => setArc(el, n - 1)")
       svg(viewBox="0 0 100 100")
@@ -48,7 +50,10 @@ onMounted(() => {
       const len = LEN * level
       fill.style.strokeDasharray = `${len} ${LEN}`
       fill.style.strokeDashoffset = String(-(LEN - len) / 2)
-      fill.style.stroke = threats.hot[i] ? 'var(--cm-danger)' : level > 0.4 ? 'var(--cm-warn)' : 'var(--cm-text)'
+      const stage = threats.stage[i]!
+      fill.style.stroke = stage === 2 ? 'var(--cm-danger)' : stage === 1 ? 'var(--cm-warn)' : 'var(--cm-text)'
+      el.classList.toggle('looking', stage === 1)
+      el.classList.toggle('sure', stage === 2)
     }
   })
 })
@@ -80,6 +85,11 @@ onUnmounted(() => off?.())
   .track
     stroke: rgba(21, 12, 43, 0.55)
     stroke-width: 4.6
+  // Looking: the white it filled stays as the track, the yellow fills over it.
+  &.looking .track
+    stroke: rgba(246, 241, 255, 0.75)
+  &.sure .fill
+    stroke-width: 3.6
   .fill
     stroke-width: 2.8
     filter: drop-shadow(0 0 0.25rem currentColor)

@@ -1,6 +1,6 @@
 import { VOID, findPath, hasLineOfSight, heightAt, smoothPath, toCell, walkLine, type Grid } from '../world/grid'
 import type { Fortress, PostKind, Waypoint } from '../world/fortress'
-import { exposure, noticeRate, type Viewer, type Seen } from './perception'
+import { exposure, type Viewer, type Seen, fillRate, GRACE_S, CLOSE_M } from './perception'
 import { makeAlert, raiseAlert, pressAlert, stepAlert, ENGAGED_PER_S, type Alert, type AlertCause } from './alert'
 import { angleDelta } from './player'
 import { hashSeed, mulberry32, type Rng } from '../world/rng'
@@ -65,10 +65,15 @@ export const SPOT_RADIUS = 4.5
 /** Seconds a fully lit, standing mech has before a drone is sure of it. */
 const SPOT_NOTICE_S = 0.9
 
-/** Detection meter thresholds: past the first a unit goes to look. */
-export const SUSPECT_AT = 0.4
-const DECAY_PER_S = 0.3
-const DECAY_WARY_PER_S = 0.1
+/**
+ * The meter (round 3, after Odyssey): white below SUSPECT_AT, yellow from
+ * it (the unit goes to look) to 1, red at 1 (combat). See `perception.ts`.
+ */
+export const SUSPECT_AT = 0.5
+/** A white meter drains this fast once the mech is out of sight (after a beat); a yellow one only back to the line. */
+const DECAY_PER_S = 0.22
+const DECAY_WARY_PER_S = 0.08
+const DECAY_AFTER_S = 0.8
 /** A unit already looking for something notices faster. */
 const WARY_GAIN = 1.6
 
@@ -158,8 +163,10 @@ export interface Unit {
   t: number
   /** Detection meter, 0 … 1. */
   detect: number
-  /** It has the mech in view this step. */
+  /** It has the mech in view this step; for how long without a break; and how long since it last did. */
   sees: boolean
+  seenFor: number
+  unseenFor: number
   /** Where it last saw (or heard of) something worth a look. */
   seenX: number
   seenZ: number
@@ -259,6 +266,8 @@ export interface Target {
   visible: boolean
   /** 0 standing still … 1 at a run: a moving mech is harder to hit. */
   moving?: number
+  /** In shadow: harder to make out (`perception.ts` SHADOW_SLOW). */
+  shadow?: boolean
   /** Under the hide box, standing still or creeping. */
   box?: 'still' | 'creep'
 }
@@ -318,7 +327,7 @@ export const makeGarrison = (f: Fortress, level = 2): Garrison => {
       yaw: p.facing, pyaw: p.facing, look: 0,
       state: p.reserve ? 'reserve' : mech ? 'dormant' : 'patrol', t: 0, detect: 0, sees: false, seenX: p.x, seenZ: p.z, lured: false,
       route: p.route, wp: p.route.length > 1 ? 1 : 0, wait: p.route[0]?.wait ?? 0,
-      path: [], pathI: 0, repath: 0, bodyT: 0, checkAt: Infinity, checked: false, hp: Math.round(SPECS[p.kind].hp * threat.hp * (p.boss === 'foreman' ? FOREMAN_HP : 1)), maxHp: Math.round(SPECS[p.kind].hp * threat.hp * (p.boss === 'foreman' ? FOREMAN_HP : 1)), boss: p.boss ?? null, shield: !!p.shield, deadT: 0, fallDir: 1, huh: HUH_S, noise: 0, gripped: false, hold: 0, death: 'back', hitX: 0, hitZ: 0, found: false,
+      path: [], pathI: 0, repath: 0, bodyT: 0, seenFor: 0, unseenFor: 9, checkAt: Infinity, checked: false, hp: Math.round(SPECS[p.kind].hp * threat.hp * (p.boss === 'foreman' ? FOREMAN_HP : 1)), maxHp: Math.round(SPECS[p.kind].hp * threat.hp * (p.boss === 'foreman' ? FOREMAN_HP : 1)), boss: p.boss ?? null, shield: !!p.shield, deadT: 0, fallDir: 1, huh: HUH_S, noise: 0, gripped: false, hold: 0, death: 'back', hitX: 0, hitZ: 0, found: false,
       stride: 0, speed01: 0, homeX: p.x, homeZ: p.z, homeYaw: p.facing, altitude: p.altitude,
       spotX: spot.x, spotZ: spot.z,
       seed: (id * 2.399) % (Math.PI * 2),
@@ -782,15 +791,36 @@ export const stepGarrison = (gar: Garrison, g: Grid, target: Target, dt: number)
     if (boxedAway) exposed = target.box === 'still' ? 0 : exposed * BOX_CREEP_SEEN
     u.sees = exposed > 0
     if (u.sees) {
-      const wary = u.state === 'suspicious' || u.state === 'search' ? WARY_GAIN : 1
-      const rate = isLight(u)
-        ? (exposed * (target.crouched ? 0.7 : 1)) / SPOT_NOTICE_S
-        : noticeRate(Math.hypot(target.x - u.x, target.z - u.z), SPECS[u.kind].range, exposed, target.crouched)
-      u.detect = Math.min(boxedAway && u.state !== 'combat' ? BOX_CREEP_CAP : 1, u.detect + rate * wary * gar.threat.notice * dt)
+      u.seenFor += dt
+      u.unseenFor = 0
+      const dist = Math.hypot(target.x - u.x, target.z - u.z)
+      const yellow = u.detect >= SUSPECT_AT
+      const band = yellow ? 1 - SUSPECT_AT : SUSPECT_AT
+      let rate: number
+      if (isLight(u)) {
+        rate = (band * exposed * (target.crouched ? 0.7 : 1)) / (SPOT_NOTICE_S * (yellow ? 0.8 : 1.2))
+      } else {
+        const v = viewerOf(u)
+        const off = Math.abs(angleDelta(v.yaw, headingTo(u.x, u.z, target.x, target.z))) / Math.max(0.01, v.halfAngle)
+        rate = fillRate({ dist, range: SPECS[u.kind].range, exposed, crouched: target.crouched, off, shadow: !!target.shadow, yellow }, band)
+      }
+      // A glance is forgiven: the first moment of sight adds nothing to a
+      // unit at ease, unless the mech is right in front of it.
+      const grace = u.state === 'patrol' && u.seenFor < GRACE_S && dist > CLOSE_M
+      // Sharper senses once it has been looking: a fresh white fill is quicker.
+      // The yellow band is not: the player gets a fair moment to duck out.
+      const wary = !yellow && (u.state === 'suspicious' || u.state === 'search') ? WARY_GAIN : 1
+      if (!grace) u.detect = Math.min(boxedAway && u.state !== 'combat' ? BOX_CREEP_CAP : 1, u.detect + rate * wary * gar.threat.notice * dt)
       u.seenX = target.x
       u.seenZ = target.z
-    } else if (u.state !== 'combat') {
-      u.detect = Math.max(0, u.detect - (u.state === 'patrol' ? DECAY_PER_S : DECAY_WARY_PER_S) * dt)
+    } else {
+      u.seenFor = 0
+      u.unseenFor += dt
+      if (u.state !== 'combat' && u.unseenFor > DECAY_AFTER_S) {
+        // White drains away; yellow sinks only to the line while it looks.
+        const floor = u.state === 'patrol' ? 0 : Math.min(u.detect, SUSPECT_AT)
+        u.detect = Math.max(floor, u.detect - (u.state === 'patrol' ? DECAY_PER_S : DECAY_WARY_PER_S) * dt)
+      }
     }
 
     // ── What it makes of it ──

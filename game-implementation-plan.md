@@ -601,7 +601,7 @@ sources are in the decisions below.
       fade the mech when a wall pulls the arm in; the arm's pitch clamped so
       looking up never puts it in the body or the floor; walking framing a
       little higher and wider so the mech and the cards leave the middle clear.
-- [ ] **R17 Detection (Odyssey)**: white fill → yellow (investigate the LKP,
+- [x] **R17 Detection (Odyssey)**: white fill → yellow (investigate the LKP,
       sharper senses) → red; grace on first sight; fill by distance, crouch,
       cover, shadow and hiding spots; HUD arcs round the centre pointing at
       each noticing guard; filling icon over the guard; the LKP drawn as a
@@ -659,6 +659,7 @@ sources are in the decisions below.
 - [ ] **R28 Regression**: translations, docs, e2e, clips, perf (quiet
       machine), plan; a second blind playtest if time allows.
 R16 done. The follow camera never ends up inside the mech: pressed in by a wall closer than 2.4 m it cranes up (to 1.3 m, as far as the space above allows) and out over the shoulder, and the mech fades to a ghost; the arm's own pitch is capped at 0.2 rad so looking up swings the view, not the camera into the floor; the walking framing is higher and wider; the desktop hint cards stack bottom-left so the middle of the view is clear. Props (the crane, poles) are not in the camera's collision and can still cross the view: noted.
+R17 done. Detection after Odyssey: the meter fills in two bands; white (0-0.5) while a guard notices, slow and forgiving (a 0.5 s glance adds nothing at ease; 0.8 s near to 3.8 s at the edge of sight, twice as long crouched, at the cone's edge and slower in shadow), yellow (0.5-1) while it walks to the last known position (0.8-3.2 s), red at 1; within 4 m either band is three times as fast. Out of sight a white meter drains after 0.8 s. The ring of arcs round the centre and the marks over heads go white, yellow, red; a glowing ghost of the mech stands at the last known position while anyone looks for it there. Measured: standing at 11-12 m, yellow after about 2 s and red about 1.4 s later; crouched about twice as long. Shadow is wired (target.shadow) and lands with the R24 level.
 
 ## Resume notes
 
