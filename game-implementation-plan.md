@@ -534,7 +534,7 @@ them. Tick the roadmap item when its phase is committed.
 - [x] **R13 Bodies are found; a box to hide in** (#38): patrols walk past the places the dead lie and raise the alarm when they see them; a cardboard box / metal shield the mech can duck under and stay unseen while still.
 - [x] **R14 The rope walk** (#39, second half; the jump off the robo dog landed in R7): the mech goes hand over hand along a cable instead of sliding.
 - [x] **R15 Bosses** (#40): one or two per level that a sniper cannot drop in one shot, varied by level; a hit on one alarms the whole fortress, so the weak ones are cleared first.
-- [ ] **R11 Regression** (moved after R12-R15 so it is done once): translations of every new key into the 38 locales, e2e, clips re-recorded, perf, documents.
+- [x] **R11 Regression** (moved after R12-R15 so it is done once): translations of every new key into the 38 locales, e2e, clips re-recorded, perf, documents.
 
 ### Decisions (defaults taken; nobody was asked)
 
@@ -564,6 +564,7 @@ The drone's eye is its weak point: a hit zone (r 0.19, from in front only) where
 Bodies are found: a dead defender's radio goes quiet, and after 28-40 s the nearest walking patrol goes to where it lies (radio crackle, the guard's '?'), finds it and raises the alarm; bodies are told for what they are from 18 m (was 14). The hide box (B, a touch chip): a scrapyard crate with sleepy glowing slits drops over the crouched mech, its feet showing under the rim; still, it is a box to anyone further than 2.4 m; creeping (1.6 m/s) is odd: watchers get suspicious and come to look, never sure from afar; walked into, it is a mech. Raising the gun, sprinting, climbing or stripping a pile throws it off; the gun is stowed under it. Lesson: B / the chip, when a guard is half-way to sure and crouch is learned.
 The cable walk: the legs were fed speed 0 on a cable, so the mech glided; they now step at its pace, short careful steps with a higher lift, each foot set down on the line under the body. The arms, which a wrong-signed roll had folded into the chest, go out wide and see-saw against a slow sway of the hips; the head watches the feet. (The jump off the robo dog at the start landed in R7.)
 Bosses, one or two a level: the Warden (the Commander) every level, in an armoured helm (a sniper headshot is a third of him, hp 180 x threat), with a riot shield from IV that stops rounds from in front; the Foreman at II (a hazard-crested Enforcer, 1.6x); the Goliath from III. No blade reaches a boss, and the first hit on one sends the whole base to full alert, so the weak ones are cleared first. A boss bar (ten plates, a shield glyph) shows the last boss hit.
+Translations of round 2's 18 strings into all 38 locales; README and store copy describe the salvage raid, robo dog, smithy, hook, hide box, sprint and bosses; all 14 portal clips re-recorded (the success cut strips a pile on camera, the long cut fights the Warden round by round; every beat landed). Perf re-check inconclusive: the machine was loaded (the pre-round-2 build itself measured 2.5x its ledger values); noted in PERF-LEDGER.md to re-measure before release. Then #41: three blind Sonnet testers in headed Chrome (kid on a phone, stealth fan, action fan) and a design review published as an artifact.
 
 ## Resume notes
 

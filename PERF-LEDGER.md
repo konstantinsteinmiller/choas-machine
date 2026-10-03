@@ -108,6 +108,18 @@ change is small, has a test (`tests/game/sfxGaps.test.ts`), and cannot be
 heard at these gaps on paper. **Nobody has listened to it**: if a burst sounds
 thin, raise nothing, remove the entry for that sound.
 
+## Round 2 check (2026-10-03): inconclusive
+
+Measured after round 2 (salvage, robo dog, smithy, UI material, hide box,
+bosses) with `perf-mission.mjs --stealth --throttle 4 --seconds 15`, the
+current build and the last pre-round-2 build (4cfc61e) alternating on the
+same machine. The machine was under load from other work: the OLD build
+measured work p50 27 to 29 ms (it was 9 to 11 ms when this ledger was
+written), the current one 19 to 37 ms. The two overlap inside that noise, so
+this says neither "regressed" nor "fine". Re-measure on a quiet machine before
+release; if the quiet phase is slower, the first suspects are the scrapyard
+decor's triangles (R6) and the per-pile groups (R7).
+
 ## Open
 
 1. **The loud phase's tail.** Work p95 reaches 100 ms at 4× CPU, with tens of
