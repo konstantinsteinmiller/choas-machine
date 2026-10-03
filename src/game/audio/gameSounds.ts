@@ -7,7 +7,8 @@ import { flow } from '../flow'
 import { sfx } from './sfx'
 import { minigunHum } from './synth'
 import { setMusicTrack } from '@/use/useSound'
-import { playJingle } from './music'
+import { playJingle, warmMusic } from './music'
+import { whenAudio } from './engine'
 
 /**
  * ─── What the game sounds like ───────────────────────────────────────────────
@@ -25,6 +26,9 @@ import { playJingle } from './music'
 /** A sound is quieter from further off: full within `near`, a third at `far`. */
 const byDistance = (dist: number, near = 12, far = 70): number =>
   dist <= near ? 1 : Math.max(0.3, 1 - (0.7 * (dist - near)) / (far - near))
+
+/** Into the drop-in (3.4 to 5 s long) when the loud song's hall is built. */
+const WARM_IN_INTRO_MS = 1200
 
 let installed = false
 
@@ -138,7 +142,12 @@ export const installGameSounds = (): void => {
     if (screen === 'base') setMusicTrack('base')
     else if (screen === 'mission' && phase === 'intro') {
       setMusicTrack('stealth')
-      sfx('dropIn')
+      // At boot this fires mid-build, behind the loader: it plays when the scene shows.
+      whenAudio(() => sfx('dropIn'))
+      // The loud song's reverb is built during the drop-in, while the player
+      // watches, not under the veil (it would hold the load) and not at the
+      // alarm (a freeze as the fight starts): PERF-LEDGER.md entry 6.
+      whenAudio(() => setTimeout(() => { if (flow.screen === 'mission') warmMusic(['chaos']) }, WARM_IN_INTRO_MS))
     }
   }, { immediate: true })
 

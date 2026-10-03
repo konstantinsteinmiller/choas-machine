@@ -16,6 +16,7 @@ import { currentLoadout } from './state/progress'
 import { initProfile, profile } from './state/profile'
 import { installSynth, loadSfxOverrides } from './audio/synth'
 import { installGameSounds } from './audio/gameSounds'
+import { holdAudio, releaseAudio } from './audio/engine'
 
 /**
  * ─── Boot priming ────────────────────────────────────────────────────────────
@@ -94,6 +95,11 @@ const precompile = async (
   }
 }
 
+// Audio sleeps until the first scene is on screen (PERF-LEDGER.md entry 4).
+// Held here, when this module is evaluated: the scene imports it, so this runs
+// before the scene mounts and asks for its music.
+holdAudio()
+
 registerModeFactories({
   mission: async (onProgress) => {
     const search = window.location.search
@@ -170,14 +176,20 @@ const ADOPT_CAP_MS = 20000
  * ends in a direct build rather than a black screen forever.
  */
 export const adoptBootMode = async (): Promise<GameMode> => {
-  const p = primed ?? primeGame(() => {})
-  await Promise.race([
-    p.catch((e) => console.error('[boot] priming failed', e)),
-    new Promise((resolve) => setTimeout(resolve, ADOPT_CAP_MS))
-  ])
-  const m = takePreparedMode()
-  performance.mark(m ? 'boot:adopted' : 'boot:fallback-build')
-  if (m) return m
-  initProfile()
-  return createBootMode()
+  try {
+    const p = primed ?? primeGame(() => {})
+    await Promise.race([
+      p.catch((e) => console.error('[boot] priming failed', e)),
+      new Promise((resolve) => setTimeout(resolve, ADOPT_CAP_MS))
+    ])
+    const m = takePreparedMode()
+    performance.mark(m ? 'boot:adopted' : 'boot:fallback-build')
+    if (m) return m
+    initProfile()
+    return await createBootMode()
+  } finally {
+    // The scene shows on the next frame: audio may wake (and the drop-in
+    // plays). Whatever happened above, a boot never leaves the game silent.
+    queueMicrotask(releaseAudio)
+  }
 }

@@ -3,6 +3,9 @@
 //
 //   node scripts/boot-timeline.mjs [url] [--throttle 4] [--verbose]
 //   node scripts/boot-timeline.mjs --dist <built dir> [--throttle 4]   (serves it)
+//   … --returning   a returning player's save: boots into the Base
+//   … --query perf=<flag>   an A/B arm on the served build
+//   … --returning --deploy   then press Deploy and time the swap into the fortress
 //
 // Loads the page headless (fresh profile), optionally with CPU throttling,
 // and prints the boot's User Timing marks (`boot:*`, set in `src/game/boot.ts`
@@ -38,7 +41,9 @@ if (di >= 0) {
   })
   const port = 9700 + Math.floor(Math.random() * 200)
   await new Promise(r => server.listen(port, '127.0.0.1', r))
-  url = `http://127.0.0.1:${port}/`
+  // `--query perf=<flag>`: an A/B arm (src/use/perfVariants.ts) on the served build.
+  const qi = argv.indexOf('--query')
+  url = `http://127.0.0.1:${port}/` + (qi >= 0 ? `?${argv[qi + 1]}` : '')
 }
 const ti = argv.indexOf('--throttle')
 const throttle = ti >= 0 ? Number(argv[ti + 1]) : 1
@@ -49,6 +54,13 @@ try {
   const page = await (await browser.newContext({ viewport: { width: 1000, height: 600 } })).newPage()
   const cdp = await page.context().newCDPSession(page)
   if (throttle > 1) await cdp.send('Emulation.setCPUThrottlingRate', { rate: throttle })
+  // A returning player (missions played, training seen) boots into the Base, not
+  // the training ground: a different first scene and a different critical path.
+  if (argv.includes('--returning')) {
+    await page.addInitScript(() => {
+      try { localStorage.setItem('cmachine_state', JSON.stringify({ cm_v: 1, cm_seen: ['training'], cm_missions: 3 })) } catch { /* private mode */ }
+    })
+  }
   await page.addInitScript(() => {
     const w = window
     w.__bar = []
@@ -91,6 +103,21 @@ try {
   console.log(`bar    ${r.bar.length} steps, longest standstill ${still} ms, first move @${r.bar.find(b => b[1] > 0)?.[0] ?? '-'}`)
   console.log(`long   ${r.long.length} tasks > 50 ms, longest ${Math.max(0, ...r.long.map(l => l[1]))} ms, total ${r.long.reduce((a, l) => a + l[1], 0)} ms`)
   if (argv.includes('--verbose')) console.log('       ' + r.long.map(([s, d]) => `${d}ms@${s}`).join('  '))
+  // `--deploy` (with `--returning`): press Deploy in the Base and time the swap
+  // into the fortress (`swap:mission:*` marks, set in `src/game/flow.ts`).
+  if (argv.includes('--deploy')) {
+    await page.waitForTimeout(1500)
+    // The button pulses (its attention animation), so it is never "stable" to Playwright.
+    await page.waitForSelector('[data-testid="btn-deploy"]')
+    await page.evaluate(() => document.querySelector('[data-testid="btn-deploy"]').click())
+    await page.waitForFunction(() => performance.getEntriesByName('swap:mission:ready').length > 0, null, { timeout: 90000 })
+    const d = await page.evaluate(() => {
+      const at = (n) => Math.round(performance.getEntriesByName(n)[0]?.startTime ?? NaN)
+      const s = at('swap:mission:start')
+      return { s, built: at('swap:mission:built') - s, ready: at('swap:mission:ready') - s, long: window.__long.filter(l => l[0] >= s && l[1] > 50) }
+    })
+    console.log(`deploy built +${d.built} ms, ready +${d.ready} ms; ${d.long.length} long tasks, longest ${Math.max(0, ...d.long.map(l => l[1]))} ms, total ${d.long.reduce((a, l) => a + l[1], 0)} ms`)
+  }
 } finally {
   await browser.close()
   server?.close()

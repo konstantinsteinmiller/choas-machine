@@ -422,7 +422,15 @@ export default defineConfig(({ mode, command }) => {
           // verifying the CG pre-release build. The cheats self-gate on
           // `localStorage.cheat`, so leaving this file readable grants nothing
           // devtools would not.
-          /use[\\/]useCheats\.ts$/
+          /use[\\/]useCheats\.ts$/,
+          // useGameplayLifecycle loads the Playgama plugin lazily for the
+          // gameplay start / stop signals. Mangled, the specifier stays
+          // unresolved and the built bundle requests a path that does not
+          // exist (seen with a lazy scene chunk: a 404 and a hung boot,
+          // PERF-LEDGER.md entry 5). The stringArray pick is random, so a build
+          // can pass by luck: `tests/tools/obfuscatorExcludes.test.ts` holds
+          // every file.
+          /use[\\/]useGameplayLifecycle\.ts$/
         ],
         // ─── Obfuscation profile (tuned 2026-04-30) ─────────────────────
         // The previous profile enabled every aggressive transform the

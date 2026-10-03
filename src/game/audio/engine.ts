@@ -54,7 +54,35 @@ export const audioAllowed = audioUnlocked
  */
 export interface AudioGraph { ctx: AudioContext; sfx: GainNode; music: GainNode; voice: GainNode }
 
+// ─── Held during the boot (#36, PERF-LEDGER.md entry 4) ──────────────────────
+// Opening the audio device costs 50 to 270 ms of main thread (4× CPU), and
+// the first sound starts the music's synthesis with it. Nothing can be heard
+// behind the loader that matters, so the boot holds the graph until its
+// first scene is on screen: sounds asked for meanwhile are dropped, the
+// music waits (`music.ts`), and what must not be lost (the intro's drop-in)
+// is queued with `whenAudio`.
+let held = false
+const queued: Array<() => void> = []
+
+/** The boot starts: no audio graph until `releaseAudio`. */
+export const holdAudio = (): void => { held = true }
+export const audioHeld = (): boolean => held
+/** The first scene is live: audio may wake, and what waited for it runs now. */
+export const releaseAudio = (): void => {
+  if (!held) return
+  held = false
+  for (const fn of queued.splice(0)) {
+    try { fn() } catch (e) { console.warn('[audio] deferred start failed', e) }
+  }
+}
+/** Run `fn` now, or once the boot lets audio wake. */
+export const whenAudio = (fn: () => void): void => {
+  if (held) queued.push(fn)
+  else fn()
+}
+
 export const audio = (): AudioGraph | null => {
+  if (held) return null
   if (ctx && sfxBus && musicBus && voiceBus) return audioUnlocked() ? { ctx, sfx: sfxBus, music: musicBus, voice: voiceBus } : null
   const c = getAudioContext()
   if (!c) return null

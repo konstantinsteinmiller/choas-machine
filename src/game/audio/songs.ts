@@ -54,6 +54,11 @@ export interface Song {
 export interface Out {
   ctx: BaseAudioContext
   master: GainNode
+  /** The song's feed into its hall: faded with `master` (`levels`), so a song
+   *  that fades out stops feeding the reverb and its tail rings out. */
+  wet: GainNode
+  /** Every gain a fade must move: the master and the wet feed. */
+  levels: readonly GainNode[]
   ch: (name: string) => AudioNode
   /** A node every note of an instrument can share (a filter bank, an LFO),
    *  built once per song. Sources it returns are started here and stopped on
@@ -89,19 +94,55 @@ const impulse = (ctx: BaseAudioContext, seconds: number, decay: number): AudioBu
   return buf
 }
 
+// ─── Halls: one reverb per room, shared by every song (PERF-LEDGER.md entry 6)
+// Giving a ConvolverNode its impulse prepares the convolution on the main
+// thread: 280 to 420 ms at 4× CPU for these 2.6 to 3.4 s stereo tails, on
+// every new node. A song used to build its own on its first note, so every
+// music change paid it, the alarm's switch to the loud song mid-fight
+// included. A hall is built once per context, output and reverb, and kept;
+// `warmHalls` builds one ahead of need, in a calm moment (`music.warmMusic`).
+const halls = new WeakMap<BaseAudioContext, Map<string, ConvolverNode>>()
+const hallKey = (dest: AudioNode, r: Song['reverb']): string => `${r.seconds}:${r.decay}:${destId(dest)}`
+const destIds = new WeakMap<AudioNode, number>()
+let nextDest = 0
+const destId = (d: AudioNode): number => {
+  let id = destIds.get(d)
+  if (id === undefined) destIds.set(d, (id = nextDest++))
+  return id
+}
+const hall = (ctx: BaseAudioContext, dest: AudioNode, r: Song['reverb']): ConvolverNode => {
+  let m = halls.get(ctx)
+  if (!m) halls.set(ctx, (m = new Map()))
+  const key = hallKey(dest, r)
+  const hit = m.get(key)
+  if (hit) return hit
+  const cv = ctx.createConvolver()
+  cv.buffer = impulse(ctx, r.seconds, r.decay)
+  cv.connect(dest)
+  m.set(key, cv)
+  return cv
+}
+/** Whether the hall for `song` on `dest` is built (for tests). */
+export const hallReady = (ctx: BaseAudioContext, dest: AudioNode, song: Song): boolean =>
+  halls.get(ctx)?.has(hallKey(dest, song.reverb)) ?? false
+
+/** Build the halls `ids` play in, now, so starting them later costs nothing. */
+export const warmHalls = (ctx: BaseAudioContext, dest: AudioNode, ids: readonly SongId[]): void => {
+  for (const id of ids) hall(ctx, dest, getSong(id).reverb)
+}
+
 export const makeOut = (ctx: BaseAudioContext, dest: AudioNode, song: Song): Out => {
   const master = ctx.createGain()
   master.gain.value = song.gain
   master.connect(dest)
-  const nodes: AudioNode[] = [master]
+  const wet = ctx.createGain()
+  wet.gain.value = song.gain
+  const nodes: AudioNode[] = [master, wet]
   let verb: AudioNode | null = null
   const reverbIn = (): AudioNode => {
     if (!verb) {
-      const cv = ctx.createConvolver()
-      cv.buffer = impulse(ctx, song.reverb.seconds, song.reverb.decay)
-      cv.connect(master)
-      nodes.push(cv)
-      verb = cv
+      wet.connect(hall(ctx, dest, song.reverb))
+      verb = wet
     }
     return verb
   }
@@ -152,6 +193,8 @@ export const makeOut = (ctx: BaseAudioContext, dest: AudioNode, song: Song): Out
   return {
     ctx,
     master,
+    wet,
+    levels: [master, wet],
     ch,
     shared,
     dispose: () => {

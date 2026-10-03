@@ -1,5 +1,5 @@
-import { audio, audioAllowed } from './engine'
-import { getSong, makeOut, playStep, playJingleNotes, type Out, type Song, type SongId, type TrackId } from './songs'
+import { audio, audioAllowed, audioHeld, whenAudio } from './engine'
+import { getSong, makeOut, playStep, playJingleNotes, warmHalls, type Out, type Song, type SongId, type TrackId } from './songs'
 import { MUSIC_FILES } from '../assets/overrides'
 import { registerHtmlAudio, unregisterHtmlAudio } from '@/use/useAssets'
 
@@ -78,12 +78,13 @@ let resume: { id: SongId; step: number; played: number } | null = null
 let everStarted = false
 
 const retire = (o: Out, at: number, fade: number): void => {
-  const g = o.master.gain
   const now = o.ctx.currentTime
-  g.cancelScheduledValues(now)
-  g.setValueAtTime(Math.max(0.0001, g.value), now)
-  if (at > now) g.setValueAtTime(Math.max(0.0001, g.value), at)
-  g.setTargetAtTime(0.0001, Math.max(at, now), fade / 4)
+  for (const { gain: g } of o.levels) {
+    g.cancelScheduledValues(now)
+    g.setValueAtTime(Math.max(0.0001, g.value), now)
+    if (at > now) g.setValueAtTime(Math.max(0.0001, g.value), at)
+    g.setTargetAtTime(0.0001, Math.max(at, now), fade / 4)
+  }
   setTimeout(() => o.dispose(), (Math.max(0, at - now) + fade + 0.5) * 1000)
 }
 
@@ -93,9 +94,11 @@ const startSong = (id: SongId, at: number | null, fadeIn: number, allowResume: b
   const s = getSong(id)
   const o = makeOut(a.ctx, a.music, s)
   const t0 = at ?? a.ctx.currentTime + 0.08
-  o.master.gain.setValueAtTime(0.0001, a.ctx.currentTime)
-  o.master.gain.setValueAtTime(0.0001, t0)
-  o.master.gain.exponentialRampToValueAtTime(s.gain, t0 + Math.max(0.03, fadeIn))
+  for (const { gain: g } of o.levels) {
+    g.setValueAtTime(0.0001, a.ctx.currentTime)
+    g.setValueAtTime(0.0001, t0)
+    g.exponentialRampToValueAtTime(s.gain, t0 + Math.max(0.03, fadeIn))
+  }
   if (allowResume && resume && resume.id === id && !OWN_SONG(id)) {
     stepIdx = resume.step
     played = resume.played
@@ -168,6 +171,9 @@ const onGesture = (): void => {
 
 const startOnGesture = (id: TrackId): void => {
   pending = id
+  // Held by the boot, not by the autoplay policy: try again the moment the
+  // first scene is live (and fall back to the gesture if that is refused).
+  if (audioHeld()) whenAudio(() => { if (pending) onGesture() })
   if (gestureArmed) return
   gestureArmed = true
   for (const g of GESTURES) window.addEventListener(g, onGesture, true)
@@ -303,4 +309,16 @@ export const playJingle = (kind: 'victory' | 'defeat'): void => {
   }
   const o = playJingleNotes(a.ctx, a.music, kind)
   setTimeout(() => o.dispose(), 2500)
+}
+
+/**
+ * Build the reverb halls an area's songs play in (`songs.ts`), now. Called
+ * during a mission's drop-in for the loud song, so the alarm's switch to it
+ * costs nothing. A no-op before audio may start (the song then builds its
+ * own hall on its first note, as before).
+ */
+export const warmMusic = (areas: readonly TrackId[]): void => {
+  const a = audio()
+  if (!a) return
+  warmHalls(a.ctx, a.music, areas.map(id => songFor(id, slot)))
 }

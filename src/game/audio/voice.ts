@@ -1,6 +1,7 @@
 import { on } from '../bus'
 import { VOICE_FILES } from '../assets/overrides'
-import { SPEAKER_OF, fileName, type Speaker } from './voiceCatalog'
+import { SPEAKERS, SPEAKER_OF, fileName, type Speaker } from './voiceCatalog'
+import { whenAudio } from './engine'
 import { playVoice, prefetchVoices } from './synth'
 
 /**
@@ -33,6 +34,16 @@ export const voiceUrl = (speaker: Speaker, l: string): string | undefined => {
   return VOICE_FILES.get(`${l}/${file}`) ?? VOICE_FILES.get(`${l.split('-')[0]}/${file}`) ?? VOICE_FILES.get(`en/${file}`)
 }
 
+/** The files one language needs: each speaker's alarm, in that language or English. */
+export const voiceSet = (l: string): Set<string> => {
+  const out = new Set<string>()
+  for (const s of Object.keys(SPEAKERS) as Speaker[]) {
+    const url = voiceUrl(s, l)
+    if (url) out.add(url)
+  }
+  return out
+}
+
 let lastAt = -1e9
 const lastBy = new Map<Speaker, number>()
 let installed = false
@@ -40,8 +51,10 @@ let installed = false
 export const installVoices = (): void => {
   if (installed) return
   installed = true
-  // Decode them all early: there are few, and a shout must not wait for a fetch.
-  prefetchVoices(new Set([...VOICE_FILES.values()]))
+  // Decode them early, a shout must not wait for a fetch, but not during the
+  // boot and only in the language the player hears (`voiceUrl` per speaker:
+  // their own, else English). Another language is fetched if it is ever needed.
+  whenAudio(() => prefetchVoices(voiceSet(lang())))
   on('callout', ({ kind, role, dist, pan }) => {
     if (dist > EARSHOT_M) return
     const now = performance.now() / 1000

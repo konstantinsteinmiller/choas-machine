@@ -101,9 +101,12 @@ const swap = async (screen: Screen, factory: ModeFactory, phase: 'intro' | 'base
   // The scene being left stops here: it must not go on simulating (and
   // spending the frame) under the veil while the next one is built.
   app.setWanted(false)
+  // Milestones for `scripts/boot-timeline.mjs --deploy` (and DevTools), like the boot's.
+  performance.mark(`swap:${screen}:start`)
   let mode: GameMode
   try {
     mode = await factory((p) => { flow.loadProgress = p * 0.9 })
+    performance.mark(`swap:${screen}:built`)
     await factories.prepare?.(mode)
     flow.loadProgress = 1
   } catch (err) {
@@ -117,6 +120,7 @@ const swap = async (screen: Screen, factory: ModeFactory, phase: 'intro' | 'base
   setPhase(phase)
   app.setMode(mode)
   app.setWanted(true)
+  performance.mark(`swap:${screen}:ready`)
 }
 
 /** Drop into the fortress, at `level` (default: the one picked). */

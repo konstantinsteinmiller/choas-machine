@@ -12,6 +12,9 @@ CPU throttled 4× over CDP, the game played by an in-page driver.
 ```bash
 npx vite build --outDir dist
 node scripts/boot-timeline.mjs --dist dist --throttle 4            # boot marks, long tasks
+node scripts/boot-timeline.mjs --dist dist --throttle 4 --returning   # a returning player (boots into the Base)
+node scripts/boot-timeline.mjs --dist dist --throttle 4 --returning --deploy   # then the deploy's swap
+node scripts/boot-timeline.mjs --dist dist --query perf=<flag>       # an A/B arm
 node scripts/perf-mission.mjs --dist dist --throttle 4             # the loud phase
 node scripts/perf-mission.mjs --dist dist --throttle 4 --stealth   # the quiet phase
 node scripts/perf-mission.mjs --arms base,<flag> --reps 3          # A/B, interleaved
@@ -38,7 +41,7 @@ margin.
 | Stealth, on the perch (15 s) | 9 to 11 ms | 12 to 15 ms | 16.7 ms | 1 ms | 10 to 13 ms | 0 |
 | Loud, full alert (20 s) | 13 to 14 ms | 21 to 100 ms | 33 ms | 3 to 13 ms | 14 to 16 ms | 9 to 55 |
 
-Boot at 4× CPU: loader mounted at 1.0 s, level built at 2.2 to 3.0 s,
+Boot at 4× CPU (2026-10-02; for #36 see entries 4 and 5): loader mounted at 1.0 s, level built at 2.2 to 3.0 s,
 playable after 3.9 to 4.6 s; the bar's longest standstill 0.5 to 1.1 s; longest
 task 440 to 740 ms (evaluating the engine chunk, before the loader's own
 slicing can help).
@@ -108,6 +111,92 @@ change is small, has a test (`tests/game/sfxGaps.test.ts`), and cannot be
 heard at these gaps on paper. **Nobody has listened to it**: if a burst sounds
 thin, raise nothing, remove the entry for that sound.
 
+### 4. Audio sleeps until the first scene is on screen — kept (#36)
+
+The boot built the first scene and, halfway, set the intro phase; the sounds
+watcher answered with the drop-in whoosh, and that first sound opened the
+audio device (50 to 270 ms of main thread at 4× CPU) and started the music's
+synthesis, all inside the loader's critical window. With autoplay granted
+(portal iframes, a trusted returning visitor; Playwright too) the whoosh was
+heard behind the loader. Now the boot holds the audio graph from the moment
+`boot.ts` is evaluated until the first scene is adopted: a sound asked for
+meanwhile is dropped, the music waits, and the drop-in is queued and plays
+when the scene shows. The voice files moved out of the boot too: fetched
+after it, and only the player's language (8 files, was 16, every language).
+
+A/B on the built bundle (`boot-timeline.mjs`, 4× CPU, a fresh and a returning
+player, 5 interleaved pairs each, flag `boot-audio-legacy`), time to
+`boot:adopted`:
+
+| | fresh | returning |
+|---|---|---|
+| base | 1634 / 4197 / 4412 / 2402 / 3747 | 1638 / 3167 / 3475 / 2249 / 3094 |
+| boot-audio-legacy | 2047 / 5067 / 6008 / 6229 / 4130 | 2036 / 4737 / 4641 / 2491 / 4271 |
+
+Faster in all ten pairs. The machine was loaded (other sessions' jobs), so
+the spread is wide; the two quiet pairs (the first) gained about 400 ms each,
+−20 %. Tests: `tests/audio/bootAudioHold.test.ts`.
+
+### 5. Each first scene's code in its own chunk — reverted (null)
+
+The idea: a returning player boots into the Command Base, so the mission's
+code (simulation, garrison, level builders: 245 KB) need not be evaluated
+before they can play, and a new player's boot need not evaluate the Base.
+`boot.ts` loaded each lazily, the save picked which one first, the other was
+fetched after play started, both stayed `modulepreload`ed.
+
+A/B on the built bundle, 5 interleaved pairs each, flag `boot-chunks-legacy`,
+time to `boot:adopted`:
+
+| | fresh | returning |
+|---|---|---|
+| base (split) | 2974 / 1428 / 1859 / 2150 / 1924 | 2781 / 1932 / 2601 / 2259 / 1935 |
+| boot-chunks-legacy | 3141 / 1449 / 2338 / 1874 / 2081 | 1464 / 2578 / 1889 / 2317 / 1860 |
+
+No win: the returning player, the case it was for, was slower in 3 of 5
+pairs (median +16 %, inside the spread). A quiet-machine profile explains
+it: evaluating the whole boot chunk costs about 70 ms, so there was little to
+save, and the lazy import put a fetch-and-evaluate step on the critical path
+instead. Reverted to the static imports.
+
+Found on the way, and kept: the obfuscator's string-array rewrite mangled
+the new `import('./scenes/commandBase')`, and the built bundle requested
+`/assets/scenes/commandBase` (404) and never finished booting a returning
+player. Its pick is random (the mission's import survived the same build), so
+a build can pass by luck. `useGameplayLifecycle.ts` had the same latent
+problem on an obfuscated Playgama build and is excluded now;
+`tests/tools/obfuscatorExcludes.test.ts` fails for any source file with a
+live `import('…')` that is not on the exclude list.
+
+### 6. One reverb hall per song setting, built ahead — kept (moves the cost)
+
+A song's reverb is a ConvolverNode, and giving it its 2.6 to 3.4 s stereo
+impulse prepares the convolution on the main thread: in the profile of a
+deploy, 416 ms inside one song's lazy reverb, of which 138 ms was computing
+the impulse (already cached) and the rest the node's own setup. Every song
+built a new node on its first note, so every music change paid it again: the
+deploy (Base to stealth), and the alarm (stealth to the loud song), a freeze
+at the moment the fight starts. Now one hall per context and reverb setting
+is built once and shared; a song feeds it through its own `wet` gain, which
+fades with the song. The loud song's hall is built 1.2 s into the drop-in,
+while the player watches.
+
+A/B on the dev server (deploy from the Base, the drop-in, then the alarm's
+`chaos` event), 4× CPU, 5 interleaved pairs, flag `reverb-per-song`:
+
+| | deploy until ready | long tasks in the drop-in | long tasks in the 2 s after the alarm | longest after the alarm |
+|---|---|---|---|---|
+| base | 2122 ms | 1258 ms | 550 ms | 196 ms |
+| reverb-per-song | 2053 ms | 608 ms | 1018 ms | 381 ms |
+
+The alarm's long tasks halved in all five pairs (and in 9 of 10 over two
+earlier runs). The deploy is unchanged. The cost is moved, not removed: the
+drop-in, where the player has no control, now carries it. A first cut built
+both halls under the deploy's loading veil, and the deploy got 800 ms slower
+in five of five pairs: rejected for that. A song played again later in a
+session (Base and raid alternate) now costs nothing at all. Tests:
+`tests/audio/halls.test.ts`.
+
 ## Round 2 check (2026-10-03): inconclusive
 
 Measured after round 2 (salvage, robo dog, smithy, UI material, hide box,
@@ -162,9 +251,13 @@ garrison step (scent trail, rigs, chat checks: 3 to 8 ms in the loaded runs,
    pieces per area and culling by area is the known recipe.
 5. **Vision cones** cost 91 ray-casts per defender per frame. They did not
    show in the profile (under 1 %), so they were left alone.
-6. **Boot.** The 440 to 740 ms task is the engine chunk being evaluated.
-   Splitting three.js from the audio synth (they share a chunk today) would
-   let the loader paint between the two.
+6. **Boot.** Re-measured for #36 (entries 4 and 5): on a quiet machine,
+   evaluating the engine chunk is no longer a long task (about 70 ms at 4×
+   CPU); the 440 to 740 ms tasks seen before were contention. What is left
+   in the boot is the level build and the shader precompile, both sliced.
+   The deploy into the Bastion still has 400 to 700 ms tasks under its veil:
+   the decor (434 ms in one profile) and the garrison's rigs (283 ms) are
+   built in a stretch the slicer does not split. The bar freezes there.
 7. **No phone has been measured.** Everything above is a desktop GPU with a
    throttled CPU. The inherited `ios-legacy` flag (iOS opens at low scenery
    and 1.5× resolution) has never been tested on an iPhone.
