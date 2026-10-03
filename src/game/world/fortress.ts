@@ -1,4 +1,4 @@
-import { findHoles, CELL, cellHeight, CellKind, cellKind, cellMid, inGrid, makeGrid, Surf, VOID, type Grid } from './grid'
+import { findHoles, CELL, cellHeight, CellKind, cellKind, cellMid, inGrid, makeGrid, Surf, VOID, type Grid, Shade } from './grid'
 
 /**
  * ─── A fortress, as data ─────────────────────────────────────────────────────
@@ -69,6 +69,7 @@ export interface Post {
 export type DecorKind =
   | 'lamp' | 'antenna' | 'barrel' | 'flag'
   | 'heap' | 'tires' | 'pipes' | 'crane' | 'generator' | 'girder' | 'tank' | 'spool' | 'stack' | 'cone'
+  | 'net' | 'tangle' | 'rail'
 export interface Decor { kind: DecorKind; x: number; y: number; z: number; rot: number }
 
 /** A pile of salvage: where it lies, and how much it is worth. */
@@ -346,6 +347,42 @@ export class FortressBuilder {
     const h = this.heightOf(cx, cz)
     if (h === VOID) throw new Error(`[fortress ${this.id}] salvage at ${cx},${cz} is off the island`)
     this.piles.push({ x: cellMid(cx), y: h, z: cellMid(cz), amount, big })
+    return this
+  }
+
+  /** A pool of shadow over a rectangle of cells: the mech is slower to make out in it. */
+  shadow(x0: number, z0: number, x1: number, z1: number): this {
+    for (let cz = Math.min(z0, z1); cz <= Math.max(z0, z1); cz++) {
+      for (let cx = Math.min(x0, x1); cx <= Math.max(x0, x1); cx++) {
+        if (inGrid(this.grid, cx, cz)) this.grid.shade[cz * this.grid.w + cx]! |= Shade.Shadow
+      }
+    }
+    return this
+  }
+
+  /**
+   * A thicket, `len` cells along `dir`: a camo net on poles or a tangle of
+   * cable. Walkable; crouched in it the mech is hidden but from right up close.
+   */
+  thicket(cx: number, cz: number, kind: 'net' | 'tangle', len = 1, dir: 'x' | 'z' = 'x'): this {
+    for (let i = 0; i < len; i++) {
+      const x = cx + (dir === 'x' ? i : 0)
+      const z = cz + (dir === 'z' ? i : 0)
+      const h = this.heightOf(x, z)
+      if (h === VOID) throw new Error(`[fortress ${this.id}] thicket at ${x},${z} is off the island`)
+      this.grid.shade[z * this.grid.w + x]! |= Shade.Brush | Shade.Shadow
+      this.decor.push({ kind, x: cellMid(x), y: h, z: cellMid(z), rot: dir === 'x' ? 0 : Math.PI / 2 })
+    }
+    return this
+  }
+
+  /** A railing along the open edge of a ledge, `len` cells along `dir` (looks only). */
+  rail(cx: number, cz: number, len = 1, dir: 'x' | 'z' = 'x'): this {
+    for (let i = 0; i < len; i++) {
+      const x = cx + (dir === 'x' ? i : 0)
+      const z = cz + (dir === 'z' ? i : 0)
+      this.decor.push({ kind: 'rail', x: cellMid(x), y: this.heightOf(x, z), z: cellMid(z), rot: dir === 'x' ? 0 : Math.PI / 2 })
+    }
     return this
   }
 

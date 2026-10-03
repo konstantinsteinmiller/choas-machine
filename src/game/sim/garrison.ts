@@ -325,6 +325,8 @@ export const HOUND_EARS = 1.6
 /** The Engineer: how long a repair takes, and how near it must stand. */
 export const REPAIR_S = 4
 export const REPAIR_REACH = 2.6
+/** Crouched in a thicket, the mech is seen only nearer than this. */
+export const BRUSH_SEEN_M = 2.6
 /** A sentry calls the alarm this much further than a guard shouts. */
 export const SENTRY_CALL = 2
 /** Guards closing on the mech spread out this far either side (flanking in pairs). */
@@ -527,6 +529,8 @@ export interface Target {
   shadow?: boolean
   /** Under the hide box, standing still or creeping. */
   box?: 'still' | 'creep'
+  /** Crouched in a thicket: not seen at all beyond BRUSH_SEEN_M. */
+  brush?: boolean
 }
 
 /**
@@ -1257,6 +1261,8 @@ export const stepGarrison = (gar: Garrison, g: Grid, target: Target, dt: number)
 
     // ── What it sees of the mech ──
     let exposed = target.visible ? sight(u, g, seen) : 0
+    // In a thicket, crouched: nobody sees it but from right on top of it (Odyssey's bushes).
+    if (target.brush && Math.hypot(target.x - u.x, target.z - u.z) > BRUSH_SEEN_M) exposed = 0
     // Under the box: a box is a box, unless it moves, or somebody walks into it.
     const boxedAway = !!target.box && Math.hypot(target.x - u.x, target.z - u.z) > BOX_BUMP
     if (boxedAway) exposed = target.box === 'still' ? 0 : exposed * BOX_CREEP_SEEN

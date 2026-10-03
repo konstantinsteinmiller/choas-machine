@@ -43,7 +43,46 @@ const drum = (r: number, h: number, color: string, p: V3, rot: V3 = [0, 0, 0], s
   part(rcyl(r, h, Math.min(r, h / 2) * 0.25, segs, 2), color, p, rot)
 
 /** The parts of one prop, around its own origin at the foot. */
+const CAMO = '#5c7a5a'
+const CAMO_DARK = '#3d5446'
+
 const PARTS: Record<DecorKind, () => Parts> = {
+  // A camo net on four poles, sagging to the ground at the back: a place to crouch.
+  net: () => ({
+    lit: [
+      drum(0.06, 1.9, STEEL_DARK, [-0.85, 0.95, -0.85], [0, 0, 0], 6),
+      drum(0.06, 1.9, STEEL_DARK, [0.85, 0.95, -0.85], [0, 0, 0], 6),
+      drum(0.06, 1.5, STEEL_DARK, [-0.85, 0.75, 0.85], [0, 0, 0], 6),
+      drum(0.06, 1.5, STEEL_DARK, [0.85, 0.75, 0.85], [0, 0, 0], 6),
+      block(2.0, 0.08, 1.9, CAMO, [0, 1.75, 0], [0.18, 0, 0], 0.5),
+      block(1.9, 1.3, 0.08, CAMO_DARK, [0, 1.05, -0.95], [-0.25, 0, 0], 0.5),
+      block(0.5, 0.06, 0.5, CAMO_DARK, [-0.4, 1.83, -0.2], [0.18, 0.4, 0], 0.5),
+      block(0.6, 0.06, 0.4, CAMO_DARK, [0.45, 1.72, 0.35], [0.18, -0.3, 0], 0.5)
+    ],
+    glow: []
+  }),
+  // A tangle of cable: loops and coils knee to chest high.
+  tangle: () => ({
+    lit: [
+      part(torus(0.55, 0.07, 5, 12), RUBBER, [-0.3, 0.6, 0], [0.4, 0.3, 0]),
+      part(torus(0.5, 0.07, 5, 12), RUBBER, [0.35, 0.8, 0.2], [1.2, -0.4, 0.3]),
+      part(torus(0.45, 0.06, 5, 12), '#3a3466', [0, 1.1, -0.3], [0.2, 1.1, 0.5]),
+      part(torus(0.6, 0.06, 5, 12), '#3a3466', [0.1, 0.35, 0.3], [1.5, 0, 0]),
+      drum(0.08, 1.6, RUBBER, [0.2, 0.7, -0.4], [0.9, 0.3, 0.6], 6),
+      drum(0.08, 1.4, RUBBER, [-0.5, 0.9, 0.3], [0.2, 0.8, 1.2], 6)
+    ],
+    glow: [part(sph(0.07, 6, 5), WARN, [0.4, 1.2, 0.1])]
+  }),
+  // A railing on a ledge's open edge.
+  rail: () => ({
+    lit: [
+      drum(0.05, 1.1, STEEL_DARK, [-0.9, 0.55, 0.85], [0, 0, 0], 6),
+      drum(0.05, 1.1, STEEL_DARK, [0.9, 0.55, 0.85], [0, 0, 0], 6),
+      drum(0.045, 2.0, STEEL, [0, 1.08, 0.85], [0, 0, Math.PI / 2], 6),
+      drum(0.035, 2.0, STEEL, [0, 0.6, 0.85], [0, 0, Math.PI / 2], 6)
+    ],
+    glow: []
+  }),
   // A floodlight on a bent post.
   lamp: () => ({
     lit: [

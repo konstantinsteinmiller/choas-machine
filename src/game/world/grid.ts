@@ -67,6 +67,8 @@ export interface Grid {
   kind: Uint8Array
   /** How each cell's top is DRESSED (`Surf`): looks only, never the rules. */
   surf: Uint8Array
+  /** Cover of another kind (`Shade`): a pool of shadow, a thicket to crouch in. */
+  shade: Uint8Array
   ladders: Ladder[]
   cables: Cable[]
 }
@@ -80,6 +82,20 @@ export interface Grid {
 export const Surf = { Bare: 0, Plate: 1, Hazard: 2, Heap: 3 } as const
 export type Surf = (typeof Surf)[keyof typeof Surf]
 
+/**
+ * Cover that is not a wall (round 3, after Odyssey): bit flags per cell.
+ * `Shadow`: a pool of shadow, where the mech is slower to make out.
+ * `Brush`: a thicket (a camo net, a tangle of cable): crouched in it the mech
+ * is not seen at all unless somebody is right on top of it.
+ */
+export const Shade = { None: 0, Shadow: 1, Brush: 2 } as const
+
+export const shadeAt = (g: Grid, x: number, z: number): number => {
+  const cx = Math.floor(x / CELL)
+  const cz = Math.floor(z / CELL)
+  return cx >= 0 && cz >= 0 && cx < g.w && cz < g.d ? g.shade[cz * g.w + cx]! : 0
+}
+
 export const cellSurf = (g: Grid, cx: number, cz: number): Surf =>
   cx >= 0 && cz >= 0 && cx < g.w && cz < g.d ? (g.surf[cz * g.w + cx]! as Surf) : Surf.Bare
 
@@ -89,6 +105,7 @@ export const makeGrid = (w: number, d: number): Grid => ({
   h: new Float32Array(w * d).fill(VOID),
   kind: new Uint8Array(w * d),
   surf: new Uint8Array(w * d),
+  shade: new Uint8Array(w * d),
   ladders: [],
   cables: []
 })

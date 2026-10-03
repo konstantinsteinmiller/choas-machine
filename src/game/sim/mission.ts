@@ -8,7 +8,7 @@ import { consumeEdges, type Input } from '../engine/input'
 import { input as sharedInput, inputClock } from '../engine/inputState'
 import { emit, on } from '../bus'
 import { gun, hud, mirror, runHudTickers, setPhase, threats, vital, waypoint, MAX_THREATS } from '../state/hud'
-import { CELL, VOID, heightAt, raycast, hasLineOfSight, toCell, inGrid, cellKind, cellHeight, CellKind } from '../world/grid'
+import { CELL, VOID, heightAt, raycast, hasLineOfSight, toCell, inGrid, cellKind, cellHeight, CellKind, shadeAt, Shade } from '../world/grid'
 import type { Fortress } from '../world/fortress'
 import { buildFortressMesh, type FortressMesh } from '../world/fortressMesh'
 import { buildDecor, type DecorMesh } from '../world/decor'
@@ -312,7 +312,7 @@ export class Mission implements GameMode {
     level = 1, loadout: Loadout = BASE_LOADOUT
   ): Promise<Mission> {
     const m = new Mission(fortress, input, level, loadout)
-    m.sky = buildSky(m.scene, m.centre)
+    m.sky = buildSky(m.scene, m.centre, undefined, { w: fortress.grid.w * CELL, d: fortress.grid.d * CELL })
     m.mesh = await buildFortressMesh(fortress, undefined, slice, p => onProgress(p * 0.8))
     m.decor = buildDecor(fortress.decor)
     await slice()
@@ -1139,6 +1139,11 @@ export class Mission implements GameMode {
     // Under the box: still is a box; creeping is a box that moves.
     t.box = p.boxed && p.box > 0.9 ? (Math.hypot(p.vx, p.vz) > 0.35 ? 'creep' : 'still') : undefined
     t.moving = p.mode === 'ground' ? p.speed01 : 0.6
+    // Shadow and thickets underfoot (`Shade`).
+    const sh = p.mode === 'ground' ? shadeAt(this.fortress.grid, p.x, p.z) : 0
+    t.shadow = (sh & Shade.Shadow) !== 0
+    t.brush = (sh & Shade.Brush) !== 0 && p.crouched && !p.sprinting
+    mirror('concealed', t.brush ? 2 : t.shadow ? 1 : 0)
     stepGarrison(this.garrison, this.fortress.grid, t, dt)
     stepFire(this.garrison, this.fortress.grid, t, dt)
     this.flushGarrison()

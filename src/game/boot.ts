@@ -12,7 +12,7 @@ import type { GameMode } from './engine/app'
 import { registerModeFactories, createBootMode, flow } from './flow'
 import { CommandBase } from './scenes/commandBase'
 import { currentLoadout } from './state/progress'
-import { initProfile } from './state/profile'
+import { initProfile, profile } from './state/profile'
 import { installSynth, loadSfxOverrides } from './audio/synth'
 import { installGameSounds } from './audio/gameSounds'
 
@@ -106,8 +106,9 @@ registerModeFactories({
     const proving = import.meta.env.DEV && new URLSearchParams(search).get('fort') === 'proving'
     const level = import.meta.env.DEV ? Number(new URLSearchParams(search).get('level')) || flow.level : flow.level
     // DEV ONLY: `?fort=training` too. The training ground is the flow's call otherwise.
-    const training = flow.training || (import.meta.env.DEV && new URLSearchParams(search).get('fort') === 'training')
-    const fortress = training ? buildTrainingGround() : proving ? buildProvingGround() : buildBastion(level)
+    const fortParam = import.meta.env.DEV ? new URLSearchParams(search).get('fort') : null
+    const training = fortParam === 'training' || (flow.training && fortParam !== 'bastion')
+    const fortress = training ? buildTrainingGround() : proving ? buildProvingGround() : buildBastion(level, profile.missions)
     if (view) return FortressView.create(fortress, view, createSlicer(12), onProgress)
     return Mission.create(fortress, input, createSlicer(12), onProgress, level, currentLoadout())
   },

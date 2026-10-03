@@ -1,5 +1,5 @@
 import { BufferGeometry, Color, Float32BufferAttribute, Group, Mesh } from 'three'
-import { CELL, CellKind, Surf, VOID, cellHeight, cellKind, cellSurf, type Grid } from './grid'
+import { CELL, CellKind, Surf, VOID, cellHeight, cellKind, cellSurf, type Grid, Shade } from './grid'
 import type { Fortress } from './fortress'
 import { levelMaterial, glowVC } from '../models/toon'
 import { levelAtlas } from './textures'
@@ -86,6 +86,8 @@ export const SCRAPYARD: Theme = {
 export const SYNTHWAVE = SCRAPYARD
 
 /** The island's edge: a sheer lip, then rock tapering in under the island. */
+/** A cell in a pool of shadow is drawn this much darker. */
+const SHADOW_DARK = 0.62
 const LIP_DEPTH = 2.6
 const SKIRT_DEPTH = 11
 const SKIRT_TUCK = 0.3
@@ -308,13 +310,16 @@ const buildChunk = (g: Grid, pal: Palette, c0x: number, c0z: number, midX: numbe
       // ── Top ──
       const rim = kind === CellKind.Ground && (isVoid(cx + 1, cz) || isVoid(cx - 1, cz) || isVoid(cx, cz + 1) || isVoid(cx, cz - 1))
       const cover = kind === CellKind.Cover ? coverColour(g, pal, cx, cz) : pal.blockSide
-      const top = kind === CellKind.Pad ? pal.pad
+      let top = kind === CellKind.Pad ? pal.pad
         : kind === CellKind.Cover ? shade(cover, 1.12)
           : kind === CellKind.Stair ? pal.stair
             : kind === CellKind.Block ? pal.blockTop
               : surf === Surf.Hazard ? pal.hazard
                 : surf === Surf.Plate ? pal.plate
                   : pal.ground(cx, cz, rim)
+      // A pool of shadow is darker underfoot (`Shade.Shadow`).
+      const dark = (g.shade[cz * g.w + cx]! & Shade.Shadow) !== 0 && kind !== CellKind.Cover
+      if (dark) top = shade(top, SHADOW_DARK)
       const topCell = kind === CellKind.Cover ? CELL_CRATE
         : kind === CellKind.Block || kind === CellKind.Stair || surf === Surf.Plate || surf === Surf.Hazard ? CELL_FLOOR
           : CELL_BLANK

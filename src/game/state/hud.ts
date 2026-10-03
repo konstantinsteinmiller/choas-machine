@@ -86,6 +86,8 @@ export const hud = reactive({
   /** A pile within reach; and 0 … 1 of stripping one. */
   loot: false,
   looting: 0,
+  /** Underfoot: 0 in the open, 1 in shadow, 2 crouched in a thicket (hidden). */
+  concealed: 0 as 0 | 1 | 2,
   /** The scope's zoom (1 = the loadout's own). */
   zoom: 1,
   /** The training ground: which room, lessons done of how many, whether the demo can be asked for again, the scrap line. */

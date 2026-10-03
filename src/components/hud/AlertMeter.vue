@@ -10,7 +10,8 @@
     :class="{ chaos: hud.chaos, watched: hud.watched && !hud.chaos, quiet: hud.alert === 0 }"
     data-testid="alert-meter"
   )
-    GameIcon.eye(name="eye")
+    //- The eye shuts in a thicket (hidden) and dims in shadow.
+    GameIcon.eye(name="eye" :class="{ dim: hud.concealed === 1, shut: hud.concealed === 2 }")
     div.segments
       span.seg(v-for="n in 5" :key="n" :class="{ lit: n <= hud.alert }" :data-n="n")
 </template>
@@ -24,6 +25,14 @@ const { t } = useI18n()
 </script>
 
 <style scoped lang="sass">
+.eye.dim
+  opacity: 0.55
+.eye.shut
+  opacity: 0.35
+  color: #7dffb0
+  // A squint: the eye cut to a slit.
+  clip-path: inset(34% 0 34% 0)
+  transition: clip-path 160ms ease-out
 .alert-meter
   --seg-w: clamp(0.85rem, 4vmin, 1.5rem)
   --seg-h: clamp(0.45rem, 1.9vmin, 0.7rem)
