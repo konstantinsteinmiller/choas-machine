@@ -390,6 +390,15 @@ const RECIPES: Record<SfxName, (pan: number, g: number) => void> = {
     burst({ dur: 0.9, vol: 0.12 * g, type: 'highpass', f0: 3500, f1: 6000 })
     tone({ wave: 'sine', f0: 300, f1: 120, dur: 0.3, vol: 0.06 * g })
   },
+  // The Warden's glint: a thin high ring before the dash.
+  glint: (_p, g) => {
+    tone({ wave: 'sine', f0: 2400, f1: 3200, dur: 0.35, vol: 0.06 * g })
+    tone({ wave: 'sine', f0: 3600, dur: 0.2, vol: 0.04 * g, at: 0.1 })
+  },
+  // The Goliath's vents blowing: a long hiss.
+  vent: (_p, g) => {
+    burst({ dur: 1.4, vol: 0.09 * g, type: 'highpass', f0: 2200, f1: 900 })
+  },
   // A training gate opens: a rising sweep and a chime.
   gate: (_p, g) => {
     tone({ wave: 'tri', f0: 330, f1: 990, dur: 0.35, vol: 0.08 * g })

@@ -45,6 +45,9 @@
         div.plates
           span.plate(v-for="n in 10" :key="n" :class="{ on: n <= Math.ceil(hud.bossHp * 10) }")
         GameIcon.shield(v-if="hud.bossShield" name="shield")
+        //- No blade takes a boss: the mark says so.
+        span.no-blade(role="img" :aria-label="t('hud.noBlade')")
+          GameIcon(name="blade")
       //- What each round took off the boss: numbers that pop and float away.
       div.boss-pops(v-if="hud.bossKind" aria-hidden="true")
         span.pop(v-for="p in pops" :key="p.id") −{{ p.amount }}
@@ -73,10 +76,10 @@
     //- An alarm beacon within reach, nobody looking: the same tap sabotages it.
     div.strike.sabotage(v-if="(hud.sabotage || hud.sabotaging > 0) && !hud.strike")
       FHudButton(
-        icon="siren"
+        :icon="hud.sabotage === 'generator' || hud.sabotage === 'servo' ? 'bolt' : 'siren'"
         tone="danger"
         :attention="hud.sabotaging === 0"
-        :aria-label="t('hud.sabotage')"
+        :aria-label="t(hud.sabotage === 'generator' ? 'hud.cutPower' : hud.sabotage === 'servo' ? 'hud.jamServo' : 'hud.sabotage')"
         data-testid="btn-sabotage"
         @click="input.actQueued = true"
       )
@@ -369,6 +372,25 @@ onUnmounted(() => window.clearTimeout(closeTimer))
   .alarm.s1 :deep(svg)
     animation: none
 
+.no-blade
+  position: relative
+  display: inline-grid
+  width: 1.1em
+  height: 1.1em
+  opacity: 0.85
+  :deep(svg)
+    width: 100%
+    height: 100%
+  &::after
+    content: ''
+    position: absolute
+    left: -10%
+    right: -10%
+    top: 50%
+    height: 0.14em
+    background: #ff4060
+    rotate: -40deg
+    border-radius: 999px
 .boss-pops
   position: relative
   height: 0

@@ -1,7 +1,7 @@
 import type { Grid } from '../world/grid'
 import { VOID, heightAt } from '../world/grid'
 import { angleDelta } from './player'
-import { SPECS, goliathAim, headingTo, isAlive, type Garrison, type Target, type Unit } from './garrison'
+import { SPECS, goliathAim, headingTo, isAlive, killUnit, type Garrison, type Target, type Unit } from './garrison'
 
 /**
  * ─── The base shoots back ────────────────────────────────────────────────────
@@ -58,6 +58,10 @@ export const SHELL_WARN_S = 1.15
 export const SHELL_RADIUS = 4.2
 export const SHELL_DAMAGE = 46
 export const SHELL_RELOAD_S = 3.1
+/** A shell on its own position takes this share of its health; three shells and it overheats for this long. */
+export const SELF_SHELL = 0.3
+export const OVERHEAT_AFTER = 3
+export const OVERHEAT_S = 5
 /** The turret must be this near to on-aim before it fires (radians). */
 const SHELL_ALIGN = 0.16
 
@@ -83,6 +87,7 @@ export const stepFire = (gar: Garrison, g: Grid, target: Target, dt: number): vo
     u.recoil = Math.max(0, u.recoil - dt * 6)
     if (!isAlive(u) || u.state !== 'combat' || u.power < 1) continue
     if (u.kind === 'goliath') { stepCannon(u, gar, g, target, dt); continue }
+    if (u.glintT > 0 || u.dashT > 0) { u.burst = 0; continue }
     const gun = GUNS[u.kind]
     if (!gun) continue
     const dist = Math.hypot(target.x - u.x, target.z - u.z)
@@ -114,6 +119,7 @@ export const stepFire = (gar: Garrison, g: Grid, target: Target, dt: number): vo
 }
 
 const stepCannon = (u: Unit, gar: Garrison, g: Grid, target: Target, dt: number): void => {
+  if (u.overheat > 0) return
   if (u.shellT > 0) {
     u.shellT -= dt
     if (u.shellT > 0) return
@@ -126,6 +132,19 @@ const stepCannon = (u: Unit, gar: Garrison, g: Grid, target: Target, dt: number)
     u.recoil = 1
     gar.events.push({ type: 'shell', id: u.id, x: u.shellX, y, z: u.shellZ, damage })
     u.fireT = SHELL_RELOAD_S
+    // Lured into calling a shell onto a decoy at its own feet: it is under it.
+    if (Math.hypot(u.x - u.shellX, u.z - u.shellZ) < SHELL_RADIUS + SPECS.goliath.radius) {
+      const self = Math.round(u.maxHp * SELF_SHELL)
+      u.hp -= self
+      gar.events.push({ type: 'selfHit', id: u.id, damage: self })
+      if (u.hp <= 0) killUnit(gar, u.id, u.shellX, u.shellZ, 'blast')
+    }
+    // Three shells and it must cool: the vents open.
+    if (++u.shells >= OVERHEAT_AFTER && u.state !== 'dead') {
+      u.shells = 0
+      u.overheat = OVERHEAT_S
+      gar.events.push({ type: 'overheat', id: u.id })
+    }
     return
   }
   u.fireT -= dt

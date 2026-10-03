@@ -264,6 +264,19 @@ export interface Unit {
   jobT: number
   /** The freshest scent it has followed (garrison time). */
   scentT: number
+  /** The Foreman: its servo jammed on its pad (slow to wake, slow to turn, soft at the joints). */
+  jammed: boolean
+  /** The Goliath: shells since it last cooled, and seconds of overheat left (its vents open). */
+  shells: number
+  overheat: number
+  /** The Warden: past half health (shield dropped, blade drawn); the glint before a dash, the dash, its target and cooldown. */
+  phase2: boolean
+  glintT: number
+  dashT: number
+  dashX: number
+  dashZ: number
+  dashCool: number
+  dashHit: boolean
 }
 
 export interface Garrison {
@@ -298,6 +311,18 @@ export interface Garrison {
   unreachable: Set<string>
   /** The training ground: no alarm, no check-ins, no voices; a hit dummy stays a dummy. */
   drill: boolean
+  /** What the mech can sabotage besides beacons: the Warden's generator, the Foreman's servo. */
+  rigs: Rig[]
+}
+
+export interface Rig {
+  kind: 'generator' | 'servo'
+  x: number
+  y: number
+  z: number
+  /** The servo's machine. */
+  unit: number
+  cut: boolean
 }
 
 /** Something out of place: a guard who sees it goes to look (yellow), but does not raise the base. */
@@ -327,6 +352,36 @@ export const REPAIR_S = 4
 export const REPAIR_REACH = 2.6
 /** Crouched in a thicket, the mech is seen only nearer than this. */
 export const BRUSH_SEEN_M = 2.6
+/** The Warden's dash (R25): the glint before it, its speed and length, the blow, the wait between. */
+export const GLINT_S = 0.7
+export const DASH_SPEED = 10
+export const DASH_S = 1.1
+export const DASH_HIT_M = 1.7
+export const DASH_DAMAGE = 28
+export const DASH_EVERY_S = 4.5
+/** A jammed Foreman wakes this much slower, and moves and turns at this share. */
+export const JAM_WAKE = 2.5
+export const JAM_SLOW = 0.4
+
+/** Cut a generator or jam a servo. True if it was one that still worked. */
+export const cutRig = (gar: Garrison, i: number): boolean => {
+  const r = gar.rigs[i]
+  if (!r || r.cut) return false
+  r.cut = true
+  if (r.kind === 'generator') {
+    // No power: the Warden's shield is just a plate of dead glass now.
+    for (const u of gar.units) {
+      if (u.boss !== 'warden' || !u.shield) continue
+      u.shield = false
+      gar.events.push({ type: 'shieldDown', id: u.id })
+    }
+  } else {
+    const u = gar.units[r.unit]
+    if (u) u.jammed = true
+  }
+  return true
+}
+
 /** A sentry calls the alarm this much further than a guard shouts. */
 export const SENTRY_CALL = 2
 /** Guards closing on the mech spread out this far either side (flanking in pairs). */
@@ -558,6 +613,12 @@ export type GarrisonEvent =
   | { type: 'alarm'; beacon: number }
   /** A full alert went cold: the base stands down (on its guard). */
   | { type: 'standDown' }
+  /** The bosses: a shield gone, the Warden past half (and the glint before a dash), the Goliath overheating or hit by its own shell. */
+  | { type: 'shieldDown'; id: number }
+  | { type: 'phase'; id: number }
+  | { type: 'glint'; id: number }
+  | { type: 'overheat'; id: number }
+  | { type: 'selfHit'; id: number; damage: number }
   /** A hound smelt something and barks the guards over; an Engineer fixed something. */
   | { type: 'bark'; id: number }
   | { type: 'repair'; id: number; kind: 'beacon' | 'light'; i: number }
@@ -607,11 +668,17 @@ export const makeGarrison = (f: Fortress, level = 2): Garrison => {
       seed: (id * 2.399) % (Math.PI * 2),
       power: mech ? 0 : 1, aimT: 0, fireT: 0, burst: 0, burstT: 0, shellT: 0, shellX: 0, shellZ: 0, recoil: 0,
       tagged: false, hidden: false, partner: p.partner ?? -1, chatting: false, poke: false, changeT: 0,
-      role: p.role ?? null, job: null, jobT: 0, scentT: -1e9
+      role: p.role ?? null, job: null, jobT: 0, scentT: -1e9,
+      jammed: false, shells: 0, overheat: 0, phase2: false, glintT: 0, dashT: 0, dashX: 0, dashZ: 0, dashCool: 2, dashHit: false
     }
   })
   const beacons: Beacon[] = (f.beacons ?? []).map(b => ({ ...b, state: 'ready' as const, lit: 0 }))
-  return { units, alert: makeAlert(), time: 0, events: [], rng: mulberry32(hashSeed(f.id)), wave: 0, chaosT: 0, lures: [], threat, noiseSeq: 0, beacons, runner: -1, runnerWait: 0, lkp: { x: 0, z: 0, t: -1e9 }, changes: [], scent: [], scentT: 0, unreachable: new Set(), drill: false }
+  // The generators, and a servo on each Foreman's pad.
+  const rigs: Rig[] = [
+    ...(f.generators ?? []).map(gn => ({ kind: 'generator' as const, ...gn, unit: -1, cut: false })),
+    ...units.filter(u => u.boss === 'foreman').map(u => ({ kind: 'servo' as const, x: u.x, y: u.y, z: u.z, unit: u.id, cut: false }))
+  ]
+  return { units, alert: makeAlert(), time: 0, events: [], rng: mulberry32(hashSeed(f.id)), wave: 0, chaosT: 0, lures: [], threat, noiseSeq: 0, beacons, runner: -1, runnerWait: 0, lkp: { x: 0, z: 0, t: -1e9 }, changes: [], scent: [], scentT: 0, unreachable: new Set(), drill: false, rigs }
 }
 
 // ─── Getting about ───────────────────────────────────────────────────────────
@@ -1146,9 +1213,25 @@ const fight = (u: Unit, g: Grid, gar: Garrison, target: Target, dt: number): voi
     else if (!gar.alert.chaos && (u.repath += dt) > DRONE_LOST_S) { u.repath = 0; enter(u, 'search') }
     return
   }
-  // Machines are slow to turn: that is how they are flanked.
-  const turn = u.kind === 'goliath' ? GOLIATH_HULL_TURN : u.kind === 'enforcer' ? 2.2 : 8
-  const engage = u.kind === 'goliath' ? 30 : u.kind === 'enforcer' ? 14 : u.kind === 'hound' ? 1.3 : ENGAGE_DIST
+  // Machines are slow to turn: that is how they are flanked. A jammed one slower still.
+  const turn = (u.kind === 'goliath' ? GOLIATH_HULL_TURN : u.kind === 'enforcer' ? 2.2 : 8) * (u.jammed ? JAM_SLOW : 1)
+  // The Warden past half health: the shield dropped, the blade out, the dash.
+  if (u.boss === 'warden') {
+    if (!u.phase2 && u.hp <= u.maxHp / 2) {
+      u.phase2 = true
+      if (u.shield) { u.shield = false; gar.events.push({ type: 'shieldDown', id: u.id }) }
+      gar.events.push({ type: 'phase', id: u.id })
+    }
+    if (u.phase2 && wardenDash(u, g, gar, target, dt)) return
+  }  const engage = u.kind === 'goliath' ? 30 : u.kind === 'enforcer' ? 14 : u.kind === 'hound' ? 1.3 : ENGAGE_DIST
+  if (u.kind === 'goliath' && u.overheat > 0) {
+    // Overheating: the guns are quiet and the hull swings its open vents
+    // round toward the mech (it cannot help it: that is where the air is).
+    u.overheat = Math.max(0, u.overheat - dt)
+    stand(u)
+    turnToward(u, headingTo(u.x, u.z, target.x, target.z) + Math.PI, dt, turn * 2.5)
+    return
+  }
   if (u.kind === 'goliath') {
     // The tank holds its ground (it is wider than a gate): it turns its
     // hull, slowly, toward where the mech is or was last reported.
@@ -1173,7 +1256,7 @@ const fight = (u: Unit, g: Grid, gar: Garrison, target: Target, dt: number): voi
         const fz = target.z - Math.sin(away) * side * FLANK_M
         if (side === 0 || !goTo(u, g, fx, fz)) goTo(u, g, target.x, target.z)
       }
-      follow(u, g, spec.run, dt, turn)
+      follow(u, g, spec.run * (u.jammed ? JAM_SLOW : 1), dt, turn)
     } else {
       u.path = []
       stand(u)
@@ -1196,6 +1279,54 @@ const fight = (u: Unit, g: Grid, gar: Garrison, target: Target, dt: number): voi
     }
   }
   if (follow(u, g, spec.run, dt, turn)) u.path = []
+}
+
+/**
+ * The Warden's dash: a glint (stand, face the mech), then a run at where the
+ * mech stood, the blade out; one blow if it passes close. True while it is
+ * busy with it (the rest of its fight waits).
+ */
+const wardenDash = (u: Unit, g: Grid, gar: Garrison, target: Target, dt: number): boolean => {
+  if (u.dashT > 0) {
+    u.dashT -= dt
+    const dx = u.dashX - u.x
+    const dz = u.dashZ - u.z
+    const d = Math.hypot(dx, dz)
+    const step = Math.min(d, DASH_SPEED * dt)
+    if (d > 0.05) {
+      const nx = u.x + (dx / d) * step
+      const nz = u.z + (dz / d) * step
+      const floor = heightAt(g, nx, nz)
+      if (floor > VOID && Math.abs(floor - u.y) < 0.6) { u.x = nx; u.z = nz }
+      else u.dashT = 0
+    }
+    u.speed01 = 1
+    if (!u.dashHit && Math.hypot(target.x - u.x, target.z - u.z) < DASH_HIT_M && target.visible) {
+      u.dashHit = true
+      gar.events.push({ type: 'fire', id: u.id, damage: Math.round(DASH_DAMAGE * gar.threat.damage) })
+    }
+    if (u.dashT <= 0) u.dashCool = DASH_EVERY_S
+    return true
+  }
+  if (u.glintT > 0) {
+    u.glintT -= dt
+    stand(u)
+    turnToward(u, headingTo(u.x, u.z, target.x, target.z), dt, 10)
+    if (u.glintT <= 0) {
+      u.dashT = DASH_S
+      u.dashX = target.x
+      u.dashZ = target.z
+      u.dashHit = false
+    }
+    return true
+  }
+  u.dashCool -= dt
+  if (u.dashCool <= 0 && u.sees && Math.hypot(target.x - u.x, target.z - u.z) < DASH_SPEED * DASH_S * 1.3) {
+    u.glintT = GLINT_S
+    gar.events.push({ type: 'glint', id: u.id })
+    return true
+  }
+  return false
 }
 
 /**
@@ -1254,7 +1385,7 @@ export const stepGarrison = (gar: Garrison, g: Grid, target: Target, dt: number)
     if (u.gripped) { u.speed01 = 0; u.sees = false; continue }
     if (u.power < 1) {
       // Powering up: it stands and whirs, and does nothing else yet.
-      u.power = Math.min(1, u.power + dt / WAKE_S)
+      u.power = Math.min(1, u.power + dt / (WAKE_S * (u.jammed ? JAM_WAKE : 1)))
       calm = false
       continue
     }

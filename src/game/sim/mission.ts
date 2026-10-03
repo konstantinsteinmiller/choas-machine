@@ -26,7 +26,7 @@ import { makePlayer, stepPlayer, eyeHeight, angleDelta, type Player } from './pl
 import { makeCam, lookCam, stepCam, placeCam, stickToWorld, camForward, type Cam } from './camera'
 import { alertSegments } from './alert'
 import {
-  SPECS, SUSPECT_AT, sabotageBeacon, searchForShooter, noteChange, tagUnit, drainEvents, headingTo, killUnit, damageUnit, makeGarrison, noiseAt, hearAt, wonderAt, voidNoise, stepGarrison, alarmUnit, startleUnit, isLight,
+  SPECS, SUSPECT_AT, sabotageBeacon, searchForShooter, noteChange, tagUnit, cutRig, drainEvents, headingTo, killUnit, damageUnit, makeGarrison, noiseAt, hearAt, wonderAt, voidNoise, stepGarrison, alarmUnit, startleUnit, isLight,
   type Garrison, type Target
 } from './garrison'
 import { GarrisonView } from './garrisonView'
@@ -132,6 +132,11 @@ const EXTRACT_RADIUS = 1.9
 export const SPRINT_EARSHOT = 9
 /** The scope's zoom notches: the loadout's field of view divided by these. */
 export const SCOPE_ZOOMS = [1, 1.7, 2.6] as const
+/** The bosses: how far a generator or a servo is reached; a jammed Foreman's joints and an overheated Goliath's vents take this much more; the glint's flash. */
+const RIG_REACH = 2.6
+const JAMMED_JOINTS = 1.5
+const OPEN_VENTS = 2
+const GLINT_FLASH_S = 0.7
 /** Seconds the scope must rest on a unit to tag it. */
 const TAG_S = 2
 /** How near a body must be to grab it, and how far behind the mech it drags. */
@@ -210,7 +215,9 @@ export class Mission implements GameMode {
   /** The alarm beacons, drawn; the one within reach to sabotage, and the sabotage under way. */
   private beaconViews: BeaconView[] = []
   private beaconOffer = -1
-  private sabotaging: { beacon: number; t: number } | null = null
+  private sabotaging: { beacon: number; t: number; rig?: number } | null = null
+  /** A generator or a servo within reach, unseen (−1 none). */
+  private rigOffer = -1
   /** The hide box, and whether the mech was under it last step. */
   private hideBox!: Group
   private wasBoxed = false
@@ -519,6 +526,9 @@ export class Mission implements GameMode {
         // puts it out of action (Odyssey's trapped brazier).
         this.beaconOffer = p.mode === 'ground' && !this.offer && !this.strike ? this.beaconInReach() : -1
         if (i.actQueued && !this.offer && this.beaconOffer >= 0 && !this.strike) { this.startSabotage(this.beaconOffer); i.actQueued = false }
+        // The Warden's generator, the Foreman's servo: the same act, unseen.
+        this.rigOffer = p.mode === 'ground' && !this.offer && !this.strike && this.beaconOffer < 0 ? this.rigInReach() : -1
+        if (i.actQueued && !this.offer && this.rigOffer >= 0 && !this.strike) { this.startSabotage(-1, this.rigOffer); i.actQueued = false }
         // A pile within reach (and no blade on offer): the same key strips it.
         this.lootOffer = p.mode === 'ground' && !this.offer && !this.strike ? pileInReach(this.piles, p.x, p.y, p.z) : null
         if (i.actQueued && !this.offer && this.lootOffer && !this.strike) this.startLoot(this.lootOffer)
@@ -583,7 +593,8 @@ export class Mission implements GameMode {
     mirror('grappleHeard', this.grapple?.heard ?? 0)
     mirror('loot', !this.looting && !!this.lootOffer && hud.phase === 'play')
     mirror('boxed', this.player.boxed)
-    mirror('sabotage', !this.sabotaging && this.beaconOffer >= 0 && hud.phase === 'play')
+    const rig = this.rigOffer >= 0 ? this.garrison.rigs[this.rigOffer]!.kind : ''
+    mirror('sabotage', this.sabotaging || hud.phase !== 'play' ? '' : this.beaconOffer >= 0 ? 'beacon' : rig)
     mirror('sabotaging', this.sabotaging ? Math.min(1, this.sabotaging.t / SABOTAGE_S) : 0)
     {
       const gar = this.garrison
@@ -735,6 +746,7 @@ export class Mission implements GameMode {
       this.killBy = w
       this.killHead = head
       const damage = shotDamage(w, u.kind, h.zone, this.loadout.damage[w], u.maxHp)
+        * (u.jammed && h.zone === 'joint' ? JAMMED_JOINTS : 1) * (u.overheat > 0 && h.zone === 'weak' ? OPEN_VENTS : 1)
       if (u.boss) emit('bossHit', { amount: Math.round(Math.min(damage, Math.max(0, u.hp))) })
       // A sniper round that is going to kill may be given the kill-cam: then
       // it has not landed yet, and the camera rides it in.
@@ -964,16 +976,49 @@ export class Mission implements GameMode {
     return best
   }
 
-  private startSabotage(k: number): void {
+  /** The nearest generator or servo within reach, while nobody is looking. */
+  private rigInReach(): number {
     const p = this.player
-    const b = this.garrison.beacons[k]!
-    this.sabotaging = { beacon: k, t: 0 }
+    const gar = this.garrison
+    if (gar.units.some(u => u.sees)) return -1
+    let best = -1
+    let bestD = RIG_REACH
+    gar.rigs.forEach((r, k) => {
+      if (r.cut || Math.abs(r.y - p.y) > 1.2) return
+      // A servo is jammed while its machine still sleeps.
+      if (r.kind === 'servo' && gar.units[r.unit]?.state !== 'dormant') return
+      const d = Math.hypot(r.x - p.x, r.z - p.z)
+      if (d < bestD) { bestD = d; best = k }
+    })
+    return best
+  }
+
+  private startSabotage(k: number, rig?: number): void {
+    const p = this.player
+    const b = rig !== undefined ? this.garrison.rigs[rig]! : this.garrison.beacons[k]!
+    this.sabotaging = { beacon: k, t: 0, rig }
     this.beaconOffer = -1
+    this.rigOffer = -1
     p.vx = p.vz = 0
     p.speed01 = 0
     p.boxed = false
     p.yaw = headingTo(p.x, p.z, b.x, b.z)
     emit('sabotage', { beat: 'start', beacon: k })
+  }
+
+  /** Working at a generator or a servo; done, it is cut (`cutRig`). */
+  private stepCut(k: number, dt: number): void {
+    const s = this.sabotaging!
+    const r = this.garrison.rigs[k]!
+    if (Math.floor(s.t / 0.25) !== Math.floor((s.t - dt) / 0.25)) this.fx.particles.sparks(r.x, r.y + 1, r.z, '#ffd23f', 6, 3, 0.18)
+    if (s.t < SABOTAGE_S) return
+    this.sabotaging = null
+    if (cutRig(this.garrison, k)) {
+      this.fx.particles.sparks(r.x, r.y + 1.2, r.z, '#ffffff', 18, 4, 0.3)
+      haptic('reward')
+      emit('sabotage', { beat: 'done', beacon: -1 })
+      this.learn('sabotage')
+    }
   }
 
   private stepSabotage(dt: number): void {
@@ -987,6 +1032,7 @@ export class Mission implements GameMode {
       return
     }
     s.t += dt
+    if (s.rig !== undefined) { this.stepCut(s.rig, dt); return }
     const b = this.garrison.beacons[s.beacon]!
     if (Math.floor(s.t / 0.25) !== Math.floor((s.t - dt) / 0.25)) this.fx.particles.sparks(b.x + 0.2, b.y + 1.25, b.z + 0.3, '#7ff4ff', 6, 3, 0.18)
     if (s.t < SABOTAGE_S) return
@@ -1247,6 +1293,28 @@ export class Mission implements GameMode {
         const at = e.kind === 'beacon' ? gar.beacons[e.i]! : gar.units[e.i]!
         this.fx.particles.sparks(at.x, at.y + 1, at.z, '#ffd23f', 14, 4, 0.25)
         emit('repair', { id: e.id })
+      } else if (e.type === 'shieldDown') {
+        const u = gar.units[e.id]!
+        this.fx.particles.sparks(u.x, u.y + 1.3, u.z, '#9fe8ff', 22, 5, 0.3)
+        mirror('bossShield', false)
+        emit('bossTell', { id: e.id, what: 'shield' })
+      } else if (e.type === 'phase') {
+        const u = gar.units[e.id]!
+        this.fx.particles.orbBurst(u.x, u.y + 1.2, u.z, '#ff4060', 1.1)
+        emit('bossTell', { id: e.id, what: 'phase' })
+      } else if (e.type === 'glint') {
+        // The tell: a white glint on the blade before the dash.
+        this.garrisonView.flash(e.id, '#ffffff', GLINT_FLASH_S)
+        emit('bossTell', { id: e.id, what: 'glint' })
+      } else if (e.type === 'overheat') {
+        this.garrisonView.flash(e.id, '#ff8a3d', 1.2)
+        emit('bossTell', { id: e.id, what: 'overheat' })
+      } else if (e.type === 'selfHit') {
+        const u = gar.units[e.id]!
+        this.fx.explosion(u.x, u.y + 1.5, u.z, u.y)
+        this.garrisonView.flash(e.id, '#ffffff', 0.6)
+        emit('bossHit', { amount: e.damage })
+        emit('bossTell', { id: e.id, what: 'selfHit' })
       } else if (e.type === 'poke' || e.type === 'change') {
         // Going over to look: the same "huh?" as any suspicion.
         emit('suspicious', { id: e.id, kind: gar.units[e.id]!.kind })
@@ -1392,7 +1460,7 @@ export class Mission implements GameMode {
       (Math.hypot(k.ax - cx, k.az - cz) < 1.8 && Math.abs(heightAt(g, (k.ax + 0.5) * CELL, (k.az + 0.5) * CELL) - p.y) < 1)
       || (Math.hypot(k.bx - cx, k.bz - cz) < 1.8 && Math.abs(heightAt(g, (k.bx + 0.5) * CELL, (k.bz + 0.5) * CELL) - p.y) < 1))
     c.loot = !!this.lootOffer
-    c.sabotage = this.beaconOffer >= 0
+    c.sabotage = this.beaconOffer >= 0 || this.rigOffer >= 0
     c.boxed = p.boxed
     c.hook = !!this.hookSpot && !this.grapple
     c.seeking = this.objective === 'salvage' && this.stats.piles === 0
@@ -2078,10 +2146,16 @@ export class Mission implements GameMode {
     if (this.riding) s.crouch = Math.max(s.crouch, 0.35)
     poseMech(this.rig, s)
 
-    // A drone with a hole in its shell trails smoke.
+    // A drone with a hole in its shell trails smoke; an overheated Goliath steams from its vents.
     this.smokeT -= dt
     if (this.smokeT <= 0) {
       this.smokeT = 0.12
+      for (const u of this.garrison.units) {
+        if (u.kind !== 'goliath' || u.overheat <= 0 || u.state === 'dead') continue
+        const bx = u.x - Math.sin(u.yaw) * 3
+        const bz = u.z - Math.cos(u.yaw) * 3
+        this.fx.particles.emit({ x: bx, y: u.y + 1.6, z: bz, vy: 2.2, vx: (Math.random() - 0.5) * 0.8, vz: (Math.random() - 0.5) * 0.8, color: '#ffd9c4', size: 0.5, sizeEnd: 1.4, life: 1.2, drag: 0.5 })
+      }
       for (const u of this.garrison.units) {
         if (u.kind !== 'drone' || u.state === 'dead' || u.hp >= SPECS.drone.hp) continue
         this.fx.particles.emit({ x: u.x, y: u.y + 0.1, z: u.z, vy: 0.9, vx: (Math.random() - 0.5) * 0.4, vz: (Math.random() - 0.5) * 0.4, color: '#3b3355', size: 0.22, sizeEnd: 0.55, life: 1.1, drag: 0.6 })

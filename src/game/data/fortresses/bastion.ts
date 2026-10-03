@@ -107,7 +107,8 @@ export const buildBastion = (level = 1, run = 0): Fortress => {
   b.cable(43, 21, 34, 21)
   // The cover ring on the roof.
   b.solid('stack', 26, 19, 1.4).solid('stack', 33, 19, 1.4).solid('stack', 26, 24, 1.4).solid('stack', 33, 24, 1.4)
-  b.solid('generator', 29, 19, 1.1, 0).solid('tank', 30, 24, 1.7, Math.PI / 2)
+  // The generator that powers the Warden's shield: cut it, unseen, and the shield is dead glass.
+  b.generator(29, 19, 0).solid('tank', 30, 24, 1.7, Math.PI / 2)
 
   // ── The outer yard ──
   // Two barracks blocks: what the perch cannot see behind.

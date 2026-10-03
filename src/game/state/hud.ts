@@ -73,8 +73,8 @@ export const hud = reactive({
   salvageNeed: 0,
   /** Under the hide box. */
   boxed: false,
-  /** A beacon within reach to sabotage; and 0 … 1 of doing it. */
-  sabotage: false,
+  /** Something within reach to sabotage ('' none): a beacon, the Warden's generator, the Foreman's servo; and 0 … 1 of doing it. */
+  sabotage: '' as '' | 'beacon' | 'generator' | 'servo',
   sabotaging: 0,
   /** The base's alarm: 0 quiet, 1 a guard runs for a beacon, 2 lighting it (`alarmLit` 0 … 1), 3 lit. */
   alarm: 0,

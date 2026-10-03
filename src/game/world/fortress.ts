@@ -96,6 +96,8 @@ export interface Fortress {
   salvage: SalvageSpot[]
   /** Alarm beacons (siren masts): a guard who runs to one and lights it puts the whole base on alert. */
   beacons: Array<{ x: number; y: number; z: number }>
+  /** Generators: one cut, the Warden's shield has no power. */
+  generators?: Array<{ x: number; y: number; z: number }>
 }
 
 const DIRS = { n: [0, -1], s: [0, 1], e: [1, 0], w: [-1, 0] } as const
@@ -109,6 +111,7 @@ export class FortressBuilder {
   private decor: Decor[] = []
   private piles: SalvageSpot[] = []
   private beaconSpots: Array<{ x: number; y: number; z: number }> = []
+  private generatorSpots: Array<{ x: number; y: number; z: number }> = []
 
   constructor(readonly id: string, w: number, d: number) {
     this.grid = makeGrid(w, d)
@@ -342,6 +345,17 @@ export class FortressBuilder {
     return this
   }
 
+  /**
+   * The generator that powers the Warden's shield (R25): a solid machine the
+   * mech can cut, unseen, as it would sabotage a beacon.
+   */
+  generator(cx: number, cz: number, rot = 0): this {
+    const base = this.heightOf(cx, cz)
+    this.solid('generator', cx, cz, 1.1, rot)
+    this.generatorSpots.push({ x: cellMid(cx), y: base, z: cellMid(cz) })
+    return this
+  }
+
   /** A pile of salvage on the cell's top. */
   salvage(cx: number, cz: number, amount = 40, big = false): this {
     const h = this.heightOf(cx, cz)
@@ -490,7 +504,8 @@ export class FortressBuilder {
       posts: this.posts,
       decor: this.decor,
       salvage: this.piles,
-      beacons: this.beaconSpots
+      beacons: this.beaconSpots,
+      generators: this.generatorSpots
     }
   }
 }
