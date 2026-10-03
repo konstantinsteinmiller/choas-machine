@@ -566,6 +566,100 @@ The cable walk: the legs were fed speed 0 on a cable, so the mech glided; they n
 Bosses, one or two a level: the Warden (the Commander) every level, in an armoured helm (a sniper headshot is a third of him, hp 180 x threat), with a riot shield from IV that stops rounds from in front; the Foreman at II (a hazard-crested Enforcer, 1.6x); the Goliath from III. No blade reaches a boss, and the first hit on one sends the whole base to full alert, so the weak ones are cleared first. A boss bar (ten plates, a shield glyph) shows the last boss hit.
 Translations of round 2's 18 strings into all 38 locales; README and store copy describe the salvage raid, robo dog, smithy, hook, hide box, sprint and bosses; all 14 portal clips re-recorded (the success cut strips a pile on camera, the long cut fights the Warden round by round; every beat landed). Perf re-check inconclusive: the machine was loaded (the pre-round-2 build itself measured 2.5x its ledger values); noted in PERF-LEDGER.md to re-measure before release. Then #41: three blind Sonnet testers in headed Chrome (kid on a phone, stealth fan, action fan) and a design review published as an artifact.
 
+## Round 3: the design review (2026-10-03)
+
+Source: the blind playtest and design review published as an artifact
+(https://claude.ai/artifact/SPupmxYLrhg5FveTRC3JVY). The owner: "go ahead
+with the Now list, start with the camera fix, do all the report's findings.
+The player detection should work like the guards in a fortress in Assassin's
+Creed: Odyssey." Decisions take the recommended default (standing order);
+sources are in the decisions below.
+
+### The Odyssey model, as researched
+
+- A detection meter per guard that fills while the guard can see the player,
+  faster near, slower far, slower crouched, in cover or in hiding spots
+  (bushes), at night; shown as arcs round the centre of the screen pointing
+  at each guard who is noticing, and as a filling icon over the guard.
+- White while filling; full once: YELLOW, the guard is suspicious and walks
+  to the last known position (LKP) to investigate, with sharper senses while
+  it does; full again (or seen close up): RED, detected: combat.
+- A red guard shouts: guards near him join. Forts have alarm braziers: a
+  guard runs to one and lights it, and reinforcements come; the player can
+  sabotage the brazier beforehand, or stop the runner.
+- Bodies and sabotage found send guards to yellow.
+- Losing them: break line of sight; they go to the LKP, search round it, give
+  up and return to their posts.
+- Bushes hide a still player completely until a guard walks into them.
+- Captains and the fort leader cannot be assassinated in one blow (their
+  health bar shows it); Ikaros tags enemies and objectives from above.
+- Dogs alarm; guards fill vacant posts.
+
+### Phases (commit after each)
+
+- [x] **R16 Camera**: never inside the mech; crane up over the shoulder and
+      fade the mech when a wall pulls the arm in; the arm's pitch clamped so
+      looking up never puts it in the body or the floor; walking framing a
+      little higher and wider so the mech and the cards leave the middle clear.
+- [ ] **R17 Detection (Odyssey)**: white fill → yellow (investigate the LKP,
+      sharper senses) → red; grace on first sight; fill by distance, crouch,
+      cover, shadow and hiding spots; HUD arcs round the centre pointing at
+      each noticing guard; filling icon over the guard; the LKP drawn as a
+      ghost of the mech.
+- [ ] **R18 Alarms**: a red guard shouts (nearby guards join); alarm beacons
+      (siren masts) a guard runs to and lights over 3 s, which is what puts
+      the whole base on alert and calls reinforcements; kill or blind the
+      runner, or sabotage the beacon beforehand (E while unseen); drones and
+      searchlights have no shout: they ping the nearest guard.
+- [ ] **R19 Losing them**: lost sight for 3 s → fire at the LKP, then move up
+      and search it in pairs; ~25 s of nothing → back to patrol on "alert
+      patrol" (wider cones) and the base meter falls a step; reinforcements
+      stop; ladders, cables, the box, hiding spots break pursuit out of sight.
+- [ ] **R20 The loud half**: suppressing fire (first 2 s of a guard's fire
+      is mostly misses); armour +50% at level I; armour shards from blade and
+      close kills in combat; hit markers; boss damage numbers; shield sparks;
+      the weapon chips light up the first time the base goes loud; a fire
+      button while aiming on touch; scope sensitivity in Options and a slower
+      scoped turn.
+- [ ] **R21 Retry and loop**: a retry starts on the perch with no fly-over;
+      a checkpoint at the first stripped pile; a defeat keeps the full value
+      of stripped piles; the first upgrade level costs 30; new verbs among the
+      first upgrades (hook range, a second decoy, quieter sprint); the shoot
+      lesson on the perch at a sentry in reach; language on the pause screen.
+- [ ] **R22 Behaviour**: scope-tag (hold on a unit 2 s: its route drawn as a
+      ghost line, its icon through walls) like Ikaros; short patrol loops and
+      routines (a pair that chats, then one walks away); guards notice changes
+      (a light out, a pile stripped, a box that moved) as yellow; bodies can
+      be dragged into shadow or a container and are then not found; guards
+      poke a box seen moving; roles: guards flank in pairs, sentries call and
+      shoot badly, drones have no gun.
+- [ ] **R23 New enemies**: the Scrap Hound (follows noises and scent, sniffs
+      out bodies and stripped piles, leads guards; it alarms like Odyssey's
+      dogs) and the Engineer (walks to whatever is broken to fix it, finds
+      what is near it; guards fill vacant posts).
+- [ ] **R24 The Bastion, rebuilt**: a safe perch and a cable that ends on a
+      railed ledge with a ladder; a teaching corner (one guard back turned,
+      one pile); rings (outer yard → inner ward → keep) with three ways into
+      each; mid-height cover every 6–8 m and pools of shadow; hiding thickets
+      (camo nets, cable tangles) as Odyssey's bushes; alarm beacons placed;
+      every pile its own puzzle; live piles and one patrol per zone rotated
+      per run; a boss arena with a cover ring.
+- [ ] **R25 Bosses**: prep in stealth (cut the generator: the Warden's shield
+      has no power; jam the Foreman's servo on its pad; lure the Goliath under
+      its own shell); phases and tells (the Warden drops the shield at 50%,
+      draws and dashes with a glint; the Goliath's vents turn to you when it
+      overheats); a health bar that tells a blade will not do it.
+- [ ] **R26 Adaptive base**: the last run's habits answered at the next
+      threat level (helmets after many headshots, box checkers after box use,
+      a searchlight on the perch's tower after perch snipes), shown on the
+      threat card.
+- [ ] **R27 Kill-cams**: scored by distance, movement and body part; a short
+      one or none after two in quick succession; the first landed headshot of
+      a player's life always full; a boss's last blow its own slow orbit.
+- [ ] **R28 Regression**: translations, docs, e2e, clips, perf (quiet
+      machine), plan; a second blind playtest if time allows.
+R16 done. The follow camera never ends up inside the mech: pressed in by a wall closer than 2.4 m it cranes up (to 1.3 m, as far as the space above allows) and out over the shoulder, and the mech fades to a ghost; the arm's own pitch is capped at 0.2 rad so looking up swings the view, not the camera into the floor; the walking framing is higher and wider; the desktop hint cards stack bottom-left so the middle of the view is clear. Props (the crane, poles) are not in the camera's collision and can still cross the view: noted.
+
 ## Resume notes
 
 - Dev server: `pnpm dev` (port 2196). Check the served `<title>` ("Chaos Machine") before

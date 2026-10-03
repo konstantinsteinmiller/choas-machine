@@ -1301,6 +1301,21 @@ export class Mission implements GameMode {
     }
   }
 
+  private mechFade = 0
+  private fadeMech(k: number): void {
+    const f = Math.round(k * 20) / 20
+    if (f === this.mechFade) return
+    const was = this.mechFade
+    this.mechFade = f
+    for (const m of [this.rig.material, this.rig.glowMaterial]) {
+      const see = f > 0
+      if (see !== was > 0) { m.transparent = see; m.needsUpdate = true }
+      m.opacity = 1 - 0.55 * f
+      m.depthWrite = f < 0.5
+    }
+    if (this.rig.outline) this.rig.outline.visible = f < 0.15
+  }
+
   /** The mech rides (or hops off, or onto) the dog: where both are this frame. */
   private ride(r: { dx: number; dy: number; dz: number; air: boolean }): void {
     this.rideX = r.dx
@@ -1531,6 +1546,9 @@ export class Mission implements GameMode {
     this.rig.root.position.set(x + this.rideX, y + this.lift, z + this.rideZ)
     this.rig.root.rotation.y = yaw
     this.rig.root.visible = inside < 0.6
+    // Pressed close by a wall, the camera has craned over the mech's shoulder:
+    // the mech fades out of its own way.
+    this.fadeMech(scripted ? 0 : follow.fade)
     const striking = this.strike
     this.bladeOut += (((striking || this.offer) ? 1 : 0) - this.bladeOut) * Math.min(1, dt * 14)
     const s = this.pose

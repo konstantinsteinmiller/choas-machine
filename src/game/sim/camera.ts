@@ -18,9 +18,23 @@ import type { WeaponId } from '../data/ids'
  * positive looking up.
  */
 
-/** Arm length and shoulder offset when walking. */
+/** Arm length and shoulder offset when walking. The mech sits low and to the
+ *  left of the middle, so the middle of the view is the world, not its back. */
 export const FOLLOW_DIST = 6.4
-const FOLLOW_SHOULDER = 0.55
+const FOLLOW_SHOULDER = 0.85
+/** The pivot this far over the mech's eyes when following. */
+const FOLLOW_LIFT = 0.45
+/**
+ * The arm pulled in closer than this by a wall: the mech would fill the view.
+ * The camera cranes up and out over its shoulder instead, and the mech fades
+ * (`CamPose.fade`), so the screen is never the inside of the mech's back.
+ */
+export const CLOSE_DIST = 2.4
+const CRANE_UP = 1.3
+const CRANE_SIDE = 0.45
+/** The arm never points up more than this, though the view may: looking up
+ *  from behind the mech must not swing the camera into the floor or its body. */
+export const ARM_PITCH_MAX = 0.2
 /** Over the shoulder, with the minigun or the launcher up. */
 const SHOULDER_DIST = 2.5
 const SHOULDER_SIDE = 0.85
@@ -93,6 +107,8 @@ export interface CamPose {
   fov: number
   /** 0 the mech is on screen … 1 the camera is in its head (hide the rig). */
   inside: number
+  /** 0 … 1 how far to fade the mech out: the camera is pressed close to it. */
+  fade: number
 }
 
 const lerp = (a: number, b: number, k: number): number => a + (b - a) * k
@@ -113,7 +129,11 @@ export const placeCam = (
   const a = cam.aim
   // The pivot: the mech's head, a little above its eyes when following.
   const px = fx
-  const py = fy + eye + lerp(0.2, 0, a)
+  const py = fy + eye + lerp(FOLLOW_LIFT, 0, a)
+  // The arm's own direction: the view's, but never tipped far up.
+  const armPitch = Math.min(cam.pitch, lerp(ARM_PITCH_MAX, PITCH_MAX, a))
+  const ac = Math.cos(armPitch)
+  const af = { x: Math.sin(cam.yaw) * ac, y: Math.sin(armPitch), z: Math.cos(cam.yaw) * ac }
   const pz = fz
   const wantDist = lerp(FOLLOW_DIST, sniper ? 0 : SHOULDER_DIST, a)
   const side = lerp(FOLLOW_SHOULDER, sniper ? 0 : SHOULDER_SIDE, a)
@@ -122,9 +142,9 @@ export const placeCam = (
   const rz = Math.sin(cam.yaw)
 
   // The arm, from the pivot back and to the side.
-  let ax = -f.x * wantDist + rx * side
-  let ay = -f.y * wantDist
-  let az = -f.z * wantDist + rz * side
+  let ax = -af.x * wantDist + rx * side
+  let ay = -af.y * wantDist
+  let az = -af.z * wantDist + rz * side
   const len = Math.hypot(ax, ay, az)
   let dist = len
   if (len > 1e-4) {
@@ -139,9 +159,21 @@ export const placeCam = (
   else cam.dist += (dist - cam.dist) * Math.min(1, dt * 5)
   const d = Math.min(cam.dist, len)
 
-  const x = px + ax * d
-  const y = py + ay * d
-  const z = pz + az * d
+  let x = px + ax * d
+  let y = py + ay * d
+  let z = pz + az * d
+  // Pressed close to the mech by a wall: crane up and out over its shoulder,
+  // as far as the space above allows, and say how far to fade it.
+  const close = wantDist > CLOSE_DIST ? Math.min(1, Math.max(0, (CLOSE_DIST - d) / (CLOSE_DIST - MIN_DIST))) * (1 - a) : 0
+  if (close > 0) {
+    const up = raycast(g, x, y, z, 0, 1, 0, CRANE_UP + WALL_MARGIN)
+    const rise = (up.hit ? Math.max(0, up.t - WALL_MARGIN) : CRANE_UP) * close
+    const out = raycast(g, x, y + rise, z, rx, 0, rz, CRANE_SIDE + WALL_MARGIN)
+    const step = (out.hit ? Math.max(0, out.t - WALL_MARGIN) : CRANE_SIDE) * close
+    x += rx * step
+    y += rise
+    z += rz * step
+  }
   return {
     x, y, z,
     tx: x + f.x * 30,
@@ -150,6 +182,7 @@ export const placeCam = (
     // Both zooms are a fraction of the base view, which is wider on a
     // phone held upright: the same magnification either way round.
     fov: lerp(baseFov, (sniper ? scopeFov : SHOULDER_FOV) * (baseFov / REFERENCE_FOV), a),
-    inside: sniper ? a : 0
+    inside: sniper ? a : 0,
+    fade: close
   }
 }

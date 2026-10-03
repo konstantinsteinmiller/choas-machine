@@ -143,14 +143,16 @@ onUnmounted(() => { for (const id of Object.values(timers)) window.clearTimeout(
   position: absolute
   inset: 0
   pointer-events: none
-  // Desktop: a row of cards a little under the aim point.
+  // Desktop: the cards stack in the bottom-left corner, which a mouse player
+  // has free (no stick there), so the middle of the view, where the mech
+  // stands and whoever shoots at it, stays clear.
   &.mouse
     display: flex
+    flex-direction: column-reverse
     align-items: flex-start
-    justify-content: center
-    gap: clamp(0.5rem, 2.4vmin, 1.2rem)
-    padding-top: calc(50vh + clamp(2.6rem, 11vmin, 5rem))
-    padding-top: calc(50dvh + clamp(2.6rem, 11vmin, 5rem))
+    justify-content: flex-start
+    gap: clamp(0.4rem, 1.8vmin, 0.9rem)
+    padding: 0 0 calc(var(--cm-safe-bottom) + clamp(4.2rem, 14vmin, 6rem)) var(--cm-safe-left)
 
 .card
   display: flex

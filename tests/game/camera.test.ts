@@ -4,7 +4,7 @@
 
 import { describe, expect, it } from 'vitest'
 import {
-  makeCam, lookCam, stepCam, placeCam, camForward, stickToWorld, FOLLOW_DIST, PITCH_MAX, PITCH_MIN
+  makeCam, lookCam, stepCam, placeCam, camForward, stickToWorld, FOLLOW_DIST, PITCH_MAX, PITCH_MIN, CLOSE_DIST
 } from '@/game/sim/camera'
 import { makeGrid, type Grid } from '@/game/world/grid'
 
@@ -86,6 +86,34 @@ describe('placing', () => {
     const p = placeCam(cam, g, 30, 0, 30, 2.25, 'sniper', BASE, SCOPE, 1 / 60)
     expect(p.z).toBeGreaterThan(28)
     expect(p.z).toBeLessThan(30)
+  })
+
+  it('pressed against a wall, it cranes up over the mech and fades it: never inside its back', () => {
+    const g = flat()
+    for (let cx = 0; cx < 32; cx++) g.h[14 * 32 + cx] = 6 // a wall across z 28..30
+    const cam = makeCam(0)
+    cam.pitch = 0
+    // The mech's back a step from the wall.
+    const p = placeCam(cam, g, 30, 0, 30.7, 2.25, 'sniper', BASE, SCOPE, 1 / 60)
+    expect(cam.dist).toBeLessThan(CLOSE_DIST)
+    expect(p.fade).toBeGreaterThan(0.5)
+    // Clear of the mech's body: well over its head, or well to its side.
+    const overHead = p.y - (2.25 + 0.3)
+    const aside = Math.hypot(p.x - 30, p.z - 30.7)
+    expect(overHead > 0.6 || aside > 1.1).toBe(true)
+    // In open ground nothing fades.
+    expect(placeCam(makeCam(0), flat(), 30, 0, 30, 2.25, 'sniper', BASE, SCOPE, 1 / 60).fade).toBe(0)
+  })
+
+  it('looking up swings the view, not the arm: the camera stays off the floor', () => {
+    const cam = makeCam(0)
+    cam.pitch = PITCH_MAX
+    const p = placeCam(cam, flat(), 30, 0, 30, 2.25, 'sniper', BASE, SCOPE, 1 / 60)
+    expect(p.y).toBeGreaterThan(1.2)
+    expect(Math.hypot(p.x - 30, p.z - 30)).toBeGreaterThan(FOLLOW_DIST * 0.8)
+    expect(p.fade).toBe(0)
+    // The view still looks up.
+    expect(p.ty).toBeGreaterThan(p.y + 10)
   })
 
   it('pulls in at once and lets out gently', () => {
