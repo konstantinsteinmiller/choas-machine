@@ -47,6 +47,9 @@ export default {
     },
     'haul': 'Fier vechi {n} din {need}',
     'hide': 'Ascunde-te în cutie',
+    'sabotage': 'Sabotage the alarm beacon',
+    'alarmRunner': 'A guard is running to raise the alarm',
+    'alarmLit': 'The alarm is raised',
     'boss': 'Viața șefului {n}%',
     'loot': 'Dezmembrează fierul vechi'
   },

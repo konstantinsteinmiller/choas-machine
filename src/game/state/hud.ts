@@ -73,6 +73,12 @@ export const hud = reactive({
   salvageNeed: 0,
   /** Under the hide box. */
   boxed: false,
+  /** A beacon within reach to sabotage; and 0 … 1 of doing it. */
+  sabotage: false,
+  sabotaging: 0,
+  /** The base's alarm: 0 quiet, 1 a guard runs for a beacon, 2 lighting it (`alarmLit` 0 … 1), 3 lit. */
+  alarm: 0,
+  alarmLit: 0,
   /** The boss whose bar is up ('' none), its health 0 … 1, and whether it carries a shield. */
   bossKind: '' as '' | 'warden' | 'foreman' | 'goliath',
   bossHp: 1,

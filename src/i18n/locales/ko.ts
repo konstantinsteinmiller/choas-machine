@@ -47,6 +47,9 @@ export default {
     },
     'haul': '고철 {n}/{need}',
     'hide': '상자에 숨기',
+    'sabotage': 'Sabotage the alarm beacon',
+    'alarmRunner': 'A guard is running to raise the alarm',
+    'alarmLit': 'The alarm is raised',
     'boss': '보스 체력 {n}%',
     'loot': '고철 분해'
   },

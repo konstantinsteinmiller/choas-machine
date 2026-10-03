@@ -62,6 +62,11 @@ export interface GameEvents {
   takedown: { beat: 'draw' | 'stab' | 'pull'; id: number }
   /** The objective moved on: the salvage is in hand, the way out is open. */
   objective: { state: 'extract' }
+  /** A sure guard shouted; one runs to light a beacon; a beacon was lit; the mech sabotaged one. */
+  shout: { id: number; kind: PostKind }
+  runner: { id: number; beacon: number }
+  beaconLit: { beacon: number }
+  sabotage: { beat: 'start' | 'stop' | 'done'; beacon: number }
   /** The hide box comes down over the mech, or off it. */
   box: { on: boolean }
   /** The mech jumps off the board onto its perch. */

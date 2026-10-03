@@ -47,6 +47,9 @@ export default {
     },
     'haul': 'Rottami {n} su {need}',
     'hide': 'Nasconditi nella cassa',
+    'sabotage': 'Sabotage the alarm beacon',
+    'alarmRunner': 'A guard is running to raise the alarm',
+    'alarmLit': 'The alarm is raised',
     'boss': 'Vita del boss {n}%',
     'loot': 'Smonta i rottami'
   },

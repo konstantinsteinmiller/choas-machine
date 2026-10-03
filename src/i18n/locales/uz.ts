@@ -47,6 +47,9 @@ export default {
     },
     'haul': 'Temir-tersak {n} / {need}',
     'hide': 'Qutiga yashirinish',
+    'sabotage': 'Sabotage the alarm beacon',
+    'alarmRunner': 'A guard is running to raise the alarm',
+    'alarmLit': 'The alarm is raised',
     'boss': 'Boshliq salomatligi {n}%',
     'loot': 'Temir-tersakni qismlarga ajratish'
   },

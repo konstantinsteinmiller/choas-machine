@@ -47,6 +47,9 @@ export default {
     },
     'haul': 'Złom {n} z {need}',
     'hide': 'Schowaj się w skrzyni',
+    'sabotage': 'Sabotage the alarm beacon',
+    'alarmRunner': 'A guard is running to raise the alarm',
+    'alarmLit': 'The alarm is raised',
     'boss': 'Życie bossa {n}%',
     'loot': 'Rozbierz złom'
   },

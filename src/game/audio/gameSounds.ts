@@ -97,6 +97,9 @@ export const installGameSounds = (): void => {
   on('extracting', () => { sfx('extract'); sfx('bark') })
   on('jump', () => sfx('boardJump'))
   on('checkin', () => sfx('radio'))
+  on('shout', () => sfx('shout'))
+  on('runner', () => sfx('radio'))
+  on('sabotage', ({ beat }) => { if (beat === 'done') sfx('zap'); else if (beat === 'start') sfx('loot') })
   on('box', ({ on: down }) => sfx(down ? 'boxOn' : 'boxOff'))
   on('extracted', () => playJingle('victory'))
 

@@ -606,7 +606,7 @@ sources are in the decisions below.
       cover, shadow and hiding spots; HUD arcs round the centre pointing at
       each noticing guard; filling icon over the guard; the LKP drawn as a
       ghost of the mech.
-- [ ] **R18 Alarms**: a red guard shouts (nearby guards join); alarm beacons
+- [x] **R18 Alarms**: a red guard shouts (nearby guards join); alarm beacons
       (siren masts) a guard runs to and lights over 3 s, which is what puts
       the whole base on alert and calls reinforcements; kill or blind the
       runner, or sabotage the beacon beforehand (E while unseen); drones and
@@ -660,6 +660,7 @@ sources are in the decisions below.
       machine), plan; a second blind playtest if time allows.
 R16 done. The follow camera never ends up inside the mech: pressed in by a wall closer than 2.4 m it cranes up (to 1.3 m, as far as the space above allows) and out over the shoulder, and the mech fades to a ghost; the arm's own pitch is capped at 0.2 rad so looking up swings the view, not the camera into the floor; the walking framing is higher and wider; the desktop hint cards stack bottom-left so the middle of the view is clear. Props (the crane, poles) are not in the camera's collision and can still cross the view: noted.
 R17 done. Detection after Odyssey: the meter fills in two bands; white (0-0.5) while a guard notices, slow and forgiving (a 0.5 s glance adds nothing at ease; 0.8 s near to 3.8 s at the edge of sight, twice as long crouched, at the cone's edge and slower in shadow), yellow (0.5-1) while it walks to the last known position (0.8-3.2 s), red at 1; within 4 m either band is three times as fast. Out of sight a white meter drains after 0.8 s. The ring of arcs round the centre and the marks over heads go white, yellow, red; a glowing ghost of the mech stands at the last known position while anyone looks for it there. Measured: standing at 11-12 m, yellow after about 2 s and red about 1.4 s later; crouched about twice as long. Shadow is wired (target.shadow) and lands with the R24 level.
+R18 done. Alarms after Odyssey's forts: a sure guard shouts and every guard within 16 m joins the fight (a drone or a light has no voice and calls the nearest guard instead, who shouts); the base's meter stops at 90% unless a beacon is lit or the noise is loud. The guard nearest a working beacon who is not the one fighting runs to it (a siren mark over its head, a blinking siren chip on the HUD) and cranks it for 2.5 s (the chip fills); lit, the whole base is on full alert and the reinforcements come. Stop the runner and the beacon goes dark; 3.5 s later another may try. The mech can sabotage a beacon when nobody sees it (E, 1.4 s, a lesson and a chip). Three beacons in the Bastion: the yard, the north ward, the keep's roof. A fortress with no beacons keeps the old rule. Found and fixed while testing: a dead runner could be sent again.
 
 ## Resume notes
 

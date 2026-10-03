@@ -47,6 +47,9 @@ export default {
     },
     'haul': '废料 {n}/{need}',
     'hide': '躲进箱子',
+    'sabotage': 'Sabotage the alarm beacon',
+    'alarmRunner': 'A guard is running to raise the alarm',
+    'alarmLit': 'The alarm is raised',
     'boss': '首领生命 {n}%',
     'loot': '拆解废料'
   },

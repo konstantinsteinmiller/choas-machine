@@ -47,6 +47,9 @@ export default {
     },
     'haul': 'Šrot {n} z {need}',
     'hide': 'Schovat se v bedně',
+    'sabotage': 'Sabotage the alarm beacon',
+    'alarmRunner': 'A guard is running to raise the alarm',
+    'alarmLit': 'The alarm is raised',
     'boss': 'Zdraví bosse {n} %',
     'loot': 'Rozebrat šrot'
   },

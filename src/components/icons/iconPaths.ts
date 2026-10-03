@@ -364,6 +364,14 @@ export const ICON_PATHS: Record<GameIconName, string[]> = {
     'M4 18.6h16v2.6H4Z'
   ],
   // The grappling hook: an eye for the line, a shank, two flukes.
+  // An alarm beacon: a dome lamp on a base, with three rays.
+  'siren': [
+    'M7 15A5 5 0 0 1 17 15V17H7Z',
+    'M5 17.6H19A1 1 0 0 1 20 18.6V20A1 1 0 0 1 19 21H5A1 1 0 0 1 4 20V18.6A1 1 0 0 1 5 17.6Z',
+    'M11 3.2H13V7.4H11Z',
+    'M3.6 7.1L5 5.7L7.9 8.6L6.5 10Z',
+    'M20.4 7.1L17.5 10L16.1 8.6L19 5.7Z'
+  ],
   // The hide box: a crate with a lid, peering out of two slits (punched
   // counter-clockwise, so they are holes).
   'box': [

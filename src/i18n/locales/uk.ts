@@ -47,6 +47,9 @@ export default {
     },
     'haul': 'Брухт {n} з {need}',
     'hide': 'Сховатися в ящику',
+    'sabotage': 'Sabotage the alarm beacon',
+    'alarmRunner': 'A guard is running to raise the alarm',
+    'alarmLit': 'The alarm is raised',
     'boss': 'Здоров’я боса {n}%',
     'loot': 'Розібрати брухт'
   },

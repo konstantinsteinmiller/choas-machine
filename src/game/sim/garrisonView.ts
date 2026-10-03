@@ -79,13 +79,26 @@ interface UnitView {
 }
 
 /** The "?" and the "!", drawn as shapes: no font, so no wait for one. */
-const markTexture = (bang: boolean): CanvasTexture => {
+const markTexture = (bang: boolean, siren = false): CanvasTexture => {
   const c = document.createElement('canvas')
   c.width = c.height = 128
   const g = c.getContext('2d')!
   g.lineCap = 'round'
   g.lineJoin = 'round'
   const draw = (): void => {
+    if (siren) {
+      // A siren lamp with three rays: this one is running to raise the alarm.
+      g.beginPath()
+      g.arc(64, 78, 22, Math.PI, 0)
+      g.lineTo(86, 92)
+      g.lineTo(42, 92)
+      g.closePath()
+      g.stroke()
+      for (const [x1, y1, x2, y2] of [[64, 30, 64, 44], [30, 46, 40, 56], [98, 46, 88, 56]]) {
+        g.beginPath(); g.moveTo(x1!, y1!); g.lineTo(x2!, y2!); g.stroke()
+      }
+      return
+    }
     if (bang) {
       g.beginPath()
       g.moveTo(64, 26)
@@ -147,7 +160,8 @@ export class GarrisonView {
     this.group.add(this.wreckage.mesh)
     const q = markTexture(false)
     const bang = markTexture(true)
-    this.textures = [q, bang]
+    const siren = markTexture(false, true)
+    this.textures = [q, bang, siren]
     this.beamGeo.translate(0, -0.5, 0)
 
     for (const u of gar.units) {
@@ -489,7 +503,8 @@ export class GarrisonView {
         v.mark.visible = show
         if (show) {
           const bang = hot
-          m.map = this.textures[bang ? 1 : 0]!
+          const running = u.runner >= 0
+          m.map = this.textures[running ? 2 : bang ? 1 : 0]!
           m.color.copy(bang ? HOT : wary ? WARY : NOTICE)
           m.opacity = bang || wary ? 1 : Math.min(1, 0.3 + 0.7 * (u.detect / SUSPECT_AT))
           const top = isLight(u) ? 0.8 : SPECS[u.kind].height + 0.55

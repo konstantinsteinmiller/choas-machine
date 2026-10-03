@@ -1,7 +1,7 @@
 import { VOID, findPath, hasLineOfSight, heightAt, smoothPath, toCell, walkLine, type Grid } from '../world/grid'
 import type { Fortress, PostKind, Waypoint } from '../world/fortress'
 import { exposure, type Viewer, type Seen, fillRate, GRACE_S, CLOSE_M } from './perception'
-import { makeAlert, raiseAlert, pressAlert, stepAlert, ENGAGED_PER_S, type Alert, type AlertCause } from './alert'
+import { makeAlert, raiseAlert, pressAlert, stepAlert, ENGAGED_PER_S, BEACON_CAP, ALERT_MAX, type Alert, type AlertCause } from './alert'
 import { angleDelta } from './player'
 import { hashSeed, mulberry32, type Rng } from '../world/rng'
 
@@ -201,6 +201,9 @@ export interface Unit {
   hitZ: number
   /** A body, and somebody has already raised the alarm over it. */
   found: boolean
+  /** It has shouted once already; the beacon it is running to (−1 none). */
+  shouted: boolean
+  runner: number
   /** A boss (`Post.boss`), and its health at full; the Warden's shield. */
   boss: 'warden' | 'foreman' | 'goliath' | null
   maxHp: number
@@ -251,7 +254,30 @@ export interface Garrison {
   threat: Threat
   /** Counts noises, so each has a token of its own (`wonderAt`). */
   noiseSeq: number
+  /** The alarm beacons, the unit running to light one (−1 none), and the wait before another tries. */
+  beacons: Beacon[]
+  runner: number
+  runnerWait: number
 }
+
+/** An alarm beacon: ready, being lit (0 … 1), lit, or put out of action by the mech. */
+export interface Beacon {
+  x: number
+  y: number
+  z: number
+  state: 'ready' | 'lighting' | 'lit' | 'sabotaged'
+  lit: number
+}
+
+/** A sure guard shouts: everyone this near joins the fight. */
+export const SHOUT_M = 16
+/** A drone or a light that is sure calls the nearest guard within this. */
+const PING_M = 40
+/** Seconds at the beacon to light it; within this of it, it can be lit. */
+export const BEACON_LIGHT_S = 2.5
+const BEACON_REACH = 1.6
+/** After a runner is stopped, this long before another tries. */
+export const RUNNER_RETRY_S = 3.5
 
 /** What the garrison is looking for: the mech. */
 export interface Target {
@@ -290,6 +316,11 @@ export type GarrisonEvent =
   | { type: 'spotted'; id: number }
   | { type: 'calm'; id: number }
   | { type: 'body'; id: number; corpse: number }
+  /** A sure guard shouted; a drone called a guard; a guard runs for a beacon; a beacon was lit. */
+  | { type: 'shout'; id: number }
+  | { type: 'ping'; id: number; guard: number }
+  | { type: 'runner'; id: number; beacon: number }
+  | { type: 'alarm'; beacon: number }
   /** `id` noticed `corpse` missed its check-in and is going to look. */
   | { type: 'checkin'; id: number; corpse: number }
   | { type: 'kill'; id: number; death: DeathKind }
@@ -327,14 +358,15 @@ export const makeGarrison = (f: Fortress, level = 2): Garrison => {
       yaw: p.facing, pyaw: p.facing, look: 0,
       state: p.reserve ? 'reserve' : mech ? 'dormant' : 'patrol', t: 0, detect: 0, sees: false, seenX: p.x, seenZ: p.z, lured: false,
       route: p.route, wp: p.route.length > 1 ? 1 : 0, wait: p.route[0]?.wait ?? 0,
-      path: [], pathI: 0, repath: 0, bodyT: 0, seenFor: 0, unseenFor: 9, checkAt: Infinity, checked: false, hp: Math.round(SPECS[p.kind].hp * threat.hp * (p.boss === 'foreman' ? FOREMAN_HP : 1)), maxHp: Math.round(SPECS[p.kind].hp * threat.hp * (p.boss === 'foreman' ? FOREMAN_HP : 1)), boss: p.boss ?? null, shield: !!p.shield, deadT: 0, fallDir: 1, huh: HUH_S, noise: 0, gripped: false, hold: 0, death: 'back', hitX: 0, hitZ: 0, found: false,
+      path: [], pathI: 0, repath: 0, bodyT: 0, seenFor: 0, unseenFor: 9, shouted: false, runner: -1, checkAt: Infinity, checked: false, hp: Math.round(SPECS[p.kind].hp * threat.hp * (p.boss === 'foreman' ? FOREMAN_HP : 1)), maxHp: Math.round(SPECS[p.kind].hp * threat.hp * (p.boss === 'foreman' ? FOREMAN_HP : 1)), boss: p.boss ?? null, shield: !!p.shield, deadT: 0, fallDir: 1, huh: HUH_S, noise: 0, gripped: false, hold: 0, death: 'back', hitX: 0, hitZ: 0, found: false,
       stride: 0, speed01: 0, homeX: p.x, homeZ: p.z, homeYaw: p.facing, altitude: p.altitude,
       spotX: spot.x, spotZ: spot.z,
       seed: (id * 2.399) % (Math.PI * 2),
       power: mech ? 0 : 1, fireT: 0, burst: 0, burstT: 0, shellT: 0, shellX: 0, shellZ: 0, recoil: 0
     }
   })
-  return { units, alert: makeAlert(), time: 0, events: [], rng: mulberry32(hashSeed(f.id)), wave: 0, chaosT: 0, lures: [], threat, noiseSeq: 0 }
+  const beacons: Beacon[] = (f.beacons ?? []).map(b => ({ ...b, state: 'ready' as const, lit: 0 }))
+  return { units, alert: makeAlert(), time: 0, events: [], rng: mulberry32(hashSeed(f.id)), wave: 0, chaosT: 0, lures: [], threat, noiseSeq: 0, beacons, runner: -1, runnerWait: 0 }
 }
 
 // ─── Getting about ───────────────────────────────────────────────────────────
@@ -392,6 +424,8 @@ const stand = (u: Unit): void => { u.speed01 = 0 }
 const enter = (u: Unit, state: UnitState): void => {
   u.state = state
   u.t = 0
+  // Back on its round, the fight is behind it: it may shout again next time.
+  if (state === 'patrol') u.shouted = false
 }
 
 // ─── Sight ───────────────────────────────────────────────────────────────────
@@ -495,7 +529,124 @@ const wakeNearest = (gar: Garrison, x: number, z: number): void => {
 }
 
 const raise = (gar: Garrison, cause: AlertCause, target: Target): void => {
-  if (raiseAlert(gar.alert, cause)) goChaos(gar, target)
+  if (raiseAlert(gar.alert, cause, alertCap(gar))) goChaos(gar, target)
+}
+
+/** With beacons in the base, only a lit one (or a loud noise) fills the meter. */
+const alertCap = (gar: Garrison): number => (gar.beacons.length > 0 ? BEACON_CAP : ALERT_MAX)
+
+/** A sure guard shouts: the guards near it join the fight at once. */
+const shout = (gar: Garrison, u: Unit, target: Target): void => {
+  if (u.shouted) return
+  u.shouted = true
+  gar.events.push({ type: 'shout', id: u.id })
+  for (const o of gar.units) {
+    if (o === u || !isAlive(o) || o.state === 'combat' || o.state === 'dormant' || o.gripped || isLight(o) || o.kind === 'goliath') continue
+    if (Math.hypot(o.x - u.x, o.z - u.z) > SHOUT_M) continue
+    o.shouted = true
+    o.detect = 1
+    o.seenX = target.x
+    o.seenZ = target.z
+    o.lured = false
+    o.path = []
+    o.repath = 0
+    enter(o, 'combat')
+  }
+}
+
+/** A drone or a light is sure: it has no voice, so it calls the nearest guard, who shouts. */
+const pingGuard = (gar: Garrison, from: Unit, target: Target): void => {
+  let best: Unit | null = null
+  let bestD = PING_M
+  for (const o of gar.units) {
+    if (!isAlive(o) || isLight(o) || o.state === 'dormant' || o.gripped || o.kind === 'goliath') continue
+    const d = Math.hypot(o.x - from.x, o.z - from.z)
+    if (d < bestD) { best = o; bestD = d }
+  }
+  if (!best) return
+  best.detect = 1
+  best.seenX = target.x
+  best.seenZ = target.z
+  best.lured = false
+  best.path = []
+  if (best.state !== 'combat') enter(best, 'combat')
+  gar.events.push({ type: 'ping', id: from.id, guard: best.id })
+  shout(gar, best, target)
+}
+
+/** Send whoever is in the fight nearest a working beacon to light it. */
+const sendRunner = (gar: Garrison, g: Grid): void => {
+  if (gar.runner >= 0 || gar.alert.chaos || gar.runnerWait > 0) return
+  let bestU: Unit | null = null
+  let bestB = -1
+  let bestD = Infinity
+  for (const u of gar.units) {
+    // In the fight, or hunting after one: somebody who knows the mech is in the base.
+    const hot = u.state === 'combat' || (u.state !== 'patrol' && u.shouted)
+    if (!hot || !isAlive(u) || isLight(u) || u.gripped || u.kind === 'goliath' || u.kind === 'enforcer') continue
+    for (let i = 0; i < gar.beacons.length; i++) {
+      const b = gar.beacons[i]!
+      if (b.state !== 'ready') continue
+      // One fights, another runs: the one with the mech in its sights is the last choice.
+      const d = Math.hypot(b.x - u.x, b.z - u.z) + Math.abs(b.y - u.y) * 3 + (u.sees ? 25 : 0)
+      if (d < bestD) { bestD = d; bestU = u; bestB = i }
+    }
+  }
+  if (!bestU) return
+  const b = gar.beacons[bestB]!
+  if (!goTo(bestU, g, b.x, b.z)) { gar.runnerWait = RUNNER_RETRY_S; return }
+  if (bestU.state !== 'combat') enter(bestU, 'combat')
+  bestU.runner = bestB
+  gar.runner = bestU.id
+  gar.events.push({ type: 'runner', id: bestU.id, beacon: bestB })
+}
+
+/** The runner is gone (dead, held, put off): the beacon goes back to ready, and another may try. */
+const stopRunner = (gar: Garrison): void => {
+  const r = gar.runner >= 0 ? gar.units[gar.runner] : undefined
+  if (r) {
+    const b = gar.beacons[r.runner]
+    if (b && b.state === 'lighting') { b.state = 'ready'; b.lit = 0 }
+    r.runner = -1
+  }
+  gar.runner = -1
+  gar.runnerWait = RUNNER_RETRY_S
+}
+
+/** The runner runs to its beacon and lights it; lit, the whole base comes. */
+const runToBeacon = (u: Unit, g: Grid, gar: Garrison, target: Target, dt: number): void => {
+  const b = gar.beacons[u.runner]
+  if (!b || b.state === 'sabotaged' || b.state === 'lit') { stopRunner(gar); gar.runnerWait = 0; return }
+  const d = Math.hypot(b.x - u.x, b.z - u.z)
+  if (d > BEACON_REACH) {
+    if (u.path.length === 0 && !goTo(u, g, b.x, b.z)) { stopRunner(gar); return }
+    follow(u, g, SPECS[u.kind].run, dt)
+    u.look *= Math.max(0, 1 - dt * 6)
+    return
+  }
+  stand(u)
+  turnToward(u, headingTo(u.x, u.z, b.x, b.z), dt, 6)
+  b.state = 'lighting'
+  b.lit = Math.min(1, b.lit + dt / BEACON_LIGHT_S)
+  if (b.lit < 1) return
+  b.state = 'lit'
+  u.runner = -1
+  gar.runner = -1
+  gar.alert.level = ALERT_MAX
+  gar.alert.chaos = true
+  gar.events.push({ type: 'alarm', beacon: gar.beacons.indexOf(b) })
+  goChaos(gar, target)
+}
+
+/** The mech put a beacon out of action. True if it was one that could still be lit. */
+export const sabotageBeacon = (gar: Garrison, i: number): boolean => {
+  const b = gar.beacons[i]
+  if (!b || b.state === 'lit' || b.state === 'sabotaged') return false
+  const running = gar.runner >= 0 && gar.units[gar.runner]?.runner === i
+  b.state = 'sabotaged'
+  b.lit = 0
+  if (running) { stopRunner(gar); gar.runnerWait = 0 }
+  return true
 }
 
 const suspect = (gar: Garrison, u: Unit, x: number, z: number, lured: boolean): void => {
@@ -755,6 +906,8 @@ const fight = (u: Unit, g: Grid, gar: Garrison, target: Target, dt: number): voi
 export const stepGarrison = (gar: Garrison, g: Grid, target: Target, dt: number): void => {
   gar.time += dt
   checkIns(gar)
+  if (gar.runnerWait > 0) gar.runnerWait -= dt
+  if (gar.beacons.length > 0 && gar.runner < 0 && !gar.alert.chaos && gar.runnerWait <= 0 && gar.units.some(o => isAlive(o) && (o.state === 'combat' || (o.state !== 'patrol' && o.shouted)) && !isLight(o))) sendRunner(gar, g)
   const seen: Seen = { x: target.x, feetY: target.y, z: target.z, height: target.height }
   let calm = true
   let watched = false
@@ -835,8 +988,18 @@ export const stepGarrison = (gar: Garrison, g: Grid, target: Target, dt: number)
       const known = gar.units.some(o => o !== u && o.state === 'combat')
       // A drone's report sends a machine (plan G7).
       if (isLight(u)) wakeNearest(gar, target.x, target.z)
-      if (!known) raise(gar, isLight(u) ? 'drone' : 'seen', target)
-      else if (pressAlert(gar.alert, SECOND_WITNESS)) goChaos(gar, target)
+      if (gar.beacons.length === 0) {
+        if (!known) raise(gar, isLight(u) ? 'drone' : 'seen', target)
+        else if (pressAlert(gar.alert, SECOND_WITNESS)) goChaos(gar, target)
+      } else {
+        // Odyssey's fort: the sure one shouts (a light calls a guard, who
+        // shouts), and somebody runs to light a beacon. Until one is lit
+        // the fight stays where it is.
+        if (!known) raise(gar, isLight(u) ? 'drone' : 'seen', target)
+        if (isLight(u)) pingGuard(gar, u, target)
+        else shout(gar, u, target)
+        sendRunner(gar, g)
+      }
     } else if (u.state === 'patrol' && u.detect >= SUSPECT_AT) {
       suspect(gar, u, u.seenX, u.seenZ, false)
     } else if (u.state === 'suspicious' && u.lured && u.detect >= SUSPECT_AT) {
@@ -888,6 +1051,7 @@ export const stepGarrison = (gar: Garrison, g: Grid, target: Target, dt: number)
         break
       }
       case 'combat':
+        if (u.runner >= 0) { runToBeacon(u, g, gar, target, dt); break }
         fight(u, g, gar, target, dt)
         if (u.sees) watched = true
         // Out of sight long enough, and not in full alert: it lets go.
@@ -918,7 +1082,7 @@ export const stepGarrison = (gar: Garrison, g: Grid, target: Target, dt: number)
 
   // However many are watching, the meter climbs at one rate: being seen by
   // two guards is not twice as bad, it is two witnesses to silence.
-  if (watched && pressAlert(gar.alert, ENGAGED_PER_S * dt)) goChaos(gar, target)
+  if (watched && pressAlert(gar.alert, ENGAGED_PER_S * dt, alertCap(gar))) goChaos(gar, target)
   stepAlert(gar.alert, dt, calm)
 }
 
@@ -963,6 +1127,7 @@ export const killUnit = (gar: Garrison, id: number, fromX: number, fromZ: number
   // Wreckage is evidence like a body is: a patrol that sees a drone in
   // pieces on the ground knows somebody is in the base.
   u.found = u.kind === 'searchlight'
+  if (gar.runner === u.id) stopRunner(gar)
   // Its radio goes quiet; in a while somebody notices.
   u.checkAt = gar.time + CHECKIN_S + u.seed * CHECKIN_JITTER_S
   u.checked = u.kind === 'searchlight'

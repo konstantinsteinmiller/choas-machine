@@ -51,6 +51,9 @@ export default {
     },
     'haul': 'Salvage {n} of {need}',
     'hide': 'Hide in the box',
+    'sabotage': 'Sabotage the alarm beacon',
+    'alarmRunner': 'A guard is running to raise the alarm',
+    'alarmLit': 'The alarm is raised',
     'boss': 'Boss health {n}%',
     'loot': 'Strip the salvage'
   },

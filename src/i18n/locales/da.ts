@@ -47,6 +47,9 @@ export default {
     },
     'haul': 'Skrot {n} af {need}',
     'hide': 'Gem dig i kassen',
+    'sabotage': 'Sabotage the alarm beacon',
+    'alarmRunner': 'A guard is running to raise the alarm',
+    'alarmLit': 'The alarm is raised',
     'boss': 'Bossens liv {n} %',
     'loot': 'Skil skrottet ad'
   },

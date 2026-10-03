@@ -47,6 +47,9 @@ export default {
     },
     'haul': 'スクラップ {n}/{need}',
     'hide': '箱に隠れる',
+    'sabotage': 'Sabotage the alarm beacon',
+    'alarmRunner': 'A guard is running to raise the alarm',
+    'alarmLit': 'The alarm is raised',
     'boss': 'ボスの体力 {n}%',
     'loot': 'スクラップを解体'
   },

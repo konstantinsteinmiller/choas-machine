@@ -47,6 +47,9 @@ export default {
     },
     'haul': 'Hurda {n} / {need}',
     'hide': 'Qutuda gizlən',
+    'sabotage': 'Sabotage the alarm beacon',
+    'alarmRunner': 'A guard is running to raise the alarm',
+    'alarmLit': 'The alarm is raised',
     'boss': 'Bossun sağlamlığı {n}%',
     'loot': 'Hurdanı sök'
   },

@@ -47,6 +47,9 @@ export default {
     },
     'haul': 'Σκραπ {n} από {need}',
     'hide': 'Κρύψου στο κουτί',
+    'sabotage': 'Sabotage the alarm beacon',
+    'alarmRunner': 'A guard is running to raise the alarm',
+    'alarmLit': 'The alarm is raised',
     'boss': 'Ζωή του αρχηγού {n}%',
     'loot': 'Ξήλωσε το σκραπ'
   },

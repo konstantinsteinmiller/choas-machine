@@ -24,7 +24,7 @@ import type { InputFamily } from '../data/ids'
  */
 
 export const HINT_IDS = [
-  'move', 'look', 'scope', 'fire', 'crouch', 'blade', 'climb', 'cable', 'decoy', 'weapon', 'sprint', 'grapple', 'loot', 'goal', 'hide'
+  'move', 'look', 'scope', 'fire', 'crouch', 'blade', 'climb', 'cable', 'decoy', 'weapon', 'sprint', 'grapple', 'loot', 'goal', 'hide', 'sabotage'
 ] as const
 export type HintId = (typeof HINT_IDS)[number]
 
@@ -40,6 +40,8 @@ export const HINTS: Readonly<Record<HintId, HintDef>> = {
   blade: { goal: 2, priority: 9 },
   // At a pile: the one thing the raid is for.
   loot: { goal: 1, priority: 9 },
+  // At an alarm beacon, unseen: put it out of action.
+  sabotage: { goal: 1, priority: 9 },
   grapple: { goal: 1, priority: 8 },
   climb: { goal: 1, priority: 8 },
   cable: { goal: 1, priority: 8 },
@@ -172,6 +174,8 @@ export interface CoachContext {
   far: boolean
   /** Under the hide box already. */
   boxed: boolean
+  /** An alarm beacon within reach, nobody looking. */
+  sabotage: boolean
 }
 
 /**
@@ -217,7 +221,8 @@ export const stepCoach = (c: Coach, ctx: CoachContext, dt: number): HintView[] |
     goal: ctx.seeking && thumbs,
     sprint: quiet && ctx.far && !ctx.guardNear && hintDone(c, 'move'),
     // Taught once crouching is, when a guard is half-way to sure.
-    hide: quiet && !ctx.boxed && ctx.threat > 0.3 && hintDone(c, 'crouch')
+    hide: quiet && !ctx.boxed && ctx.threat > 0.3 && hintDone(c, 'crouch'),
+    sabotage: ctx.sabotage
   }
 
   const shown: HintId[] = []

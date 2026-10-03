@@ -47,6 +47,9 @@ export default {
     },
     'haul': 'Butin {n} sur {need}',
     'hide': 'Se cacher dans la caisse',
+    'sabotage': 'Sabotage the alarm beacon',
+    'alarmRunner': 'A guard is running to raise the alarm',
+    'alarmLit': 'The alarm is raised',
     'boss': 'Vie du boss {n} %',
     'loot': 'Récupérer le butin'
   },

@@ -47,6 +47,9 @@ export default {
     },
     'haul': 'Phế liệu {n}/{need}',
     'hide': 'Trốn trong thùng',
+    'sabotage': 'Sabotage the alarm beacon',
+    'alarmRunner': 'A guard is running to raise the alarm',
+    'alarmLit': 'The alarm is raised',
     'boss': 'Máu trùm {n}%',
     'loot': 'Tháo phế liệu'
   },

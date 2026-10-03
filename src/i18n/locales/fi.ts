@@ -47,6 +47,9 @@ export default {
     },
     'haul': 'Romua {n}/{need}',
     'hide': 'Piiloudu laatikkoon',
+    'sabotage': 'Sabotage the alarm beacon',
+    'alarmRunner': 'A guard is running to raise the alarm',
+    'alarmLit': 'The alarm is raised',
     'boss': 'Pomon terveys {n} %',
     'loot': 'Pura romu'
   },

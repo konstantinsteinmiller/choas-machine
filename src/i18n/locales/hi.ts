@@ -47,6 +47,9 @@ export default {
     },
     'haul': 'कबाड़ {n} / {need}',
     'hide': 'डिब्बे में छिपें',
+    'sabotage': 'Sabotage the alarm beacon',
+    'alarmRunner': 'A guard is running to raise the alarm',
+    'alarmLit': 'The alarm is raised',
     'boss': 'बॉस की सेहत {n}%',
     'loot': 'कबाड़ खोलें'
   },

@@ -41,6 +41,13 @@ export interface Alert {
 
 export const makeAlert = (): Alert => ({ level: 0, chaos: false, quiet: 999 })
 
+/**
+ * With alarm beacons in the base (round 3, after Odyssey's braziers) nothing
+ * but a lit beacon, or a noise nobody can miss, fills the last segment: the
+ * meter stops just short.
+ */
+export const BEACON_CAP = ALERT_MAX * 0.9
+
 /** Lit segments of the HUD's meter, 0 to 5. */
 export const alertSegments = (a: Alert): number =>
   a.chaos ? ALERT_SEGMENTS : Math.min(ALERT_SEGMENTS - 1, Math.floor((a.level / ALERT_MAX) * ALERT_SEGMENTS))
@@ -49,9 +56,9 @@ export const alertSegments = (a: Alert): number =>
  * Raise the meter. Returns true when this is what tipped the base into full
  * alert (so the caller plays that moment once).
  */
-export const raiseAlert = (a: Alert, cause: AlertCause): boolean => {
+export const raiseAlert = (a: Alert, cause: AlertCause, cap = ALERT_MAX): boolean => {
   if (a.chaos) return false
-  a.level = Math.min(ALERT_MAX, a.level + ALERT_GAIN[cause])
+  a.level = Math.min(cause === 'loud' ? ALERT_MAX : cap, a.level + ALERT_GAIN[cause])
   a.quiet = 0
   if (a.level >= ALERT_MAX) {
     a.chaos = true
@@ -66,9 +73,9 @@ export const ENGAGED_PER_S = 16
 
 /** Raise the meter by an amount (a witness still watching). True when this
  *  tipped the base into full alert. */
-export const pressAlert = (a: Alert, amount: number): boolean => {
+export const pressAlert = (a: Alert, amount: number, cap = ALERT_MAX): boolean => {
   if (a.chaos) return false
-  a.level = Math.min(ALERT_MAX, a.level + amount)
+  a.level = Math.min(cap, a.level + amount)
   a.quiet = 0
   if (a.level >= ALERT_MAX) {
     a.chaos = true

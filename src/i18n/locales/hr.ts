@@ -47,6 +47,9 @@ export default {
     },
     'haul': 'Otpad {n} od {need}',
     'hide': 'Sakrij se u kutiju',
+    'sabotage': 'Sabotage the alarm beacon',
+    'alarmRunner': 'A guard is running to raise the alarm',
+    'alarmLit': 'The alarm is raised',
     'boss': 'Zdravlje bossa {n} %',
     'loot': 'Rastavi otpad'
   },

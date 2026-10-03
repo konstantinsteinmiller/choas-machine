@@ -47,6 +47,9 @@ export default {
     },
     'haul': 'Schroot {n} van {need}',
     'hide': 'Verstoppen in de kist',
+    'sabotage': 'Sabotage the alarm beacon',
+    'alarmRunner': 'A guard is running to raise the alarm',
+    'alarmLit': 'The alarm is raised',
     'boss': 'Levens van de baas {n}%',
     'loot': 'Schroot slopen'
   },

@@ -47,6 +47,9 @@ export default {
     },
     'haul': 'خردة {n} من {need}',
     'hide': 'اختبئ في الصندوق',
+    'sabotage': 'Sabotage the alarm beacon',
+    'alarmRunner': 'A guard is running to raise the alarm',
+    'alarmLit': 'The alarm is raised',
     'boss': 'صحة الزعيم {n}%',
     'loot': 'فكّ الخردة'
   },

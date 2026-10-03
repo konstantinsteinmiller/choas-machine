@@ -47,6 +47,9 @@ export default {
     },
     'haul': 'Rubaĵo {n} el {need}',
     'hide': 'Kaŝiĝi en la kesto',
+    'sabotage': 'Sabotage the alarm beacon',
+    'alarmRunner': 'A guard is running to raise the alarm',
+    'alarmLit': 'The alarm is raised',
     'boss': 'Vivo de la estro {n}%',
     'loot': 'Malmunti la rubaĵon'
   },

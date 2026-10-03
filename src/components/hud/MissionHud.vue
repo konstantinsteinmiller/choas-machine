@@ -20,6 +20,17 @@
       )
         GameIcon(name="scrap")
         span {{ hud.salvageGot }}/{{ hud.salvageNeed }}
+      //- The alarm: a guard runs for a beacon (a siren, blinking), cranks it
+      //- (the ring fills), and it is lit (the whole base is coming).
+      div.alarm(
+        v-if="hud.alarm > 0"
+        :class="['s' + hud.alarm]"
+        role="img"
+        :aria-label="t(hud.alarm === 3 ? 'hud.alarmLit' : 'hud.alarmRunner')"
+        data-testid="alarm"
+      )
+        GameIcon(name="siren")
+        div.alarm-fill(:style="{ width: `${Math.round((hud.alarm === 3 ? 1 : hud.alarmLit) * 100)}%` }")
       //- The boss that was hit: its health, in ten plates. A shield glyph when
       //- it carries one (go round it).
       div.boss-bar(
@@ -54,6 +65,19 @@
         data-testid="btn-strike"
         @click="input.actQueued = true"
       )
+
+    //- An alarm beacon within reach, nobody looking: the same tap sabotages it.
+    div.strike.sabotage(v-if="(hud.sabotage || hud.sabotaging > 0) && !hud.strike")
+      FHudButton(
+        icon="siren"
+        tone="danger"
+        :attention="hud.sabotaging === 0"
+        :aria-label="t('hud.sabotage')"
+        data-testid="btn-sabotage"
+        @click="input.actQueued = true"
+      )
+        template(#badge)
+          FHudBadge(v-if="hud.sabotaging > 0" tone="warn") {{ Math.round(hud.sabotaging * 100) }}%
 
     //- A pile within reach: the same tap that strikes strips it. The ring
     //- fills while the mech works.
@@ -244,6 +268,45 @@ onUnmounted(() => window.clearTimeout(closeTimer))
   &.done
     border-color: var(--cm-ok)
     color: var(--cm-ok)
+
+.alarm
+  position: relative
+  display: flex
+  align-items: center
+  gap: 0.3em
+  width: clamp(5rem, 22vmin, 8rem)
+  margin-top: 0.35em
+  padding: 0.25em 0.6em
+  border: var(--cm-rim-w) solid var(--cm-danger)
+  border-radius: 999px
+  background: var(--cm-gloss), var(--cm-surface-soft)
+  box-shadow: var(--cm-sticker)
+  color: var(--cm-danger)
+  overflow: hidden
+  pointer-events: none
+  :deep(svg)
+    position: relative
+    z-index: 1
+    width: 1.3em
+    height: 1.3em
+  &.s1 :deep(svg)
+    animation: siren-blink 0.5s steps(2) infinite
+  &.s3
+    background: var(--cm-danger)
+    color: #fff
+.alarm-fill
+  position: absolute
+  left: 0
+  top: 0
+  bottom: 0
+  background: rgba(255, 85, 118, 0.45)
+  transition: width 120ms linear
+@keyframes siren-blink
+  50%
+    opacity: 0.25
+@media (prefers-reduced-motion: reduce)
+  .alarm.s1 :deep(svg)
+    animation: none
 
 .boss-bar
   display: flex

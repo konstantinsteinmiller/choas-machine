@@ -47,6 +47,9 @@ export default {
     },
     'haul': 'Skrap {n} av {need}',
     'hide': 'Gjem deg i kassen',
+    'sabotage': 'Sabotage the alarm beacon',
+    'alarmRunner': 'A guard is running to raise the alarm',
+    'alarmLit': 'The alarm is raised',
     'boss': 'Bossens helse {n} %',
     'loot': 'Ta fra hverandre skrapet'
   },

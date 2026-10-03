@@ -47,6 +47,9 @@ export default {
     },
     'haul': 'Chatarra {n} de {need}',
     'hide': 'Agocharse na caixa',
+    'sabotage': 'Sabotage the alarm beacon',
+    'alarmRunner': 'A guard is running to raise the alarm',
+    'alarmLit': 'The alarm is raised',
     'boss': 'Vida do xefe {n} %',
     'loot': 'Desmontar a chatarra'
   },

@@ -47,6 +47,9 @@ export default {
     },
     'haul': 'Сынық {n} / {need}',
     'hide': 'Жәшікке жасырыну',
+    'sabotage': 'Sabotage the alarm beacon',
+    'alarmRunner': 'A guard is running to raise the alarm',
+    'alarmLit': 'The alarm is raised',
     'boss': 'Бастың денсаулығы {n}%',
     'loot': 'Сынықты бөлшектеу'
   },

@@ -74,6 +74,11 @@ export const validateFortress = (f: Fortress): string[] => {
   if (problems.length === 0 && !reachable(f, MECH, f.extract.x, f.extract.z)) {
     problems.push('the extraction point cannot be reached from the insertion point')
   }
+  // Every alarm beacon can be got to: the mech must be able to sabotage it.
+  for (const [i, b] of f.beacons.entries()) {
+    if (heightAt(g, b.x, b.z) === VOID) { problems.push(`beacon #${i} at ${at(b.x, b.z)} is off the island`); continue }
+    if (problems.length === 0 && !reachable(f, MECH, b.x, b.z)) problems.push(`beacon #${i} at ${at(b.x, b.z)} cannot be reached`)
+  }
   // Every pile of salvage can be got to, and the mech can get out again from
   // it: a raid that needs a pile nobody can reach cannot be finished.
   for (const [i, p] of f.salvage.entries()) {

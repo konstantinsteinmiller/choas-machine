@@ -47,6 +47,9 @@ export default {
     },
     'haul': 'Скрап {n} от {need}',
     'hide': 'Скрий се в кутията',
+    'sabotage': 'Sabotage the alarm beacon',
+    'alarmRunner': 'A guard is running to raise the alarm',
+    'alarmLit': 'The alarm is raised',
     'boss': 'Живот на боса {n}%',
     'loot': 'Разглоби скрапа'
   },

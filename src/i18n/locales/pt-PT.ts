@@ -47,6 +47,9 @@ export default {
     },
     'haul': 'Sucata {n} de {need}',
     'hide': 'Esconder-se na caixa',
+    'sabotage': 'Sabotage the alarm beacon',
+    'alarmRunner': 'A guard is running to raise the alarm',
+    'alarmLit': 'The alarm is raised',
     'boss': 'Vida do chefe {n}%',
     'loot': 'Desmontar a sucata'
   },

@@ -47,6 +47,9 @@ export default {
     },
     'haul': 'Rongsokan {n} dari {need}',
     'hide': 'Sembunyi di dalam kotak',
+    'sabotage': 'Sabotage the alarm beacon',
+    'alarmRunner': 'A guard is running to raise the alarm',
+    'alarmLit': 'The alarm is raised',
     'boss': 'Nyawa bos {n}%',
     'loot': 'Bongkar rongsokan'
   },

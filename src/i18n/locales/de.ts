@@ -47,6 +47,9 @@ export default {
     },
     'haul': 'Bergegut {n} von {need}',
     'hide': 'In der Kiste verstecken',
+    'sabotage': 'Sabotage the alarm beacon',
+    'alarmRunner': 'A guard is running to raise the alarm',
+    'alarmLit': 'The alarm is raised',
     'boss': 'Leben des Bosses {n}%',
     'loot': 'Bergegut ausschlachten'
   },

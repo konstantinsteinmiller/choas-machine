@@ -390,6 +390,21 @@ const RECIPES: Record<SfxName, (pan: number, g: number) => void> = {
     burst({ dur: 0.9, vol: 0.12 * g, type: 'highpass', f0: 3500, f1: 6000 })
     tone({ wave: 'sine', f0: 300, f1: 120, dur: 0.3, vol: 0.06 * g })
   },
+  // A guard who is sure: a short two-note squawk, "hey!".
+  shout: (_p, g) => {
+    tone({ wave: 'p25', f0: 520, f1: 760, dur: 0.12, vol: 0.12 * g })
+    tone({ wave: 'p25', f0: 760, f1: 700, dur: 0.16, vol: 0.12 * g, at: 0.13 })
+  },
+  // The beacon being cranked: a siren winding up.
+  crank: (_p, g) => {
+    tone({ wave: 'saw', f0: 200, f1: 900, dur: 2.4, vol: 0.06 * g, exp: false })
+    burst({ dur: 2.4, vol: 0.03 * g, type: 'bandpass', f0: 600, f1: 1600, q: 3 })
+  },
+  // A beacon put out of action: a crackle and a dying hum.
+  zap: (_p, g) => {
+    burst({ dur: 0.3, vol: 0.12 * g, type: 'highpass', f0: 3000 })
+    tone({ wave: 'sine', f0: 240, f1: 60, dur: 0.5, vol: 0.1 * g, at: 0.05 })
+  },
   // A radio that gets no answer: static, two hopeful beeps, static.
   radio: (_p, g) => {
     burst({ dur: 0.25, vol: 0.07 * g, type: 'bandpass', f0: 2400, q: 1.5 })

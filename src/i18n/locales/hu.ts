@@ -47,6 +47,9 @@ export default {
     },
     'haul': 'Hulladék: {n}/{need}',
     'hide': 'Elbújni a ládában',
+    'sabotage': 'Sabotage the alarm beacon',
+    'alarmRunner': 'A guard is running to raise the alarm',
+    'alarmLit': 'The alarm is raised',
     'boss': 'A főellenség élete {n}%',
     'loot': 'Hulladék szétszedése'
   },

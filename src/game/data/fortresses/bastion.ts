@@ -113,6 +113,11 @@ export const buildBastion = (level = 1): Fortress => {
   if (level >= 2) b.reserve(25, 8).reserve(26, 8)
   if (level >= 4) b.reserve(25, 50, Math.PI).reserve(26, 50, Math.PI)
 
+  // ── The alarm beacons (Odyssey's braziers) ──
+  // One in the yard, one in the north ward, one on the keep's roof. A guard
+  // who is sure runs to the nearest to light it; sabotage them first.
+  b.beacon(26, 41).beacon(21, 14).beacon(28, 23)
+
   // ── Salvage: what the raid is for ──
   // Spread so a raid crosses the base: two in the yard, one by the postern,
   // two in the north ward, one on the inner wall's walk, and the big one on

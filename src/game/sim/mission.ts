@@ -26,7 +26,7 @@ import { makePlayer, stepPlayer, eyeHeight, angleDelta, type Player } from './pl
 import { makeCam, lookCam, stepCam, placeCam, stickToWorld, camForward, type Cam } from './camera'
 import { alertSegments } from './alert'
 import {
-  SPECS, SUSPECT_AT, drainEvents, headingTo, killUnit, damageUnit, makeGarrison, noiseAt, hearAt, wonderAt, voidNoise, stepGarrison, alarmUnit, startleUnit, isLight,
+  SPECS, SUSPECT_AT, sabotageBeacon, drainEvents, headingTo, killUnit, damageUnit, makeGarrison, noiseAt, hearAt, wonderAt, voidNoise, stepGarrison, alarmUnit, startleUnit, isLight,
   type Garrison, type Target
 } from './garrison'
 import { GarrisonView } from './garrisonView'
@@ -53,6 +53,7 @@ import {
 } from './cine'
 import { buildRobodog, poseRobodog, restDogPose, type DogPose } from '../models/robodog'
 import { buildHideBox, disposeHideBox } from '../models/hideBox'
+import { buildBeacon, disposeBeacon, poseBeacon, BEACON_TOP, type BeaconView } from '../models/beacon'
 import { introFrame, makeDogFrame, makeRiderFrame, outroFrame, RIDER_JUMP } from './robodog'
 import { killCamsEnabled } from '@/use/useKillCam'
 import { markSeen, profile, saveProfile } from '../state/profile'
@@ -126,6 +127,9 @@ const KILLCAM_SLOW = 0.16
 const EXTRACT_RADIUS = 1.9
 /** How far running feet are heard, in metres. */
 export const SPRINT_EARSHOT = 9
+/** How near a beacon the mech must be to sabotage it, and how long it takes. */
+const SABOTAGE_REACH = 1.9
+const SABOTAGE_S = 1.4
 
 /** What the mission remembers for the tally. */
 export interface MissionStats {
@@ -166,7 +170,7 @@ export class Mission implements GameMode {
   /** What the mech is fitted with (the Armory, the Chassis Bay, the Forge). */
   readonly loadout: Loadout
   /** DEV: is a strike or a cutscene moving the mech right now (`game/preview.ts`)? */
-  get busy(): boolean { return !!this.strike || !!this.cine || !!this.grapple || !!this.looting }
+  get busy(): boolean { return !!this.strike || !!this.cine || !!this.grapple || !!this.looting || !!this.sabotaging }
   /** DEV: the next kill gets the kill-cam (`game/preview.ts`). */
   forceKillcam = false
   /** The strike on offer right now. */
@@ -184,6 +188,10 @@ export class Mission implements GameMode {
   private cinePose = makeCinePose()
   private followPose = makeCinePose()
   private killcam = makeKillCamState()
+  /** The alarm beacons, drawn; the one within reach to sabotage, and the sabotage under way. */
+  private beaconViews: BeaconView[] = []
+  private beaconOffer = -1
+  private sabotaging: { beacon: number; t: number } | null = null
   /** The hide box, and whether the mech was under it last step. */
   private hideBox!: Group
   private wasBoxed = false
@@ -226,7 +234,7 @@ export class Mission implements GameMode {
   private coach: Coach = makeCoach('desk')
   private coachCtx: CoachContext = {
     playing: false, walked: 0, turned: 0, enemies: true, aiming: false, chaos: false, threat: 0, guardNear: false,
-    strike: false, nearLadder: false, nearCable: false, decoys: 0, loot: false, hook: false, seeking: false, far: false, boxed: false
+    strike: false, nearLadder: false, nearCable: false, decoys: 0, loot: false, hook: false, seeking: false, far: false, boxed: false, sabotage: false
   }
   private lastYaw = 0
   private lastPitch = 0
@@ -305,6 +313,12 @@ export class Mission implements GameMode {
     m.strikeMark.renderOrder = 31
     m.strikeMark.visible = false
     await slice()
+    for (const b of m.garrison.beacons) {
+      const v = buildBeacon()
+      v.group.position.set(b.x, b.y, b.z)
+      m.scene.add(v.group)
+      m.beaconViews.push(v)
+    }
     m.hideBox = buildHideBox()
     m.scene.add(m.hideBox)
     m.dog = buildRobodog()
@@ -398,6 +412,8 @@ export class Mission implements GameMode {
         this.stepHook(dt)
       } else if (this.looting) {
         this.stepLoot(dt)
+      } else if (this.sabotaging) {
+        this.stepSabotage(dt)
       } else {
         const dir = stickToWorld(this.cam, i.moveX, i.moveY)
         const wasCrouched = p.crouched
@@ -433,6 +449,10 @@ export class Mission implements GameMode {
         }
         this.offer = findStrike(this.garrison, this.fortress.grid, p.x, p.y, p.z, this.cam.yaw, p.mode === 'ground')
         if (i.actQueued && this.offer) this.startStrike(this.offer)
+        // An alarm beacon within reach while nobody is looking: the act key
+        // puts it out of action (Odyssey's trapped brazier).
+        this.beaconOffer = p.mode === 'ground' && !this.offer && !this.strike ? this.beaconInReach() : -1
+        if (i.actQueued && !this.offer && this.beaconOffer >= 0 && !this.strike) { this.startSabotage(this.beaconOffer); i.actQueued = false }
         // A pile within reach (and no blade on offer): the same key strips it.
         this.lootOffer = p.mode === 'ground' && !this.offer && !this.strike ? pileInReach(this.piles, p.x, p.y, p.z) : null
         if (i.actQueued && !this.offer && this.lootOffer && !this.strike) this.startLoot(this.lootOffer)
@@ -495,6 +515,15 @@ export class Mission implements GameMode {
     mirror('grappleHeard', this.grapple?.heard ?? 0)
     mirror('loot', !this.looting && !!this.lootOffer && hud.phase === 'play')
     mirror('boxed', this.player.boxed)
+    mirror('sabotage', !this.sabotaging && this.beaconOffer >= 0 && hud.phase === 'play')
+    mirror('sabotaging', this.sabotaging ? Math.min(1, this.sabotaging.t / SABOTAGE_S) : 0)
+    {
+      const gar = this.garrison
+      const r = gar.runner >= 0 ? gar.units[gar.runner] : undefined
+      const b = r && r.runner >= 0 ? gar.beacons[r.runner] : undefined
+      mirror('alarm', gar.alert.chaos && gar.beacons.some(x => x.state === 'lit') ? 3 : b?.state === 'lighting' ? 2 : r ? 1 : 0)
+      mirror('alarmLit', b ? b.lit : gar.alert.chaos ? 1 : 0)
+    }
     const boss = this.bossFocus >= 0 ? this.garrison.units[this.bossFocus] : undefined
     if (boss && boss.boss) {
       mirror('bossKind', boss.boss)
@@ -838,6 +867,59 @@ export class Mission implements GameMode {
     else app.setTimeScale(1)
   }
 
+  // ─── The alarm beacons ─────────────────────────────────────────────────────
+
+  /** The nearest working beacon within reach, if nobody can see the mech; −1 otherwise. */
+  private beaconInReach(): number {
+    const p = this.player
+    const gar = this.garrison
+    if (gar.units.some(u => u.sees)) return -1
+    let best = -1
+    let bestD = SABOTAGE_REACH
+    for (let k = 0; k < gar.beacons.length; k++) {
+      const b = gar.beacons[k]!
+      if (b.state !== 'ready' || Math.abs(b.y - p.y) > 1) continue
+      const d = Math.hypot(b.x - p.x, b.z - p.z)
+      if (d < bestD) { bestD = d; best = k }
+    }
+    return best
+  }
+
+  private startSabotage(k: number): void {
+    const p = this.player
+    const b = this.garrison.beacons[k]!
+    this.sabotaging = { beacon: k, t: 0 }
+    this.beaconOffer = -1
+    p.vx = p.vz = 0
+    p.speed01 = 0
+    p.boxed = false
+    p.yaw = headingTo(p.x, p.z, b.x, b.z)
+    emit('sabotage', { beat: 'start', beacon: k })
+  }
+
+  private stepSabotage(dt: number): void {
+    const s = this.sabotaging!
+    const p = this.player
+    const i = this.input
+    p.px = p.x; p.py = p.y; p.pz = p.z; p.pyaw = p.yaw
+    if (Math.hypot(i.moveX, i.moveY) > 0.5) {
+      this.sabotaging = null
+      emit('sabotage', { beat: 'stop', beacon: s.beacon })
+      return
+    }
+    s.t += dt
+    const b = this.garrison.beacons[s.beacon]!
+    if (Math.floor(s.t / 0.25) !== Math.floor((s.t - dt) / 0.25)) this.fx.particles.sparks(b.x + 0.2, b.y + 1.25, b.z + 0.3, '#7ff4ff', 6, 3, 0.18)
+    if (s.t < SABOTAGE_S) return
+    this.sabotaging = null
+    if (sabotageBeacon(this.garrison, s.beacon)) {
+      this.fx.particles.sparks(b.x, b.y + BEACON_TOP, b.z, '#ffffff', 18, 4, 0.3)
+      haptic('reward')
+      emit('sabotage', { beat: 'done', beacon: s.beacon })
+      this.learn('sabotage')
+    }
+  }
+
   // ─── Salvage ───────────────────────────────────────────────────────────────
 
   private startLoot(pile: Pile): void {
@@ -1051,6 +1133,16 @@ export class Mission implements GameMode {
       } else if (e.type === 'checkin') {
         // A radio that has been quiet too long: somebody goes to see.
         emit('checkin', { id: e.id, kind: gar.units[e.id]!.kind, corpse: e.corpse })
+      } else if (e.type === 'shout') {
+        emit('shout', { id: e.id, kind: gar.units[e.id]!.kind })
+      } else if (e.type === 'ping') {
+        emit('shout', { id: e.guard, kind: gar.units[e.guard]!.kind })
+      } else if (e.type === 'runner') {
+        emit('runner', { id: e.id, beacon: e.beacon })
+      } else if (e.type === 'alarm') {
+        const b = gar.beacons[e.beacon]!
+        this.fx.particles.riseRing(b.x, b.y + BEACON_TOP, b.z, PAL.glowRed, 2.2, 24)
+        emit('beaconLit', { beacon: e.beacon })
       } else {
         if (e.type === 'spotted') this.stats.spotted++
         emit(e.type, { id: e.id, kind: gar.units[e.id]!.kind })
@@ -1187,6 +1279,7 @@ export class Mission implements GameMode {
       (Math.hypot(k.ax - cx, k.az - cz) < 1.8 && Math.abs(heightAt(g, (k.ax + 0.5) * CELL, (k.az + 0.5) * CELL) - p.y) < 1)
       || (Math.hypot(k.bx - cx, k.bz - cz) < 1.8 && Math.abs(heightAt(g, (k.bx + 0.5) * CELL, (k.bz + 0.5) * CELL) - p.y) < 1))
     c.loot = !!this.lootOffer
+    c.sabotage = this.beaconOffer >= 0
     c.boxed = p.boxed
     c.hook = !!this.hookSpot && !this.grapple
     c.seeking = this.objective === 'salvage' && this.stats.piles === 0
@@ -1609,6 +1702,7 @@ export class Mission implements GameMode {
     s.boxed = p.box
     // Stripping a pile: down on one knee, both hands in the scrap.
     s.loot = this.looting ? Math.min(1, this.looting.t / 0.2) * Math.min(1, (SALVAGE_S - this.looting.t) / 0.15 + 0.2) : 0
+    if (this.sabotaging) s.loot = Math.min(1, this.sabotaging.t / 0.2)
     if (this.looting) s.crouch = Math.max(s.crouch, s.loot)
     s.aim = striking || this.armor.down ? 0 : this.cam.aim
     s.aimPitch = this.cam.pitch
@@ -1656,6 +1750,10 @@ export class Mission implements GameMode {
     }
 
     this.stepGhost(dt)
+    for (let k = 0; k < this.beaconViews.length; k++) {
+      const b = this.garrison.beacons[k]!
+      poseBeacon(this.beaconViews[k]!, b.state, b.lit, this.time)
+    }
 
     // The piles still lying there glint now and then.
     this.salvageView.update(dt, this.time)
@@ -1767,6 +1865,7 @@ export class Mission implements GameMode {
     hud.hints = []
     app.setTimeScale(1)
     disposeHideBox(this.hideBox)
+    for (const v of this.beaconViews) disposeBeacon(v)
     this.ghost.mesh.geometry.dispose()
     this.ghostMat.dispose()
     this.ghost.material.dispose()

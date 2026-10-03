@@ -87,6 +87,8 @@ export interface Fortress {
   decor: Decor[]
   /** What the raid is for (`sim/salvage.ts`). */
   salvage: SalvageSpot[]
+  /** Alarm beacons (siren masts): a guard who runs to one and lights it puts the whole base on alert. */
+  beacons: Array<{ x: number; y: number; z: number }>
 }
 
 const DIRS = { n: [0, -1], s: [0, 1], e: [1, 0], w: [-1, 0] } as const
@@ -99,6 +101,7 @@ export class FortressBuilder {
   private posts: Post[] = []
   private decor: Decor[] = []
   private piles: SalvageSpot[] = []
+  private beaconSpots: Array<{ x: number; y: number; z: number }> = []
 
   constructor(readonly id: string, w: number, d: number) {
     this.grid = makeGrid(w, d)
@@ -289,6 +292,14 @@ export class FortressBuilder {
     return this
   }
 
+  /** An alarm beacon (a siren mast) on the cell's top. */
+  beacon(cx: number, cz: number): this {
+    const h = this.heightOf(cx, cz)
+    if (h === VOID) throw new Error(`[fortress ${this.id}] beacon at ${cx},${cz} is off the island`)
+    this.beaconSpots.push({ x: cellMid(cx), y: h, z: cellMid(cz) })
+    return this
+  }
+
   /** A pile of salvage on the cell's top. */
   salvage(cx: number, cz: number, amount = 40, big = false): this {
     const h = this.heightOf(cx, cz)
@@ -371,7 +382,8 @@ export class FortressBuilder {
       extract: this.extractAt,
       posts: this.posts,
       decor: this.decor,
-      salvage: this.piles
+      salvage: this.piles,
+      beacons: this.beaconSpots
     }
   }
 }

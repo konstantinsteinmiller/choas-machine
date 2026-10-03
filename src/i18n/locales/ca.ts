@@ -47,6 +47,9 @@ export default {
     },
     'haul': 'Ferralla {n} de {need}',
     'hide': 'Amagar-se a la caixa',
+    'sabotage': 'Sabotage the alarm beacon',
+    'alarmRunner': 'A guard is running to raise the alarm',
+    'alarmLit': 'The alarm is raised',
     'boss': 'Vida del cap {n} %',
     'loot': 'Desmuntar la ferralla'
   },

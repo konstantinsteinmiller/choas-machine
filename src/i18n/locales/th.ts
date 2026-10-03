@@ -47,6 +47,9 @@ export default {
     },
     'haul': 'เศษเหล็ก {n} จาก {need}',
     'hide': 'ซ่อนในกล่อง',
+    'sabotage': 'Sabotage the alarm beacon',
+    'alarmRunner': 'A guard is running to raise the alarm',
+    'alarmLit': 'The alarm is raised',
     'boss': 'พลังชีวิตบอส {n}%',
     'loot': 'รื้อเศษเหล็ก'
   },

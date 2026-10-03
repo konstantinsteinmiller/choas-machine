@@ -47,6 +47,9 @@ export default {
     },
     'haul': 'Lūžņi {n} no {need}',
     'hide': 'Paslēpties kastē',
+    'sabotage': 'Sabotage the alarm beacon',
+    'alarmRunner': 'A guard is running to raise the alarm',
+    'alarmLit': 'The alarm is raised',
     'boss': 'Bosa veselība {n}%',
     'loot': 'Izjaukt lūžņus'
   },

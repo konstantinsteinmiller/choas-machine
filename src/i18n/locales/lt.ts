@@ -47,6 +47,9 @@ export default {
     },
     'haul': 'Laužo {n} iš {need}',
     'hide': 'Pasislėpti dėžėje',
+    'sabotage': 'Sabotage the alarm beacon',
+    'alarmRunner': 'A guard is running to raise the alarm',
+    'alarmLit': 'The alarm is raised',
     'boss': 'Boso gyvybė {n} %',
     'loot': 'Išardyti laužą'
   },
