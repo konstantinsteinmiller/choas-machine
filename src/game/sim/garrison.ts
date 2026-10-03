@@ -490,6 +490,10 @@ const sight = (u: Unit, g: Grid, t: Seen): number => {
   if (!isLight(u)) return exposure(g, viewerOf(u), t)
   const c = spotCentre(u)
   if (Math.hypot(t.x - c.x, t.z - c.z) > SPOT_RADIUS) return 0
+  // In the shadow of a wall or a crate that stands between the light pool
+  // and the mech, it is not lit, whatever the lamp up above can see (#56).
+  const floor = heightAt(g, c.x, c.z)
+  if (floor > VOID && !hasLineOfSight(g, c.x, floor + 1.0, c.z, t.x, t.feetY + t.height * 0.5, t.z)) return 0
   let seen = 0
   if (hasLineOfSight(g, u.x, u.y - 0.2, u.z, t.x, t.feetY + t.height * 0.92, t.z)) seen += 0.5
   if (hasLineOfSight(g, u.x, u.y - 0.2, u.z, t.x, t.feetY + t.height * 0.5, t.z)) seen += 0.5

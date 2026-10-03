@@ -139,17 +139,17 @@ export const buildBastion = (level = 1): Fortress => {
   b.solid('tank', 35, 26, 1.7, Math.PI / 2).solid('tank', 12, 16, 1.7, 0)
   b.solid('spool', 38, 42, 1.4, 0.6).solid('spool', 15, 29, 1.4, 1.9)
   // Small things, against the walls where nobody walks.
-  b.prop('pipes', 10, 38, 0).prop('pipes', 41, 36, 0).prop('pipes', 10, 19, 0).prop('pipes', 30, 12, Math.PI / 2)
-  b.prop('tires', 41, 43, 0.5).prop('tires', 10, 33, 2).prop('tires', 41, 15, 1).prop('tires', 19, 28, 4)
+  b.solid('pipes', 10, 38, 1.0, 0).solid('pipes', 41, 36, 1.0, 0).solid('pipes', 10, 19, 1.0, 0).solid('pipes', 30, 12, 1.0, Math.PI / 2)
+  b.solid('tires', 41, 43, 0.9, 0.5).solid('tires', 10, 33, 0.9, 2).solid('tires', 41, 15, 0.9, 1).solid('tires', 19, 28, 0.9, 4)
   b.prop('girder', 12, 46, Math.PI).prop('girder', 39, 46, Math.PI).prop('girder', 16, 29, Math.PI).prop('girder', 33, 11, 0)
-  b.prop('barrel', 30, 41).prop('barrel', 16, 33).prop('barrel', 35, 13).prop('barrel', 28, 27).prop('barrel', 39, 22)
-  b.prop('barrel', 31, 41, 1).prop('barrel', 22, 34, 2).prop('barrel', 40, 28, 3)
+  b.solid('barrel', 30, 41, 1.0, 0).solid('barrel', 16, 33, 1.0, 0).solid('barrel', 35, 13, 1.0, 0).solid('barrel', 28, 27, 1.0, 0).solid('barrel', 39, 22, 1.0, 0)
+  b.solid('barrel', 31, 41, 1.0, 1).solid('barrel', 22, 34, 1.0, 2).solid('barrel', 40, 28, 1.0, 3)
   b.prop('cone', 23, 48, 0).prop('cone', 28, 48, 0).prop('cone', 23, 32, 0).prop('cone', 28, 29, 0)
   // Floodlights, masts and the furnace stacks on the keep.
   b.prop('lamp', 24, 46, Math.PI).prop('lamp', 27, 46, Math.PI).prop('lamp', 24, 31, 0).prop('lamp', 27, 31, 0)
   b.prop('lamp', 11, 40, Math.PI / 2).prop('lamp', 40, 40, -Math.PI / 2).prop('lamp', 13, 20, Math.PI / 2).prop('lamp', 38, 20, -Math.PI / 2)
   b.prop('antenna', 25, 21).prop('antenna', 43, 47).prop('flag', 9, 11).prop('flag', 43, 10).prop('flag', 19, 18)
-  b.prop('stack', 20, 19).prop('stack', 31, 19).prop('stack', 31, 23)
+  b.solid('stack', 20, 19, 1.4, 0).solid('stack', 31, 19, 1.4, 0).solid('stack', 31, 23, 1.4, 0)
 
   return b.build()
 }

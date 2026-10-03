@@ -615,12 +615,20 @@ sources are in the decisions below.
       and search it in pairs; ~25 s of nothing → back to patrol on "alert
       patrol" (wider cones) and the base meter falls a step; reinforcements
       stop; ladders, cables, the box, hiding spots break pursuit out of sight.
+- [x] **R16b Sight is blocked by what blocks it** (#56): no defender sees
+      (or lights) the mech through a wall, a prop or any barrier: containers,
+      crates, generators and every solid prop block sight like walls; the
+      vision cones and drone/searchlight pools are drawn clipped by them.
 - [ ] **R20 The loud half**: suppressing fire (first 2 s of a guard's fire
       is mostly misses); armour +50% at level I; armour shards from blade and
       close kills in combat; hit markers; boss damage numbers; shield sparks;
       the weapon chips light up the first time the base goes loud; a fire
       button while aiming on touch; scope sensitivity in Options and a slower
       scoped turn.
+      Also #60: a sniper round to a guard's body or limbs no longer kills
+      outright: three limb hits or two body hits, one to the head; a hit that
+      does not kill sends the guard and those near it to search for the
+      shooter.
 - [ ] **R21 Retry and loop**: a retry starts on the perch with no fly-over;
       a checkpoint at the first stripped pile; a defeat keeps the full value
       of stripped piles; the first upgrade level costs 30; new verbs among the
@@ -637,6 +645,17 @@ sources are in the decisions below.
       out bodies and stripped piles, leads guards; it alarms like Odyssey's
       dogs) and the Engineer (walks to whatever is broken to fix it, finds
       what is near it; guards fill vacant posts).
+- [ ] **R23b The training ground** (#57, #58): a short tutorial level of
+      small rooms crossed one after another, each a "show, don't tell" lesson
+      with an automated, animated demo shown twice (a button replays it while
+      the lesson is unfinished): moving and looking, crouching and cover,
+      weapons (switching with the wheel / keys / chips; the scope zooms in
+      and out; the launcher's limited rounds and its reload after each shot;
+      the minigun's heat), the blade (from behind, sneaking; and close in a
+      fight), the decoy, the hide box, the grappling hook over a wall, the
+      alarm beacon, and the extraction pad. It is played before the first
+      mission (skippable once finished); salvage and the smithy are taught
+      in the Command Base with a line of text saying why scrap matters.
 - [ ] **R24 The Bastion, rebuilt**: a safe perch and a cable that ends on a
       railed ledge with a ladder; a teaching corner (one guard back turned,
       one pile); rings (outer yard → inner ward → keep) with three ways into
@@ -644,6 +663,12 @@ sources are in the decisions below.
       (camo nets, cable tangles) as Odyssey's bushes; alarm beacons placed;
       every pile its own puzzle; live piles and one patrol per zone rotated
       per run; a boss arena with a cover ring.
+      Also #59: no more "a flying island": a convincing setting (cliffs and
+      sea of clouds below, distant rock spires, chains and anchors, low-poly
+      rounded props); a fortress that cannot be sniped clean from the perch
+      (sight lines broken, a third, elevated ward reached first, an early
+      grappling point to a high sniping spot); every enemy can shoot the
+      mech at long range once it has detected it.
 - [ ] **R25 Bosses**: prep in stealth (cut the generator: the Warden's shield
       has no power; jam the Foreman's servo on its pad; lure the Goliath under
       its own shell); phases and tells (the Warden drops the shield at 50%,
@@ -662,6 +687,7 @@ R16 done. The follow camera never ends up inside the mech: pressed in by a wall 
 R17 done. Detection after Odyssey: the meter fills in two bands; white (0-0.5) while a guard notices, slow and forgiving (a 0.5 s glance adds nothing at ease; 0.8 s near to 3.8 s at the edge of sight, twice as long crouched, at the cone's edge and slower in shadow), yellow (0.5-1) while it walks to the last known position (0.8-3.2 s), red at 1; within 4 m either band is three times as fast. Out of sight a white meter drains after 0.8 s. The ring of arcs round the centre and the marks over heads go white, yellow, red; a glowing ghost of the mech stands at the last known position while anyone looks for it there. Measured: standing at 11-12 m, yellow after about 2 s and red about 1.4 s later; crouched about twice as long. Shadow is wired (target.shadow) and lands with the R24 level.
 R18 done. Alarms after Odyssey's forts: a sure guard shouts and every guard within 16 m joins the fight (a drone or a light has no voice and calls the nearest guard instead, who shouts); the base's meter stops at 90% unless a beacon is lit or the noise is loud. The guard nearest a working beacon who is not the one fighting runs to it (a siren mark over its head, a blinking siren chip on the HUD) and cranks it for 2.5 s (the chip fills); lit, the whole base is on full alert and the reinforcements come. Stop the runner and the beacon goes dark; 3.5 s later another may try. The mech can sabotage a beacon when nobody sees it (E, 1.4 s, a lesson and a chip). Three beacons in the Bastion: the yard, the north ward, the keep's roof. A fortress with no beacons keeps the old rule. Found and fixed while testing: a dead runner could be sent again.
 R19 done. Losing them after Odyssey: guards no longer know where the mech is when nobody sees it (full alert used to feed them its true position every 1.5 s); they share the last known position anyone saw, run to it, spread round it and search it for 25 s walking a new point every 6 s, then go back to their rounds warier for the rest of the raid (sight 25% wider, 15% further). A sighting that only got as far as yellow is searched for 8 s (was 3.5). With nobody fighting and nothing seen for 45 s a full alert stands down: lit beacons burn out (and can be lit again), the meter falls to 60% and drains, the music goes quiet. The Goliath also tracks the shared position, not the mech.
+R16b done. Sight is blocked by what blocks it: a check of the line-of-sight raycast against a 5 cm march over 2465 random pairs in the Bastion found no leak, so the leaks were elsewhere: a drone's or a searchlight's light counted the mech as lit whenever the lamp high above could see it, even in the shadow of a wall or a crate at the edge of the pool; now the mech must also be in clear line from the pool's centre. Barrels, tyre stacks, pipe stacks and crate stacks were drawn but not in the grid: they are solid props now and block sight (and walking) like the containers.
 
 ## Resume notes
 
