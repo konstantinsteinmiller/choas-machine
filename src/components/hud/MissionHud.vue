@@ -7,6 +7,7 @@
     ThreatArcs
     SpeechBubbles
     HealthBars
+    UplinkRings
     ObjectiveMarker
     WorldPrompt
     ControlHints
@@ -246,6 +247,7 @@ import { onUnmounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import FHudButton from '@/components/atoms/FHudButton.vue'
 import HealthBars from '@/components/hud/HealthBars.vue'
+import UplinkRings from '@/components/hud/UplinkRings.vue'
 import WorldPrompt from '@/components/hud/WorldPrompt.vue'
 import GameIcon from '@/components/icons/GameIcon.vue'
 import FHudBadge from '@/components/atoms/FHudBadge.vue'

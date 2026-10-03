@@ -125,15 +125,16 @@ describe('machines', () => {
     expect(of(later, 'fire').length).toBeGreaterThan(10)
   })
 
-  it('a drone that reports the mech sends the nearest Enforcer, and only that one', () => {
+  it('a drone that finishes its uplink puts the base on alert: the nearest Enforcer first, then all of them (#73)', () => {
     const f = yard().drone([[10, 10], [10, 11]], 7).enforcer(12, 14, 0).enforcer(26, 26, 0).build()
     const gar = makeGarrison(f)
     const d = gar.units[0]!
     const target: Target = { ...mech(10, 10), x: d.x, z: d.z + 3 }
-    const e = run(gar, f, target, 3)
-    expect(of(e, 'wake').map(w => w.id)).toEqual([1])
-    expect(gar.units[2]!.state).toBe('dormant')
-    expect(gar.alert.chaos).toBe(false)
+    const early = run(gar, f, target, 1.5)
+    expect(of(early, 'wake')).toEqual([])
+    const e = run(gar, f, target, 6)
+    expect(of(e, 'wake').map(w => w.id)[0]).toBe(1)
+    expect(gar.alert.chaos).toBe(true)
   })
 
   it('a machine that is shot wakes up', () => {

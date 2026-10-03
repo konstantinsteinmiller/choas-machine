@@ -105,8 +105,8 @@ describe('the beacon', () => {
   })
 })
 
-describe('a light has no voice', () => {
-  it('a drone that is sure calls the nearest guard, who shouts', () => {
+describe('a machine has no voice: it uplinks (#73)', () => {
+  it('a drone that is sure fills its uplink while it keeps the mech in view; full, the alarm sounds and everyone comes', () => {
     const b = new FortressBuilder('t', 32, 32)
     b.ground(0, 0, 31, 31)
     b.insert(1, 1).extract(30, 30)
@@ -116,9 +116,35 @@ describe('a light has no voice', () => {
     const drone = gar.units[0]!
     // Right under its light, standing.
     const t: Target = { x: drone.x + Math.sin(drone.yaw) * 3, y: 0, z: drone.z + Math.cos(drone.yaw) * 3, height: 2.6, crouched: false, visible: true }
-    const events = run(gar, f, t, 4)
-    expect(events.some(e => e.type === 'ping' && e.id === 0 && e.guard === 1)).toBe(true)
+    const events = run(gar, f, t, 8)
+    expect(events.some(e => e.type === 'uplink' && e.id === 0)).toBe(true)
+    expect(events.some(e => e.type === 'uplinkDone' && e.id === 0)).toBe(true)
+    expect(gar.alert.chaos).toBe(true)
     expect(gar.units[1]!.state).toBe('combat')
+    // And somebody runs for the beacon: lit, it brings the reinforcements.
+    expect(events.some(e => e.type === 'runner')).toBe(true)
+  })
+
+  it('break its line of sight before the ring closes and nothing comes of it', () => {
+    const b = new FortressBuilder('t', 32, 32)
+    b.ground(0, 0, 31, 31)
+    b.insert(1, 1).extract(30, 30)
+    b.drone([[10, 10], [10, 11]], 6).guard([[24, 24]], 0).beacon(20, 20)
+    const f = b.build()
+    const gar = makeGarrison(f, 1)
+    const drone = gar.units[0]!
+    const t: Target = { x: drone.x + Math.sin(drone.yaw) * 3, y: 0, z: drone.z + Math.cos(drone.yaw) * 3, height: 2.6, crouched: false, visible: true }
+    const ev: GarrisonEvent[] = []
+    for (let k = 0; k < 10 / DT; k++) {
+      stepGarrison(gar, f.grid, t, DT)
+      for (const e of drainEvents(gar)) ev.push(e)
+      // The moment it starts, the mech ducks out of view.
+      if (ev.some(e => e.type === 'uplink')) t.visible = false
+    }
+    expect(ev.some(e => e.type === 'uplink')).toBe(true)
+    expect(ev.some(e => e.type === 'uplinkLost')).toBe(true)
+    expect(ev.some(e => e.type === 'uplinkDone')).toBe(false)
+    expect(gar.alert.chaos).toBe(false)
   })
 })
 

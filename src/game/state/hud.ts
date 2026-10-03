@@ -117,6 +117,18 @@ export type PromptKind = '' | 'salvage' | 'strike' | 'sabotage' | 'cutPower' | '
 /** Where the in-world prompt sits: 0 … 1 of the view, and on screen at all. */
 export const prompt = { on: false, x: 0.5, y: 0.5 }
 
+// ─── Machines uplinking to the base (#73): per-frame, outside Vue ────────────
+
+export const MAX_UPLINKS = 3
+/** The rings on screen: where (0 … 1 of the view), how full (0 … 1), and on screen at all. */
+export const uplinks = {
+  n: 0,
+  x: new Float32Array(MAX_UPLINKS),
+  y: new Float32Array(MAX_UPLINKS),
+  frac: new Float32Array(MAX_UPLINKS),
+  on: new Uint8Array(MAX_UPLINKS)
+}
+
 // ─── Health bars over heads (#74): per-frame, outside Vue ────────────────────
 
 export const MAX_BARS = 8

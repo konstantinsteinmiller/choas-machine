@@ -29,6 +29,10 @@ export interface GameEvents {
   /** A defender is curious, is sure, or has given up looking. */
   suspicious: { id: number; kind: PostKind }
   spotted: { id: number; kind: PostKind }
+  /** A machine uplinks to the base (#73): started, lost the mech first, or done (the alarm sounds). */
+  uplink: { id: number; kind: PostKind }
+  uplinkLost: { id: number; kind: PostKind }
+  uplinkDone: { id: number; kind: PostKind }
   /** `id` noticed `corpse` missed its radio check-in and is going to look. */
   checkin: { id: number; kind: PostKind; corpse: number }
   calm: { id: number }

@@ -140,13 +140,15 @@ export interface Threat {
   hp: number
   damage: number
   notice: number
+  /** The threat level it is, I … V. */
+  level: number
 }
 const THREATS: readonly Threat[] = [
-  { hp: 1, damage: 0.75, notice: 0.8 },
-  { hp: 1, damage: 1, notice: 1 },
-  { hp: 1.15, damage: 1.1, notice: 1 },
-  { hp: 1.3, damage: 1.25, notice: 1.1 },
-  { hp: 1.6, damage: 1.5, notice: 1.25 }
+  { hp: 1, damage: 0.75, notice: 0.8, level: 1 },
+  { hp: 1, damage: 1, notice: 1, level: 2 },
+  { hp: 1.15, damage: 1.1, notice: 1, level: 3 },
+  { hp: 1.3, damage: 1.25, notice: 1.1, level: 4 },
+  { hp: 1.6, damage: 1.5, notice: 1.25, level: 5 }
 ]
 export const threatOf = (level: number): Threat => THREATS[Math.min(THREATS.length, Math.max(1, Math.round(level))) - 1]!
 
@@ -291,6 +293,10 @@ export interface Unit {
   focusT: number
   /** Searching the ground round a body it found (or was called to) for a minute (#98). */
   bodySearch: boolean
+  /** A machine that is sure of the mech: seconds into its uplink to the base (#73), 0 when none. */
+  uplinkT: number
+  /** A fighter with nothing in view: seconds since it last saw the mech (the Goliath's patience, #89). */
+  lostT: number
 }
 
 export interface Garrison {
@@ -321,6 +327,11 @@ export interface Garrison {
   bodiesFound: number
   /** Heightened for the rest of the raid: everyone a little warier (#98, #89). */
   heightened: boolean
+  /** Who may fire this moment (#92): the attention budget, re-dealt twice a second. */
+  shooters: Set<number>
+  tokenT: number
+  /** The guard who shouted first in this fight: the front of the ring (#86, #92), −1 none. */
+  leader: number
   /** The alarm beacons, the unit running to light one (−1 none), and the wait before another tries. */
   beacons: Beacon[]
   runner: number
@@ -586,10 +597,24 @@ export interface Beacon {
  * seen the mech for CHAOS_COOL_S, a full alert stands down: lit beacons burn
  * out and the meter falls back to ALERT_AFTER of full.
  */
-export const SEARCH_HOT_S = 25
+export const SEARCH_HOT_S = 30
 const SEARCH_HOP_S = 6
 const SEARCH_SPREAD = 7
-export const CHAOS_COOL_S = 45
+export const CHAOS_COOL_S = 60
+/**
+ * A machine that is sure of the mech uplinks to the base (#73): a ring fills
+ * over it for UPLINK_S while it keeps the mech in view (it drains, twice as
+ * fast, while it does not). Full, the base's alarm sounds without a beacon,
+ * and the guards run to the beacons to bring the reinforcements.
+ */
+export const UPLINK_S = 3
+/** The attention budget (#92): at most this many fire at once, by threat level (I … V). */
+export const FIRE_TOKENS: readonly number[] = [2, 2, 3, 3, 4]
+const TOKEN_EVERY_S = 0.5
+/** The Goliath, out of sight of the mech this long, gives up the fight (#89). */
+const GOLIATH_LOST_S = 8
+/** And rolls this far at most to a spot with a clear line on where it was last reported (#71). */
+const GOLIATH_ROLL_M = 12
 const ALERT_AFTER = 0.6
 /** On alert patrol, sight is this much wider and further. */
 export const WARY_CONE = 1.25
@@ -680,6 +705,10 @@ export type GarrisonEvent =
   /** The finder of a body called `id` over to search with it (#98); the base is heightened for the raid. */
   | { type: 'called'; id: number; by: number }
   | { type: 'heightened' }
+  /** A machine started its uplink to the base, lost the mech before it finished, or finished it (#73). */
+  | { type: 'uplink'; id: number }
+  | { type: 'uplinkLost'; id: number }
+  | { type: 'uplinkDone'; id: number }
   /** A sure guard shouted; a drone called a guard; a guard runs for a beacon; a beacon was lit. */
   | { type: 'shout'; id: number }
   | { type: 'ping'; id: number; guard: number }
@@ -744,7 +773,7 @@ export const makeGarrison = (f: Fortress, level = 2): Garrison => {
       tagged: false, hidden: false, partner: p.partner ?? -1, chatting: false, poke: false, changeT: 0,
       role: p.role ?? null, job: null, jobT: 0, scentT: -1e9,
       rag: null, ragHow: 'shot', ragStruck: false,
-      helmet: !!f.answers?.helmets && (p.kind === 'guard' || p.kind === 'sentry'), boxLook: 0, focusT: 0, bodySearch: false,
+      helmet: !!f.answers?.helmets && (p.kind === 'guard' || p.kind === 'sentry'), boxLook: 0, focusT: 0, bodySearch: false, uplinkT: 0, lostT: 0,
       jammed: false, shells: 0, overheat: 0, phase2: false, glintT: 0, dashT: 0, dashX: 0, dashZ: 0, dashCool: 2, dashHit: false
     }
   })
@@ -754,7 +783,7 @@ export const makeGarrison = (f: Fortress, level = 2): Garrison => {
     ...(f.generators ?? []).map(gn => ({ kind: 'generator' as const, ...gn, unit: -1, cut: false })),
     ...units.filter(u => u.boss === 'foreman').map(u => ({ kind: 'servo' as const, x: u.x, y: u.y, z: u.z, unit: u.id, cut: false }))
   ]
-  return { units, alert: makeAlert(), time: 0, events: [], rng: mulberry32(hashSeed(f.id)), wave: 0, chaosT: 0, lures: [], threat, noiseSeq: 0, beacons, runner: -1, runnerWait: 0, lkp: { x: 0, y: 0, z: 0, t: -1e9 }, shotSpot: { x: 0, z: 0, n: 0, t: -1e9 }, bodiesFound: 0, heightened: false, changes: [], scent: [], scentT: 0, unreachable: new Set(), drill: false, rigs, boxCheck: !!f.answers?.boxCheck }
+  return { units, alert: makeAlert(), time: 0, events: [], rng: mulberry32(hashSeed(f.id)), wave: 0, chaosT: 0, lures: [], threat, noiseSeq: 0, beacons, runner: -1, runnerWait: 0, lkp: { x: 0, y: 0, z: 0, t: -1e9 }, shotSpot: { x: 0, z: 0, n: 0, t: -1e9 }, bodiesFound: 0, heightened: false, shooters: new Set(), tokenT: 0, leader: -1, changes: [], scent: [], scentT: 0, unreachable: new Set(), drill: false, rigs, boxCheck: !!f.answers?.boxCheck }
 }
 
 // ─── Getting about ───────────────────────────────────────────────────────────
@@ -904,16 +933,30 @@ const checkIns = (gar: Garrison): void => {
 const goChaos = (gar: Garrison, target: Target): void => {
   if (gar.drill) return
   gar.events.push({ type: 'chaos' })
+  // What the base knows: where the mech was last seen (or the noise), not
+  // where it is now (#86). With nothing on record, where the noise was.
+  if (gar.lkp.t < -1e8) {
+    // Nothing on record: where the noise was is what the base knows.
+    gar.lkp.x = target.x
+    gar.lkp.y = target.y
+    gar.lkp.z = target.z
+    gar.lkp.t = gar.time
+  }
+  const x = gar.lkp.x
+  const z = gar.lkp.z
   for (const u of gar.units) {
     if (!isAlive(u)) continue
-    if (u.state === 'dormant') { wake(gar, u, target.x, target.z); continue }
+    if (u.state === 'dormant') { wake(gar, u, x, z); continue }
     u.detect = 1
     u.lured = false
-    u.seenX = target.x
-    u.seenZ = target.z
+    u.seenX = x
+    u.seenZ = z
     u.repath = 0
+    u.focusT = Math.max(u.focusT, FOCUS_S)
     if (u.state !== 'combat') enter(u, 'combat')
   }
+  // Somebody runs for a beacon: lit, it brings the reinforcements.
+  gar.runnerWait = 0
 }
 
 /** Power a dormant machine up and point it at something. */
@@ -1000,6 +1043,73 @@ const vantage = (u: Unit, g: Grid, gar: Garrison): boolean => {
   return false
 }
 
+/** Machines uplink rather than shout (#73): drones, searchlights, Enforcers. */
+const uplinks = (u: Unit): boolean => isLight(u) || u.kind === 'enforcer'
+
+/**
+ * The uplink (#73): it fills while the machine keeps the mech in view and
+ * drains twice as fast while it does not (gone at 0: it lost it). Full, the
+ * base's alarm sounds without a beacon: everyone hunts where the mech was
+ * seen, the nearest Enforcer wakes, and guards run to the beacons, whose
+ * lighting brings the reinforcements.
+ */
+const stepUplink = (u: Unit, gar: Garrison, g: Grid, target: Target, dt: number): void => {
+  u.uplinkT += u.sees ? dt : -2 * dt
+  if (u.uplinkT <= 0) { u.uplinkT = 0; gar.events.push({ type: 'uplinkLost', id: u.id }); return }
+  if (u.uplinkT < UPLINK_S) return
+  u.uplinkT = 0
+  gar.events.push({ type: 'uplinkDone', id: u.id })
+  if (gar.drill) return
+  gar.lkp.x = target.x
+  gar.lkp.y = target.y
+  gar.lkp.z = target.z
+  gar.lkp.t = gar.time
+  wakeNearest(gar, target.x, target.z)
+  gar.alert.level = ALERT_MAX
+  gar.alert.chaos = true
+  goChaos(gar, target)
+  sendRunner(gar, g)
+}
+
+/**
+ * Deal the attention budget (#92): of those in a fight with the mech in view,
+ * the nearest may fire (a few more at higher threat levels; a hound bites
+ * apart from them). Those already firing keep their turn while they still
+ * qualify, so a burst is not cut off by a closer arrival.
+ */
+/** How many may fire at once at this threat level (#92). */
+export const fireTokens = (gar: Garrison): number => FIRE_TOKENS[Math.min(FIRE_TOKENS.length, Math.max(1, Math.round(gar.threat.level))) - 1]!
+
+const dealTokens = (gar: Garrison, target: Target): void => {
+  const cap = fireTokens(gar)
+  const ranged = gar.units
+    .filter(u => isAlive(u) && u.state === 'combat' && u.sees && u.kind !== 'goliath' && u.kind !== 'hound' && !isLight(u))
+    .map(u => ({ u, d: Math.hypot(u.x - target.x, u.z - target.z) - (gar.shooters.has(u.id) ? 8 : 0) }))
+    .sort((a, b) => a.d - b.d)
+  const next = new Set<number>()
+  for (const { u } of ranged.slice(0, cap)) next.add(u.id)
+  const bite = gar.units.find(u => isAlive(u) && u.state === 'combat' && u.kind === 'hound' && u.sees)
+  if (bite) next.add(bite.id)
+  gar.shooters = next
+}
+
+/**
+ * Where on the ring round the mech a fighter goes (#92): the leader holds the
+ * front, the others spread evenly round it, the far side included, at its
+ * engaging distance. Fighters are counted in a fixed order so a slot does
+ * not jump about.
+ */
+const ringSlot = (u: Unit, gar: Garrison, target: Target, radius: number): { x: number; z: number } => {
+  const ring = gar.units.filter(o => isAlive(o) && o.state === 'combat' && !isLight(o) && o.kind !== 'goliath' && o.kind !== 'hound' && o.runner < 0)
+  const lead = gar.units[gar.leader]
+  const front = lead && isAlive(lead) ? headingTo(target.x, target.z, lead.x, lead.z) : headingTo(target.x, target.z, ring[0]?.x ?? u.x, ring[0]?.z ?? u.z)
+  const order = ring.filter(o => o.id !== gar.leader)
+  const k = u.id === gar.leader ? 0 : order.indexOf(u) + 1
+  const n = Math.max(1, order.length + 1)
+  const a = front + (k / n) * Math.PI * 2
+  return { x: target.x + Math.sin(a) * radius, z: target.z + Math.cos(a) * radius }
+}
+
 /** A sure guard shouts: the guards near it join the fight at once. */
 const shout = (gar: Garrison, u: Unit, target: Target): void => {
   if (u.shouted || gar.drill) return
@@ -1019,29 +1129,10 @@ const shout = (gar: Garrison, u: Unit, target: Target): void => {
   }
 }
 
-/** A drone or a light is sure: it has no voice, so it calls the nearest guard, who shouts. */
-const pingGuard = (gar: Garrison, from: Unit, target: Target): void => {
-  let best: Unit | null = null
-  let bestD = PING_M
-  for (const o of gar.units) {
-    if (!isAlive(o) || isLight(o) || o.state === 'dormant' || o.gripped || o.kind === 'goliath') continue
-    const d = Math.hypot(o.x - from.x, o.z - from.z)
-    if (d < bestD) { best = o; bestD = d }
-  }
-  if (!best) return
-  best.detect = 1
-  best.seenX = target.x
-  best.seenZ = target.z
-  best.lured = false
-  best.path = []
-  if (best.state !== 'combat') enter(best, 'combat')
-  gar.events.push({ type: 'ping', id: from.id, guard: best.id })
-  shout(gar, best, target)
-}
 
 /** Send whoever is in the fight nearest a working beacon to light it. */
 const sendRunner = (gar: Garrison, g: Grid): void => {
-  if (gar.runner >= 0 || gar.alert.chaos || gar.runnerWait > 0) return
+  if (gar.runner >= 0 || gar.runnerWait > 0 || gar.beacons.some(b => b.state === 'lit')) return
   let bestU: Unit | null = null
   let bestB = -1
   let bestD = Infinity
@@ -1411,8 +1502,14 @@ const fight = (u: Unit, g: Grid, gar: Garrison, target: Target, dt: number): voi
     }
     if (u.kind === 'drone') turnToward(u, headingTo(u.x, u.z, u.seenX, u.seenZ), dt, 3)
     u.speed01 = 1
+    // Lost it: the light swings onto where the base last had the mech and
+    // searches there, alarm or not (it used to hold the fight forever, #89).
     if (u.sees) u.repath = 0
-    else if (!gar.alert.chaos && (u.repath += dt) > DRONE_LOST_S) { u.repath = 0; enter(u, 'search') }
+    else if ((u.repath += dt) > DRONE_LOST_S) {
+      u.repath = 0
+      if (gar.lkp.t > -1e8) { u.seenX = gar.lkp.x; u.seenZ = gar.lkp.z }
+      enter(u, 'search')
+    }
     return
   }
   // Machines are slow to turn: that is how they are flanked. A jammed one slower still.
@@ -1435,12 +1532,25 @@ const fight = (u: Unit, g: Grid, gar: Garrison, target: Target, dt: number): voi
     return
   }
   if (u.kind === 'goliath') {
-    // The tank holds its ground (it is wider than a gate): it turns its
-    // hull, slowly, toward where the mech is or was last reported.
+    // The tank keeps to open ground (it is wider than a gate): it turns its
+    // hull toward where the mech is or was last reported, rolls a little
+    // way to a spot that has a clear line on it (#71), and in the end gives
+    // the fight up (#89).
     aimTurret(u, gar, g, target, dt)
     if (!u.sees && gar.lkp.t > -1e8) {
       u.seenX = gar.lkp.x
       u.seenZ = gar.lkp.z
+    }
+    u.lostT = u.sees ? 0 : u.lostT + dt
+    if (u.lostT > GOLIATH_LOST_S) { u.lostT = 0; u.path = []; enter(u, 'search'); return }
+    if (!u.sees && u.lostT > 1.5 && u.path.length === 0 && (u.repath -= dt) <= 0) {
+      u.repath = 2
+      const spot = tankSpot(u, g, gar)
+      if (spot) u.path = [spot]
+    }
+    if (u.path.length > 0) {
+      if (follow(u, g, SPECS.goliath.walk, dt, turn)) u.path = []
+      return
     }
     stand(u)
     turnToward(u, headingTo(u.x, u.z, u.sees ? target.x : u.seenX, u.sees ? target.z : u.seenZ), dt, turn)
@@ -1451,12 +1561,9 @@ const fight = (u: Unit, g: Grid, gar: Garrison, target: Target, dt: number): voi
     if (dist > engage) {
       if (u.path.length === 0 || (u.repath -= dt) <= 0) {
         u.repath = HUNT_REPATH_S
-        // Guards close in pairs from either side, not in a line.
-        const side = u.kind === 'guard' ? (u.id % 3) - 1 : 0
-        const away = headingTo(target.x, target.z, u.x, u.z)
-        const fx = target.x + Math.cos(away) * side * FLANK_M
-        const fz = target.z - Math.sin(away) * side * FLANK_M
-        if (side === 0 || !goTo(u, g, fx, fz)) goTo(u, g, target.x, target.z)
+        // Not in a line: round the mech from every side, the leader in front (#92).
+        const s = u.kind === 'hound' ? target : ringSlot(u, gar, target, engage)
+        if (!goTo(u, g, s.x, s.z)) goTo(u, g, target.x, target.z)
       }
       follow(u, g, spec.run * (u.jammed ? JAM_SLOW : 1), dt, turn)
     } else {
@@ -1481,6 +1588,37 @@ const fight = (u: Unit, g: Grid, gar: Garrison, target: Target, dt: number): voi
     }
   }
   if (follow(u, g, spec.run, dt, turn)) u.path = []
+}
+
+/**
+ * A spot within GOLIATH_ROLL_M the tank can roll to in a straight line over
+ * open, level ground (its whole width clear), with a clear line from its
+ * turret onto where the mech was last reported; null if there is none.
+ */
+const tankSpot = (u: Unit, g: Grid, gar: Garrison): { x: number; z: number } | null => {
+  const eye = SPECS.goliath.eye
+  const r = SPECS.goliath.radius
+  const clearAt = (x: number, z: number): boolean => {
+    for (const [ox, oz] of [[0, 0], [r, 0], [-r, 0], [0, r], [0, -r]] as const) {
+      const h = heightAt(g, x + ox, z + oz)
+      if (h === VOID || Math.abs(h - u.y) > 0.3) return false
+    }
+    return true
+  }
+  for (let k = 0; k < 12; k++) {
+    const a = (k / 12) * Math.PI * 2 + u.seed
+    const d = GOLIATH_ROLL_M * (0.4 + 0.6 * ((k * 0.61) % 1))
+    const x = u.x + Math.sin(a) * d
+    const z = u.z + Math.cos(a) * d
+    if (!hasLineOfSight(g, x, u.y + eye, z, gar.lkp.x, gar.lkp.y + 1.2, gar.lkp.z)) continue
+    let ok = true
+    for (let s = 1; s <= Math.ceil(d); s++) {
+      const t = s / Math.ceil(d)
+      if (!clearAt(u.x + (x - u.x) * t, u.z + (z - u.z) * t)) { ok = false; break }
+    }
+    if (ok) return { x, z }
+  }
+  return null
 }
 
 /**
@@ -1574,16 +1712,34 @@ export const stepFallen = (gar: Garrison, g: Grid, dt: number): void => {
 export const stepGarrison = (gar: Garrison, g: Grid, target: Target, dt: number): void => {
   gar.time += dt
   checkIns(gar)
-  // A full alert that has gone cold stands down.
-  if (gar.alert.chaos && gar.time - gar.lkp.t > CHAOS_COOL_S && !gar.units.some(o => o.state === 'combat' && isAlive(o))) {
+  // A full alert that has gone cold stands down, whatever is still alive
+  // (#89): the machines go back to their rounds too, the waves stop, and the
+  // base stays on edge for the rest of the raid.
+  if (gar.alert.chaos && gar.time - gar.lkp.t > CHAOS_COOL_S && !gar.units.some(o => o.state === 'combat' && isAlive(o) && o.sees)) {
     gar.alert.chaos = false
     gar.alert.level = ALERT_MAX * ALERT_AFTER
     gar.alert.quiet = 0
     for (const b of gar.beacons) if (b.state === 'lit') { b.state = 'ready'; b.lit = 0 }
+    for (const o of gar.units) {
+      if (!isAlive(o) || o.state !== 'combat') continue
+      o.detect = Math.min(o.detect, SUSPECT_AT * 0.5)
+      o.uplinkT = 0
+      o.path = []
+      o.wary = true
+      enter(o, 'patrol')
+    }
+    if (gar.runner >= 0) stopRunner(gar)
+    gar.leader = -1
+    gar.heightened = true
     gar.events.push({ type: 'standDown' })
   }
+  // The attention budget (#92): who may fire, re-dealt twice a second.
+  if ((gar.tokenT -= dt) <= 0) {
+    gar.tokenT = TOKEN_EVERY_S
+    dealTokens(gar, target)
+  }
   if (gar.runnerWait > 0) gar.runnerWait -= dt
-  if (gar.beacons.length > 0 && gar.runner < 0 && !gar.alert.chaos && gar.runnerWait <= 0 && gar.units.some(o => isAlive(o) && (o.state === 'combat' || (o.state !== 'patrol' && o.fought)) && !isLight(o))) sendRunner(gar, g)
+  if (gar.beacons.length > 0 && gar.runner < 0 && gar.runnerWait <= 0 && gar.units.some(o => isAlive(o) && (o.state === 'combat' || (o.state !== 'patrol' && o.fought)) && !isLight(o))) sendRunner(gar, g)
   const seen: Seen = { x: target.x, feetY: target.y, z: target.z, height: target.height }
   // The mech's trail, for the hounds.
   if (target.visible && (gar.scentT -= dt) <= 0) {
@@ -1697,22 +1853,24 @@ export const stepGarrison = (gar: Garrison, g: Grid, target: Target, dt: number)
       // The first to be sure raises the alarm; one more pair of eyes on a
       // mech the base already knows about adds little.
       const known = gar.units.some(o => o !== u && o.state === 'combat')
-      // A drone's report sends a machine (plan G7).
-      if (isLight(u)) wakeNearest(gar, target.x, target.z)
       // A hound barks: the guards round it come, beacons or not.
       if (u.kind === 'hound') shout(gar, u, target)
-      if (gar.beacons.length === 0) {
-        if (!known) raise(gar, isLight(u) ? 'drone' : 'seen', target)
+      if (uplinks(u)) {
+        // A machine has no voice: it uplinks to the base (#73). The ring
+        // fills while it keeps the mech in view; it is the player's moment.
+        u.uplinkT = 0.0001
+        gar.events.push({ type: 'uplink', id: u.id })
+      } else if (gar.beacons.length === 0) {
+        if (!known) raise(gar, 'seen', target)
         else if (pressAlert(gar.alert, SECOND_WITNESS)) goChaos(gar, target)
       } else {
-        // Odyssey's fort: the sure one shouts (a light calls a guard, who
-        // shouts), and somebody runs to light a beacon. Until one is lit
-        // the fight stays where it is.
-        if (!known) raise(gar, isLight(u) ? 'drone' : 'seen', target)
-        if (isLight(u)) pingGuard(gar, u, target)
-        else shout(gar, u, target)
+        // Odyssey's fort: the sure one shouts, and somebody runs to light a
+        // beacon. Until one is lit the fight stays where it is.
+        if (!known) raise(gar, 'seen', target)
+        shout(gar, u, target)
         sendRunner(gar, g)
       }
+      if (gar.leader < 0 && isHuman(u)) gar.leader = u.id
     } else if (u.state === 'patrol' && u.detect >= SUSPECT_AT) {
       suspect(gar, u, u.seenX, u.seenZ, false)
     } else if (u.state === 'suspicious' && u.lured && u.detect >= SUSPECT_AT) {
@@ -1795,6 +1953,12 @@ export const stepGarrison = (gar: Garrison, g: Grid, target: Target, dt: number)
         investigate(u, g, dt)
         break
       case 'search': {
+        if (u.kind === 'goliath') {
+          stand(u)
+          u.look = Math.sin(u.t * 0.6 + u.seed) * 1.2
+          if (u.t > SEARCH_HOT_S && !u.sees) { u.wary = true; enter(u, 'patrol'); gar.events.push({ type: 'calm', id: u.id }) }
+          break
+        }
         // After a fight: a proper hunt round the last known position. Round
         // a body: a minute's search of the ground about it (#98).
         const hunt = u.fought && !u.lured && !isLight(u)
@@ -1818,6 +1982,7 @@ export const stepGarrison = (gar: Garrison, g: Grid, target: Target, dt: number)
       }
       case 'combat':
         if (u.runner >= 0) { runToBeacon(u, g, gar, target, dt); break }
+        if (u.uplinkT > 0) stepUplink(u, gar, g, target, dt)
         fight(u, g, gar, target, dt)
         if (u.sees) watched = true
         // Out of sight long enough, and not in full alert: it lets go.
@@ -1828,7 +1993,8 @@ export const stepGarrison = (gar: Garrison, g: Grid, target: Target, dt: number)
   }
 
   // Full alert: reinforcements come in through the gates, in waves.
-  if (gar.alert.chaos) {
+  // With beacons, only a lit one brings them (#73, #86): the alarm alone is the base's own.
+  if (gar.alert.chaos && (gar.beacons.length === 0 || gar.beacons.some(b => b.state === 'lit'))) {
     gar.chaosT += dt
     if (gar.wave < WAVE_AT_S.length && gar.chaosT >= WAVE_AT_S[gar.wave]!) {
       gar.wave++
@@ -1837,8 +2003,9 @@ export const stepGarrison = (gar: Garrison, g: Grid, target: Target, dt: number)
         if (u.state !== 'reserve' || n >= WAVE_SIZE) continue
         n++
         u.detect = 1
-        u.seenX = target.x
-        u.seenZ = target.z
+        // They are told where the mech was last seen, not where it is (#86).
+        u.seenX = gar.lkp.t > -1e8 ? gar.lkp.x : target.x
+        u.seenZ = gar.lkp.t > -1e8 ? gar.lkp.z : target.z
         u.fireT = 1.2
         enter(u, 'combat')
       }

@@ -80,6 +80,9 @@ export const installGameSounds = (): void => {
   // ── The base ──
   on('suspicious', () => sfx('suspicious'))
   on('spotted', () => sfx('spotted'))
+  on('uplink', () => sfx('uplink'))
+  on('uplinkLost', () => sfx('alertDown'))
+  on('uplinkDone', () => sfx('alarm'))
   on('body', () => sfx('body'))
   on('alert', ({ segments, prev }) => {
     // The fifth segment is the alarm's, below.

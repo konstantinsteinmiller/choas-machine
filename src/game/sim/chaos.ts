@@ -1,7 +1,7 @@
 import type { Grid } from '../world/grid'
 import { VOID, heightAt } from '../world/grid'
 import { angleDelta } from './player'
-import { SPECS, goliathAim, headingTo, isAlive, killUnit, type Garrison, type Target, type Unit } from './garrison'
+import { SPECS, fireTokens, goliathAim, headingTo, isAlive, killUnit, type Garrison, type Target, type Unit } from './garrison'
 
 /**
  * ─── The base shoots back ────────────────────────────────────────────────────
@@ -100,7 +100,10 @@ export const stepFire = (gar: Garrison, g: Grid, target: Target, dt: number): vo
     if (!gun) continue
     const dist = Math.hypot(target.x - u.x, target.z - u.z)
     const volley = dist > gun.range && u.kind !== 'hound'
-    if (!u.sees || dist > (volley ? VOLLEY_RANGE : gun.range)) {
+    // The attention budget (#92): only those dealt a turn fire; the rest close
+    // in. A turn going spare is taken at once by whoever is ready for it.
+    if (u.sees && !gar.shooters.has(u.id) && u.kind !== 'hound' && gar.shooters.size < fireTokens(gar)) gar.shooters.add(u.id)
+    if (!u.sees || dist > (volley ? VOLLEY_RANGE : gun.range) || !gar.shooters.has(u.id)) {
       // Lost the line: the burst is cut, and it takes a moment to re-acquire.
       u.burst = 0
       u.fireT = Math.max(u.fireT, 0.5)

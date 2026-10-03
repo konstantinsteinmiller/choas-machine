@@ -23,7 +23,7 @@ export type SfxName =
   // What a round does
   | 'hit' | 'headshot' | 'tink' | 'ricochet' | 'kill' | 'wreck'
   // The base
-  | 'suspicious' | 'spotted' | 'body' | 'alertUp' | 'alertDown' | 'alarm' | 'enemyShot' | 'whizz' | 'wake'
+  | 'suspicious' | 'spotted' | 'body' | 'alertUp' | 'alertDown' | 'alarm' | 'uplink' | 'enemyShot' | 'whizz' | 'wake'
   | 'telegraph' | 'shell' | 'wave'
   // The mission's beats
   | 'objective' | 'extract' | 'dropIn' | 'boardJump' | 'bark' | 'radio' | 'boxOn' | 'boxOff' | 'shout' | 'crank' | 'zap' | 'shard' | 'tag' | 'drag' | 'growl' | 'repair' | 'gate' | 'zoom' | 'glint' | 'vent' | 'killcam' | 'lesson' | 'medal'

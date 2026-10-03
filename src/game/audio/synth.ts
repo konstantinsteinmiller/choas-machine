@@ -337,6 +337,10 @@ const RECIPES: Record<SfxName, (pan: number, g: number) => void> = {
       tone({ wave: 'p25', f0: 260, f1: 430, dur: 0.3, vol: 0.1 * g, at: i * 0.36 })
     }
   },
+  // A machine uplinking (#73): three rising chirps, the last one held.
+  uplink: (p, g) => {
+    for (let i = 0; i < 3; i++) tone({ wave: 'p12', f0: 700 + i * 260, f1: 900 + i * 300, dur: i === 2 ? 0.22 : 0.09, vol: 0.09 * g, at: i * 0.13, pan: p })
+  },
   enemyShot: (p, g) => {
     tone({ wave: 'p25', f0: 480, f1: 180, dur: 0.07, vol: 0.13 * g, pan: p })
     burst({ dur: 0.06, vol: 0.12 * g, type: 'bandpass', f0: 1600, q: 1, pan: p })

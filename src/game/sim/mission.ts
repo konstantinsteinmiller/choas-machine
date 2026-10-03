@@ -7,7 +7,7 @@ import { noSlice, type Slice } from '../engine/slicer'
 import { consumeEdges, type Input } from '../engine/input'
 import { input as sharedInput, inputClock } from '../engine/inputState'
 import { emit, on } from '../bus'
-import { gun, hud, mirror, runHudTickers, setPhase, threats, vital, waypoint, MAX_THREATS, callouts, MAX_CALLOUTS, prompt, bars, MAX_BARS, type PromptKind } from '../state/hud'
+import { gun, hud, mirror, runHudTickers, setPhase, threats, vital, waypoint, MAX_THREATS, callouts, MAX_CALLOUTS, prompt, bars, MAX_BARS, uplinks, MAX_UPLINKS, type PromptKind } from '../state/hud'
 import { CELL, VOID, heightAt, raycast, hasLineOfSight, toCell, inGrid, cellKind, cellHeight, CellKind, shadeAt, Shade } from '../world/grid'
 import type { Fortress } from '../world/fortress'
 import { buildFortressMesh, type FortressMesh } from '../world/fortressMesh'
@@ -26,7 +26,7 @@ import { makePlayer, stepPlayer, eyeHeight, angleDelta, type Player } from './pl
 import { makeCam, lookCam, stepCam, placeCam, stickToWorld, camForward, type Cam } from './camera'
 import { alertSegments } from './alert'
 import {
-  SPECS, SUSPECT_AT, sabotageBeacon, searchForShooter, noteChange, tagUnit, cutRig, helmetPops, isAlive, stepFallen, estimateShot, shotPassed, IMPACT_M, drainEvents, headingTo, killUnit, damageUnit, makeGarrison, noiseAt, hearAt, wonderAt, voidNoise, stepGarrison, alarmUnit, startleUnit, isLight,
+  SPECS, SUSPECT_AT, sabotageBeacon, searchForShooter, noteChange, tagUnit, cutRig, helmetPops, isAlive, stepFallen, estimateShot, shotPassed, IMPACT_M, UPLINK_S, drainEvents, headingTo, killUnit, damageUnit, makeGarrison, noiseAt, hearAt, wonderAt, voidNoise, stepGarrison, alarmUnit, startleUnit, isLight,
   type Garrison, type Target, type Unit
 } from './garrison'
 import { GarrisonView } from './garrisonView'
@@ -1774,6 +1774,27 @@ export class Mission implements GameMode {
     if (kind === 'salvage') waypoint.on = false
   }
 
+  /** The rings over machines uplinking to the base (#73): the player's moment to break the line or shoot. */
+  private writeUplinks(show: boolean): void {
+    let n = 0
+    if (show) {
+      this.camera.updateMatrixWorld()
+      for (const u of this.garrison.units) {
+        if (n >= MAX_UPLINKS) break
+        if (u.uplinkT <= 0 || !isAlive(u)) continue
+        // Under a flyer or a lamp, on a walker's middle: the shout's bubble sits over the head.
+        const top = isLight(u) ? u.y - 0.9 : u.y + SPECS[u.kind].height * 0.55
+        const p = this.proj.set(u.x, top, u.z).project(this.camera)
+        uplinks.on[n] = p.z < 1 && Math.abs(p.x) < 1.05 && Math.abs(p.y) < 1.05 ? 1 : 0
+        uplinks.x[n] = Math.min(0.97, Math.max(0.03, (p.x + 1) / 2))
+        uplinks.y[n] = Math.min(0.95, Math.max(0.08, (1 - p.y) / 2))
+        uplinks.frac[n] = Math.min(1, u.uplinkT / UPLINK_S)
+        n++
+      }
+    }
+    uplinks.n = n
+  }
+
   /**
    * Health bars over heads (#74): the nearest defenders that are hurt, tagged,
    * fighting or near, and that the camera can see. Bosses have the big bar.
@@ -2497,6 +2518,7 @@ export class Mission implements GameMode {
     this.writeThreats(x, z)
     this.writeCallouts(dt)
     this.writePrompt(playing && !scripted)
+    this.writeUplinks(playing && !scripted)
     this.writeBars(playing && !scripted)
     this.writeWaypoint(x, z, playing && !scripted)
   }
