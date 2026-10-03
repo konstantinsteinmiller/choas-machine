@@ -99,6 +99,7 @@ describe('R20: suppressing fire', () => {
   })
 
   it('guns reach across the base: anyone who has made the mech can fire from far off', () => {
-    for (const g of Object.values(GUNS)) expect(g!.range).toBeGreaterThanOrEqual(45)
+    // Every gun, that is: the hound's bite is a bite.
+    for (const [k, g] of Object.entries(GUNS)) if (k !== 'hound') expect(g!.range).toBeGreaterThanOrEqual(45)
   })
 })

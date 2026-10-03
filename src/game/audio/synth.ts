@@ -390,6 +390,16 @@ const RECIPES: Record<SfxName, (pan: number, g: number) => void> = {
     burst({ dur: 0.9, vol: 0.12 * g, type: 'highpass', f0: 3500, f1: 6000 })
     tone({ wave: 'sine', f0: 300, f1: 120, dur: 0.3, vol: 0.06 * g })
   },
+  // A hound's bark: two short, gruff, falling yaps through a speaker.
+  growl: (p, g) => {
+    tone({ wave: 'p12', f0: 520, f1: 260, dur: 0.09, vol: 0.07 * g, pan: p })
+    tone({ wave: 'p12', f0: 480, f1: 220, dur: 0.1, vol: 0.07 * g, at: 0.16, pan: p })
+  },
+  // An Engineer's repair done: a ratchet and a ding.
+  repair: (p, g) => {
+    burst({ dur: 0.18, vol: 0.06 * g, type: 'bandpass', f0: 2600, f1: 1800, q: 3, pan: p })
+    tone({ wave: 'sine', f0: 1320, dur: 0.18, vol: 0.05 * g, at: 0.2, pan: p })
+  },
   // A unit tagged through the scope: two short high blips.
   tag: (_p, g) => {
     tone({ wave: 'sine', f0: 1480, dur: 0.05, vol: 0.07 * g })

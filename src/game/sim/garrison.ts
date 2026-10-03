@@ -56,7 +56,9 @@ export const SPECS: Readonly<Record<PostKind, Spec>> = {
   // A lamp on a mast. The speeds are its BEAM's, across the ground.
   searchlight: { eye: 0, height: 0.6, radius: 0.5, walk: 3.4, look: 5, run: 8, range: 0, half: 0, hp: 20 },
   enforcer: { eye: 2.9, height: 3.3, radius: 0.95, walk: 2.0, look: 2.0, run: 2.6, range: 30, half: 1.0, hp: 600 },
-  goliath: { eye: 2.6, height: 3.0, radius: 2.6, walk: 1.4, look: 1.4, run: 1.8, range: 40, half: 1.2, hp: 3000 }
+  goliath: { eye: 2.6, height: 3.0, radius: 2.6, walk: 1.4, look: 1.4, run: 1.8, range: 40, half: 1.2, hp: 3000 },
+  // The Scrap Hound: short sight, a wide cone, fast, fragile; its nose is the thing.
+  hound: { eye: 0.8, height: 1.05, radius: 0.45, walk: 2.0, look: 3.6, run: 6.4, range: 15, half: 1.3, hp: 18 }
 }
 
 /** The drone's searchlight: this far ahead of it on the ground, this wide. */
@@ -256,6 +258,12 @@ export interface Unit {
   poke: boolean
   /** Seconds it has been looking at something out of place. */
   changeT: number
+  /** The Engineer's role; the thing it is going to fix, and how long it has worked at it. */
+  role: 'engineer' | null
+  job: { kind: 'beacon' | 'light'; i: number } | null
+  jobT: number
+  /** The freshest scent it has followed (garrison time). */
+  scentT: number
 }
 
 export interface Garrison {
@@ -283,6 +291,11 @@ export interface Garrison {
   runnerWait: number
   /** Things out of place a guard on its round will notice: a pile stripped, a light out. */
   changes: Change[]
+  /** The mech's trail for the hounds' noses: where it walked, and when. */
+  scent: Array<{ x: number; z: number; t: number }>
+  scentT: number
+  /** Jobs an Engineer has given up on (somewhere it cannot walk to). */
+  unreachable: Set<string>
 }
 
 /** Something out of place: a guard who sees it goes to look (yellow), but does not raise the base. */
@@ -300,6 +313,16 @@ export const CHANGE_NOTICE_S = 1.2
 /** A chatting pair sees this much of its usual range, over this much of its cone. */
 export const CHAT_SIGHT = 0.55
 export const CHAT_CONE = 0.7
+/** The hound's nose: scent this fresh, this near, is followed; bodies and piles are smelt this far. */
+export const SCENT_S = 25
+export const SCENT_M = 4
+export const SCENT_EVERY_S = 0.5
+export const HOUND_NOSE = 10
+/** A hound hears this much further than a guard. */
+export const HOUND_EARS = 1.6
+/** The Engineer: how long a repair takes, and how near it must stand. */
+export const REPAIR_S = 4
+export const REPAIR_REACH = 2.6
 /** A sentry calls the alarm this much further than a guard shouts. */
 export const SENTRY_CALL = 2
 /** Guards closing on the mech spread out this far either side (flanking in pairs). */
@@ -308,6 +331,135 @@ export const FLANK_M = 6
 /** Something out of place for the guards to notice (the mission reports it). */
 export const noteChange = (gar: Garrison, x: number, y: number, z: number, kind: Change['kind']): void => {
   gar.changes.push({ x, y, z, kind, found: false })
+}
+
+/**
+ * The hound's nose. On the mech's trail it walks to the freshest scent near
+ * it, and so along the trail toward the mech. A body or a stripped pile
+ * within its nose it smells through anything, and barks the guards over.
+ */
+const sniff = (gar: Garrison, g: Grid, u: Unit, target: Target): void => {
+  // A body, or something out of place: found, and barked about.
+  for (const c of gar.units) {
+    if (c.state !== 'dead' || c.found || c.hidden || isLight(c) || c.kind === 'hound' || c.deadT < c.hold + 0.6) continue
+    if (Math.hypot(c.x - u.x, c.z - u.z) > HOUND_NOSE) continue
+    c.found = true
+    gar.events.push({ type: 'body', id: u.id, corpse: c.id })
+    bark(gar, u, c.x, c.z)
+    raise(gar, 'body', target)
+    fillPost(gar, c)
+    return
+  }
+  for (const c of gar.changes) {
+    if (c.found || Math.hypot(c.x - u.x, c.z - u.z) > HOUND_NOSE) continue
+    c.found = true
+    gar.events.push({ type: 'change', id: u.id, kind: c.kind })
+    bark(gar, u, c.x, c.z)
+    return
+  }
+  // The trail: a scent fresher than any it has followed, near enough to smell.
+  if (u.state === 'search' && u.t < 0.5) return
+  let best: { x: number; z: number; t: number } | null = null
+  for (const p of gar.scent) {
+    if (gar.time - p.t > SCENT_S || p.t <= u.scentT) continue
+    if (Math.hypot(p.x - u.x, p.z - u.z) > (best ? SCENT_M * 2.5 : SCENT_M)) continue
+    if (!best || p.t > best.t) best = p
+  }
+  if (!best) return
+  u.scentT = best.t
+  u.detect = Math.max(u.detect, SUSPECT_AT + 0.02)
+  suspect(gar, u, best.x, best.z, false)
+  u.huh = 0.2
+}
+
+/** The hound barks: the guards round it go to where it is pointing. */
+const bark = (gar: Garrison, u: Unit, x: number, z: number): void => {
+  gar.events.push({ type: 'bark', id: u.id })
+  u.detect = Math.max(u.detect, SUSPECT_AT + 0.05)
+  suspect(gar, u, x, z, false)
+  for (const o of gar.units) {
+    if (o === u || !isAlive(o) || o.state === 'combat' || o.state === 'dormant' || isLight(o) || o.kind === 'goliath' || o.kind === 'hound') continue
+    if (Math.hypot(o.x - u.x, o.z - u.z) > SHOUT_M) continue
+    o.detect = Math.max(o.detect, SUSPECT_AT + 0.05)
+    suspect(gar, o, x, z, false)
+  }
+}
+
+/** The nearest thing an Engineer can fix: a beacon put out of action, a light shot out. */
+const findJob = (gar: Garrison, u: Unit): Unit['job'] => {
+  let best: Unit['job'] = null
+  let bestD = Infinity
+  gar.beacons.forEach((b, i) => {
+    if (b.state !== 'sabotaged' || gar.unreachable.has(`b${i}`)) return
+    const d = Math.hypot(b.x - u.x, b.z - u.z)
+    if (d < bestD) { bestD = d; best = { kind: 'beacon', i } }
+  })
+  for (const o of gar.units) {
+    if (o.kind !== 'searchlight' || o.state !== 'dead' || gar.unreachable.has(`l${o.id}`)) continue
+    const d = Math.hypot(o.x - u.x, o.z - u.z)
+    if (d < bestD) { bestD = d; best = { kind: 'light', i: o.id } }
+  }
+  return best
+}
+
+/** Walk to the job and work at it; done, the thing works again. */
+const repair = (u: Unit, g: Grid, gar: Garrison, dt: number): void => {
+  const j = u.job!
+  const b = j.kind === 'beacon' ? gar.beacons[j.i] : undefined
+  const l = j.kind === 'light' ? gar.units[j.i] : undefined
+  const at = b ?? l
+  // Somebody else fixed it, or it is gone.
+  if (!at || (b && b.state !== 'sabotaged') || (l && l.state !== 'dead')) { u.job = null; u.jobT = 0; u.path = []; return }
+  const d = Math.hypot(at.x - u.x, at.z - u.z)
+  if (d > REPAIR_REACH) {
+    if (u.path.length === 0 && !goTo(u, g, at.x, at.z)) {
+      // It cannot walk there: some other job, or its round.
+      gar.unreachable.add(j.kind === 'beacon' ? `b${j.i}` : `l${j.i}`)
+      u.job = null
+      return
+    }
+    if (follow(u, g, SPECS[u.kind].look, dt)) u.path = []
+    return
+  }
+  u.path = []
+  stand(u)
+  turnToward(u, headingTo(u.x, u.z, at.x, at.z), dt)
+  u.look = Math.sin(u.t * 6) * 0.15
+  u.jobT += dt
+  if (u.jobT < REPAIR_S) return
+  u.jobT = 0
+  u.job = null
+  if (b) { b.state = 'ready'; b.lit = 0 }
+  if (l) {
+    l.state = 'patrol'
+    l.hp = l.maxHp
+    l.deadT = 0
+    l.found = false
+    l.t = 0
+    gar.changes = gar.changes.filter(c => !(c.kind === 'light' && Math.hypot(c.x - spotCentre(l).x, c.z - spotCentre(l).z) < 6))
+  }
+  gar.events.push({ type: 'repair', id: u.id, kind: j.kind, i: j.i })
+}
+
+/**
+ * A guard who stood a post was found dead: the nearest guard walking a round
+ * takes the post over (nobody walks that round now).
+ */
+const fillPost = (gar: Garrison, c: Unit): void => {
+  if (c.route.length > 1 || (c.kind !== 'guard' && c.kind !== 'sentry') || c.boss) return
+  let best: Unit | null = null
+  let bestD = Infinity
+  for (const o of gar.units) {
+    if (o.kind !== 'guard' || !isAlive(o) || o.route.length < 2 || o.partner >= 0 || o.role || o.state === 'combat') continue
+    const d = Math.hypot(o.x - c.homeX, o.z - c.homeZ)
+    if (d < bestD) { bestD = d; best = o }
+  }
+  if (!best) return
+  best.route = []
+  best.homeX = c.homeX
+  best.homeZ = c.homeZ
+  best.homeYaw = c.homeYaw
+  best.path = []
 }
 
 /** Hold the scope on a unit: tag it. */
@@ -400,6 +552,9 @@ export type GarrisonEvent =
   | { type: 'alarm'; beacon: number }
   /** A full alert went cold: the base stands down (on its guard). */
   | { type: 'standDown' }
+  /** A hound smelt something and barks the guards over; an Engineer fixed something. */
+  | { type: 'bark'; id: number }
+  | { type: 'repair'; id: number; kind: 'beacon' | 'light'; i: number }
   /** A guard saw a box move and goes to poke it; one noticed something out of place. */
   | { type: 'poke'; id: number }
   | { type: 'change'; id: number; kind: Change['kind'] }
@@ -445,11 +600,12 @@ export const makeGarrison = (f: Fortress, level = 2): Garrison => {
       spotX: spot.x, spotZ: spot.z,
       seed: (id * 2.399) % (Math.PI * 2),
       power: mech ? 0 : 1, aimT: 0, fireT: 0, burst: 0, burstT: 0, shellT: 0, shellX: 0, shellZ: 0, recoil: 0,
-      tagged: false, hidden: false, partner: p.partner ?? -1, chatting: false, poke: false, changeT: 0
+      tagged: false, hidden: false, partner: p.partner ?? -1, chatting: false, poke: false, changeT: 0,
+      role: p.role ?? null, job: null, jobT: 0, scentT: -1e9
     }
   })
   const beacons: Beacon[] = (f.beacons ?? []).map(b => ({ ...b, state: 'ready' as const, lit: 0 }))
-  return { units, alert: makeAlert(), time: 0, events: [], rng: mulberry32(hashSeed(f.id)), wave: 0, chaosT: 0, lures: [], threat, noiseSeq: 0, beacons, runner: -1, runnerWait: 0, lkp: { x: 0, z: 0, t: -1e9 }, changes: [] }
+  return { units, alert: makeAlert(), time: 0, events: [], rng: mulberry32(hashSeed(f.id)), wave: 0, chaosT: 0, lures: [], threat, noiseSeq: 0, beacons, runner: -1, runnerWait: 0, lkp: { x: 0, z: 0, t: -1e9 }, changes: [], scent: [], scentT: 0, unreachable: new Set() }
 }
 
 // ─── Getting about ───────────────────────────────────────────────────────────
@@ -983,7 +1139,7 @@ const fight = (u: Unit, g: Grid, gar: Garrison, target: Target, dt: number): voi
   }
   // Machines are slow to turn: that is how they are flanked.
   const turn = u.kind === 'goliath' ? GOLIATH_HULL_TURN : u.kind === 'enforcer' ? 2.2 : 8
-  const engage = u.kind === 'goliath' ? 30 : u.kind === 'enforcer' ? 14 : ENGAGE_DIST
+  const engage = u.kind === 'goliath' ? 30 : u.kind === 'enforcer' ? 14 : u.kind === 'hound' ? 1.3 : ENGAGE_DIST
   if (u.kind === 'goliath') {
     // The tank holds its ground (it is wider than a gate): it turns its
     // hull, slowly, toward where the mech is or was last reported.
@@ -1051,6 +1207,15 @@ export const stepGarrison = (gar: Garrison, g: Grid, target: Target, dt: number)
   if (gar.runnerWait > 0) gar.runnerWait -= dt
   if (gar.beacons.length > 0 && gar.runner < 0 && !gar.alert.chaos && gar.runnerWait <= 0 && gar.units.some(o => isAlive(o) && (o.state === 'combat' || (o.state !== 'patrol' && o.fought)) && !isLight(o))) sendRunner(gar, g)
   const seen: Seen = { x: target.x, feetY: target.y, z: target.z, height: target.height }
+  // The mech's trail, for the hounds.
+  if (target.visible && (gar.scentT -= dt) <= 0) {
+    gar.scentT = SCENT_EVERY_S
+    const last = gar.scent[gar.scent.length - 1]
+    if (!last || Math.hypot(last.x - target.x, last.z - target.z) > 0.8) {
+      gar.scent.push({ x: target.x, z: target.z, t: gar.time })
+      if (gar.scent.length > 80) gar.scent.shift()
+    }
+  }
   // Who is talking: a pair both on their round, standing, side by side.
   for (const u of gar.units) {
     const o = u.partner >= 0 ? gar.units[u.partner] : undefined
@@ -1145,6 +1310,8 @@ export const stepGarrison = (gar: Garrison, g: Grid, target: Target, dt: number)
       const known = gar.units.some(o => o !== u && o.state === 'combat')
       // A drone's report sends a machine (plan G7).
       if (isLight(u)) wakeNearest(gar, target.x, target.z)
+      // A hound barks: the guards round it come, beacons or not.
+      if (u.kind === 'hound') shout(gar, u, target)
       if (gar.beacons.length === 0) {
         if (!known) raise(gar, isLight(u) ? 'drone' : 'seen', target)
         else if (pressAlert(gar.alert, SECOND_WITNESS)) goChaos(gar, target)
@@ -1175,6 +1342,13 @@ export const stepGarrison = (gar: Garrison, g: Grid, target: Target, dt: number)
         u.seenZ = target.z
       }
     }
+
+    // ── The hound's nose ──
+    if (u.kind === 'hound' && u.state !== 'combat') sniff(gar, g, u, target)
+
+    // ── The Engineer's round: whatever was broken ──
+    if (u.role === 'engineer' && u.state === 'patrol' && !u.job) u.job = findJob(gar, u)
+    if (u.job && u.state !== 'patrol') u.job = null
 
     // ── Things out of place ──
     if (u.state === 'patrol' && !isLight(u) && gar.changes.length > 0) {
@@ -1214,6 +1388,7 @@ export const stepGarrison = (gar: Garrison, g: Grid, target: Target, dt: number)
           gar.events.push({ type: 'body', id: u.id, corpse: c.id })
           suspect(gar, u, c.x, c.z, false)
           raise(gar, 'body', target)
+          fillPost(gar, c)
         }
         break
       }
@@ -1223,7 +1398,8 @@ export const stepGarrison = (gar: Garrison, g: Grid, target: Target, dt: number)
     // ── What it does ──
     switch (u.state as UnitState) {
       case 'patrol':
-        patrol(u, g, gar.time, dt)
+        if (u.job) repair(u, g, gar, dt)
+        else patrol(u, g, gar.time, dt)
         break
       case 'suspicious':
         investigate(u, g, dt)
@@ -1313,7 +1489,7 @@ export const killUnit = (gar: Garrison, id: number, fromX: number, fromZ: number
     // Its own number decides, so the same machine dies the same way in a replay.
     const roll = (((u.seed * 7.13 + u.id * 0.37) % 1) + 1) % 1
     const apart = u.kind === 'goliath' || how === 'blast' || roll < BURST_CHANCE
-    u.death = apart || u.kind === 'searchlight' ? 'burst' : u.kind === 'drone' ? 'crash' : 'slump'
+    u.death = apart || u.kind === 'searchlight' || u.kind === 'hound' ? 'burst' : u.kind === 'drone' ? 'crash' : 'slump'
   }
   u.hp = 0
   u.state = 'dead'
@@ -1411,7 +1587,7 @@ export const hearAt = (gar: Garrison, x: number, z: number, radius: number): num
   let n = 0
   for (const u of gar.units) {
     if (!isAlive(u) || u.state !== 'patrol' || isLight(u) || u.kind === 'goliath') continue
-    if (Math.hypot(u.x - x, u.z - z) > radius) continue
+    if (Math.hypot(u.x - x, u.z - z) > radius * (u.kind === 'hound' ? HOUND_EARS : 1)) continue
     suspect(gar, u, x, z, false)
     n++
   }

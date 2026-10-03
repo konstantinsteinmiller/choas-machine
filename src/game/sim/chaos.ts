@@ -40,7 +40,9 @@ export const GUNS: Readonly<Partial<Record<Unit['kind'], Gun>>> = {
   // A sentry calls the alarm far and wide, and shoots badly (R22's roles).
   sentry: { burst: 2, gap: 0.3, pauseMin: 1.8, pauseMax: 2.8, damage: 7, near: 0.32, far: 0.05, range: 70 },
   commander: { burst: 2, gap: 0.18, pauseMin: 1.0, pauseMax: 1.6, damage: 8, near: 0.55, far: 0.08, range: 50 },
-  enforcer: { burst: 12, gap: 0.085, pauseMin: 1.3, pauseMax: 2.0, damage: 4, near: 0.42, far: 0.06, range: 45 }
+  enforcer: { burst: 12, gap: 0.085, pauseMin: 1.3, pauseMax: 2.0, damage: 4, near: 0.42, far: 0.06, range: 45 },
+  // The hound's bite: only right up close.
+  hound: { burst: 1, gap: 0.1, pauseMin: 0.9, pauseMax: 1.3, damage: 7, near: 0.8, far: 0.8, range: 2.2 }
 }
 
 /**

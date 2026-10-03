@@ -91,7 +91,13 @@ export const buildBastion = (level = 1): Fortress => {
     // The keep's own light, over the main gate and the road up to it.
     b.searchlight(26, 24, [[25, 28, 1.2], [20, 27, 1.2], [26, 34, 1.5], [31, 27, 1.2]])
   }
+  if (level >= 2) {
+    // The Engineer: walks the yard and the gate road, and fixes what the mech broke.
+    b.engineer([[24, 44, 3], [24, 36], [30, 40, 2]])
+  }
   if (level >= 3) {
+    // The Scrap Hound: a round of its own through the west half of the yard.
+    b.hound([[14, 46, 2], [14, 36], [20, 38, 2], [20, 44]])
     // The Goliath: parked with its back to the north wall, facing the keep.
     b.goliath(22, 14, 0)
     b.searchlight(8, 10, [[13, 14, 1.5], [18, 20, 1], [12, 24, 1.5], [16, 13, 1]])

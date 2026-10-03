@@ -43,14 +43,14 @@ export const shotDamage = (weapon: WeaponId, kind: PostKind, zone: Zone, mul = 1
     // A drone dies to a round in its eye; its shell takes a third of one.
     // A lamp is a lamp: any round puts it out.
     if (kind === 'drone') return zone === 'weak' ? KILL : base * DRONE_SHELL
-    if (kind === 'searchlight') return KILL
+    if (kind === 'searchlight' || kind === 'hound') return KILL
     if (isHuman(kind)) return zone === 'head' ? KILL : maxHp * (zone === 'limb' ? HUMAN_LIMB : HUMAN_BODY) * mul
     if (kind === 'commander') return zone === 'armor' ? 0 : zone === 'head' ? base * WARDEN_HEAD : zone === 'limb' ? base * WARDEN_BODY * 0.7 : base * WARDEN_BODY
     if (kind === 'enforcer') return zone === 'head' ? base * 2.5 : zone === 'joint' ? base * 1.5 : base * 0.6
     return zone === 'weak' ? base : base * 0.1
   }
   if (weapon === 'minigun') {
-    if (kind === 'drone' || kind === 'searchlight') return base * 2
+    if (kind === 'drone' || kind === 'searchlight' || kind === 'hound') return base * 2
     if (isHuman(kind)) return zone === 'head' ? base * 2 : zone === 'limb' ? base * 0.7 : base
     if (kind === 'commander') return zone === 'armor' ? base * 0.1 : zone === 'head' ? base * 2 : base
     if (kind === 'enforcer') return zone === 'joint' ? base * 3 : zone === 'head' ? base : base * 0.5

@@ -72,6 +72,9 @@ export interface GameEvents {
   /** The hide box comes down over the mech, or off it. */
   box: { on: boolean }
   /** The mech picked up an armour shard. */
+  /** A hound barked; an Engineer fixed something. */
+  bark: { id: number }
+  repair: { id: number }
   /** The scope was held on a unit long enough: it is tagged. */
   tagged: { id: number }
   /** A body grabbed or let go of (and whether it went into a container). */

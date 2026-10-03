@@ -1208,6 +1208,16 @@ export class Mission implements GameMode {
         const b = gar.beacons[e.beacon]!
         this.fx.particles.riseRing(b.x, b.y + BEACON_TOP, b.z, PAL.glowRed, 2.2, 24)
         emit('beaconLit', { beacon: e.beacon })
+      } else if (e.type === 'bark') {
+        const u = gar.units[e.id]!
+        emit('bark', { id: e.id })
+        this.garrisonView.flash(e.id, '#ff4060', 0.4)
+        if (u.state !== 'combat') emit('suspicious', { id: e.id, kind: u.kind })
+      } else if (e.type === 'repair') {
+        // Sparks where it was fixed: a beacon working again, a light back on.
+        const at = e.kind === 'beacon' ? gar.beacons[e.i]! : gar.units[e.i]!
+        this.fx.particles.sparks(at.x, at.y + 1, at.z, '#ffd23f', 14, 4, 0.25)
+        emit('repair', { id: e.id })
       } else if (e.type === 'poke' || e.type === 'change') {
         // Going over to look: the same "huh?" as any suspicion.
         emit('suspicious', { id: e.id, kind: gar.units[e.id]!.kind })

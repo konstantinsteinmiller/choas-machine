@@ -148,6 +148,10 @@ const hitUnit = (u: Unit, ox: number, oy: number, oz: number, dx: number, dy: nu
     const eye = facing ? raySphere(ox, oy, oz, dx, dy, dz, e.x, u.y + DRONE_EYE.y, e.z, DRONE_EYE.r) : Infinity
     if (eye < Infinity) take(Math.min(eye, body), 'weak')
     else take(body, 'body')
+  } else if (u.kind === 'hound') {
+    take(rayBox(ox, oy, oz, dx, dy, dz, u.x, u.y + 0.62, u.z, u.yaw, 0.32, 0.3, 0.72), 'body')
+    const h = local(u, 0, 0.7)
+    take(raySphere(ox, oy, oz, dx, dy, dz, h.x, u.y + 0.95, h.z, 0.26), 'head')
   } else if (u.kind === 'searchlight') {
     take(raySphere(ox, oy, oz, dx, dy, dz, u.x, u.y, u.z, DRONE_R), 'body')
   } else if (u.kind === 'enforcer') {

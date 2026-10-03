@@ -27,7 +27,7 @@ const G_THIGH = 0.32
 const G_SHIN = 0.3
 const G_LEG = G_THIGH + G_SHIN
 
-export const buildGuard = (commander = false, shield = false): Rig => {
+export const buildGuard = (commander = false, shield = false, engineer = false): Rig => {
   const cloth = commander ? PAL.commander : PAL.uniform
   const clothDeep = commander ? PAL.commanderDeep : PAL.uniformDeep
   const trim = commander ? PAL.commanderTrim : PAL.uniformTrim
@@ -52,6 +52,13 @@ export const buildGuard = (commander = false, shield = false): Rig => {
       b.part('chest', sph(0.13, 8, 6), PAL.steelDeep, { p: [side * 0.3, 0.38, 0] })
     })
     b.part('chest', rbox(0.38, 0.2, 0.06, 0.5, 6, 4), PAL.steelDeep, { p: [0, 0.18, 0.16] })
+  } else if (engineer) {
+    // The Engineer: a hard hat with a lamp, and a tool pack on his back.
+    b.part('head', dome(0.255, Math.PI * 0.5, 10, 6), PAL.hazard, { p: [0, 0.22, 0] })
+    b.part('head', rbox(0.5, 0.035, 0.5, 0.6, 6, 4), PAL.hazard, { p: [0, 0.23, 0.02] })
+    b.part('head', sph(0.05, 6, 5), PAL.glowWhite, { p: [0, 0.38, 0.2], glow: true, outline: false })
+    b.part('chest', rbox(0.34, 0.36, 0.18, 0.4, 6, 6), PAL.steelDeep, { p: [0, 0.22, -0.24] })
+    b.part('chest', rbox(0.06, 0.3, 0.06, 0.4, 4, 4), PAL.hazard, { p: [0.12, 0.42, -0.3] })
   } else {
     b.part('head', dome(0.245, Math.PI * 0.52, 10, 6), PAL.helmet, { p: [0, 0.22, 0] })
     b.part('head', rbox(0.34, 0.04, 0.1, 0.6, 6, 4), PAL.helmet, { p: [0, 0.24, 0.2] })

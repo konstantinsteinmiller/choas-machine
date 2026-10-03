@@ -37,7 +37,7 @@ export interface Waypoint extends Point {
   look?: number
 }
 
-export type PostKind = 'guard' | 'sentry' | 'commander' | 'drone' | 'searchlight' | 'enforcer' | 'goliath'
+export type PostKind = 'guard' | 'sentry' | 'commander' | 'drone' | 'searchlight' | 'enforcer' | 'goliath' | 'hound'
 
 export interface Post {
   kind: PostKind
@@ -62,6 +62,8 @@ export interface Post {
   shield?: boolean
   /** A guard it stands and chats with (an index into `posts`). */
   partner?: number
+  /** An Engineer: walks to whatever the mech broke, and fixes it. */
+  role?: 'engineer'
 }
 
 export type DecorKind =
@@ -247,6 +249,22 @@ export class FortressBuilder {
   /** A guard walking a loop of cells: `[cx, cz, waitSeconds?]` each. */
   guard(route: ReadonlyArray<readonly [number, number, number?]>, facing = 0): this {
     return this.post('guard', route, facing)
+  }
+
+  /**
+   * The Scrap Hound: a robot dog on a round of its own. It follows the
+   * mech's scent and its noises, sniffs out bodies and stripped piles where
+   * no guard would see them, and barks the guards over.
+   */
+  hound(route: ReadonlyArray<readonly [number, number, number?]>, facing = 0): this {
+    return this.post('hound', route, facing)
+  }
+
+  /** The Engineer: a guard on a round who goes to fix whatever was broken. */
+  engineer(route: ReadonlyArray<readonly [number, number, number?]>, facing = 0): this {
+    this.post('guard', route, facing)
+    this.posts[this.posts.length - 1]!.role = 'engineer'
+    return this
   }
 
   /**

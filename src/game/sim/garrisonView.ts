@@ -12,6 +12,7 @@ import {
   type DronePose, type EnforcerPose, type GoliathPose, type GuardPose
 } from '../models/garrison'
 import { makeBlobShadow } from '../fx/markers'
+import { DOG_STAND, HOUND_SCALE, buildRobodog, poseRobodog, restDogPose, type DogPose } from '../models/robodog'
 import { angleDelta } from './player'
 import { SPECS, SPOT_RADIUS, SUSPECT_AT, spotCentre, type Garrison, type Unit , isLight } from './garrison'
 
@@ -58,6 +59,8 @@ interface UnitView {
   drone: DronePose | null
   enforcer: EnforcerPose | null
   goliath: GoliathPose | null
+  /** The Scrap Hound's gallop. */
+  dog: DogPose | null
   lamp: SearchlightPose | null
   /** Eased 0 … 1 pose values. */
   aim: number
@@ -167,6 +170,7 @@ const WRECKS: Partial<Record<PostKind, {
   searchlight: { count: 7, size: [0.1, 0.26], half: [0.3, 0.25, 0.3], lift: -0.1, force: 4, colors: [PAL.steel, PAL.steelDeep, PAL.steelDark, PAL.glowWhite] },
   drone: { count: 9, size: [0.1, 0.24], half: [0.3, 0.15, 0.3], lift: 0, force: 4.5, colors: [PAL.steel, PAL.steelDeep, PAL.steelDark, PAL.glowRed] },
   enforcer: { count: 26, size: [0.22, 0.62], half: [0.8, 1.4, 0.6], lift: 0.4, force: 6.5, colors: [PAL.steel, PAL.steel, PAL.steelDeep, PAL.steelDeep, PAL.steelDark, PAL.steelDark, PAL.glowYellow] },
+  hound: { count: 10, size: [0.1, 0.26], half: [0.3, 0.3, 0.6], lift: 0.5, force: 4.5, colors: [PAL.steel, PAL.steelDeep, PAL.steelDark, PAL.glowRed] },
   goliath: { count: 54, size: [0.35, 1.1], half: [1.9, 1.1, 2.9], lift: 0.5, force: 9, colors: [PAL.steel, PAL.steel, PAL.steelDeep, PAL.steelDeep, PAL.steelDark, PAL.steelDark, PAL.steelDark, PAL.hazard] }
 }
 
@@ -199,13 +203,14 @@ export class GarrisonView {
     for (const u of gar.units) {
       const human = u.kind === 'guard' || u.kind === 'sentry' || u.kind === 'commander'
       const rig = u.kind === 'drone' ? buildDrone()
+        : u.kind === 'hound' ? buildRobodog(true)
         : u.kind === 'searchlight' ? buildSearchlight()
         : u.kind === 'enforcer' ? buildEnforcer(u.boss === 'foreman')
           : u.kind === 'goliath' ? buildGoliath()
-            : buildGuard(u.kind === 'commander', u.shield)
+            : buildGuard(u.kind === 'commander', u.shield, u.role === 'engineer')
       const shadow = makeBlobShadow(SPECS[u.kind].radius * 1.5)
       let mark: Sprite | null = null
-      if (human || isLight(u)) {
+      if (human || isLight(u) || u.kind === 'hound') {
         mark = new Sprite(new SpriteMaterial({ map: q, transparent: true, depthTest: false, depthWrite: false, toneMapped: false }))
         mark.renderOrder = 30
         mark.visible = false
@@ -228,12 +233,13 @@ export class GarrisonView {
       }
       const v: UnitView = {
         rig, shadow, mark, spot, beam,
-        cone: human ? this.coneCount++ : -1,
+        cone: human || u.kind === 'hound' ? this.coneCount++ : -1,
         guard: human ? { ...restGuardPose(), seed: (u.seed * 0.618) % 1, proud: u.kind === 'commander' } : null,
         drone: u.kind === 'drone' ? { time: 0, spin: 0, pitch: 0, roll: 0, eyeYaw: 0, eyePitch: 0.5, alarm: 0, deadT: 0, landed: false } : null,
         enforcer: u.kind === 'enforcer' ? { time: 0, stride: 0, speed: 0, power: 0, aimYaw: 0, aimPitch: 0, recoilL: 0, recoilR: 0, deadT: 0 } : null,
         lamp: u.kind === 'searchlight' ? { time: 0, yaw: 0, pitch: 0.6, alarm: 0 } : null,
         goliath: u.kind === 'goliath' ? { time: 0, turretYaw: 0, barrelPitch: 0, recoil: 0, rumble: 0, dead: 0 } : null,
+        dog: u.kind === 'hound' ? restDogPose() : null,
         aim: 0, wary: 0, caution: 0, grip: 0, spin: 0, lastYaw: u.yaw, bank: 0, pop: 0, lastState: u.state, flash: 0, wrecked: false, landed: false,
         tag: null, route: null
       }
@@ -387,6 +393,8 @@ export class GarrisonView {
       const u = units[i]!
       const v = this.views[i]!
       // Not in the base yet: nothing of it is drawn.
+      // A light the Engineer has fixed is whole again.
+      if (v.wrecked && u.state !== 'dead') v.wrecked = false
       const here = u.state !== 'reserve' && !v.wrecked && !u.hidden
       v.rig.root.visible = here
       v.shadow.visible = here
@@ -488,6 +496,15 @@ export class GarrisonView {
         s.recoilR = u.burst % 2 === 1 ? u.recoil : 0
         s.deadT = dead ? Math.max(1e-3, u.deadT) : 0
         poseEnforcer(v.rig, s)
+      } else if (v.dog) {
+        const s = v.dog
+        s.time = time + u.seed
+        s.stride = u.stride * 1.6
+        s.run = Math.min(1, u.speed01)
+        v.rig.root.scale.setScalar(HOUND_SCALE)
+        // The rig's origin is its back: lift it to standing height.
+        v.rig.root.position.y = y + DOG_STAND * HOUND_SCALE
+        poseRobodog(v.rig, s)
       } else if (v.goliath) {
         const s = v.goliath
         s.time = time
