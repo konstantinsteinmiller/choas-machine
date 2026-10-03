@@ -432,3 +432,53 @@ export const smoothPath = (
   out.push(pts[pts.length - 1]!)
   return out
 }
+
+/**
+ * Holes in the ground: void cells that read as a pit or a crack instead of
+ * as the edge of the world. A void with land on two opposite sides (a notch
+ * at most three cells across), with land on three sides, or one shut in by land
+ * so that it cannot be reached from the map's edge through other voids.
+ * Returns their indices.
+ */
+export const findHoles = (g: Grid): number[] => {
+  const { w, d } = g
+  const land = (cx: number, cz: number): boolean => cx >= 0 && cz >= 0 && cx < w && cz < d && g.h[cz * w + cx]! > VOID
+  // Voids that reach the map's edge through voids.
+  const open = new Uint8Array(w * d)
+  const stack: number[] = []
+  for (let cx = 0; cx < w; cx++) for (const cz of [0, d - 1]) if (!land(cx, cz)) { open[cz * w + cx] = 1; stack.push(cz * w + cx) }
+  for (let cz = 0; cz < d; cz++) for (const cx of [0, w - 1]) if (!land(cx, cz) && !open[cz * w + cx]) { open[cz * w + cx] = 1; stack.push(cz * w + cx) }
+  while (stack.length) {
+    const i = stack.pop()!
+    const cx = i % w
+    const cz = (i - cx) / w
+    for (const [nx, nz] of [[cx + 1, cz], [cx - 1, cz], [cx, cz + 1], [cx, cz - 1]] as const) {
+      if (nx < 0 || nz < 0 || nx >= w || nz >= d) continue
+      const j = nz * w + nx
+      if (open[j] || land(nx, nz)) continue
+      open[j] = 1
+      stack.push(j)
+    }
+  }
+  const holes: number[] = []
+  for (let cz = 0; cz < d; cz++) {
+    for (let cx = 0; cx < w; cx++) {
+      if (land(cx, cz)) continue
+      const i = cz * w + cx
+      // Land on both sides across a gap of at most three cells makes a notch
+      // or a crevice (a channel between an outcrop and the island).
+      const near = (dx: number, dz: number): boolean => land(cx + dx, cz + dz) || land(cx + 2 * dx, cz + 2 * dz) || land(cx + 3 * dx, cz + 3 * dz)
+      const gap = (dx: number, dz: number): boolean => {
+        // How far land is on each side, and whether together they span at most three voids.
+        let a = 0
+        while (a < 3 && !land(cx + (a + 1) * dx, cz + (a + 1) * dz)) a++
+        let b = 0
+        while (b < 3 && !land(cx - (b + 1) * dx, cz - (b + 1) * dz)) b++
+        return near(dx, dz) && near(-dx, -dz) && a + b + 1 <= 3
+      }
+      const sides = [land(cx + 1, cz), land(cx - 1, cz), land(cx, cz + 1), land(cx, cz - 1)].filter(Boolean).length
+      if (!open[i] || sides >= 3 || gap(1, 0) || gap(0, 1)) holes.push(i)
+    }
+  }
+  return holes
+}

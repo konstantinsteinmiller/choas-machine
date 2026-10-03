@@ -1,4 +1,4 @@
-import { CELL, cellHeight, CellKind, cellKind, cellMid, inGrid, makeGrid, Surf, VOID, type Grid } from './grid'
+import { findHoles, CELL, cellHeight, CellKind, cellKind, cellMid, inGrid, makeGrid, Surf, VOID, type Grid } from './grid'
 
 /**
  * ─── A fortress, as data ─────────────────────────────────────────────────────
@@ -372,8 +372,37 @@ export class FortressBuilder {
     return this
   }
 
+  /**
+   * Close every hole in the ground (a notch, a crack, a pit shut in by
+   * land) with open ground at the height of its highest land neighbour, so
+   * no level shows the void through a gap. Repeated until nothing changes:
+   * filling one notch can make its neighbour one.
+   */
+  seal(): this {
+    const g = this.grid
+    for (let pass = 0; pass < 8; pass++) {
+      const holes = findHoles(g)
+      if (holes.length === 0) break
+      for (const i of holes) {
+        const cx = i % g.w
+        const cz = (i - cx) / g.w
+        let h = 0
+        let any = false
+        for (const [nx, nz] of [[cx + 1, cz], [cx - 1, cz], [cx, cz + 1], [cx, cz - 1]] as const) {
+          if (nx < 0 || nz < 0 || nx >= g.w || nz >= g.d) continue
+          const nh = g.h[nz * g.w + nx]!
+          // Floor height of what is beside it: a wall's foot is the ground.
+          if (nh > VOID && g.kind[nz * g.w + nx] === CellKind.Ground) { h = any ? Math.min(h, nh) : nh; any = true }
+        }
+        this.set(cx, cz, any ? h : 0, CellKind.Ground)
+      }
+    }
+    return this
+  }
+
   build(): Fortress {
     if (!this.insertAt) throw new Error(`[fortress ${this.id}] no insertion point`)
+    this.seal()
     if (!this.extractAt) throw new Error(`[fortress ${this.id}] no extraction point`)
     return {
       id: this.id,

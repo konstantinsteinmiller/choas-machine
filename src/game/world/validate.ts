@@ -1,4 +1,4 @@
-import { CELL, VOID, WALK, cellHeight, findPath, heightAt, toCell, type MoveRule } from './grid'
+import { findHoles, CELL, VOID, WALK, cellHeight, findPath, heightAt, toCell, type MoveRule } from './grid'
 import type { Fortress } from './fortress'
 
 /**
@@ -73,6 +73,11 @@ export const validateFortress = (f: Fortress): string[] => {
   // one to be finished is a design choice the layout must make explicitly.
   if (problems.length === 0 && !reachable(f, MECH, f.extract.x, f.extract.z)) {
     problems.push('the extraction point cannot be reached from the insertion point')
+  }
+  // No holes: a notch, a crack or a pit in the ground reads as a hole in the level.
+  {
+    const holes = findHoles(g)
+    for (const i of holes.slice(0, 5)) problems.push(`a hole in the ground at cell ${i % g.w},${Math.floor(i / g.w)}`)
   }
   // Every alarm beacon can be got to: the mech must be able to sabotage it.
   for (const [i, b] of f.beacons.entries()) {
