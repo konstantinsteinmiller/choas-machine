@@ -31,6 +31,7 @@ export default {
     'decoy': 'デコイ',
     'weapons': '武器',
     'ammo': '弾薬',
+    'reloading': 'Reloading',
     'heat': '武器の熱',
     'armor': '装甲',
     'crouch': 'しゃがむ',

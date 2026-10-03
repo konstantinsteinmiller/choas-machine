@@ -31,6 +31,7 @@ export default {
     'decoy': 'Reclamo',
     'weapons': 'Armas',
     'ammo': 'Munición',
+    'reloading': 'Reloading',
     'heat': 'Calor da arma',
     'armor': 'Armadura',
     'crouch': 'Agacharse',

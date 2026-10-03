@@ -3,8 +3,12 @@
   //- heat as a bar.
   div.ammo-strip(:class="[`w-${hud.weapon}`, { reloading: hud.reloading, hot: hud.overheated }]" data-testid="ammo")
     GameIcon.glyph(:name="hud.weapon")
-    div.pips(v-if="hud.weapon !== 'minigun'" role="meter" :aria-label="t('hud.ammo')" aria-valuemin="0" :aria-valuemax="capacity" :aria-valuenow="hud.ammo")
-      span.pip(v-for="n in capacity" :key="n" :class="{ full: n <= hud.ammo }")
+    div.load(v-if="hud.weapon !== 'minigun'")
+      div.pips(role="meter" :aria-label="t('hud.ammo')" aria-valuemin="0" :aria-valuemax="capacity" :aria-valuenow="hud.ammo")
+        span.pip(v-for="n in capacity" :key="n" :class="{ full: n <= hud.ammo }")
+      //- Reloading (#84): a bar fills under the pips.
+      div.reload(v-show="hud.reloading" role="progressbar" :aria-label="t('hud.reloading')")
+        div.reload-fill(ref="reload")
     div.heat(v-else role="meter" :aria-label="t('hud.heat')" aria-valuemin="0" aria-valuemax="100" :aria-valuenow="heatNow")
       div.heat-fill(ref="heat")
 </template>
@@ -14,18 +18,28 @@ import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import GameIcon from '@/components/icons/GameIcon.vue'
 import { addHudTicker, gun, hud } from '@/game/state/hud'
-import { ROCKETS_PER_MISSION, SNIPER_MAG } from '@/game/sim/weapons'
+import { SNIPER_MAG } from '@/game/sim/weapons'
 
 const { t } = useI18n()
-const capacity = computed(() => (hud.weapon === 'rocket' ? ROCKETS_PER_MISSION : SNIPER_MAG))
+const capacity = computed(() => Math.max(1, hud.ammoMax || SNIPER_MAG))
 const heat = ref<HTMLElement | null>(null)
+const reload = ref<HTMLElement | null>(null)
 /** For the screen reader only: the bar itself is written by the ticker. */
 const heatNow = ref(0)
 let off: (() => void) | null = null
 
 onMounted(() => {
   let last = -1
+  let lastLoad = -1
   off = addHudTicker(() => {
+    const bar = reload.value
+    if (bar) {
+      const r = Math.round(gun.reload * 60) / 60
+      if (r !== lastLoad) {
+        lastLoad = r
+        bar.style.transform = `scaleX(${r})`
+      }
+    }
     const el = heat.value
     if (!el) { last = -1; return }
     const v = Math.round(gun.heat * 50) / 50
@@ -65,9 +79,26 @@ onUnmounted(() => off?.())
   flex: none
   width: clamp(1rem, 4.2vmin, 1.5rem)
   height: clamp(1rem, 4.2vmin, 1.5rem)
+.load
+  display: flex
+  flex-direction: column
+  gap: clamp(0.12rem, 0.5vmin, 0.2rem)
 .pips
   display: flex
   gap: clamp(0.12rem, 0.5vmin, 0.2rem)
+.reload
+  height: clamp(0.18rem, 0.7vmin, 0.28rem)
+  border-radius: 999px
+  overflow: hidden
+  background: rgba(246, 241, 255, 0.18)
+.reload-fill
+  width: 100%
+  height: 100%
+  border-radius: inherit
+  background: currentColor
+  box-shadow: 0 0 0.3rem currentColor
+  transform: scaleX(0)
+  transform-origin: left center
 .pip
   flex: none
   width: calc(var(--pip) * 0.5)
@@ -80,7 +111,7 @@ onUnmounted(() => off?.())
 // Reloading: the empty pips run a light along the row.
 .reloading .pip:not(.full)
   animation: ammo-load 0.6s ease-in-out infinite
-  @for $i from 1 through 6
+  @for $i from 1 through 12
     &:nth-child(#{$i})
       animation-delay: #{$i * 0.08}s
 .heat

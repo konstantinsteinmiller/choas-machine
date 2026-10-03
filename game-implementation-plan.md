@@ -699,6 +699,44 @@ R26 done. The base learns: each raid counts headshots, times under the box and r
 R27 done. Kill-cams scored: 0.4 x the body part (head 1, body 0.45, limb 0.35, the blade 0.55) + 0.35 x distance (to 50 m) + 0.25 x the target's movement; a full cam's chance is 8% + 75% of the score (a moving headshot at 45 m about 80%, a body shot at 8 m about 25%). After two kills inside 6 s: a short cam (the round joined half-way through its flight, a shorter dip) for a kill scoring 0.6+, else none; never two full cams within 5 s. The first landed headshot of a player's life is always full (remembered in the profile). A boss's last blow, by any weapon, gets its own orbit: 3.6 s, wider, higher, slower, the world at 70% of the usual slow-motion. Verified in the browser: the Warden's last blow orbits.
 R28 done. Translations: the 23 strings round 3 added are translated into all 38 locales (four agent drafts, checked for every key and placeholder; 'Command Base' had no existing term in any locale and was coined per language). Docs: README (training ground, setting, detection, dev URLs ?fort=training/bastion, module list), the store copy (431/500 characters; how-to-play and controls for detection, beacons, thickets, bodies, tagging, zoom, boss prep, the learning base), the GDD (detection, training ground, kill-cam rules, chassis verbs, the learning base, the enemy table with Sentry, Engineer, Scrap Hound, Warden). e2e: 9 specs pass (new players seeded past training; a brand-new-player spec). Clips: the recorder opens the Bastion (?fort=bastion) and the first shot takes a vantage; all six landscape cuts record with every beat (success 10/30 s and CrazyGames, fail 10/30 s and CrazyGames). Perf: on the perch 163 draw calls and 113k triangles (138 and 86k before R24; the cloud sea trimmed to 70 puffs of 12x7 and the chain anchors merged); timings inconclusive on a fully loaded machine (old build 20-24 ms, new 25-32 ms work p50 at 4x CPU, overlapping); re-measure on a quiet machine (PERF-LEDGER 'Round 3 check'). The second blind playtest was not run (it drives a visible Chrome on the owner's desktop for a long session): offered.
 
+## Round 4: the owner's list #68–#103 (2026-10-04)
+
+Decision report (every decision, default, source and the owner's answers):
+https://claude.ai/artifact/TyS2YjkjhnsccfvR8c2qYy. Answered: Q1 focus ×3;
+Q2 instant upgrades, the furnace stays as the post-raid salvage melt; Q3 the
+toaster is the free disguise, five more by one rewarded ad each (scrap on
+no-ad builds), and the disguise gets its own hologram lesson; Q4 two new
+fortresses (Foundry rooms-first, Harbour); Q5 no kill-cam on a boss unless
+the killing blow is a headshot; Q6 rewarded ads come in, no ad-blocked dialog
+on CrazyGames; Q7 the intro plays once after training. Replaced: G2, G9, G16,
+D9/R8, C5, G5, C4, R27's "any kill".
+
+- [x] **R29 Aim and weapon feel** (#80 #81 #84 #77a)
+- [ ] **R30 Kill-cams** (#85 #91 #77b)
+- [ ] **R31 Walls and sight** (#79a #69)
+- [ ] **R32 HUD and keys** (#82 #83 #74)
+- [ ] **R33 Senses** (#68 #70 #98)
+- [ ] **R34 The alarm, rebuilt** (#86 #71 #73 #89 #92)
+- [ ] **R35 Supplies** (#76 #101 #78)
+- [ ] **R36 Upgrades and rewarded ads** (#75)
+- [ ] **R37 Disguises** (#97)
+- [ ] **R38 Movement** (#95 #102 #94a)
+- [ ] **R39 Flamethrower** (#99a)
+- [ ] **R40 New enemies** (#72a #90a)
+- [ ] **R41 Roofs and a fortress registry** (#96a #93a)
+- [ ] **R42 Hologram training** (#87 #94b #99b #76b, disguise lesson)
+- [ ] **R43 The Bastion, revisited** (#88 #96b #78b #94c #72b #90b)
+- [ ] **R44 The Foundry** (#93 #79b)
+- [ ] **R45 The Harbour** (#79c)
+- [ ] **R46 Story and cinematics** (#100 #103)
+- [ ] **R47 Balance and regression** (translations, docs, e2e, clips, perf)
+
+R29 done. #80: the loud weapons no longer swing the camera to a new arm pitch; the follow camera slides forward ALONG ITS OWN LINE OF SIGHT until the mech's head is 3.1 m ahead (less if a wall already pulled the arm in), so whatever was under the crosshair stays under it (a test sweeps six pitches and checks the camera only ever moves along its view). #81: the weapon arm's aim pitch had the wrong sign and ignored the trunk's lean; it now takes the view's pitch net of hips, spine and chest, so the barrel matches the view within 3 deg standing, crouched and walking (rig test over all three weapons); muzzle flashes, trails and rockets start at the weapon's muzzle (traced from the shoulder, so never through a wall). #84: a reload ring round the reticle and a bar under the ammo pips (rifle and launcher), the pips sized from the loadout (up to 11 rockets), and a reload pose (weapon across the chest, the free hand working the breech). #77a: helmets still fly off but no longer save a guard: one rifle round to the head drops any guard or sentry at every threat level (tested I-V with helmets); every sniper shot leaves a bright trail with a white core that hangs about 0.6 s, the kill-cam's round too. Verified: 134 files / 1537 tests, type-check, browser shots of the minigun aimed level/down/up, the rocket reload ring and bar, the sniper trail.
+
+### Round 4 deferred
+
+(nothing cut yet)
+
 ## Resume notes
 
 - Dev server: `pnpm dev` (port 2196). Check the served `<title>` ("Chaos Machine") before

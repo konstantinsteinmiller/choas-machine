@@ -31,6 +31,7 @@ export default {
     'decoy': 'Masalas',
     'weapons': 'Ginklai',
     'ammo': 'Amunicija',
+    'reloading': 'Reloading',
     'heat': 'Ginklo kaitra',
     'armor': 'Šarvai',
     'crouch': 'Pritūpti',

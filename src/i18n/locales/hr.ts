@@ -31,6 +31,7 @@ export default {
     'decoy': 'Mamac',
     'weapons': 'Oružje',
     'ammo': 'Streljivo',
+    'reloading': 'Reloading',
     'heat': 'Zagrijanost oružja',
     'armor': 'Oklop',
     'crouch': 'Čučni',

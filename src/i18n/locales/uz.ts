@@ -31,6 +31,7 @@ export default {
     'decoy': 'Yem',
     'weapons': 'Qurollar',
     'ammo': 'O\'q-dorilar',
+    'reloading': 'Reloading',
     'heat': 'Qurol qizishi',
     'armor': 'Zirh',
     'crouch': 'Cho\'kka tushish',

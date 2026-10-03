@@ -31,6 +31,7 @@ export default {
     'decoy': 'Lockbete',
     'weapons': 'Vapen',
     'ammo': 'Ammunition',
+    'reloading': 'Reloading',
     'heat': 'Vapenvärme',
     'armor': 'Pansar',
     'crouch': 'Huka dig',

@@ -31,6 +31,7 @@ export default {
     'decoy': 'Алдамшы',
     'weapons': 'Қарулар',
     'ammo': 'Оқ-дәрі',
+    'reloading': 'Reloading',
     'heat': 'Қарудың қызуы',
     'armor': 'Сауыт',
     'crouch': 'Бүгілу',

@@ -26,7 +26,7 @@ import { makePlayer, stepPlayer, eyeHeight, angleDelta, type Player } from './pl
 import { makeCam, lookCam, stepCam, placeCam, stickToWorld, camForward, type Cam } from './camera'
 import { alertSegments } from './alert'
 import {
-  SPECS, SUSPECT_AT, sabotageBeacon, searchForShooter, noteChange, tagUnit, cutRig, helmetTakes, drainEvents, headingTo, killUnit, damageUnit, makeGarrison, noiseAt, hearAt, wonderAt, voidNoise, stepGarrison, alarmUnit, startleUnit, isLight,
+  SPECS, SUSPECT_AT, sabotageBeacon, searchForShooter, noteChange, tagUnit, cutRig, helmetPops, drainEvents, headingTo, killUnit, damageUnit, makeGarrison, noiseAt, hearAt, wonderAt, voidNoise, stepGarrison, alarmUnit, startleUnit, isLight,
   type Garrison, type Target
 } from './garrison'
 import { GarrisonView } from './garrisonView'
@@ -39,7 +39,7 @@ import { sfx } from '../audio/sfx'
 import { TAKEDOWN, TD_END, TD_HOLD, TD_IN, TD_PULL, takedownCam, takedownPose } from './takedown'
 import { castShot, makeShotHit, HEAD_Y } from './hitscan'
 import { blast, shotDamage } from './damage'
-import { SPREAD, ammoOf, makeArsenal, stepArsenal, type Arsenal, type Trigger } from './weapons'
+import { SNIPER_MAG, SPREAD, ammoOf, makeArsenal, reloadProgress, stepArsenal, type Arsenal, type Trigger } from './weapons'
 import { DECOYS_PER_MISSION, decoySpot, findStrike, stepDecoys, type Decoy, type Strike, type StrikeKind } from './melee'
 import { fireRocket, stepRockets, type Rocket } from './rockets'
 import { blastRagdoll, nearRay, push, wake as wakeRagdoll } from './ragdoll'
@@ -80,6 +80,8 @@ const UP = new Vector3(0, 1, 0)
 
 /** How far a round flies. */
 const SHOT_RANGE = 260
+/** From the shoulder point `aimLine` traces from out to each weapon's muzzle (m). */
+const MUZZLE_REACH: Readonly<Record<WeaponId, number>> = { sniper: 1.75, minigun: 1.45, rocket: 1.3 }
 /** The scope's sway, radians: standing, and steadied in a crouch. */
 const SWAY = 0.0022
 const SWAY_CROUCH = 0.0008
@@ -671,7 +673,9 @@ export class Mission implements GameMode {
     const a = this.arsenal
     mirror('weapon', a.current)
     mirror('ammo', ammoOf(a))
-    mirror('reloading', a.current === 'sniper' ? a.reloading > 0 : a.current === 'rocket' && !a.rocketLoaded && a.rockets > 0)
+    mirror('ammoMax', a.current === 'rocket' ? this.loadout.rockets : a.current === 'sniper' ? SNIPER_MAG : 0)
+    gun.reload = reloadProgress(a)
+    mirror('reloading', gun.reload > 0)
     mirror('overheated', a.overheated)
     mirror('decoys', this.decoysLeft)
     gun.heat = a.heat
@@ -736,13 +740,20 @@ export class Mission implements GameMode {
     const { ox, oy, oz, dx, dy, dz } = this.aimLine(SPREAD[w])
     this.stats.shots++
     this.learn('fire')
-    this.fx.muzzle(ox, oy, oz, dx, dy, dz, w)
+    // The flash and the trail start at the weapon's own muzzle, out along the
+    // aimed arm (#81); the round itself is traced from the shoulder, so a
+    // barrel poking through a wall never shoots from the far side of it.
+    const reach = Math.min(MUZZLE_REACH[w], Math.max(0, castShot(g, gar.units, ox, oy, oz, dx, dy, dz, MUZZLE_REACH[w], this.hit).t - 0.2))
+    const mx = ox + dx * reach
+    const my = oy + dy * reach
+    const mz = oz + dz * reach
+    this.fx.muzzle(mx, my, mz, dx, dy, dz, w)
     haptic(w)
     emit('shot', { weapon: w })
     this.shake = Math.max(this.shake, w === 'sniper' ? 0.35 : w === 'rocket' ? 0.5 : 0.12)
 
     if (w === 'rocket') {
-      fireRocket(this.rockets, ox, oy, oz, dx, dy, dz)
+      fireRocket(this.rockets, mx, my, mz, dx, dy, dz)
       this.rocketsFired++
       this.goLoud()
       return
@@ -766,9 +777,9 @@ export class Mission implements GameMode {
       if (head) this.stats.headshots++
       this.killBy = w
       this.killHead = head
-      // A helmet takes the first round to the head, and comes off (R26).
-      const zone = helmetTakes(u, h.zone)
-      if (zone !== h.zone) {
+      // A helmet comes off in pieces; the round still goes through (#77).
+      const zone = h.zone
+      if (helmetPops(u, zone)) {
         this.fx.particles.sparks(h.x, h.y, h.z, '#d8ccff', 12, 4, 0.2)
         this.garrisonView.popHelmet(u.id, h.nx, h.nz)
         emit('helmet', { id: u.id })
@@ -801,7 +812,7 @@ export class Mission implements GameMode {
           this.bossCam = true
         }
       }
-      this.fx.tracer(ox, oy, oz, h.x, h.y, h.z, w)
+      this.fx.tracer(mx, my, mz, h.x, h.y, h.z, w)
       this.fx.impact(h.x, h.y, h.z, h.nx, h.ny, h.nz, soft, w)
       emit('hit', { id: u.id, weapon: w, zone: h.zone })
       // A boss hit is a boss told: the whole base comes.
@@ -817,12 +828,12 @@ export class Mission implements GameMode {
         }
       }
     } else if (h.kind === 'world') {
-      this.fx.tracer(ox, oy, oz, h.x, h.y, h.z, w)
+      this.fx.tracer(mx, my, mz, h.x, h.y, h.z, w)
       this.fx.impact(h.x, h.y, h.z, h.nx, h.ny, h.nz, false, w)
       // A silenced round is still heard where it lands.
       if (w === 'sniper') noiseAt(gar, this.target, h.x, h.z, this.loadout.missEarshot, 'miss')
     } else {
-      this.fx.tracer(ox, oy, oz, h.x, h.y, h.z, w)
+      this.fx.tracer(mx, my, mz, h.x, h.y, h.z, w)
     }
     this.flushGarrison()
   }
@@ -1622,6 +1633,8 @@ export class Mission implements GameMode {
     c.t = 0
     c.dur = c.final ? 2.0 : 1.15
     this.fx.hideBullet()
+    // The round's trail, all the way from the barrel, hangs a moment (#77).
+    this.fx.tracer(c.ox, c.oy, c.oz, c.hx, c.hy, c.hz, 'sniper')
     this.fx.impact(c.hx, c.hy, c.hz, c.nx, c.ny, c.nz, true, 'sniper')
     this.garrisonView.flash(c.id, PAL.glowCyan, 0.6)
     // The plate sits on the head itself, not on the point of entry.
@@ -2244,6 +2257,7 @@ export class Mission implements GameMode {
     s.weapon = a.current
     s.recoil = a.recoil
     s.spin = a.spin
+    s.reload = reloadProgress(a)
     s.blade = this.bladeOut
     if (striking?.full) {
       const td = takedownPose(striking.t - striking.dur, this.tdPose)

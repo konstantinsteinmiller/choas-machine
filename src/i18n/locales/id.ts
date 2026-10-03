@@ -31,6 +31,7 @@ export default {
     'decoy': 'Umpan',
     'weapons': 'Senjata',
     'ammo': 'Amunisi',
+    'reloading': 'Reloading',
     'heat': 'Panas senjata',
     'armor': 'Armor',
     'crouch': 'Jongkok',

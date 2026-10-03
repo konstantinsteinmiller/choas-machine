@@ -160,6 +160,32 @@ describe('placing', () => {
     }
   })
 
+  it('raising a loud weapon never moves what is under the crosshair (#80)', () => {
+    for (const weapon of ['minigun', 'rocket'] as const) {
+      for (const pitch of [-0.6, -0.18, 0, 0.5, 0.9, PITCH_MAX]) {
+        const g = flat()
+        const cam = makeCam(0.7)
+        cam.pitch = pitch
+        // Let the arm settle first.
+        for (let i = 0; i < 200; i++) placeCam(cam, g, 30, 0, 30, 2.25, weapon, BASE, SCOPE, 1 / 60)
+        const from = placeCam(cam, g, 30, 0, 30, 2.25, weapon, BASE, SCOPE, 1 / 60)
+        for (let i = 0; i < 40; i++) {
+          stepCam(cam, true, 1 / 60)
+          const p = placeCam(cam, g, 30, 0, 30, 2.25, weapon, BASE, SCOPE, 1 / 60)
+          // The camera only ever moves along its own line of sight.
+          const f = camForward(cam)
+          const dx = p.x - from.x
+          const dy = p.y - from.y
+          const dz = p.z - from.z
+          const along = dx * f.x + dy * f.y + dz * f.z
+          const off = Math.hypot(dx - f.x * along, dy - f.y * along, dz - f.z * along)
+          expect(off).toBeLessThan(1e-6)
+          expect(along).toBeGreaterThanOrEqual(-1e-6)
+        }
+      }
+    }
+  })
+
   it('lowering the weapon returns to the follow view', () => {
     const cam = makeCam(0)
     settle(cam, true)

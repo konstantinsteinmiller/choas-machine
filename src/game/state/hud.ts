@@ -51,6 +51,8 @@ export const hud = reactive({
   watched: false,
   /** Rounds in hand: the magazine, or rockets left; −1 for the minigun. */
   ammo: 5,
+  /** What a full load of the weapon in hand is: the pips the strip draws. */
+  ammoMax: 5,
   reloading: false,
   overheated: false,
   decoys: 0,
@@ -119,7 +121,7 @@ export const vital = {
 
 /** The weapon's gauges: they move every frame, so the HUD reads them from a
  *  ticker, not through Vue. */
-export const gun = { heat: 0, spool: 0 }
+export const gun = { heat: 0, spool: 0, reload: 0 }
 
 /** Move to another phase and tell the bus. A no-op if nothing changes. */
 export const setPhase = (phase: Phase): void => {

@@ -31,6 +31,7 @@ export default {
     'decoy': 'Mồi nhử',
     'weapons': 'Vũ khí',
     'ammo': 'Đạn dược',
+    'reloading': 'Reloading',
     'heat': 'Nhiệt vũ khí',
     'armor': 'Giáp',
     'crouch': 'Cúi xuống',

@@ -31,6 +31,7 @@ export default {
     'decoy': 'Isco',
     'weapons': 'Armas',
     'ammo': 'Munições',
+    'reloading': 'Reloading',
     'heat': 'Calor da arma',
     'armor': 'Blindagem',
     'crouch': 'Agachar',

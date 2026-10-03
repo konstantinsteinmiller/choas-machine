@@ -31,6 +31,7 @@ export default {
     'decoy': 'Δόλωμα',
     'weapons': 'Όπλα',
     'ammo': 'Πυρομαχικά',
+    'reloading': 'Reloading',
     'heat': 'Θερμοκρασία όπλου',
     'armor': 'Θωράκιση',
     'crouch': 'Σκύψε',

@@ -31,6 +31,7 @@ export default {
     'decoy': 'Wabik',
     'weapons': 'Bronie',
     'ammo': 'Amunicja',
+    'reloading': 'Reloading',
     'heat': 'Temperatura broni',
     'armor': 'Pancerz',
     'crouch': 'Kucnij',

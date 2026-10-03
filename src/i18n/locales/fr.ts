@@ -31,6 +31,7 @@ export default {
     'decoy': 'Leurre',
     'weapons': 'Armes',
     'ammo': 'Munitions',
+    'reloading': 'Reloading',
     'heat': 'Chaleur de l\'arme',
     'armor': 'Blindage',
     'crouch': 'S\'accroupir',

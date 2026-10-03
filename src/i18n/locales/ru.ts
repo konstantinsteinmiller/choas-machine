@@ -31,6 +31,7 @@ export default {
     'decoy': 'Приманка',
     'weapons': 'Оружие',
     'ammo': 'Боеприпасы',
+    'reloading': 'Reloading',
     'heat': 'Нагрев оружия',
     'armor': 'Броня',
     'crouch': 'Пригнуться',

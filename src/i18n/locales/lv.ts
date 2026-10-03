@@ -31,6 +31,7 @@ export default {
     'decoy': 'Ēsma',
     'weapons': 'Ieroči',
     'ammo': 'Munīcija',
+    'reloading': 'Reloading',
     'heat': 'Ieroča karstums',
     'armor': 'Bruņas',
     'crouch': 'Pietupties',

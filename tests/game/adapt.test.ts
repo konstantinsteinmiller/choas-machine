@@ -5,7 +5,7 @@ import { BOX_AT, HELMETS_AT, PERCH_AT, answersTo } from '@/game/sim/adapt'
 import { buildBastion } from '@/game/data/fortresses/bastion'
 import { FortressBuilder } from '@/game/world/fortress'
 import { cellMid, hasLineOfSight, heightAt } from '@/game/world/grid'
-import { drainEvents, helmetTakes, makeGarrison, spotCentre, stepGarrison, type Target } from '@/game/sim/garrison'
+import { drainEvents, helmetPops, makeGarrison, spotCentre, stepGarrison, type Target } from '@/game/sim/garrison'
 import { shotDamage } from '@/game/sim/damage'
 
 describe('what the base answers', () => {
@@ -19,15 +19,17 @@ describe('what the base answers', () => {
 })
 
 describe('helmets', () => {
-  it('the guards wear them; the first round to the head takes the helmet, the second the guard', () => {
+  it('the guards wear them; a round to the head knocks the helmet off and still drops the guard (#77)', () => {
     const f = buildBastion(1, 0, { helmets: true, boxCheck: false, perchLight: false })
     const gar = makeGarrison(f, 1)
     const g = gar.units.find(u => u.kind === 'guard')!
     expect(g.helmet).toBe(true)
-    const first = helmetTakes(g, 'head')
-    expect(first).toBe('body')
-    expect(shotDamage('sniper', 'guard', first, 1, g.maxHp)).toBeLessThan(g.maxHp)
-    expect(helmetTakes(g, 'head')).toBe('head')
+    expect(helmetPops(g, 'body')).toBe(false)
+    expect(g.helmet).toBe(true)
+    expect(helmetPops(g, 'head')).toBe(true)
+    expect(g.helmet).toBe(false)
+    expect(shotDamage('sniper', 'guard', 'head', 1, g.maxHp)).toBeGreaterThanOrEqual(g.maxHp)
+    expect(helmetPops(g, 'head')).toBe(false)
     // Without the answer, no helmets.
     expect(makeGarrison(buildBastion(1), 1).units.some(u => u.helmet)).toBe(false)
   })

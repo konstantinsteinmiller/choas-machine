@@ -13,6 +13,10 @@
     //- Everywhere else: where a round would go.
     div.reticle(v-show="!hud.scoped" :class="[`w-${hud.weapon}`, { aiming: hud.aiming, hot: hud.overheated }]")
       div.spool(v-if="hud.weapon === 'minigun'" ref="spool")
+    //- Reloading (#84): a ring round the aim point fills until the weapon is ready.
+    svg.reload-ring(v-show="hud.reloading" viewBox="0 0 40 40" :class="`w-${hud.weapon}`")
+      circle.track(cx="20" cy="20" r="17")
+      circle.fill(ref="reloadArc" cx="20" cy="20" r="17" pathLength="1")
     //- A round that landed on someone, and a round that ended someone.
     div.hitmark(:class="{ show: hitFlash, kill: killFlash }")
       i
@@ -32,6 +36,7 @@ import { on } from '@/game/bus'
  * the launcher. A hit flashes four ticks round it; a kill flashes them pink.
  */
 const spool = ref<HTMLElement | null>(null)
+const reloadArc = ref<SVGCircleElement | null>(null)
 const hitFlash = ref(false)
 const killFlash = ref(false)
 let hitTimer = 0
@@ -48,7 +53,16 @@ onMounted(() => {
   offs.push(on('hit', () => flash(false)))
   offs.push(on('kill', (e) => { if (e.by !== 'blade') flash(true) }))
   let last = -1
+  let lastLoad = -1
   offs.push(addHudTicker(() => {
+    const arc = reloadArc.value
+    if (arc) {
+      const r = Math.round(gun.reload * 60) / 60
+      if (r !== lastLoad) {
+        lastLoad = r
+        arc.style.strokeDashoffset = String(1 - r)
+      }
+    }
     const el = spool.value
     if (!el) return
     const v = Math.round(gun.spool * 40) / 40
@@ -197,6 +211,31 @@ onUnmounted(() => {
     stroke-width: 3
     stroke-dasharray: 1
     filter: drop-shadow(0 0 0.2rem rgba(95, 233, 255, 0.8))
+
+// ─── The reload ring ────────────────────────────────────────────────────────
+.reload-ring
+  position: absolute
+  left: 50%
+  top: 50%
+  width: clamp(3rem, 12vmin, 4.6rem)
+  height: clamp(3rem, 12vmin, 4.6rem)
+  translate: -50% -50%
+  rotate: -90deg
+  overflow: visible
+  color: var(--cm-cyan)
+  &.w-rocket
+    color: #ff8a3d
+  circle
+    fill: none
+    stroke: currentColor
+    stroke-width: 3.2
+  .track
+    opacity: 0.22
+  .fill
+    stroke-dasharray: 1
+    stroke-dashoffset: 1
+    stroke-linecap: round
+    filter: drop-shadow(0 0 0.25rem currentColor)
 
 // ─── Hit ticks ──────────────────────────────────────────────────────────────
 .hitmark

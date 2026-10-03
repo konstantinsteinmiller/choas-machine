@@ -31,6 +31,7 @@ export default {
     'decoy': 'Esca',
     'weapons': 'Armi',
     'ammo': 'Munizioni',
+    'reloading': 'Reloading',
     'heat': 'Calore dell\'arma',
     'armor': 'Corazza',
     'crouch': 'Accovacciati',

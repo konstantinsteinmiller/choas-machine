@@ -150,11 +150,23 @@ export class CombatFx {
       p.emit({ x: ax + dx, y: ay + dy, z: az + dz, vx: dx * speed, vy: dy * speed, vz: dz * speed, color: c, size: 0.2, sizeEnd: 0.14, life: Math.min(0.14, len / speed) })
       return
     }
-    // The sniper: a still, thin line of light that fades where it hangs.
-    const n = Math.min(46, Math.max(6, Math.floor(len / 1.4)))
+    if (weapon === 'rocket') {
+      const n = Math.min(30, Math.max(6, Math.floor(len / 1.4)))
+      for (let k = 1; k <= n; k++) {
+        const t = (k / n) * len
+        p.emit({ x: ax + dx * t, y: ay + dy * t, z: az + dz * t, color: c, size: 0.12, sizeEnd: 0.02, life: 0.16 + (k / n) * 0.22 })
+      }
+      return
+    }
+    // The sniper's trail (#77): a bright line of light from the barrel to
+    // where the round went, with a hot white core, that hangs and fades over
+    // about 0.6 s, the far end last.
+    const n = Math.min(70, Math.max(8, Math.floor(len / 0.9)))
     for (let k = 1; k <= n; k++) {
       const t = (k / n) * len
-      p.emit({ x: ax + dx * t, y: ay + dy * t, z: az + dz * t, color: c, size: 0.12, sizeEnd: 0.02, life: 0.16 + (k / n) * 0.22 })
+      const age = k / n
+      p.emit({ x: ax + dx * t, y: ay + dy * t, z: az + dz * t, color: c, size: 0.2, sizeEnd: 0.03, life: 0.38 + age * 0.28 })
+      if (k % 2 === 0) p.emit({ x: ax + dx * t, y: ay + dy * t, z: az + dz * t, color: '#ffffff', size: 0.07, sizeEnd: 0.01, life: 0.22 + age * 0.2 })
     }
   }
 

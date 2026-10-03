@@ -31,6 +31,7 @@ export default {
     'decoy': 'Köder',
     'weapons': 'Waffen',
     'ammo': 'Munition',
+    'reloading': 'Reloading',
     'heat': 'Waffenhitze',
     'armor': 'Panzerung',
     'crouch': 'Ducken',

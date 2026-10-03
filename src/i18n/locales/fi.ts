@@ -31,6 +31,7 @@ export default {
     'decoy': 'Houkutin',
     'weapons': 'Aseet',
     'ammo': 'Ammukset',
+    'reloading': 'Reloading',
     'heat': 'Aseen kuumuus',
     'armor': 'Panssari',
     'crouch': 'Kyyristy',

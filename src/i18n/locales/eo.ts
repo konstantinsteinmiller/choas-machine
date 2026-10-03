@@ -31,6 +31,7 @@ export default {
     'decoy': 'Logilo',
     'weapons': 'Armiloj',
     'ammo': 'Municio',
+    'reloading': 'Reloading',
     'heat': 'Varmo de armilo',
     'armor': 'Kiraso',
     'crouch': 'Kaŝkaŭri',

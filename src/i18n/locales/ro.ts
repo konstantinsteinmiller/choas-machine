@@ -31,6 +31,7 @@ export default {
     'decoy': 'Momeală',
     'weapons': 'Arme',
     'ammo': 'Muniție',
+    'reloading': 'Reloading',
     'heat': 'Căldura armei',
     'armor': 'Armură',
     'crouch': 'Ghemuiește-te',

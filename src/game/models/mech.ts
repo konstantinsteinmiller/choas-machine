@@ -135,6 +135,8 @@ export interface MechPose {
   recoil: number
   /** Minigun barrel angle, radians. */
   spin: number
+  /** 0 … 1 through a reload of the weapon in hand; 0 when not reloading (#84). */
+  reload: number
   /** 0 blade sheathed … 1 out. */
   blade: number
   /** 0 … 1 through a stab; 0 when not stabbing. */
@@ -159,11 +161,19 @@ export interface MechPose {
 }
 
 export const restPose = (): MechPose => ({
-  time: 0, stride: 0, speed: 0, crouch: 0, sprint: 0, aim: 0, aimPitch: 0, weapon: 'sniper', recoil: 0, spin: 0,
+  time: 0, stride: 0, speed: 0, crouch: 0, sprint: 0, aim: 0, aimPitch: 0, weapon: 'sniper', recoil: 0, spin: 0, reload: 0,
   blade: 0, stab: 0, climb: 0, climbPhase: 0, cable: 0, air: 0, down: 0, loot: 0, boxed: 0, grab: 0, draw: 0, plunge: 0
 })
 
 const HIDDEN = 0.001
+/**
+ * The weapon arm's angle aimed level from an upright trunk: the shoulder
+ * raises the arm a quarter turn, less the forearm's own small bend, so the
+ * barrel (which runs along the forearm) is level. Aiming then subtracts the
+ * view's pitch and the trunk's lean (a negative angle about x raises an arm).
+ */
+const AIM_FORE = -0.05
+const AIM_REST = -Math.PI / 2 - AIM_FORE
 const lerp = (a: number, b: number, k: number): number => a + (b - a) * k
 
 /** The leg, as built in `buildMech`: hip joint to knee, knee to ankle. */
@@ -246,10 +256,16 @@ export const poseMech = (rig: Rig, s: MechPose): void => {
   nudge(rig, 'hips', 0, -sink + s.air * 0.05 - 0.12 * fall + thud * 0.06, -0.12 * s.crouch + 0.55 * fall)
   // Balancing: the hips sway over whichever foot is down, slow and wide.
   const balance = s.cable * (Math.sin(s.stride) * 0.09 + Math.sin(s.time * 1.7) * 0.05)
-  pose(rig, 'hips', hipPitch + 1.25 * fall, 0, 0.12 * fall + balance)
-  pose(rig, 'spine', 0.5 * s.crouch * (1 - fall) + (0.08 + 0.2 * s.sprint) * walk - s.aimPitch * 0.25 * s.aim, 0, swing * 0.06 * walk)
+  const hipsX = hipPitch + 1.25 * fall
+  const spineX = 0.5 * s.crouch * (1 - fall) + (0.08 + 0.2 * s.sprint) * walk - s.aimPitch * 0.25 * s.aim
+  const chestX = 0.3 * s.crouch * (1 - fall) - s.aimPitch * 0.25 * s.aim + 0.08 * s.cable
+  // How far the trunk leans forward: the arms take it back out of their aim,
+  // so a crouched or striding mech still points the gun where it looks (#81).
+  const lean = hipsX + spineX + chestX
+  pose(rig, 'hips', hipsX, 0, 0.12 * fall + balance)
+  pose(rig, 'spine', spineX, 0, swing * 0.06 * walk)
   nudge(rig, 'chest', 0, breathe, 0)
-  pose(rig, 'chest', 0.3 * s.crouch * (1 - fall) - s.aimPitch * 0.25 * s.aim + 0.08 * s.cable, -swing * (0.1 + 0.12 * run) * walk * (1 - s.cable), -balance * 1.6)
+  pose(rig, 'chest', chestX, -swing * (0.1 + 0.12 * run) * walk * (1 - s.cable), -balance * 1.6)
   pose(
     rig, 'head',
     -0.7 * s.crouch * (1 - fall) + (s.down > 0 ? 0.5 * (1 - fall) : 0) - 0.16 * run - s.aimPitch * 0.4 * s.aim + 0.3 * s.cable,
@@ -269,7 +285,7 @@ export const poseMech = (rig: Rig, s: MechPose): void => {
   pose(
     rig, 'shoulderL',
     lerp(
-      swing * (0.5 + 0.4 * run) * walk * hang - 1.15 * s.aim + s.aimPitch * s.aim - (1.9 + Math.sin(s.climbPhase) * 0.6) * s.climb - 0.3 * s.air,
+      swing * (0.5 + 0.4 * run) * walk * hang - (1.15 + s.aimPitch + lean) * s.aim - (1.9 + Math.sin(s.climbPhase) * 0.6) * s.climb - 0.3 * s.air,
       GRAB_PITCH, s.grab
     ),
     -0.55 * s.aim * (1 - s.grab),
@@ -280,6 +296,7 @@ export const poseMech = (rig: Rig, s: MechPose): void => {
 
   // Right arm: the weapon arm. A stab swings it forward and across.
   const thrust = s.stab > 0 ? Math.sin(Math.min(1, s.stab) * Math.PI) : 0
+  // The muzzle climbs on a shot.
   const kick = s.recoil * (s.weapon === 'rocket' ? 0.3 : s.weapon === 'sniper' ? 0.18 : 0.05)
   // The blade arm in a takedown: cocked back with the elbow high, then
   // straight through, down and across to the middle of the target's back.
@@ -290,7 +307,7 @@ export const poseMech = (rig: Rig, s: MechPose): void => {
     // forward, more so in a crouch.
     lerp(
       lerp(
-        lerp(-swing * (0.5 + 0.4 * run) * walk * hang - 0.3 - 0.45 * s.crouch, -Math.PI / 2 + s.aimPitch + kick, s.aim)
+        lerp(-swing * (0.5 + 0.4 * run) * walk * hang - 0.3 - 0.45 * s.crouch, AIM_REST - s.aimPitch - lean - kick, s.aim)
           - (1.9 - Math.sin(s.climbPhase) * 0.6) * s.climb - 1.5 * thrust - 0.3 * s.air,
         DRAW_PITCH, s.draw
       ),
@@ -301,7 +318,7 @@ export const poseMech = (rig: Rig, s: MechPose): void => {
   )
   pose(
     rig, 'foreR',
-    lerp(lerp(lerp(-(0.75 + 0.6 * s.crouch) * hang, -0.05, s.aim) - 0.5 * s.climb - 0.4 * thrust, -1.6, s.draw), 0, s.plunge),
+    lerp(lerp(lerp(-(0.75 + 0.6 * s.crouch) * hang, AIM_FORE, s.aim) - 0.5 * s.climb - 0.4 * thrust, -1.6, s.draw), 0, s.plunge),
     0, 0
   )
 
@@ -310,6 +327,16 @@ export const poseMech = (rig: Rig, s: MechPose): void => {
   const armed = s.stab > 0 || td > 0 || s.grab > 0 || s.climb > 0.5 || s.cable > 0.5 || s.boxed > 0.5 ? null : s.weapon
   for (const w of ['sniper', 'minigun', 'rocket'] as const) scaleBone(rig, w, w === armed ? 1 : HIDDEN)
   rig.bones.minigunBarrels!.rotation.y = s.spin
+  if (s.reload > 0 && armed) {
+    // Reloading (#84): the weapon comes down and across the chest, the free
+    // hand goes to its breech, works it, and the weapon comes back up.
+    const r = Math.sin(Math.min(1, s.reload) * Math.PI)
+    const work = Math.sin(s.reload * Math.PI * (s.weapon === 'rocket' ? 3 : 4)) * 0.12 * r
+    pose(rig, 'shoulderR', lerp(rig.bones.shoulderR!.rotation.x, -0.95, r), 0, lerp(0, 0.35, r))
+    pose(rig, 'foreR', lerp(rig.bones.foreR!.rotation.x, -0.55, r), 0, 0)
+    pose(rig, 'shoulderL', lerp(rig.bones.shoulderL!.rotation.x, -1.05 + work, r), 0, lerp(0, -0.55, r))
+    pose(rig, 'foreL', lerp(rig.bones.foreL!.rotation.x, -1.25, r), 0, 0)
+  }
   if (s.loot > 0) {
     // Rummaging: both arms down into the pile, working in turn.
     const dig = Math.sin(s.time * 11)

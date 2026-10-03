@@ -31,6 +31,7 @@ export default {
     'decoy': 'Csali',
     'weapons': 'Fegyverek',
     'ammo': 'Lőszer',
+    'reloading': 'Reloading',
     'heat': 'Fegyver hőmérséklete',
     'armor': 'Páncél',
     'crouch': 'Guggolás',

@@ -31,6 +31,7 @@ export default {
     'decoy': 'طُعم',
     'weapons': 'الأسلحة',
     'ammo': 'الذخيرة',
+    'reloading': 'Reloading',
     'heat': 'حرارة السلاح',
     'armor': 'الدرع',
     'crouch': 'انحناء',

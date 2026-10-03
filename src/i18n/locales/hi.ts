@@ -31,6 +31,7 @@ export default {
     'decoy': 'नकली लक्ष्य',
     'weapons': 'हथियार',
     'ammo': 'गोला-बारूद',
+    'reloading': 'Reloading',
     'heat': 'हथियार की गर्मी',
     'armor': 'कवच',
     'crouch': 'झुकें',

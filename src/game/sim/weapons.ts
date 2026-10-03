@@ -87,6 +87,16 @@ export const nextWeapon = (w: WeaponId): WeaponId => WEAPON_IDS[(WEAPON_IDS.inde
 export const ammoOf = (a: Arsenal, w: WeaponId = a.current): number =>
   w === 'sniper' ? a.sniperMag : w === 'rocket' ? a.rockets + (a.rocketLoaded ? 1 : 0) : -1
 
+/**
+ * How far through a reload the weapon in hand is, 0 … 1, or 0 when it is not
+ * reloading (#84: the HUD draws it as a ring and a bar, the mech as a pose).
+ */
+export const reloadProgress = (a: Arsenal): number => {
+  if (a.current === 'sniper') return a.reloading > 0 ? 1 - a.reloading / SNIPER_RELOAD_S : 0
+  if (a.current === 'rocket') return !a.rocketLoaded && a.rocketReload > 0 ? 1 - a.rocketReload / ROCKET_RELOAD_S : 0
+  return 0
+}
+
 /** Can the weapon in hand fire at all (now or after its timers)? */
 export const isDry = (a: Arsenal): boolean => a.current === 'rocket' && !a.rocketLoaded && a.rockets === 0 && a.rocketReload <= 0
 

@@ -31,6 +31,7 @@ export default {
     'decoy': 'Señuelo',
     'weapons': 'Armas',
     'ammo': 'Munición',
+    'reloading': 'Reloading',
     'heat': 'Calor del arma',
     'armor': 'Blindaje',
     'crouch': 'Agacharse',

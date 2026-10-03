@@ -31,6 +31,7 @@ export default {
     'decoy': '미끼',
     'weapons': '무기',
     'ammo': '탄약',
+    'reloading': 'Reloading',
     'heat': '무기 열',
     'armor': '장갑',
     'crouch': '앉기',

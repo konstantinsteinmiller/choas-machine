@@ -379,11 +379,15 @@ export const JAM_SLOW = 0.4
 export const BOX_CHECK_M = 9
 export const BOX_CHECK_S = 2.5
 
-/** A round to the head of a guard in a helmet: the helmet takes it (and is gone). Returns the zone that is hit. */
-export const helmetTakes = (u: Unit, zone: Zone): Zone => {
-  if (zone !== 'head' || !u.helmet) return zone
+/**
+ * A round to the head of a guard in a helmet: the helmet flies off, and the
+ * round goes through all the same (#77: one headshot always drops a guard).
+ * True if a helmet came off.
+ */
+export const helmetPops = (u: Unit, zone: Zone): boolean => {
+  if (zone !== 'head' || !u.helmet) return false
   u.helmet = false
-  return 'body'
+  return true
 }
 
 /** Cut a generator or jam a servo. True if it was one that still worked. */

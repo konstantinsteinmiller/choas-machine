@@ -31,6 +31,7 @@ export default {
     'decoy': 'Parany',
     'weapons': 'Armes',
     'ammo': 'Munició',
+    'reloading': 'Reloading',
     'heat': 'Calor de l\'arma',
     'armor': 'Armadura',
     'crouch': 'Ajupir-se',

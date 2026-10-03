@@ -31,6 +31,7 @@ export default {
     'decoy': 'Принада',
     'weapons': 'Зброя',
     'ammo': 'Боєприпаси',
+    'reloading': 'Reloading',
     'heat': 'Нагрів зброї',
     'armor': 'Броня',
     'crouch': 'Пригнутися',

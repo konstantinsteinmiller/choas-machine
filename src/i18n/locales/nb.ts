@@ -31,6 +31,7 @@ export default {
     'decoy': 'Lokkedue',
     'weapons': 'Våpen',
     'ammo': 'Ammunisjon',
+    'reloading': 'Reloading',
     'heat': 'Våpenvarme',
     'armor': 'Panser',
     'crouch': 'Huk deg',

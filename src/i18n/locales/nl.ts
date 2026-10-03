@@ -31,6 +31,7 @@ export default {
     'decoy': 'Lokaas',
     'weapons': 'Wapens',
     'ammo': 'Munitie',
+    'reloading': 'Reloading',
     'heat': 'Wapenhitte',
     'armor': 'Pantser',
     'crouch': 'Bukken',

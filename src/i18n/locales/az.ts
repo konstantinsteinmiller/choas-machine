@@ -31,6 +31,7 @@ export default {
     'decoy': 'Yem',
     'weapons': 'Silahlar',
     'ammo': 'Sursat',
+    'reloading': 'Reloading',
     'heat': 'Silahın istiliyi',
     'armor': 'Zireh',
     'crouch': 'Çömel',

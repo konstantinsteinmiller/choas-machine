@@ -31,6 +31,7 @@ export default {
     'decoy': 'ตัวล่อ',
     'weapons': 'อาวุธ',
     'ammo': 'กระสุน',
+    'reloading': 'Reloading',
     'heat': 'ความร้อนอาวุธ',
     'armor': 'เกราะ',
     'crouch': 'ย่อตัว',

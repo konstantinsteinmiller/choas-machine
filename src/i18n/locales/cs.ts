@@ -31,6 +31,7 @@ export default {
     'decoy': 'Návnada',
     'weapons': 'Zbraně',
     'ammo': 'Munice',
+    'reloading': 'Reloading',
     'heat': 'Žhavost zbraně',
     'armor': 'Pancíř',
     'crouch': 'Skrčit se',

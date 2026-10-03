@@ -31,6 +31,7 @@ export default {
     'decoy': '诱饵',
     'weapons': '武器',
     'ammo': '弹药',
+    'reloading': 'Reloading',
     'heat': '武器过热',
     'armor': '装甲',
     'crouch': '蹲下',
