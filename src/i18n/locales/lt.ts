@@ -148,6 +148,10 @@ export default {
     'of': 'iš {n} žaidėjų',
     'tabGlobal': 'Pasaulinė'
   },
+  'callout': {
+    'human': 'Įsibrovėlis! Pavojus!',
+    'machine': 'Priešas aptiktas! Ištrinti įsibrovėlį!'
+  },
   'training': {
     'replay': 'Parodyk dar kartą',
     'progress': 'Treniruotė: baigta {n} iš {total} pamokų',

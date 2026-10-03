@@ -148,6 +148,10 @@ export default {
     'of': 'no {n} spēlētājiem',
     'tabGlobal': 'Pasaules'
   },
+  'callout': {
+    'human': 'Iebrucējs! Trauksme!',
+    'machine': 'Ienaidnieks atklāts! Dzēst iebrucēju!'
+  },
   'training': {
     'replay': 'Parādi vēlreiz',
     'progress': 'Treniņš: pabeigtas {n} no {total} nodarbībām',

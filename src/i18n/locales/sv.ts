@@ -148,6 +148,10 @@ export default {
     'of': 'av {n} spelare',
     'tabGlobal': 'Global'
   },
+  'callout': {
+    'human': 'Inkräktare! Larm!',
+    'machine': 'Fiende upptäckt! Radera inkräktare!'
+  },
   'training': {
     'replay': 'Visa igen',
     'progress': 'Träning: {n} av {total} lektioner klara',

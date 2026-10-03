@@ -152,6 +152,10 @@ export default {
     'of': 'of {n} players',
     'tabGlobal': 'Global'
   },
+  'callout': {
+    'human': 'Intruder! Alarm!',
+    'machine': 'Enemy detected! Erase intruder!'
+  },
   'training': {
     'replay': 'Show me again',
     'progress': 'Training: {n} of {total} lessons done',

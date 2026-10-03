@@ -148,6 +148,10 @@ export default {
     'of': 'من {n} لاعب',
     'tabGlobal': 'عالمي'
   },
+  'callout': {
+    'human': 'متسلل! إنذار!',
+    'machine': 'تم رصد عدو! إبادة المتسلل!'
+  },
   'training': {
     'replay': 'أرني مجددًا',
     'progress': 'التدريب: {n} من {total} دروس مكتملة',

@@ -5,6 +5,7 @@
     Joystick
     AimHold
     ThreatArcs
+    SpeechBubbles
     ObjectiveMarker
     ControlHints
 
@@ -239,6 +240,7 @@ import AimHold from '@/components/hud/AimHold.vue'
 import AlertMeter from '@/components/hud/AlertMeter.vue'
 import ThreatArcs from '@/components/hud/ThreatArcs.vue'
 import ObjectiveMarker from '@/components/hud/ObjectiveMarker.vue'
+import SpeechBubbles from '@/components/hud/SpeechBubbles.vue'
 import TrainingHud from '@/components/hud/TrainingHud.vue'
 import ControlHints from '@/components/hud/ControlHints.vue'
 import { emit as busEmit, on } from '@/game/bus'

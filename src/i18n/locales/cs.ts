@@ -148,6 +148,10 @@ export default {
     'of': 'z {n} hráčů',
     'tabGlobal': 'Světový'
   },
+  'callout': {
+    'human': 'Vetřelec! Poplach!',
+    'machine': 'Nepřítel detekován! Vymazat vetřelce!'
+  },
   'training': {
     'replay': 'Ukaž znovu',
     'progress': 'Výcvik: hotovo {n} z {total} lekcí',

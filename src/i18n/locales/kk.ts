@@ -148,6 +148,10 @@ export default {
     'of': '{n} ойыншыдан',
     'tabGlobal': 'Әлемдік'
   },
+  'callout': {
+    'human': 'Басқыншы! Дабыл!',
+    'machine': 'Жау анықталды! Басқыншыны жою!'
+  },
   'training': {
     'replay': 'Қайта көрсету',
     'progress': 'Жаттығу: {total} сабақтың {n} өтті',

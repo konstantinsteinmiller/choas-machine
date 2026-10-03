@@ -148,6 +148,10 @@ export default {
     'of': 'av {n} spillere',
     'tabGlobal': 'Global'
   },
+  'callout': {
+    'human': 'Inntrenger! Alarm!',
+    'machine': 'Fiende oppdaget! Slett inntrenger!'
+  },
   'training': {
     'replay': 'Vis meg igjen',
     'progress': 'Trening: {n} av {total} leksjoner fullført',

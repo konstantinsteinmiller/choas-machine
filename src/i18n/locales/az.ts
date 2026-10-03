@@ -148,6 +148,10 @@ export default {
     'of': '{n} oyunçudan',
     'tabGlobal': 'Qlobal'
   },
+  'callout': {
+    'human': 'Müdaxiləçi! Həyəcan!',
+    'machine': 'Düşmən aşkarlandı! Müdaxiləçini məhv et!'
+  },
   'training': {
     'replay': 'Yenidən göstər',
     'progress': 'Məşq: {total} dərsdən {n} keçildi',

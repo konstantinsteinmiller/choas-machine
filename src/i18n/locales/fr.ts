@@ -148,6 +148,10 @@ export default {
     'of': 'sur {n} joueurs',
     'tabGlobal': 'Mondial'
   },
+  'callout': {
+    'human': 'Intrus ! Alerte !',
+    'machine': 'Ennemi détecté ! Effacer l\'intrus !'
+  },
   'training': {
     'replay': 'Remontre-moi',
     'progress': 'Entraînement : {n} leçons sur {total} terminées',

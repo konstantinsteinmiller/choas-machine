@@ -148,6 +148,10 @@ export default {
     'of': 'dari {n} pemain',
     'tabGlobal': 'Global'
   },
+  'callout': {
+    'human': 'Penyusup! Alarm!',
+    'machine': 'Musuh terdeteksi! Hapus penyusup!'
+  },
   'training': {
     'replay': 'Tunjukkan lagi',
     'progress': 'Latihan: {n} dari {total} pelajaran selesai',

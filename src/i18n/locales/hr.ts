@@ -148,6 +148,10 @@ export default {
     'of': 'od {n} igrača',
     'tabGlobal': 'Svjetska'
   },
+  'callout': {
+    'human': 'Uljez! Uzbuna!',
+    'machine': 'Neprijatelj otkriven! Izbrisati uljeza!'
+  },
   'training': {
     'replay': 'Pokaži ponovno',
     'progress': 'Trening: završeno {n} od {total} lekcija',

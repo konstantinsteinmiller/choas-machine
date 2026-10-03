@@ -148,6 +148,10 @@ export default {
     'of': 'trong {n} người chơi',
     'tabGlobal': 'Toàn cầu'
   },
+  'callout': {
+    'human': 'Kẻ đột nhập! Báo động!',
+    'machine': 'Phát hiện kẻ địch! Xóa sổ kẻ đột nhập!'
+  },
   'training': {
     'replay': 'Xem lại',
     'progress': 'Huấn luyện: xong {n}/{total} bài',

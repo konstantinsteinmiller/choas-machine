@@ -148,6 +148,10 @@ export default {
     'of': 'din {n} jucători',
     'tabGlobal': 'Global'
   },
+  'callout': {
+    'human': 'Intrus! Alarmă!',
+    'machine': 'Inamic detectat! Ștergere intrus!'
+  },
   'training': {
     'replay': 'Arată-mi din nou',
     'progress': 'Antrenament: {n} din {total} lecții terminate',

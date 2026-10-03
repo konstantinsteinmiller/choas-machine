@@ -151,6 +151,21 @@ export const threats = {
   stage: new Uint8Array(MAX_THREATS)
 }
 
+// ─── What defenders shout when they are sure (#62): per-frame, outside Vue ──
+
+export const MAX_CALLOUTS = 4
+/**
+ * The bubbles on screen: where (0 … 1 of the view, the bubble's foot), whether
+ * the head is in front of the camera, and which line (0 a person, 1 a machine).
+ */
+export const callouts = {
+  n: 0,
+  x: new Float32Array(MAX_CALLOUTS),
+  y: new Float32Array(MAX_CALLOUTS),
+  on: new Uint8Array(MAX_CALLOUTS),
+  line: new Uint8Array(MAX_CALLOUTS)
+}
+
 // ─── HUD tickers: per-frame DOM writes, outside Vue ──────────────────────────
 
 const tickers = new Set<(dt: number) => void>()

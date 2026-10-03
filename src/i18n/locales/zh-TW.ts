@@ -148,6 +148,10 @@ export default {
     'of': '共 {n} 名玩家',
     'tabGlobal': '全球'
   },
+  'callout': {
+    'human': '有入侵者！警報！',
+    'machine': '偵測到敵人！清除入侵者！'
+  },
   'training': {
     'replay': '再示範一次',
     'progress': '訓練：已完成 {n}/{total} 課',

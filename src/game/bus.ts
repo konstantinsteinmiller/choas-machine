@@ -87,6 +87,8 @@ export interface GameEvents {
   /** A body grabbed or let go of (and whether it went into a container). */
   drag: { on: boolean; hidden?: boolean }
   shard: Record<string, never>
+  /** A defender is sure and shouts its line (#62): a person 'Intruder! Alarm!', a machine 'Enemy detected! Erase intruder!'. */
+  callout: { id: number; kind: PostKind; line: 'human' | 'machine' }
   /** A round knocked a guard's helmet off (R26). */
   helmet: { id: number }
   /** A boss shows its hand: a shield gone, past half health, the glint before a dash, overheating, hit by its own shell. */

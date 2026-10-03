@@ -148,6 +148,10 @@ export default {
     'of': '{n}명 중',
     'tabGlobal': '전 세계'
   },
+  'callout': {
+    'human': '침입자다! 경보!',
+    'machine': '적 감지! 침입자 제거!'
+  },
   'training': {
     'replay': '다시 보기',
     'progress': '훈련: {total}개 중 {n}개 완료',

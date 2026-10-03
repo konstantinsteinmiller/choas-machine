@@ -148,6 +148,10 @@ export default {
     'of': '{n} 人中',
     'tabGlobal': '世界'
   },
+  'callout': {
+    'human': '侵入者だ！警報！',
+    'machine': '敵ヲ検知。侵入者ヲ消去セヨ！'
+  },
   'training': {
     'replay': 'もう一度見る',
     'progress': '訓練：{total}中{n}レッスン完了',

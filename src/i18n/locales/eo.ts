@@ -148,6 +148,10 @@ export default {
     'of': 'el {n} ludantoj',
     'tabGlobal': 'Tutmonda'
   },
+  'callout': {
+    'human': 'Entrudulo! Alarmo!',
+    'machine': 'Malamiko detektita! Forviŝi entrudulon!'
+  },
   'training': {
     'replay': 'Montru denove',
     'progress': 'Trejnado: {n} el {total} lecionoj faritaj',

@@ -148,6 +148,10 @@ export default {
     'of': '{n} oyuncu içinde',
     'tabGlobal': 'Dünya'
   },
+  'callout': {
+    'human': 'Davetsiz misafir! Alarm!',
+    'machine': 'Düşman tespit edildi! Davetsiz misafiri sil!'
+  },
   'training': {
     'replay': 'Tekrar göster',
     'progress': 'Eğitim: {total} dersten {n} tanesi bitti',

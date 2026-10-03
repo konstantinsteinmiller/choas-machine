@@ -148,6 +148,10 @@ export default {
     'of': '{n} o\'yinchidan',
     'tabGlobal': 'Jahon'
   },
+  'callout': {
+    'human': 'Bosqinchi! Xavf!',
+    'machine': 'Dushman aniqlandi! Bosqinchini yo\'q qilish!'
+  },
   'training': {
     'replay': 'Yana ko\'rsatish',
     'progress': 'Mashq: {total} darsdan {n} tasi tugadi',

@@ -7,7 +7,7 @@ import { noSlice, type Slice } from '../engine/slicer'
 import { consumeEdges, type Input } from '../engine/input'
 import { input as sharedInput, inputClock } from '../engine/inputState'
 import { emit, on } from '../bus'
-import { gun, hud, mirror, runHudTickers, setPhase, threats, vital, waypoint, MAX_THREATS } from '../state/hud'
+import { gun, hud, mirror, runHudTickers, setPhase, threats, vital, waypoint, MAX_THREATS, callouts, MAX_CALLOUTS } from '../state/hud'
 import { CELL, VOID, heightAt, raycast, hasLineOfSight, toCell, inGrid, cellKind, cellHeight, CellKind, shadeAt, Shade } from '../world/grid'
 import type { Fortress } from '../world/fortress'
 import { buildFortressMesh, type FortressMesh } from '../world/fortressMesh'
@@ -124,6 +124,8 @@ type Cine =
   /** No camera move: time just dips for a beat. */
   | { kind: 'dip'; t: number; dur: number }
 
+/** How long a shouted line stays over a defender's head. */
+const CALLOUT_S = 2.4
 /** How slow the world runs while a kill-cam holds on its kill. */
 const KILLCAM_SLOW = 0.16
 /** A short bullet cam joins the round this far into its flight; a boss's orbit lasts this long. */
@@ -1360,7 +1362,10 @@ export class Mission implements GameMode {
         // Going over to look: the same "huh?" as any suspicion.
         emit('suspicious', { id: e.id, kind: gar.units[e.id]!.kind })
       } else {
-        if (e.type === 'spotted') this.stats.spotted++
+        if (e.type === 'spotted') {
+          this.stats.spotted++
+          this.callout(e.id)
+        }
         emit(e.type, { id: e.id, kind: gar.units[e.id]!.kind })
       }
     }
@@ -1635,6 +1640,38 @@ export class Mission implements GameMode {
   }
 
   private mechFade = 0
+  /** What defenders are shouting right now (#62): who, which line, for how long yet. */
+  private shouts: Array<{ id: number; line: number; t: number }> = []
+
+  /** A defender is sure: it shouts (a person) or announces (a machine). A lamp says nothing. */
+  private callout(id: number): void {
+    const u = this.garrison.units[id]
+    if (!u || u.kind === 'searchlight') return
+    const machine = u.kind === 'drone' || u.kind === 'enforcer' || u.kind === 'goliath' || u.kind === 'hound'
+    const line = machine ? 1 : 0
+    this.shouts = this.shouts.filter(s => s.id !== id)
+    if (this.shouts.length >= MAX_CALLOUTS) this.shouts.shift()
+    this.shouts.push({ id, line, t: CALLOUT_S })
+    emit('callout', { id, kind: u.kind, line: machine ? 'machine' : 'human' })
+  }
+
+  /** Pin each bubble over its speaker's head on screen. */
+  private writeCallouts(dt: number): void {
+    this.shouts = this.shouts.filter(s => (s.t -= dt) > 0 && this.garrison.units[s.id]?.state !== 'dead')
+    this.camera.updateMatrixWorld()
+    let n = 0
+    for (const s of this.shouts) {
+      const u = this.garrison.units[s.id]!
+      const p = this.proj.set(u.x, u.y + SPECS[u.kind].height + 0.7, u.z).project(this.camera)
+      callouts.on[n] = p.z < 1 && Math.abs(p.x) < 1.1 && Math.abs(p.y) < 1.1 ? 1 : 0
+      callouts.x[n] = (p.x + 1) / 2
+      callouts.y[n] = (1 - p.y) / 2
+      callouts.line[n] = s.line
+      n++
+    }
+    callouts.n = n
+  }
+
   /** A sniper round is ending a boss: its orbit is shown when the kill lands. */
   private bossCam = false
   /** The training ground's lessons, gates and ghost (only there). */
@@ -2288,6 +2325,7 @@ export class Mission implements GameMode {
     this.markers.update(dt, this.time)
     this.fx.update(dt, alpha, this.rockets, this.decoys, this.viewH, this.camera.fov)
     this.writeThreats(x, z)
+    this.writeCallouts(dt)
     this.writeWaypoint(x, z, playing && !scripted)
   }
 

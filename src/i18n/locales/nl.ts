@@ -148,6 +148,10 @@ export default {
     'of': 'van {n} spelers',
     'tabGlobal': 'Wereldwijd'
   },
+  'callout': {
+    'human': 'Indringer! Alarm!',
+    'machine': 'Vijand gedetecteerd! Indringer wissen!'
+  },
   'training': {
     'replay': 'Nog eens laten zien',
     'progress': 'Training: {n} van {total} lessen klaar',

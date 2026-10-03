@@ -148,6 +148,10 @@ export default {
     'of': 'z {n} graczy',
     'tabGlobal': 'Światowy'
   },
+  'callout': {
+    'human': 'Intruz! Alarm!',
+    'machine': 'Wykryto wroga! Usunąć intruza!'
+  },
   'training': {
     'replay': 'Pokaż jeszcze raz',
     'progress': 'Trening: ukończono {n} z {total} lekcji',

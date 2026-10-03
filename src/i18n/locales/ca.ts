@@ -148,6 +148,10 @@ export default {
     'of': 'de {n} jugadors',
     'tabGlobal': 'Global'
   },
+  'callout': {
+    'human': 'Intrús! Alarma!',
+    'machine': 'Enemic detectat! Eliminar intrús!'
+  },
   'training': {
     'replay': 'Torna-m\'ho a ensenyar',
     'progress': 'Entrenament: {n} de {total} lliçons fetes',

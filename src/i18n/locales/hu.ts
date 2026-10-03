@@ -148,6 +148,10 @@ export default {
     'of': '{n} játékosból',
     'tabGlobal': 'Globális'
   },
+  'callout': {
+    'human': 'Behatoló! Riadó!',
+    'machine': 'Ellenség észlelve! Behatoló törlése!'
+  },
   'training': {
     'replay': 'Mutasd újra',
     'progress': 'Gyakorlás: {total} leckéből {n} kész',

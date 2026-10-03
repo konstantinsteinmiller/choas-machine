@@ -148,6 +148,10 @@ export default {
     'of': '{n} pelaajasta',
     'tabGlobal': 'Globaali'
   },
+  'callout': {
+    'human': 'Tunkeilija! Hälytys!',
+    'machine': 'Vihollinen havaittu! Poista tunkeilija!'
+  },
   'training': {
     'replay': 'Näytä uudelleen',
     'progress': 'Harjoitus: {n}/{total} oppituntia tehty',

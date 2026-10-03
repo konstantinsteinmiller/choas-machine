@@ -148,6 +148,10 @@ export default {
     'of': 'af {n} spillere',
     'tabGlobal': 'Global'
   },
+  'callout': {
+    'human': 'Ubuden gæst! Alarm!',
+    'machine': 'Fjende registreret! Slet ubuden gæst!'
+  },
   'training': {
     'replay': 'Vis mig igen',
     'progress': 'Træning: {n} af {total} lektioner klaret',
