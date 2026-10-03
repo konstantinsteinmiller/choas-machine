@@ -43,10 +43,10 @@ export const platform = {
     hasAds: true,                    // sdk.showAd / sdk.showBanner
     hostnameMatcher: 'gamemonetize', // informational only — NO site-lock applied
     portalEnforcesAgeGate: false,
-    // GameMonetize aggregates traffic from many sites whose visitors include
-    // under-13 players. We pass a child-directed hint to SDK_OPTIONS where the
-    // SDK accepts it (harmless if ignored), mirroring GameDistribution.
-    childDirectedAdSignal: true,
+    // No child-directed ad flag on a web portal (owner decision 2026-10-02:
+    // those flags are for Tauri / app-store builds only). It would also cut the
+    // network's fill to non-personalised ads for every player.
+    childDirectedAdSignal: false,
     needsParentOriginCheck: false    // distribution network — no URL gating
   }
 }

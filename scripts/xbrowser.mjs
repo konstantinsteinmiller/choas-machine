@@ -108,6 +108,10 @@ try {
       page.on('pageerror', e => errors.push('pageerror: ' + e.message))
       page.on('console', m => { if (m.type() === 'error') errors.push('console: ' + m.text().slice(0, 160)) })
       await page.addInitScript(() => localStorage.setItem('cheat', 'true'))
+      // A player who has been through the training ground: the first scene is the Bastion.
+      await page.addInitScript(() => {
+        if (!localStorage.getItem('cmachine_state')) localStorage.setItem('cmachine_state', JSON.stringify({ cm_v: 1, cm_seen: ['training'] }))
+      })
       // Pointer lock is emulated in the page: a real capture from a headless
       // browser on Windows grabs the HOST's cursor (a playtest run took the
       // owner's mouse). The page still sees the whole contract, so `out.locked`

@@ -289,6 +289,17 @@ export default defineConfig(({ mode, command }) => {
     )
   }
 
+  // A GameMonetize release build without its game id would ship with the SDK
+  // switched off: no first-load ad (a moderation rejection) and no revenue,
+  // with nothing but a console warning. Fail the build instead (#66).
+  if (command === 'build' && env.VITE_APP_GAME_MONETIZE === 'true' && !String(env.VITE_GAME_ID ?? '').trim()) {
+    throw new Error(
+      '[vite] VITE_GAME_ID is empty for the GameMonetize build. Put the game id from the '
+      + 'GameMonetize control panel into .env.gamemonetize.local (a QA build may pass '
+      + 'VITE_GAME_ID in the environment).'
+    )
+  }
+
   // Only obfuscate during a real production build — never during dev,
   // where the obfuscator rewrites dynamic import strings into lookups
   // Vite can no longer transform, breaking module specifiers at runtime.

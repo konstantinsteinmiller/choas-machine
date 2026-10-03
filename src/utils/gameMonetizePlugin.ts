@@ -209,11 +209,10 @@ export const gameMonetizePlugin = (): Promise<void> => {
 
     // `SDK_OPTIONS` MUST be on `window` before the SDK script executes — the
     // script reads it synchronously. `onEvent` fans every SDK event out to the
-    // listener bus. `tagForChildDirectedTreatment` mirrors the GameDistribution
-    // child-directed hint; harmless if this SDK build ignores it.
+    // listener bus. No child-directed flag: on web portals that is not ours to
+    // set (owner decision 2026-10-02; Tauri / app-store builds only).
     window.SDK_OPTIONS = {
       gameId,
-      tagForChildDirectedTreatment: true,
       onEvent: (event: any) => {
         if (event && typeof event.name === 'string') dispatchEvent(event.name, event)
       }
