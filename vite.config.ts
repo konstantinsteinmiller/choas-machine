@@ -1,6 +1,6 @@
 import { fileURLToPath, URL } from 'node:url'
-import { resolve, dirname } from 'node:path'
-import { readFileSync, writeFileSync, existsSync, mkdirSync, readdirSync } from 'node:fs'
+import { resolve, dirname, join } from 'node:path'
+import { readFileSync, writeFileSync, existsSync, mkdirSync, readdirSync, statSync } from 'node:fs'
 
 import { defineConfig, loadEnv, type Plugin } from 'vite'
 import { execFileSync } from 'node:child_process'
@@ -25,7 +25,17 @@ const OVERRIDE_DIRS = {
   music: { dir: 'public/audio/music', exts: ['.ogg', '.mp3', '.m4a'] },
   textures: { dir: 'public/images/textures', exts: ['.webp', '.png', '.jpg'] }
 } as const
-const scanOverrides = (): Record<keyof typeof OVERRIDE_DIRS, string[]> => {
+/** The voice-overs (#65): public/audio/voice/<lang>/<line>.ogg, listed as `<lang>/<line>.ogg`. */
+const VOICE_DIR = 'public/audio/voice'
+const scanVoices = (): string[] => {
+  const abs = fileURLToPath(new URL(`./${VOICE_DIR}`, import.meta.url))
+  if (!existsSync(abs)) return []
+  return readdirSync(abs).flatMap(lang => {
+    const d = join(abs, lang)
+    return statSync(d).isDirectory() ? readdirSync(d).filter(f => f.endsWith('.ogg')).map(f => `${lang}/${f}`) : []
+  }).sort()
+}
+const scanOverrides = (): Record<keyof typeof OVERRIDE_DIRS, string[]> & { voice: string[] } => {
   const out = { sfx: [] as string[], music: [] as string[], textures: [] as string[] }
   for (const [key, { dir, exts }] of Object.entries(OVERRIDE_DIRS)) {
     const abs = fileURLToPath(new URL(`./${dir}`, import.meta.url))
@@ -34,7 +44,7 @@ const scanOverrides = (): Record<keyof typeof OVERRIDE_DIRS, string[]> => {
       .filter(f => (exts as readonly string[]).includes(f.slice(f.lastIndexOf('.')).toLowerCase()))
       .sort()
   }
-  return out
+  return { ...out, voice: scanVoices() }
 }
 const assetOverridesPlugin = (): Plugin => {
   const ID = 'virtual:asset-overrides'

@@ -1652,7 +1652,11 @@ export class Mission implements GameMode {
     this.shouts = this.shouts.filter(s => s.id !== id)
     if (this.shouts.length >= MAX_CALLOUTS) this.shouts.shift()
     this.shouts.push({ id, line, t: CALLOUT_S })
-    emit('callout', { id, kind: u.kind, line: machine ? 'machine' : 'human' })
+    const p = this.player
+    emit('callout', {
+      id, kind: u.kind, role: u.role, line: machine ? 'machine' : 'human',
+      dist: Math.hypot(u.x - p.x, u.z - p.z), pan: -Math.sin(angleDelta(this.cam.yaw, headingTo(p.x, p.z, u.x, u.z)))
+    })
   }
 
   /** Pin each bubble over its speaker's head on screen. */

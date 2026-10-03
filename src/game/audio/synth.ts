@@ -530,6 +530,49 @@ export const loadSfxOverrides = (): void => {
   }
 }
 
+// ─── Voice-overs (#65) ───────────────────────────────────────────────────────
+// Decoded once on the offline context (no gesture needed), played on the sfx
+// bus: the mute, the volume and an ad's silence cover them like every effect.
+
+const voiceBuffers = new Map<string, AudioBuffer | null>()
+let voiceDecoder: OfflineAudioContext | null = null
+
+/** Fetch and decode voice files ahead of their moment. */
+export const prefetchVoices = (urls: Iterable<string>): void => {
+  const Offline = window.OfflineAudioContext
+    ?? (window as unknown as { webkitOfflineAudioContext?: typeof OfflineAudioContext }).webkitOfflineAudioContext
+  if (!Offline) return
+  voiceDecoder ??= new Offline(1, 1, 48000)
+  for (const url of urls) {
+    if (voiceBuffers.has(url)) continue
+    voiceBuffers.set(url, null)
+    fetch(url)
+      .then(r => (r.ok ? r.arrayBuffer() : Promise.reject(new Error(`HTTP ${r.status}`))))
+      .then(buf => voiceDecoder!.decodeAudioData(buf))
+      .then(ab => { voiceBuffers.set(url, ab) })
+      .catch(e => { voiceBuffers.delete(url); console.warn('[voice] could not load', url, e) })
+  }
+}
+
+/** Play a voice file now (silence if it is not decoded yet: it is fetched for next time). True if it played. */
+export const playVoice = (url: string, pan: number, gain: number): boolean => {
+  const buf = voiceBuffers.get(url)
+  if (!buf) { if (!voiceBuffers.has(url)) prefetchVoices([url]); return false }
+  if (!canPlay()) return false
+  const a = audio()
+  if (!a || a.ctx.state !== 'running') return false
+  const dest = out(pan)
+  if (!dest) return false
+  const src = a.ctx.createBufferSource()
+  src.buffer = buf
+  const g = a.ctx.createGain()
+  g.gain.value = gain
+  src.connect(g).connect(dest)
+  src.start()
+  registerOneShotSource(src)
+  return true
+}
+
 const playFile = (buf: AudioBuffer, pan: number, gain: number): void => {
   const a = audio()
   if (!a) return

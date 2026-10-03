@@ -4,7 +4,7 @@
  *  vite.config.ts): file names inside public/audio/sfx, public/audio/music
  *  and public/images/textures. */
 declare module 'virtual:asset-overrides' {
-  const overrides: { sfx: string[]; music: string[]; textures: string[] }
+  const overrides: { sfx: string[]; music: string[]; textures: string[]; voice: string[] }
   export default overrides
 }
 

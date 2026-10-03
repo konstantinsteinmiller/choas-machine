@@ -25,6 +25,8 @@ const byName = (files: string[], dir: string): Map<string, string> => {
 
 export const SFX_FILES = byName(overrides.sfx, 'audio/sfx')
 export const MUSIC_FILES = byName(overrides.music, 'audio/music')
+/** The voice-overs (#65), keyed `<lang>/<line file>` (e.g. `en/npc_guard_alarm`). */
+export const VOICE_FILES = byName(overrides.voice ?? [], 'audio/voice')
 /**
  * `?art=off` plays without the painted drop-ins, in any build: the way to see
  * a painting against the drawing it replaced (open two tabs), and to tell a

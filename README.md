@@ -121,6 +121,23 @@ right path takes over at the next build; a missing file is never requested.
 | The logo | `node scripts/render-logo.mjs` | generated; edit the generator |
 | After adding images | `pnpm compress-folder public/images` | originals kept in `public-backup/` |
 
+## Voice-overs
+
+The NPCs' shouted lines (#65) are generated, never recorded: `src/game/audio/voiceCatalog.ts`
+lists every line (speaker, situation, direction), `voiceCards.ts` how each voice sounds,
+and `tools/voice/` speaks them (Qwen designs each voice once, frozen under `vo-src/refs/`;
+Chatterbox clones it per line; an ffmpeg chain per speaker makes the machines mechanical;
+Whisper reads every take back and the best passing one ships to `public/audio/voice/<lang>/`).
+
+```bash
+pnpm voice:collect                                   # the jobs, from the catalogue and the locales
+node --experimental-strip-types --no-warnings tools/voice/generate.mjs --engine chatterbox
+pnpm voice:compare                                   # a blind listening page, if a line sounds off
+```
+
+Voiced languages: English and German; every other locale hears the English take under its own
+speech bubble.
+
 ## Store assets
 
 ```bash

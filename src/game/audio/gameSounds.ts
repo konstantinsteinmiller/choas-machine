@@ -1,3 +1,4 @@
+import { installVoices } from './voice'
 import { killCamsEnabled } from '@/use/useKillCam'
 import { watch } from 'vue'
 import { on } from '../bus'
@@ -28,6 +29,7 @@ const byDistance = (dist: number, near = 12, far = 70): number =>
 let installed = false
 
 export const installGameSounds = (): void => {
+  installVoices()
   if (installed) return
   installed = true
 

@@ -4,6 +4,11 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "voice:cards": "node --experimental-strip-types --no-warnings tools/voice/cards.mjs",
+    "voice:collect": "node --experimental-strip-types --no-warnings tools/voice/collect.mjs",
+    "voice:gen": "node --experimental-strip-types --no-warnings tools/voice/generate.mjs",
+    "voice:compare": "node --experimental-strip-types --no-warnings tools/voice/compare.mjs",
+    "voice:setup": "node --experimental-strip-types --no-warnings tools/voice/setup.mjs",
     "dev": "vite",
     "dev-playgama": "vite --mode playgama",
     "build": "run-p type-check \"build-only {@}\" --",
