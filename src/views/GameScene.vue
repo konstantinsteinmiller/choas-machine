@@ -35,6 +35,7 @@ import { actionForCode } from '@/game/engine/keyBindings'
 import { adoptBootMode } from '@/game/boot'
 import { flow } from '@/game/flow'
 import { hud } from '@/game/state/hud'
+import { emit as busEmit } from '@/game/bus'
 import { profile } from '@/game/state/profile'
 import { isGamePaused, isAdShowing, isVisibilityHidden, isPlatformPaused, acquireAppPause } from '@/use/useGamePause'
 import { isAnyModalOpen } from '@/use/useModalState'
@@ -100,6 +101,11 @@ const onKey = (e: KeyboardEvent) => {
   if (e.code === 'Escape' && (isPointerLocked() || unlockedRecently())) return
   // Esc always; the pause KEY is whatever the player bound it to.
   if ((e.code === 'Escape' || actionForCode(e.code) === 'pause') && !typing(e) && !e.repeat) openPause()
+  // The lessons, back on request: the help key, or F1 (#82).
+  if ((e.code === 'F1' || actionForCode(e.code) === 'help') && !typing(e) && !e.repeat && hud.phase === 'play') {
+    e.preventDefault()
+    busEmit('help', {})
+  }
 }
 
 onMounted(async () => {

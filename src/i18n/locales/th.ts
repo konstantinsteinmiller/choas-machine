@@ -204,8 +204,19 @@ export default {
       'weapon2': 'มินิกัน',
       'weapon3': 'เครื่องยิงจรวด',
       'cycle': 'อาวุธถัดไป',
-      'pause': 'หยุดชั่วคราว'
+      'pause': 'หยุดชั่วคราว',
+      'help': 'Show the lessons'
     }
+  },
+  'prompt': {
+    'salvage': 'Salvage',
+    'strike': 'Takedown',
+    'sabotage': 'Sabotage',
+    'cutPower': 'Cut power',
+    'jam': 'Jam servo',
+    'grab': 'Grab body',
+    'drop': 'Drop body',
+    'hook': 'Hook'
   },
   'saveStatus': {
     'restoredTitle': 'กู้คืนเซฟบนคลาวด์แล้ว',

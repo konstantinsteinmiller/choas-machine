@@ -204,8 +204,19 @@ export default {
       'weapon2': 'Μίνιγκαν',
       'weapon3': 'Εκτοξευτής ρουκετών',
       'cycle': 'Επόμενο όπλο',
-      'pause': 'Παύση'
+      'pause': 'Παύση',
+      'help': 'Show the lessons'
     }
+  },
+  'prompt': {
+    'salvage': 'Salvage',
+    'strike': 'Takedown',
+    'sabotage': 'Sabotage',
+    'cutPower': 'Cut power',
+    'jam': 'Jam servo',
+    'grab': 'Grab body',
+    'drop': 'Drop body',
+    'hook': 'Hook'
   },
   'saveStatus': {
     'restoredTitle': 'Η αποθήκευση στο νέφος επανήλθε',

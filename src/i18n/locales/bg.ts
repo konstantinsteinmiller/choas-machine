@@ -204,8 +204,19 @@ export default {
       'weapon2': 'Миниган',
       'weapon3': 'Ракетомет',
       'cycle': 'Следващо оръжие',
-      'pause': 'Пауза'
+      'pause': 'Пауза',
+      'help': 'Show the lessons'
     }
+  },
+  'prompt': {
+    'salvage': 'Salvage',
+    'strike': 'Takedown',
+    'sabotage': 'Sabotage',
+    'cutPower': 'Cut power',
+    'jam': 'Jam servo',
+    'grab': 'Grab body',
+    'drop': 'Drop body',
+    'hook': 'Hook'
   },
   'saveStatus': {
     'restoredTitle': 'Облачният запис е възстановен',

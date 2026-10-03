@@ -204,8 +204,19 @@ export default {
       'weapon2': 'ميني غن',
       'weapon3': 'قاذفة صواريخ',
       'cycle': 'السلاح التالي',
-      'pause': 'إيقاف مؤقت'
+      'pause': 'إيقاف مؤقت',
+      'help': 'Show the lessons'
     }
+  },
+  'prompt': {
+    'salvage': 'Salvage',
+    'strike': 'Takedown',
+    'sabotage': 'Sabotage',
+    'cutPower': 'Cut power',
+    'jam': 'Jam servo',
+    'grab': 'Grab body',
+    'drop': 'Drop body',
+    'hook': 'Hook'
   },
   'saveStatus': {
     'restoredTitle': 'تمت استعادة الحفظ السحابي',

@@ -204,8 +204,19 @@ export default {
       'weapon2': 'Мініган',
       'weapon3': 'Ракетниця',
       'cycle': 'Наступна зброя',
-      'pause': 'Пауза'
+      'pause': 'Пауза',
+      'help': 'Show the lessons'
     }
+  },
+  'prompt': {
+    'salvage': 'Salvage',
+    'strike': 'Takedown',
+    'sabotage': 'Sabotage',
+    'cutPower': 'Cut power',
+    'jam': 'Jam servo',
+    'grab': 'Grab body',
+    'drop': 'Drop body',
+    'hook': 'Hook'
   },
   'saveStatus': {
     'restoredTitle': 'Хмарне збереження відновлено',

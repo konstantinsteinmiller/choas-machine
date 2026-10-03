@@ -208,8 +208,19 @@ export default {
       'weapon2': 'Mini-gun',
       'weapon3': 'Rocket launcher',
       'cycle': 'Next weapon',
-      'pause': 'Pause'
+      'pause': 'Pause',
+      'help': 'Show the lessons'
     }
+  },
+  'prompt': {
+    'salvage': 'Salvage',
+    'strike': 'Takedown',
+    'sabotage': 'Sabotage',
+    'cutPower': 'Cut power',
+    'jam': 'Jam servo',
+    'grab': 'Grab body',
+    'drop': 'Drop body',
+    'hook': 'Hook'
   },
   'saveStatus': {
     'restoredTitle': 'Cloud save restored',

@@ -621,6 +621,12 @@ export const attachInput = (surface: HTMLElement, input: Input, opts: InputOptio
         if (e.code === 'Escape') input.pauseQueued = true
         break
     }
+    // Alt lets go of the mouse without pausing (#82): the cursor is back to
+    // click the HUD with; a click on the scene captures it again.
+    if ((e.code === 'AltLeft' || e.code === 'AltRight') && input.locked) {
+      e.preventDefault()
+      releasePointerLock()
+    }
     // Space scrolls the page and presses a focused button; it is neither here.
     if (e.code === 'Space') e.preventDefault()
     updateKeysMove()

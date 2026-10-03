@@ -6,7 +6,9 @@
     AimHold
     ThreatArcs
     SpeechBubbles
+    HealthBars
     ObjectiveMarker
+    WorldPrompt
     ControlHints
 
     div.top-centre
@@ -55,8 +57,8 @@
 
     div.top-right
       //- The lessons, back on request.
-      FHudButton(icon="help" tone="violet" :aria-label="t('hint.help')" data-testid="btn-help" @click="busEmit('help', {})")
-      FHudButton(icon="pause" :aria-label="t('ui.pause')" data-testid="btn-pause" @click="emit('pause')")
+      FHudButton(icon="help" tone="violet" :hotkey="kb('help')" :aria-label="t('hint.help')" data-testid="btn-help" @click="busEmit('help', {})")
+      FHudButton(icon="pause" :hotkey="kb('pause')" :aria-label="t('ui.pause')" data-testid="btn-pause" @click="emit('pause')")
 
     div.bottom-centre
       ArmorBar
@@ -70,6 +72,7 @@
         tone="pink"
         attention
         :aria-label="t('hud.strike')"
+        :hotkey="kb('act')"
         data-testid="btn-strike"
         @click="input.actQueued = true"
       )
@@ -81,6 +84,7 @@
         tone="danger"
         :attention="hud.sabotaging === 0"
         :aria-label="t(hud.sabotage === 'generator' ? 'hud.cutPower' : hud.sabotage === 'servo' ? 'hud.jamServo' : 'hud.sabotage')"
+        :hotkey="kb('act')"
         data-testid="btn-sabotage"
         @click="input.actQueued = true"
       )
@@ -95,6 +99,7 @@
         tone="warn"
         :attention="hud.looting === 0 || teaching('loot')"
         :aria-label="t('hud.loot')"
+        :hotkey="kb('act')"
         data-testid="btn-loot"
         @click="input.actQueued = true"
       )
@@ -109,6 +114,7 @@
         tone="cyan"
         :attention="hud.drag === 'grab'"
         :aria-label="t(hud.drag === 'grab' ? 'hud.dragBody' : 'hud.dropBody')"
+        :hotkey="kb('act')"
         data-testid="btn-drag"
         @click="input.actQueued = true"
       )
@@ -121,6 +127,7 @@
         :tone="hud.grappling ? (hud.grappleHeard > 0 ? 'danger' : 'violet') : 'cyan'"
         :attention="!hud.grappling || hud.grappleHeard > 0"
         :aria-label="hud.grappling ? t('hud.grappleRecall') : t('hud.grapple')"
+        :hotkey="kb('grapple')"
         data-testid="btn-grapple"
         @click="input.grappleQueued = true"
       )
@@ -168,6 +175,7 @@
             :active="hud.weapon === w"
             :attention="flare"
             :aria-label="t(`options.actions.weapon${n + 1}`)"
+            :hotkey="weaponKey(n)"
             :data-testid="`btn-weapon-${w}`"
             @click="pick(n)"
           )
@@ -177,7 +185,8 @@
           :tone="TONES[hud.weapon]"
           :attention="teaching('weapon')"
           :aria-label="t('hud.weapons')"
-          data-testid="btn-weapons"
+          :hotkey="kb('cycle')"
+        data-testid="btn-weapons"
           @click="wheelOpen = true"
         )
       FHudButton(
@@ -185,6 +194,7 @@
         :attention="teaching('decoy')"
         :is-disabled="hud.decoys <= 0 || hud.mode !== 'ground'"
         :aria-label="t('hud.decoy')"
+        :hotkey="kb('decoy')"
         data-testid="btn-decoy"
         @click="input.decoyQueued = true"
       )
@@ -199,6 +209,7 @@
         :is-disabled="hud.mode !== 'ground'"
         :attention="teaching('hide')"
         :aria-label="t('hud.hide')"
+        :hotkey="kb('hide')"
         data-testid="btn-hide"
         @click="input.hideQueued = true"
       )
@@ -224,6 +235,7 @@
         :pressed="hud.crouched"
         :is-disabled="hud.mode !== 'ground'"
         :aria-label="hud.crouched ? t('hud.stand') : t('hud.crouch')"
+        :hotkey="kb('crouch')"
         data-testid="btn-crouch"
         @click="input.crouchQueued = true"
       )
@@ -233,6 +245,8 @@
 import { onUnmounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import FHudButton from '@/components/atoms/FHudButton.vue'
+import HealthBars from '@/components/hud/HealthBars.vue'
+import WorldPrompt from '@/components/hud/WorldPrompt.vue'
 import GameIcon from '@/components/icons/GameIcon.vue'
 import FHudBadge from '@/components/atoms/FHudBadge.vue'
 import Joystick from '@/components/hud/Joystick.vue'
@@ -244,6 +258,7 @@ import SpeechBubbles from '@/components/hud/SpeechBubbles.vue'
 import TrainingHud from '@/components/hud/TrainingHud.vue'
 import ControlHints from '@/components/hud/ControlHints.vue'
 import { emit as busEmit, on } from '@/game/bus'
+import type { Action } from '@/game/engine/keyBindings'
 import Reticle from '@/components/hud/Reticle.vue'
 import AmmoStrip from '@/components/hud/AmmoStrip.vue'
 import ArmorBar from '@/components/hud/ArmorBar.vue'
@@ -266,6 +281,10 @@ const { t } = useI18n()
 const TONES: Record<WeaponId, 'cyan' | 'warn' | 'danger'> = { sniper: 'cyan', minigun: 'warn', rocket: 'danger' }
 
 /** A control lesson is on for this chip: it pulses until it has been used. */
+/** On a desktop every chip shows the key that works it (the mouse is captured, so the chip cannot be clicked, #82). */
+const kb = (a: Action): Action | undefined => (hud.device === 'mouse' ? a : undefined)
+const WEAPON_KEYS: readonly Action[] = ['weapon1', 'weapon2', 'weapon3']
+const weaponKey = (n: number): Action | undefined => kb(WEAPON_KEYS[n] ?? 'cycle')
 const teaching = (id: HintId): boolean => hud.device === 'touch' && hud.hints.some(h => h.id === id)
 
 // ── Boss damage: a number pops for each round that landed ──

@@ -204,8 +204,19 @@ export default {
       'weapon2': 'Minigun',
       'weapon3': 'Lança-foguetes',
       'cycle': 'Próxima arma',
-      'pause': 'Pausa'
+      'pause': 'Pausa',
+      'help': 'Show the lessons'
     }
+  },
+  'prompt': {
+    'salvage': 'Salvage',
+    'strike': 'Takedown',
+    'sabotage': 'Sabotage',
+    'cutPower': 'Cut power',
+    'jam': 'Jam servo',
+    'grab': 'Grab body',
+    'drop': 'Drop body',
+    'hook': 'Hook'
   },
   'saveStatus': {
     'restoredTitle': 'Salvamento na nuvem restaurado',

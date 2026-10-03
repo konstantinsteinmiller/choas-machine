@@ -204,8 +204,19 @@ export default {
       'weapon2': 'Minigun',
       'weapon3': 'Raketlanĉilo',
       'cycle': 'Sekva armilo',
-      'pause': 'Paŭzo'
+      'pause': 'Paŭzo',
+      'help': 'Show the lessons'
     }
+  },
+  'prompt': {
+    'salvage': 'Salvage',
+    'strike': 'Takedown',
+    'sabotage': 'Sabotage',
+    'cutPower': 'Cut power',
+    'jam': 'Jam servo',
+    'grab': 'Grab body',
+    'drop': 'Drop body',
+    'hook': 'Hook'
   },
   'saveStatus': {
     'restoredTitle': 'Nuba konservo restarigita',

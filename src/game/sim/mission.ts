@@ -7,7 +7,7 @@ import { noSlice, type Slice } from '../engine/slicer'
 import { consumeEdges, type Input } from '../engine/input'
 import { input as sharedInput, inputClock } from '../engine/inputState'
 import { emit, on } from '../bus'
-import { gun, hud, mirror, runHudTickers, setPhase, threats, vital, waypoint, MAX_THREATS, callouts, MAX_CALLOUTS } from '../state/hud'
+import { gun, hud, mirror, runHudTickers, setPhase, threats, vital, waypoint, MAX_THREATS, callouts, MAX_CALLOUTS, prompt, bars, MAX_BARS, type PromptKind } from '../state/hud'
 import { CELL, VOID, heightAt, raycast, hasLineOfSight, toCell, inGrid, cellKind, cellHeight, CellKind, shadeAt, Shade } from '../world/grid'
 import type { Fortress } from '../world/fortress'
 import { buildFortressMesh, type FortressMesh } from '../world/fortressMesh'
@@ -27,7 +27,7 @@ import { makeCam, lookCam, stepCam, placeCam, stickToWorld, camForward, type Cam
 import { alertSegments } from './alert'
 import {
   SPECS, SUSPECT_AT, sabotageBeacon, searchForShooter, noteChange, tagUnit, cutRig, helmetPops, isAlive, stepFallen, drainEvents, headingTo, killUnit, damageUnit, makeGarrison, noiseAt, hearAt, wonderAt, voidNoise, stepGarrison, alarmUnit, startleUnit, isLight,
-  type Garrison, type Target
+  type Garrison, type Target, type Unit
 } from './garrison'
 import { GarrisonView } from './garrisonView'
 import { SALVAGE_EARSHOT, SALVAGE_S, makePiles, nearestPile, pileInReach, salvageNeed, type Pile } from './salvage'
@@ -131,6 +131,9 @@ type Cine =
 const CALLOUT_S = 2.4
 /** How slow the world runs while a kill-cam holds on its kill. */
 const KILLCAM_SLOW = 0.16
+/** Health bars (#74): within this, a defender shows one when near, hurt, tagged or fighting; this near, always. */
+const BAR_FAR_M = 40
+const BAR_NEAR_M = 25
 /** Kill-cam seconds the round is still seen flying on out of the target (#77). */
 const EXIT_S = 0.3
 /** A short bullet cam joins the round this far into its flight; a boss's orbit lasts this long. */
@@ -1726,6 +1729,75 @@ export class Mission implements GameMode {
   }
 
   /** Pin each bubble over its speaker's head on screen. */
+  /**
+   * The in-world prompt (#83): over whatever the act key (or the hook key)
+   * would work on right now, in the same order the act key chooses.
+   */
+  private writePrompt(show: boolean): void {
+    let kind = '' as PromptKind
+    let x = 0
+    let y = 0
+    let z = 0
+    const gar = this.garrison
+    const at = (k: PromptKind, px: number, py: number, pz: number): void => { kind = k; x = px; y = py; z = pz }
+    if (show && !this.looting && !this.sabotaging && !this.grapple) {
+      const o = this.offer && !this.strike ? gar.units[this.offer.id] : undefined
+      if (o) at('strike', o.x, o.y + SPECS[o.kind].height + 0.35, o.z)
+      else if (this.beaconOffer >= 0) { const b = gar.beacons[this.beaconOffer]!; at('sabotage', b.x, b.y + 2.6, b.z) }
+      else if (this.rigOffer >= 0) { const r = gar.rigs[this.rigOffer]!; at(r.kind === 'generator' ? 'cutPower' : 'jam', r.x, r.y + 2.2, r.z) }
+      else if (this.lootOffer) at('salvage', this.lootOffer.x, this.lootOffer.y + 1.0, this.lootOffer.z)
+      else if (this.dragId >= 0) { const u = gar.units[this.dragId]!; at('drop', u.x, u.y + 0.9, u.z) }
+      else if (this.dragOffer >= 0) { const u = gar.units[this.dragOffer]!; at('grab', u.x, u.y + 0.9, u.z) }
+      else if (this.hookSpot) at('hook', this.hookSpot.edge.x, this.hookSpot.edge.y + 0.5, this.hookSpot.edge.z)
+    }
+    mirror('prompt', kind)
+    prompt.on = kind !== '' && !hud.scoped
+    if (!prompt.on) return
+    this.camera.updateMatrixWorld()
+    const p = this.proj.set(x, y, z).project(this.camera)
+    prompt.on = p.z < 1 && Math.abs(p.x) < 1.05 && Math.abs(p.y) < 1.05
+    prompt.x = (p.x + 1) / 2
+    prompt.y = (1 - p.y) / 2
+    // The objective marker would sit on the same pile: the prompt says more.
+    if (kind === 'salvage') waypoint.on = false
+  }
+
+  /**
+   * Health bars over heads (#74): the nearest defenders that are hurt, tagged,
+   * fighting or near, and that the camera can see. Bosses have the big bar.
+   */
+  private writeBars(show: boolean): void {
+    let n = 0
+    if (show && !hud.scoped) {
+      const cam = this.camera.position
+      const g = this.fortress.grid
+      const near: Array<{ u: Unit; d: number }> = []
+      for (const u of this.garrison.units) {
+        if (!isAlive(u) || u.state === 'dormant' || u.boss || u.gripped) continue
+        const d = Math.hypot(u.x - this.player.x, u.z - this.player.z)
+        if (d > BAR_FAR_M) continue
+        if (!(u.hp < u.maxHp || u.tagged || u.state === 'combat' || d < BAR_NEAR_M)) continue
+        near.push({ u, d })
+      }
+      near.sort((a, b) => a.d - b.d)
+      this.camera.updateMatrixWorld()
+      for (const { u } of near) {
+        if (n >= MAX_BARS) break
+        const top = u.y + SPECS[u.kind].height + 0.25
+        if (!hasLineOfSight(g, cam.x, cam.y, cam.z, u.x, top, u.z)) continue
+        const p = this.proj.set(u.x, top, u.z).project(this.camera)
+        if (p.z >= 1 || Math.abs(p.x) > 1.05 || Math.abs(p.y) > 1.05) continue
+        bars.x[n] = (p.x + 1) / 2
+        bars.y[n] = (1 - p.y) / 2
+        bars.frac[n] = Math.max(0, u.hp / u.maxHp)
+        bars.size[n] = Math.max(0.75, Math.min(1.25, 10 / Math.max(1, Math.hypot(u.x - cam.x, top - cam.y, u.z - cam.z))))
+        bars.machine[n] = camKind(u.kind) === 'human' ? 0 : 1
+        n++
+      }
+    }
+    bars.n = n
+  }
+
   private writeCallouts(dt: number): void {
     this.shouts = this.shouts.filter(s => (s.t -= dt) > 0 && this.garrison.units[s.id]?.state !== 'dead')
     this.camera.updateMatrixWorld()
@@ -2412,6 +2484,8 @@ export class Mission implements GameMode {
     this.fx.update(dt, alpha, this.rockets, this.decoys, this.viewH, this.camera.fov)
     this.writeThreats(x, z)
     this.writeCallouts(dt)
+    this.writePrompt(playing && !scripted)
+    this.writeBars(playing && !scripted)
     this.writeWaypoint(x, z, playing && !scripted)
   }
 

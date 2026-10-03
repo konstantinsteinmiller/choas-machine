@@ -5,6 +5,8 @@ import GameIcon from '@/components/icons/GameIcon.vue'
 import { sfx } from '@/game/audio/sfx'
 import { resolveIconLabel } from '@/components/icons/iconLabels'
 import type { GameIconName } from '@/components/icons/iconNames'
+import { primaryCode, type Action } from '@/game/engine/keyBindings'
+import { keyLabel } from '@/game/engine/keyLabels'
 
 /**
  * The standard HUD chip: one glyph in a square holographic key. Every HUD
@@ -34,6 +36,8 @@ interface Props {
   ariaLabel?: string
   /** For a toggle: announced as pressed / not pressed. */
   pressed?: boolean
+  /** The key that works it, lettered in a corner (desktop, #82). */
+  hotkey?: Action
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -59,6 +63,7 @@ const { t, te } = useI18n()
 const resolvedAriaLabel = computed<string | undefined>(
   () => resolveIconLabel(props.ariaLabel, props.icon, t, te)
 )
+const keyText = computed(() => (props.hotkey ? keyLabel(primaryCode(props.hotkey)) : ''))
 </script>
 
 <template lang="pug">
@@ -75,6 +80,7 @@ const resolvedAriaLabel = computed<string | undefined>(
       slot
     span.f-hud-button__badge(v-if="$slots.badge")
       slot(name="badge")
+    span.f-hud-button__key(v-if="keyText" aria-hidden="true" :class="{ wide: keyText.length > 1 }") {{ keyText }}
 </template>
 
 <style scoped lang="sass">
@@ -163,6 +169,33 @@ const resolvedAriaLabel = computed<string | undefined>(
   align-items: center
   justify-content: center
   pointer-events: none
+
+// The key that works it: a small keycap on the bottom-left corner.
+.f-hud-button__key
+  position: absolute
+  left: 0
+  bottom: 0
+  translate: -28% 28%
+  min-width: 1.15rem
+  height: 1.15rem
+  padding: 0 0.2rem
+  box-sizing: border-box
+  display: flex
+  align-items: center
+  justify-content: center
+  border: var(--cm-edge) solid var(--cm-cyan)
+  border-bottom-width: calc(var(--cm-edge) * 2)
+  border-radius: 0.3rem
+  background: linear-gradient(180deg, #4a3590, #2a1a5e)
+  box-shadow: 0 0 0 var(--cm-outline) var(--cm-ink)
+  color: var(--cm-text)
+  font-size: 0.68rem
+  line-height: 1
+  text-transform: uppercase
+  white-space: nowrap
+  pointer-events: none
+  &.wide
+    font-size: 0.55rem
 
 // ─── Tones ──────────────────────────────────────────────────────────────────
 

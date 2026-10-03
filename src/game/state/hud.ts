@@ -98,6 +98,8 @@ export const hud = reactive({
   tagging: 0,
   /** A body to grab ('grab'), or one in tow ('drop'). */
   drag: '' as '' | 'grab' | 'drop',
+  /** What the in-world prompt offers right now (#83), '' for nothing. */
+  prompt: '' as PromptKind,
   /** The control lessons on screen (replaced only when they change). */
   hints: [] as HintView[]
 })
@@ -108,6 +110,28 @@ export const hud = reactive({
  * back, `dist` in metres from the mech.
  */
 export const waypoint = { on: false, x: 0.5, y: 0.5, behind: false, dist: 0 }
+
+/** What a key does where the mech stands, as the in-world prompt names it (#83). */
+export type PromptKind = '' | 'salvage' | 'strike' | 'sabotage' | 'cutPower' | 'jam' | 'grab' | 'drop' | 'hook'
+
+/** Where the in-world prompt sits: 0 … 1 of the view, and on screen at all. */
+export const prompt = { on: false, x: 0.5, y: 0.5 }
+
+// ─── Health bars over heads (#74): per-frame, outside Vue ────────────────────
+
+export const MAX_BARS = 8
+/**
+ * The bars on screen: where (0 … 1 of the view, the bar's middle), how much is
+ * left (0 … 1), how big (1 at 10 m), and whether it is a machine.
+ */
+export const bars = {
+  n: 0,
+  x: new Float32Array(MAX_BARS),
+  y: new Float32Array(MAX_BARS),
+  frac: new Float32Array(MAX_BARS),
+  size: new Float32Array(MAX_BARS),
+  machine: new Uint8Array(MAX_BARS)
+}
 
 /** The mech's armor and the last hit it took: per-frame, so outside Vue. */
 export const vital = {

@@ -204,8 +204,19 @@ export default {
       'weapon2': 'Миниган',
       'weapon3': 'Ракета атқыш',
       'cycle': 'Келесі қару',
-      'pause': 'Үзіліс'
+      'pause': 'Үзіліс',
+      'help': 'Show the lessons'
     }
+  },
+  'prompt': {
+    'salvage': 'Salvage',
+    'strike': 'Takedown',
+    'sabotage': 'Sabotage',
+    'cutPower': 'Cut power',
+    'jam': 'Jam servo',
+    'grab': 'Grab body',
+    'drop': 'Drop body',
+    'hook': 'Hook'
   },
   'saveStatus': {
     'restoredTitle': 'Бұлттық сақтау қалпына келтірілді',

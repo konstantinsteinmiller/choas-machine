@@ -204,8 +204,19 @@ export default {
       'weapon2': '加特林',
       'weapon3': '火箭筒',
       'cycle': '下一把武器',
-      'pause': '暫停'
+      'pause': '暫停',
+      'help': 'Show the lessons'
     }
+  },
+  'prompt': {
+    'salvage': 'Salvage',
+    'strike': 'Takedown',
+    'sabotage': 'Sabotage',
+    'cutPower': 'Cut power',
+    'jam': 'Jam servo',
+    'grab': 'Grab body',
+    'drop': 'Drop body',
+    'hook': 'Hook'
   },
   'saveStatus': {
     'restoredTitle': '雲端存檔已還原',

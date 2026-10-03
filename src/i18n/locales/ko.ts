@@ -204,8 +204,19 @@ export default {
       'weapon2': '미니건',
       'weapon3': '로켓 런처',
       'cycle': '다음 무기',
-      'pause': '일시정지'
+      'pause': '일시정지',
+      'help': 'Show the lessons'
     }
+  },
+  'prompt': {
+    'salvage': 'Salvage',
+    'strike': 'Takedown',
+    'sabotage': 'Sabotage',
+    'cutPower': 'Cut power',
+    'jam': 'Jam servo',
+    'grab': 'Grab body',
+    'drop': 'Drop body',
+    'hook': 'Hook'
   },
   'saveStatus': {
     'restoredTitle': '클라우드 저장이 복원되었습니다',

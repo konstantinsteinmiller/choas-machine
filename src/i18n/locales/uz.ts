@@ -204,8 +204,19 @@ export default {
       'weapon2': 'Minigan',
       'weapon3': 'Raketa uchirgich',
       'cycle': 'Keyingi qurol',
-      'pause': 'Pauza'
+      'pause': 'Pauza',
+      'help': 'Show the lessons'
     }
+  },
+  'prompt': {
+    'salvage': 'Salvage',
+    'strike': 'Takedown',
+    'sabotage': 'Sabotage',
+    'cutPower': 'Cut power',
+    'jam': 'Jam servo',
+    'grab': 'Grab body',
+    'drop': 'Drop body',
+    'hook': 'Hook'
   },
   'saveStatus': {
     'restoredTitle': 'Bulutli saqlash tiklandi',

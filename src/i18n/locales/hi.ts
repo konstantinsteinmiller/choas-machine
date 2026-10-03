@@ -204,8 +204,19 @@ export default {
       'weapon2': 'मिनीगन',
       'weapon3': 'रॉकेट लॉन्चर',
       'cycle': 'अगला हथियार',
-      'pause': 'रोकें'
+      'pause': 'रोकें',
+      'help': 'Show the lessons'
     }
+  },
+  'prompt': {
+    'salvage': 'Salvage',
+    'strike': 'Takedown',
+    'sabotage': 'Sabotage',
+    'cutPower': 'Cut power',
+    'jam': 'Jam servo',
+    'grab': 'Grab body',
+    'drop': 'Drop body',
+    'hook': 'Hook'
   },
   'saveStatus': {
     'restoredTitle': 'क्लाउड सेव बहाल हुआ',

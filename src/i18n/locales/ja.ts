@@ -204,8 +204,19 @@ export default {
       'weapon2': 'ミニガン',
       'weapon3': 'ロケットランチャー',
       'cycle': '次の武器',
-      'pause': '一時停止'
+      'pause': '一時停止',
+      'help': 'Show the lessons'
     }
+  },
+  'prompt': {
+    'salvage': 'Salvage',
+    'strike': 'Takedown',
+    'sabotage': 'Sabotage',
+    'cutPower': 'Cut power',
+    'jam': 'Jam servo',
+    'grab': 'Grab body',
+    'drop': 'Drop body',
+    'hook': 'Hook'
   },
   'saveStatus': {
     'restoredTitle': 'クラウドセーブを復元しました',
