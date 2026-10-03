@@ -423,6 +423,9 @@ export class GarrisonView {
         if (v.mark) v.mark.visible = false
         if (v.tag) v.tag.visible = false
         if (v.route) v.route.visible = false
+        // A light shot to pieces takes its beam and its pool with it (#61).
+        if (v.spot) v.spot.visible = false
+        if (v.beam) v.beam.visible = false
         continue
       }
       const x = u.px + (u.x - u.px) * alpha
