@@ -35,20 +35,20 @@ export default {
     'armor': 'Blindaje',
     'crouch': 'Agacharse',
     'stand': 'Levantarse',
-    'sprint': 'Sprint',
-    'grapple': 'Grappling hook',
-    'grappleRecall': 'Recall the hook',
+    'sprint': 'Esprintar',
+    'grapple': 'Gancho',
+    'grappleRecall': 'Recoger el gancho',
     'cancel': 'Bajar arma',
     'capture': 'Haz clic para continuar',
     'metres': '{n} m',
     'objective': {
-      'salvage': 'Salvage',
+      'salvage': 'Chatarra',
       'extract': 'Llega a la plataforma de extracción'
     },
-    'haul': 'Salvage {n} of {need}',
-    'hide': 'Hide in the box',
-    'boss': 'Boss health {n}%',
-    'loot': 'Strip the salvage'
+    'haul': 'Chatarra {n} de {need}',
+    'hide': 'Esconderse en la caja',
+    'boss': 'Vida del jefe {n} %',
+    'loot': 'Desguazar la chatarra'
   },
   'defeat': {
     'title': 'Mech fuera de combate',
@@ -93,12 +93,12 @@ export default {
     'top': 'Nivel máximo'
   },
   'smithy': {
-    'furnace': 'Furnace: hold the bellows to keep the heat in the band',
-    'anvil': 'Anvil: strike when the ring meets the mark',
-    'quench': 'Quench: dip it when it glows cherry red',
-    'pump': 'Pump the bellows',
-    'dip': 'Dip it',
-    'stars': '{n} of 3 stars'
+    'furnace': 'Horno: mantén el fuelle para que el calor quede en la franja',
+    'anvil': 'Yunque: golpea cuando el anillo toque la marca',
+    'quench': 'Temple: sumérgelo cuando brille rojo cereza',
+    'pump': 'Accionar el fuelle',
+    'dip': 'Sumergir',
+    'stars': '{n} de 3 estrellas'
   },
   'medal': {
     'ghost': 'Fantasma',
@@ -159,18 +159,18 @@ export default {
       'right': 'Desplazarse a la derecha',
       'turnLeft': 'Girar a la izquierda',
       'turnRight': 'Girar a la derecha',
-      'sprint': 'Sprint',
+      'sprint': 'Esprintar',
       'crouch': 'Agacharse',
       'act': 'Apuñalar / usar',
-      'grapple': 'Grappling hook',
-      'hide': 'Hide box',
+      'grapple': 'Gancho',
+      'hide': 'Caja escondite',
       'decoy': 'Colocar señuelo',
       'reload': 'Recargar',
       'weapon1': 'Rifle de francotirador',
       'weapon2': 'Minigun',
       'weapon3': 'Lanzacohetes',
       'cycle': 'Siguiente arma',
-      'pause': 'Pause'
+      'pause': 'Pausa'
     }
   },
   'saveStatus': {

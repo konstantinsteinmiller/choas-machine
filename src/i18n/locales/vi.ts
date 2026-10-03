@@ -35,20 +35,20 @@ export default {
     'armor': 'Giáp',
     'crouch': 'Cúi xuống',
     'stand': 'Đứng dậy',
-    'sprint': 'Sprint',
-    'grapple': 'Grappling hook',
-    'grappleRecall': 'Recall the hook',
+    'sprint': 'Chạy nhanh',
+    'grapple': 'Móc câu',
+    'grappleRecall': 'Thu móc về',
     'cancel': 'Hạ vũ khí',
     'capture': 'Nhấn để tiếp tục',
     'metres': '{n} m',
     'objective': {
-      'salvage': 'Salvage',
+      'salvage': 'Phế liệu',
       'extract': 'Đến bãi triệt thoái'
     },
-    'haul': 'Salvage {n} of {need}',
-    'hide': 'Hide in the box',
-    'boss': 'Boss health {n}%',
-    'loot': 'Strip the salvage'
+    'haul': 'Phế liệu {n}/{need}',
+    'hide': 'Trốn trong thùng',
+    'boss': 'Máu trùm {n}%',
+    'loot': 'Tháo phế liệu'
   },
   'defeat': {
     'title': 'Mech gục ngã',
@@ -93,12 +93,12 @@ export default {
     'top': 'Bậc cao nhất'
   },
   'smithy': {
-    'furnace': 'Furnace: hold the bellows to keep the heat in the band',
-    'anvil': 'Anvil: strike when the ring meets the mark',
-    'quench': 'Quench: dip it when it glows cherry red',
-    'pump': 'Pump the bellows',
-    'dip': 'Dip it',
-    'stars': '{n} of 3 stars'
+    'furnace': 'Lò rèn: giữ ống bễ để giữ nhiệt trong dải',
+    'anvil': 'Đe: đập khi vòng chạm dấu',
+    'quench': 'Tôi: nhúng khi nó đỏ màu anh đào',
+    'pump': 'Bơm ống bễ',
+    'dip': 'Nhúng',
+    'stars': '{n}/3 sao'
   },
   'medal': {
     'ghost': 'Bóng ma',
@@ -159,18 +159,18 @@ export default {
       'right': 'Sang phải',
       'turnLeft': 'Quay trái',
       'turnRight': 'Quay phải',
-      'sprint': 'Sprint',
+      'sprint': 'Chạy nhanh',
       'crouch': 'Cúi xuống',
       'act': 'Đâm / dùng',
-      'grapple': 'Grappling hook',
-      'hide': 'Hide box',
+      'grapple': 'Móc câu',
+      'hide': 'Thùng ẩn nấp',
       'decoy': 'Đặt mồi nhử',
       'reload': 'Nạp đạn',
       'weapon1': 'Súng bắn tỉa',
       'weapon2': 'Minigun',
       'weapon3': 'Súng phóng tên lửa',
       'cycle': 'Vũ khí kế tiếp',
-      'pause': 'Pause'
+      'pause': 'Tạm dừng'
     }
   },
   'saveStatus': {

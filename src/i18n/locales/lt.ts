@@ -35,20 +35,20 @@ export default {
     'armor': 'Šarvai',
     'crouch': 'Pritūpti',
     'stand': 'Atsistoti',
-    'sprint': 'Sprint',
-    'grapple': 'Grappling hook',
-    'grappleRecall': 'Recall the hook',
+    'sprint': 'Sprintas',
+    'grapple': 'Kablys',
+    'grappleRecall': 'Atitraukti kablį',
     'cancel': 'Nuleisti ginklą',
     'capture': 'Spustelėk ir tęsk',
     'metres': '{n} m',
     'objective': {
-      'salvage': 'Salvage',
+      'salvage': 'Laužas',
       'extract': 'Pasiekite evakuacijos aikštelę'
     },
-    'haul': 'Salvage {n} of {need}',
-    'hide': 'Hide in the box',
-    'boss': 'Boss health {n}%',
-    'loot': 'Strip the salvage'
+    'haul': 'Laužo {n} iš {need}',
+    'hide': 'Pasislėpti dėžėje',
+    'boss': 'Boso gyvybė {n} %',
+    'loot': 'Išardyti laužą'
   },
   'defeat': {
     'title': 'Mechas žlugo',
@@ -93,12 +93,12 @@ export default {
     'top': 'Aukščiausia pakopa'
   },
   'smithy': {
-    'furnace': 'Furnace: hold the bellows to keep the heat in the band',
-    'anvil': 'Anvil: strike when the ring meets the mark',
-    'quench': 'Quench: dip it when it glows cherry red',
-    'pump': 'Pump the bellows',
-    'dip': 'Dip it',
-    'stars': '{n} of 3 stars'
+    'furnace': 'Krosnis: laikyk dumples, kad karštis liktų juostoje',
+    'anvil': 'Priekalas: kirsk, kai žiedas pasiekia žymę',
+    'quench': 'Grūdinimas: panardink, kai švyti vyšnių raudonumu',
+    'pump': 'Pumpuoti dumples',
+    'dip': 'Panardinti',
+    'stars': '{n} iš 3 žvaigždžių'
   },
   'medal': {
     'ghost': 'Vaiduoklis',
@@ -159,18 +159,18 @@ export default {
       'right': 'Šonu į dešinę',
       'turnLeft': 'Sukti į kairę',
       'turnRight': 'Sukti į dešinę',
-      'sprint': 'Sprint',
+      'sprint': 'Sprintas',
       'crouch': 'Pritūpimas',
       'act': 'Durti / naudoti',
-      'grapple': 'Grappling hook',
-      'hide': 'Hide box',
+      'grapple': 'Kablys',
+      'hide': 'Slėptuvės dėžė',
       'decoy': 'Padėti masalą',
       'reload': 'Perkrauti',
       'weapon1': 'Snaiperio šautuvas',
       'weapon2': 'Minigunas',
       'weapon3': 'Raketsvaidis',
       'cycle': 'Kitas ginklas',
-      'pause': 'Pause'
+      'pause': 'Pauzė'
     }
   },
   'saveStatus': {

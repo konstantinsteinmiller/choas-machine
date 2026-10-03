@@ -35,20 +35,20 @@ export default {
     'armor': 'Armadura',
     'crouch': 'Ajupir-se',
     'stand': 'Aixecar-se',
-    'sprint': 'Sprint',
-    'grapple': 'Grappling hook',
-    'grappleRecall': 'Recall the hook',
+    'sprint': 'Esprintar',
+    'grapple': 'Ganxo',
+    'grappleRecall': 'Recollir el ganxo',
     'cancel': 'Baixar l\'arma',
     'capture': 'Clica per continuar',
     'metres': '{n} m',
     'objective': {
-      'salvage': 'Salvage',
+      'salvage': 'Ferralla',
       'extract': 'Arriba a la plataforma d\'extracció'
     },
-    'haul': 'Salvage {n} of {need}',
-    'hide': 'Hide in the box',
-    'boss': 'Boss health {n}%',
-    'loot': 'Strip the salvage'
+    'haul': 'Ferralla {n} de {need}',
+    'hide': 'Amagar-se a la caixa',
+    'boss': 'Vida del cap {n} %',
+    'loot': 'Desmuntar la ferralla'
   },
   'defeat': {
     'title': 'Mecha a terra',
@@ -93,12 +93,12 @@ export default {
     'top': 'Nivell màxim'
   },
   'smithy': {
-    'furnace': 'Furnace: hold the bellows to keep the heat in the band',
-    'anvil': 'Anvil: strike when the ring meets the mark',
-    'quench': 'Quench: dip it when it glows cherry red',
-    'pump': 'Pump the bellows',
-    'dip': 'Dip it',
-    'stars': '{n} of 3 stars'
+    'furnace': 'Forn: mantén la manxa perquè la calor quedi a la franja',
+    'anvil': 'Enclusa: colpeja quan l’anell toqui la marca',
+    'quench': 'Tremp: submergeix-lo quan brilli vermell cirera',
+    'pump': 'Accionar la manxa',
+    'dip': 'Submergir',
+    'stars': '{n} de 3 estrelles'
   },
   'medal': {
     'ghost': 'Fantasma',
@@ -159,18 +159,18 @@ export default {
       'right': 'Desplaçament a la dreta',
       'turnLeft': 'Gira a l\'esquerra',
       'turnRight': 'Gira a la dreta',
-      'sprint': 'Sprint',
+      'sprint': 'Esprintar',
       'crouch': 'Ajupir-se',
       'act': 'Cop / utilitzar',
-      'grapple': 'Grappling hook',
-      'hide': 'Hide box',
+      'grapple': 'Ganxo',
+      'hide': 'Caixa amagatall',
       'decoy': 'Desplegar parany',
       'reload': 'Recarregar',
       'weapon1': 'Rifle franctirador',
       'weapon2': 'Minigun',
       'weapon3': 'Llançamíssils',
       'cycle': 'Arma següent',
-      'pause': 'Pause'
+      'pause': 'Pausa'
     }
   },
   'saveStatus': {

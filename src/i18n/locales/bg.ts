@@ -35,20 +35,20 @@ export default {
     'armor': 'Броня',
     'crouch': 'Клекни',
     'stand': 'Изправи се',
-    'sprint': 'Sprint',
-    'grapple': 'Grappling hook',
-    'grappleRecall': 'Recall the hook',
+    'sprint': 'Спринт',
+    'grapple': 'Кука с въже',
+    'grappleRecall': 'Прибери куката',
     'cancel': 'Свали оръжието',
     'capture': 'Кликни за продължение',
     'metres': '{n} м',
     'objective': {
-      'salvage': 'Salvage',
+      'salvage': 'Скрап',
       'extract': 'Стигни до площадката за евакуация'
     },
-    'haul': 'Salvage {n} of {need}',
-    'hide': 'Hide in the box',
-    'boss': 'Boss health {n}%',
-    'loot': 'Strip the salvage'
+    'haul': 'Скрап {n} от {need}',
+    'hide': 'Скрий се в кутията',
+    'boss': 'Живот на боса {n}%',
+    'loot': 'Разглоби скрапа'
   },
   'defeat': {
     'title': 'Мехът падна',
@@ -93,12 +93,12 @@ export default {
     'top': 'Най-висок клас'
   },
   'smithy': {
-    'furnace': 'Furnace: hold the bellows to keep the heat in the band',
-    'anvil': 'Anvil: strike when the ring meets the mark',
-    'quench': 'Quench: dip it when it glows cherry red',
-    'pump': 'Pump the bellows',
-    'dip': 'Dip it',
-    'stars': '{n} of 3 stars'
+    'furnace': 'Пещ: задръж духалото, за да остане жарът в ивицата',
+    'anvil': 'Наковалня: удари, когато пръстенът срещне знака',
+    'quench': 'Закаляване: потопи, когато свети вишневочервено',
+    'pump': 'Помпай духалото',
+    'dip': 'Потопи',
+    'stars': '{n} от 3 звезди'
   },
   'medal': {
     'ghost': 'Призрак',
@@ -159,18 +159,18 @@ export default {
       'right': 'Встрани надясно',
       'turnLeft': 'Завой наляво',
       'turnRight': 'Завой надясно',
-      'sprint': 'Sprint',
+      'sprint': 'Спринт',
       'crouch': 'Клякане',
       'act': 'Удар / използване',
-      'grapple': 'Grappling hook',
-      'hide': 'Hide box',
+      'grapple': 'Кука с въже',
+      'hide': 'Кутия-скривалище',
       'decoy': 'Постави примамка',
       'reload': 'Презареди',
       'weapon1': 'Снайпер',
       'weapon2': 'Миниган',
       'weapon3': 'Ракетомет',
       'cycle': 'Следващо оръжие',
-      'pause': 'Pause'
+      'pause': 'Пауза'
     }
   },
   'saveStatus': {

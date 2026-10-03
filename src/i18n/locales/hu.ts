@@ -36,19 +36,19 @@ export default {
     'crouch': 'Guggolás',
     'stand': 'Felállás',
     'sprint': 'Sprint',
-    'grapple': 'Grappling hook',
-    'grappleRecall': 'Recall the hook',
+    'grapple': 'Csáklya',
+    'grappleRecall': 'Csáklya vissza',
     'cancel': 'Fegyver le',
     'capture': 'Kattints a folytatáshoz',
     'metres': '{n} m',
     'objective': {
-      'salvage': 'Salvage',
+      'salvage': 'Hulladék',
       'extract': 'Érj a kimentési platformra'
     },
-    'haul': 'Salvage {n} of {need}',
-    'hide': 'Hide in the box',
-    'boss': 'Boss health {n}%',
-    'loot': 'Strip the salvage'
+    'haul': 'Hulladék: {n}/{need}',
+    'hide': 'Elbújni a ládában',
+    'boss': 'A főellenség élete {n}%',
+    'loot': 'Hulladék szétszedése'
   },
   'defeat': {
     'title': 'A mech kiesett',
@@ -93,12 +93,12 @@ export default {
     'top': 'Legmagasabb fokozat'
   },
   'smithy': {
-    'furnace': 'Furnace: hold the bellows to keep the heat in the band',
-    'anvil': 'Anvil: strike when the ring meets the mark',
-    'quench': 'Quench: dip it when it glows cherry red',
-    'pump': 'Pump the bellows',
-    'dip': 'Dip it',
-    'stars': '{n} of 3 stars'
+    'furnace': 'Kemence: tartsd a fújtatót, hogy a hő a sávban maradjon',
+    'anvil': 'Üllő: üss, amikor a gyűrű eléri a jelet',
+    'quench': 'Edzés: merítsd, amikor cseresznyepirosan izzik',
+    'pump': 'Fújtató pumpálása',
+    'dip': 'Merítés',
+    'stars': '{n}/3 csillag'
   },
   'medal': {
     'ghost': 'Szellem',
@@ -162,15 +162,15 @@ export default {
       'sprint': 'Sprint',
       'crouch': 'Guggolás',
       'act': 'Szúrás / használat',
-      'grapple': 'Grappling hook',
-      'hide': 'Hide box',
+      'grapple': 'Csáklya',
+      'hide': 'Rejtekláda',
       'decoy': 'Csali kihelyezése',
       'reload': 'Újratöltés',
       'weapon1': 'Mesterlövész puska',
       'weapon2': 'Minigun',
       'weapon3': 'Rakétavető',
       'cycle': 'Következő fegyver',
-      'pause': 'Pause'
+      'pause': 'Szünet'
     }
   },
   'saveStatus': {

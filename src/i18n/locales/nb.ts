@@ -36,19 +36,19 @@ export default {
     'crouch': 'Huk deg',
     'stand': 'Reis deg',
     'sprint': 'Sprint',
-    'grapple': 'Grappling hook',
-    'grappleRecall': 'Recall the hook',
+    'grapple': 'Entrehake',
+    'grappleRecall': 'Trekk inn kroken',
     'cancel': 'Senk våpenet',
     'capture': 'Klikk for å fortsette',
     'metres': '{n} m',
     'objective': {
-      'salvage': 'Salvage',
+      'salvage': 'Berging',
       'extract': 'Nå evakueringsplassen'
     },
-    'haul': 'Salvage {n} of {need}',
-    'hide': 'Hide in the box',
-    'boss': 'Boss health {n}%',
-    'loot': 'Strip the salvage'
+    'haul': 'Skrap {n} av {need}',
+    'hide': 'Gjem deg i kassen',
+    'boss': 'Bossens helse {n} %',
+    'loot': 'Ta fra hverandre skrapet'
   },
   'defeat': {
     'title': 'Mechen er nede',
@@ -93,12 +93,12 @@ export default {
     'top': 'Høyeste trinn'
   },
   'smithy': {
-    'furnace': 'Furnace: hold the bellows to keep the heat in the band',
-    'anvil': 'Anvil: strike when the ring meets the mark',
-    'quench': 'Quench: dip it when it glows cherry red',
-    'pump': 'Pump the bellows',
-    'dip': 'Dip it',
-    'stars': '{n} of 3 stars'
+    'furnace': 'Esse: hold blåsebelgen så varmen blir i båndet',
+    'anvil': 'Ambolt: slå når ringen treffer merket',
+    'quench': 'Herding: dypp den når den gløder kirsebærrød',
+    'pump': 'Pump blåsebelgen',
+    'dip': 'Dypp',
+    'stars': '{n} av 3 stjerner'
   },
   'medal': {
     'ghost': 'Spøkelse',
@@ -162,8 +162,8 @@ export default {
       'sprint': 'Sprint',
       'crouch': 'Huk',
       'act': 'Stikk / bruk',
-      'grapple': 'Grappling hook',
-      'hide': 'Hide box',
+      'grapple': 'Entrehake',
+      'hide': 'Gjemmekasse',
       'decoy': 'Plasser lokkemiddel',
       'reload': 'Lad om',
       'weapon1': 'Snikskytterrifle',

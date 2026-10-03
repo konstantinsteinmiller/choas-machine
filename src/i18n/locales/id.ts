@@ -35,20 +35,20 @@ export default {
     'armor': 'Armor',
     'crouch': 'Jongkok',
     'stand': 'Berdiri',
-    'sprint': 'Sprint',
-    'grapple': 'Grappling hook',
-    'grappleRecall': 'Recall the hook',
+    'sprint': 'Lari cepat',
+    'grapple': 'Kait pengait',
+    'grappleRecall': 'Tarik kembali kait',
     'cancel': 'Turunkan senjata',
     'capture': 'Klik untuk lanjut',
     'metres': '{n} m',
     'objective': {
-      'salvage': 'Salvage',
+      'salvage': 'Rongsokan',
       'extract': 'Capai landasan ekstraksi'
     },
-    'haul': 'Salvage {n} of {need}',
-    'hide': 'Hide in the box',
-    'boss': 'Boss health {n}%',
-    'loot': 'Strip the salvage'
+    'haul': 'Rongsokan {n} dari {need}',
+    'hide': 'Sembunyi di dalam kotak',
+    'boss': 'Nyawa bos {n}%',
+    'loot': 'Bongkar rongsokan'
   },
   'defeat': {
     'title': 'Mech tumbang',
@@ -93,12 +93,12 @@ export default {
     'top': 'Tingkat tertinggi'
   },
   'smithy': {
-    'furnace': 'Furnace: hold the bellows to keep the heat in the band',
-    'anvil': 'Anvil: strike when the ring meets the mark',
-    'quench': 'Quench: dip it when it glows cherry red',
-    'pump': 'Pump the bellows',
-    'dip': 'Dip it',
-    'stars': '{n} of 3 stars'
+    'furnace': 'Tungku: tahan ububan agar panas tetap di pita',
+    'anvil': 'Landasan: pukul saat cincin mengenai tanda',
+    'quench': 'Celup: celupkan saat menyala merah ceri',
+    'pump': 'Pompa ububan',
+    'dip': 'Celupkan',
+    'stars': '{n} dari 3 bintang'
   },
   'medal': {
     'ghost': 'Hantu',
@@ -159,18 +159,18 @@ export default {
       'right': 'Geser kanan',
       'turnLeft': 'Belok kiri',
       'turnRight': 'Belok kanan',
-      'sprint': 'Sprint',
+      'sprint': 'Lari cepat',
       'crouch': 'Jongkok',
       'act': 'Tikam / gunakan',
-      'grapple': 'Grappling hook',
-      'hide': 'Hide box',
+      'grapple': 'Kait pengait',
+      'hide': 'Kotak persembunyian',
       'decoy': 'Pasang umpan',
       'reload': 'Isi ulang',
       'weapon1': 'Senapan sniper',
       'weapon2': 'Minigun',
       'weapon3': 'Peluncur roket',
       'cycle': 'Senjata berikutnya',
-      'pause': 'Pause'
+      'pause': 'Jeda'
     }
   },
   'saveStatus': {

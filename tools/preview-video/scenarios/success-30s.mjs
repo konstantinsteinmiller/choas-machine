@@ -1,4 +1,4 @@
-import { aimAt, behind, boot, budget, fight, forceKillcam, freeze, hands, logState, roll, settled, snipe, unit, vantage } from './_drive.mjs'
+import { aimAt, behind, boot, budget, fight, forceKillcam, freeze, hands, logState, loot, roll, settled, takeDownBoss, unit, vantage } from './_drive.mjs'
 
 /**
  * SUCCESS, the long cut (30 s; CrazyGames' 16 s takes the same story without
@@ -8,8 +8,8 @@ import { aimAt, behind, boot, budget, fight, forceKillcam, freeze, hands, logSta
  *    5–9    the yard: the blade from behind
  *    9–16   a decoy pulls a patrol together; a rocket answers; the alarm      (30 s only)
  *   16–22   the minigun against what comes running                           (30 s only)
- *   22–27   the Commander on the roof: the last shot
- *   27–30   the beacon; the run for it
+ *   22–27   the Warden on the roof: a boss, so round after round into his helm
+ *   27–30   a pile stripped; the run for the pad; the robo dog takes the mech out
  */
 let sentryId = -1
 
@@ -87,14 +87,15 @@ export default {
       await ctx.wait(450)
     }
 
-    // ── The Commander ──
+    // ── The Warden: a boss, so it takes more than one ──
     const boss = await unit(ctx, 'commander', 0)
     await vantage(ctx, boss.id, 26)
     await ctx.wait(120)
-    await snipe(ctx, boss.id, 750)
-    // The salvage (stripped off camera): the way out is open.
+    await takeDownBoss(ctx, boss.id, 750)
+    await logState(ctx, 'the Warden is down')
+    // ── The haul: one pile on camera, the rest off it ──
+    await loot(ctx)
     await ctx.evaluate(() => window.__preview.takeSalvage())
-    await logState(ctx, 'the target is down')
 
     // ── Out ── (the lift takes about five seconds: start it that far from the end)
     await t.until(ctx.durationMs - 5600)

@@ -35,20 +35,20 @@ export default {
     'armor': 'Panzerung',
     'crouch': 'Ducken',
     'stand': 'Aufstehen',
-    'sprint': 'Sprint',
-    'grapple': 'Grappling hook',
-    'grappleRecall': 'Recall the hook',
+    'sprint': 'Sprinten',
+    'grapple': 'Enterhaken',
+    'grappleRecall': 'Haken einholen',
     'cancel': 'Waffe senken',
     'capture': 'Klicken zum Fortsetzen',
     'metres': '{n} m',
     'objective': {
-      'salvage': 'Salvage',
+      'salvage': 'Bergung',
       'extract': 'Erreiche die Extraktionsplattform'
     },
-    'haul': 'Salvage {n} of {need}',
-    'hide': 'Hide in the box',
-    'boss': 'Boss health {n}%',
-    'loot': 'Strip the salvage'
+    'haul': 'Bergegut {n} von {need}',
+    'hide': 'In der Kiste verstecken',
+    'boss': 'Leben des Bosses {n}%',
+    'loot': 'Bergegut ausschlachten'
   },
   'defeat': {
     'title': 'Mech außer Gefecht',
@@ -93,12 +93,12 @@ export default {
     'top': 'Höchste Stufe'
   },
   'smithy': {
-    'furnace': 'Furnace: hold the bellows to keep the heat in the band',
-    'anvil': 'Anvil: strike when the ring meets the mark',
-    'quench': 'Quench: dip it when it glows cherry red',
-    'pump': 'Pump the bellows',
-    'dip': 'Dip it',
-    'stars': '{n} of 3 stars'
+    'furnace': 'Schmelzofen: Blasebalg halten, damit die Hitze im Band bleibt',
+    'anvil': 'Amboss: zuschlagen, wenn der Ring die Markierung trifft',
+    'quench': 'Abschrecken: eintauchen, wenn es kirschrot glüht',
+    'pump': 'Blasebalg pumpen',
+    'dip': 'Eintauchen',
+    'stars': '{n} von 3 Sternen'
   },
   'medal': {
     'ghost': 'Geist',
@@ -159,11 +159,11 @@ export default {
       'right': 'Rechts seitwärts',
       'turnLeft': 'Links drehen',
       'turnRight': 'Rechts drehen',
-      'sprint': 'Sprint',
+      'sprint': 'Sprinten',
       'crouch': 'Ducken',
       'act': 'Zustechen / benutzen',
-      'grapple': 'Grappling hook',
-      'hide': 'Hide box',
+      'grapple': 'Enterhaken',
+      'hide': 'Versteckkiste',
       'decoy': 'Köder platzieren',
       'reload': 'Nachladen',
       'weapon1': 'Scharfschützengewehr',

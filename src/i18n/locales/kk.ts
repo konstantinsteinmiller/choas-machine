@@ -35,20 +35,20 @@ export default {
     'armor': 'Сауыт',
     'crouch': 'Бүгілу',
     'stand': 'Тұру',
-    'sprint': 'Sprint',
-    'grapple': 'Grappling hook',
-    'grappleRecall': 'Recall the hook',
+    'sprint': 'Жылдам жүгіру',
+    'grapple': 'Ілмек',
+    'grappleRecall': 'Ілмекті қайтару',
     'cancel': 'Қаруды түсіру',
     'capture': 'Жалғастыру үшін басыңыз',
     'metres': '{n} м',
     'objective': {
-      'salvage': 'Salvage',
+      'salvage': 'Сынық',
       'extract': 'Эвакуация алаңына жетіңіз'
     },
-    'haul': 'Salvage {n} of {need}',
-    'hide': 'Hide in the box',
-    'boss': 'Boss health {n}%',
-    'loot': 'Strip the salvage'
+    'haul': 'Сынық {n} / {need}',
+    'hide': 'Жәшікке жасырыну',
+    'boss': 'Бастың денсаулығы {n}%',
+    'loot': 'Сынықты бөлшектеу'
   },
   'defeat': {
     'title': 'Мех құлады',
@@ -93,12 +93,12 @@ export default {
     'top': 'Ең жоғары саты'
   },
   'smithy': {
-    'furnace': 'Furnace: hold the bellows to keep the heat in the band',
-    'anvil': 'Anvil: strike when the ring meets the mark',
-    'quench': 'Quench: dip it when it glows cherry red',
-    'pump': 'Pump the bellows',
-    'dip': 'Dip it',
-    'stars': '{n} of 3 stars'
+    'furnace': 'Пеш: қызу жолақта тұруы үшін көрікті басып тұр',
+    'anvil': 'Төс: сақина белгіге жеткенде соқ',
+    'quench': 'Шынықтыру: шие-қызыл жарқырағанда бат',
+    'pump': 'Көрікті басу',
+    'dip': 'Батыру',
+    'stars': '3 жұлдыздан {n}'
   },
   'medal': {
     'ghost': 'Елес',
@@ -159,18 +159,18 @@ export default {
       'right': 'Оңға жылжу',
       'turnLeft': 'Солға бұрылу',
       'turnRight': 'Оңға бұрылу',
-      'sprint': 'Sprint',
+      'sprint': 'Жылдам жүгіру',
       'crouch': 'Бүгілу',
       'act': 'Шанышу / қолдану',
-      'grapple': 'Grappling hook',
-      'hide': 'Hide box',
+      'grapple': 'Ілмек',
+      'hide': 'Жасырыну жәшігі',
       'decoy': 'Жем қою',
       'reload': 'Оқтау',
       'weapon1': 'Снайпер мылтығы',
       'weapon2': 'Миниган',
       'weapon3': 'Ракета атқыш',
       'cycle': 'Келесі қару',
-      'pause': 'Pause'
+      'pause': 'Үзіліс'
     }
   },
   'saveStatus': {

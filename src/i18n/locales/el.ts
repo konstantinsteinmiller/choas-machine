@@ -35,20 +35,20 @@ export default {
     'armor': 'Θωράκιση',
     'crouch': 'Σκύψε',
     'stand': 'Σηκώσου',
-    'sprint': 'Sprint',
-    'grapple': 'Grappling hook',
-    'grappleRecall': 'Recall the hook',
+    'sprint': 'Σπριντ',
+    'grapple': 'Γάντζος',
+    'grappleRecall': 'Μάζεψε τον γάντζο',
     'cancel': 'Κατέβασε το όπλο',
     'capture': 'Κλικ για συνέχεια',
     'metres': '{n} μ.',
     'objective': {
-      'salvage': 'Salvage',
+      'salvage': 'Σκραπ',
       'extract': 'Φτάσε στην πλατφόρμα εκκένωσης'
     },
-    'haul': 'Salvage {n} of {need}',
-    'hide': 'Hide in the box',
-    'boss': 'Boss health {n}%',
-    'loot': 'Strip the salvage'
+    'haul': 'Σκραπ {n} από {need}',
+    'hide': 'Κρύψου στο κουτί',
+    'boss': 'Ζωή του αρχηγού {n}%',
+    'loot': 'Ξήλωσε το σκραπ'
   },
   'defeat': {
     'title': 'Το μεκ έπεσε',
@@ -93,12 +93,12 @@ export default {
     'top': 'Ανώτατη βαθμίδα'
   },
   'smithy': {
-    'furnace': 'Furnace: hold the bellows to keep the heat in the band',
-    'anvil': 'Anvil: strike when the ring meets the mark',
-    'quench': 'Quench: dip it when it glows cherry red',
-    'pump': 'Pump the bellows',
-    'dip': 'Dip it',
-    'stars': '{n} of 3 stars'
+    'furnace': 'Καμίνι: κράτα το φυσερό για να μένει η θερμότητα στη ζώνη',
+    'anvil': 'Αμόνι: χτύπα όταν ο δακτύλιος φτάσει στο σημάδι',
+    'quench': 'Βαφή: βύθισέ το όταν λάμπει κόκκινο κερασί',
+    'pump': 'Φύσα το φυσερό',
+    'dip': 'Βύθισε',
+    'stars': '{n} από 3 αστέρια'
   },
   'medal': {
     'ghost': 'Φάντασμα',
@@ -159,18 +159,18 @@ export default {
       'right': 'Πλάγια δεξιά',
       'turnLeft': 'Στροφή αριστερά',
       'turnRight': 'Στροφή δεξιά',
-      'sprint': 'Sprint',
+      'sprint': 'Σπριντ',
       'crouch': 'Σκύψιμο',
       'act': 'Μαχαίρωμα / χρήση',
-      'grapple': 'Grappling hook',
-      'hide': 'Hide box',
+      'grapple': 'Γάντζος',
+      'hide': 'Κουτί κρυψώνας',
       'decoy': 'Τοποθέτηση δολώματος',
       'reload': 'Ανατροφοδότηση',
       'weapon1': 'Ελεύθερος σκοπευτής',
       'weapon2': 'Μίνιγκαν',
       'weapon3': 'Εκτοξευτής ρουκετών',
       'cycle': 'Επόμενο όπλο',
-      'pause': 'Pause'
+      'pause': 'Παύση'
     }
   },
   'saveStatus': {

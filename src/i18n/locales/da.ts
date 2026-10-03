@@ -35,20 +35,20 @@ export default {
     'armor': 'Panser',
     'crouch': 'Dukke sig',
     'stand': 'Rejs dig',
-    'sprint': 'Sprint',
-    'grapple': 'Grappling hook',
-    'grappleRecall': 'Recall the hook',
+    'sprint': 'Spurt',
+    'grapple': 'Entrehage',
+    'grappleRecall': 'Træk krogen ind',
     'cancel': 'Sænk våbnet',
     'capture': 'Klik for at fortsætte',
     'metres': '{n} m',
     'objective': {
-      'salvage': 'Salvage',
+      'salvage': 'Bjærgning',
       'extract': 'Nå evakueringsplatformen'
     },
-    'haul': 'Salvage {n} of {need}',
-    'hide': 'Hide in the box',
-    'boss': 'Boss health {n}%',
-    'loot': 'Strip the salvage'
+    'haul': 'Skrot {n} af {need}',
+    'hide': 'Gem dig i kassen',
+    'boss': 'Bossens liv {n} %',
+    'loot': 'Skil skrottet ad'
   },
   'defeat': {
     'title': 'Mechen er nede',
@@ -93,12 +93,12 @@ export default {
     'top': 'Højeste trin'
   },
   'smithy': {
-    'furnace': 'Furnace: hold the bellows to keep the heat in the band',
-    'anvil': 'Anvil: strike when the ring meets the mark',
-    'quench': 'Quench: dip it when it glows cherry red',
-    'pump': 'Pump the bellows',
-    'dip': 'Dip it',
-    'stars': '{n} of 3 stars'
+    'furnace': 'Esse: hold blæsebælgen så varmen bliver i båndet',
+    'anvil': 'Ambolt: slå når ringen rammer mærket',
+    'quench': 'Hærdning: dyp den når den gløder kirsebærrød',
+    'pump': 'Pump blæsebælgen',
+    'dip': 'Dyp',
+    'stars': '{n} af 3 stjerner'
   },
   'medal': {
     'ghost': 'Spøgelse',
@@ -159,11 +159,11 @@ export default {
       'right': 'Sidetrin højre',
       'turnLeft': 'Drej venstre',
       'turnRight': 'Drej højre',
-      'sprint': 'Sprint',
+      'sprint': 'Spurt',
       'crouch': 'Dukke sig',
       'act': 'Stik / brug',
-      'grapple': 'Grappling hook',
-      'hide': 'Hide box',
+      'grapple': 'Entrehage',
+      'hide': 'Gemmekasse',
       'decoy': 'Udsæt lokkedue',
       'reload': 'Genlad',
       'weapon1': 'Snigskytteriffel',

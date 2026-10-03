@@ -3,8 +3,9 @@
 A casual stealth-action / sniper game for the web. A small mech infiltrates a
 neon fortress: snipe guards and drones from a perch, strike with the energy
 blade from behind, lure patrols with holographic decoys, and go loud with
-minigun and rockets when the base goes on full alert. Take out the Commander,
-reach the beacon, and the dropship lifts the mech out.
+minigun and rockets when the base goes on full alert. Strip the salvage the
+raid is for, reach the pad, and a jet-powered robo dog flies the mech out; back
+home the salvage is forged into upgrades in a three-step smithy.
 
 - Design: [GDD.md](GDD.md)
 - Plan and resume point: [game-implementation-plan.md](game-implementation-plan.md)
@@ -46,7 +47,7 @@ game's pointer lock is replaced by a stand-in inside the page.
 ```
 src/game/engine/     the loop (fixed step + render), input, renderer, slicer
 src/game/world/      the height grid, fortress mesh, sky, procedural textures
-src/game/models/     the mech, the garrison, the dropship: meshes from code
+src/game/models/     the mech, the garrison, the robo dog, the hide box: meshes from code
 src/game/sim/        the rules, with no renderer and no DOM in them:
                        perception, alert, garrison AI, weapons, hit-scan,
                        damage, melee, rockets, armor, kill-cam, cinematics,

@@ -35,20 +35,20 @@ export default {
     'armor': 'Броня',
     'crouch': 'Пригнуться',
     'stand': 'Встать',
-    'sprint': 'Sprint',
-    'grapple': 'Grappling hook',
-    'grappleRecall': 'Recall the hook',
+    'sprint': 'Спринт',
+    'grapple': 'Крюк-кошка',
+    'grappleRecall': 'Отозвать крюк',
     'cancel': 'Опустить оружие',
     'capture': 'Нажмите, чтобы продолжить',
     'metres': '{n} м',
     'objective': {
-      'salvage': 'Salvage',
+      'salvage': 'Трофеи',
       'extract': 'Доберитесь до точки эвакуации'
     },
-    'haul': 'Salvage {n} of {need}',
-    'hide': 'Hide in the box',
-    'boss': 'Boss health {n}%',
-    'loot': 'Strip the salvage'
+    'haul': 'Лом {n} из {need}',
+    'hide': 'Спрятаться в ящике',
+    'boss': 'Здоровье босса {n}%',
+    'loot': 'Разобрать лом'
   },
   'defeat': {
     'title': 'Мех повержен',
@@ -93,12 +93,12 @@ export default {
     'top': 'Высший ранг'
   },
   'smithy': {
-    'furnace': 'Furnace: hold the bellows to keep the heat in the band',
-    'anvil': 'Anvil: strike when the ring meets the mark',
-    'quench': 'Quench: dip it when it glows cherry red',
-    'pump': 'Pump the bellows',
-    'dip': 'Dip it',
-    'stars': '{n} of 3 stars'
+    'furnace': 'Горн: держи мехи, чтобы жар оставался в полосе',
+    'anvil': 'Наковальня: бей, когда кольцо сойдётся с меткой',
+    'quench': 'Закалка: окуни, когда засветится вишнёво-красным',
+    'pump': 'Качать мехи',
+    'dip': 'Окунуть',
+    'stars': '{n} из 3 звёзд'
   },
   'medal': {
     'ghost': 'Призрак',
@@ -159,18 +159,18 @@ export default {
       'right': 'Шаг вправо',
       'turnLeft': 'Поворот влево',
       'turnRight': 'Поворот вправо',
-      'sprint': 'Sprint',
+      'sprint': 'Спринт',
       'crouch': 'Приседание',
       'act': 'Удар / действие',
-      'grapple': 'Grappling hook',
-      'hide': 'Hide box',
+      'grapple': 'Крюк-кошка',
+      'hide': 'Ящик-укрытие',
       'decoy': 'Поставить приманку',
       'reload': 'Перезарядка',
       'weapon1': 'Снайперская винтовка',
       'weapon2': 'Миниган',
       'weapon3': 'Ракетница',
       'cycle': 'Следующее оружие',
-      'pause': 'Pause'
+      'pause': 'Пауза'
     }
   },
   'saveStatus': {

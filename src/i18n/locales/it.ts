@@ -35,20 +35,20 @@ export default {
     'armor': 'Corazza',
     'crouch': 'Accovacciati',
     'stand': 'Alzati',
-    'sprint': 'Sprint',
-    'grapple': 'Grappling hook',
-    'grappleRecall': 'Recall the hook',
+    'sprint': 'Scatto',
+    'grapple': 'Rampino',
+    'grappleRecall': 'Richiama il rampino',
     'cancel': 'Abbassa l\'arma',
     'capture': 'Clicca per continuare',
     'metres': '{n} m',
     'objective': {
-      'salvage': 'Salvage',
+      'salvage': 'Recupero',
       'extract': 'Raggiungi la piattaforma di estrazione'
     },
-    'haul': 'Salvage {n} of {need}',
-    'hide': 'Hide in the box',
-    'boss': 'Boss health {n}%',
-    'loot': 'Strip the salvage'
+    'haul': 'Rottami {n} su {need}',
+    'hide': 'Nasconditi nella cassa',
+    'boss': 'Vita del boss {n}%',
+    'loot': 'Smonta i rottami'
   },
   'defeat': {
     'title': 'Mech a terra',
@@ -93,12 +93,12 @@ export default {
     'top': 'Grado massimo'
   },
   'smithy': {
-    'furnace': 'Furnace: hold the bellows to keep the heat in the band',
-    'anvil': 'Anvil: strike when the ring meets the mark',
-    'quench': 'Quench: dip it when it glows cherry red',
-    'pump': 'Pump the bellows',
-    'dip': 'Dip it',
-    'stars': '{n} of 3 stars'
+    'furnace': 'Fornace: tieni premuto il mantice per tenere il calore nella fascia',
+    'anvil': 'Incudine: colpisci quando l’anello tocca il segno',
+    'quench': 'Tempra: immergi quando brilla rosso ciliegia',
+    'pump': 'Aziona il mantice',
+    'dip': 'Immergi',
+    'stars': '{n} stelle su 3'
   },
   'medal': {
     'ghost': 'Fantasma',
@@ -159,18 +159,18 @@ export default {
       'right': 'Laterale destra',
       'turnLeft': 'Ruota a sinistra',
       'turnRight': 'Ruota a destra',
-      'sprint': 'Sprint',
+      'sprint': 'Scatto',
       'crouch': 'Accovacciarsi',
       'act': 'Colpisci / usa',
-      'grapple': 'Grappling hook',
-      'hide': 'Hide box',
+      'grapple': 'Rampino',
+      'hide': 'Cassa nascondiglio',
       'decoy': 'Piazza esca',
       'reload': 'Ricarica',
       'weapon1': 'Fucile di precisione',
       'weapon2': 'Minigun',
       'weapon3': 'Lanciarazzi',
       'cycle': 'Arma successiva',
-      'pause': 'Pause'
+      'pause': 'Pausa'
     }
   },
   'saveStatus': {

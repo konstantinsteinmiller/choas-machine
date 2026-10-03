@@ -35,20 +35,20 @@ export default {
     'armor': 'Blindage',
     'crouch': 'S\'accroupir',
     'stand': 'Se relever',
-    'sprint': 'Sprint',
-    'grapple': 'Grappling hook',
-    'grappleRecall': 'Recall the hook',
+    'sprint': 'Sprinter',
+    'grapple': 'Grappin',
+    'grappleRecall': 'Rappeler le grappin',
     'cancel': 'Baisser l\'arme',
     'capture': 'Cliquez pour continuer',
     'metres': '{n} m',
     'objective': {
-      'salvage': 'Salvage',
+      'salvage': 'Récupération',
       'extract': 'Rejoins la zone d\'extraction'
     },
-    'haul': 'Salvage {n} of {need}',
-    'hide': 'Hide in the box',
-    'boss': 'Boss health {n}%',
-    'loot': 'Strip the salvage'
+    'haul': 'Butin {n} sur {need}',
+    'hide': 'Se cacher dans la caisse',
+    'boss': 'Vie du boss {n} %',
+    'loot': 'Récupérer le butin'
   },
   'defeat': {
     'title': 'Mécha à terre',
@@ -93,12 +93,12 @@ export default {
     'top': 'Rang maximal'
   },
   'smithy': {
-    'furnace': 'Furnace: hold the bellows to keep the heat in the band',
-    'anvil': 'Anvil: strike when the ring meets the mark',
-    'quench': 'Quench: dip it when it glows cherry red',
-    'pump': 'Pump the bellows',
-    'dip': 'Dip it',
-    'stars': '{n} of 3 stars'
+    'furnace': 'Fourneau : maintiens le soufflet pour garder la chaleur dans la zone',
+    'anvil': 'Enclume : frappe quand l’anneau touche la marque',
+    'quench': 'Trempe : plonge-le quand il rougeoie cerise',
+    'pump': 'Actionner le soufflet',
+    'dip': 'Plonger',
+    'stars': '{n} étoiles sur 3'
   },
   'medal': {
     'ghost': 'Fantôme',
@@ -159,11 +159,11 @@ export default {
       'right': 'Pas latéral droit',
       'turnLeft': 'Tourner à gauche',
       'turnRight': 'Tourner à droite',
-      'sprint': 'Sprint',
+      'sprint': 'Sprinter',
       'crouch': 'S\'accroupir',
       'act': 'Frapper / utiliser',
-      'grapple': 'Grappling hook',
-      'hide': 'Hide box',
+      'grapple': 'Grappin',
+      'hide': 'Caisse cachette',
       'decoy': 'Poser un leurre',
       'reload': 'Recharger',
       'weapon1': 'Fusil de précision',

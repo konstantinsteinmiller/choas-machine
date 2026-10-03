@@ -35,20 +35,20 @@ export default {
     'armor': 'Kiraso',
     'crouch': 'Kaŝkaŭri',
     'stand': 'Stariĝi',
-    'sprint': 'Sprint',
-    'grapple': 'Grappling hook',
-    'grappleRecall': 'Recall the hook',
+    'sprint': 'Spurti',
+    'grapple': 'Hoko',
+    'grappleRecall': 'Retiri la hokon',
     'cancel': 'Mallevi armilon',
     'capture': 'Alklaku por daŭrigi',
     'metres': '{n} m',
     'objective': {
-      'salvage': 'Salvage',
+      'salvage': 'Rubaĵo',
       'extract': 'Atingu la evakuan platformon'
     },
-    'haul': 'Salvage {n} of {need}',
-    'hide': 'Hide in the box',
-    'boss': 'Boss health {n}%',
-    'loot': 'Strip the salvage'
+    'haul': 'Rubaĵo {n} el {need}',
+    'hide': 'Kaŝiĝi en la kesto',
+    'boss': 'Vivo de la estro {n}%',
+    'loot': 'Malmunti la rubaĵon'
   },
   'defeat': {
     'title': 'Meĥo falis',
@@ -93,12 +93,12 @@ export default {
     'top': 'Plej alta grado'
   },
   'smithy': {
-    'furnace': 'Furnace: hold the bellows to keep the heat in the band',
-    'anvil': 'Anvil: strike when the ring meets the mark',
-    'quench': 'Quench: dip it when it glows cherry red',
-    'pump': 'Pump the bellows',
-    'dip': 'Dip it',
-    'stars': '{n} of 3 stars'
+    'furnace': 'Forno: tenu la blovilon por teni la varmon en la bendo',
+    'anvil': 'Amboso: frapu kiam la ringo atingas la markon',
+    'quench': 'Hardado: trempu kiam ĝi ardas ĉerize ruĝe',
+    'pump': 'Pumpi la blovilon',
+    'dip': 'Trempi',
+    'stars': '{n} el 3 steloj'
   },
   'medal': {
     'ghost': 'Fantomo',
@@ -159,18 +159,18 @@ export default {
       'right': 'Flanken dekstren',
       'turnLeft': 'Turniĝi maldekstren',
       'turnRight': 'Turniĝi dekstren',
-      'sprint': 'Sprint',
+      'sprint': 'Spurti',
       'crouch': 'Kaŝkaŭri',
       'act': 'Piki / uzi',
-      'grapple': 'Grappling hook',
-      'hide': 'Hide box',
+      'grapple': 'Hoko',
+      'hide': 'Kaŝkesto',
       'decoy': 'Meti logaĵon',
       'reload': 'Reŝargi',
       'weapon1': 'Ŝtelpafila fusilo',
       'weapon2': 'Minigun',
       'weapon3': 'Raketlanĉilo',
       'cycle': 'Sekva armilo',
-      'pause': 'Pause'
+      'pause': 'Paŭzo'
     }
   },
   'saveStatus': {

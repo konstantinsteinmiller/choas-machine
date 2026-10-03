@@ -166,6 +166,27 @@ const install = (): void => {
       }
       return false
     },
+    /**
+     * Stand at the pile of salvage nearest to the mech that lies on open
+     * ground, a step away and facing it, with the camera behind and above.
+     * False if there is none left.
+     */
+    atPile: (): boolean => {
+      const m = mission()
+      if (!m) return false
+      const p = m.piles.filter(q => !q.taken && !q.big)
+        .sort((a, b) => Math.hypot(a.x - m.player.x, a.z - m.player.z) - Math.hypot(b.x - m.player.x, b.z - m.player.z))[0]
+      if (!p) return false
+      for (let a = 0; a < 16; a++) {
+        const ang = (a / 16) * Math.PI * 2
+        const x = p.x + Math.sin(ang) * 1.2
+        const z = p.z + Math.cos(ang) * 1.2
+        if (Math.abs(heightAt(m.fortress.grid, x, z) - p.y) > 0.2) continue
+        put(x, z, Math.atan2(p.x - x, p.z - z), -0.32, false)
+        return true
+      }
+      return false
+    },
     /** Strip the salvage the raid still needs, where it lies (opens the way out). */
     takeSalvage: (): void => { mission()?.cheatSalvage() },
     /** The nearest defender the mech can see (-1 if none). */
@@ -308,7 +329,7 @@ const install = (): void => {
       return {
         phase: hud.phase, alert: hud.alert, chaos: hud.chaos, cine: hud.cine, objective: hud.objective, strike: hud.strike,
         weapon: hud.weapon, scoped: hud.scoped, busy: m?.busy ?? false,
-        kills: m?.stats.kills ?? 0, headshots: m?.stats.headshots ?? 0, bladeKills: m?.stats.bladeKills ?? 0,
+        kills: m?.stats.kills ?? 0, headshots: m?.stats.headshots ?? 0, bladeKills: m?.stats.bladeKills ?? 0, salvage: m?.stats.piles ?? 0,
         armor: m ? Math.round(m.armor.hp) : 0, yaw: m?.cam.yaw ?? 0, x: m?.player.x ?? 0, y: m?.player.y ?? 0, z: m?.player.z ?? 0
       }
     }

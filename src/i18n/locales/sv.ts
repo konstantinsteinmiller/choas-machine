@@ -35,20 +35,20 @@ export default {
     'armor': 'Pansar',
     'crouch': 'Huka dig',
     'stand': 'Res dig',
-    'sprint': 'Sprint',
-    'grapple': 'Grappling hook',
-    'grappleRecall': 'Recall the hook',
+    'sprint': 'Spurta',
+    'grapple': 'Änterhake',
+    'grappleRecall': 'Dra in haken',
     'cancel': 'Sänk vapnet',
     'capture': 'Klicka för att fortsätta',
     'metres': '{n} m',
     'objective': {
-      'salvage': 'Salvage',
+      'salvage': 'Bärgning',
       'extract': 'Nå evakueringsplatsen'
     },
-    'haul': 'Salvage {n} of {need}',
-    'hide': 'Hide in the box',
-    'boss': 'Boss health {n}%',
-    'loot': 'Strip the salvage'
+    'haul': 'Skrot {n} av {need}',
+    'hide': 'Göm dig i lådan',
+    'boss': 'Bossens hälsa {n} %',
+    'loot': 'Plocka isär skrotet'
   },
   'defeat': {
     'title': 'Mechen är nere',
@@ -93,12 +93,12 @@ export default {
     'top': 'Högsta nivå'
   },
   'smithy': {
-    'furnace': 'Furnace: hold the bellows to keep the heat in the band',
-    'anvil': 'Anvil: strike when the ring meets the mark',
-    'quench': 'Quench: dip it when it glows cherry red',
-    'pump': 'Pump the bellows',
-    'dip': 'Dip it',
-    'stars': '{n} of 3 stars'
+    'furnace': 'Ässja: håll bälgen så att värmen stannar i bandet',
+    'anvil': 'Städ: slå när ringen möter märket',
+    'quench': 'Härdning: doppa när det glöder körsbärsrött',
+    'pump': 'Pumpa bälgen',
+    'dip': 'Doppa',
+    'stars': '{n} av 3 stjärnor'
   },
   'medal': {
     'ghost': 'Spöke',
@@ -159,18 +159,18 @@ export default {
       'right': 'Sidsteg höger',
       'turnLeft': 'Vänd vänster',
       'turnRight': 'Vänd höger',
-      'sprint': 'Sprint',
+      'sprint': 'Spurta',
       'crouch': 'Huka',
       'act': 'Hugga / använd',
-      'grapple': 'Grappling hook',
-      'hide': 'Hide box',
+      'grapple': 'Änterhake',
+      'hide': 'Gömlåda',
       'decoy': 'Placera lockbete',
       'reload': 'Ladda om',
       'weapon1': 'Prickskyttegevär',
       'weapon2': 'Minigun',
       'weapon3': 'Raketgevär',
       'cycle': 'Nästa vapen',
-      'pause': 'Pause'
+      'pause': 'Paus'
     }
   },
   'saveStatus': {

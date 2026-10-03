@@ -36,19 +36,19 @@ export default {
     'crouch': 'Skrčit se',
     'stand': 'Vstát',
     'sprint': 'Sprint',
-    'grapple': 'Grappling hook',
-    'grappleRecall': 'Recall the hook',
+    'grapple': 'Hák s lanem',
+    'grappleRecall': 'Stáhnout hák',
     'cancel': 'Spustit zbraň',
     'capture': 'Klikni a pokračuj',
     'metres': '{n} m',
     'objective': {
-      'salvage': 'Salvage',
+      'salvage': 'Šrot',
       'extract': 'Dojdi na evakuační plošinu'
     },
-    'haul': 'Salvage {n} of {need}',
-    'hide': 'Hide in the box',
-    'boss': 'Boss health {n}%',
-    'loot': 'Strip the salvage'
+    'haul': 'Šrot {n} z {need}',
+    'hide': 'Schovat se v bedně',
+    'boss': 'Zdraví bosse {n} %',
+    'loot': 'Rozebrat šrot'
   },
   'defeat': {
     'title': 'Mech je venku',
@@ -93,12 +93,12 @@ export default {
     'top': 'Nejvyšší stupeň'
   },
   'smithy': {
-    'furnace': 'Furnace: hold the bellows to keep the heat in the band',
-    'anvil': 'Anvil: strike when the ring meets the mark',
-    'quench': 'Quench: dip it when it glows cherry red',
-    'pump': 'Pump the bellows',
-    'dip': 'Dip it',
-    'stars': '{n} of 3 stars'
+    'furnace': 'Pec: drž měch, ať žár zůstane v pásu',
+    'anvil': 'Kovadlina: udeř, když kruh dosedne na značku',
+    'quench': 'Kalení: ponoř, když žhne třešňově',
+    'pump': 'Pumpovat měch',
+    'dip': 'Ponořit',
+    'stars': '{n} ze 3 hvězd'
   },
   'medal': {
     'ghost': 'Duch',
@@ -162,15 +162,15 @@ export default {
       'sprint': 'Sprint',
       'crouch': 'Dřep',
       'act': 'Úder / použít',
-      'grapple': 'Grappling hook',
-      'hide': 'Hide box',
+      'grapple': 'Hák s lanem',
+      'hide': 'Bedna na schování',
       'decoy': 'Nasadit návnadu',
       'reload': 'Přebít',
       'weapon1': 'Odstřelovačka',
       'weapon2': 'Minigun',
       'weapon3': 'Raketomet',
       'cycle': 'Další zbraň',
-      'pause': 'Pause'
+      'pause': 'Pauza'
     }
   },
   'saveStatus': {

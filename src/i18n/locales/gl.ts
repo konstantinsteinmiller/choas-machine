@@ -35,20 +35,20 @@ export default {
     'armor': 'Armadura',
     'crouch': 'Agacharse',
     'stand': 'Levantarse',
-    'sprint': 'Sprint',
-    'grapple': 'Grappling hook',
-    'grappleRecall': 'Recall the hook',
+    'sprint': 'Esprintar',
+    'grapple': 'Gancho',
+    'grappleRecall': 'Recoller o gancho',
     'cancel': 'Baixar a arma',
     'capture': 'Preme para continuar',
     'metres': '{n} m',
     'objective': {
-      'salvage': 'Salvage',
+      'salvage': 'Chatarra',
       'extract': 'Chega á plataforma de extracción'
     },
-    'haul': 'Salvage {n} of {need}',
-    'hide': 'Hide in the box',
-    'boss': 'Boss health {n}%',
-    'loot': 'Strip the salvage'
+    'haul': 'Chatarra {n} de {need}',
+    'hide': 'Agocharse na caixa',
+    'boss': 'Vida do xefe {n} %',
+    'loot': 'Desmontar a chatarra'
   },
   'defeat': {
     'title': 'Mecha fóra de combate',
@@ -93,12 +93,12 @@ export default {
     'top': 'Nivel máximo'
   },
   'smithy': {
-    'furnace': 'Furnace: hold the bellows to keep the heat in the band',
-    'anvil': 'Anvil: strike when the ring meets the mark',
-    'quench': 'Quench: dip it when it glows cherry red',
-    'pump': 'Pump the bellows',
-    'dip': 'Dip it',
-    'stars': '{n} of 3 stars'
+    'furnace': 'Forno: mantén o fol para que a calor quede na franxa',
+    'anvil': 'Engra: golpea cando o anel toque a marca',
+    'quench': 'Tempero: mergúllao cando brille vermello cereixa',
+    'pump': 'Accionar o fol',
+    'dip': 'Mergullar',
+    'stars': '{n} de 3 estrelas'
   },
   'medal': {
     'ghost': 'Pantasma',
@@ -159,18 +159,18 @@ export default {
       'right': 'Desprazarse á dereita',
       'turnLeft': 'Xirar á esquerda',
       'turnRight': 'Xirar á dereita',
-      'sprint': 'Sprint',
+      'sprint': 'Esprintar',
       'crouch': 'Agacharse',
       'act': 'Apuñalar / usar',
-      'grapple': 'Grappling hook',
-      'hide': 'Hide box',
+      'grapple': 'Gancho',
+      'hide': 'Caixa agocho',
       'decoy': 'Colocar reclamo',
       'reload': 'Recargar',
       'weapon1': 'Rifle de francotirador',
       'weapon2': 'Minigun',
       'weapon3': 'Lanzamisiles',
       'cycle': 'Seguinte arma',
-      'pause': 'Pause'
+      'pause': 'Pausa'
     }
   },
   'saveStatus': {

@@ -35,20 +35,20 @@ export default {
     'armor': 'เกราะ',
     'crouch': 'ย่อตัว',
     'stand': 'ลุกขึ้น',
-    'sprint': 'Sprint',
-    'grapple': 'Grappling hook',
-    'grappleRecall': 'Recall the hook',
+    'sprint': 'วิ่งเร็ว',
+    'grapple': 'ตะขอเกี่ยว',
+    'grappleRecall': 'ดึงตะขอกลับ',
     'cancel': 'ลดอาวุธ',
     'capture': 'คลิกเพื่อเล่นต่อ',
     'metres': '{n} ม.',
     'objective': {
-      'salvage': 'Salvage',
+      'salvage': 'เศษเหล็ก',
       'extract': 'ไปที่จุดอพยพ'
     },
-    'haul': 'Salvage {n} of {need}',
-    'hide': 'Hide in the box',
-    'boss': 'Boss health {n}%',
-    'loot': 'Strip the salvage'
+    'haul': 'เศษเหล็ก {n} จาก {need}',
+    'hide': 'ซ่อนในกล่อง',
+    'boss': 'พลังชีวิตบอส {n}%',
+    'loot': 'รื้อเศษเหล็ก'
   },
   'defeat': {
     'title': 'เม็คล้มแล้ว',
@@ -93,12 +93,12 @@ export default {
     'top': 'ระดับสูงสุด'
   },
   'smithy': {
-    'furnace': 'Furnace: hold the bellows to keep the heat in the band',
-    'anvil': 'Anvil: strike when the ring meets the mark',
-    'quench': 'Quench: dip it when it glows cherry red',
-    'pump': 'Pump the bellows',
-    'dip': 'Dip it',
-    'stars': '{n} of 3 stars'
+    'furnace': 'เตาหลอม: กดค้างที่สูบลมให้ความร้อนอยู่ในแถบ',
+    'anvil': 'ทั่ง: ตีเมื่อวงแหวนถึงเครื่องหมาย',
+    'quench': 'ชุบแข็ง: จุ่มเมื่อเรืองแสงสีแดงเชอร์รี',
+    'pump': 'สูบลม',
+    'dip': 'จุ่ม',
+    'stars': '{n} จาก 3 ดาว'
   },
   'medal': {
     'ghost': 'ภูตผี',
@@ -159,18 +159,18 @@ export default {
       'right': 'เลื่อนขวา',
       'turnLeft': 'หันซ้าย',
       'turnRight': 'หันขวา',
-      'sprint': 'Sprint',
+      'sprint': 'วิ่งเร็ว',
       'crouch': 'ย่อตัว',
       'act': 'แทง / ใช้งาน',
-      'grapple': 'Grappling hook',
-      'hide': 'Hide box',
+      'grapple': 'ตะขอเกี่ยว',
+      'hide': 'กล่องซ่อนตัว',
       'decoy': 'วางตัวล่อ',
       'reload': 'โหลดกระสุน',
       'weapon1': 'ปืนสไนเปอร์',
       'weapon2': 'มินิกัน',
       'weapon3': 'เครื่องยิงจรวด',
       'cycle': 'อาวุธถัดไป',
-      'pause': 'Pause'
+      'pause': 'หยุดชั่วคราว'
     }
   },
   'saveStatus': {

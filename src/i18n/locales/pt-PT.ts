@@ -35,20 +35,20 @@ export default {
     'armor': 'Blindagem',
     'crouch': 'Agachar',
     'stand': 'Levantar',
-    'sprint': 'Sprint',
-    'grapple': 'Grappling hook',
-    'grappleRecall': 'Recall the hook',
+    'sprint': 'Correr',
+    'grapple': 'Gancho',
+    'grappleRecall': 'Recolher o gancho',
     'cancel': 'Baixar arma',
     'capture': 'Clica para continuar',
     'metres': '{n} m',
     'objective': {
-      'salvage': 'Salvage',
+      'salvage': 'Sucata',
       'extract': 'Chega à zona de extração'
     },
-    'haul': 'Salvage {n} of {need}',
-    'hide': 'Hide in the box',
-    'boss': 'Boss health {n}%',
-    'loot': 'Strip the salvage'
+    'haul': 'Sucata {n} de {need}',
+    'hide': 'Esconder-se na caixa',
+    'boss': 'Vida do chefe {n}%',
+    'loot': 'Desmontar a sucata'
   },
   'defeat': {
     'title': 'Mech destruído',
@@ -93,12 +93,12 @@ export default {
     'top': 'Nível máximo'
   },
   'smithy': {
-    'furnace': 'Furnace: hold the bellows to keep the heat in the band',
-    'anvil': 'Anvil: strike when the ring meets the mark',
-    'quench': 'Quench: dip it when it glows cherry red',
-    'pump': 'Pump the bellows',
-    'dip': 'Dip it',
-    'stars': '{n} of 3 stars'
+    'furnace': 'Fornalha: mantém o fole premido para manter o calor na faixa',
+    'anvil': 'Bigorna: bate quando o anel encontrar a marca',
+    'quench': 'Têmpera: mergulha quando brilhar vermelho-cereja',
+    'pump': 'Acionar o fole',
+    'dip': 'Mergulhar',
+    'stars': '{n} de 3 estrelas'
   },
   'medal': {
     'ghost': 'Fantasma',
@@ -159,18 +159,18 @@ export default {
       'right': 'Mover para a direita',
       'turnLeft': 'Virar à esquerda',
       'turnRight': 'Virar à direita',
-      'sprint': 'Sprint',
+      'sprint': 'Correr',
       'crouch': 'Agachar',
       'act': 'Golpear / usar',
-      'grapple': 'Grappling hook',
-      'hide': 'Hide box',
+      'grapple': 'Gancho',
+      'hide': 'Caixa esconderijo',
       'decoy': 'Largar isco',
       'reload': 'Recarregar',
       'weapon1': 'Espingarda sniper',
       'weapon2': 'Minigun',
       'weapon3': 'Lança-foguetes',
       'cycle': 'Arma seguinte',
-      'pause': 'Pause'
+      'pause': 'Pausa'
     }
   },
   'saveStatus': {

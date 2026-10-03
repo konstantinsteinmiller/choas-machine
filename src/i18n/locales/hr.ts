@@ -36,19 +36,19 @@ export default {
     'crouch': 'Čučni',
     'stand': 'Ustani',
     'sprint': 'Sprint',
-    'grapple': 'Grappling hook',
-    'grappleRecall': 'Recall the hook',
+    'grapple': 'Kuka s užetom',
+    'grappleRecall': 'Povuci kuku',
     'cancel': 'Spusti oružje',
     'capture': 'Klikni za nastavak',
     'metres': '{n} m',
     'objective': {
-      'salvage': 'Salvage',
+      'salvage': 'Otpad',
       'extract': 'Dođi do platforme za evakuaciju'
     },
-    'haul': 'Salvage {n} of {need}',
-    'hide': 'Hide in the box',
-    'boss': 'Boss health {n}%',
-    'loot': 'Strip the salvage'
+    'haul': 'Otpad {n} od {need}',
+    'hide': 'Sakrij se u kutiju',
+    'boss': 'Zdravlje bossa {n} %',
+    'loot': 'Rastavi otpad'
   },
   'defeat': {
     'title': 'Mech je pao',
@@ -93,12 +93,12 @@ export default {
     'top': 'Najviši stupanj'
   },
   'smithy': {
-    'furnace': 'Furnace: hold the bellows to keep the heat in the band',
-    'anvil': 'Anvil: strike when the ring meets the mark',
-    'quench': 'Quench: dip it when it glows cherry red',
-    'pump': 'Pump the bellows',
-    'dip': 'Dip it',
-    'stars': '{n} of 3 stars'
+    'furnace': 'Peć: drži mijeh da žar ostane u pojasu',
+    'anvil': 'Nakovanj: udari kad prsten dođe na oznaku',
+    'quench': 'Kaljenje: uroni kad zažari trešnja-crveno',
+    'pump': 'Pumpaj mijeh',
+    'dip': 'Uroni',
+    'stars': '{n} od 3 zvjezdice'
   },
   'medal': {
     'ghost': 'Duh',
@@ -162,15 +162,15 @@ export default {
       'sprint': 'Sprint',
       'crouch': 'Čučanj',
       'act': 'Ubod / upotreba',
-      'grapple': 'Grappling hook',
-      'hide': 'Hide box',
+      'grapple': 'Kuka s užetom',
+      'hide': 'Kutija za skrivanje',
       'decoy': 'Postavi mamac',
       'reload': 'Napuni',
       'weapon1': 'Snajper',
       'weapon2': 'Minigun',
       'weapon3': 'Bacač raketa',
       'cycle': 'Sljedeće oružje',
-      'pause': 'Pause'
+      'pause': 'Pauza'
     }
   },
   'saveStatus': {

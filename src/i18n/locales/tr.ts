@@ -35,20 +35,20 @@ export default {
     'armor': 'Zırh',
     'crouch': 'Çömel',
     'stand': 'Ayağa kalk',
-    'sprint': 'Sprint',
-    'grapple': 'Grappling hook',
-    'grappleRecall': 'Recall the hook',
+    'sprint': 'Koş',
+    'grapple': 'Kanca',
+    'grappleRecall': 'Kancayı geri çek',
     'cancel': 'Silahı indir',
     'capture': 'Devam için tıkla',
     'metres': '{n} m',
     'objective': {
-      'salvage': 'Salvage',
+      'salvage': 'Hurda',
       'extract': 'Tahliye alanına ulaş'
     },
-    'haul': 'Salvage {n} of {need}',
-    'hide': 'Hide in the box',
-    'boss': 'Boss health {n}%',
-    'loot': 'Strip the salvage'
+    'haul': 'Hurda {n}/{need}',
+    'hide': 'Kutuya saklan',
+    'boss': 'Boss canı %{n}',
+    'loot': 'Hurdayı sök'
   },
   'defeat': {
     'title': 'Mech yenildi',
@@ -93,12 +93,12 @@ export default {
     'top': 'En üst kademe'
   },
   'smithy': {
-    'furnace': 'Furnace: hold the bellows to keep the heat in the band',
-    'anvil': 'Anvil: strike when the ring meets the mark',
-    'quench': 'Quench: dip it when it glows cherry red',
-    'pump': 'Pump the bellows',
-    'dip': 'Dip it',
-    'stars': '{n} of 3 stars'
+    'furnace': 'Ocak: ısıyı bantta tutmak için körüğü basılı tut',
+    'anvil': 'Örs: halka işarete gelince vur',
+    'quench': 'Su verme: kiraz kırmızısı parlayınca daldır',
+    'pump': 'Körüğü pompala',
+    'dip': 'Daldır',
+    'stars': '3 yıldızdan {n}'
   },
   'medal': {
     'ghost': 'Hayalet',
@@ -159,18 +159,18 @@ export default {
       'right': 'Sağa kay',
       'turnLeft': 'Sola dön',
       'turnRight': 'Sağa dön',
-      'sprint': 'Sprint',
+      'sprint': 'Koş',
       'crouch': 'Çömelme',
       'act': 'Bıçakla / kullan',
-      'grapple': 'Grappling hook',
-      'hide': 'Hide box',
+      'grapple': 'Kanca',
+      'hide': 'Saklanma kutusu',
       'decoy': 'Yem yerleştir',
       'reload': 'Doldur',
       'weapon1': 'Keskin nişancı tüfeği',
       'weapon2': 'Minigun',
       'weapon3': 'Roketatar',
       'cycle': 'Sonraki silah',
-      'pause': 'Pause'
+      'pause': 'Duraklat'
     }
   },
   'saveStatus': {

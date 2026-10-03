@@ -35,20 +35,20 @@ export default {
     'armor': '装甲',
     'crouch': 'しゃがむ',
     'stand': '立つ',
-    'sprint': 'Sprint',
-    'grapple': 'Grappling hook',
-    'grappleRecall': 'Recall the hook',
+    'sprint': 'ダッシュ',
+    'grapple': 'フック',
+    'grappleRecall': 'フックを戻す',
     'cancel': '武器を下ろす',
     'capture': 'クリックで再開',
     'metres': '{n} m',
     'objective': {
-      'salvage': 'Salvage',
+      'salvage': 'スクラップ',
       'extract': '脱出パッドへ向かえ'
     },
-    'haul': 'Salvage {n} of {need}',
-    'hide': 'Hide in the box',
-    'boss': 'Boss health {n}%',
-    'loot': 'Strip the salvage'
+    'haul': 'スクラップ {n}/{need}',
+    'hide': '箱に隠れる',
+    'boss': 'ボスの体力 {n}%',
+    'loot': 'スクラップを解体'
   },
   'defeat': {
     'title': 'メカ撃破',
@@ -93,12 +93,12 @@ export default {
     'top': '最高ティア'
   },
   'smithy': {
-    'furnace': 'Furnace: hold the bellows to keep the heat in the band',
-    'anvil': 'Anvil: strike when the ring meets the mark',
-    'quench': 'Quench: dip it when it glows cherry red',
-    'pump': 'Pump the bellows',
-    'dip': 'Dip it',
-    'stars': '{n} of 3 stars'
+    'furnace': '炉：ふいごを押し続けて熱を帯の中に保つ',
+    'anvil': '金床：リングが印に重なったら打つ',
+    'quench': '焼き入れ：チェリーレッドに光ったら水に入れる',
+    'pump': 'ふいごを押す',
+    'dip': '入れる',
+    'stars': '星 {n}/3'
   },
   'medal': {
     'ghost': 'ゴースト',
@@ -159,18 +159,18 @@ export default {
       'right': '右へ移動',
       'turnLeft': '左を向く',
       'turnRight': '右を向く',
-      'sprint': 'Sprint',
+      'sprint': 'ダッシュ',
       'crouch': 'しゃがむ',
       'act': '攻撃 / 使用',
-      'grapple': 'Grappling hook',
-      'hide': 'Hide box',
+      'grapple': 'フック',
+      'hide': '隠れ箱',
       'decoy': 'デコイ設置',
       'reload': 'リロード',
       'weapon1': 'スナイパーライフル',
       'weapon2': 'ミニガン',
       'weapon3': 'ロケットランチャー',
       'cycle': '次の武器',
-      'pause': 'Pause'
+      'pause': '一時停止'
     }
   },
   'saveStatus': {

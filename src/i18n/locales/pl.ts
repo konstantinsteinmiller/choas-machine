@@ -36,19 +36,19 @@ export default {
     'crouch': 'Kucnij',
     'stand': 'Wstań',
     'sprint': 'Sprint',
-    'grapple': 'Grappling hook',
-    'grappleRecall': 'Recall the hook',
+    'grapple': 'Hak z liną',
+    'grappleRecall': 'Zwiń hak',
     'cancel': 'Opuść broń',
     'capture': 'Kliknij, aby kontynuować',
     'metres': '{n} m',
     'objective': {
-      'salvage': 'Salvage',
+      'salvage': 'Złom',
       'extract': 'Dotrzyj do punktu ewakuacji'
     },
-    'haul': 'Salvage {n} of {need}',
-    'hide': 'Hide in the box',
-    'boss': 'Boss health {n}%',
-    'loot': 'Strip the salvage'
+    'haul': 'Złom {n} z {need}',
+    'hide': 'Schowaj się w skrzyni',
+    'boss': 'Życie bossa {n}%',
+    'loot': 'Rozbierz złom'
   },
   'defeat': {
     'title': 'Mech padł',
@@ -93,12 +93,12 @@ export default {
     'top': 'Najwyższy poziom'
   },
   'smithy': {
-    'furnace': 'Furnace: hold the bellows to keep the heat in the band',
-    'anvil': 'Anvil: strike when the ring meets the mark',
-    'quench': 'Quench: dip it when it glows cherry red',
-    'pump': 'Pump the bellows',
-    'dip': 'Dip it',
-    'stars': '{n} of 3 stars'
+    'furnace': 'Piec: przytrzymaj miech, by utrzymać żar w pasie',
+    'anvil': 'Kowadło: uderz, gdy pierścień trafi w znak',
+    'quench': 'Hartowanie: zanurz, gdy żarzy się na wiśniowo',
+    'pump': 'Pompuj miech',
+    'dip': 'Zanurz',
+    'stars': '{n} z 3 gwiazdek'
   },
   'medal': {
     'ghost': 'Duch',
@@ -162,15 +162,15 @@ export default {
       'sprint': 'Sprint',
       'crouch': 'Kucanie',
       'act': 'Cios / użyj',
-      'grapple': 'Grappling hook',
-      'hide': 'Hide box',
+      'grapple': 'Hak z liną',
+      'hide': 'Skrzynia-kryjówka',
       'decoy': 'Rozstaw przynętę',
       'reload': 'Przeładuj',
       'weapon1': 'Karabin snajperski',
       'weapon2': 'Minigun',
       'weapon3': 'Wyrzutnia rakiet',
       'cycle': 'Następna broń',
-      'pause': 'Pause'
+      'pause': 'Pauza'
     }
   },
   'saveStatus': {

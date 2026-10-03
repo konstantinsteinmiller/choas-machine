@@ -93,7 +93,9 @@ export const hands = {
  */
 export const snipe = async (ctx, id, ms = 600) => {
   const before = (await snapshot(ctx)).kills
+  const hp = () => ctx.evaluate((u) => window.__game.app.mode.garrison.units[u].hp, id)
   for (let attempt = 0; attempt < 2; attempt++) {
+    const hpBefore = await hp()
     await hands.aim(ctx, true)
     await ctx.stepUntil(() => window.__preview.state().scoped, { timeoutMs: 1500 })
     await aimAt(ctx, id, attempt ? 300 : ms)
@@ -103,12 +105,38 @@ export const snipe = async (ctx, id, ms = 600) => {
     await ctx.wait(150)
     // A round the kill-cam is following has not landed yet: it is a hit.
     const s = await snapshot(ctx)
-    if (s.cine || s.kills > before) break
+    // A boss takes the round and stands: that is a hit too.
+    if (s.cine || s.kills > before || (await hp()) < hpBefore) break
     ctx.log.warn(`the round at unit ${id} missed${attempt ? '' : ': once more'}`)
     await ctx.wait(700)
   }
   await hands.aim(ctx, false)
   await ctx.stepUntil(() => !window.__preview.state().cine, { timeoutMs: 4000 })
+}
+
+/**
+ * Kneel at the nearest pile of salvage and strip it, on camera: the sparks,
+ * the amber ring, the count going up.
+ */
+export const loot = async (ctx) => {
+  const before = (await snapshot(ctx)).salvage
+  if (!(await ctx.evaluate(() => window.__preview.atPile()))) { ctx.log.warn('no pile to strip'); return }
+  await ctx.wait(80)
+  await hands.act(ctx)
+  await ctx.stepUntil((n) => window.__preview.state().salvage > n, { timeoutMs: 2500, arg: before })
+}
+
+/**
+ * The Warden is a boss: no single round drops him. Rounds into his helm until
+ * he goes down, the kill-cam on the last one.
+ */
+export const takeDownBoss = async (ctx, id, ms = 600) => {
+  for (let i = 0; i < 6; i++) {
+    const alive = await ctx.evaluate((u) => window.__game.app.mode.garrison.units[u].state !== 'dead', id)
+    if (!alive) return
+    await snipe(ctx, id, i ? 260 : ms)
+    await ctx.wait(350)
+  }
 }
 
 /**

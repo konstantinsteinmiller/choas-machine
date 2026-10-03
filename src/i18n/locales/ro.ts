@@ -36,19 +36,19 @@ export default {
     'crouch': 'Ghemuiește-te',
     'stand': 'Ridică-te',
     'sprint': 'Sprint',
-    'grapple': 'Grappling hook',
-    'grappleRecall': 'Recall the hook',
+    'grapple': 'Cârlig',
+    'grappleRecall': 'Retrage cârligul',
     'cancel': 'Coboară arma',
     'capture': 'Click pentru a continua',
     'metres': '{n} m',
     'objective': {
-      'salvage': 'Salvage',
+      'salvage': 'Fier vechi',
       'extract': 'Ajunge la zona de extracție'
     },
-    'haul': 'Salvage {n} of {need}',
-    'hide': 'Hide in the box',
-    'boss': 'Boss health {n}%',
-    'loot': 'Strip the salvage'
+    'haul': 'Fier vechi {n} din {need}',
+    'hide': 'Ascunde-te în cutie',
+    'boss': 'Viața șefului {n}%',
+    'loot': 'Dezmembrează fierul vechi'
   },
   'defeat': {
     'title': 'Mech doborât',
@@ -93,12 +93,12 @@ export default {
     'top': 'Treapta maximă'
   },
   'smithy': {
-    'furnace': 'Furnace: hold the bellows to keep the heat in the band',
-    'anvil': 'Anvil: strike when the ring meets the mark',
-    'quench': 'Quench: dip it when it glows cherry red',
-    'pump': 'Pump the bellows',
-    'dip': 'Dip it',
-    'stars': '{n} of 3 stars'
+    'furnace': 'Cuptor: ține foalele ca să rămână căldura în bandă',
+    'anvil': 'Nicovală: lovește când inelul atinge semnul',
+    'quench': 'Călire: scufundă când strălucește roșu-cireșiu',
+    'pump': 'Pompează foalele',
+    'dip': 'Scufundă',
+    'stars': '{n} din 3 stele'
   },
   'medal': {
     'ghost': 'Fantomă',
@@ -162,15 +162,15 @@ export default {
       'sprint': 'Sprint',
       'crouch': 'Ghemuit',
       'act': 'Înjunghie / folosește',
-      'grapple': 'Grappling hook',
-      'hide': 'Hide box',
+      'grapple': 'Cârlig',
+      'hide': 'Cutie-ascunzătoare',
       'decoy': 'Plasează momeală',
       'reload': 'Reîncarcă',
       'weapon1': 'Pușcă de lunetist',
       'weapon2': 'Minigun',
       'weapon3': 'Lansator de rachete',
       'cycle': 'Arma următoare',
-      'pause': 'Pause'
+      'pause': 'Pauză'
     }
   },
   'saveStatus': {

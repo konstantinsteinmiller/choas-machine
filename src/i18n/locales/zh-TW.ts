@@ -35,20 +35,20 @@ export default {
     'armor': '裝甲',
     'crouch': '蹲下',
     'stand': '站起',
-    'sprint': 'Sprint',
-    'grapple': 'Grappling hook',
-    'grappleRecall': 'Recall the hook',
+    'sprint': '衝刺',
+    'grapple': '抓鉤',
+    'grappleRecall': '收回抓鉤',
     'cancel': '放下武器',
     'capture': '點擊繼續',
     'metres': '{n} 公尺',
     'objective': {
-      'salvage': 'Salvage',
+      'salvage': '廢料',
       'extract': '前往撤離點'
     },
-    'haul': 'Salvage {n} of {need}',
-    'hide': 'Hide in the box',
-    'boss': 'Boss health {n}%',
-    'loot': 'Strip the salvage'
+    'haul': '廢料 {n}/{need}',
+    'hide': '躲進箱子',
+    'boss': '首領生命 {n}%',
+    'loot': '拆解廢料'
   },
   'defeat': {
     'title': '機甲倒下了',
@@ -93,12 +93,12 @@ export default {
     'top': '最高階'
   },
   'smithy': {
-    'furnace': 'Furnace: hold the bellows to keep the heat in the band',
-    'anvil': 'Anvil: strike when the ring meets the mark',
-    'quench': 'Quench: dip it when it glows cherry red',
-    'pump': 'Pump the bellows',
-    'dip': 'Dip it',
-    'stars': '{n} of 3 stars'
+    'furnace': '熔爐：按住風箱，讓溫度保持在區間內',
+    'anvil': '鐵砧：圓環與標記重合時敲擊',
+    'quench': '淬火：發出櫻桃紅光時浸入',
+    'pump': '拉風箱',
+    'dip': '浸入',
+    'stars': '{n}/3 星'
   },
   'medal': {
     'ghost': '幽靈',
@@ -159,18 +159,18 @@ export default {
       'right': '向右平移',
       'turnLeft': '向左轉',
       'turnRight': '向右轉',
-      'sprint': 'Sprint',
+      'sprint': '衝刺',
       'crouch': '蹲下',
       'act': '突刺 / 使用',
-      'grapple': 'Grappling hook',
-      'hide': 'Hide box',
+      'grapple': '抓鉤',
+      'hide': '藏身箱',
       'decoy': '放置誘餌',
       'reload': '換彈',
       'weapon1': '狙擊槍',
       'weapon2': '加特林',
       'weapon3': '火箭筒',
       'cycle': '下一把武器',
-      'pause': 'Pause'
+      'pause': '暫停'
     }
   },
   'saveStatus': {

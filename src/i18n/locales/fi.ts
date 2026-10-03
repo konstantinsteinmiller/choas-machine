@@ -35,20 +35,20 @@ export default {
     'armor': 'Panssari',
     'crouch': 'Kyyristy',
     'stand': 'Nouse ylös',
-    'sprint': 'Sprint',
-    'grapple': 'Grappling hook',
-    'grappleRecall': 'Recall the hook',
+    'sprint': 'Pikajuoksu',
+    'grapple': 'Koukku',
+    'grappleRecall': 'Vedä koukku takaisin',
     'cancel': 'Laske ase',
     'capture': 'Jatka klikkaamalla',
     'metres': '{n} m',
     'objective': {
-      'salvage': 'Salvage',
+      'salvage': 'Romu',
       'extract': 'Pääse noutoalustalle'
     },
-    'haul': 'Salvage {n} of {need}',
-    'hide': 'Hide in the box',
-    'boss': 'Boss health {n}%',
-    'loot': 'Strip the salvage'
+    'haul': 'Romua {n}/{need}',
+    'hide': 'Piiloudu laatikkoon',
+    'boss': 'Pomon terveys {n} %',
+    'loot': 'Pura romu'
   },
   'defeat': {
     'title': 'Mecha kaatui',
@@ -93,12 +93,12 @@ export default {
     'top': 'Ylin luokka'
   },
   'smithy': {
-    'furnace': 'Furnace: hold the bellows to keep the heat in the band',
-    'anvil': 'Anvil: strike when the ring meets the mark',
-    'quench': 'Quench: dip it when it glows cherry red',
-    'pump': 'Pump the bellows',
-    'dip': 'Dip it',
-    'stars': '{n} of 3 stars'
+    'furnace': 'Ahjo: pidä palkeita pohjassa, jotta kuumuus pysyy alueella',
+    'anvil': 'Alasin: lyö, kun rengas osuu merkkiin',
+    'quench': 'Karkaisu: upota, kun se hehkuu kirsikanpunaisena',
+    'pump': 'Pumppaa palkeita',
+    'dip': 'Upota',
+    'stars': '{n}/3 tähteä'
   },
   'medal': {
     'ghost': 'Haamu',
@@ -159,18 +159,18 @@ export default {
       'right': 'Sivuaskel oikealle',
       'turnLeft': 'Käänny vasemmalle',
       'turnRight': 'Käänny oikealle',
-      'sprint': 'Sprint',
+      'sprint': 'Pikajuoksu',
       'crouch': 'Kyyristy',
       'act': 'Isku / käytä',
-      'grapple': 'Grappling hook',
-      'hide': 'Hide box',
+      'grapple': 'Koukku',
+      'hide': 'Piilolaatikko',
       'decoy': 'Aseta houkute',
       'reload': 'Lataa',
       'weapon1': 'Tarkkuuskivääri',
       'weapon2': 'Minigun',
       'weapon3': 'Raketinheitin',
       'cycle': 'Seuraava ase',
-      'pause': 'Pause'
+      'pause': 'Tauko'
     }
   },
   'saveStatus': {

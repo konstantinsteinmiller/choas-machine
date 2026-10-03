@@ -35,20 +35,20 @@ export default {
     'armor': 'Pantser',
     'crouch': 'Bukken',
     'stand': 'Opstaan',
-    'sprint': 'Sprint',
-    'grapple': 'Grappling hook',
-    'grappleRecall': 'Recall the hook',
+    'sprint': 'Sprinten',
+    'grapple': 'Enterhaak',
+    'grappleRecall': 'Haak terughalen',
     'cancel': 'Wapen laten zakken',
     'capture': 'Klik om verder te gaan',
     'metres': '{n} m',
     'objective': {
-      'salvage': 'Salvage',
+      'salvage': 'Berging',
       'extract': 'Bereik het extractieplatform'
     },
-    'haul': 'Salvage {n} of {need}',
-    'hide': 'Hide in the box',
-    'boss': 'Boss health {n}%',
-    'loot': 'Strip the salvage'
+    'haul': 'Schroot {n} van {need}',
+    'hide': 'Verstoppen in de kist',
+    'boss': 'Levens van de baas {n}%',
+    'loot': 'Schroot slopen'
   },
   'defeat': {
     'title': 'Mech neergehaald',
@@ -93,12 +93,12 @@ export default {
     'top': 'Hoogste tier'
   },
   'smithy': {
-    'furnace': 'Furnace: hold the bellows to keep the heat in the band',
-    'anvil': 'Anvil: strike when the ring meets the mark',
-    'quench': 'Quench: dip it when it glows cherry red',
-    'pump': 'Pump the bellows',
-    'dip': 'Dip it',
-    'stars': '{n} of 3 stars'
+    'furnace': 'Oven: houd de blaasbalg vast om de hitte in de band te houden',
+    'anvil': 'Aambeeld: sla toe als de ring het merkteken raakt',
+    'quench': 'Afschrikken: dompel het onder als het kersenrood gloeit',
+    'pump': 'Blaasbalg pompen',
+    'dip': 'Onderdompelen',
+    'stars': '{n} van 3 sterren'
   },
   'medal': {
     'ghost': 'Spook',
@@ -159,18 +159,18 @@ export default {
       'right': 'Zijwaarts rechts',
       'turnLeft': 'Links draaien',
       'turnRight': 'Rechts draaien',
-      'sprint': 'Sprint',
+      'sprint': 'Sprinten',
       'crouch': 'Bukken',
       'act': 'Steken / gebruiken',
-      'grapple': 'Grappling hook',
-      'hide': 'Hide box',
+      'grapple': 'Enterhaak',
+      'hide': 'Verstopkist',
       'decoy': 'Lokvogel plaatsen',
       'reload': 'Herladen',
       'weapon1': 'Sluipschuttersgeweer',
       'weapon2': 'Minigun',
       'weapon3': 'Raketwerper',
       'cycle': 'Volgend wapen',
-      'pause': 'Pause'
+      'pause': 'Pauze'
     }
   },
   'saveStatus': {

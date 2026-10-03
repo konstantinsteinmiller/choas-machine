@@ -35,20 +35,20 @@ export default {
     'armor': '장갑',
     'crouch': '앉기',
     'stand': '일어서기',
-    'sprint': 'Sprint',
-    'grapple': 'Grappling hook',
-    'grappleRecall': 'Recall the hook',
+    'sprint': '질주',
+    'grapple': '갈고리',
+    'grappleRecall': '갈고리 회수',
     'cancel': '무기 내리기',
     'capture': '클릭하여 계속',
     'metres': '{n}m',
     'objective': {
-      'salvage': 'Salvage',
+      'salvage': '고철',
       'extract': '추출 지점에 도달하라'
     },
-    'haul': 'Salvage {n} of {need}',
-    'hide': 'Hide in the box',
-    'boss': 'Boss health {n}%',
-    'loot': 'Strip the salvage'
+    'haul': '고철 {n}/{need}',
+    'hide': '상자에 숨기',
+    'boss': '보스 체력 {n}%',
+    'loot': '고철 분해'
   },
   'defeat': {
     'title': '메카 파괴',
@@ -93,12 +93,12 @@ export default {
     'top': '최고 단계'
   },
   'smithy': {
-    'furnace': 'Furnace: hold the bellows to keep the heat in the band',
-    'anvil': 'Anvil: strike when the ring meets the mark',
-    'quench': 'Quench: dip it when it glows cherry red',
-    'pump': 'Pump the bellows',
-    'dip': 'Dip it',
-    'stars': '{n} of 3 stars'
+    'furnace': '용광로: 풀무를 눌러 열기를 띠 안에 유지하세요',
+    'anvil': '모루: 고리가 표시에 닿을 때 치세요',
+    'quench': '담금질: 체리빛 빨강으로 빛날 때 담그세요',
+    'pump': '풀무질',
+    'dip': '담그기',
+    'stars': '별 {n}/3'
   },
   'medal': {
     'ghost': '유령',
@@ -159,18 +159,18 @@ export default {
       'right': '오른쪽 이동',
       'turnLeft': '왼쪽 회전',
       'turnRight': '오른쪽 회전',
-      'sprint': 'Sprint',
+      'sprint': '질주',
       'crouch': '앉기',
       'act': '찌르기 / 사용',
-      'grapple': 'Grappling hook',
-      'hide': 'Hide box',
+      'grapple': '갈고리',
+      'hide': '은신 상자',
       'decoy': '미끼 설치',
       'reload': '재장전',
       'weapon1': '저격 소총',
       'weapon2': '미니건',
       'weapon3': '로켓 런처',
       'cycle': '다음 무기',
-      'pause': 'Pause'
+      'pause': '일시정지'
     }
   },
   'saveStatus': {

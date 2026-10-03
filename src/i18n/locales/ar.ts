@@ -35,20 +35,20 @@ export default {
     'armor': 'الدرع',
     'crouch': 'انحناء',
     'stand': 'وقوف',
-    'sprint': 'Sprint',
-    'grapple': 'Grappling hook',
-    'grappleRecall': 'Recall the hook',
+    'sprint': 'ركض سريع',
+    'grapple': 'خطاف',
+    'grappleRecall': 'استرجاع الخطاف',
     'cancel': 'خفض السلاح',
     'capture': 'انقر للمتابعة',
     'metres': '{n} م',
     'objective': {
-      'salvage': 'Salvage',
+      'salvage': 'خردة',
       'extract': 'اصل إلى منصة الإخلاء'
     },
-    'haul': 'Salvage {n} of {need}',
-    'hide': 'Hide in the box',
-    'boss': 'Boss health {n}%',
-    'loot': 'Strip the salvage'
+    'haul': 'خردة {n} من {need}',
+    'hide': 'اختبئ في الصندوق',
+    'boss': 'صحة الزعيم {n}%',
+    'loot': 'فكّ الخردة'
   },
   'defeat': {
     'title': 'تحطّم الميكا',
@@ -93,12 +93,12 @@ export default {
     'top': 'أعلى فئة'
   },
   'smithy': {
-    'furnace': 'Furnace: hold the bellows to keep the heat in the band',
-    'anvil': 'Anvil: strike when the ring meets the mark',
-    'quench': 'Quench: dip it when it glows cherry red',
-    'pump': 'Pump the bellows',
-    'dip': 'Dip it',
-    'stars': '{n} of 3 stars'
+    'furnace': 'الفرن: اضغط مطولًا على المنفاخ لتبقى الحرارة داخل الشريط',
+    'anvil': 'السندان: اضرب عندما تلتقي الحلقة بالعلامة',
+    'quench': 'التبريد: اغمسه عندما يتوهج باللون الأحمر الكرزي',
+    'pump': 'شغّل المنفاخ',
+    'dip': 'اغمس',
+    'stars': '{n} من 3 نجوم'
   },
   'medal': {
     'ghost': 'شبح',
@@ -159,18 +159,18 @@ export default {
       'right': 'تحرّك يمينًا',
       'turnLeft': 'استدر يسارًا',
       'turnRight': 'استدر يمينًا',
-      'sprint': 'Sprint',
+      'sprint': 'ركض سريع',
       'crouch': 'انحناء',
       'act': 'طعن / استخدام',
-      'grapple': 'Grappling hook',
-      'hide': 'Hide box',
+      'grapple': 'خطاف',
+      'hide': 'صندوق الاختباء',
       'decoy': 'نشر طُعم',
       'reload': 'إعادة التعبئة',
       'weapon1': 'بندقية قنص',
       'weapon2': 'ميني غن',
       'weapon3': 'قاذفة صواريخ',
       'cycle': 'السلاح التالي',
-      'pause': 'Pause'
+      'pause': 'إيقاف مؤقت'
     }
   },
   'saveStatus': {

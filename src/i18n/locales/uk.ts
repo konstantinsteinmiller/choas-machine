@@ -35,20 +35,20 @@ export default {
     'armor': 'Броня',
     'crouch': 'Пригнутися',
     'stand': 'Підвестися',
-    'sprint': 'Sprint',
-    'grapple': 'Grappling hook',
-    'grappleRecall': 'Recall the hook',
+    'sprint': 'Спринт',
+    'grapple': 'Гак-кішка',
+    'grappleRecall': 'Відкликати гак',
     'cancel': 'Опустити зброю',
     'capture': 'Клацни, щоб продовжити',
     'metres': '{n} м',
     'objective': {
-      'salvage': 'Salvage',
+      'salvage': 'Трофеї',
       'extract': 'Дістаньтеся точки евакуації'
     },
-    'haul': 'Salvage {n} of {need}',
-    'hide': 'Hide in the box',
-    'boss': 'Boss health {n}%',
-    'loot': 'Strip the salvage'
+    'haul': 'Брухт {n} з {need}',
+    'hide': 'Сховатися в ящику',
+    'boss': 'Здоров’я боса {n}%',
+    'loot': 'Розібрати брухт'
   },
   'defeat': {
     'title': 'Мех упав',
@@ -93,12 +93,12 @@ export default {
     'top': 'Найвищий ранг'
   },
   'smithy': {
-    'furnace': 'Furnace: hold the bellows to keep the heat in the band',
-    'anvil': 'Anvil: strike when the ring meets the mark',
-    'quench': 'Quench: dip it when it glows cherry red',
-    'pump': 'Pump the bellows',
-    'dip': 'Dip it',
-    'stars': '{n} of 3 stars'
+    'furnace': 'Горно: тримай міхи, щоб жар лишався в смузі',
+    'anvil': 'Ковадло: бий, коли кільце зійдеться з міткою',
+    'quench': 'Гартування: занур, коли засвітиться вишнево-червоним',
+    'pump': 'Качати міхи',
+    'dip': 'Занурити',
+    'stars': '{n} з 3 зірок'
   },
   'medal': {
     'ghost': 'Привид',
@@ -159,18 +159,18 @@ export default {
       'right': 'Крок праворуч',
       'turnLeft': 'Поворот ліворуч',
       'turnRight': 'Поворот праворуч',
-      'sprint': 'Sprint',
+      'sprint': 'Спринт',
       'crouch': 'Присідання',
       'act': 'Удар / дія',
-      'grapple': 'Grappling hook',
-      'hide': 'Hide box',
+      'grapple': 'Гак-кішка',
+      'hide': 'Ящик-схованка',
       'decoy': 'Поставити приманку',
       'reload': 'Перезарядка',
       'weapon1': 'Снайперська гвинтівка',
       'weapon2': 'Мініган',
       'weapon3': 'Ракетниця',
       'cycle': 'Наступна зброя',
-      'pause': 'Pause'
+      'pause': 'Пауза'
     }
   },
   'saveStatus': {

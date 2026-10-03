@@ -35,20 +35,20 @@ export default {
     'armor': 'Zirh',
     'crouch': 'Cho\'kka tushish',
     'stand': 'Turish',
-    'sprint': 'Sprint',
-    'grapple': 'Grappling hook',
-    'grappleRecall': 'Recall the hook',
+    'sprint': 'Tez yugurish',
+    'grapple': 'Ilgak',
+    'grappleRecall': 'Ilgakni qaytarish',
     'cancel': 'Qurolni tushirish',
     'capture': 'Davom etish uchun bosing',
     'metres': '{n} m',
     'objective': {
-      'salvage': 'Salvage',
+      'salvage': 'Temir-tersak',
       'extract': 'Evakuatsiya maydoniga yeting'
     },
-    'haul': 'Salvage {n} of {need}',
-    'hide': 'Hide in the box',
-    'boss': 'Boss health {n}%',
-    'loot': 'Strip the salvage'
+    'haul': 'Temir-tersak {n} / {need}',
+    'hide': 'Qutiga yashirinish',
+    'boss': 'Boshliq salomatligi {n}%',
+    'loot': 'Temir-tersakni qismlarga ajratish'
   },
   'defeat': {
     'title': 'Mech yiqildi',
@@ -93,12 +93,12 @@ export default {
     'top': 'Eng yuqori pog\'ona'
   },
   'smithy': {
-    'furnace': 'Furnace: hold the bellows to keep the heat in the band',
-    'anvil': 'Anvil: strike when the ring meets the mark',
-    'quench': 'Quench: dip it when it glows cherry red',
-    'pump': 'Pump the bellows',
-    'dip': 'Dip it',
-    'stars': '{n} of 3 stars'
+    'furnace': 'Pech: issiqlik chiziqda qolishi uchun damni bosib tur',
+    'anvil': 'Sandon: halqa belgiga yetganda ur',
+    'quench': 'Toblash: olcha-qizil yonganda botir',
+    'pump': 'Damni bosish',
+    'dip': 'Botirish',
+    'stars': '3 yulduzdan {n}'
   },
   'medal': {
     'ghost': 'Arvoh',
@@ -159,18 +159,18 @@ export default {
       'right': 'Oʻngga siljish',
       'turnLeft': 'Chapga burilish',
       'turnRight': 'Oʻngga burilish',
-      'sprint': 'Sprint',
+      'sprint': 'Tez yugurish',
       'crouch': 'Cho\'kka tushish',
       'act': 'Sanchish / ishlatish',
-      'grapple': 'Grappling hook',
-      'hide': 'Hide box',
+      'grapple': 'Ilgak',
+      'hide': 'Yashirinish qutisi',
       'decoy': 'Yem qo\'yish',
       'reload': 'Qayta o\'qlash',
       'weapon1': 'Snayper miltig\'i',
       'weapon2': 'Minigan',
       'weapon3': 'Raketa uchirgich',
       'cycle': 'Keyingi qurol',
-      'pause': 'Pause'
+      'pause': 'Pauza'
     }
   },
   'saveStatus': {

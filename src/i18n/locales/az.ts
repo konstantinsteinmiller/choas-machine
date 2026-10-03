@@ -35,20 +35,20 @@ export default {
     'armor': 'Zireh',
     'crouch': 'Çömel',
     'stand': 'Ayağa qalx',
-    'sprint': 'Sprint',
-    'grapple': 'Grappling hook',
-    'grappleRecall': 'Recall the hook',
+    'sprint': 'Sürətli qaçış',
+    'grapple': 'Qarmaq',
+    'grappleRecall': 'Qarmağı geri çək',
     'cancel': 'Silahı endir',
     'capture': 'Davam üçün kliklə',
     'metres': '{n} m',
     'objective': {
-      'salvage': 'Salvage',
+      'salvage': 'Hurda',
       'extract': 'Təxliyə meydançasına çat'
     },
-    'haul': 'Salvage {n} of {need}',
-    'hide': 'Hide in the box',
-    'boss': 'Boss health {n}%',
-    'loot': 'Strip the salvage'
+    'haul': 'Hurda {n} / {need}',
+    'hide': 'Qutuda gizlən',
+    'boss': 'Bossun sağlamlığı {n}%',
+    'loot': 'Hurdanı sök'
   },
   'defeat': {
     'title': 'Meka məğlub oldu',
@@ -93,12 +93,12 @@ export default {
     'top': 'Ən yüksək pillə'
   },
   'smithy': {
-    'furnace': 'Furnace: hold the bellows to keep the heat in the band',
-    'anvil': 'Anvil: strike when the ring meets the mark',
-    'quench': 'Quench: dip it when it glows cherry red',
-    'pump': 'Pump the bellows',
-    'dip': 'Dip it',
-    'stars': '{n} of 3 stars'
+    'furnace': 'Soba: istilik zolaqda qalsın deyə körüyü basılı saxla',
+    'anvil': 'Zindan: halqa işarəyə çatanda vur',
+    'quench': 'Suvarma: albalı-qırmızı parlayanda batır',
+    'pump': 'Körüyü bas',
+    'dip': 'Batır',
+    'stars': '3 ulduzdan {n}'
   },
   'medal': {
     'ghost': 'Kabus',
@@ -159,18 +159,18 @@ export default {
       'right': 'Sağa yan addım',
       'turnLeft': 'Sola dön',
       'turnRight': 'Sağa dön',
-      'sprint': 'Sprint',
+      'sprint': 'Sürətli qaçış',
       'crouch': 'Çömelmə',
       'act': 'Zərbə / istifadə',
-      'grapple': 'Grappling hook',
-      'hide': 'Hide box',
+      'grapple': 'Qarmaq',
+      'hide': 'Gizlənmə qutusu',
       'decoy': 'Yem yerləşdir',
       'reload': 'Doldur',
       'weapon1': 'Snayper tüfəngi',
       'weapon2': 'Minigan',
       'weapon3': 'Raket atan',
       'cycle': 'Növbəti silah',
-      'pause': 'Pause'
+      'pause': 'Fasilə'
     }
   },
   'saveStatus': {

@@ -35,20 +35,20 @@ export default {
     'armor': 'Bruņas',
     'crouch': 'Pietupties',
     'stand': 'Piecelties',
-    'sprint': 'Sprint',
-    'grapple': 'Grappling hook',
-    'grappleRecall': 'Recall the hook',
+    'sprint': 'Sprints',
+    'grapple': 'Āķis',
+    'grappleRecall': 'Atsaukt āķi',
     'cancel': 'Nolaist ieroci',
     'capture': 'Klikšķini, lai turpinātu',
     'metres': '{n} m',
     'objective': {
-      'salvage': 'Salvage',
+      'salvage': 'Metāllūžņi',
       'extract': 'Sasniedz evakuācijas laukumu'
     },
-    'haul': 'Salvage {n} of {need}',
-    'hide': 'Hide in the box',
-    'boss': 'Boss health {n}%',
-    'loot': 'Strip the salvage'
+    'haul': 'Lūžņi {n} no {need}',
+    'hide': 'Paslēpties kastē',
+    'boss': 'Bosa veselība {n}%',
+    'loot': 'Izjaukt lūžņus'
   },
   'defeat': {
     'title': 'Mehs ir ticis',
@@ -93,12 +93,12 @@ export default {
     'top': 'Augstākā pakāpe'
   },
   'smithy': {
-    'furnace': 'Furnace: hold the bellows to keep the heat in the band',
-    'anvil': 'Anvil: strike when the ring meets the mark',
-    'quench': 'Quench: dip it when it glows cherry red',
-    'pump': 'Pump the bellows',
-    'dip': 'Dip it',
-    'stars': '{n} of 3 stars'
+    'furnace': 'Krāsns: turi plēšas, lai karstums paliktu joslā',
+    'anvil': 'Lakta: sit, kad gredzens sasniedz atzīmi',
+    'quench': 'Rūdīšana: iegremdē, kad tas kvēlo ķiršu sarkanumā',
+    'pump': 'Darbināt plēšas',
+    'dip': 'Iegremdēt',
+    'stars': '{n} no 3 zvaigznēm'
   },
   'medal': {
     'ghost': 'Rēgs',
@@ -159,18 +159,18 @@ export default {
       'right': 'Solis pa labi',
       'turnLeft': 'Pagrieziens pa kreisi',
       'turnRight': 'Pagrieziens pa labi',
-      'sprint': 'Sprint',
+      'sprint': 'Sprints',
       'crouch': 'Pietupšanās',
       'act': 'Dūriens / lietot',
-      'grapple': 'Grappling hook',
-      'hide': 'Hide box',
+      'grapple': 'Āķis',
+      'hide': 'Slēpņa kaste',
       'decoy': 'Novietot ēsmu',
       'reload': 'Pārlādēt',
       'weapon1': 'Snaipera šautene',
       'weapon2': 'Minigans',
       'weapon3': 'Raķešmetējs',
       'cycle': 'Nākamais ierocis',
-      'pause': 'Pause'
+      'pause': 'Pauze'
     }
   },
   'saveStatus': {

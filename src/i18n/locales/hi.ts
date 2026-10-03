@@ -35,20 +35,20 @@ export default {
     'armor': 'कवच',
     'crouch': 'झुकें',
     'stand': 'खड़े हों',
-    'sprint': 'Sprint',
-    'grapple': 'Grappling hook',
-    'grappleRecall': 'Recall the hook',
+    'sprint': 'दौड़',
+    'grapple': 'कांटा',
+    'grappleRecall': 'कांटा वापस लें',
     'cancel': 'हथियार नीचे करें',
     'capture': 'जारी रखने के लिए क्लिक करें',
     'metres': '{n} मी',
     'objective': {
-      'salvage': 'Salvage',
+      'salvage': 'कबाड़',
       'extract': 'निकासी पैड तक पहुँचें'
     },
-    'haul': 'Salvage {n} of {need}',
-    'hide': 'Hide in the box',
-    'boss': 'Boss health {n}%',
-    'loot': 'Strip the salvage'
+    'haul': 'कबाड़ {n} / {need}',
+    'hide': 'डिब्बे में छिपें',
+    'boss': 'बॉस की सेहत {n}%',
+    'loot': 'कबाड़ खोलें'
   },
   'defeat': {
     'title': 'मेक गिर गया',
@@ -93,12 +93,12 @@ export default {
     'top': 'सर्वोच्च टियर'
   },
   'smithy': {
-    'furnace': 'Furnace: hold the bellows to keep the heat in the band',
-    'anvil': 'Anvil: strike when the ring meets the mark',
-    'quench': 'Quench: dip it when it glows cherry red',
-    'pump': 'Pump the bellows',
-    'dip': 'Dip it',
-    'stars': '{n} of 3 stars'
+    'furnace': 'भट्ठी: धौंकनी दबाए रखें ताकि गर्मी पट्टी में रहे',
+    'anvil': 'निहाई: जब छल्ला निशान पर आए तब चोट करें',
+    'quench': 'बुझाना: जब चेरी-लाल चमके तब डुबोएं',
+    'pump': 'धौंकनी चलाएं',
+    'dip': 'डुबोएं',
+    'stars': '3 में से {n} सितारे'
   },
   'medal': {
     'ghost': 'घोस्ट',
@@ -159,18 +159,18 @@ export default {
       'right': 'दाएँ सरकें',
       'turnLeft': 'बाएँ मुड़ें',
       'turnRight': 'दाएँ मुड़ें',
-      'sprint': 'Sprint',
+      'sprint': 'दौड़',
       'crouch': 'झुकना',
       'act': 'वार / उपयोग',
-      'grapple': 'Grappling hook',
-      'hide': 'Hide box',
+      'grapple': 'कांटा',
+      'hide': 'छिपने का डिब्बा',
       'decoy': 'डिकॉय लगाएँ',
       'reload': 'रीलोड',
       'weapon1': 'स्नाइपर राइफल',
       'weapon2': 'मिनीगन',
       'weapon3': 'रॉकेट लॉन्चर',
       'cycle': 'अगला हथियार',
-      'pause': 'Pause'
+      'pause': 'रोकें'
     }
   },
   'saveStatus': {
