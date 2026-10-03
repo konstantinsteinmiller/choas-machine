@@ -1,5 +1,5 @@
 import {
-  PerspectiveCamera, Sprite, SpriteMaterial, AdditiveBlending, Vector3, Mesh, ConeGeometry, CylinderGeometry, MeshBasicMaterial, DoubleSide, Group, OctahedronGeometry
+  PerspectiveCamera, Sprite, SpriteMaterial, AdditiveBlending, Vector3, Mesh, ConeGeometry, CylinderGeometry, MeshBasicMaterial, DoubleSide, Group
 } from 'three'
 import { getRenderer, fovForAspect } from '../engine/renderer'
 import { app, newScene, type GameMode } from '../engine/app'
@@ -39,7 +39,7 @@ import { sfx } from '../audio/sfx'
 import { TAKEDOWN, TD_END, TD_HOLD, TD_IN, TD_PULL, takedownCam, takedownPose } from './takedown'
 import { castShot, makeShotHit, HEAD_Y } from './hitscan'
 import { blast, shotDamage } from './damage'
-import { SNIPER_MAG, SPREAD, ammoOf, makeArsenal, reloadProgress, stepArsenal, type Arsenal, type Trigger } from './weapons'
+import { SNIPER_MAG, SPREAD, ammoOf, isDry, makeArsenal, reloadProgress, reserveOf, stepArsenal, type Arsenal, type Trigger } from './weapons'
 import { DECOYS_PER_MISSION, decoySpot, findStrike, stepDecoys, type Decoy, type Strike, type StrikeKind } from './melee'
 import { fireRocket, stepRockets, type Rocket } from './rockets'
 import { blastRagdoll, nearRay, push, wake as wakeRagdoll } from './ragdoll'
@@ -57,6 +57,9 @@ import {
 } from './cine'
 import { buildRobodog, poseRobodog, restDogPose, type DogPose } from '../models/robodog'
 import { buildHideBox, disposeHideBox } from '../models/hideBox'
+import { supplyUnderfoot, take, type Supply } from './supplies'
+import { BARREL_EARSHOT, BARREL_POWER, BARREL_RADIUS, barrelAt, barrelHurt, ignite, stepBarrels, type Barrel } from './barrels'
+import { SupplyView } from '../fx/supplyView'
 import { buildBeacon, disposeBeacon, poseBeacon, BEACON_TOP, type BeaconView } from '../models/beacon'
 import { introFrame, makeDogFrame, makeRiderFrame, outroFrame, RIDER_JUMP } from './robodog'
 import { killCamsEnabled } from '@/use/useKillCam'
@@ -165,11 +168,8 @@ const DRAG_BEHIND = 1.5
 export const DRAG_SLOW = 0.5
 /** How far the shoot lesson looks for a defender in clear sight. */
 const MARK_M = 60
-/** Armour shards: dropped by a blade or close kill in a fight; how many, what each gives back, how long they lie. */
-const SHARD_CLOSE_M = 6
-const SHARD_COUNT = 3
-const SHARD_ARMOR = 12
-const SHARD_LIFE_S = 20
+/** A guard's ammo pouch lies where it fell (#76); at most this many lie about at once. */
+const MAX_POUCHES = 24
 /** How near a beacon the mech must be to sabotage it, and how long it takes. */
 const SABOTAGE_REACH = 1.9
 const SABOTAGE_S = 1.4
@@ -319,7 +319,9 @@ export class Mission implements GameMode {
     this.loadout = loadout
     this.piles = makePiles(fortress.salvage)
     this.salvageNeed = salvageNeed(level, this.piles.length)
-    this.arsenal = makeArsenal(loadout.rockets, loadout.heatSeconds, loadout.coolRate)
+    this.arsenal = makeArsenal(loadout.rockets, loadout.heatSeconds, loadout.coolRate, loadout.rifleReserve, loadout.belt)
+    this.supplies = (fortress.supplies ?? []).map(s => ({ ...s, taken: false }))
+    this.barrels = (fortress.barrels ?? []).map(b => ({ ...b, live: true, fuse: -1 }))
     // Level I is gentler: half again the armour (the curve comes from more
     // defenders at the higher levels, not from rounds that hurt more).
     this.armor = makeArmor(loadout.armor * (level === 1 ? 1.5 : 1))
@@ -374,6 +376,8 @@ export class Mission implements GameMode {
     }
     m.hideBox = buildHideBox()
     m.scene.add(m.hideBox)
+    m.supplyView = new SupplyView(m.supplies, m.barrels)
+    m.scene.add(m.supplyView.group)
     m.dog = buildRobodog()
     m.dog.root.visible = false
     // The way out: a column of light on the pad, lit once the target is down.
@@ -582,6 +586,8 @@ export class Mission implements GameMode {
       this.stepGarrison(dt)
       this.stepTraining(dt)
       stepArmor(this.armor, dt)
+      this.stepSupplies()
+      this.stepBarrels(dt)
       this.stepCoach(dt)
       vital.armor = this.armor.hp / this.armor.max
       mirror('armorLow', vital.armor < 0.3)
@@ -686,6 +692,8 @@ export class Mission implements GameMode {
     const a = this.arsenal
     mirror('weapon', a.current)
     mirror('ammo', ammoOf(a))
+    mirror('reserve', reserveOf(a))
+    mirror('dry', isDry(a))
     mirror('ammoMax', a.current === 'rocket' ? this.loadout.rockets : a.current === 'sniper' ? SNIPER_MAG : 0)
     gun.reload = reloadProgress(a)
     mirror('reloading', gun.reload > 0)
@@ -851,6 +859,8 @@ export class Mission implements GameMode {
         }
       }
     } else if (h.kind === 'world') {
+      const b = barrelAt(this.barrels, toCell(h.x + dx * 0.05), toCell(h.z + dz * 0.05))
+      if (b) ignite(b, 0)
       this.fx.tracer(mx, my, mz, h.x, h.y, h.z, w)
       this.fx.impact(h.x, h.y, h.z, h.nx, h.ny, h.nz, false, w)
     } else {
@@ -876,6 +886,7 @@ export class Mission implements GameMode {
       this.killBy = 'rocket'
       this.killHead = false
       const res = blast(this.garrison, g, b.x, b.y, b.z, b.direct, this.loadout.blastRadius, this.loadout.damage.rocket)
+      for (const o of this.barrels) if (o.live && Math.hypot(o.x - b.x, o.z - b.z) < this.loadout.blastRadius) ignite(o, 0.08)
       // The dead fly too (#64).
       for (const d of this.garrison.units) {
         if (d.rag && d.state === 'dead' && !d.hidden && d.deadT >= d.hold) blastRagdoll(d.rag, b.x, b.y, b.z, this.loadout.blastRadius * 1.3, 1 / 60)
@@ -1291,9 +1302,8 @@ export class Mission implements GameMode {
           const pb = this.player
           if (Math.hypot(pb.x - ins.x, pb.z - ins.z) < PERCH_M && Math.abs(pb.y - heightAt(this.fortress.grid, ins.x, ins.z)) < 1.5) this.stats.perchKills++
         }
-        // In a fight, a kill by the blade or close in drops armour shards:
-        // pushing in heals, hiding does not.
-        if (u.fought && (this.killBy === 'blade' || Math.hypot(u.x - this.player.x, u.z - this.player.z) < SHARD_CLOSE_M)) this.dropShards(u.x, u.y, u.z)
+        // A person drops its ammo pouch where it falls (#76).
+        if ((u.kind === 'guard' || u.kind === 'sentry' || u.kind === 'commander') && !this.training) this.dropPouch(u.x, u.y, u.z)
         this.fx.kill(u.x, u.y, u.z, u.kind)
         // Apart, in pieces that stay where they land.
         if (e.death === 'burst') {
@@ -2047,44 +2057,54 @@ export class Mission implements GameMode {
   /** Start on the perch with no drop-in (a retry), maybe from the checkpoint. */
   private quickStart = false
   private resumeAt: { x: number; y: number; z: number; yaw: number } | null = null
-  /** Armour shards lying where a defender fell: walk over one to take it. */
-  private shards: Array<{ mesh: Mesh; x: number; y: number; z: number; t: number }> = []
-  private shardGeo = new OctahedronGeometry(0.22)
-  private shardMat = new MeshBasicMaterial({ color: '#5fe9ff', transparent: true, opacity: 0.9, blending: AdditiveBlending, toneMapped: false })
 
-  private dropShards(x: number, y: number, z: number): void {
-    for (let k = 0; k < SHARD_COUNT; k++) {
-      if (this.shards.length >= 12) this.removeShard(0)
-      const mesh = new Mesh(this.shardGeo, this.shardMat)
-      const a = (k / SHARD_COUNT) * Math.PI * 2 + Math.random()
-      const sx = x + Math.sin(a) * 0.9
-      const sz = z + Math.cos(a) * 0.9
-      mesh.position.set(sx, y + 0.5, sz)
-      this.scene.add(mesh)
-      this.shards.push({ mesh, x: sx, y, z: sz, t: 0 })
-    }
+  /** Repair kits, ammo crates and the pouches the fallen dropped (#76, #101); exploding barrels (#78). */
+  private supplies: Supply[] = []
+  private barrels: Barrel[] = []
+  private supplyView!: SupplyView
+
+  private dropPouch(x: number, y: number, z: number): void {
+    const pouches = this.supplies.filter(s => s.kind === 'pouch' && !s.taken)
+    if (pouches.length >= MAX_POUCHES) pouches[0]!.taken = true
+    this.supplies.push({ kind: 'pouch', x: x + 0.4, y: heightAt(this.fortress.grid, x + 0.4, z) > VOID ? heightAt(this.fortress.grid, x + 0.4, z) : y, z, taken: false })
   }
 
-  private removeShard(k: number): void {
-    const s = this.shards[k]!
-    this.scene.remove(s.mesh)
-    this.shards.splice(k, 1)
-  }
-
-  private stepShards(dt: number): void {
+  /** Walk over a kit, a crate or a pouch: it is the mech's, if it wants it. */
+  private stepSupplies(): void {
     const p = this.player
-    for (let k = this.shards.length - 1; k >= 0; k--) {
-      const s = this.shards[k]!
-      s.t += dt
-      s.mesh.rotation.y += dt * 3
-      s.mesh.position.y = s.y + 0.5 + Math.sin(s.t * 4 + k) * 0.12
-      if (s.t > SHARD_LIFE_S) { this.removeShard(k); continue }
-      if (Math.hypot(s.x - p.x, s.z - p.z) < 1.6 && Math.abs(s.y - p.y) < 1.5 && !this.armor.down) {
-        this.armor.hp = Math.min(this.armor.max, this.armor.hp + SHARD_ARMOR)
-        this.fx.particles.sparks(s.x, s.y + 0.6, s.z, '#5fe9ff', 8, 3, 0.2)
-        emit('shard', {})
-        this.removeShard(k)
+    const s = supplyUnderfoot(this.supplies, p.x, p.y, p.z, this.arsenal, this.armor, this.loadout.rockets)
+    if (!s) return
+    take(s, this.arsenal, this.armor, this.loadout.rockets)
+    vital.armor = this.armor.hp / this.armor.max
+    this.fx.particles.sparks(s.x, s.y + 0.5, s.z, s.kind === 'kit' ? '#5dff9a' : '#ffd23f', 12, 3, 0.25)
+    emit('pickup', { kind: s.kind })
+  }
+
+  /** A barrel lit by a round, a blast or a neighbour goes up (#78). */
+  private stepBarrels(dt: number): void {
+    if (this.barrels.length === 0) return
+    const g = this.fortress.grid
+    for (const b of stepBarrels(this.barrels, g, dt)) {
+      const y = b.y + 0.7
+      this.fx.explosion(b.x, y, b.z, b.y)
+      // No camera for what a barrel takes (#85): it is not the mech's shot.
+      this.killBy = 'rocket'
+      this.killHead = false
+      const res = blast(this.garrison, g, b.x, y, b.z, -1, BARREL_RADIUS, BARREL_POWER)
+      for (const d of this.garrison.units) {
+        if (d.rag && d.state === 'dead' && !d.hidden && d.deadT >= d.hold) blastRagdoll(d.rag, b.x, y, b.z, BARREL_RADIUS * 1.3, 1 / 60)
       }
+      for (const id of res.hurt) alarmUnit(this.garrison, id, b.x, b.z)
+      // The mech, if it stood too near and nothing was in between.
+      const p = this.player
+      const d = Math.hypot(p.x - b.x, p.z - b.z)
+      if (d < BARREL_RADIUS && hasLineOfSight(g, b.x, y, b.z, p.x, p.y + 1.2, p.z)) this.hurt(barrelHurt(d), b.x, b.z)
+      // A bang nobody can place: they wonder, then come to look.
+      wonderAt(this.garrison, b.x, b.z, BARREL_EARSHOT)
+      emit('blast', { x: b.x, y, z: b.z, weak: false })
+      haptic('blast')
+      this.shake = Math.max(this.shake, Math.max(0.25, 1.2 - d / 30))
+      this.flushGarrison()
     }
   }
 
@@ -2454,7 +2474,7 @@ export class Mission implements GameMode {
     this.training?.update(dt, this.time)
     this.stepTag(dt)
     this.stepDrag()
-    this.stepShards(dt)
+    this.supplyView.update(this.supplies, this.barrels, this.time)
     for (let k = 0; k < this.beaconViews.length; k++) {
       const b = this.garrison.beacons[k]!
       poseBeacon(this.beaconViews[k]!, b.state, b.lit, this.time)
@@ -2584,8 +2604,7 @@ export class Mission implements GameMode {
     for (const v of this.beaconViews) disposeBeacon(v)
     this.ghost.mesh.geometry.dispose()
     this.ghostMat.dispose()
-    this.shardGeo.dispose()
-    this.shardMat.dispose()
+    this.supplyView.dispose()
     this.ghost.material.dispose()
     this.ghost.glowMaterial.dispose()
     this.dog.mesh.geometry.dispose()

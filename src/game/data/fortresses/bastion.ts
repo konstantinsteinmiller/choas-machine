@@ -56,6 +56,10 @@ const PILES: ReadonlyArray<readonly [number, number, number, boolean?]> = [
   [42, 11, 50], // 7 · the tank park
   [29, 21, 90, true] // 8 · the keep's roof: the boss arena
 ]
+/** Repair kits (#101): the first three always, one more at III and at V. Ammo crates (#76). Red barrels (#78). */
+const KITS: ReadonlyArray<readonly [number, number]> = [[12, 50], [44, 46], [34, 35], [13, 22], [24, 13]]
+const CRATES: ReadonlyArray<readonly [number, number]> = [[14, 46], [45, 14]]
+const BARRELS: ReadonlyArray<readonly [number, number]> = [[44, 40], [38, 12], [10, 40], [50, 30]]
 /** Always live: the teaching pile and the big one on the keep. */
 const ALWAYS = [0, 8]
 
@@ -130,6 +134,11 @@ export const buildBastion = (level = 1, run = 0, answers: Answers = NO_ANSWERS):
   // The inner ward's own cover and shadow.
   b.solid('stack', 21, 28, 1.4).solid('stack', 22, 28, 1.4).solid('stack', 38, 28, 1.4).solid('stack', 39, 28, 1.4).solid('stack', 36, 17, 1.4)
   b.shadow(19, 15, 24, 17).shadow(35, 26, 42, 27)
+
+  // ── Supplies and barrels (#76, #78, #101) ──
+  for (const [cx, cz] of KITS.slice(0, 3 + Math.floor((level - 1) / 2))) b.kit(cx, cz)
+  for (const [cx, cz] of CRATES) b.ammo(cx, cz)
+  for (const [cx, cz] of BARRELS) b.fuel(cx, cz)
 
   // ── Alarm beacons: the yard, the inner ward, the keep's roof ──
   b.beacon(32, 50).beacon(38, 32).beacon(32, 24)

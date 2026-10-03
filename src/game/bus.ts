@@ -90,7 +90,8 @@ export interface GameEvents {
   tagged: { id: number }
   /** A body grabbed or let go of (and whether it went into a container). */
   drag: { on: boolean; hidden?: boolean }
-  shard: Record<string, never>
+  /** The mech took a kit, a crate or a pouch (#76, #101). */
+  pickup: { kind: 'kit' | 'crate' | 'pouch' }
   /** A defender is sure and shouts its line (#62): a person 'Intruder! Alarm!', a machine 'Enemy detected! Erase intruder!'. */
   callout: { id: number; kind: PostKind; role: 'engineer' | null; line: 'human' | 'machine'; dist: number; pan: number }
   /** A round knocked a guard's helmet off (R26). */

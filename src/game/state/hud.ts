@@ -53,6 +53,10 @@ export const hud = reactive({
   ammo: 5,
   /** What a full load of the weapon in hand is: the pips the strip draws. */
   ammoMax: 5,
+  /** Carried besides what is loaded (the rifle's reserve, the belt); −1 for none (#76). */
+  reserve: 15,
+  /** The weapon in hand has nothing left to fire. */
+  dry: false,
   reloading: false,
   overheated: false,
   decoys: 0,

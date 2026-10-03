@@ -8,13 +8,18 @@ import { WEAPON_IDS, type WeaponId } from '../data/ids'
  * mission's business. Pure.
  *
  *  - Sniper rifle: silenced, one round per pull, a bolt to work between
- *    rounds, five in the magazine.
- *  - Minigun: has to spool up before the first round; no magazine, but it
- *    overheats and locks until it has cooled.
+ *    rounds, five in the magazine, reloaded from a reserve that runs out.
+ *  - Minigun: has to spool up before the first round; fed from a belt that
+ *    runs out, and it overheats and locks until it has cooled.
  *  - Rocket launcher: one in the tube, a slow reload, a few for the mission.
+ * Round 4 (#76): ammunition is finite; pouches and crates in the fortress
+ * top it up (`supplies.ts`).
  */
 
 export const SNIPER_MAG = 5
+/** Rounds carried for the rifle besides the magazine, and the mini-gun's belt, as the factory fits them. */
+export const SNIPER_RESERVE = 15
+export const MINIGUN_BELT = 300
 export const SNIPER_BOLT_S = 0.85
 export const SNIPER_RELOAD_S = 1.9
 export const MINIGUN_SPOOL_S = 0.55
@@ -36,6 +41,12 @@ export interface Arsenal {
   /** Seconds left of drawing the current weapon; no shot until 0. */
   switching: number
   sniperMag: number
+  /** Rifle rounds carried besides the magazine, and how many it can carry. */
+  sniperReserve: number
+  sniperReserveMax: number
+  /** Rounds left on the mini-gun's belt, and a full belt. */
+  minigunBelt: number
+  minigunBeltMax: number
   /** Seconds left of working the bolt. */
   bolt: number
   /** Seconds left of the sniper's reload, 0 when not reloading. */
@@ -59,8 +70,11 @@ export interface Arsenal {
   coolRate: number
 }
 
-export const makeArsenal = (rockets = ROCKETS_PER_MISSION, heatSeconds = MINIGUN_HEAT_S, coolRate = MINIGUN_COOL_PER_S): Arsenal => ({
-  current: 'sniper', switching: 0, sniperMag: SNIPER_MAG, bolt: 0, reloading: 0, spool: 0, heat: 0, overheated: false,
+export const makeArsenal = (
+  rockets = ROCKETS_PER_MISSION, heatSeconds = MINIGUN_HEAT_S, coolRate = MINIGUN_COOL_PER_S, rifleReserve = SNIPER_RESERVE, belt = MINIGUN_BELT
+): Arsenal => ({
+  current: 'sniper', switching: 0, sniperMag: SNIPER_MAG, sniperReserve: rifleReserve, sniperReserveMax: rifleReserve,
+  minigunBelt: belt, minigunBeltMax: belt, bolt: 0, reloading: 0, spool: 0, heat: 0, overheated: false,
   owed: 0, rocketLoaded: true, rocketReload: 0, rockets: Math.max(0, rockets - 1), recoil: 0, spin: 0, heatSeconds, coolRate
 })
 
@@ -85,7 +99,11 @@ export const nextWeapon = (w: WeaponId): WeaponId => WEAPON_IDS[(WEAPON_IDS.inde
 
 /** Rounds in hand for the HUD: magazine, or rockets counting the one loaded. */
 export const ammoOf = (a: Arsenal, w: WeaponId = a.current): number =>
-  w === 'sniper' ? a.sniperMag : w === 'rocket' ? a.rockets + (a.rocketLoaded ? 1 : 0) : -1
+  w === 'sniper' ? a.sniperMag : w === 'rocket' ? a.rockets + (a.rocketLoaded ? 1 : 0) : a.minigunBelt
+
+/** What is carried besides what is loaded: the rifle's reserve, the belt; −1 where that means nothing. */
+export const reserveOf = (a: Arsenal, w: WeaponId = a.current): number =>
+  w === 'sniper' ? a.sniperReserve : w === 'minigun' ? a.minigunBelt : -1
 
 /**
  * How far through a reload the weapon in hand is, 0 … 1, or 0 when it is not
@@ -98,7 +116,10 @@ export const reloadProgress = (a: Arsenal): number => {
 }
 
 /** Can the weapon in hand fire at all (now or after its timers)? */
-export const isDry = (a: Arsenal): boolean => a.current === 'rocket' && !a.rocketLoaded && a.rockets === 0 && a.rocketReload <= 0
+export const isDry = (a: Arsenal, w: WeaponId = a.current): boolean =>
+  w === 'rocket' ? !a.rocketLoaded && a.rockets === 0 && a.rocketReload <= 0
+    : w === 'sniper' ? a.sniperMag === 0 && a.sniperReserve === 0 && a.reloading <= 0
+      : a.minigunBelt <= 0
 
 const draw = (a: Arsenal, w: WeaponId): void => {
   if (w === a.current) return
@@ -122,13 +143,19 @@ export const stepArsenal = (a: Arsenal, t: Trigger, dt: number): number => {
   const drawn = a.switching <= 0
   a.switching = Math.max(0, a.switching - dt)
 
-  // The sniper's magazine: reload when asked, or when it runs dry.
+  // The sniper's magazine: reload from the reserve when asked, or when it
+  // runs dry; with nothing in reserve there is nothing to reload.
   if (a.reloading > 0) {
     if (a.current === 'sniper') {
       a.reloading -= dt
-      if (a.reloading <= 0) { a.reloading = 0; a.sniperMag = SNIPER_MAG }
+      if (a.reloading <= 0) {
+        a.reloading = 0
+        const n = Math.min(SNIPER_MAG - a.sniperMag, a.sniperReserve)
+        a.sniperMag += n
+        a.sniperReserve -= n
+      }
     }
-  } else if (a.current === 'sniper' && (a.sniperMag === 0 || (t.reload && a.sniperMag < SNIPER_MAG))) {
+  } else if (a.current === 'sniper' && a.sniperReserve > 0 && (a.sniperMag === 0 || (t.reload && a.sniperMag < SNIPER_MAG))) {
     a.reloading = SNIPER_RELOAD_S
   }
 
@@ -143,7 +170,7 @@ export const stepArsenal = (a: Arsenal, t: Trigger, dt: number): number => {
   const hold = a.current === 'minigun' && drawn && (t.touch ? t.aimHeld : t.fireHeld || t.aimHeld)
   a.spool = Math.min(1, Math.max(0, a.spool + (hold ? dt / MINIGUN_SPOOL_S : -dt / 0.8)))
   a.spin += a.spool * 34 * dt
-  const firing = a.current === 'minigun' && drawn && a.spool >= 1 && !a.overheated && (t.touch ? t.aimHeld : t.fireHeld)
+  const firing = a.current === 'minigun' && drawn && a.spool >= 1 && !a.overheated && a.minigunBelt > 0 && (t.touch ? t.aimHeld : t.fireHeld)
   if (firing) {
     a.heat = Math.min(1, a.heat + dt / a.heatSeconds)
     if (a.heat >= 1) a.overheated = true
@@ -169,8 +196,9 @@ export const stepArsenal = (a: Arsenal, t: Trigger, dt: number): number => {
     case 'minigun': {
       if (!firing) { a.owed = 0; return 0 }
       a.owed += MINIGUN_RPS * dt
-      const n = Math.floor(a.owed)
-      a.owed -= n
+      const n = Math.min(a.minigunBelt, Math.floor(a.owed))
+      a.owed -= Math.floor(a.owed)
+      a.minigunBelt -= n
       if (n > 0) a.recoil = Math.min(1, a.recoil + 0.5)
       return n
     }

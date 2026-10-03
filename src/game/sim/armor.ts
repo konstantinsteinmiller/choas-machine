@@ -1,15 +1,12 @@
 /**
  * ─── The mech's armor ────────────────────────────────────────────────────────
  *
- * One number that the base shoots at. It comes back by itself once the mech
- * has been out of the fire for a few seconds (plan G16), so the action phase
- * is a rhythm of pushing out and ducking back, not a slide to zero. Pure.
+ * One number that the base shoots at. Round 4 (#101): it does NOT mend by
+ * itself any more; repair kits lying in the fortress do that
+ * (`supplies.ts`). Pure.
  */
 
 export const ARMOR_MAX = 100
-/** Seconds without a hit before the plating starts to mend, and how fast. */
-export const REGEN_AFTER_S = 4
-export const REGEN_PER_S = 14
 
 export interface Armor {
   hp: number
@@ -33,8 +30,8 @@ export const hurtArmor = (a: Armor, amount: number): boolean => {
   return false
 }
 
+/** Count the quiet since the last hit (the HUD and the music read it); nothing mends. */
 export const stepArmor = (a: Armor, dt: number): void => {
   if (a.down) return
   a.quiet += dt
-  if (a.quiet >= REGEN_AFTER_S && a.hp < a.max) a.hp = Math.min(a.max, a.hp + REGEN_PER_S * dt)
 }

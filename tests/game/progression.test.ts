@@ -45,7 +45,8 @@ describe('upgrade tracks', () => {
     for (const id of TRACK_IDS) {
       expect(TRACKS[id].id).toBe(id)
       expect(TRACKS[id].icon).toBeTruthy()
-      if (TRACKS[id].station === 'armory') expect(WEAPON_IDS).toContain(TRACKS[id].weapon)
+      // Ammo racks feed the rifle and the mini-gun alike (#76): the one Armory track without a weapon.
+      if (TRACKS[id].station === 'armory' && id !== 'ammoRacks') expect(WEAPON_IDS).toContain(TRACKS[id].weapon)
     }
     // GDD 3.2: three sniper tracks, two each for the minigun and the launcher; the chassis has four (R21: the hook).
     const count = (w: string): number => TRACK_IDS.filter(id => TRACKS[id].weapon === w).length
@@ -85,6 +86,7 @@ describe('upgrade tracks', () => {
       minigunDamage: (a, b) => b.damage.minigun > a.damage.minigun,
       rocketBlast: (a, b) => b.blastRadius > a.blastRadius,
       rocketAmmo: (a, b) => b.rockets > a.rockets,
+      ammoRacks: (a, b) => b.rifleReserve > a.rifleReserve && b.belt > a.belt,
       armor: (a, b) => b.armor > a.armor,
       speed: (a, b) => b.speed > a.speed,
       decoy: (a, b) => b.decoySeconds > a.decoySeconds,

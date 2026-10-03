@@ -1,7 +1,7 @@
 <template lang="pug">
   //- What is left in the weapon in hand: rounds as pips, or the minigun's
   //- heat as a bar.
-  div.ammo-strip(:class="[`w-${hud.weapon}`, { reloading: hud.reloading, hot: hud.overheated }]" data-testid="ammo")
+  div.ammo-strip(:class="[`w-${hud.weapon}`, { reloading: hud.reloading, hot: hud.overheated, dry: hud.dry }]" data-testid="ammo")
     GameIcon.glyph(:name="hud.weapon")
     div.load(v-if="hud.weapon !== 'minigun'")
       div.pips(role="meter" :aria-label="t('hud.ammo')" aria-valuemin="0" :aria-valuemax="capacity" :aria-valuenow="hud.ammo")
@@ -11,6 +11,8 @@
         div.reload-fill(ref="reload")
     div.heat(v-else role="meter" :aria-label="t('hud.heat')" aria-valuemin="0" aria-valuemax="100" :aria-valuenow="heatNow")
       div.heat-fill(ref="heat")
+    //- What is carried besides (#76): the rifle's reserve, the mini-gun's belt.
+    span.reserve(v-if="hud.reserve >= 0" :aria-label="t('hud.reserve', { n: hud.reserve })") {{ hud.reserve }}
 </template>
 
 <script setup lang="ts">
@@ -75,6 +77,16 @@ onUnmounted(() => off?.())
   &.hot
     border-color: var(--cm-danger)
     color: var(--cm-danger)
+  // Nothing left to fire: the strip blinks red until something is picked up.
+  &.dry
+    border-color: var(--cm-danger)
+    color: var(--cm-danger)
+    animation: ammo-dry 0.8s steps(2) infinite
+.reserve
+  font-size: var(--cm-fs-s)
+  font-variant-numeric: tabular-nums
+  color: var(--cm-text)
+  opacity: 0.85
 .glyph
   flex: none
   width: clamp(1rem, 4.2vmin, 1.5rem)
@@ -132,7 +144,11 @@ onUnmounted(() => off?.())
   50%
     background: currentColor
 
+@keyframes ammo-dry
+  50%
+    opacity: 0.55
+
 @media (prefers-reduced-motion: reduce)
-  .reloading .pip:not(.full)
+  .reloading .pip:not(.full), .ammo-strip.dry
     animation: none
 </style>

@@ -11,7 +11,7 @@ import type { GameIconName } from '@/components/icons/iconNames'
  */
 
 export const TRACK_IDS = [
-  'sniperZoom', 'sniperDamage', 'sniperSilence', 'minigunCooling', 'minigunDamage', 'rocketBlast', 'rocketAmmo',
+  'sniperZoom', 'sniperDamage', 'sniperSilence', 'minigunCooling', 'minigunDamage', 'rocketBlast', 'rocketAmmo', 'ammoRacks',
   'armor', 'speed', 'decoy', 'hook'
 ] as const
 export type TrackId = (typeof TRACK_IDS)[number]
@@ -33,6 +33,8 @@ export const TRACKS: Readonly<Record<TrackId, Track>> = {
   minigunDamage: { id: 'minigunDamage', station: 'armory', icon: 'minigun', weapon: 'minigun' },
   rocketBlast: { id: 'rocketBlast', station: 'armory', icon: 'rocket', weapon: 'rocket' },
   rocketAmmo: { id: 'rocketAmmo', station: 'armory', icon: 'plus', weapon: 'rocket' },
+  // More rounds carried for the rifle and a longer belt for the mini-gun (#76).
+  ammoRacks: { id: 'ammoRacks', station: 'armory', icon: 'plus' },
   armor: { id: 'armor', station: 'chassis', icon: 'armor' },
   speed: { id: 'speed', station: 'chassis', icon: 'mech' },
   decoy: { id: 'decoy', station: 'chassis', icon: 'decoy' },
@@ -90,6 +92,9 @@ export interface Loadout {
   coolRate: number
   blastRadius: number
   rockets: number
+  /** Rifle rounds carried besides the magazine, and the mini-gun's belt (#76). */
+  rifleReserve: number
+  belt: number
   armor: number
   speed: number
   decoySeconds: number
@@ -111,6 +116,8 @@ export const BASE_LOADOUT: Readonly<Loadout> = {
   coolRate: 0.4,
   blastRadius: 5.5,
   rockets: 6,
+  rifleReserve: 15,
+  belt: 300,
   armor: 100,
   speed: 1,
   decoySeconds: 9,
@@ -142,6 +149,8 @@ export const loadoutOf = (src: LoadoutSource): Loadout => {
     coolRate: BASE_LOADOUT.coolRate * (1 + 0.1 * level(src, 'minigunCooling')),
     blastRadius: BASE_LOADOUT.blastRadius + 0.5 * level(src, 'rocketBlast'),
     rockets: BASE_LOADOUT.rockets + level(src, 'rocketAmmo'),
+    rifleReserve: BASE_LOADOUT.rifleReserve + 5 * level(src, 'ammoRacks'),
+    belt: BASE_LOADOUT.belt + 100 * level(src, 'ammoRacks'),
     armor: BASE_LOADOUT.armor + 20 * level(src, 'armor'),
     speed: BASE_LOADOUT.speed + 0.04 * level(src, 'speed'),
     decoySeconds: BASE_LOADOUT.decoySeconds + 2 * level(src, 'decoy'),
@@ -168,6 +177,7 @@ export const trackValue = (id: TrackId, lvl: number): number => {
     case 'minigunDamage': return Math.round(l.damage.minigun * 100)
     case 'rocketBlast': return l.blastRadius
     case 'rocketAmmo': return l.rockets
+    case 'ammoRacks': return l.rifleReserve
     case 'armor': return l.armor
     case 'speed': return Math.round(l.speed * 100)
     case 'decoy': return l.decoySeconds

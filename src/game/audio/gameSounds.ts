@@ -112,7 +112,7 @@ export const installGameSounds = (): void => {
   on('jump', () => sfx('boardJump'))
   on('checkin', () => sfx('radio'))
   on('shout', () => sfx('shout'))
-  on('shard', () => sfx('shard'))
+  on('pickup', () => sfx('shard'))
   on('tagged', () => sfx('tag'))
   on('bark', () => sfx('growl'))
   on('lessonDone', () => sfx('gate'))

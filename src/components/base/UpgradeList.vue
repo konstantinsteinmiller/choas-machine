@@ -57,7 +57,7 @@ const fmt = (n: number): string => formatAmount(n, locale.value)
  *  in every language. */
 const UNITS: Readonly<Record<TrackId, string>> = {
   sniperZoom: '×', sniperDamage: '%', sniperSilence: ' m', minigunCooling: ' s', minigunDamage: '%',
-  rocketBlast: ' m', rocketAmmo: '', armor: '', speed: '%', decoy: ' s', hook: ' m'
+  rocketBlast: ' m', rocketAmmo: '', ammoRacks: '', armor: '', speed: '%', decoy: ' s', hook: ' m'
 }
 const value = (id: TrackId, lvl: number): string => {
   const v = new Intl.NumberFormat(locale.value, { maximumFractionDigits: 1 }).format(trackValue(id, lvl))

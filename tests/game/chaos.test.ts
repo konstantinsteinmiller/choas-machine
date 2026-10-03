@@ -7,7 +7,9 @@ import {
 } from '@/game/sim/garrison'
 import { buildBastion } from '@/game/data/fortresses/bastion'
 import { GUNS, SHELL_RADIUS, SHELL_WARN_S, hitChance, stepFire } from '@/game/sim/chaos'
-import { ARMOR_MAX, REGEN_AFTER_S, hurtArmor, makeArmor, stepArmor } from '@/game/sim/armor'
+import { ARMOR_MAX, hurtArmor, makeArmor, stepArmor } from '@/game/sim/armor'
+import { KIT_ARMOR, take, wants, type Supply } from '@/game/sim/supplies'
+import { makeArsenal } from '@/game/sim/weapons'
 import { castShot, makeShotHit } from '@/game/sim/hitscan'
 import { buildProvingGround } from '@/game/data/fortresses/proving'
 import { MECH_HEIGHT } from '@/game/models/mech'
@@ -45,21 +47,20 @@ describe('armor', () => {
     expect(a.down).toBe(true)
     expect(hurtArmor(a, 10)).toBe(false)
   })
-  it('mends once the mech has been out of the fire for a while, not before', () => {
+  it('never mends by itself (#101): only a repair kit does', () => {
     const a = makeArmor()
     hurtArmor(a, 60)
-    for (let t = 0; t < REGEN_AFTER_S - 0.5; t += DT) stepArmor(a, DT)
+    for (let t = 0; t < 60; t += DT) stepArmor(a, DT)
     expect(a.hp).toBe(40)
-    for (let t = 0; t < 10; t += DT) stepArmor(a, DT)
-    expect(a.hp).toBe(ARMOR_MAX)
-  })
-  it('a hit restarts the wait', () => {
-    const a = makeArmor()
-    hurtArmor(a, 50)
-    for (let t = 0; t < REGEN_AFTER_S - 0.2; t += DT) stepArmor(a, DT)
-    hurtArmor(a, 1)
-    for (let t = 0; t < 1; t += DT) stepArmor(a, DT)
-    expect(a.hp).toBe(49)
+    const kit: Supply = { kind: 'kit', x: 0, y: 0, z: 0, taken: false }
+    const arsenal = makeArsenal()
+    expect(wants(kit, arsenal, a, 6)).toBe(true)
+    take(kit, arsenal, a, 6)
+    expect(a.hp).toBe(40 + KIT_ARMOR)
+    expect(kit.taken).toBe(true)
+    // A full mech leaves a kit lying.
+    expect(wants({ kind: 'kit', x: 0, y: 0, z: 0, taken: false }, arsenal, makeArmor(), 6)).toBe(false)
+    expect(a.hp).toBeLessThanOrEqual(ARMOR_MAX)
   })
   it('a downed mech does not mend', () => {
     const a = makeArmor()

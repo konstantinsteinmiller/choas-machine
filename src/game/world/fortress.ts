@@ -116,7 +116,14 @@ export interface Fortress {
   generators?: Array<{ x: number; y: number; z: number }>
   /** What the base learned from the last raid (`sim/adapt.ts`). */
   answers?: Answers
+  /** Repair kits and ammo crates lying about (#76, #101). */
+  supplies?: Array<{ kind: 'kit' | 'crate'; x: number; y: number; z: number }>
+  /** Exploding barrels (#78): the cell, and the floor the barrel stands on. */
+  barrels?: Array<{ cx: number; cz: number; x: number; y: number; z: number }>
 }
+
+/** An exploding barrel's cell is raised this much: it is cover (`sim/barrels.ts` BARREL_H). */
+const BARREL_CELL_H = 1.3
 
 const DIRS = { n: [0, -1], s: [0, 1], e: [1, 0], w: [-1, 0] } as const
 export type Dir = keyof typeof DIRS
@@ -130,6 +137,8 @@ export class FortressBuilder {
   private piles: SalvageSpot[] = []
   private beaconSpots: Array<{ x: number; y: number; z: number }> = []
   private generatorSpots: Array<{ x: number; y: number; z: number }> = []
+  private supplySpots: Array<{ kind: 'kit' | 'crate'; x: number; y: number; z: number }> = []
+  private barrelSpots: Array<{ cx: number; cz: number; x: number; y: number; z: number }> = []
 
   constructor(readonly id: string, w: number, d: number) {
     this.grid = makeGrid(w, d)
@@ -382,6 +391,36 @@ export class FortressBuilder {
     return this
   }
 
+  /** A repair kit on the cell's top: it mends the mech's armor (#101). */
+  kit(cx: number, cz: number): this {
+    const h = this.heightOf(cx, cz)
+    if (h === VOID) throw new Error(`[fortress ${this.id}] kit at ${cx},${cz} is off the island`)
+    this.supplySpots.push({ kind: 'kit', x: cellMid(cx), y: h, z: cellMid(cz) })
+    return this
+  }
+
+  /** An ammo crate on the cell's top: rifle rounds, the mini-gun's belt, a rocket (#76). */
+  ammo(cx: number, cz: number): this {
+    const h = this.heightOf(cx, cz)
+    if (h === VOID) throw new Error(`[fortress ${this.id}] ammo at ${cx},${cz} is off the island`)
+    this.supplySpots.push({ kind: 'crate', x: cellMid(cx), y: h, z: cellMid(cz) })
+    return this
+  }
+
+  /**
+   * An exploding barrel (#78): a red fuel drum on a pallet. Its cell is cover
+   * until it goes up; the barrel draws itself (`models/supplies.ts`).
+   */
+  fuel(cx: number, cz: number): this {
+    const base = this.heightOf(cx, cz)
+    if (base === VOID) throw new Error(`[fortress ${this.id}] barrel at ${cx},${cz} is off the island`)
+    this.set(cx, cz, base + BARREL_CELL_H, CellKind.Cover)
+    this.grid.surf[cz * this.grid.w + cx] = Surf.Heap
+    this.grid.base[cz * this.grid.w + cx] = base
+    this.barrelSpots.push({ cx, cz, x: cellMid(cx), y: base, z: cellMid(cz) })
+    return this
+  }
+
   /** A pool of shadow over a rectangle of cells: the mech is slower to make out in it. */
   shadow(x0: number, z0: number, x1: number, z1: number): this {
     for (let cz = Math.min(z0, z1); cz <= Math.max(z0, z1); cz++) {
@@ -547,7 +586,9 @@ export class FortressBuilder {
       decor: this.decor,
       salvage: this.piles,
       beacons: this.beaconSpots,
-      generators: this.generatorSpots
+      generators: this.generatorSpots,
+      supplies: this.supplySpots,
+      barrels: this.barrelSpots
     }
   }
 }
