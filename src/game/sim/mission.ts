@@ -49,7 +49,7 @@ import { TrainingDirector } from './trainingDirector'
 import { TRAINING_ID, TRAINING_ROOMS } from '../data/fortresses/training'
 import { COVER_H } from '../world/fortress'
 import { BASE_LOADOUT, type Loadout } from '../data/upgrades'
-import { makeKillCamState, wantsKillCam, type KillInfo } from './killcam'
+import { chooseKillCam, makeKillCamState, type CamCut, type KillInfo } from './killcam'
 import {
   DROP_LANDED, blendPose, bulletAt, bulletCam, bulletFlightS, dropHeight, introCam, liftHeight, makeCinePose, orbitCam, outroCam,
   type CinePose
@@ -120,12 +120,17 @@ type Cine =
     id: number; damage: number; head: boolean; final: boolean; yaw: number
   }
   /** A slow turn round a kill made some other way. */
-  | { kind: 'orbit'; t: number; dur: number; id: number; yaw: number; final: boolean }
+  | { kind: 'orbit'; t: number; dur: number; id: number; yaw: number; final: boolean; boss?: boolean }
   /** No camera move: time just dips for a beat. */
   | { kind: 'dip'; t: number; dur: number }
 
 /** How slow the world runs while a kill-cam holds on its kill. */
 const KILLCAM_SLOW = 0.16
+/** A short bullet cam joins the round this far into its flight; a boss's orbit lasts this long. */
+const SHORT_FROM = 0.55
+const BOSS_ORBIT_S = 3.6
+/** The profile's mark: the first headshot cam of a life has been shown. */
+const FIRST_HEADSHOT_CAM = 'firstHeadshotCam'
 /** How near the pad the mech must be for the line to take it. */
 const EXTRACT_RADIUS = 1.9
 /** How far running feet are heard, in metres. */
@@ -764,16 +769,25 @@ export class Mission implements GameMode {
       // it has not landed yet, and the camera rides it in.
       if (w === 'sniper' && u.hp - damage <= 0) {
         const final = this.isLastTarget(u.id)
-        if (this.rollKillcam({ by: 'sniper', head, final, time: this.stats.time })) {
+        const cut = this.rollKillcam({
+          by: 'sniper', head: zone === 'head', final, time: this.stats.time, dist: Math.hypot(u.x - this.player.x, u.z - this.player.z),
+          moving: u.speed01, zone: zone === 'head' || zone === 'body' || zone === 'limb' ? zone : 'other', boss: !!u.boss
+        })
+        if (cut === 'full' || cut === 'short') {
           const dist = Math.hypot(h.x - ox, h.y - oy, h.z - oz)
+          const dur = bulletFlightS(dist)
           this.cine = {
-            kind: 'bullet', t: 0, dur: bulletFlightS(dist), hit: false,
+            kind: 'bullet', t: cut === 'short' ? dur * SHORT_FROM : 0, dur, hit: false,
             ox, oy, oz, hx: h.x, hy: h.y, hz: h.z, nx: h.nx, ny: h.ny, nz: h.nz,
             id: u.id, damage, head, final, yaw: Math.atan2(ox - h.x, oz - h.z)
           }
           mirror('cine', true)
           emit('killcam', { kind: 'bullet', final })
           return
+        }
+        if (cut === 'boss') {
+          // The boss's own orbit comes with the kill, once it has landed.
+          this.bossCam = true
         }
       }
       this.fx.tracer(ox, oy, oz, h.x, h.y, h.z, w)
@@ -1250,17 +1264,26 @@ export class Mission implements GameMode {
         // The Commander is down and the tank is still asleep: not for long.
         if (u.kind === 'commander' && gar.units.some(o => o.kind === 'goliath' && o.state === 'dormant')) this.finaleT = 2.2
         // The sniper's kill-cam was decided when the round was fired.
-        if (this.killBy !== 'sniper' && !this.cine && hud.phase === 'play') {
-          const info = { by: this.killBy, head: false, final, time: this.stats.time }
-          if (this.rollKillcam(info)) {
+        const bossLast = !!u.boss && final
+        if ((this.killBy !== 'sniper' || (bossLast && this.bossCam)) && !this.cine && hud.phase === 'play') {
+          this.bossCam = false
+          const info: KillInfo = { by: this.killBy, head: false, final, time: this.stats.time, dist: Math.hypot(u.x - this.player.x, u.z - this.player.z), moving: u.speed01, zone: 'body', boss: !!u.boss }
+          const cut = this.killBy === 'sniper' ? 'boss' : this.rollKillcam(info)
+          if (cut === 'boss') {
+            // A boss's last blow: its own long, slow orbit.
+            this.cine = { kind: 'orbit', t: 0, dur: BOSS_ORBIT_S, id: e.id, yaw: this.cam.yaw + Math.PI * 0.6, final: true, boss: true }
+            mirror('cine', true)
+            emit('killcam', { kind: 'orbit', final: true })
+            app.setTimeScale(KILLCAM_SLOW * 0.7)
+          } else if (cut !== 'none') {
             // The blade and the last kill get the camera; a burst or a blast
             // in the middle of a fight only gets the slow beat.
-            if (this.killBy === 'blade' || final) {
+            if ((this.killBy === 'blade' || final) && cut === 'full') {
               this.cine = { kind: 'orbit', t: 0, dur: final ? 2.4 : 1.5, id: e.id, yaw: this.cam.yaw + Math.PI * 0.75, final }
               mirror('cine', true)
               emit('killcam', { kind: 'orbit', final })
             } else {
-              this.cine = { kind: 'dip', t: 0, dur: 0.75 }
+              this.cine = { kind: 'dip', t: 0, dur: cut === 'short' ? 0.45 : 0.75 }
               emit('killcam', { kind: 'dip', final })
             }
             app.setTimeScale(KILLCAM_SLOW)
@@ -1520,13 +1543,20 @@ export class Mission implements GameMode {
   }
 
   /** Ask the director whether this kill is shown. */
-  private rollKillcam(info: KillInfo): boolean {
+  private rollKillcam(info: KillInfo): CamCut {
     if (this.forceKillcam) {
       // The preview recorder's call: this one is shown, whatever the dice say.
       this.forceKillcam = false
-      return wantsKillCam(this.killcam, { ...info, final: true }, 0, true)
+      return chooseKillCam(this.killcam, { ...info, final: true, boss: false }, 0, true)
     }
-    return wantsKillCam(this.killcam, info, Math.random(), killCamsEnabled.value)
+    // The first headshot of a player's life is always shown: the profile remembers.
+    const firstOfLife = !profile.seen.includes(FIRST_HEADSHOT_CAM)
+    const cut = chooseKillCam(this.killcam, { ...info, firstOfLife }, Math.random(), killCamsEnabled.value)
+    if (cut === 'full' && firstOfLife && info.by === 'sniper' && info.head) {
+      profile.seen.push(FIRST_HEADSHOT_CAM)
+      saveProfile()
+    }
+    return cut
   }
 
   /** End the drop-in now (the preview recorder, which opens on the action). */
@@ -1605,6 +1635,8 @@ export class Mission implements GameMode {
   }
 
   private mechFade = 0
+  /** A sniper round is ending a boss: its orbit is shown when the kill lands. */
+  private bossCam = false
   /** The training ground's lessons, gates and ghost (only there). */
   private training: TrainingDirector | null = null
   private offReplay: (() => void) | null = null
@@ -2018,7 +2050,8 @@ export class Mission implements GameMode {
     }
     if (c.kind === 'orbit') {
       const u = this.garrison.units[c.id]!
-      orbitCam(out, c.t, u.x, u.y + 1.1, u.z, c.yaw, 4.2, 1.1, 0.7, this.baseFov * 0.7)
+      if (c.boss) orbitCam(out, c.t, u.x, u.y + 1.6, u.z, c.yaw, 8.5, 2.6, 0.32, this.baseFov * 0.75)
+      else orbitCam(out, c.t, u.x, u.y + 1.1, u.z, c.yaw, 4.2, 1.1, 0.7, this.baseFov * 0.7)
       // In and out of the follow camera, so the cut is a move.
       const edge = Math.min(1, c.t / 0.25, (c.dur - c.t) / 0.3)
       if (edge < 1) blendPose(out, follow, out, Math.max(0, edge))

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { KILLCAM_GAP_S, RATE_HEADSHOT, RATE_OTHER, makeKillCamState, wantsKillCam, type KillInfo } from '@/game/sim/killcam'
+import { KILLCAM_GAP_S, QUICK_S, chooseKillCam, killScore, makeKillCamState, wantsKillCam, type KillInfo } from '@/game/sim/killcam'
 import {
   DROP_FROM, DROP_HEIGHT, DROP_LANDED, bulletAlong, bulletAt, bulletCam, bulletFlightS, dropHeight, introCam, liftHeight,
   makeCinePose, orbitCam, outroCam, type CinePose
@@ -7,17 +7,22 @@ import {
 
 const kill = (over: Partial<KillInfo> = {}): KillInfo => ({ by: 'sniper', head: true, final: false, time: 100, ...over })
 
-describe('the kill-cam director', () => {
-  it('always shows the first headshot of a mission', () => {
+describe('the kill-cam director (R27)', () => {
+  it("the first headshot of a player's life is always shown in full, whatever the dice", () => {
     const s = makeKillCamState()
-    expect(wantsKillCam(s, kill(), 0.99, true)).toBe(true)
+    expect(chooseKillCam(s, kill({ firstOfLife: true, dist: 5 }), 0.999, true)).toBe('full')
     expect(s.shown).toBe(1)
   })
 
-  it('shows about half of the later headshots and about a fifth of other kills', () => {
+  it("a boss's last blow gets its own orbit; the objective's last kill is always shown", () => {
+    expect(chooseKillCam(makeKillCamState(), kill({ boss: true, final: true }), 0.999, true)).toBe('boss')
+    expect(chooseKillCam(makeKillCamState(), kill({ head: false, final: true }), 0.999, true)).toBe('full')
+  })
+
+  it('a better shot is likelier shown: far, moving, in the head', () => {
     const rate = (info: Partial<KillInfo>): number => {
       let shown = 0
-      const n = 4000
+      const n = 2000
       for (let i = 0; i < n; i++) {
         const s = makeKillCamState()
         s.headshots = 3
@@ -25,24 +30,39 @@ describe('the kill-cam director', () => {
       }
       return shown / n
     }
-    expect(rate({})).toBeCloseTo(RATE_HEADSHOT, 2)
-    expect(rate({ head: false })).toBeCloseTo(RATE_OTHER, 2)
-    expect(rate({ by: 'blade', head: false })).toBeCloseTo(RATE_OTHER, 2)
-    expect(rate({ by: 'minigun', head: true })).toBeCloseTo(RATE_OTHER, 2)
+    const great = rate({ dist: 45, moving: 1, zone: 'head' })
+    const plain = rate({ dist: 8, moving: 0, head: false, zone: 'body' })
+    expect(great).toBeGreaterThan(plain * 2)
+    expect(killScore(kill({ dist: 45, moving: 1 }))).toBeGreaterThan(killScore(kill({ dist: 45, moving: 0 })))
+    expect(killScore(kill({ head: false, zone: 'limb' }))).toBeLessThan(killScore(kill({ head: false, zone: 'body' })))
   })
 
-  it('never shows two within five seconds, unless the second completes the objective', () => {
+  it('after two kills in quick succession: a short cam for a good one, none for a plain one', () => {
+    const quick = (info: Partial<KillInfo>): string => {
+      const s = makeKillCamState()
+      chooseKillCam(s, kill({ time: 10, head: false, zone: 'body' }), 0.999, true)
+      chooseKillCam(s, kill({ time: 11, head: false, zone: 'body' }), 0.999, true)
+      return chooseKillCam(s, kill({ time: 12.5, ...info }), 0, true)
+    }
+    expect(quick({ dist: 45, moving: 1 })).toBe('short')
+    expect(quick({ head: false, zone: 'limb', dist: 4 })).toBe('none')
+    expect(QUICK_S).toBeGreaterThan(3)
+  })
+
+  it('never two full cams within five seconds, unless the second completes the objective', () => {
     const s = makeKillCamState()
-    expect(wantsKillCam(s, kill({ time: 10 }), 0, true)).toBe(true)
-    expect(wantsKillCam(s, kill({ time: 10 + KILLCAM_GAP_S - 0.1 }), 0, true)).toBe(false)
-    expect(wantsKillCam(s, kill({ time: 10 + KILLCAM_GAP_S + 0.1 }), 0, true)).toBe(true)
-    expect(wantsKillCam(s, kill({ time: 16, final: true }), 0.99, true)).toBe(true)
+    expect(chooseKillCam(s, kill({ time: 10, dist: 50, moving: 1 }), 0, true)).toBe('full')
+    expect(chooseKillCam(s, kill({ time: 10 + KILLCAM_GAP_S + 3, dist: 50, moving: 1 }), 0, true)).toBe('full')
+    const t = makeKillCamState()
+    expect(chooseKillCam(t, kill({ time: 10, dist: 50 }), 0, true)).toBe('full')
+    expect(chooseKillCam(t, kill({ time: 10 + KILLCAM_GAP_S - 0.5, dist: 50 }), 0, true)).toBe('none')
+    expect(chooseKillCam(t, kill({ time: 15, final: true }), 0.99, true)).toBe('full')
   })
 
   it('shows nothing once it is switched off, and still counts the headshot', () => {
     const s = makeKillCamState()
-    expect(wantsKillCam(s, kill(), 0, false)).toBe(false)
-    expect(wantsKillCam(s, kill({ final: true }), 0, false)).toBe(false)
+    expect(chooseKillCam(s, kill(), 0, false)).toBe('none')
+    expect(chooseKillCam(s, kill({ final: true, boss: true }), 0, false)).toBe('none')
     expect(s.headshots).toBe(2)
     expect(s.shown).toBe(0)
   })
