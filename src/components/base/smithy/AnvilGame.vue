@@ -15,9 +15,10 @@
           :class="[verdicts[i - 1] ?? '', { next: i - 1 === next }]"
           :style="{ left: `${12 + (i - 1) * 25.3}%` }"
         )
-          div.ring(v-if="i - 1 === next" :style="{ '--k': ring.toFixed(3) }")
+          div.closing(v-if="i - 1 === next" :style="{ '--k': ring.toFixed(3) }")
           div.burst(v-if="verdicts[i - 1]")
       div.block
+    FingerGlyph.teach(v-if="!learned" mode="tap")
     //- The hammer swings on every strike.
     div.hammer(:class="{ swing }")
       GameIcon(name="hammer")
@@ -27,6 +28,8 @@
 import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import GameIcon from '@/components/icons/GameIcon.vue'
+import FingerGlyph from '@/components/hud/hints/FingerGlyph.vue'
+import { markSeen, profile } from '@/game/state/profile'
 import { STRIKES, anvilQuality, makeAnvil, nextBeat, ringClose, stepAnvil, strike, type Strike } from '@/game/sim/smithy'
 import { sfx } from '@/game/audio/sfx'
 import { haptic } from '@/use/useHaptics'
@@ -43,6 +46,7 @@ const swing = ref(false)
 const glow = ref(1)
 let finished = false
 let swingT = 0
+const learned = profile.seen.includes('smith-anvil')
 
 const land = (s: Strike): void => {
   sfx(s === 'perfect' ? 'clang' : s === 'miss' ? 'clangOff' : s === 'good' ? 'clang' : 'clangOff', 0, s === 'perfect' ? 1.1 : 0.8)
@@ -71,7 +75,9 @@ useGameLoop((dt) => {
   glow.value = Math.max(0.35, 1 - a.t * 0.1)
   if (a.done) {
     finished = true
-    window.setTimeout(() => emit('done', anvilQuality(a)), 450)
+    const q = anvilQuality(a)
+    if (q >= 0.5) markSeen('smith-anvil')
+    window.setTimeout(() => emit('done', q), 450)
   }
 }, (down) => { if (down) hit() })
 </script>
@@ -89,6 +95,15 @@ useGameLoop((dt) => {
   cursor: pointer
   user-select: none
   touch-action: none
+// The lesson: a finger on the control, until the game has been played well once.
+.teach
+  position: absolute
+  pointer-events: none
+  z-index: 2
+  filter: drop-shadow(0 0.15rem 0.2rem rgba(10, 5, 24, 0.7))
+  left: 50%
+  top: 0
+  margin-left: calc(clamp(3rem, 15vmin, 5rem) / -2)
 .bench
   position: relative
   width: min(100%, 26rem)
@@ -129,7 +144,7 @@ useGameLoop((dt) => {
   &.miss
     background: #4f4985
     box-shadow: none
-.ring
+.closing
   --k: 0
   position: absolute
   inset: calc((1 - var(--k)) * -2.4rem)

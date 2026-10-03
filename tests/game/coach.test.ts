@@ -7,7 +7,7 @@ import {
 const DT = 1 / 60
 const base: CoachContext = {
   playing: true, walked: 0, turned: 0, enemies: true, aiming: false, chaos: false, threat: 0, guardNear: false,
-  strike: false, nearLadder: false, nearCable: false, decoys: 3
+  strike: false, nearLadder: false, nearCable: false, decoys: 3, loot: false, hook: false, seeking: false, far: false
 }
 const ctx = (over: Partial<CoachContext> = {}): CoachContext => ({ ...base, ...over })
 
@@ -130,5 +130,41 @@ describe('the control coach', () => {
     expect(stepCoach(c, ctx({ playing: false }), DT)).toEqual(null)
     expect(stepCoach(c, ctx(), DT)).not.toBeNull()
     expect(stepCoach(c, ctx(), DT)).toBeNull()
+  })
+})
+
+describe('round 2: the lessons for salvage, the hook and the legs', () => {
+  it('once the thumbs are learned, the marker is the next thing to find, until a pile is reached', () => {
+    const fresh = taught()
+    expect(ids(run(fresh, ctx({ seeking: true }), 1))).not.toContain('goal')
+    const c = taught('move', 'look')
+    expect(ids(run(c, ctx({ seeking: true }), 1))).toContain('goal')
+    coachUse(c, 'goal')
+    expect(ids(run(c, ctx({ seeking: true }), 3))).not.toContain('goal')
+  })
+
+  it('a pile in reach is taught with the act key; the hook at the foot of a wall with its own', () => {
+    const c = taught('move', 'look')
+    expect(ids(run(c, ctx({ loot: true }), 0.5))).toContain('loot')
+    const d = taught('move', 'look')
+    expect(ids(run(d, ctx({ hook: true }), 0.5))).toContain('grapple')
+    coachUse(d, 'grapple')
+    expect(ids(run(d, ctx({ hook: true }), 3))).not.toContain('grapple')
+  })
+
+  it('the legs can run on a long way with nobody about, never next to a guard or in a fight', () => {
+    const c = taught('move', 'look', 'scope', 'goal')
+    expect(ids(run(c, ctx({ far: true }), 0.5))).toContain('sprint')
+    const d = taught('move', 'look', 'scope', 'goal')
+    expect(ids(run(d, ctx({ far: true, guardNear: true }), 0.5))).not.toContain('sprint')
+    const e = taught('move', 'look', 'scope', 'goal')
+    expect(ids(run(e, ctx({ far: true, chaos: true }), 0.5))).not.toContain('sprint')
+  })
+
+  it('at a pile with a guard close by, stripping it comes first', () => {
+    const c = taught('move', 'look')
+    const shown = ids(run(c, ctx({ loot: true, guardNear: true, threat: 0.3 }), 0.5))
+    expect(shown[0]).toBe('loot')
+    expect(shown.length).toBeLessThanOrEqual(MAX_SHOWN)
   })
 })

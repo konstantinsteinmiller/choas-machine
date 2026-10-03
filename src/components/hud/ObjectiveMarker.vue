@@ -2,7 +2,10 @@
   //- Where to go: a marker over the mission's objective (the nearest pile of
   //- salvage, then the extraction pad). On screen it sits on the thing itself; off screen
   //- it slides to the edge and points.
-  div.objective(ref="el" :class="hud.objective" role="img" :aria-label="label")
+  div.objective(ref="el" :class="[hud.objective, { teach }]" role="img" :aria-label="label")
+    //- The lesson: rings go out from it until the first pile is reached.
+    div.beacon(v-if="teach")
+      span(v-for="i in 2" :key="i" :style="{ '--i': i }")
     div.pin
       GameIcon(:name="hud.objective === 'extract' ? 'up' : 'scrap'")
     div.arrow(ref="arrow")
@@ -25,6 +28,8 @@ const { t } = useI18n()
 const el = ref<HTMLElement | null>(null)
 const arrow = ref<HTMLElement | null>(null)
 const dist = ref<HTMLElement | null>(null)
+/** The "go there" lesson is up: the marker calls attention to itself. */
+const teach = computed(() => hud.hints.some(h => h.id === 'goal'))
 const label = computed(() => t(hud.objective === 'extract' ? 'hud.objective.extract' : 'hud.objective.salvage'))
 let off: (() => void) | null = null
 let sizer: ResizeObserver | null = null
@@ -112,6 +117,29 @@ onUnmounted(() => {
   color: var(--cm-pink)
   &.extract
     color: var(--cm-ok)
+.beacon
+  position: absolute
+  inset: 0
+  span
+    position: absolute
+    inset: 0
+    border: 0.18rem solid var(--cm-pink-hi)
+    border-radius: 50%
+    opacity: 0
+    animation: beacon 1.6s ease-out infinite
+    animation-delay: calc(var(--i) * 0.8s - 0.8s)
+@keyframes beacon
+  0%
+    inset: 0
+    opacity: 0.9
+  100%
+    inset: -1.6rem
+    opacity: 0
+@media (prefers-reduced-motion: reduce)
+  .beacon span
+    animation: none
+    inset: -0.4rem
+    opacity: 0.7
 .pin
   position: absolute
   inset: 0

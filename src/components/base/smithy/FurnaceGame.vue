@@ -19,6 +19,7 @@
         div.molten(:style="{ height: `${melt * 100}%` }")
         GameIcon.ore(name="scrap")
     //- The bellows: held with a pointer or with Space.
+    FingerGlyph.teach(v-if="!learned" mode="hold")
     button.bellows(
       type="button"
       :aria-label="t('smithy.pump')"
@@ -35,6 +36,8 @@
 import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import GameIcon from '@/components/icons/GameIcon.vue'
+import FingerGlyph from '@/components/hud/hints/FingerGlyph.vue'
+import { markSeen, profile } from '@/game/state/profile'
 import { BAND_HALF, bandAt, furnaceQuality, inBand, makeFurnace, stepFurnace } from '@/game/sim/smithy'
 import { sfx } from '@/game/audio/sfx'
 import { haptic } from '@/use/useHaptics'
@@ -52,6 +55,8 @@ const scorching = ref(false)
 const pumping = ref(false)
 let finished = false
 let puff = 0
+/** Played well once: the finger is not drawn any more. */
+const learned = profile.seen.includes('smith-furnace')
 
 const press = (down: boolean, e?: PointerEvent): void => {
   if (down && e?.target instanceof Element) (e.target as Element).setPointerCapture?.(e.pointerId)
@@ -74,7 +79,9 @@ useGameLoop((dt) => {
   if (f.done) {
     finished = true
     sfx('melt')
-    emit('done', furnaceQuality(f))
+    const q = furnaceQuality(f)
+    if (q >= 0.5) markSeen('smith-furnace')
+    emit('done', q)
   }
 }, (down) => { pumping.value = down })
 </script>
@@ -90,6 +97,18 @@ useGameLoop((dt) => {
   background: radial-gradient(ellipse at 50% 90%, rgba(255, 120, 40, 0.18), rgba(21, 12, 43, 0.6) 70%)
   user-select: none
   touch-action: none
+// The lesson: a finger on the control, until the game has been played well once.
+.teach
+  position: absolute
+  pointer-events: none
+  z-index: 2
+  filter: drop-shadow(0 0.15rem 0.2rem rgba(10, 5, 24, 0.7))
+  // Right on the bellows: the same padding from the edge, its middle on theirs.
+  right: clamp(0.5rem, 2vmin, 0.9rem)
+  top: 50%
+  margin-top: calc(clamp(3rem, 15vmin, 5rem) * -0.35)
+.furnace
+  position: relative
 .gauge
   position: relative
   width: clamp(0.9rem, 3.4vmin, 1.4rem)

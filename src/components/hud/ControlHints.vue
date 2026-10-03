@@ -19,6 +19,12 @@
           KeyCap(v-else-if="h.id === 'crouch'" action="crouch")
           KeyCap(v-else-if="h.id === 'blade'" action="act")
           KeyCap(v-else-if="h.id === 'decoy'" action="decoy")
+          KeyCap(v-else-if="h.id === 'sprint'" action="sprint")
+          KeyCap(v-else-if="h.id === 'grapple'" action="grapple")
+          KeyCap(v-else-if="h.id === 'loot'" action="act")
+          //- Where to go: the marker itself, small, with the mech walking to it.
+          div.mini-pin(v-else-if="h.id === 'goal'")
+            GameIcon(name="scrap")
           template(v-else-if="h.id === 'weapon'")
             KeyCap(action="weapon1")
             KeyCap(action="weapon2")
@@ -59,7 +65,7 @@ const { t } = useI18n()
 /** What each control is FOR, as a picture beside its key. */
 const ICONS: Readonly<Record<HintId, GameIconName>> = {
   move: 'mech', look: 'eye', scope: 'scope', fire: 'sniper', crouch: 'crouch', blade: 'blade',
-  climb: 'up', cable: 'up', decoy: 'decoy', weapon: 'minigun'
+  climb: 'up', cable: 'up', decoy: 'decoy', weapon: 'minigun', sprint: 'sprint', grapple: 'hook', loot: 'scrap', goal: 'mech'
 }
 /** Touch: where on the screen a gesture's finger is drawn. */
 const SPOTS: Readonly<Partial<Record<HintId, 'stick' | 'right'>>> = {
@@ -71,7 +77,8 @@ const FINGER: Readonly<Partial<Record<HintId, 'drag' | 'swipe' | 'hold' | 'relea
 /** The sentence a screen reader gets: the glyphs themselves carry no words. */
 const LABELS: Readonly<Record<HintId, string>> = {
   move: 'options.actions.forward', look: 'hint.look', scope: 'hint.scope', fire: 'hint.fire',
-  crouch: 'hud.crouch', blade: 'hud.strike', climb: 'hint.climb', cable: 'hint.climb', decoy: 'hud.decoy', weapon: 'hud.weapons'
+  crouch: 'hud.crouch', blade: 'hud.strike', climb: 'hint.climb', cable: 'hint.climb', decoy: 'hud.decoy', weapon: 'hud.weapons',
+  sprint: 'hud.sprint', grapple: 'hud.grapple', loot: 'hud.loot', goal: 'hud.objective.salvage'
 }
 const label = (id: HintId): string => t(LABELS[id])
 
@@ -107,6 +114,30 @@ onUnmounted(() => { for (const id of Object.values(timers)) window.clearTimeout(
 </script>
 
 <style scoped lang="sass">
+// The objective marker in miniature, for the lesson that says "go there".
+.mini-pin
+  display: grid
+  place-items: center
+  box-sizing: border-box
+  width: clamp(1.7rem, 6.4vmin, 2.5rem)
+  height: clamp(1.7rem, 6.4vmin, 2.5rem)
+  border: var(--cm-edge) solid var(--cm-pink)
+  border-radius: 50%
+  background: var(--cm-glass)
+  color: var(--cm-pink-hi)
+  box-shadow: 0 0 0.6rem var(--cm-pink)
+  animation: mini-pin 1.2s ease-in-out infinite alternate
+  :deep(svg)
+    width: 60%
+    height: 60%
+@keyframes mini-pin
+  from
+    translate: 0 0
+  to
+    translate: 0 -0.25rem
+@media (prefers-reduced-motion: reduce)
+  .mini-pin
+    animation: none
 .control-hints
   position: absolute
   inset: 0

@@ -205,6 +205,9 @@ export class Mission implements GameMode {
   readonly salvageNeed: number
   private salvageView!: SalvageView
   private lootOffer: Pile | null = null
+  private wasSprinting = false
+  /** Metres to the waypoint, as last drawn. */
+  private waypointDist = 0
   private looting: { pile: Pile; t: number } | null = null
   private sparkleT = 0
   private ropeDir = new Vector3()
@@ -216,7 +219,7 @@ export class Mission implements GameMode {
   private coach: Coach = makeCoach('desk')
   private coachCtx: CoachContext = {
     playing: false, walked: 0, turned: 0, enemies: true, aiming: false, chaos: false, threat: 0, guardNear: false,
-    strike: false, nearLadder: false, nearCable: false, decoys: 0
+    strike: false, nearLadder: false, nearCable: false, decoys: 0, loot: false, hook: false, seeking: false, far: false
   }
   private lastYaw = 0
   private lastPitch = 0
@@ -812,6 +815,7 @@ export class Mission implements GameMode {
     p.speed01 = 0
     p.yaw = headingTo(p.x, p.z, pile.x, pile.z)
     emit('salvage', { beat: 'start', got: this.stats.piles, need: this.salvageNeed, amount: 0 })
+    this.learn('loot')
   }
 
   private stepLoot(dt: number): void {
@@ -866,6 +870,7 @@ export class Mission implements GameMode {
   // ─── The grappling hook ────────────────────────────────────────────────────
 
   private throwHook(spot: GrappleSpot): void {
+    this.learn('grapple')
     this.grapple = startGrapple(this.player, spot)
     this.hookSpot = null
     this.offer = null
@@ -1142,6 +1147,15 @@ export class Mission implements GameMode {
     c.nearCable = p.mode === 'ground' && g.cables.some(k =>
       (Math.hypot(k.ax - cx, k.az - cz) < 1.8 && Math.abs(heightAt(g, (k.ax + 0.5) * CELL, (k.az + 0.5) * CELL) - p.y) < 1)
       || (Math.hypot(k.bx - cx, k.bz - cz) < 1.8 && Math.abs(heightAt(g, (k.bx + 0.5) * CELL, (k.bz + 0.5) * CELL) - p.y) < 1))
+    c.loot = !!this.lootOffer
+    c.hook = !!this.hookSpot && !this.grapple
+    c.seeking = this.objective === 'salvage' && this.stats.piles === 0
+    // The way is long when the waypoint is: the marker's own target.
+    c.far = this.objective !== 'done' && this.waypointDist > 22
+    // Reaching a pile is what the marker was for.
+    if (this.lootOffer) this.learn('goal')
+    if (p.sprinting && !this.wasSprinting) this.learn('sprint')
+    this.wasSprinting = p.sprinting
     const views = stepCoach(this.coach, c, dt)
     if (views) hud.hints = views
   }
@@ -1599,6 +1613,7 @@ export class Mission implements GameMode {
       const p = nearestPile(this.piles, x, z)
       if (p) { wx = p.x; wy = p.y + (p.big ? 2.2 : 1.6); wz = p.z; has = true }
     }
+    this.waypointDist = has ? Math.hypot(wx - x, wz - z) : 0
     waypoint.on = show && has && !hud.scoped
     if (!waypoint.on) return
     const p = this.proj.set(wx, wy, wz)

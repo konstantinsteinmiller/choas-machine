@@ -1,9 +1,9 @@
 <template lang="pug">
   //- A fingertip doing the gesture: dragging the stick, swiping to look,
-  //- holding to aim, letting go to fire.
+  //- holding to aim, letting go to fire, tapping in time.
   div.finger-glyph(:class="mode" aria-hidden="true")
     //- What the hold fills while the finger stays put.
-    svg.ring(v-if="mode === 'hold' || mode === 'release'" viewBox="0 0 40 40")
+    svg.hold-ring(v-if="mode === 'hold' || mode === 'release'" viewBox="0 0 40 40")
       circle.track(cx="20" cy="20" r="17")
       circle.fill(cx="20" cy="20" r="17")
     div.tip
@@ -12,7 +12,7 @@
 </template>
 
 <script setup lang="ts">
-defineProps<{ mode: 'drag' | 'swipe' | 'hold' | 'release' | 'push' }>()
+defineProps<{ mode: 'drag' | 'swipe' | 'hold' | 'release' | 'push' | 'tap' }>()
 </script>
 
 <style scoped lang="sass">
@@ -37,7 +37,7 @@ defineProps<{ mode: 'drag' | 'swipe' | 'hold' | 'release' | 'push' }>()
     stroke: var(--cm-ink)
     stroke-width: 2.4
     stroke-linejoin: round
-.ring
+.hold-ring
   position: absolute
   inset: 0
   rotate: -90deg
@@ -64,6 +64,21 @@ defineProps<{ mode: 'drag' | 'swipe' | 'hold' | 'release' | 'push' }>()
 // Aim: the finger rests and the ring closes.
 .hold .fill
   animation: finger-fill 1.6s ease-in-out infinite
+// A tap: down, a flash where it lands, and up again.
+.tap .tip
+  animation: finger-tap 0.95s ease-in-out infinite
+.tap::after
+  content: ''
+  position: absolute
+  left: 50%
+  top: 46%
+  width: 0
+  height: 0
+  border-radius: 50%
+  border: 0.16rem solid var(--cm-cyan-hi)
+  translate: -50% -50%
+  opacity: 0
+  animation: finger-tap-ring 0.95s ease-out infinite
 // Fire: the ring is full, and the finger comes off.
 .release .fill
   stroke-dashoffset: 0
@@ -96,6 +111,22 @@ defineProps<{ mode: 'drag' | 'swipe' | 'hold' | 'release' | 'push' }>()
     stroke-dashoffset: 106.9
   70%, 100%
     stroke-dashoffset: 0
+@keyframes finger-tap
+  0%, 100%
+    translate: 0 -30%
+  40%, 52%
+    translate: 0 0
+@keyframes finger-tap-ring
+  0%, 40%
+    width: 0
+    height: 0
+    opacity: 0
+  45%
+    opacity: 0.9
+  100%
+    width: 70%
+    height: 70%
+    opacity: 0
 @keyframes finger-lift
   0%, 30%
     translate: 0 0
@@ -105,6 +136,6 @@ defineProps<{ mode: 'drag' | 'swipe' | 'hold' | 'release' | 'push' }>()
     opacity: 0.25
 
 @media (prefers-reduced-motion: reduce)
-  .tip, .fill
+  .tip, .fill, .tap::after
     animation: none
 </style>

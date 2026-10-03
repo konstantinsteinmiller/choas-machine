@@ -529,7 +529,7 @@ them. Tick the roadmap item when its phase is committed.
   objective; the robo dog that becomes a jet board.
 - [x] **R8 Furnace and smithing** (#31): the upgrade minigame and its economy.
 - [x] **R9 Interface look** (#32): futuristic and cute.
-- [ ] **R10 Lessons** (#33): wordless teaching for everything, old and new.
+- [x] **R10 Lessons** (#33): wordless teaching for everything, old and new.
 - [ ] **R11 Regression**: e2e, clips, perf, documents.
 
 ### Decisions (defaults taken; nobody was asked)
@@ -555,6 +555,7 @@ them. Tick the roadmap item when its phase is committed.
 Salvage piles (8 in the Bastion, 3+ needed by level, one big one on the keep) are the objective: E strips a pile in 1.15 s with a little noise, HUD haul counter, waypoint to the nearest pile, payout counts what was carried (+60 for the Commander). Robo dog: the mech rides in on the jet board and jumps off onto the perch; at the pad the dog gallops in, folds into a board, the mech hops on and flies away. Validator knows the hook (9.5 m). e2e strips three piles with the real key.
 Smithy replaces the hour timers and the instant buy: every upgrade and weapon tier is made in three short games (furnace: hold the bellows to keep the heat in a wandering band; anvil: four strikes as rings close on glowing marks; quench: dip at cherry red), with 8-16 s (upgrade) / 14-20 s (tier) melt and cool waits between, one Data Core skips a wait; 1-3 stars refund 0/10/25% of the scrap. Old hour-long builds carry over to the quench. Fixed two tap-eaters found by the e2e: a leaving modal and a fading loading veil swallowed the Command Base's first tap. Open for R9: on a 320 px phone in German the workshop's third tab is off screen.
 One material for the whole kit, set in tokens: ink outlines with a drop (stickers on glass), glossy crowns, lit surfaces. Modal panels get a thick cyan-to-pink rim, breathing corner brackets, a striped title plate with a glowing seam and a dot; buttons are candy keys with a gloss and sparkle, and the main CTA catches a sweep of light; HUD chips, capsules, wallet, rank, keycaps and the deploy panel wear the same; upgrade and smithy rows get round sticker icons. Tabs sit in a trough, and on a narrow screen only the open tab shows its name (the workshop's third tab was off screen on a 320 px phone). No scale transforms; reduced motion stops the idle motion.
+Four more wordless lessons in the coach, each in its context and earned away by use, per input family: the marker (it sends out rings, and a desktop card shows a little pin, until the first pile is reached), stripping a pile (E / the loot chip pulses), the grappling hook at the foot of a wall (G / its chip), and sprinting on a long way with nobody about (Shift / the sprint chip). The smithy's three games carry a finger on the control (hold the bellows, tap the anvil, tap the dip) until each has been played well once. New guard test: every component's template compiles as the dev server compiles it (a patch had put CSS into two templates, which the type-check does not see). Fixed a white box round the hold glyph's ring: its class collided with Tailwind's ring utility.
 
 ## Resume notes
 

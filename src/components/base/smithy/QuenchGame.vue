@@ -17,6 +17,7 @@
     div.scale
       div.window(:style="{ left: `${(1 - CHERRY - CHERRY_HALF) * 100}%`, width: `${CHERRY_HALF * 200}%` }")
       div.marker(:style="{ left: `${(1 - glow) * 100}%` }")
+    FingerGlyph.teach(v-if="!learned" mode="tap")
     button.dip(type="button" :aria-label="t('smithy.dip')" data-testid="smith-dip")
       GameIcon(name="drop")
 </template>
@@ -25,6 +26,8 @@
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import GameIcon from '@/components/icons/GameIcon.vue'
+import FingerGlyph from '@/components/hud/hints/FingerGlyph.vue'
+import { markSeen, profile } from '@/game/state/profile'
 import { CHERRY, CHERRY_HALF, dip, glowAt, makeQuench, quenchQuality, stepQuench } from '@/game/sim/smithy'
 import { sfx } from '@/game/audio/sfx'
 import { haptic } from '@/use/useHaptics'
@@ -37,6 +40,7 @@ const q = makeQuench()
 const glow = ref(1)
 const dipped = ref(false)
 let finished = false
+const learned = profile.seen.includes('smith-quench')
 
 /** Steel's colour as it cools: white, yellow, orange, cherry red, dull red, grey. */
 const STOPS: [number, [number, number, number]][] = [
@@ -60,7 +64,9 @@ const end = (): void => {
   dipped.value = true
   sfx('hiss')
   haptic('tap')
-  window.setTimeout(() => emit('done', quenchQuality(q)), 650)
+  const quality = quenchQuality(q)
+  if (quality >= 0.5) markSeen('smith-quench')
+  window.setTimeout(() => emit('done', quality), 650)
 }
 
 const go = (): void => {
@@ -90,6 +96,16 @@ useGameLoop((dt) => {
   cursor: pointer
   user-select: none
   touch-action: none
+// The lesson: a finger on the control, until the game has been played well once.
+.teach
+  position: absolute
+  pointer-events: none
+  z-index: 2
+  filter: drop-shadow(0 0.15rem 0.2rem rgba(10, 5, 24, 0.7))
+  right: 8%
+  bottom: 0.2rem
+.quench
+  position: relative
 .part
   width: min(70%, 16rem)
   height: clamp(1.2rem, 5vmin, 1.8rem)

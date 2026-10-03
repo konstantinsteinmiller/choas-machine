@@ -23,7 +23,9 @@ import type { InputFamily } from '../data/ids'
  * the situation each step; the HUD draws what `stepCoach` returns.
  */
 
-export const HINT_IDS = ['move', 'look', 'scope', 'fire', 'crouch', 'blade', 'climb', 'cable', 'decoy', 'weapon'] as const
+export const HINT_IDS = [
+  'move', 'look', 'scope', 'fire', 'crouch', 'blade', 'climb', 'cable', 'decoy', 'weapon', 'sprint', 'grapple', 'loot', 'goal'
+] as const
 export type HintId = (typeof HINT_IDS)[number]
 
 interface HintDef {
@@ -36,6 +38,9 @@ interface HintDef {
 export const HINTS: Readonly<Record<HintId, HintDef>> = {
   fire: { goal: 2, priority: 9 },
   blade: { goal: 2, priority: 9 },
+  // At a pile: the one thing the raid is for.
+  loot: { goal: 1, priority: 9 },
+  grapple: { goal: 1, priority: 8 },
   climb: { goal: 1, priority: 8 },
   cable: { goal: 1, priority: 8 },
   crouch: { goal: 1, priority: 7 },
@@ -45,7 +50,11 @@ export const HINTS: Readonly<Record<HintId, HintDef>> = {
   look: { goal: 3, priority: 5 },
   scope: { goal: 2, priority: 4.5 },
   decoy: { goal: 1, priority: 4 },
-  weapon: { goal: 1, priority: 4 }
+  weapon: { goal: 1, priority: 4 },
+  // Where to go: the marker pulses until the first pile is reached.
+  goal: { goal: 1, priority: 6 },
+  // A long way to go and nobody about: the legs can run.
+  sprint: { goal: 2, priority: 4 }
 }
 
 /** At most this many glyphs at once: more than two is more than a new player takes in. */
@@ -152,6 +161,13 @@ export interface CoachContext {
   nearLadder: boolean
   nearCable: boolean
   decoys: number
+  /** A pile of salvage within reach; the hook's offer at a wall. */
+  loot: boolean
+  hook: boolean
+  /** Salvage is still the job, and none of it has been reached yet. */
+  seeking: boolean
+  /** The waypoint is a long walk away. */
+  far: boolean
 }
 
 /**
@@ -190,7 +206,12 @@ export const stepCoach = (c: Coach, ctx: CoachContext, dt: number): HintView[] |
     climb: ctx.nearLadder && hintDone(c, 'move'),
     cable: ctx.nearCable && hintDone(c, 'move'),
     decoy: quiet && ctx.guardNear && ctx.decoys > 0 && hintDone(c, 'crouch'),
-    weapon: ctx.chaos
+    weapon: ctx.chaos,
+    loot: ctx.loot,
+    grapple: ctx.hook && hintDone(c, 'move'),
+    // Once the thumbs are learned: then the marker is the next thing to find.
+    goal: ctx.seeking && thumbs,
+    sprint: quiet && ctx.far && !ctx.guardNear && hintDone(c, 'move')
   }
 
   const shown: HintId[] = []

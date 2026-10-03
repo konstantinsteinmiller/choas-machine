@@ -48,7 +48,7 @@
       FHudButton(
         icon="scrap"
         tone="warn"
-        :attention="hud.looting === 0"
+        :attention="hud.looting === 0 || teaching('loot')"
         :aria-label="t('hud.loot')"
         data-testid="btn-loot"
         @click="input.actQueued = true"
@@ -121,6 +121,7 @@
         :active="hud.sprinting || input.sprintHeld"
         :pressed="input.sprintHeld"
         :is-disabled="hud.mode !== 'ground'"
+        :attention="teaching('sprint')"
         :aria-label="t('hud.sprint')"
         data-testid="btn-sprint"
         @click="input.sprintHeld = !input.sprintHeld"
