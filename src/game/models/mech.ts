@@ -181,6 +181,40 @@ const THIGH_LEN = 0.46
 const SHIN_LEN = 0.42
 const LEG_LEN = THIGH_LEN + SHIN_LEN
 /**
+ * The leg's solid parts, as built: the shin's rounded box (its middle 0.2 m
+ * below the knee, half 0.23 long and 0.15 deep) and the knee pad on its front,
+ * the foot's rounded box (0.07 forward of the ankle, half 0.08 high and 0.23
+ * long), the thigh's round end at the knee. The boxes are superellipsoids
+ * (`rbox`, rounding 0.45): their reach in a direction is a support function.
+ */
+const SHIN_BOX = { mid: 0.2, len: 0.23, depth: 0.15 }
+const KNEE_PAD = { fwd: 0.14, len: 0.1, depth: 0.08 }
+const FOOT_BOX = { fwd: 0.07, half: 0.08, len: 0.23 }
+const THIGH_R = 0.125
+const STAND_SOLE = LEG_LEN + FOOT_BOX.half
+/** The dual exponent of a superellipse with rounding 0.45 (p = 2/0.45). */
+const RBOX_Q = (2 / 0.45) / (2 / 0.45 - 1)
+const reachOf = (a: number, b: number, q: number): number => (Math.abs(a) ** q + Math.abs(b) ** q) ** (1 / q)
+
+/**
+ * The lowest point of a leg's solid parts below the thigh's root, for its
+ * three angles (radians about x, the bone hanging down at 0): the knee's
+ * round end, the shin's box and pad, the foot's box (#107). Pure.
+ */
+export const legLowest = (a1: number, a2: number, a3: number): number => {
+  const ky = -THIGH_LEN * Math.cos(a1)
+  const c2 = Math.cos(a2)
+  const s2 = Math.sin(a2)
+  const c3 = Math.cos(a3)
+  const s3 = Math.sin(a3)
+  const thigh = ky - THIGH_R
+  const shin = ky - SHIN_BOX.mid * c2 - reachOf(SHIN_BOX.len * c2, SHIN_BOX.depth * s2, RBOX_Q)
+  const pad = ky - KNEE_PAD.fwd * s2 - reachOf(KNEE_PAD.len * c2, KNEE_PAD.depth * s2, 2)
+  const ay = ky - SHIN_LEN * c2
+  const foot = ay - FOOT_BOX.fwd * s3 - reachOf(FOOT_BOX.half * c3, FOOT_BOX.len * s3, RBOX_Q)
+  return Math.min(thigh, shin, pad, foot)
+}
+/**
  * The takedown's arm angles (`sim/takedown.ts` has the timing). Worked out
  * from the rig: the blade arm's shoulder is 0.52 m to the right and 1.91 m
  * up, the target's middle is `TAKEDOWN.reach` ahead on the mech's centre line
@@ -220,17 +254,21 @@ export const poseMech = (rig: Rig, s: MechPose): void => {
   const thud = s.down > 0 ? bumpAt((s.down - MECH_KNEEL_S - 0.5) / 0.3) : 0
   // ── Legs first: where the feet end up decides how high the hips ride ──
   // The hips are not lowered by a number that hopes to match the legs. Each
-  // leg's reach is worked out from its own angles, and the hips sit exactly
-  // as high as the longer leg can reach the floor: the standing foot is ON
-  // the ground in a crouch, in a stride and in anything between.
+  // leg's lowest solid point (the knee, the shin's box, the rolling foot) is
+  // worked out from its own angles, and the hips sit exactly as high as puts
+  // the lower leg's lowest point on the floor: nothing of the mech goes under
+  // it in a crouch, a sneak, a stride or anything between (#107).
   const hipPitch = 0.06 * walk + 0.1 * run
-  let reach = 0
+  let deepest = 0
   for (const [tag, sign] of [['L', 1], ['R', -1]] as const) {
     const sw = swing * sign
     const li = lift * sign
     // On a cable the steps are short and careful: less reach, a higher lift.
-    const walkThigh = -sw * (0.62 + 0.2 * run - 0.22 * s.cable) * walk
-    const walkKnee = (0.3 + Math.max(0, li) * (0.75 + 0.35 * run + 0.45 * s.cable)) * walk
+    // A sneak takes short steps: a deep squat swinging a full stride would
+    // kneel on the trailing knee and lift the other foot off the floor (#107).
+    const short = 1 - 0.5 * s.crouch
+    const walkThigh = -sw * (0.62 + 0.2 * run - 0.22 * s.cable) * walk * short
+    const walkKnee = (0.3 + Math.max(0, li) * (0.75 + 0.35 * run + 0.45 * s.cable)) * walk * short
     const crouchThigh = -CROUCH_THIGH * s.crouch
     const crouchKnee = CROUCH_KNEE * s.crouch
     const climbThigh = -(0.5 + Math.sin(s.climbPhase * sign) * 0.5) * s.climb
@@ -245,14 +283,16 @@ export const poseMech = (rig: Rig, s: MechPose): void => {
     pose(rig, `shin${tag}`, knee, 0, 0)
     // The sole stays flat in a crouch (it carries the weight) and rolls
     // heel to toe in a stride.
-    pose(rig, `foot${tag}`, -(walkThigh + walkKnee) * 0.5 - (crouchThigh + crouchKnee), 0, 0)
+    const footRot = -(walkThigh + walkKnee) * 0.5 - (crouchThigh + crouchKnee)
+    pose(rig, `foot${tag}`, footRot, 0, 0)
     // In the world the leg hangs from hips that lean into the stride.
-    reach = Math.max(reach, THIGH_LEN * Math.cos(hipPitch + thigh) + SHIN_LEN * Math.cos(hipPitch + thigh + knee))
+    const a1 = hipPitch + thigh
+    deepest = Math.max(deepest, -legLowest(a1, a1 + knee, a1 + knee + footRot))
   }
 
   // ── Body ──
   const grounded = (1 - s.climb) * (1 - s.air)
-  const sink = (LEG_LEN - reach) * grounded
+  const sink = (STAND_SOLE - deepest) * grounded
   nudge(rig, 'hips', 0, -sink + s.air * 0.05 - 0.12 * fall + thud * 0.06, -0.12 * s.crouch + 0.55 * fall)
   // Balancing: the hips sway over whichever foot is down, slow and wide.
   const balance = s.cable * (Math.sin(s.stride) * 0.09 + Math.sin(s.time * 1.7) * 0.05)

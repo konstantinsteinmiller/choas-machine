@@ -38,13 +38,16 @@ describe('the mech stands on the floor', () => {
     expect(y).toBeLessThan(0.1)
   })
 
+  // #107: the hips now put the leg's lowest SOLID point on the floor (a rolled
+  // toe, the shin's box), so the ankle itself may stand higher than 8 cm in a
+  // stride; `mechFeet.test.ts` checks the skinned legs against the floor.
   it('half-way into the crouch too, and all the way through a crouched stride', () => {
     for (const crouch of [0.25, 0.5, 0.75, 1]) {
       for (let stride = 0; stride < Math.PI * 2; stride += 0.4) {
         for (const sp of [0, 0.5, 1]) {
           const y = lowerAnkle({ ...restPose(), crouch, stride, speed: sp })
           expect(y, `crouch ${crouch} stride ${stride.toFixed(1)} speed ${sp}`).toBeGreaterThan(0.045)
-          expect(y, `crouch ${crouch} stride ${stride.toFixed(1)} speed ${sp}`).toBeLessThan(0.115)
+          expect(y, `crouch ${crouch} stride ${stride.toFixed(1)} speed ${sp}`).toBeLessThan(0.3)
         }
       }
     }
@@ -55,7 +58,7 @@ describe('the mech stands on the floor', () => {
       for (let stride = 0; stride < Math.PI * 2; stride += 0.3) {
         const y = lowerAnkle({ ...restPose(), stride, speed: 1, sprint })
         expect(y).toBeGreaterThan(0.045)
-        expect(y).toBeLessThan(0.115)
+        expect(y).toBeLessThan(0.3)
       }
     }
   })
