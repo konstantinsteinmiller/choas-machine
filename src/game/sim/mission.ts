@@ -65,7 +65,7 @@ import { themeOf } from '../data/themes'
 import { BARREL_EARSHOT, BARREL_POWER, BARREL_RADIUS, barrelAt, barrelHurt, ignite, stepBarrels, type Barrel } from './barrels'
 import { SupplyView } from '../fx/supplyView'
 import { buildBeacon, disposeBeacon, poseBeacon, BEACON_TOP, type BeaconView } from '../models/beacon'
-import { introFrame, makeDogFrame, makeRiderFrame, outroFrame, RIDER_JUMP } from './robodog'
+import { findApproach, introFrame, makeDogFrame, makeRiderFrame, outroFrame, RIDER_JUMP } from './robodog'
 import { killCamsEnabled } from '@/use/useKillCam'
 import { markSeen, profile, saveProfile } from '../state/profile'
 import { HINTS, coachHelp, coachUse, makeCoach, stepCoach, type Coach, type CoachContext, type HintId } from './coach'
@@ -308,6 +308,8 @@ export class Mission implements GameMode {
   private flameMat = makeFlameMaterial({ core: '#fff4c2', mid: '#ff9a3d', edge: '#c8202f' })
   private lasers: Array<{ id: number; mesh: Mesh }> = []
   private muzzleTmp = new Vector3()
+  /** The board's way in to the perch (#105). */
+  private approach: { approach: number; high: number; reach: number } | null = null
   private laserGeo = new CylinderGeometry(0.035, 0.035, 1, 5)
   private laserMat = new MeshBasicMaterial({ color: '#ff2a3a', transparent: true, opacity: 0.85, toneMapped: false, depthWrite: false })
   /** What a burn leaves: ash for a person, slag for a machine. */
@@ -2633,6 +2635,28 @@ export class Mission implements GameMode {
     }
   }
 
+  /** Pull a scripted camera in toward its target past anything solid between them. */
+  private clearCine(c: CinePose): void {
+    // A shot from below what it looks at would come in through the floor: it keeps above it.
+    const ground = heightAt(this.fortress.grid, c.x, c.z)
+    if (ground !== VOID && c.y < ground + 0.8) c.y = ground + 0.8
+    // From a little over the target (it is often a point on the floor).
+    const ox = c.tx
+    const oy = c.ty + 0.6
+    const oz = c.tz
+    const dx = c.x - ox
+    const dy = c.y - oy
+    const dz = c.z - oz
+    const len = Math.hypot(dx, dy, dz)
+    if (len < 0.5) return
+    const h = raycast(this.fortress.grid, ox, oy, oz, dx / len, dy / len, dz / len, len)
+    if (!h.hit || h.t < 0.05) return
+    const t = Math.max(0.4, h.t - 0.45)
+    c.x = ox + (dx / len) * t
+    c.y = oy + (dy / len) * t
+    c.z = oz + (dz / len) * t
+  }
+
   /** A press during a scripted shot: cut to its end. */
   private skipCine(): void {
     const c = this.cine
@@ -2669,7 +2693,9 @@ export class Mission implements GameMode {
       const py = heightAt(f.grid, f.insert.x, f.insert.z)
       // In on the jet board, standing on its deck; off with a hop onto the
       // perch; the board peels away and climbs out of sight.
-      introFrame(this.dogAt, this.riderAt, k, f.insert.x, py, f.insert.z, f.insert.facing)
+      // The way in flies through nothing solid (#105): worked out once.
+      this.approach ??= findApproach(f.grid, f.insert.x, py, f.insert.z, f.insert.facing)
+      introFrame(this.dogAt, this.riderAt, k, f.insert.x, py, f.insert.z, f.insert.facing, this.approach.approach, this.approach.high, this.approach.reach)
       this.ride(this.riderAt)
       introCam(out, k, f.insert.x, py, f.insert.z, f.insert.facing, this.centre.x, this.centre.z, follow, this.lift)
       if (!c.jumped && k >= RIDER_JUMP) { c.jumped = true; emit('jump', {}) }
@@ -2829,6 +2855,9 @@ export class Mission implements GameMode {
     fp.tx = follow.tx; fp.ty = follow.ty; fp.tz = follow.tz
     fp.fov = follow.fov
     const scripted = this.stepCine(dt, fp, x, y, z)
+    // A scripted shot never looks through a wall (#105): its camera comes in
+    // along its line toward what it looks at until nothing stands between.
+    if (scripted) this.clearCine(this.cinePose)
     const view = scripted ? this.cinePose : fp
     const inside = scripted ? 0 : follow.inside
     if (scripted && this.shake > 0) {

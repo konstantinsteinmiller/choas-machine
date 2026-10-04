@@ -15,6 +15,7 @@
  */
 import { BOARD_HOVER, DOG_STAND } from '../models/robodog'
 import { DROP_LANDED } from './cine'
+import { hasLineOfSight, type Grid } from '../world/grid'
 
 export interface DogFrame {
   x: number
@@ -57,28 +58,31 @@ export const RIDER_LAND = DROP_LANDED
  * `facing` the way it will look. The board arrives from behind it.
  */
 export const introFrame = (
-  dog: DogFrame, rider: RiderFrame, k: number, px: number, py: number, pz: number, facing: number
+  dog: DogFrame, rider: RiderFrame, k: number, px: number, py: number, pz: number, facing: number,
+  approach: number = facing, high = INTRO_HIGH, reach = 1
 ): void => {
-  const fx = Math.sin(facing)
-  const fz = Math.cos(facing)
-  // In from 60 m behind and 14 m up, braking hard at the end.
+  // The board comes in along `approach` (behind the perch, unless a wall is in the way: `findApproach`).
+  const fx = Math.sin(approach)
+  const fz = Math.cos(approach)
+  // In from 60 m behind and `high` up, braking hard at the end.
   const e = clamp01(k / BOARD_ARRIVE)
   const arrive = smooth(e)
   // Still a long way out when the shot opens; it brakes over the last metres.
-  const out = 0.6 + 59.4 * (1 - e) * (1 - e)
+  // (`reach` < 1: a steeper way down, into a walled yard.)
+  const out = 0.6 + 59.4 * reach * (1 - e) * (1 - e)
   const hover = py + 1.6
   let bx = px - fx * out
-  let by = lerp(py + 14, hover, arrive) + Math.sin(k * 30) * 0.05
+  let by = lerp(py + high, hover, arrive) + Math.sin(k * 30) * 0.05
   let bz = pz - fz * out
   // After the jump: on along its line, banking up and away.
   const leave = clamp01((k - RIDER_JUMP) / (1 - RIDER_JUMP))
-  bx += fx * leave * leave * 70
+  bx += fx * leave * leave * 70 * reach
   by += leave * leave * 36
-  bz += fz * leave * leave * 70
+  bz += fz * leave * leave * 70 * reach
   dog.x = bx
   dog.y = by
   dog.z = bz
-  dog.yaw = facing
+  dog.yaw = approach
   dog.fold = 1
   dog.run = 0
   dog.stride = 0
@@ -99,6 +103,48 @@ export const introFrame = (
     rider.dy = lerp(hover - py, 0, j) + Math.sin(j * Math.PI) * 1.4
     rider.air = j < 1
   }
+}
+
+/** The board's arrival height over the perch, by default. */
+export const INTRO_HIGH = 14
+
+/**
+ * A way in for the board that flies through nothing solid (#105): from
+ * behind the perch if that is clear, else turned a little further each try
+ * and coming in higher; checked along the whole arrival and climb-out, for
+ * the board and for the mech standing on it. Pure.
+ */
+export const findApproach = (g: Grid, px: number, py: number, pz: number, facing: number): { approach: number; high: number; reach: number } => {
+  const dog: DogFrame = { x: 0, y: 0, z: 0, yaw: 0, fold: 1, run: 0, stride: 0, thrust: 0, visible: true }
+  const rider: RiderFrame = { dx: 0, dy: 0, dz: 0, air: false }
+  const clear = (approach: number, high: number, reach: number): boolean => {
+    let lx = 0
+    let ly = 0
+    let lz = 0
+    for (let i = 0; i <= 60; i++) {
+      const k = i / 60
+      introFrame(dog, rider, k, px, py, pz, facing, approach, high, reach)
+      if (i > 0 && dog.visible) {
+        for (const up of [0.2, 2.4]) {
+          // The last stretch onto the perch is the rider's hop, onto the floor itself.
+          if (k > RIDER_JUMP - 0.02 && k < RIDER_LAND + 0.04) continue
+          if (!hasLineOfSight(g, lx, ly + up, lz, dog.x, dog.y + up, dog.z)) return false
+        }
+      }
+      lx = dog.x
+      ly = dog.y
+      lz = dog.z
+    }
+    return true
+  }
+  // Long and low first (the shot the drop-in was made for), then higher, then
+  // steeper and steeper: into a walled yard the board comes down from above.
+  for (const [high, reach] of [[INTRO_HIGH, 1], [22, 1], [32, 1], [32, 0.4], [40, 0.15], [48, 0.04]] as const) {
+    for (const turn of [0, 0.35, -0.35, 0.7, -0.7, 1.1, -1.1, 1.6, -1.6, 2.2, -2.2, Math.PI]) {
+      if (clear(facing + turn, high, reach)) return { approach: facing + turn, high, reach }
+    }
+  }
+  return { approach: facing, high: 48, reach: 0.02 }
 }
 
 // ─── The way out ─────────────────────────────────────────────────────────────
