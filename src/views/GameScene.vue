@@ -4,7 +4,13 @@
     //- The gesture surface: every touch and click on the scene lands here.
     div.input-surface(v-show="flow.screen === 'mission'" ref="surface")
     div.hud-layer
-      MissionHud(v-if="flow.screen === 'mission' && (hud.phase === 'play' || hud.phase === 'dead')" v-show="!hud.cine" @pause="openPause")
+      //- Built during the drop-in, out of sight (#119): built and first
+      //- painted the moment play began, it froze the game for 300-750 ms.
+      MissionHud(
+        v-if="flow.screen === 'mission' && (hud.phase === 'intro' || hud.phase === 'play' || hud.phase === 'dead')"
+        :class="{ 'hud-off': hud.cine || (hud.phase !== 'play' && hud.phase !== 'dead') }"
+        @pause="openPause"
+      )
       CineBars
       CinemaSkip
       BaseHud(v-if="flow.screen === 'base' && hud.phase !== 'cinema'")
@@ -221,6 +227,13 @@ onUnmounted(() => {
 </script>
 
 <style scoped lang="sass">
+// Out of sight but laid out and painted, so showing it costs nothing (#119):
+// at opacity 0 the browser skips the paint, so it is a hair above it.
+.hud-off
+  opacity: 0.002 !important
+  pointer-events: none !important
+  & :deep(*)
+    pointer-events: none !important
 .scene-root
   position: fixed
   inset: 0

@@ -158,7 +158,11 @@ export const RIDER_ON = 0.52
  * `yaw` the way it faces. The dog comes in from the side the mech's left is on.
  */
 export const outroFrame = (
-  dog: DogFrame, rider: RiderFrame, k: number, px: number, py: number, pz: number, yaw: number
+  dog: DogFrame, rider: RiderFrame, k: number, px: number, py: number, pz: number, yaw: number,
+  /** The way the dog comes in, turned from the mech's left (#118), and how far it runs in on the ground (1) or drops in from above (0). */
+  turn = 0, reachIn = 1,
+  /** How far forward the board carries the mech while it climbs away (#118): 1 a long slant, toward 0 straight up. */
+  reachOut = 1
 ): void => {
   // The mech's left is +x when it faces +z.
   const lx = Math.cos(yaw)
@@ -166,22 +170,28 @@ export const outroFrame = (
   const fx = Math.sin(yaw)
   const fz = Math.cos(yaw)
   const run = clamp01(k / DOG_ARRIVE)
-  // Galloping in along an arc that ends beside the mech, 1.7 m to its left.
+  // Galloping in along an arc that ends beside the mech, 1.7 m to its left;
+  // from wherever there is room to run, or down out of the sky.
   const far = 1 - smooth(run)
-  const ax = px + lx * (1.7 + far * 16) - fx * far * 6
-  const az = pz + lz * (1.7 + far * 16) - fz * far * 6
+  const ox = (lx * 16 - fx * 6) * reachIn
+  const oz = (lz * 16 - fz * 6) * reachIn
+  const c = Math.cos(turn)
+  const s = Math.sin(turn)
+  const ax = px + lx * 1.7 + far * (ox * c + oz * s)
+  const az = pz + lz * 1.7 + far * (oz * c - ox * s)
+  const drop = far * far * 18 * (1 - reachIn)
   // Folding: it lies down into a board and slides under the mech.
   const fold = smooth((k - DOG_ARRIVE) / (DOG_FOLDED - DOG_ARRIVE))
   const slide = smooth((k - DOG_FOLDED) / (RIDER_ON - DOG_FOLDED))
   const climb = clamp01((k - RIDER_ON) / (1 - RIDER_ON))
   const deck = lerp(py + DOG_STAND, py + BOARD_HOVER, fold)
-  dog.x = lerp(ax, px, slide) + fx * climb * climb * 40
-  dog.z = lerp(az, pz, slide) + fz * climb * climb * 40
-  dog.y = deck + climb * climb * 30
+  dog.x = lerp(ax, px, slide) + fx * climb * climb * 40 * reachOut
+  dog.z = lerp(az, pz, slide) + fz * climb * climb * 40 * reachOut
+  dog.y = deck + drop + climb * climb * 30
   // It faces where it is running, then turns to face the way the mech looks.
-  dog.yaw = run < 1 ? Math.atan2(px + lx * 1.7 - ax + 1e-6, pz + lz * 1.7 - az + 1e-6) : yaw
+  dog.yaw = run < 1 && reachIn > 0.05 ? Math.atan2(px + lx * 1.7 - ax + 1e-6, pz + lz * 1.7 - az + 1e-6) : yaw
   dog.fold = fold
-  dog.run = k < DOG_ARRIVE ? 1 - smooth((k - DOG_ARRIVE * 0.75) / (DOG_ARRIVE * 0.25)) : 0
+  dog.run = k < DOG_ARRIVE ? (1 - smooth((k - DOG_ARRIVE * 0.75) / (DOG_ARRIVE * 0.25))) * (drop > 0.3 ? 0 : 1) : 0
   dog.stride = k * 46
   dog.thrust = k < DOG_ARRIVE ? 0.7 : k < RIDER_ON ? 0.35 : 1
   dog.visible = climb < 0.995
@@ -201,6 +211,52 @@ export const outroFrame = (
     rider.dz = dog.z - pz
     rider.air = false
   }
+}
+
+/**
+ * A way out that flies through nothing solid (#118): which way the mech
+ * should face, the way the dog comes in, and how far each path reaches. The
+ * dog's run in and the board's climb away are checked along their whole
+ * length, for the dog and for the mech riding it; a yard walled all round
+ * gets the dog dropping in and the board going straight up. Pure.
+ */
+export const findDeparture = (
+  g: Grid, px: number, py: number, pz: number, facing: number
+): { yaw: number; turn: number; reachIn: number; reachOut: number } => {
+  const dog: DogFrame = makeDogFrame()
+  const rider: RiderFrame = makeRiderFrame()
+  const clear = (yaw: number, turn: number, reachIn: number, reachOut: number, from: number, to: number): boolean => {
+    let lx = 0
+    let ly = 0
+    let lz = 0
+    for (let i = 0; i <= 60; i++) {
+      const k = from + ((to - from) * i) / 60
+      outroFrame(dog, rider, k, px, py, pz, yaw, turn, reachIn, reachOut)
+      if (i > 0 && dog.visible) {
+        for (const up of to > RIDER_ON ? [0.3, 2.6] : [0.4, 1.2]) {
+          if (!hasLineOfSight(g, lx, ly + up, lz, dog.x, dog.y + up, dog.z)) return false
+        }
+      }
+      lx = dog.x
+      ly = dog.y
+      lz = dog.z
+    }
+    return true
+  }
+  const TURNS = [0, 0.5, -0.5, 1, -1, 1.6, -1.6, 2.2, -2.2, Math.PI] as const
+  let yaw = facing
+  let reachOut = 0.02
+  out: for (const reach of [1, 0.5, 0.2, 0.05]) {
+    for (const t of TURNS) {
+      if (clear(facing + t, 0, 1, reach, RIDER_ON, 1)) { yaw = facing + t; reachOut = reach; break out }
+    }
+  }
+  for (const reach of [1, 0.6, 0.3]) {
+    for (const t of TURNS) {
+      if (clear(yaw, t, reach, reachOut, 0, DOG_ARRIVE)) return { yaw, turn: t, reachIn: reach, reachOut }
+    }
+  }
+  return { yaw, turn: 0, reachIn: 0, reachOut }
 }
 
 export const makeDogFrame = (): DogFrame => ({ x: 0, y: 0, z: 0, yaw: 0, fold: 1, run: 0, stride: 0, thrust: 0, visible: false })

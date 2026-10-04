@@ -90,6 +90,36 @@ const precompile = async (
       }
       check()
     })
+    // A program's FIRST USE reads back its compile log and its uniforms, and
+    // that read waits for the GPU (#119: a 300-750 ms freeze the moment the
+    // drop-in handed over to play, for everything first drawn then). Done
+    // here, one program per slice, while the loader is still up.
+    const programs = (renderer.info.programs ?? []) as unknown as Array<{ getUniforms(): unknown; getAttributes(): unknown }>
+    for (const p of programs) {
+      p.getUniforms()
+      p.getAttributes()
+      await slice()
+    }
+    // And one real frame of EVERYTHING (#119): the GPU's driver layer (ANGLE
+    // on Windows) finishes a program for its vertex layout on its first real
+    // draw, in the GPU process; the page waits idle for it, a 200-500 ms
+    // freeze when the hidden HUD props, the lesson holograms and the
+    // cones first show. Drawn here under the loader: every object shown and
+    // unculled for the one frame, then put back.
+    const shown: Object3D[] = []
+    const culled: Object3D[] = []
+    mode.scene.traverse((o) => {
+      if (!o.visible) { o.visible = true; shown.push(o) }
+      if (o.frustumCulled) { o.frustumCulled = false; culled.push(o) }
+    })
+    try {
+      renderer.render(mode.scene, mode.camera)
+      renderer.getContext().finish()
+    } finally {
+      for (const o of shown) o.visible = false
+      for (const o of culled) o.frustumCulled = true
+    }
+    await slice()
   } catch (e) {
     console.warn('[boot] shader precompile failed (will compile on first draw)', e)
   }

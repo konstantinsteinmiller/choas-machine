@@ -129,17 +129,22 @@ export const dropHeight = (k: number): number => {
  * the base, drifting; then it comes down to the follow camera's place
  * (`follow`) once the mech has landed.
  */
+/** The drop-in's wide shot stands this far from the perch, where there is room. */
+export const INTRO_CAM_DIST = 19
+
 export const introCam = (
   out: CinePose, k: number, px: number, py: number, pz: number, yaw: number, cx: number, cz: number, follow: CinePose,
   /** How high above the perch the mech is now (it rides in; by default it falls). */
-  rise = dropHeight(k)
+  rise = dropHeight(k),
+  /** How far out the wide shot stands, and how far it is turned from straight behind (#119: so nothing solid comes between). */
+  dist = INTRO_CAM_DIST, turn = 0
 ): CinePose => {
   const drift = (k - 0.5) * 0.5
-  const a = yaw + Math.PI + drift
+  const a = yaw + Math.PI + drift + turn
   // Wide: behind and above the perch.
-  out.x = px + Math.sin(a) * 19
+  out.x = px + Math.sin(a) * dist
   out.y = py + 10 + rise * 0.25
-  out.z = pz + Math.cos(a) * 19
+  out.z = pz + Math.cos(a) * dist
   // It watches the mech come down, then looks past it into the base.
   const look = smooth((k - DROP_LANDED) / 0.2)
   out.tx = lerp(px, lerp(px, cx, 0.35), look)

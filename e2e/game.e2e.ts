@@ -56,8 +56,9 @@ describe('first launch', () => {
     let s = await snapshot(g)
     expect(s.screen).toBe('mission')
     expect(s.phase).toBe('intro')
-    // No HUD during the drop-in; letterbox bars and the skip glyph instead.
-    expect(await g.page.locator('.mission-hud').count()).toBe(0)
+    // No HUD to see during the drop-in (it is built, out of sight, so showing
+    // it costs nothing, #119); letterbox bars and the skip glyph instead.
+    expect(await g.page.locator('.mission-hud:not(.hud-off)').count()).toBe(0)
     expect(await g.page.locator('.cine-bars').count()).toBe(1)
     await g.page.waitForTimeout(700)
     await g.page.keyboard.press('Space')
@@ -65,7 +66,7 @@ describe('first launch', () => {
     s = await snapshot(g)
     expect(s.level).toBe(1)
     expect(s.alert).toBe(0)
-    expect(await g.page.locator('.mission-hud').count()).toBe(1)
+    expect(await g.page.locator('.mission-hud:not(.hud-off)').count()).toBe(1)
     expect(g.errors).toEqual([])
   })
 

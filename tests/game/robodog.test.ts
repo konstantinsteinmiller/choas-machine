@@ -87,3 +87,30 @@ describe('the way out', () => {
     expect(on.dog.y - P.y).toBeGreaterThan(5)
   })
 })
+
+describe('the way out flies through nothing solid (#118)', () => {
+  it('out of the training ground\'s walled last room: no wall between any two points of the dog\'s run in or the board\'s climb away', async () => {
+    const { findDeparture } = await import('@/game/sim/robodog')
+    const { buildTrainingGround } = await import('@/game/data/fortresses/training')
+    const { hasLineOfSight, heightAt } = await import('@/game/world/grid')
+    const f = buildTrainingGround()
+    const g = f.grid
+    const x = f.extract.x
+    const z = f.extract.z
+    const y = heightAt(g, x, z)
+    for (const facing of [0, Math.PI / 2, Math.PI, -Math.PI / 2]) {
+      const w = findDeparture(g, x, y, z, facing)
+      const dog = makeDogFrame()
+      const rider = makeRiderFrame()
+      let last: { x: number; y: number; z: number } | null = null
+      for (let i = 0; i <= 120; i++) {
+        const k = i / 120
+        outroFrame(dog, rider, k, x, y, z, w.yaw, w.turn, w.reachIn, w.reachOut)
+        if (last && dog.visible && (k < DOG_ARRIVE || k > RIDER_ON)) {
+          expect(hasLineOfSight(g, last.x, last.y + 0.5, last.z, dog.x, dog.y + 0.5, dog.z)).toBe(true)
+        }
+        last = { x: dog.x, y: dog.y, z: dog.z }
+      }
+    }
+  })
+})

@@ -54,7 +54,7 @@ import { COVER_H } from '../world/fortress'
 import { BASE_LOADOUT, type Loadout } from '../data/upgrades'
 import { camKind, camZone, chooseKillCam, makeKillCamState, type CamCut, type KillInfo } from './killcam'
 import {
-  DROP_LANDED, blendPose, bulletAt, bulletCam, bulletFlightS, dropHeight, introCam, liftHeight, makeCinePose, orbitCam, outroCam,
+  DROP_LANDED, INTRO_CAM_DIST, blendPose, smooth, bulletAt, bulletCam, bulletFlightS, dropHeight, introCam, liftHeight, makeCinePose, orbitCam, outroCam,
   type CinePose
 } from './cine'
 import { buildRobodog, poseRobodog, restDogPose, type DogPose } from '../models/robodog'
@@ -66,7 +66,7 @@ import { themeOf } from '../data/themes'
 import { BARREL_EARSHOT, BARREL_POWER, BARREL_RADIUS, barrelAt, barrelHurt, ignite, stepBarrels, type Barrel } from './barrels'
 import { SupplyView } from '../fx/supplyView'
 import { buildBeacon, disposeBeacon, poseBeacon, BEACON_TOP, type BeaconView } from '../models/beacon'
-import { findApproach, introFrame, makeDogFrame, makeRiderFrame, outroFrame, RIDER_JUMP } from './robodog'
+import { findApproach, findDeparture, introFrame, makeDogFrame, makeRiderFrame, outroFrame, RIDER_JUMP } from './robodog'
 import { killCamsEnabled } from '@/use/useKillCam'
 import { markSeen, profile, saveProfile } from '../state/profile'
 import { HINTS, coachHelp, coachUse, makeCoach, stepCoach, type Coach, type CoachContext, type HintId } from './coach'
@@ -105,6 +105,13 @@ const MUZZLE_REACH: Readonly<Record<WeaponId, number>> = { sniper: 1.75, minigun
 const MUZZLE_TIP: Readonly<Record<WeaponId, readonly [string, number, number, number]>> = {
   sniper: ['sniper', 0, -1.42, 0.02], minigun: ['minigunBarrels', 0, -0.66, 0], rocket: ['rocket', 0, -0.95, 0.06]
 }
+/** A scripted camera pulled in by a wall holds there this long, then eases out at this share of its length a second (#119). */
+const CINE_ARM_HOLD_S = 0.5
+const CINE_ARM_OUT = 1.5
+/** The drop-in's last frame glides into the follow camera over this long (#119). */
+const CINE_EXIT_S = 0.6
+/** The drop-in looks past the mech into the base this far, at most (#119). */
+const INTRO_LOOK_PAST_M = 8
 /** The next practice decoy, in the training ground. */
 const TRAINING_DECOY_COOL_S = 3
 /** An aimed decoy lands this near (looking down) to this far (looking level or up) (#115). */
@@ -2204,6 +2211,10 @@ export class Mission implements GameMode {
     p.vx = 0
     p.vz = 0
     p.speed01 = 0
+    // A way out through nothing solid (#118): the mech turns to it, the dog comes in by the open side.
+    const way = findDeparture(this.fortress.grid, p.x, p.y, p.z, p.yaw)
+    p.yaw = p.pyaw = way.yaw
+    this.outroWay = way
     this.cine = { kind: 'outro', t: 0, dur: 4.4 }
     this.objective = 'done'
     this.beacon.visible = false
@@ -2248,6 +2259,9 @@ export class Mission implements GameMode {
     app.setTimeScale(1)
     mirror('cine', false)
     if (c.kind === 'intro') {
+      // From the shot's last frame into the follow camera, never a cut (#119).
+      Object.assign(this.exitFrom, this.lastView)
+      this.exitT = 0
       this.lift = 0
       this.rideX = this.rideZ = 0
       this.riding = false
@@ -2413,6 +2427,19 @@ export class Mission implements GameMode {
   /** Supplies picked up, bodies burnt, ropes shot (the round-4 lessons). */
   private suppliesTaken = 0
   private burnsDone = 0
+  /** The scripted camera's arm (#119): how far out it may be, for which shot, and how long it holds in. */
+  private cineArm = Infinity
+  private armCine: Cine | null = null
+  private cineHold = 0
+  /** The glide out of the drop-in (#119): from where, and how far along. */
+  private exitFrom: CinePose = makeCinePose()
+  /** The drop-in's wide shot, placed once (#119). */
+  private introShot: { dist: number; turn: number } | null = null
+  /** The camera as last shown. */
+  private lastView: CinePose = makeCinePose()
+  private exitT = Infinity
+  /** The way out found when the outro starts (#118). */
+  private outroWay = { yaw: 0, turn: 0, reachIn: 1, reachOut: 1 }
   /** The training ground's defenders as they started: a room whose lesson can no longer be done is set back to this. */
   private trainingStart: Unit[] = []
   private ropesShot = 0
@@ -2839,23 +2866,81 @@ export class Mission implements GameMode {
     }
   }
 
-  /** Pull a scripted camera in toward its target past anything solid between them. */
-  private clearCine(c: CinePose): void {
-    // A shot from below what it looks at would come in through the floor: it keeps above it.
+  /**
+   * Where the drop-in's wide shot can stand (#119): the farthest distance,
+   * turned as little as it must be, from which the mech riding in is in
+   * clear view the whole way down. A camera pulled in by a wall mid-shot
+   * jumps; one placed right from the start never does.
+   */
+  private findIntroShot(py: number, cx: number, cz: number, follow: CinePose): { dist: number; turn: number } {
+    const f = this.fortress
+    const g = f.grid
+    const a = this.approach!
+    const dog = makeDogFrame()
+    const rider = makeRiderFrame()
+    const pose = makeCinePose()
+    const clear = (dist: number, turn: number): boolean => {
+      for (let i = 0; i <= 30; i++) {
+        const k = (i / 30) * 0.7
+        introFrame(dog, rider, k, f.insert.x, py, f.insert.z, f.insert.facing, a.approach, a.high, a.reach)
+        introCam(pose, k, f.insert.x, py, f.insert.z, f.insert.facing, cx, cz, follow, rider.dy, dist, turn)
+        const mx = f.insert.x + rider.dx
+        const my = py + rider.dy + 1.6
+        const mz = f.insert.z + rider.dz
+        const dx = pose.x - mx
+        const dy = pose.y - my
+        const dz = pose.z - mz
+        const len = Math.hypot(dx, dy, dz)
+        if (raycast(g, mx, my, mz, dx / len, dy / len, dz / len, len).hit) return false
+      }
+      return true
+    }
+    for (const dist of [INTRO_CAM_DIST, 16, 13, 10, 8]) {
+      for (const turn of [0, 0.4, -0.4, 0.8, -0.8, 1.3, -1.3]) if (clear(dist, turn)) return { dist, turn }
+    }
+    return { dist: 6, turn: 0 }
+  }
+
+  /**
+   * Pull a scripted camera in toward its target past anything solid between
+   * them. Like the follow camera's spring arm (#119): it comes in at once when
+   * something blocks the line, holds there a moment, and eases back out, so a
+   * line that grazes a wall top on and off never flips the shot back and forth
+   * frame by frame.
+   */
+  private clearCine(c: CinePose, dt: number): void {
+    if (this.cine !== this.armCine) {
+      this.armCine = this.cine
+      this.cineArm = Infinity
+      this.cineHold = 0
+    }
+    // A shot a little below the floor it is over comes up onto it; one that
+    // has drifted into a tall wall is not lifted onto its top (#119): the
+    // line below pulls it in front of the wall instead.
     const ground = heightAt(this.fortress.grid, c.x, c.z)
-    if (ground !== VOID && c.y < ground + 0.8) c.y = ground + 0.8
-    // From a little over the target (it is often a point on the floor).
-    const ox = c.tx
-    const oy = c.ty + 0.6
-    const oz = c.tz
+    if (ground !== VOID && c.y < ground + 0.8 && c.y > ground - 1.5) c.y = ground + 0.8
+    // From a little over the target (it is often a point on the floor); for
+    // the drop-in, from the mech itself: its shot ends on the follow camera,
+    // whose target is the aim point far ahead, beyond walls (#119).
+    const p = this.player
+    const mech = this.cine?.kind === 'intro'
+    const ox = mech ? p.x + this.rideX : c.tx
+    const oy = mech ? p.y + this.lift + 1.6 : c.ty + 0.6
+    const oz = mech ? p.z + this.rideZ : c.tz
     const dx = c.x - ox
     const dy = c.y - oy
     const dz = c.z - oz
     const len = Math.hypot(dx, dy, dz)
     if (len < 0.5) return
     const h = raycast(this.fortress.grid, ox, oy, oz, dx / len, dy / len, dz / len, len)
-    if (!h.hit || h.t < 0.05) return
-    const t = Math.max(0.4, h.t - 0.45)
+    const room = h.hit && h.t >= 0.05 ? Math.max(0.4, h.t - 0.45) : len
+    if (room < this.cineArm) {
+      this.cineArm = room
+      this.cineHold = CINE_ARM_HOLD_S
+    } else if (this.cineHold > 0) this.cineHold -= dt
+    else this.cineArm = Math.min(room, this.cineArm + Math.max(0.5, this.cineArm) * CINE_ARM_OUT * dt)
+    if (this.cineArm >= len) return
+    const t = this.cineArm
     c.x = ox + (dx / len) * t
     c.y = oy + (dy / len) * t
     c.z = oz + (dz / len) * t
@@ -2901,7 +2986,16 @@ export class Mission implements GameMode {
       this.approach ??= findApproach(f.grid, f.insert.x, py, f.insert.z, f.insert.facing)
       introFrame(this.dogAt, this.riderAt, k, f.insert.x, py, f.insert.z, f.insert.facing, this.approach.approach, this.approach.high, this.approach.reach)
       this.ride(this.riderAt)
-      introCam(out, k, f.insert.x, py, f.insert.z, f.insert.facing, this.centre.x, this.centre.z, follow, this.lift)
+      // It looks past the mech into the base: a few metres that way, never deep into walls (#119).
+      const lx = this.centre.x - f.insert.x
+      const lz = this.centre.z - f.insert.z
+      const ll = Math.hypot(lx, lz) || 1
+      const past = Math.min(ll * 0.35, INTRO_LOOK_PAST_M)
+      const cx = f.insert.x + (lx / ll) * past / 0.35
+      const cz = f.insert.z + (lz / ll) * past / 0.35
+      // A wide shot with nothing solid between it and the mech the whole way (#119): worked out once.
+      this.introShot ??= this.findIntroShot(py, cx, cz, follow)
+      introCam(out, k, f.insert.x, py, f.insert.z, f.insert.facing, cx, cz, follow, this.lift, this.introShot.dist, this.introShot.turn)
       if (!c.jumped && k >= RIDER_JUMP) { c.jumped = true; emit('jump', {}) }
       if (!c.landed && k >= DROP_LANDED) {
         c.landed = true
@@ -2920,7 +3014,8 @@ export class Mission implements GameMode {
       // mech, the mech hops on, and the board climbs away with it.
       const ox = this.player.x
       const oz = this.player.z
-      outroFrame(this.dogAt, this.riderAt, k, ox, py, oz, this.player.yaw)
+      const w = this.outroWay
+      outroFrame(this.dogAt, this.riderAt, k, ox, py, oz, this.player.yaw, w.turn, w.reachIn, w.reachOut)
       this.ride(this.riderAt)
       outroCam(out, k, ox + this.rideX * 0.55, py, oz + this.rideZ * 0.55, this.player.yaw, this.baseFov, this.lift)
       if (k >= 1) this.endCine()
@@ -3061,8 +3156,14 @@ export class Mission implements GameMode {
     const scripted = this.stepCine(dt, fp, x, y, z)
     // A scripted shot never looks through a wall (#105): its camera comes in
     // along its line toward what it looks at until nothing stands between.
-    if (scripted) this.clearCine(this.cinePose)
+    if (scripted) this.clearCine(this.cinePose, dt)
+    // Just out of the drop-in: the last frame glides into the follow camera (#119).
+    if (!scripted && this.exitT < CINE_EXIT_S) {
+      this.exitT += dt
+      blendPose(fp, this.exitFrom, fp, smooth(Math.min(1, this.exitT / CINE_EXIT_S)))
+    }
     const view = scripted ? this.cinePose : fp
+    Object.assign(this.lastView, view)
     const inside = scripted ? 0 : follow.inside
     if (scripted && this.shake > 0) {
       view.x += (Math.random() - 0.5) * this.shake * 0.12
