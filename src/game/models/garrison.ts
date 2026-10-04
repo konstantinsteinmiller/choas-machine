@@ -27,7 +27,7 @@ const G_THIGH = 0.32
 const G_SHIN = 0.3
 const G_LEG = G_THIGH + G_SHIN
 
-export const buildGuard = (commander = false, shield = false, engineer = false): Rig => {
+export const buildGuard = (commander = false, shield = false, engineer = false, kit: 'grenadier' | 'marksman' | null = null): Rig => {
   const cloth = commander ? PAL.commander : PAL.uniform
   const clothDeep = commander ? PAL.commanderDeep : PAL.uniformDeep
   const trim = commander ? PAL.commanderTrim : PAL.uniformTrim
@@ -84,13 +84,24 @@ export const buildGuard = (commander = false, shield = false, engineer = false):
     b.part(`foot${tag}`, rbox(0.17, 0.12, 0.3, 0.5, 6, 6), PAL.boot, { p: [0, 0, 0.05] })
   })
 
-  // The Warden's riot shield, held square in front of him: a steel plate
-  // with a hazard rim and a little window to look through.
+  // The riot shield, held square in front: a steel plate with a hazard rim
+  // and a little window to look through. The Warden's is tall; a guard's
+  // (#90) is carried lower, the head showing over it, and can be knocked away
+  // (its own bone, so it can go).
   if (shield) {
-    b.part('chest', rbox(0.72, 1.24, 0.06, 0.25, 6, 8), PAL.steelDeep, { p: [0.08, 0.04, 0.42] })
-    b.part('chest', rbox(0.76, 0.08, 0.07, 0.4, 6, 3), PAL.hazard, { p: [0.08, 0.65, 0.42] })
-    b.part('chest', rbox(0.76, 0.08, 0.07, 0.4, 6, 3), PAL.hazard, { p: [0.08, -0.57, 0.42] })
-    b.part('chest', rbox(0.34, 0.08, 0.02, 0.6, 4, 3), PAL.glowCyan, { p: [0.08, 0.38, 0.455], glow: true, outline: false })
+    const k = commander ? 1 : 0.78
+    const dy = commander ? 0.04 : -0.16
+    b.bone('shield', 'chest', [0.08, dy, 0.42])
+    b.part('shield', rbox(0.72 * (commander ? 1 : 0.94), 1.24 * k, 0.06, 0.25, 6, 8), PAL.steelDeep)
+    b.part('shield', rbox(0.76, 0.08, 0.07, 0.4, 6, 3), PAL.hazard, { p: [0, 0.61 * k, 0] })
+    b.part('shield', rbox(0.76, 0.08, 0.07, 0.4, 6, 3), PAL.hazard, { p: [0, -0.61 * k, 0] })
+    b.part('shield', rbox(0.34, 0.08, 0.02, 0.6, 4, 3), PAL.glowCyan, { p: [0, 0.34 * k, 0.035], glow: true, outline: false })
+  }
+  // A grenadier (#90): a satchel of grenades across the chest, two on the belt.
+  if (kit === 'grenadier') {
+    b.part('chest', rbox(0.5, 0.08, 0.06, 0.5, 6, 3), PAL.boot, { p: [0, 0.18, 0.16], r: [0, 0, 0.7] })
+    for (const gx of [-0.13, 0.13]) b.part('hips', sph(0.065, 8, 6), PAL.hazard, { p: [gx, 0.02, 0.17] })
+    b.part('chest', sph(0.065, 8, 6), PAL.hazard, { p: [0.1, 0.32, 0.18] })
   }
 
   // The rifle, in the right hand, barrel along the forearm.
@@ -98,6 +109,12 @@ export const buildGuard = (commander = false, shield = false, engineer = false):
   b.part('rifle', rbox(0.07, 0.36, 0.11, 0.5, 6, 6), PAL.gunMetal, { p: [0, -0.05, 0] })
   b.part('rifle', stripUv(new CylinderGeometry(0.022, 0.022, 0.5, 6)), PAL.gunDark, { p: [0, -0.45, 0] })
   b.part('rifle', rbox(0.06, 0.2, 0.09, 0.5, 6, 4), PAL.gunDark, { p: [0, 0.2, -0.02] })
+  // A marksman (#90): a long barrel, a scope and the laser's red eye.
+  if (kit === 'marksman') {
+    b.part('rifle', stripUv(new CylinderGeometry(0.02, 0.02, 0.5, 6)), PAL.gunDark, { p: [0, -0.9, 0] })
+    b.part('rifle', stripUv(new CylinderGeometry(0.035, 0.035, 0.22, 8)), PAL.gunMetal, { p: [0, -0.2, 0.09] })
+    b.part('rifle', sph(0.025, 6, 5), PAL.glowRed, { p: [0, -0.62, 0.05], glow: true, outline: false })
+  }
 
   return b.build({ outline: 0.018, height: GUARD_HEIGHT })
 }
@@ -531,6 +548,61 @@ export const buildSearchlight = (): Rig => {
   b.part('lamp', rbox(0.3, 0.2, 0.2, 0.5, 6, 4), PAL.steelDark, { p: [0, 0.05, -0.36] })
   b.part('lamp', sph(0.05, 6, 5), PAL.glowRed, { p: [0, 0.2, -0.36], glow: true, outline: false })
   return b.build({ outline: 0.02, height: 0.8 })
+}
+
+// ─── Roomba (#72) ────────────────────────────────────────────────────────────
+
+/**
+ * A Roomba: a knee-high disc robot with a gun turret on its back. The dome is
+ * its eye and its weak spot (a red ring), the bumper its hazard stripe. The
+ * Peashooter carries a short SMG; the Buckshot a fat double barrel.
+ */
+export const buildRoomba = (shotgun = false): Rig => {
+  const b = new RigBuilder()
+  b.bone('body', null, [0, 0.27, 0])
+  b.bone('turret', 'body', [0, 0.44, -0.22])
+  b.part('body', rcyl(0.58, 0.32, 0.08, 18), PAL.steel)
+  b.part('body', rcyl(0.6, 0.08, 0.03, 18), PAL.hazard, { p: [0, -0.06, 0] })
+  b.part('body', rcyl(0.5, 0.05, 0.02, 18), PAL.steelDark, { p: [0, -0.18, 0] })
+  // The dome and its glowing eye ring: what a sniper aims at.
+  b.part('body', dome(0.24, Math.PI * 0.5, 12, 6), PAL.steelDark, { p: [0, 0.16, 0.12] })
+  b.part('body', torus(0.11, 0.022, 6, 14), PAL.glowRed, { p: [0, 0.27, 0.33], r: [-0.5, 0, 0], glow: true, outline: false })
+  b.part('body', sph(0.075, 8, 6), PAL.glowRed, { p: [0, 0.27, 0.32], glow: true, outline: false })
+  // Its little brushes at the front.
+  b.mirror((side) => {
+    b.part('body', rcyl(0.11, 0.03, 0.01, 8), PAL.steelDeep, { p: [side * 0.36, -0.17, 0.42] })
+  })
+  // The gun on its back.
+  b.part('turret', rbox(0.07, 0.3, 0.07, 0.5, 4, 4), PAL.steelDark, { p: [0, -0.16, 0] })
+  b.part('turret', rbox(0.22, 0.14, 0.26, 0.5, 6, 4), PAL.gunMetal)
+  if (shotgun) {
+    b.mirror((side) => {
+      b.part('turret', stripUv(new CylinderGeometry(0.045, 0.045, 0.42, 8)), PAL.gunDark, { p: [side * 0.05, 0.02, 0.3], r: [Math.PI / 2, 0, 0] })
+    })
+  } else {
+    b.part('turret', stripUv(new CylinderGeometry(0.03, 0.03, 0.46, 6)), PAL.gunDark, { p: [0, 0.02, 0.32], r: [Math.PI / 2, 0, 0] })
+    b.part('turret', rbox(0.05, 0.12, 0.05, 0.5, 4, 4), PAL.gunDark, { p: [0, -0.08, 0.1] })
+  }
+  return b.build({ outline: 0.02, height: 0.7 })
+}
+
+export interface RoombaPose {
+  time: number
+  /** 0 calm … 1 it has the mech: the turret tracks, the body judders. */
+  alarm: number
+  /** 0 … 1 the gun's kick. */
+  recoil: number
+  /** Turret yaw relative to the body. */
+  aimYaw: number
+  speed: number
+}
+
+export const poseRoomba = (rig: Rig, s: RoombaPose): void => {
+  // It hums along, jiggling a little on its wheels; it judders when it is angry.
+  nudge(rig, 'body', 0, Math.sin(s.time * 23) * 0.006 * (0.4 + s.speed) + Math.sin(s.time * 47) * 0.01 * s.alarm, 0)
+  pose(rig, 'body', Math.sin(s.time * 9) * 0.015 * s.speed, 0, Math.sin(s.time * 7) * 0.012 * s.speed)
+  nudge(rig, 'turret', 0, 0, -0.06 * s.recoil)
+  pose(rig, 'turret', -0.1 * s.recoil, s.aimYaw, 0)
 }
 
 export interface SearchlightPose {

@@ -98,7 +98,7 @@ export const VOICE_LINES: readonly VoiceLine[] = [
 ]
 
 /** Which voice a unit speaks with (a type-only import: the tools strip it). */
-export const SPEAKER_OF = (kind: PostKind, role: 'engineer' | null): Speaker => {
+export const SPEAKER_OF = (kind: PostKind, role: 'engineer' | 'grenadier' | 'marksman' | null): Speaker => {
   switch (kind) {
     case 'guard': return role === 'engineer' ? 'engineer' : 'guard'
     case 'sentry': return 'sentry'
@@ -107,6 +107,8 @@ export const SPEAKER_OF = (kind: PostKind, role: 'engineer' | null): Speaker => 
     case 'enforcer': return 'enforcer'
     case 'goliath': return 'goliath'
     case 'hound': return 'hound'
+    // A Roomba speaks with a drone's little machine voice (#72).
+    case 'roomba': return 'drone'
     default: return 'guard'
   }
 }

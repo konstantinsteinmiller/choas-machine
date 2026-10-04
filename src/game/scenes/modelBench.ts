@@ -7,7 +7,7 @@ import { toon } from '../models/toon'
 import type { Rig } from '../models/kit'
 import { buildMech, poseMech, restPose, type MechPose } from '../models/mech'
 import {
-  buildGuard, poseGuard, restGuardPose, buildDrone, poseDrone, buildEnforcer, poseEnforcer, buildGoliath, poseGoliath
+  buildGuard, poseGuard, restGuardPose, buildDrone, poseDrone, buildEnforcer, poseEnforcer, buildGoliath, poseGoliath, buildRoomba, poseRoomba
 } from '../models/garrison'
 import type { WeaponId } from '../data/ids'
 import { TAKEDOWN, TD_FREE, takedownPose, victimPose } from '../sim/takedown'
@@ -121,6 +121,19 @@ export class ModelBench implements GameMode {
           deadT: poseName.startsWith('die') ? Math.max(1e-3, t) : 0,
           death: poseName === 'die-front' ? 'front' : poseName === 'die-spin' ? 'spin' : poseName === 'die-thrown' ? 'thrown' : 'back'
         }))
+      }
+    }
+    // Round 4's defenders (#72 #90): the two Roombas, and the guard kits.
+    if (all || which === 'roomba') {
+      for (const shotgun of [false, true]) {
+        const rig = buildRoomba(shotgun)
+        add(rig, 0, (t) => poseRoomba(rig, { time: t, alarm: poseName === 'aim' ? 1 : 0, recoil: poseName === 'aim' ? Math.max(0, 1 - (t % 0.6) * 6) : 0, aimYaw: Math.sin(t) * 0.5, speed: poseName === 'walk' ? 1 : 0 }), 1.6)
+      }
+    }
+    if (which === 'kits') {
+      for (const [shield, kit] of [[true, null], [false, 'grenadier'], [false, 'marksman']] as const) {
+        const rig = buildGuard(false, shield, false, kit)
+        add(rig, 0, (t) => poseGuard(rig, { ...restGuardPose(), time: t, aim: poseName === 'aim' ? 1 : 0 }))
       }
     }
     if (all || which === 'drone') {

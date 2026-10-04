@@ -35,6 +35,8 @@ const WARDEN_BODY = 0.7
  * every threat level; the damage track still shortens them.
  */
 export const HUMAN_BODY = 0.51
+/** A sniper round into a Roomba's shell, short of its dome: half a kill (#72). */
+const ROOMBA_SHELL = 0.42
 export const HUMAN_LIMB = 0.34
 
 export const shotDamage = (weapon: WeaponId, kind: PostKind, zone: Zone, mul = 1, maxHp = 30): number => {
@@ -44,6 +46,8 @@ export const shotDamage = (weapon: WeaponId, kind: PostKind, zone: Zone, mul = 1
     // A lamp is a lamp: any round puts it out.
     if (kind === 'drone') return zone === 'weak' ? KILL : base * DRONE_SHELL
     if (kind === 'searchlight' || kind === 'hound') return KILL
+    // A Roomba (#72): a round in its dome ends it; its shell takes two.
+    if (kind === 'roomba') return zone === 'weak' ? KILL : base * ROOMBA_SHELL
     if (isHuman(kind)) return zone === 'head' ? KILL : maxHp * (zone === 'limb' ? HUMAN_LIMB : HUMAN_BODY) * mul
     if (kind === 'commander') return zone === 'armor' ? 0 : zone === 'head' ? base * WARDEN_HEAD : zone === 'limb' ? base * WARDEN_BODY * 0.7 : base * WARDEN_BODY
     if (kind === 'enforcer') return zone === 'head' ? base * 2.5 : zone === 'joint' ? base * 1.5 : base * 0.6
@@ -51,6 +55,7 @@ export const shotDamage = (weapon: WeaponId, kind: PostKind, zone: Zone, mul = 1
   }
   if (weapon === 'minigun') {
     if (kind === 'drone' || kind === 'searchlight' || kind === 'hound') return base * 2
+    if (kind === 'roomba') return base * (zone === 'weak' ? 2.5 : 1.5)
     if (isHuman(kind)) return zone === 'head' ? base * 2 : zone === 'limb' ? base * 0.7 : base
     if (kind === 'commander') return zone === 'armor' ? base * 0.1 : zone === 'head' ? base * 2 : base
     if (kind === 'enforcer') return zone === 'joint' ? base * 3 : zone === 'head' ? base : base * 0.5
@@ -93,6 +98,11 @@ export const blast = (
       const from = y + 0.3
       const open = [0.2, 0.6, 0.95].some(k => hasLineOfSight(g, x, from, z, u.x, u.y + spec.height * k, u.z))
       if (!open) continue
+    }
+    // A blast knocks a guard's riot shield away (#90; the Warden's is strapped on).
+    if (u.shield && !u.boss) {
+      u.shield = false
+      gar.events.push({ type: 'shieldDown', id: u.id })
     }
     if (u.kind === 'goliath') {
       // From astern the blast gets into the vents; anywhere else it is plate.

@@ -45,6 +45,19 @@ const DRONE_R = 0.5
 export const DRONE_EYE = { z: 0.3, y: -0.06, r: 0.19 } as const
 /** The Warden's riot shield, in his own frame: how far in front, its middle's height, half its width and height. */
 export const RIOT_SHIELD = { z: 0.42, y: 0.95, hw: 0.36, hh: 0.62 } as const
+/** A guard's riot shield (#90): carried lower than the Warden's, so the head shows over it. */
+export const GUARD_SHIELD = { z: 0.42, y: 0.78, hw: 0.34, hh: 0.48 } as const
+/** A Roomba's shell and its dome (#72). */
+const ROOMBA_R = 0.58
+const ROOMBA_TOP = 0.43
+const ROOMBA_DOME = { y: 0.45, r: 0.25, z: 0.12 } as const
+
+/** A ray down through a disc's top face (a Roomba's shell, from above), or Infinity. */
+const rayCap = (oy: number, ox: number, oz: number, dx: number, dy: number, dz: number, cx: number, cz: number, r: number, y: number): number => {
+  if (dy >= -1e-6 || oy <= y) return Infinity
+  const t = (y - oy) / dy
+  return Math.hypot(ox + dx * t - cx, oz + dz * t - cz) <= r ? t : Infinity
+}
 
 /** Distance to a sphere along a unit ray, or Infinity. Hits from inside do
  *  not count: a muzzle that pokes into a body must not hit it at t = 0. */
@@ -152,6 +165,11 @@ const hitUnit = (u: Unit, ox: number, oy: number, oz: number, dx: number, dy: nu
     take(rayBox(ox, oy, oz, dx, dy, dz, u.x, u.y + 0.62, u.z, u.yaw, 0.32, 0.3, 0.72), 'body')
     const h = local(u, 0, 0.7)
     take(raySphere(ox, oy, oz, dx, dy, dz, h.x, u.y + 0.95, h.z, 0.26), 'head')
+  } else if (u.kind === 'roomba') {
+    take(rayCylinder(ox, oy, oz, dx, dy, dz, u.x, u.z, ROOMBA_R, u.y + 0.08, u.y + ROOMBA_TOP), 'body')
+    take(rayCap(oy, ox, oz, dx, dy, dz, u.x, u.z, ROOMBA_R, u.y + ROOMBA_TOP), 'body')
+    const d = local(u, 0, ROOMBA_DOME.z)
+    take(raySphere(ox, oy, oz, dx, dy, dz, d.x, u.y + ROOMBA_DOME.y, d.z, ROOMBA_DOME.r), 'weak')
   } else if (u.kind === 'searchlight') {
     take(raySphere(ox, oy, oz, dx, dy, dz, u.x, u.y, u.z, DRONE_R), 'body')
   } else if (u.kind === 'enforcer') {
@@ -171,8 +189,9 @@ const hitUnit = (u: Unit, ox: number, oy: number, oz: number, dx: number, dy: nu
     // The Warden's riot shield: a plate held in front of him. A round that
     // meets it first stops there.
     if (u.shield) {
-      const s = local(u, -0.08, RIOT_SHIELD.z)
-      take(rayBox(ox, oy, oz, dx, dy, dz, s.x, u.y + RIOT_SHIELD.y, s.z, u.yaw, RIOT_SHIELD.hw, RIOT_SHIELD.hh, 0.05), 'armor')
+      const sh = u.boss ? RIOT_SHIELD : GUARD_SHIELD
+      const s = local(u, -0.08, sh.z)
+      take(rayBox(ox, oy, oz, dx, dy, dz, s.x, u.y + sh.y, s.z, u.yaw, sh.hw, sh.hh, 0.05), 'armor')
     }
     // The legs below the hips are limbs; the torso above is the body.
     take(rayCylinder(ox, oy, oz, dx, dy, dz, u.x, u.z, BODY_R, u.y + 0.1, u.y + LIMB_TOP), 'limb')

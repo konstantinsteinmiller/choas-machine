@@ -9,7 +9,7 @@ import type { PostKind } from '../world/fortress'
 import { dome, paint, rbox, merge, type Rig } from '../models/kit'
 import {
   buildDrone, buildEnforcer, buildGoliath, buildGuard, buildSearchlight, poseSearchlight, type SearchlightPose, restGuardPose, poseDrone, poseEnforcer, poseGoliath, poseGuard,
-  type DronePose, type EnforcerPose, type GoliathPose, type GuardPose
+  type DronePose, type EnforcerPose, type GoliathPose, type GuardPose, buildRoomba, poseRoomba, type RoombaPose
 } from '../models/garrison'
 import { makeBlobShadow } from '../fx/markers'
 import { poseRagdoll } from '../models/ragdollPose'
@@ -93,6 +93,7 @@ interface UnitView {
   wrecked: boolean
   /** A drone that fell whole has hit the ground (and shed a few parts). */
   landed: boolean
+  roomba: RoombaPose | null
 }
 
 /** The "?" and the "!", drawn as shapes: no font, so no wait for one. */
@@ -183,6 +184,7 @@ const WRECKS: Partial<Record<PostKind, {
   guard: { count: 16, size: [0.1, 0.28], half: [0.25, 0.8, 0.2], lift: 0.9, force: 7, colors: [PAL.uniform, PAL.uniformDeep, PAL.skin, PAL.boot, PAL.helmet, PAL.uniform] },
   sentry: { count: 16, size: [0.1, 0.28], half: [0.25, 0.8, 0.2], lift: 0.9, force: 7, colors: [PAL.uniform, PAL.uniformDeep, PAL.skin, PAL.boot, PAL.helmet, PAL.uniform] },
   hound: { count: 10, size: [0.1, 0.26], half: [0.3, 0.3, 0.6], lift: 0.5, force: 6.3, colors: [PAL.steel, PAL.steelDeep, PAL.steelDark, PAL.glowRed] },
+  roomba: { count: 10, size: [0.1, 0.26], half: [0.5, 0.2, 0.5], lift: 0.25, force: 6, colors: [PAL.steel, PAL.steelDeep, PAL.steelDark, PAL.hazard, PAL.glowRed] },
   goliath: { count: 54, size: [0.35, 1.1], half: [1.9, 1.1, 2.9], lift: 0.5, force: 12, colors: [PAL.steel, PAL.steel, PAL.steelDeep, PAL.steelDeep, PAL.steelDark, PAL.steelDark, PAL.steelDark, PAL.hazard] }
 }
 
@@ -221,13 +223,14 @@ export class GarrisonView {
       const human = u.kind === 'guard' || u.kind === 'sentry' || u.kind === 'commander'
       const rig = u.kind === 'drone' ? buildDrone()
         : u.kind === 'hound' ? buildRobodog(true)
+        : u.kind === 'roomba' ? buildRoomba(u.shotgun)
         : u.kind === 'searchlight' ? buildSearchlight()
         : u.kind === 'enforcer' ? buildEnforcer(u.boss === 'foreman')
           : u.kind === 'goliath' ? buildGoliath()
-            : buildGuard(u.kind === 'commander', u.shield, u.role === 'engineer')
+            : buildGuard(u.kind === 'commander', u.shield, u.role === 'engineer', u.role === 'grenadier' || u.role === 'marksman' ? u.role : null)
       const shadow = makeBlobShadow(SPECS[u.kind].radius * 1.5)
       let mark: Sprite | null = null
-      if (human || isLight(u) || u.kind === 'hound') {
+      if (human || isLight(u) || u.kind === 'hound' || u.kind === 'roomba') {
         mark = new Sprite(new SpriteMaterial({ map: q, transparent: true, depthTest: false, depthWrite: false, toneMapped: false }))
         mark.renderOrder = 30
         mark.visible = false
@@ -256,13 +259,14 @@ export class GarrisonView {
       }
       const v: UnitView = {
         rig, shadow, mark, spot, beam, pool: spot ? new Float32Array((POOL_SEGS + 1) * (POOL_RINGS + 1) * 4) : null,
-        cone: human || u.kind === 'hound' ? this.coneCount++ : -1,
+        cone: human || u.kind === 'hound' || u.kind === 'roomba' ? this.coneCount++ : -1,
         guard: human ? { ...restGuardPose(), seed: (u.seed * 0.618) % 1, proud: u.kind === 'commander' } : null,
         drone: u.kind === 'drone' ? { time: 0, spin: 0, pitch: 0, roll: 0, eyeYaw: 0, eyePitch: 0.5, alarm: 0, deadT: 0, landed: false } : null,
         enforcer: u.kind === 'enforcer' ? { time: 0, stride: 0, speed: 0, power: 0, aimYaw: 0, aimPitch: 0, recoilL: 0, recoilR: 0, deadT: 0 } : null,
         lamp: u.kind === 'searchlight' ? { time: 0, yaw: 0, pitch: 0.6, alarm: 0 } : null,
         goliath: u.kind === 'goliath' ? { time: 0, turretYaw: 0, barrelPitch: 0, recoil: 0, rumble: 0, dead: 0 } : null,
         dog: u.kind === 'hound' ? restDogPose() : null,
+        roomba: u.kind === 'roomba' ? { time: 0, alarm: 0, recoil: 0, aimYaw: 0, speed: 0 } : null,
         aim: 0, wary: 0, caution: 0, grip: 0, spin: 0, lastYaw: u.yaw, bank: 0, pop: 0, lastState: u.state, flash: 0, wrecked: false, landed: false,
         tag: null, route: null
       }
@@ -533,6 +537,9 @@ export class GarrisonView {
       }
       const dead = u.state === 'dead'
 
+      // A guard's shield knocked away (#90): it is gone from its arm.
+      const sb = v.rig.bones.shield
+      if (sb && !u.shield && sb.scale.x > 0.01) sb.scale.setScalar(0.001)
       if (v.guard) {
         const s = v.guard
         s.time = time + u.seed
@@ -614,6 +621,14 @@ export class GarrisonView {
         // The rig's origin is its back: lift it to standing height.
         v.rig.root.position.y = y + DOG_STAND * HOUND_SCALE
         poseRobodog(v.rig, s)
+      } else if (v.roomba) {
+        const s = v.roomba
+        s.time = time + u.seed
+        s.speed = u.speed01
+        s.alarm = Math.max(v.caution, hot ? 1 : 0)
+        s.recoil = Math.min(1, u.recoil * 4)
+        s.aimYaw += (u.look - s.aimYaw) * Math.min(1, dt * 8)
+        poseRoomba(v.rig, s)
       } else if (v.goliath) {
         const s = v.goliath
         s.time = time

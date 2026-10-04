@@ -42,8 +42,25 @@ export const GUNS: Readonly<Partial<Record<Unit['kind'], Gun>>> = {
   commander: { burst: 2, gap: 0.18, pauseMin: 1.0, pauseMax: 1.6, damage: 8, near: 0.55, far: 0.08, range: 50 },
   enforcer: { burst: 12, gap: 0.085, pauseMin: 1.3, pauseMax: 2.0, damage: 4, near: 0.42, far: 0.06, range: 45 },
   // The hound's bite: only right up close.
-  hound: { burst: 1, gap: 0.1, pauseMin: 0.9, pauseMax: 1.3, damage: 7, near: 0.8, far: 0.8, range: 2.2 }
+  hound: { burst: 1, gap: 0.1, pauseMin: 0.9, pauseMax: 1.3, damage: 7, near: 0.8, far: 0.8, range: 2.2 },
+  // A Roomba's SMG (#72): short bursts, light rounds; it sprays across a yard but rarely hits from far.
+  roomba: { burst: 5, gap: 0.09, pauseMin: 1.1, pauseMax: 1.7, damage: 4, near: 0.5, far: 0.06, range: 45 }
 }
+
+/** A Roomba's shotgun (#72): murderous up close, nothing much past a few metres. */
+const SHOTGUN: Gun = { burst: 1, gap: 0.1, pauseMin: 1.3, pauseMax: 1.8, damage: 24, near: 0.85, far: 0.02, range: 12 }
+/** A marksman's long rifle (#90): one heavy round after the laser has drawn on the mech for MARKSMAN_AIM_S. */
+const MARKSMAN: Gun = { burst: 1, gap: 0.1, pauseMin: 3.0, pauseMax: 3.6, damage: 45, near: 0.92, far: 0.55, range: 120 }
+export const MARKSMAN_AIM_S = 1.8
+/** A grenadier's grenade (#90): thrown at the last known position within reach, a ring on the ground, then the bang. */
+export const GRENADE_RANGE = 25
+export const GRENADE_FUSE_S = 2
+export const GRENADE_RADIUS = 3.5
+export const GRENADE_DAMAGE = 30
+const GRENADE_EVERY_S = 7
+
+/** What a defender fires. */
+export const gunOf = (u: Unit): Gun | undefined => (u.shotgun ? SHOTGUN : u.role === 'marksman' ? MARKSMAN : GUNS[u.kind])
 
 /**
  * Suppressing fire: for this long after a defender opens up on the mech,
@@ -96,14 +113,17 @@ export const stepFire = (gar: Garrison, g: Grid, target: Target, dt: number): vo
     if (!isAlive(u) || u.state !== 'combat' || u.power < 1) continue
     if (u.kind === 'goliath') { stepCannon(u, gar, g, target, dt); continue }
     if (u.glintT > 0 || u.dashT > 0) { u.burst = 0; continue }
-    const gun = GUNS[u.kind]
+    if (u.role === 'grenadier') stepGrenade(u, gar, g, target, dt)
+    const gun = gunOf(u)
     if (!gun) continue
     const dist = Math.hypot(target.x - u.x, target.z - u.z)
     const volley = dist > gun.range && u.kind !== 'hound'
     // The attention budget (#92): only those dealt a turn fire; the rest close
-    // in. A turn going spare is taken at once by whoever is ready for it.
+    // in. A turn going spare is taken at once by whoever is ready for it. A
+    // marksman on its tower is outside the budget: it is the tower's danger.
     if (u.sees && !gar.shooters.has(u.id) && u.kind !== 'hound' && gar.shooters.size < fireTokens(gar)) gar.shooters.add(u.id)
-    if (!u.sees || dist > (volley ? VOLLEY_RANGE : gun.range) || !gar.shooters.has(u.id)) {
+    const turn = gar.shooters.has(u.id) || u.role === 'marksman'
+    if (!u.sees || dist > (volley ? VOLLEY_RANGE : gun.range) || !turn) {
       // Lost the line: the burst is cut, and it takes a moment to re-acquire.
       u.burst = 0
       u.fireT = Math.max(u.fireT, 0.5)
@@ -111,6 +131,8 @@ export const stepFire = (gar: Garrison, g: Grid, target: Target, dt: number): vo
       continue
     }
     u.aimT += dt
+    // The marksman's laser draws on the mech before the round comes (#90).
+    if (u.role === 'marksman' && u.aimT < MARKSMAN_AIM_S) continue
     if (u.burst > 0) {
       u.burstT -= dt
       if (u.burstT > 0) continue
@@ -130,6 +152,35 @@ export const stepFire = (gar: Garrison, g: Grid, target: Target, dt: number): vo
       u.burstT = 0
     }
   }
+}
+
+/**
+ * A grenadier's throw (#90): every GRENADE_EVERY_S, with a last known position
+ * within GRENADE_RANGE, a grenade arcs onto it: a red ring on the ground for
+ * GRENADE_FUSE_S (the mech's moment to leave it), then the bang. It uses the
+ * shell's fields and events (the Goliath's shell is the same idea).
+ */
+const stepGrenade = (u: Unit, gar: Garrison, g: Grid, target: Target, dt: number): void => {
+  if (u.shellT > 0) {
+    u.shellT -= dt
+    if (u.shellT > 0) return
+    const floor = heightAt(g, u.shellX, u.shellZ)
+    const y = floor === VOID ? u.y : floor
+    const d = Math.hypot(target.x - u.shellX, target.z - u.shellZ)
+    const near = target.visible && d <= GRENADE_RADIUS && Math.abs(target.y - y) < 2.5
+    const damage = near ? Math.max(1, Math.round(GRENADE_DAMAGE * (1 - d / GRENADE_RADIUS) * gar.threat.damage)) : 0
+    gar.events.push({ type: 'shell', id: u.id, x: u.shellX, y, z: u.shellZ, damage })
+    return
+  }
+  u.grenadeT -= dt
+  if (u.grenadeT > 0 || gar.lkp.t < gar.time - 6) return
+  if (Math.hypot(gar.lkp.x - u.x, gar.lkp.z - u.z) > GRENADE_RANGE) return
+  u.grenadeT = GRENADE_EVERY_S
+  u.shellT = GRENADE_FUSE_S
+  u.shellX = gar.lkp.x
+  u.shellZ = gar.lkp.z
+  u.recoil = 1
+  gar.events.push({ type: 'telegraph', id: u.id, x: u.shellX, z: u.shellZ, radius: GRENADE_RADIUS, dur: GRENADE_FUSE_S })
 }
 
 const stepCannon = (u: Unit, gar: Garrison, g: Grid, target: Target, dt: number): void => {

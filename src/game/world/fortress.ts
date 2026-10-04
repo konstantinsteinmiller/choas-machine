@@ -38,7 +38,7 @@ export interface Waypoint extends Point {
   look?: number
 }
 
-export type PostKind = 'guard' | 'sentry' | 'commander' | 'drone' | 'searchlight' | 'enforcer' | 'goliath' | 'hound'
+export type PostKind = 'guard' | 'sentry' | 'commander' | 'drone' | 'searchlight' | 'enforcer' | 'goliath' | 'hound' | 'roomba'
 
 export interface Post {
   kind: PostKind
@@ -63,8 +63,14 @@ export interface Post {
   shield?: boolean
   /** A guard it stands and chats with (an index into `posts`). */
   partner?: number
-  /** An Engineer: walks to whatever the mech broke, and fixes it. */
-  role?: 'engineer'
+  /**
+   * An Engineer walks to whatever the mech broke and fixes it; a grenadier
+   * lobs a grenade at where the mech was last seen (#90); a marksman holds a
+   * tower with a long rifle and a laser sight (#90).
+   */
+  role?: 'engineer' | 'grenadier' | 'marksman'
+  /** A Roomba's gun: the SMG, or (`shotgun`) the close-range one (#72). */
+  gun?: 'shotgun'
 }
 
 export type DecorKind =
@@ -289,6 +295,38 @@ export class FortressBuilder {
    */
   hound(route: ReadonlyArray<readonly [number, number, number?]>, facing = 0): this {
     return this.post('hound', route, facing)
+  }
+
+  /**
+   * A Roomba (#72): a knee-high disc robot with a gun on its back, at home in
+   * halls and interiors. Its dome is its weak spot. `shotgun` for the close
+   * one; otherwise an SMG.
+   */
+  roomba(route: ReadonlyArray<readonly [number, number, number?]>, facing = 0, shotgun = false): this {
+    this.post('roomba', route, facing)
+    if (shotgun) this.posts[this.posts.length - 1]!.gun = 'shotgun'
+    return this
+  }
+
+  /** A guard with a riot shield (#90): rounds from in front stop on it; the head shows over it; a blast knocks it away. */
+  shieldGuard(route: ReadonlyArray<readonly [number, number, number?]>, facing = 0): this {
+    this.post('guard', route, facing)
+    this.posts[this.posts.length - 1]!.shield = true
+    return this
+  }
+
+  /** A grenadier (#90): a guard who lobs grenades at where the mech was last seen. */
+  grenadier(route: ReadonlyArray<readonly [number, number, number?]>, facing = 0): this {
+    this.post('guard', route, facing)
+    this.posts[this.posts.length - 1]!.role = 'grenadier'
+    return this
+  }
+
+  /** A marksman on a tower (#90): far sight, a laser that draws on the mech, then a heavy round. */
+  marksman(cx: number, cz: number, facing: number): this {
+    this.post('sentry', [[cx, cz]], facing)
+    this.posts[this.posts.length - 1]!.role = 'marksman'
+    return this
   }
 
   /** The Engineer: a guard on a round who goes to fix whatever was broken. */

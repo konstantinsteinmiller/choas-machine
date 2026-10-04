@@ -43,7 +43,7 @@ import { SNIPER_MAG, SPREAD, ammoOf, isDry, makeArsenal, reloadProgress, reserve
 import { DECOYS_PER_MISSION, decoySpot, findStrike, stepDecoys, type Decoy, type Strike, type StrikeKind } from './melee'
 import { fireRocket, stepRockets, type Rocket } from './rockets'
 import { blastRagdoll, nearRay, push, wake as wakeRagdoll } from './ragdoll'
-import { stepFire } from './chaos'
+import { MARKSMAN_AIM_S, stepFire } from './chaos'
 import { hurtArmor, makeArmor, stepArmor, type Armor } from './armor'
 import { flow, finishMission, failMission, finishTraining } from '../flow'
 import { TrainingDirector } from './trainingDirector'
@@ -291,6 +291,9 @@ export class Mission implements GameMode {
   private fuelLeft = 0
   private flame!: Mesh
   private flameMat = makeFlameMaterial({ core: '#fff4c2', mid: '#ff9a3d', edge: '#c8202f' })
+  private lasers: Array<{ id: number; mesh: Mesh }> = []
+  private laserGeo = new CylinderGeometry(0.035, 0.035, 1, 5)
+  private laserMat = new MeshBasicMaterial({ color: '#ff2a3a', transparent: true, opacity: 0.85, toneMapped: false, depthWrite: false })
   /** What a burn leaves: ash for a person, slag for a machine. */
   private residues: Mesh[] = []
   private ashGeo = new CylinderGeometry(0.75, 0.9, 0.08, 10)
@@ -412,6 +415,15 @@ export class Mission implements GameMode {
     m.flame.visible = false
     m.flame.renderOrder = 4
     m.scene.add(m.flame)
+    // A marksman's laser sight (#90): a red line that draws on the mech before the round.
+    for (const u of m.garrison.units) {
+      if (u.role !== 'marksman') continue
+      const l = new Mesh(m.laserGeo, m.laserMat)
+      l.visible = false
+      l.renderOrder = 5
+      m.scene.add(l)
+      m.lasers.push({ id: u.id, mesh: l })
+    }
     m.dog = buildRobodog()
     m.dog.root.visible = false
     // The way out: a column of light on the pad, lit once the target is down.
@@ -1320,6 +1332,31 @@ export class Mission implements GameMode {
     if (this.ropesLeft > 0 && !this.hookAim) this.ropeAim = findRopeShot(this.fortress.grid, p.x, p.y, p.z, hx, hy, hz, hit.ny)
   }
 
+  /**
+   * The marksmen's lasers (#90): while one draws on the mech the line runs
+   * from its rifle to the mech's chest, brighter as the round comes.
+   */
+  private drawLasers(): void {
+    const p = this.player
+    for (const l of this.lasers) {
+      const u = this.garrison.units[l.id]!
+      const on = isAlive(u) && u.state === 'combat' && u.sees && u.aimT < MARKSMAN_AIM_S && hud.phase === 'play'
+      l.mesh.visible = on
+      if (!on) continue
+      const ax = u.x + Math.sin(u.yaw) * 0.6
+      const ay = u.y + 1.35
+      const az = u.z + Math.cos(u.yaw) * 0.6
+      const bx = p.x
+      const by = p.y + 1.4
+      const bz = p.z
+      const len = Math.max(0.1, Math.hypot(bx - ax, by - ay, bz - az))
+      l.mesh.position.set((ax + bx) / 2, (ay + by) / 2, (az + bz) / 2)
+      l.mesh.scale.set(1, len, 1)
+      l.mesh.quaternion.setFromUnitVectors(UP, new Vector3(bx - ax, by - ay, bz - az).normalize())
+      ;(l.mesh.material as MeshBasicMaterial).opacity = 0.45 + 0.5 * (u.aimT / MARKSMAN_AIM_S)
+    }
+  }
+
   /** A body or a wreck at the mech's feet the flamethrower can take (#99), or −1. */
   private burnInReach(): number {
     const p = this.player
@@ -1617,8 +1654,10 @@ export class Mission implements GameMode {
       } else if (e.type === 'shieldDown') {
         const u = gar.units[e.id]!
         this.fx.particles.sparks(u.x, u.y + 1.3, u.z, '#9fe8ff', 22, 5, 0.3)
-        mirror('bossShield', false)
-        emit('bossTell', { id: e.id, what: 'shield' })
+        if (u.boss) {
+          mirror('bossShield', false)
+          emit('bossTell', { id: e.id, what: 'shield' })
+        }
       } else if (e.type === 'phase') {
         const u = gar.units[e.id]!
         this.fx.particles.orbBurst(u.x, u.y + 1.2, u.z, '#ff4060', 1.1)
@@ -1950,7 +1989,7 @@ export class Mission implements GameMode {
   private callout(id: number): void {
     const u = this.garrison.units[id]
     if (!u || u.kind === 'searchlight') return
-    const machine = u.kind === 'drone' || u.kind === 'enforcer' || u.kind === 'goliath' || u.kind === 'hound'
+    const machine = u.kind === 'drone' || u.kind === 'enforcer' || u.kind === 'goliath' || u.kind === 'hound' || u.kind === 'roomba'
     const line = machine ? 1 : 0
     this.shouts = this.shouts.filter(s => s.id !== id)
     if (this.shouts.length >= MAX_CALLOUTS) this.shouts.shift()
@@ -2757,6 +2796,7 @@ export class Mission implements GameMode {
     this.writeThreats(x, z)
     this.writeCallouts(dt)
     this.writePrompt(playing && !scripted)
+    this.drawLasers()
     this.writeUplinks(playing && !scripted)
     this.writeBars(playing && !scripted)
     this.writeWaypoint(x, z, playing && !scripted)
@@ -2826,6 +2866,8 @@ export class Mission implements GameMode {
     this.supplyView.dispose()
     this.ropeGeo.dispose()
     this.ropeMat.dispose()
+    this.laserGeo.dispose()
+    this.laserMat.dispose()
     this.flame.geometry.dispose()
     this.flameMat.dispose()
     this.ashGeo.dispose()

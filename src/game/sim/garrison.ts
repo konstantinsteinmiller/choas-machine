@@ -60,8 +60,13 @@ export const SPECS: Readonly<Record<PostKind, Spec>> = {
   enforcer: { eye: 2.9, height: 3.3, radius: 0.95, walk: 2.0, look: 2.0, run: 2.6, range: 30, half: 1.0, hp: 600 },
   goliath: { eye: 2.6, height: 3.0, radius: 2.6, walk: 1.4, look: 1.4, run: 1.8, range: 40, half: 1.2, hp: 3000 },
   // The Scrap Hound: short sight, a wide cone, fast, fragile; its nose is the thing.
-  hound: { eye: 0.8, height: 1.05, radius: 0.45, walk: 2.0, look: 3.6, run: 6.4, range: 15, half: 1.3, hp: 18 }
+  hound: { eye: 0.8, height: 1.05, radius: 0.45, walk: 2.0, look: 3.6, run: 6.4, range: 15, half: 1.3, hp: 18 },
+  // A Roomba (#72): knee-high, quick, sees low: walls and crates hide the mech well from it.
+  roomba: { eye: 0.55, height: 0.7, radius: 0.6, walk: 2.2, look: 2.8, run: 5.2, range: 16, half: 1.15, hp: 24 }
 }
+
+/** A marksman's eyes reach this much further than a sentry's (#90). */
+const MARKSMAN_SIGHT = 1.6
 
 /** The drone's searchlight: this far ahead of it on the ground, this wide. */
 export const SPOT_AHEAD = 3
@@ -263,7 +268,11 @@ export interface Unit {
   /** Seconds it has been looking at something out of place. */
   changeT: number
   /** The Engineer's role; the thing it is going to fix, and how long it has worked at it. */
-  role: 'engineer' | null
+  role: 'engineer' | 'grenadier' | 'marksman' | null
+  /** A Roomba with the shotgun (#72). */
+  shotgun: boolean
+  /** A grenadier's wait to its next throw (#90). */
+  grenadeT: number
   job: { kind: 'beacon' | 'light'; i: number } | null
   jobT: number
   /** The freshest scent it has followed (garrison time). */
@@ -771,7 +780,7 @@ export const makeGarrison = (f: Fortress, level = 2): Garrison => {
       seed: (id * 2.399) % (Math.PI * 2),
       power: mech ? 0 : 1, aimT: 0, fireT: 0, burst: 0, burstT: 0, shellT: 0, shellX: 0, shellZ: 0, recoil: 0,
       tagged: false, hidden: false, partner: p.partner ?? -1, chatting: false, poke: false, changeT: 0,
-      role: p.role ?? null, job: null, jobT: 0, scentT: -1e9,
+      role: p.role ?? null, shotgun: p.gun === 'shotgun', grenadeT: 0, job: null, jobT: 0, scentT: -1e9,
       rag: null, ragHow: 'shot', ragStruck: false,
       helmet: !!f.answers?.helmets && (p.kind === 'guard' || p.kind === 'sentry'), boxLook: 0, focusT: 0, bodySearch: false, uplinkT: 0, lostT: 0,
       jammed: false, shells: 0, overheat: 0, phase2: false, glintT: 0, dashT: 0, dashX: 0, dashZ: 0, dashCool: 2, dashHit: false
@@ -855,7 +864,7 @@ export const viewerOf = (u: Unit, heightened = false): Viewer => {
   const k = u.wary ? 1 : 0
   // Talking: it watches its partner, not the yard.
   const chat = u.chatting ? CHAT_SIGHT : 1
-  let range = s.range * (1 + (WARY_RANGE - 1) * k) * chat * (heightened ? HEIGHTENED_RANGE : 1)
+  let range = s.range * (1 + (WARY_RANGE - 1) * k) * chat * (heightened ? HEIGHTENED_RANGE : 1) * (u.role === 'marksman' ? MARKSMAN_SIGHT : 1)
   let half = s.half * (1 + (WARY_CONE - 1) * k) * (u.chatting ? CHAT_CONE : 1)
   // Focused (#68): three times as far, over a wide cone, toward the trouble.
   if (u.focusT > 0 && u.kind !== 'hound') {
@@ -1044,7 +1053,7 @@ const vantage = (u: Unit, g: Grid, gar: Garrison): boolean => {
 }
 
 /** Machines uplink rather than shout (#73): drones, searchlights, Enforcers. */
-const uplinks = (u: Unit): boolean => isLight(u) || u.kind === 'enforcer'
+const uplinks = (u: Unit): boolean => isLight(u) || u.kind === 'enforcer' || u.kind === 'roomba'
 
 /**
  * The uplink (#73): it fills while the machine keeps the mech in view and
@@ -1522,7 +1531,9 @@ const fight = (u: Unit, g: Grid, gar: Garrison, target: Target, dt: number): voi
       gar.events.push({ type: 'phase', id: u.id })
     }
     if (u.phase2 && wardenDash(u, g, gar, target, dt)) return
-  }  const engage = u.kind === 'goliath' ? 30 : u.kind === 'enforcer' ? 14 : u.kind === 'hound' ? 1.3 : ENGAGE_DIST
+  }
+  const engage = u.kind === 'goliath' ? 30 : u.kind === 'enforcer' ? 14 : u.kind === 'hound' ? 1.3
+    : u.kind === 'roomba' ? (u.shotgun ? 5 : 10) : u.role === 'marksman' ? 1e9 : ENGAGE_DIST
   if (u.kind === 'goliath' && u.overheat > 0) {
     // Overheating: the guns are quiet and the hull swings its open vents
     // round toward the mech (it cannot help it: that is where the air is).
@@ -2056,7 +2067,7 @@ export const killUnit = (gar: Garrison, id: number, fromX: number, fromZ: number
     // Its own number decides, so the same machine dies the same way in a replay.
     const roll = (((u.seed * 7.13 + u.id * 0.37) % 1) + 1) % 1
     const apart = u.kind === 'goliath' || how === 'blast' || roll < BURST_CHANCE
-    u.death = apart || u.kind === 'searchlight' || u.kind === 'hound' ? 'burst' : u.kind === 'drone' ? 'crash' : 'slump'
+    u.death = apart || u.kind === 'searchlight' || u.kind === 'hound' || u.kind === 'roomba' ? 'burst' : u.kind === 'drone' ? 'crash' : 'slump'
   }
   u.hp = 0
   u.state = 'dead'

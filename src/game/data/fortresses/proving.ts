@@ -52,6 +52,10 @@ export const buildProvingGround = (): Fortress => {
   b.drone([[12, 12], [27, 12], [27, 27], [12, 27]], 7)
   b.drone([[5, 20], [34, 20]], 9)
   b.enforcer(23, 26, Math.PI).enforcer(15, 12, 0)
+  // Round 4's defenders (#72 #90): both Roombas, a shield guard, a grenadier, a marksman on the NE tower.
+  b.roomba([[12, 22], [12, 26, 2]], 0).roomba([[26, 22], [26, 26, 2]], 0, true)
+  b.shieldGuard([[16, 21, 3], [22, 21, 3]]).grenadier([[20, 12, 3], [24, 12, 3]])
+  b.marksman(29, 9, Math.PI * 0.75)
   // Reinforcements: through the south gate first, then the postern.
   b.reserve(19, 32, Math.PI).reserve(20, 32, Math.PI).reserve(19, 7).reserve(18, 7).reserve(19, 33, Math.PI).reserve(20, 33, Math.PI)
 
