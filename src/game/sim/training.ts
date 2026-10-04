@@ -128,6 +128,8 @@ export interface TrainingContext {
   /** Bodies and wrecks burnt (#99); ropes shot (#94). */
   burns: number
   ropes: number
+  /** Every defender of the mech's room is down (#109). */
+  cleared?: boolean
 }
 
 export interface Training {
@@ -179,7 +181,9 @@ export const lessonDone = (i: number, c: TrainingContext, b: TrainingContext): b
     case 'supply': return c.supplies > b.supplies || (atDoor() && c.stocked)
     case 'burn': return c.burns > b.burns
     case 'rope': return c.ropes > b.ropes
-    case 'weapons': return c.sniperKills > b.sniperKills && c.rockets - b.rockets >= 2 && c.overheats > b.overheats && c.zooms > b.zooms
+    // The full drill (a rifle kill, two rockets, an overheat, a zoom), or the room
+    // emptied whichever way: a player who has taken every target is done (#109).
+    case 'weapons': return !!c.cleared || (c.sniperKills > b.sniperKills && c.rockets - b.rockets >= 2 && c.overheats > b.overheats && c.zooms > b.zooms)
     // From behind, and close in from the side: two.
     case 'blade': return c.bladeKills - b.bladeKills >= 2
     case 'hook': return roomAt(c.x) > i

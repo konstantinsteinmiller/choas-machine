@@ -49,6 +49,8 @@ export class TrainingDirector {
   private disguise: Group
   private rope: Mesh
   private flame: Mesh
+  /** The weapons room's targets, in the same light: they fall to the demo's rounds (#109). */
+  private targets: Array<{ rig: Rig; at: readonly [number, number]; yaw: number; dies: number; death: 'back' | 'front' | 'thrown' }> = []
   /** A projector disc by each room's way in. */
   private discs: Mesh[] = []
   private discMat = new MeshBasicMaterial({ color: GATE_COLOR, transparent: true, opacity: 0.5, blending: AdditiveBlending, depthWrite: false, toneMapped: false, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 })
@@ -88,6 +90,15 @@ export class TrainingDirector {
     this.flame = new Mesh(fg, this.holo)
     this.flame.visible = false
     this.group.add(this.flame)
+    // The sentry the rifle takes, the two the rocket throws down (as the demo's keys time them).
+    for (const [at, yaw, dies, death] of [[[10, 2], Math.PI, 1.85, 'back'], [[8, 11], 0, 3.55, 'thrown'], [[9, 11], 0, 3.6, 'thrown']] as const) {
+      const rig = buildGuard()
+      rig.mesh.material = this.holo
+      if (rig.outline) rig.outline.visible = false
+      rig.root.visible = false
+      this.group.add(rig.root)
+      this.targets.push({ rig, at, yaw, dies, death })
+    }
     TRAINING_ROOMS.forEach((r, i) => {
       // The disc stands where the hologram starts, by the way in.
       const e = entryOf(i)
@@ -212,6 +223,7 @@ export class TrainingDirector {
     setHologram(this.holo, time, this.fade)
     if (!on) {
       this.body.root.visible = this.disguise.visible = this.rope.visible = this.flame.visible = false
+      for (const tg of this.targets) tg.rig.root.visible = false
       return
     }
     if (!playing) return
@@ -253,11 +265,20 @@ export class TrainingDirector {
     this.gateMat.opacity = 0.26 + 0.08 * Math.sin(time * 3)
   }
 
-  /** The lesson's props: the rope it shoots, the body it burns and the flame. */
+  /** The lesson's props: the rope it shoots, the body it burns and the flame, the targets that fall. */
   private props(room: number, f: ReturnType<typeof demoFrame>, y: number, time: number): void {
     const r = TRAINING_ROOMS[room]!
     const toX = (v: number): number => (r.x0 + v - 1) * CELL + CELL / 2
     const toZ = (v: number): number => (r.z0 + v - 1) * CELL + CELL / 2
+    const dt = this.state.demoT
+    for (const tg of this.targets) {
+      tg.rig.root.visible = r.lesson === 'weapons'
+      if (!tg.rig.root.visible) continue
+      tg.rig.root.position.set(toX(tg.at[0]), 0, toZ(tg.at[1]))
+      tg.rig.root.rotation.y = tg.yaw
+      const down = dt >= tg.dies
+      poseGuard(tg.rig, { ...restGuardPose(), time: time + tg.at[0], deadT: down ? Math.max(1e-3, dt - tg.dies) : 0, death: tg.death })
+    }
     // The rope: tower edge to the platform, once shot.
     this.rope.visible = f.rope > 0.5
     if (this.rope.visible) {
@@ -302,6 +323,7 @@ export class TrainingDirector {
     this.body.material.dispose()
     this.body.glowMaterial.dispose()
     disposeDisguise(this.disguise)
+    for (const tg of this.targets) { tg.rig.mesh.geometry.dispose(); tg.rig.outline?.geometry.dispose(); tg.rig.material.dispose(); tg.rig.glowMaterial.dispose() }
     this.rope.geometry.dispose()
     this.flame.geometry.dispose()
     this.discMat.dispose()

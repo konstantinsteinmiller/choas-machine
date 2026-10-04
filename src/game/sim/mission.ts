@@ -47,6 +47,7 @@ import { MARKSMAN_AIM_S, stepFire } from './chaos'
 import { hurtArmor, makeArmor, stepArmor, type Armor } from './armor'
 import { flow, finishMission, failMission, finishTraining } from '../flow'
 import { TrainingDirector } from './trainingDirector'
+import { roomAt } from './training'
 import { TRAINING_ID, TRAINING_ROOMS } from '../data/fortresses/training'
 import { COVER_H } from '../world/fortress'
 import { BASE_LOADOUT, type Loadout } from '../data/upgrades'
@@ -2310,6 +2311,13 @@ export class Mission implements GameMode {
     emit('zoomed', { level: next })
   }
 
+  /** Every defender whose place is in this training room is down (#109); false for a room without any. */
+  private roomCleared(room: number): boolean {
+    if (room < 0) return false
+    const here = this.garrison.units.filter(u => roomAt(u.homeX) === room)
+    return here.length > 0 && here.every(u => !isAlive(u))
+  }
+
   /** The training ground, each step: lessons, gates, the demo's glyph, a seen mech sent back. */
   private stepTraining(dt: number): void {
     const tr = this.training
@@ -2319,6 +2327,7 @@ export class Mission implements GameMode {
       x: p.x, y: p.y, z: p.z, bladeKills: this.stats.bladeKills, sniperKills: this.sniperKills, rockets: this.rocketsFired,
       overheats: this.overheats, zooms: this.zooms, sabotaged: this.sabotaged, piles: this.stats.piles,
       supplies: this.suppliesTaken, burns: this.burnsDone, ropes: this.ropesShot,
+      cleared: this.roomCleared(tr.state.room),
       stocked: this.supplies.every(s => s.taken || !wants(s, this.arsenal, this.armor, this.loadout.rockets))
     }, dt)
     for (const e of ev) {

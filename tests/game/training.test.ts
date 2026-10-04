@@ -108,6 +108,12 @@ describe('the lessons', () => {
     expect(lessonDone(i, ctx(0, 0, { sniperKills: 1, rockets: 2, overheats: 1, zooms: 1 }), b)).toBe(true)
   })
 
+  it('the weapons room also opens once every defender in it is down, however they fell (#109)', () => {
+    const i = LESSON_IDS.indexOf('weapons')
+    expect(lessonDone(i, ctx(0, 0, { sniperKills: 1, cleared: true }), ctx(0, 0))).toBe(true)
+    expect(lessonDone(i, ctx(0, 0, { cleared: false }), ctx(0, 0))).toBe(false)
+  })
+
   it('the hook room is done by being over its wall', () => {
     const i = LESSON_IDS.indexOf('hook')
     const next = entryOf(i + 1)
