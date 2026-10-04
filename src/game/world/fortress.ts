@@ -95,6 +95,22 @@ const PROP_BOXES: Partial<Record<DecorKind, ReadonlyArray<readonly [number, numb
   generator: [[0.36, 1.0, -0.39, 0.64, 2.1, -0.11]]
 }
 
+/** The small piles are worth this share of what their table says (jam build: 30 % less). */
+export const SMALL_PILE = 0.7
+/** The big pile (the highest point, the boss's) is worth this many small piles. */
+export const BIG_PILE = 3
+
+/**
+ * What pile `i` of a fortress's table is worth: a small one 30 % less than
+ * written, the big one three times an average small one.
+ */
+export const pileWorth = (piles: ReadonlyArray<readonly [number, number, number, boolean?]>, i: number): number => {
+  const [, , amount, big] = piles[i]!
+  const smalls = piles.filter(p => !p[3])
+  const avg = smalls.reduce((s, p) => s + p[2], 0) / Math.max(1, smalls.length)
+  return Math.round(big ? BIG_PILE * avg * SMALL_PILE : amount * SMALL_PILE)
+}
+
 /** A pile of salvage: where it lies, and how much it is worth. */
 export interface SalvageSpot {
   x: number

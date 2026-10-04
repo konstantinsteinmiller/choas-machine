@@ -125,3 +125,19 @@ describe('thickets', () => {
     expect(watch(true, 5)).toBeGreaterThan(0)
   })
 })
+
+describe('the piles (jam build)', () => {
+  it('the big pile on the highest point is worth three small ones; the small ones 30 % less than before', async () => {
+    const { buildFoundry } = await import('@/game/data/fortresses/foundry')
+    const { buildHarbour } = await import('@/game/data/fortresses/harbour')
+    for (const f of [buildBastion(1), buildFoundry(1), buildHarbour(1)]) {
+      const big = f.salvage.filter(p => p.big)
+      const small = f.salvage.filter(p => !p.big)
+      expect(big.length).toBe(1)
+      const avg = small.reduce((s, p) => s + p.amount, 0) / small.length
+      expect(big[0]!.amount / avg).toBeGreaterThan(2.4)
+      expect(big[0]!.amount / avg).toBeLessThan(3.6)
+      for (const p of small) expect(p.amount).toBeLessThan(30)
+    }
+  })
+})

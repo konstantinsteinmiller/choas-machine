@@ -1,5 +1,5 @@
 import { CellKind } from '../../world/grid'
-import { FortressBuilder, type Fortress } from '../../world/fortress'
+import { FortressBuilder, pileWorth, type Fortress } from '../../world/fortress'
 import { mulberry32 } from '../../world/rng'
 import { NO_ANSWERS, type Answers } from '../../sim/adapt'
 
@@ -121,8 +121,8 @@ export const buildHarbour = (level = 1, run = 0, answers: Answers = NO_ANSWERS):
   }
   const live = [...ALWAYS, ...pool.slice(0, Math.max(0, need + 1 - ALWAYS.length))].sort((x, y) => x - y)
   for (const i of live) {
-    const [cx, cz, amount, big] = PILES[i]!
-    b.salvage(cx, cz, amount, !!big)
+    const [cx, cz, , big] = PILES[i]!
+    b.salvage(cx, cz, pileWorth(PILES, i), !!big)
   }
 
   // ── The garrison ──
