@@ -63,9 +63,25 @@ export interface Cam {
   aim: number
   /** The arm's current length, eased out again after a wall pulled it in. */
   dist: number
+  /** Seconds the arm waits, after being pulled in, before it lets out again (#112). */
+  hold: number
+  /** The crane over the shoulder, eased (0 … 1). */
+  close: number
 }
 
-export const makeCam = (yaw = 0): Cam => ({ yaw, pitch: -0.18, aim: 0, dist: FOLLOW_DIST })
+export const makeCam = (yaw = 0): Cam => ({ yaw, pitch: -0.18, aim: 0, dist: FOLLOW_DIST, hold: 0, close: 0 })
+
+/**
+ * The spring arm (#112). The arm is a thick probe, not a line: five rays (the
+ * middle and four round it at ARM_PROBE), so its length does not flick in and
+ * out as it slides along a wall's edge. A wall pulls it in at once; it waits
+ * ARM_HOLD_S and lets out only for clearly more room (ARM_SLACK), gently;
+ * the crane over the shoulder eases in and out instead of snapping.
+ */
+const ARM_PROBE = 0.32
+const ARM_HOLD_S = 0.3
+const ARM_SLACK = 0.25
+const ARM_OUT_RATE = 3
 
 /** The unit vector the camera looks along. */
 export const camForward = (cam: Cam): { x: number; y: number; z: number } => {
@@ -157,12 +173,30 @@ export const placeCam = (
     ax /= len
     ay /= len
     az /= len
-    const hit = raycast(g, px, py, pz, ax, ay, az, len + WALL_MARGIN)
-    if (hit.hit) dist = Math.max(Math.min(MIN_DIST, len), hit.t - WALL_MARGIN)
+    // Two directions square to the arm, for the probe's ring.
+    let ux = -az
+    let uz = ax
+    const ul = Math.hypot(ux, uz) || 1
+    ux /= ul
+    uz /= ul
+    const vx = ay * uz
+    const vy = az * ux - ax * uz
+    const vz = -ay * ux
+    let best = len + WALL_MARGIN
+    for (const [s, t] of [[0, 0], [1, 0], [-1, 0], [0, 1], [0, -1]] as const) {
+      const ox = px + (ux * s + vx * t) * ARM_PROBE
+      const oy = py + vy * t * ARM_PROBE
+      const oz = pz + (uz * s + vz * t) * ARM_PROBE
+      const hit = raycast(g, ox, oy, oz, ax, ay, az, len + WALL_MARGIN)
+      if (hit.hit) best = Math.min(best, hit.t)
+    }
+    if (best < len + WALL_MARGIN) dist = Math.max(Math.min(MIN_DIST, len), best - WALL_MARGIN)
   }
-  // Pulled in at once (never see through a wall), let out gently.
-  if (dist < cam.dist) cam.dist = dist
-  else cam.dist += (dist - cam.dist) * Math.min(1, dt * 5)
+  // Pulled in at once (never see through a wall); held a moment, then let
+  // out gently, and only when there is clearly more room.
+  if (dist < cam.dist) { cam.dist = dist; cam.hold = ARM_HOLD_S }
+  else if (cam.hold > 0) cam.hold -= dt
+  else if (dist > cam.dist + ARM_SLACK || dist >= len - 1e-3) cam.dist += (dist - cam.dist) * Math.min(1, dt * ARM_OUT_RATE)
   const d = Math.min(cam.dist, len)
 
   let x = px + ax * d
@@ -170,7 +204,9 @@ export const placeCam = (
   let z = pz + az * d
   // Pressed close to the mech by a wall: crane up and out over its shoulder,
   // as far as the space above allows, and say how far to fade it.
-  const close = wantDist > CLOSE_DIST ? Math.min(1, Math.max(0, (CLOSE_DIST - d) / (CLOSE_DIST - MIN_DIST))) * (1 - cam.aim) : 0
+  const wantClose = wantDist > CLOSE_DIST ? Math.min(1, Math.max(0, (CLOSE_DIST - d) / (CLOSE_DIST - MIN_DIST))) * (1 - cam.aim) : 0
+  cam.close += (wantClose - cam.close) * Math.min(1, dt * (wantClose > cam.close ? 10 : 4))
+  const close = cam.close < 0.01 ? 0 : cam.close
   if (close > 0) {
     const up = raycast(g, x, y, z, 0, 1, 0, CRANE_UP + WALL_MARGIN)
     const rise = (up.hit ? Math.max(0, up.t - WALL_MARGIN) : CRANE_UP) * close

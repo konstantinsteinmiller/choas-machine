@@ -94,7 +94,8 @@ export const buildTrainingGround = (): Fortress => {
 
   // 0 · Move and look: an empty room; the mech starts by its west wall.
   const room = (id: LessonId): number => LESSON_IDS.indexOf(id)
-  const [ix, iz] = at(room('move'), 2, 7)
+  // In the middle of the room (#112): the drop-in and the camera have room round it.
+  const [ix, iz] = at(room('move'), 5, 7)
   b.insert(ix, iz, E)
 
   // · The jump (#95): a ladder up onto a deck, a gap a jump wide, a second

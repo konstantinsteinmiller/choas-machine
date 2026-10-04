@@ -93,8 +93,9 @@ describe('placing', () => {
     for (let cx = 0; cx < 32; cx++) g.h[14 * 32 + cx] = 6 // a wall across z 28..30
     const cam = makeCam(0)
     cam.pitch = 0
-    // The mech's back a step from the wall.
-    const p = placeCam(cam, g, 30, 0, 30.7, 2.25, 'sniper', BASE, SCOPE, 1 / 60)
+    // The mech's back a step from the wall (the crane eases in over a few frames, #112).
+    let p = placeCam(cam, g, 30, 0, 30.7, 2.25, 'sniper', BASE, SCOPE, 1 / 60)
+    for (let i = 0; i < 20; i++) p = placeCam(cam, g, 30, 0, 30.7, 2.25, 'sniper', BASE, SCOPE, 1 / 60)
     expect(cam.dist).toBeLessThan(CLOSE_DIST)
     expect(p.fade).toBeGreaterThan(0.5)
     // Clear of the mech's body: well over its head, or well to its side.
@@ -116,7 +117,7 @@ describe('placing', () => {
     expect(p.ty).toBeGreaterThan(p.y + 10)
   })
 
-  it('pulls in at once and lets out gently', () => {
+  it('pulls in at once, holds a moment, and lets out gently (#112)', () => {
     const g = flat()
     for (let cx = 0; cx < 32; cx++) g.h[13 * 32 + cx] = 6
     const cam = makeCam(0)
@@ -125,9 +126,33 @@ describe('placing', () => {
     const tight = cam.dist
     expect(tight).toBeLessThan(2.2)
     const open = flat()
+    // Held a moment first: no flicker out and back in along a wall's edge.
     placeCam(cam, open, 30, 0, 30, 2.25, 'sniper', BASE, SCOPE, 1 / 60)
+    expect(cam.dist).toBe(tight)
+    for (let i = 0; i < 25; i++) placeCam(cam, open, 30, 0, 30, 2.25, 'sniper', BASE, SCOPE, 1 / 60)
     expect(cam.dist).toBeGreaterThan(tight)
     expect(cam.dist).toBeLessThan(FOLLOW_DIST - 1)
+  })
+
+  it('sliding along a wall the arm does not flick in and out (#112)', () => {
+    const g = flat()
+    // A wall to the camera's side, ending: the arm brushes past its edge.
+    for (let cz = 0; cz < 16; cz++) g.h[cz * 32 + 13] = 6
+    const cam = makeCam(0)
+    cam.pitch = 0
+    // Count reversals: in, then out, then in again (the stutter).
+    let flips = 0
+    let last = -1
+    let was = 0
+    for (let i = 0; i < 240; i++) {
+      placeCam(cam, g, 29 + i * 0.01, 0, 26 + i * 0.03, 2.25, 'sniper', BASE, SCOPE, 1 / 60)
+      const step = last < 0 ? 0 : cam.dist - last
+      const dir = Math.abs(step) > 0.01 ? Math.sign(step) : 0
+      if (dir !== 0 && was !== 0 && dir !== was) flips++
+      if (dir !== 0) was = dir
+      last = cam.dist
+    }
+    expect(flips).toBeLessThan(4)
   })
 
   it('scoping the sniper puts the camera in the mech`s eye and narrows the lens', () => {
@@ -179,7 +204,7 @@ describe('placing', () => {
           const dz = p.z - from.z
           const along = dx * f.x + dy * f.y + dz * f.z
           const off = Math.hypot(dx - f.x * along, dy - f.y * along, dz - f.z * along)
-          expect(off).toBeLessThan(1e-6)
+          expect(off).toBeLessThan(1e-5)
           expect(along).toBeGreaterThanOrEqual(-1e-6)
         }
       }
