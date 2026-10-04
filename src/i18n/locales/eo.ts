@@ -200,6 +200,22 @@ export default {
     'human': 'Entrudulo! Alarmo!',
     'machine': 'Malamiko detektita! Forviŝi entrudulon!'
   },
+  // CM-07's one-liners (#126).
+  'quip': {
+    'burnHuman': 'Ripozu en paco. Aŭ brulu en infero?',
+    'burnMachine': 'Reciklita. Ne dankinde, planedo.',
+    'headshot': 'Ankoraŭ unu mordas la polvon!',
+    'alarm': '6, 7!',
+    'lowHealth': 'Tempas streĉi miajn ŝraŭbojn!',
+    'lowAmmo': 'Preskaŭ sen municio, mi serĉas ŝtonojn por ĵeti.',
+    'takedown': 'Ŝŝ. Dormotempo.',
+    'decoy': 'Rigardu, bela fremdulo!',
+    'disguise': 'La plej bona panrostilo en la branĉo.',
+    'multiKill': 'Du por la prezo de unu!',
+    'allClear': 'Nenio videbla ĉi tie, homoj.',
+    'extract': 'CM-07 forlasis la konstruaĵon!',
+    'loot': 'Ho, brilaĵo!'
+  },
   'training': {
     'replay': 'Montru denove',
     'progress': 'Trejnado: {n} el {total} lecionoj faritaj',

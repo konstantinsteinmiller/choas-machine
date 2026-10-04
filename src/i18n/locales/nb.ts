@@ -200,6 +200,22 @@ export default {
     'human': 'Inntrenger! Alarm!',
     'machine': 'Fiende oppdaget! Slett inntrenger!'
   },
+  // CM-07's one-liners (#126).
+  'quip': {
+    'burnHuman': 'Hvil i fred. Eller brenn i helvete?',
+    'burnMachine': 'Resirkulert. Bare hyggelig, planet.',
+    'headshot': 'Enda en biter i gresset!',
+    'alarm': '6, 7!',
+    'lowHealth': 'På tide å stramme skruene!',
+    'lowAmmo': 'Nesten tom for ammo, ser etter steiner å kaste.',
+    'takedown': 'Hysj. Sov søtt.',
+    'decoy': 'Se, en kjekk fremmed!',
+    'disguise': 'Bransjens beste brødrister.',
+    'multiKill': 'To for prisen av én!',
+    'allClear': 'Gå videre, her er det ingenting å se.',
+    'extract': 'CM-07 har forlatt bygningen!',
+    'loot': 'Åh, skinnende!'
+  },
   'training': {
     'replay': 'Vis meg igjen',
     'progress': 'Trening: {n} av {total} leksjoner fullført',

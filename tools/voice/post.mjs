@@ -16,7 +16,8 @@ import { mkdirSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import { dirname, join } from 'node:path'
 import { ROOT } from './lib.mjs'
-import { chainFor, dynamicsFor, tailFor } from './fx.mjs'
+import { chainFor, dynamicsFor, tailFor, whispered } from './fx.mjs'
+import { runPython } from './whisper.mjs'
 
 const FFMPEG = createRequire(join(ROOT, 'package.json'))('ffmpeg-static')
 
@@ -69,6 +70,14 @@ export const processTake = async ({ raw, master, ogg, speaker, key, max, dry = f
   mkdirSync(dirname(master), { recursive: true })
   const d = dynamicsFor(speaker, key)
   const shaped = master.replace(/\.wav$/, '.shaped.wav')
+  // 0. A whispering speaker (#126): no engine whispers, so the take's voice
+  //    is replaced by breath first (py/run_whisperize.py), then chained.
+  if (whispered(speaker) && !dry) {
+    const hush = master.replace(/\.wav$/, '.hush.wav')
+    const r = await runPython('whisper', 'run_whisperize.py', { jobs: [{ id: key, wav: raw, out: hush }] }, { label: 'whisperize' })
+    if (!r.results?.[0]?.ok) throw new Error(`whisperize ${key}: ${r.results?.[0]?.error}`)
+    raw = hush
+  }
   // 1. Chain, compressor, trim (lead over -45 dB minus 5 ms; tail over -50 dB plus the tail).
   const comp = `acompressor=threshold=${db(d.thr)}:ratio=${d.ratio}:attack=${d.atk}:release=${d.rel}:knee=2:makeup=1`
   const trim = 'silenceremove=start_periods=1:start_threshold=-45dB:start_silence=0.005,areverse,silenceremove=start_periods=1:start_threshold=-50dB,areverse'

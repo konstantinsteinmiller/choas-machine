@@ -200,6 +200,22 @@ export default {
     'human': '침입자다! 경보!',
     'machine': '적 감지! 침입자 제거!'
   },
+  // CM-07's one-liners (#126).
+  'quip': {
+    'burnHuman': '편히 잠들길. 아니면 지옥불에 타든가?',
+    'burnMachine': '재활용 완료. 천만에, 지구야.',
+    'headshot': '또 하나 쓰러졌다!',
+    'alarm': '6, 7!',
+    'lowHealth': '나사 좀 조일 시간이군!',
+    'lowAmmo': '탄약이 거의 바닥, 던질 돌 찾는 중.',
+    'takedown': '쉿. 낮잠 시간이야.',
+    'decoy': '봐, 잘생긴 낯선 이다!',
+    'disguise': '업계 최고의 토스터지.',
+    'multiKill': '일석이조!',
+    'allClear': '자자, 볼 거 없어요.',
+    'extract': 'CM-07, 건물을 떠났습니다!',
+    'loot': '오, 반짝반짝!'
+  },
   'training': {
     'replay': '다시 보기',
     'progress': '훈련: {total}개 중 {n}개 완료',

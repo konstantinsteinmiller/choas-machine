@@ -137,6 +137,9 @@ export const prompt = { on: false, x: 0.5, y: 0.5 }
  * head on screen (0 … 1), and a count that changes with every press (the pop
  * restarts on it). Written each frame by the training ground.
  */
+/** CM-07's line (#126): which, said how, and where its bubble is (0 … 1 of the view); written per frame. */
+export const quipPop = { on: false, x: 0.5, y: 0.4, seq: 0, id: '', whisper: false }
+
 export const demoPop = { on: false, x: 0.5, y: 0.5, hint: '' as string, seq: 0 }
 
 // ─── Machines uplinking to the base (#73): per-frame, outside Vue ────────────

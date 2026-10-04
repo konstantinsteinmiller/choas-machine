@@ -149,6 +149,36 @@ export const CARDS: Readonly<Record<Speaker, VoiceCard>> = {
       de: 'Schnüffel, schnüffel, hier riecht etwas neu! Ist es ein Knochen? Ist es ein Stiefel? Ich hab es zuerst gefunden, ich finde immer alles zuerst, und jetzt müssen alle kommen und schauen!'
     },
     notes: 'A toy speaker: the chain pitches it up and narrows it.'
+  },
+  hero: {
+    name: 'CM-07', gender: 'male', age: 'young adult', pitch: 'mid-high', pace: 'brisk',
+    timbre: 'bright, playful, a grin you can hear',
+    personality: 'The player\'s small robot: a cocky, clown-like show-off who treats every raid as a stage and himself as its star.',
+    accent: { en: 'General American, a game-show host\'s bounce', de: 'Hochdeutsch, mit dem Schwung eines Showmasters' },
+    designPrompt: {
+      en: `A young man with a bright, playful, slightly nasal voice, brisk and cocky, grinning as he speaks, like a cartoon action hero who loves an audience. ${STUDIO.en}`,
+      de: `Ein junger Mann, deutscher Muttersprachler, mit heller, verspielter, leicht nasaler Stimme, zügig und großspurig, man hört das Grinsen, wie ein Comic-Actionheld, der Publikum liebt. ${STUDIO.de}`
+    },
+    referenceText: {
+      en: 'Ladies and gentlemen, the show you have all been waiting for! In, out, not a scratch on the paint, and nobody even saw me coming. Hold the applause, I have a fortress to rob.',
+      de: 'Meine Damen und Herren, die Show, auf die Sie alle gewartet haben! Rein, raus, kein Kratzer im Lack, und keiner hat mich kommen sehen. Applaus bitte später, ich habe eine Festung auszurauben.'
+    },
+    notes: 'The player\'s robot: a light robot chain (a little pitch, a faint ring), close and dry, no yard.'
+  },
+  heroHush: {
+    name: 'CM-07 (whispering)', gender: 'male', age: 'young adult', pitch: 'mid-high', pace: 'medium',
+    timbre: 'breathy whisper, playful, close to the ear',
+    personality: 'The same show-off, sneaking: he cannot keep quiet, so he whispers.',
+    accent: { en: 'General American', de: 'Hochdeutsch' },
+    designPrompt: {
+      en: `A young man WHISPERING the whole time, breathy and close to the microphone, playful and conspiratorial, no voiced tone at all, like telling a secret in a dark room. ${STUDIO.en}`,
+      de: `Ein junger Mann, deutscher Muttersprachler, der die ganze Zeit FLÜSTERT, hauchig und nah am Mikrofon, verspielt und verschwörerisch, ganz ohne Stimmton, als erzähle er in einem dunklen Raum ein Geheimnis. ${STUDIO.de}`
+    },
+    referenceText: {
+      en: 'Psst. Over here. Nobody saw that, right? Good. Keep it down, keep it moving, and whatever you do, do not tell the guards how handsome I am.',
+      de: 'Psst. Hier drüben. Das hat keiner gesehen, oder? Gut. Leise bleiben, weitergehen, und egal was passiert, verrate den Wachen nicht, wie gut ich aussehe.'
+    },
+    notes: 'Chatterbox cannot whisper: it clones this whispered reference. The chain is the hero\'s, softer and quieter.'
   }
 }
 
@@ -161,5 +191,30 @@ export const TONES: Readonly<Record<string, Tone>> = {
   'npc.drone.alarm': 'urgent',
   'npc.enforcer.alarm': 'menacing',
   'npc.goliath.alarm': 'menacing',
-  'npc.hound.alarm': 'excited'
+  'npc.hound.alarm': 'excited',
+  // CM-07 (#126): out loud, cocky; unseen, whispered.
+  'hero.burnHuman.loud': 'cheeky',
+  'hero.burnHuman.whisper': 'whisper',
+  'hero.burnMachine.loud': 'cheeky',
+  'hero.burnMachine.whisper': 'whisper',
+  'hero.headshot.loud': 'cheeky',
+  'hero.headshot.whisper': 'whisper',
+  'hero.alarm.loud': 'excited',
+  'hero.lowHealth.whisper': 'whisper',
+  'hero.lowAmmo.loud': 'cheeky',
+  'hero.lowAmmo.whisper': 'whisper',
+  'hero.takedown.loud': 'cheeky',
+  'hero.takedown.whisper': 'whisper',
+  'hero.decoy.loud': 'cheeky',
+  'hero.decoy.whisper': 'whisper',
+  'hero.disguise.loud': 'cheeky',
+  'hero.disguise.whisper': 'whisper',
+  'hero.multiKill.loud': 'excited',
+  'hero.multiKill.whisper': 'whisper',
+  'hero.allClear.loud': 'cheeky',
+  'hero.allClear.whisper': 'whisper',
+  'hero.extract.loud': 'excited',
+  'hero.extract.whisper': 'whisper',
+  'hero.loot.loud': 'excited',
+  'hero.loot.whisper': 'whisper'
 }

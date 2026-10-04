@@ -200,6 +200,22 @@ export default {
     'human': 'Intrús! Alarma!',
     'machine': 'Enemic detectat! Eliminar intrús!'
   },
+  // CM-07's one-liners (#126).
+  'quip': {
+    'burnHuman': 'Descansa en pau. O crema a l\'infern?',
+    'burnMachine': 'Reciclat. De res, planeta.',
+    'headshot': 'Un altre que mossega la pols!',
+    'alarm': '6, 7!',
+    'lowHealth': 'Hora d\'estrènyer-me els cargols!',
+    'lowAmmo': 'Gairebé sense munició, busco pedres per llançar.',
+    'takedown': 'Xxxt. Hora de la migdiada.',
+    'decoy': 'Mira, un desconegut ben plantat!',
+    'disguise': 'La millor torradora del negoci.',
+    'multiKill': 'Dos pel preu d\'un!',
+    'allClear': 'Circulin, aquí no hi ha res a veure.',
+    'extract': 'CM-07 ha abandonat l\'edifici!',
+    'loot': 'Uau, que brillant!'
+  },
   'training': {
     'replay': 'Torna-m\'ho a ensenyar',
     'progress': 'Entrenament: {n} de {total} lliçons fetes',

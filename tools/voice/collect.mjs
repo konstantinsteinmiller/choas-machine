@@ -24,7 +24,13 @@ import { normalize } from './normalize.mjs'
 /** Lines whose text is broken on purpose (a stutter): a read-back cannot match it. None yet. */
 const BROKEN = new Set()
 
-const SAY = {}
+const SAY = {
+  // CM-07's name (#126): letters and "oh seven", the way a show host says it.
+  'en/hero_extract_loud': 'C M oh seven has left the building!',
+  'en/hero_extract_whisper': 'C M oh seven has left the building!',
+  // The meme is numbers said out loud.
+  'en/hero_alarm_loud': 'Six, seven!'
+}
 
 const a = args()
 const mode = a.samples ? 'samples' : a.all ? 'all' : 'live'

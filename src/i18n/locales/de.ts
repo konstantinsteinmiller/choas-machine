@@ -200,6 +200,22 @@ export default {
     'human': 'Eindringling! Alarm!',
     'machine': 'Feind erkannt! Eindringling löschen!'
   },
+  // CM-07's one-liners (#126).
+  'quip': {
+    'burnHuman': 'Ruhe in Frieden. Oder schmor in der Hölle?',
+    'burnMachine': 'Recycelt. Gern geschehen, Planet.',
+    'headshot': 'Und wieder beißt einer ins Gras!',
+    'alarm': '6, 7!',
+    'lowHealth': 'Zeit, meine Schrauben nachzuziehen!',
+    'lowAmmo': 'Munition fast alle – ich such mir Steine zum Werfen.',
+    'takedown': 'Pssst. Heia machen.',
+    'decoy': 'Schau mal, ein hübscher Fremder!',
+    'disguise': 'Der beste Toaster der Branche.',
+    'multiKill': 'Zwei zum Preis von einem!',
+    'allClear': 'Weitergehen, hier gibt\'s nichts zu sehen.',
+    'extract': 'CM-07 hat das Gebäude verlassen!',
+    'loot': 'Oh, glänzend!'
+  },
   'training': {
     'replay': 'Nochmal zeigen',
     'progress': 'Training: {n} von {total} Lektionen geschafft',

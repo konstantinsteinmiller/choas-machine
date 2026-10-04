@@ -200,6 +200,22 @@ export default {
     'human': 'Inkräktare! Larm!',
     'machine': 'Fiende upptäckt! Radera inkräktare!'
   },
+  // CM-07's one-liners (#126).
+  'quip': {
+    'burnHuman': 'Vila i frid. Eller brinn i helvetet?',
+    'burnMachine': 'Återvunnen. Varsågod, planeten.',
+    'headshot': 'Ännu en biter i gräset!',
+    'alarm': '6, 7!',
+    'lowHealth': 'Dags att dra åt skruvarna!',
+    'lowAmmo': 'Nästan slut på ammo, letar stenar att kasta.',
+    'takedown': 'Sch. Dags för en tupplur.',
+    'decoy': 'Titta, en snygg främling!',
+    'disguise': 'Branschens bästa brödrost.',
+    'multiKill': 'Två för priset av en!',
+    'allClear': 'Gå vidare, här finns inget att se.',
+    'extract': 'CM-07 har lämnat byggnaden!',
+    'loot': 'Åh, glittrigt!'
+  },
   'training': {
     'replay': 'Visa igen',
     'progress': 'Träning: {n} av {total} lektioner klara',

@@ -200,6 +200,22 @@ export default {
     'human': 'Iebrucējs! Trauksme!',
     'machine': 'Ienaidnieks atklāts! Dzēst iebrucēju!'
   },
+  // CM-07's one-liners (#126).
+  'quip': {
+    'burnHuman': 'Dusi mierā. Vai deg ellē?',
+    'burnMachine': 'Pārstrādāts. Nav par ko, planēta.',
+    'headshot': 'Un vēl viens pagalam!',
+    'alarm': '6, 7!',
+    'lowHealth': 'Laiks pievilkt skrūves!',
+    'lowAmmo': 'Munīcija gandrīz beigusies, meklēju akmeņus mešanai.',
+    'takedown': 'Šš. Diendusas laiks.',
+    'decoy': 'Skaties, glīts svešinieks!',
+    'disguise': 'Labākais tosteris biznesā.',
+    'multiKill': 'Divi par viena cenu!',
+    'allClear': 'Ejam tālāk, te nav ko redzēt.',
+    'extract': 'CM-07 ir pametis ēku!',
+    'loot': 'Ō, spīdīgs!'
+  },
   'training': {
     'replay': 'Parādi vēlreiz',
     'progress': 'Treniņš: pabeigtas {n} no {total} nodarbībām',

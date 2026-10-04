@@ -200,6 +200,22 @@ export default {
     'human': 'Behatoló! Riadó!',
     'machine': 'Ellenség észlelve! Behatoló törlése!'
   },
+  // CM-07's one-liners (#126).
+  'quip': {
+    'burnHuman': 'Nyugodj békében. Vagy égj a pokolban?',
+    'burnMachine': 'Újrahasznosítva. Szívesen, bolygó.',
+    'headshot': 'Megint egy fűbe harapott!',
+    'alarm': '6, 7!',
+    'lowHealth': 'Ideje meghúzni a csavarjaimat!',
+    'lowAmmo': 'Majdnem kifogytam a lőszerből, köveket keresek dobáshoz.',
+    'takedown': 'Pssz. Csicsikálás.',
+    'decoy': 'Nézd, egy jóképű idegen!',
+    'disguise': 'A szakma legjobb kenyérpirítója.',
+    'multiKill': 'Kettőt egy áráért!',
+    'allClear': 'Oszoljanak, nincs itt semmi látnivaló.',
+    'extract': 'CM-07 elhagyta az épületet!',
+    'loot': 'Ó, csillogó!'
+  },
   'training': {
     'replay': 'Mutasd újra',
     'progress': 'Gyakorlás: {total} leckéből {n} kész',

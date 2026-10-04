@@ -8,7 +8,9 @@ import { noSlice, type Slice } from '../engine/slicer'
 import { consumeEdges, type Input } from '../engine/input'
 import { input as sharedInput, inputClock } from '../engine/inputState'
 import { emit, on } from '../bus'
-import { gun, hud, mirror, runHudTickers, setPhase, threats, vital, waypoint, MAX_THREATS, callouts, MAX_CALLOUTS, prompt, bars, MAX_BARS, uplinks, MAX_UPLINKS, type PromptKind } from '../state/hud'
+import { gun, hud, mirror, runHudTickers, setPhase, threats, vital, waypoint, MAX_THREATS, callouts, MAX_CALLOUTS, prompt, bars, MAX_BARS, uplinks, MAX_UPLINKS, quipPop, type PromptKind } from '../state/hud'
+import { QUIP_SHOW_S, makeQuips, pickQuip } from './quips'
+import type { QuipId } from '../audio/voiceCatalog'
 import { CELL, VOID, cableSpan, ceilingAt, heightAt, raycast, hasLineOfSight, toCell, inGrid, cellKind, cellHeight, CellKind, shadeAt, Shade } from '../world/grid'
 import type { Fortress } from '../world/fortress'
 import { buildFortressMesh, type FortressMesh } from '../world/fortressMesh'
@@ -730,6 +732,7 @@ export class Mission implements GameMode {
       }
       this.stepGarrison(dt)
       this.stepTraining(dt)
+      this.watchQuips(dt)
       stepArmor(this.armor, dt)
       this.stepSupplies()
       this.stepBarrels(dt)
@@ -966,6 +969,7 @@ export class Mission implements GameMode {
     this.fx.muzzle(mx, my, mz, dx, dy, dz, w)
     haptic(w)
     emit('shot', { weapon: w })
+    this.watchAmmo()
     this.shake = Math.max(this.shake, w === 'sniper' ? 0.35 : w === 'rocket' ? 0.5 : 0.12)
 
     if (w === 'rocket') {
@@ -1213,6 +1217,7 @@ export class Mission implements GameMode {
       s.pulled = true
       app.setTimeScale(1)
       emit('takedown', { beat: 'pull', id: s.id })
+      this.say('takedown')
     }
     if (t >= TD_END) this.endTakedown()
   }
@@ -1374,6 +1379,7 @@ export class Mission implements GameMode {
     haptic('reward')
     mirror('salvageGot', this.stats.piles)
     emit('salvage', { beat: 'taken', got: this.stats.piles, need: this.salvageNeed, amount: pile.amount })
+    this.say('loot')
     if (this.objective === 'salvage' && this.stats.piles >= this.salvageNeed) this.openExtraction()
   }
 
@@ -1669,6 +1675,7 @@ export class Mission implements GameMode {
     this.residues.push(r)
     this.fx.particles.sparks(u.x, u.y + 0.3, u.z, human ? '#6f6488' : '#ffb061', 16, 3, 0.3)
     this.burnsDone++
+    this.say(human ? 'burnHuman' : 'burnMachine')
     this.endBurn()
     emit('burn', { beat: 'done' })
   }
@@ -1806,6 +1813,7 @@ export class Mission implements GameMode {
         this.stats.loud = true
         haptic('alarm')
         emit('chaos', {})
+        this.say('alarm')
       } else if (e.type === 'calm') {
         emit('calm', { id: e.id })
       } else if (e.type === 'body') {
@@ -1838,6 +1846,14 @@ export class Mission implements GameMode {
           id: e.id, kind: u.kind, by: this.killBy, head: this.killHead,
           dist: Math.hypot(u.x - this.player.x, u.z - this.player.z)
         })
+        // One round, one head, one down (a person or a drone, #126).
+        if (this.killBy === 'sniper' && this.killHead && (camKind(u.kind) === 'human' || u.kind === 'drone')) this.say('headshot')
+        // One rocket, two of them.
+        if (this.killBy === 'rocket') {
+          this.rocketKillsAt = this.rocketKillsAt.filter(t => this.time - t < 0.5)
+          this.rocketKillsAt.push(this.time)
+          if (this.rocketKillsAt.length >= 2) this.say('multiKill')
+        }
         // The Commander (and his tank) are not the job any more, but their
         // fall is still the raid's big moment: it always gets the camera.
         const final = (u.kind === 'commander' || u.kind === 'goliath') && this.targetsLeft() === 0
@@ -1913,6 +1929,7 @@ export class Mission implements GameMode {
         emit('checkin', { id: e.id, kind: gar.units[e.id]!.kind, corpse: e.corpse })
       } else if (e.type === 'standDown') {
         emit('standDown', {})
+        this.say('allClear')
       } else if (e.type === 'shout') {
         emit('shout', { id: e.id, kind: gar.units[e.id]!.kind })
       } else if (e.type === 'ping') {
@@ -2213,6 +2230,7 @@ export class Mission implements GameMode {
     mirror('objective', 'done')
     setPhase('outro')
     emit('extracting', {})
+    this.say('extract')
   }
 
   /** The kill-cam's round arrives: now it does what it was always going to. */
@@ -2387,6 +2405,67 @@ export class Mission implements GameMode {
     bars.n = n
   }
 
+  /**
+   * CM-07 says line `id` (#126), if it may (`pickQuip`: rare, never the same
+   * line twice in a minute): whispered while nobody is onto it, out loud
+   * once it is seen. The bubble pops over its head; `voice.ts` plays the take.
+   */
+  private say(id: QuipId): void {
+    if (hud.phase !== 'play' && hud.phase !== 'outro') return
+    const spotted = hud.chaos || this.garrison.units.some(u => isAlive(u) && u.state === 'combat')
+    const r = pickQuip(this.quips, id, this.time, spotted)
+    if (!r) return
+    quipPop.seq++
+    quipPop.id = r.id
+    quipPop.whisper = r.whisper
+    this.quipUntil = this.time + QUIP_SHOW_S
+    emit('quip', { id: r.id, whisper: r.whisper })
+  }
+
+  /** What CM-07 notices by watching rather than by an event (#126), a few times a second. */
+  private watchQuips(dt: number): void {
+    this.quipCheck -= dt
+    if (this.quipCheck > 0) return
+    this.quipCheck = 0.25
+    const units = this.garrison.units
+    // A guard walks over to the decoy.
+    const lured = units.filter(u => isAlive(u) && u.lured).length
+    if (lured > this.luredBefore) this.say('decoy')
+    this.luredBefore = lured
+    // A guard inspected the disguise and walked on, none the wiser.
+    const inspecting = new Set(units.filter(u => isAlive(u) && u.inspect).map(u => u.id))
+    for (const id of this.inspectedBefore) {
+      const u = units[id]!
+      if (!inspecting.has(id) && isAlive(u) && u.state !== 'combat' && this.player.boxed) this.say('disguise')
+    }
+    this.inspectedBefore = inspecting
+    // Nearly scrap, and nobody even looking: time for some maintenance.
+    const calm = !hud.chaos && !units.some(u => isAlive(u) && (u.state === 'combat' || u.state === 'search' || u.state === 'suspicious'))
+    if (this.armor.hp > 0 && this.armor.hp / this.armor.max < 0.3 && calm) this.say('lowHealth')
+  }
+
+  /** The gun nearly dry (#126): said once each time it runs low, again only after a refill. */
+  private watchAmmo(): void {
+    const a = this.arsenal
+    const w = a.current
+    const low = w === 'sniper' ? a.sniperMag + a.sniperReserve <= 3
+      : w === 'rocket' ? a.rockets + (a.rocketLoaded ? 1 : 0) <= 1
+        : a.minigunBelt <= a.minigunBeltMax * 0.2
+    if (low && !this.lowAmmoSaid[w]) { this.lowAmmoSaid[w] = true; this.say('lowAmmo') }
+    if (!low) this.lowAmmoSaid[w] = false
+  }
+
+  /** The bubble over CM-07's head, while it lasts. */
+  private writeQuip(): void {
+    const on = this.time < this.quipUntil && (hud.phase === 'play' || hud.phase === 'outro')
+    if (!on) { quipPop.on = false; return }
+    const p = this.player
+    const v = this.proj.set(p.x + this.rideX, p.y + this.lift + (p.crouched ? 2.3 : 2.9), p.z + this.rideZ).project(this.camera)
+    quipPop.on = v.z < 1 && Math.abs(v.x) < 1.1 && Math.abs(v.y) < 1.1
+    quipPop.x = Math.min(0.92, Math.max(0.08, (v.x + 1) / 2))
+    quipPop.y = Math.min(0.9, Math.max(0.12, (1 - v.y) / 2))
+  }
+
   private writeCallouts(dt: number): void {
     this.shouts = this.shouts.filter(s => (s.t -= dt) > 0 && this.garrison.units[s.id]?.state !== 'dead')
     this.camera.updateMatrixWorld()
@@ -2419,6 +2498,14 @@ export class Mission implements GameMode {
   /** Supplies picked up, bodies burnt, ropes shot (the round-4 lessons). */
   private suppliesTaken = 0
   private burnsDone = 0
+  /** CM-07's one-liners (#126): when it last spoke, how long its bubble stays, what it has noticed. */
+  private quips = makeQuips()
+  private quipUntil = -1
+  private quipCheck = 0
+  private lowAmmoSaid: Partial<Record<WeaponId, boolean>> = {}
+  private luredBefore = 0
+  private inspectedBefore = new Set<number>()
+  private rocketKillsAt: number[] = []
   /** The scripted camera's arm (#119): how far out it may be, for which shot, and how long it holds in. */
   private cineArm = Infinity
   private armCine: Cine | null = null
@@ -3326,6 +3413,7 @@ export class Mission implements GameMode {
     this.fx.update(dt, alpha, this.rockets, this.decoys, this.viewH, this.camera.fov)
     this.writeThreats(x, z)
     this.writeCallouts(dt)
+    this.writeQuip()
     this.writePrompt(playing && !scripted)
     this.drawLasers()
     this.drawDecoyAim()

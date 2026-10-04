@@ -200,6 +200,22 @@ export default {
     'human': 'Davetsiz misafir! Alarm!',
     'machine': 'Düşman tespit edildi! Davetsiz misafiri sil!'
   },
+  // CM-07's one-liners (#126).
+  'quip': {
+    'burnHuman': 'Huzur içinde yat. Yoksa cehennemde mi yansın?',
+    'burnMachine': 'Geri dönüştürüldü. Rica ederim, gezegen.',
+    'headshot': 'Biri daha yere serildi!',
+    'alarm': '6, 7!',
+    'lowHealth': 'Vidalarımı sıkma vakti!',
+    'lowAmmo': 'Mermi bitmek üzere, atacak taş arıyorum.',
+    'takedown': 'Şşş. Nini zamanı.',
+    'decoy': 'Bak, yakışıklı bir yabancı!',
+    'disguise': 'Sektörün en iyi tost makinesi.',
+    'multiKill': 'Bir alana bir bedava!',
+    'allClear': 'Dağılın, burada görülecek bir şey yok.',
+    'extract': 'CM-07 binayı terk etti!',
+    'loot': 'Oo, parlak şey!'
+  },
   'training': {
     'replay': 'Tekrar göster',
     'progress': 'Eğitim: {total} dersten {n} tanesi bitti',

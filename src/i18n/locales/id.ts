@@ -200,6 +200,22 @@ export default {
     'human': 'Penyusup! Alarm!',
     'machine': 'Musuh terdeteksi! Hapus penyusup!'
   },
+  // CM-07's one-liners (#126).
+  'quip': {
+    'burnHuman': 'Beristirahatlah dengan tenang. Atau terbakar di neraka?',
+    'burnMachine': 'Didaur ulang. Sama-sama, planet.',
+    'headshot': 'Satu lagi tumbang!',
+    'alarm': '6, 7!',
+    'lowHealth': 'Saatnya mengencangkan bautku!',
+    'lowAmmo': 'Amunisi hampir habis, cari batu buat dilempar.',
+    'takedown': 'Ssst. Waktunya bobo.',
+    'decoy': 'Lihat, orang asing yang tampan!',
+    'disguise': 'Pemanggang roti terbaik di bisnis ini.',
+    'multiKill': 'Dua dengan harga satu!',
+    'allClear': 'Bubar, bubar, tidak ada apa-apa di sini.',
+    'extract': 'CM-07 telah meninggalkan gedung!',
+    'loot': 'Wah, berkilau!'
+  },
   'training': {
     'replay': 'Tunjukkan lagi',
     'progress': 'Latihan: {n} dari {total} pelajaran selesai',

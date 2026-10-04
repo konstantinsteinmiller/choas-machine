@@ -200,6 +200,22 @@ export default {
     'human': 'Uljez! Uzbuna!',
     'machine': 'Neprijatelj otkriven! Izbrisati uljeza!'
   },
+  // CM-07's one-liners (#126).
+  'quip': {
+    'burnHuman': 'Počivao u miru. Ili gori u paklu?',
+    'burnMachine': 'Recikliran. Nema na čemu, planete.',
+    'headshot': 'Još jedan grize prašinu!',
+    'alarm': '6, 7!',
+    'lowHealth': 'Vrijeme je da zategnem vijke!',
+    'lowAmmo': 'Skoro bez municije, tražim kamenje za bacanje.',
+    'takedown': 'Pssst. Vrijeme za drijemež.',
+    'decoy': 'Gle, zgodan neznanac!',
+    'disguise': 'Najbolji toster u poslu.',
+    'multiKill': 'Dva po cijeni jednog!',
+    'allClear': 'Nema se tu što vidjeti, ljudi.',
+    'extract': 'CM-07 je napustio zgradu!',
+    'loot': 'Ooo, sjajno!'
+  },
   'training': {
     'replay': 'Pokaži ponovno',
     'progress': 'Trening: završeno {n} od {total} lekcija',

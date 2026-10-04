@@ -200,6 +200,22 @@ export default {
     'human': 'Müdaxiləçi! Həyəcan!',
     'machine': 'Düşmən aşkarlandı! Müdaxiləçini məhv et!'
   },
+  // CM-07's one-liners (#126).
+  'quip': {
+    'burnHuman': 'Rahat uyu. Yoxsa cəhənnəmdə yan?',
+    'burnMachine': 'Təkrar emal olundu. Dəyməz, planet.',
+    'headshot': 'Biri də getdi!',
+    'alarm': '6, 7!',
+    'lowHealth': 'Vintlərimi bərkitmək vaxtıdır!',
+    'lowAmmo': 'Sursat qurtarmaq üzrədir, atmağa daş axtarıram.',
+    'takedown': 'Şşş. Yatmaq vaxtı.',
+    'decoy': 'Bax, yaraşıqlı bir yad!',
+    'disguise': 'Sahənin ən yaxşı tosteri.',
+    'multiKill': 'Birinin qiymətinə iki!',
+    'allClear': 'Dağılışın, burada baxmalı heç nə yoxdur.',
+    'extract': 'CM-07 binanı tərk etdi!',
+    'loot': 'Vay, parıldayır!'
+  },
   'training': {
     'replay': 'Yenidən göstər',
     'progress': 'Məşq: {total} dərsdən {n} keçildi',

@@ -200,6 +200,22 @@ export default {
     'human': 'Bosqinchi! Xavf!',
     'machine': 'Dushman aniqlandi! Bosqinchini yo\'q qilish!'
   },
+  // CM-07's one-liners (#126).
+  'quip': {
+    'burnHuman': 'Joyi jannatda boʻlsin. Yoki doʻzaxda yon?',
+    'burnMachine': 'Qayta ishlandi. Arzimaydi, sayyora.',
+    'headshot': 'Yana biri qulab tushdi!',
+    'alarm': '6, 7!',
+    'lowHealth': 'Vintlarimni tortib qoʻyish vaqti!',
+    'lowAmmo': 'Oʻq tugay deb qoldi, otishga tosh qidiryapman.',
+    'takedown': 'Shsh. Uxlash vaqti.',
+    'decoy': 'Qara, kelishgan notanish!',
+    'disguise': 'Sohadagi eng zoʻr toster.',
+    'multiKill': 'Birining narxiga ikkita!',
+    'allClear': 'Tarqalinglar, bu yerda koʻradigan hech narsa yoʻq.',
+    'extract': 'CM-07 binoni tark etdi!',
+    'loot': 'Voy, yaltiroq!'
+  },
   'training': {
     'replay': 'Yana ko\'rsatish',
     'progress': 'Mashq: {total} darsdan {n} tasi tugadi',

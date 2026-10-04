@@ -34,8 +34,14 @@ export const DYNAMICS = {
   drone: { thr: -26, ratio: 5, atk: 1, rel: 60, lufs: -16, peak: -3 },
   enforcer: { thr: -26, ratio: 5, atk: 2, rel: 120, lufs: -15, peak: -3 },
   goliath: { thr: -26, ratio: 5, atk: 4, rel: 200, lufs: -14, peak: -3 },
-  hound: { thr: -24, ratio: 4, atk: 1, rel: 60, lufs: -16, peak: -3 }
+  hound: { thr: -24, ratio: 4, atk: 1, rel: 60, lufs: -16, peak: -3 },
+  // CM-07 (#126): close and present; the whisper softer and a good deal quieter.
+  hero: { thr: -22, ratio: 3, atk: 4, rel: 100, lufs: -16, peak: -3 },
+  heroHush: { thr: -30, ratio: 3, atk: 4, rel: 120, lufs: -21, peak: -8 }
 }
+
+/** Speakers whose takes are turned into a true whisper before their chain (#126: no engine whispers). */
+export const whispered = (speaker) => speaker === 'heroHush'
 
 /** Per-line exceptions: none yet. */
 export const dynamicsFor = (speaker) => ({ ...DYNAMICS[speaker] })
@@ -72,6 +78,13 @@ export const chainFor = (speaker, key, { dry = false } = {}) => {
     case 'hound':
       // A toy speaker on a robot dog: +5 semitones, a bright 660 Hz ring at 12 %, thin and close.
       return `[0:a]${prep},rubberband=pitch=${semis(5)},${ring(660, 0.12)},${band(500, 8000)},${eq(3500, 3)},aecho=1:1:5:0.18[fx]`
+    case 'hero':
+      // The player's robot (#126): a human showman with a faint machine in him:
+      // +1 semitone, a 330 Hz ring at 8 %, a little tin (a 4 ms comb), presence; dry and close.
+      return `[0:a]${prep},rubberband=pitch=${semis(1)},${ring(330, 0.08)},${band(140, 9500)},${eq(3000, 2.5)},aecho=1:1:4:0.12[fx]`
+    case 'heroHush':
+      // The same, whispered: no ring (a whisper has no tone to ring), the tin and the air up top.
+      return `[0:a]${prep},rubberband=pitch=${semis(1)},${band(260, 10000)},${eq(5000, 3)},aecho=1:1:4:0.1[fx]`
     default:
       throw new Error(`no chain for speaker ${speaker}`)
   }

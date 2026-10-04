@@ -200,6 +200,22 @@ export default {
     'human': '有入侵者！警报！',
     'machine': '检测到敌人！清除入侵者！'
   },
+  // CM-07's one-liners (#126).
+  'quip': {
+    'burnHuman': '安息吧。还是下地狱烧烧？',
+    'burnMachine': '回收完毕。不用谢，地球。',
+    'headshot': '又干掉一个！',
+    'alarm': '6, 7!',
+    'lowHealth': '该拧紧螺丝了！',
+    'lowAmmo': '弹药快没了，找石头来扔。',
+    'takedown': '嘘，睡觉时间到。',
+    'decoy': '看，一位帅气的陌生人！',
+    'disguise': '业界最强烤面包机。',
+    'multiKill': '买一送一！',
+    'allClear': '散了散了，没什么好看的。',
+    'extract': 'CM-07 已离场！',
+    'loot': '哇，亮晶晶！'
+  },
   'training': {
     'replay': '再演示一次',
     'progress': '训练：已完成 {n}/{total} 课',

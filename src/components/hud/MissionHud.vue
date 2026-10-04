@@ -6,6 +6,7 @@
     AimHold
     ThreatArcs
     SpeechBubbles
+    QuipBubble
     HealthBars
     UplinkRings
     ObjectiveMarker
@@ -301,6 +302,7 @@ import AlertMeter from '@/components/hud/AlertMeter.vue'
 import ThreatArcs from '@/components/hud/ThreatArcs.vue'
 import ObjectiveMarker from '@/components/hud/ObjectiveMarker.vue'
 import SpeechBubbles from '@/components/hud/SpeechBubbles.vue'
+import QuipBubble from '@/components/hud/QuipBubble.vue'
 import TrainingHud from '@/components/hud/TrainingHud.vue'
 import ControlHints from '@/components/hud/ControlHints.vue'
 import { emit as busEmit, on } from '@/game/bus'

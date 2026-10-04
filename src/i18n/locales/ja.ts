@@ -200,6 +200,22 @@ export default {
     'human': '侵入者だ！警報！',
     'machine': '敵ヲ検知。侵入者ヲ消去セヨ！'
   },
+  // CM-07's one-liners (#126).
+  'quip': {
+    'burnHuman': '安らかに眠れ。それとも地獄の業火か？',
+    'burnMachine': 'リサイクル完了。礼はいらないぜ、地球。',
+    'headshot': 'また一人片付いた！',
+    'alarm': '6, 7!',
+    'lowHealth': 'ネジを締め直す時間だ！',
+    'lowAmmo': '弾切れ寸前、投げる石を探すぜ。',
+    'takedown': 'シーッ。おねんねの時間だ。',
+    'decoy': '見ろ、イケメンの登場だ！',
+    'disguise': '業界一のトースターさ。',
+    'multiKill': '一石二鳥！',
+    'allClear': 'はいはい、何もないよー。',
+    'extract': 'CM-07は建物を後にした！',
+    'loot': 'おっ、キラキラ！'
+  },
   'training': {
     'replay': 'もう一度見る',
     'progress': '訓練：{total}中{n}レッスン完了',

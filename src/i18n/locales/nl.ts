@@ -200,6 +200,22 @@ export default {
     'human': 'Indringer! Alarm!',
     'machine': 'Vijand gedetecteerd! Indringer wissen!'
   },
+  // CM-07's one-liners (#126).
+  'quip': {
+    'burnHuman': 'Rust in vrede. Of brand in de hel?',
+    'burnMachine': 'Gerecycled. Graag gedaan, planeet.',
+    'headshot': 'Weer eentje bijt in het stof!',
+    'alarm': '6, 7!',
+    'lowHealth': 'Tijd om mijn schroeven aan te draaien!',
+    'lowAmmo': 'Bijna geen munitie meer, op zoek naar stenen om te gooien.',
+    'takedown': 'Ssst. Dutje doen.',
+    'decoy': 'Kijk, een knappe vreemdeling!',
+    'disguise': 'Beste broodrooster van het vak.',
+    'multiKill': 'Twee halen, één betalen!',
+    'allClear': 'Doorlopen mensen, niks te zien hier.',
+    'extract': 'CM-07 heeft het gebouw verlaten!',
+    'loot': 'Ooh, glimmend!'
+  },
   'training': {
     'replay': 'Nog eens laten zien',
     'progress': 'Training: {n} van {total} lessen klaar',

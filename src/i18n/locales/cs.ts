@@ -200,6 +200,22 @@ export default {
     'human': 'Vetřelec! Poplach!',
     'machine': 'Nepřítel detekován! Vymazat vetřelce!'
   },
+  // CM-07's one-liners (#126).
+  'quip': {
+    'burnHuman': 'Odpočívej v pokoji. Nebo se smaž v pekle?',
+    'burnMachine': 'Zrecyklováno. Není zač, planeto.',
+    'headshot': 'A další jde k zemi!',
+    'alarm': '6, 7!',
+    'lowHealth': 'Čas utáhnout si šroubky!',
+    'lowAmmo': 'Skoro bez munice, hledám kameny na házení.',
+    'takedown': 'Pšš. Čas na šlofíka.',
+    'decoy': 'Hele, fešný cizinec!',
+    'disguise': 'Nejlepší topinkovač v branži.',
+    'multiKill': 'Dva za cenu jednoho!',
+    'allClear': 'Rozejděte se, není tu nic k vidění.',
+    'extract': 'CM-07 opustil budovu!',
+    'loot': 'Óó, lesklé!'
+  },
   'training': {
     'replay': 'Ukaž znovu',
     'progress': 'Výcvik: hotovo {n} z {total} lekcí',

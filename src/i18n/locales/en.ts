@@ -204,6 +204,22 @@ export default {
     'human': 'Intruder! Alarm!',
     'machine': 'Enemy detected! Erase intruder!'
   },
+  // CM-07's one-liners (#126).
+  'quip': {
+    'burnHuman': 'Rest in peace. Or burn in hell?',
+    'burnMachine': 'Recycled. You\'re welcome, planet.',
+    'headshot': 'Another one bites the dust!',
+    'alarm': '6, 7!',
+    'lowHealth': 'Time to tighten my screws!',
+    'lowAmmo': 'Almost out of ammo, looking for stones to throw.',
+    'takedown': 'Shhh. Nap time.',
+    'decoy': 'Look, a handsome stranger!',
+    'disguise': 'Best toaster in the business.',
+    'multiKill': 'Two for the price of one!',
+    'allClear': 'Nothing to see here, folks.',
+    'extract': 'CM-07 has left the building!',
+    'loot': 'Ooh, shiny!'
+  },
   'training': {
     'replay': 'Show me again',
     'progress': 'Training: {n} of {total} lessons done',

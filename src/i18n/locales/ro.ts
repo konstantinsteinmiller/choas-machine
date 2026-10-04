@@ -200,6 +200,22 @@ export default {
     'human': 'Intrus! Alarmă!',
     'machine': 'Inamic detectat! Ștergere intrus!'
   },
+  // CM-07's one-liners (#126).
+  'quip': {
+    'burnHuman': 'Odihnă veșnică. Sau arzi în iad?',
+    'burnMachine': 'Reciclat. Cu plăcere, planetă.',
+    'headshot': 'Încă unul a mușcat țărâna!',
+    'alarm': '6, 7!',
+    'lowHealth': 'E timpul să-mi strâng șuruburile!',
+    'lowAmmo': 'Aproape fără muniție, caut pietre de aruncat.',
+    'takedown': 'Șșș. Nani.',
+    'decoy': 'Uite, un străin chipeș!',
+    'disguise': 'Cel mai bun prăjitor de pâine din branșă.',
+    'multiKill': 'Două la preț de unul!',
+    'allClear': 'Circulați, nu e nimic de văzut.',
+    'extract': 'CM-07 a părăsit clădirea!',
+    'loot': 'Uau, strălucește!'
+  },
   'training': {
     'replay': 'Arată-mi din nou',
     'progress': 'Antrenament: {n} din {total} lecții terminate',

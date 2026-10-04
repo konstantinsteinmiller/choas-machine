@@ -200,6 +200,22 @@ export default {
     'human': 'Įsibrovėlis! Pavojus!',
     'machine': 'Priešas aptiktas! Ištrinti įsibrovėlį!'
   },
+  // CM-07's one-liners (#126).
+  'quip': {
+    'burnHuman': 'Ilsėkis ramybėje. O gal degk pragare?',
+    'burnMachine': 'Perdirbta. Nėra už ką, planeta.',
+    'headshot': 'Dar vienas krito!',
+    'alarm': '6, 7!',
+    'lowHealth': 'Laikas prisiveržti varžtus!',
+    'lowAmmo': 'Šaudmenys baigiasi, ieškau akmenų mėtyti.',
+    'takedown': 'Ššš. Pogulio metas.',
+    'decoy': 'Žiūrėk, gražus nepažįstamasis!',
+    'disguise': 'Geriausias skrudintuvas versle.',
+    'multiKill': 'Du už vieno kainą!',
+    'allClear': 'Skirstomės, nėra čia ką žiūrėti.',
+    'extract': 'CM-07 paliko pastatą!',
+    'loot': 'Oho, blizga!'
+  },
   'training': {
     'replay': 'Parodyk dar kartą',
     'progress': 'Treniruotė: baigta {n} iš {total} pamokų',

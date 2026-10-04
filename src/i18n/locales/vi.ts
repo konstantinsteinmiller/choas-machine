@@ -200,6 +200,22 @@ export default {
     'human': 'Kẻ đột nhập! Báo động!',
     'machine': 'Phát hiện kẻ địch! Xóa sổ kẻ đột nhập!'
   },
+  // CM-07's one-liners (#126).
+  'quip': {
+    'burnHuman': 'Yên nghỉ nhé. Hay cháy dưới địa ngục?',
+    'burnMachine': 'Tái chế xong. Không có gì, hành tinh ơi.',
+    'headshot': 'Thêm một tên đo ván!',
+    'alarm': '6, 7!',
+    'lowHealth': 'Đến lúc siết ốc lại rồi!',
+    'lowAmmo': 'Sắp hết đạn, đi tìm đá để ném đây.',
+    'takedown': 'Suỵt. Ngủ ngoan nào.',
+    'decoy': 'Nhìn kìa, một người lạ đẹp trai!',
+    'disguise': 'Máy nướng bánh mì xịn nhất nghề.',
+    'multiKill': 'Mua một được hai!',
+    'allClear': 'Giải tán, không có gì để xem đâu.',
+    'extract': 'CM-07 đã rời khỏi tòa nhà!',
+    'loot': 'Ôi, lấp lánh quá!'
+  },
   'training': {
     'replay': 'Xem lại',
     'progress': 'Huấn luyện: xong {n}/{total} bài',

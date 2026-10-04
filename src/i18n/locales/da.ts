@@ -200,6 +200,22 @@ export default {
     'human': 'Ubuden gæst! Alarm!',
     'machine': 'Fjende registreret! Slet ubuden gæst!'
   },
+  // CM-07's one-liners (#126).
+  'quip': {
+    'burnHuman': 'Hvil i fred. Eller brænd i helvede?',
+    'burnMachine': 'Genbrugt. Selv tak, planet.',
+    'headshot': 'Endnu en bider i græsset!',
+    'alarm': '6, 7!',
+    'lowHealth': 'Tid til at spænde mine skruer!',
+    'lowAmmo': 'Næsten løbet tør for ammo, leder efter sten at kaste.',
+    'takedown': 'Shh. Sov sødt.',
+    'decoy': 'Se, en flot fremmed!',
+    'disguise': 'Branchens bedste brødrister.',
+    'multiKill': 'To for én!',
+    'allClear': 'Gå bare videre, her er intet at se.',
+    'extract': 'CM-07 har forladt bygningen!',
+    'loot': 'Uh, skinnende!'
+  },
   'training': {
     'replay': 'Vis mig igen',
     'progress': 'Træning: {n} af {total} lektioner klaret',

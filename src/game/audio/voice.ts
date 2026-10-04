@@ -1,6 +1,6 @@
 import { on } from '../bus'
 import { VOICE_FILES } from '../assets/overrides'
-import { SPEAKERS, SPEAKER_OF, fileName, type Speaker } from './voiceCatalog'
+import { QUIP_IDS, QUIP_SAID, SPEAKERS, SPEAKER_OF, fileName, type Speaker } from './voiceCatalog'
 import { whenAudio } from './engine'
 import { playVoice, prefetchVoices } from './synth'
 
@@ -34,12 +34,25 @@ export const voiceUrl = (speaker: Speaker, l: string): string | undefined => {
   return VOICE_FILES.get(`${l}/${file}`) ?? VOICE_FILES.get(`${l.split('-')[0]}/${file}`) ?? VOICE_FILES.get(`en/${file}`)
 }
 
-/** The files one language needs: each speaker's alarm, in that language or English. */
+/** CM-07's take of line `id` (#126), whispered or out loud, in `l`, else English, else none. */
+export const quipUrl = (id: string, whisper: boolean, l: string): string | undefined => {
+  const file = fileName(`hero.${id}.${whisper ? 'whisper' : 'loud'}`)
+  return VOICE_FILES.get(`${l}/${file}`) ?? VOICE_FILES.get(`${l.split('-')[0]}/${file}`) ?? VOICE_FILES.get(`en/${file}`)
+}
+
+/** The files one language needs: each speaker's alarm and CM-07's lines, in that language or English. */
 export const voiceSet = (l: string): Set<string> => {
   const out = new Set<string>()
   for (const s of Object.keys(SPEAKERS) as Speaker[]) {
     const url = voiceUrl(s, l)
     if (url) out.add(url)
+  }
+  for (const id of QUIP_IDS) {
+    for (const whisper of [false, true]) {
+      if (!(whisper ? QUIP_SAID[id].whisper : QUIP_SAID[id].loud)) continue
+      const url = quipUrl(id, whisper, l)
+      if (url) out.add(url)
+    }
   }
   return out
 }
@@ -55,6 +68,11 @@ export const installVoices = (): void => {
   // boot and only in the language the player hears (`voiceUrl` per speaker:
   // their own, else English). Another language is fetched if it is ever needed.
   whenAudio(() => prefetchVoices(voiceSet(lang())))
+  // CM-07's own lines (#126): from the middle, never throttled by the barks (they are rare already).
+  on('quip', ({ id, whisper }) => {
+    const url = quipUrl(id, whisper, lang())
+    if (url) playVoice(url, 0, whisper ? 0.9 : 1)
+  })
   on('callout', ({ kind, role, dist, pan }) => {
     if (dist > EARSHOT_M) return
     const now = performance.now() / 1000

@@ -200,6 +200,22 @@ export default {
     'human': 'Tunkeilija! Hälytys!',
     'machine': 'Vihollinen havaittu! Poista tunkeilija!'
   },
+  // CM-07's one-liners (#126).
+  'quip': {
+    'burnHuman': 'Lepää rauhassa. Vai palatko helvetissä?',
+    'burnMachine': 'Kierrätetty. Ole hyvä, planeetta.',
+    'headshot': 'Taas yksi puree pölyä!',
+    'alarm': '6, 7!',
+    'lowHealth': 'Aika kiristää ruuveja!',
+    'lowAmmo': 'Ammukset melkein lopussa, etsin kiviä heitettäväksi.',
+    'takedown': 'Shh. Nukkumatti tuli.',
+    'decoy': 'Katso, komea muukalainen!',
+    'disguise': 'Alan paras leivänpaahdin.',
+    'multiKill': 'Kaksi yhden hinnalla!',
+    'allClear': 'Jatkakaa, täällä ei ole mitään nähtävää.',
+    'extract': 'CM-07 on poistunut rakennuksesta!',
+    'loot': 'Ooh, kiiltävää!'
+  },
   'training': {
     'replay': 'Näytä uudelleen',
     'progress': 'Harjoitus: {n}/{total} oppituntia tehty',

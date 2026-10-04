@@ -200,6 +200,22 @@ export default {
     'human': 'Intrus ! Alerte !',
     'machine': 'Ennemi détecté ! Effacer l\'intrus !'
   },
+  // CM-07's one-liners (#126).
+  'quip': {
+    'burnHuman': 'Repose en paix. Ou brûle en enfer ?',
+    'burnMachine': 'Recyclé. De rien, la planète.',
+    'headshot': 'Et un de plus qui mord la poussière !',
+    'alarm': '6, 7!',
+    'lowHealth': 'Faut que je resserre mes boulons !',
+    'lowAmmo': 'Presque plus de munitions, je cherche des cailloux à lancer.',
+    'takedown': 'Chut. Au dodo.',
+    'decoy': 'Regarde, un bel inconnu !',
+    'disguise': 'Le meilleur grille-pain du métier.',
+    'multiKill': 'Deux pour le prix d\'un !',
+    'allClear': 'Circulez, y a rien à voir.',
+    'extract': 'CM-07 a quitté le bâtiment !',
+    'loot': 'Oh, ça brille !'
+  },
   'training': {
     'replay': 'Remontre-moi',
     'progress': 'Entraînement : {n} leçons sur {total} terminées',

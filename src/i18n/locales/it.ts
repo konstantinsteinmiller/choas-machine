@@ -200,6 +200,22 @@ export default {
     'human': 'Intruso! Allarme!',
     'machine': 'Nemico rilevato! Eliminare intruso!'
   },
+  // CM-07's one-liners (#126).
+  'quip': {
+    'burnHuman': 'Riposa in pace. O brucia all\'inferno?',
+    'burnMachine': 'Riciclato. Prego, pianeta.',
+    'headshot': 'Un altro che morde la polvere!',
+    'alarm': '6, 7!',
+    'lowHealth': 'È ora di stringermi i bulloni!',
+    'lowAmmo': 'Munizioni quasi finite, cerco sassi da lanciare.',
+    'takedown': 'Shhh. A nanna.',
+    'decoy': 'Guarda, un bello sconosciuto!',
+    'disguise': 'Il miglior tostapane sulla piazza.',
+    'multiKill': 'Due al prezzo di uno!',
+    'allClear': 'Circolare, non c\'è niente da vedere.',
+    'extract': 'CM-07 ha lasciato l\'edificio!',
+    'loot': 'Ooh, luccica!'
+  },
   'training': {
     'replay': 'Mostramelo di nuovo',
     'progress': 'Addestramento: {n} lezioni su {total} completate',
