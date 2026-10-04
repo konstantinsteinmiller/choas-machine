@@ -278,6 +278,7 @@ export default {
   'prompt': {
     'salvage': 'Bongkar',
     'strike': 'Lumpuhkan',
+    'assassinate': 'Habisi dari atas',
     'sabotage': 'Sabotase',
     'cutPower': 'Putus listrik',
     'jam': 'Macetkan servo',

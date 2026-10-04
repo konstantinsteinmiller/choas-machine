@@ -278,6 +278,7 @@ export default {
   'prompt': {
     'salvage': 'Söküb götür',
     'strike': 'Sakit zərbə',
+    'assassinate': 'Suiqəsd',
     'sabotage': 'Sabotaj',
     'cutPower': 'Cərəyanı kəs',
     'jam': 'Servonu blokla',

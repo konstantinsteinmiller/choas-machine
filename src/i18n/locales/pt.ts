@@ -278,6 +278,7 @@ export default {
   'prompt': {
     'salvage': 'Desmontar',
     'strike': 'Eliminar',
+    'assassinate': 'Assassinar',
     'sabotage': 'Sabotar',
     'cutPower': 'Cortar energia',
     'jam': 'Travar servo',

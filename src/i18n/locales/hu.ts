@@ -278,6 +278,7 @@ export default {
   'prompt': {
     'salvage': 'Bontás',
     'strike': 'Leszedés',
+    'assassinate': 'Orvtámadás',
     'sabotage': 'Szabotálás',
     'cutPower': 'Áram levágása',
     'jam': 'Szervó leblokkolása',

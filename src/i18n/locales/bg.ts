@@ -278,6 +278,7 @@ export default {
   'prompt': {
     'salvage': 'Разглоби',
     'strike': 'Тих удар',
+    'assassinate': 'Покушение',
     'sabotage': 'Саботаж',
     'cutPower': 'Спри тока',
     'jam': 'Блокирай серво',

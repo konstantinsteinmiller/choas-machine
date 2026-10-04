@@ -278,6 +278,7 @@ export default {
   'prompt': {
     'salvage': 'Ανάκτηση',
     'strike': 'Αθόρυβη εξόντωση',
+    'assassinate': 'Δολοφονία',
     'sabotage': 'Δολιοφθορά',
     'cutPower': 'Κόψε το ρεύμα',
     'jam': 'Μπλόκαρε σέρβο',

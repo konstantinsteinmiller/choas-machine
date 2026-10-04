@@ -278,6 +278,7 @@ export default {
   'prompt': {
     'salvage': 'Recuperează',
     'strike': 'Elimină',
+    'assassinate': 'Asasinează',
     'sabotage': 'Sabotează',
     'cutPower': 'Taie curentul',
     'jam': 'Blochează servo',

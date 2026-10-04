@@ -278,6 +278,7 @@ export default {
   'prompt': {
     'salvage': 'Savi',
     'strike': 'Silenta bato',
+    'assassinate': 'Atenci',
     'sabotage': 'Sabotado',
     'cutPower': 'Tranĉi kurenton',
     'jam': 'Bloki servon',

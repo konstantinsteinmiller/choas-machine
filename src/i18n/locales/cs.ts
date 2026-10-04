@@ -278,6 +278,7 @@ export default {
   'prompt': {
     'salvage': 'Rozebrat',
     'strike': 'Tichý zásah',
+    'assassinate': 'Atentát',
     'sabotage': 'Sabotovat',
     'cutPower': 'Vypnout proud',
     'jam': 'Zablokovat servo',

@@ -278,6 +278,7 @@ export default {
   'prompt': {
     'salvage': '拆解',
     'strike': '击倒',
+    'assassinate': '暗杀',
     'sabotage': '破坏',
     'cutPower': '切断电源',
     'jam': '卡住伺服',

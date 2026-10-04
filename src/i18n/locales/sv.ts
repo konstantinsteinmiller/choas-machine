@@ -278,6 +278,7 @@ export default {
   'prompt': {
     'salvage': 'Bärga',
     'strike': 'Slå ner',
+    'assassinate': 'Lönnmord',
     'sabotage': 'Sabotera',
     'cutPower': 'Slå av strömmen',
     'jam': 'Kärva servot',

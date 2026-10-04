@@ -278,6 +278,7 @@ export default {
   'prompt': {
     'salvage': 'Бөлшектеу',
     'strike': 'Үнсіз соққы',
+    'assassinate': 'Қастандық',
     'sabotage': 'Бүлдіру',
     'cutPower': 'Тоқты өшіру',
     'jam': 'Серво бұғаттау',

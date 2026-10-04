@@ -278,6 +278,7 @@ export default {
   'prompt': {
     'salvage': 'Izjaukt',
     'strike': 'Nogalināt',
+    'assassinate': 'Slepkavība',
     'sabotage': 'Sabotēt',
     'cutPower': 'Atslēgt strāvu',
     'jam': 'Iesprostot servo',

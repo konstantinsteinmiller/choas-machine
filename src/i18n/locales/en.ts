@@ -282,6 +282,7 @@ export default {
   'prompt': {
     'salvage': 'Salvage',
     'strike': 'Takedown',
+    'assassinate': 'Assassinate',
     'sabotage': 'Sabotage',
     'cutPower': 'Cut power',
     'jam': 'Jam servo',

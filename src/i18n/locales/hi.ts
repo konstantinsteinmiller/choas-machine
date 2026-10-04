@@ -278,6 +278,7 @@ export default {
   'prompt': {
     'salvage': 'कबाड़ निकालें',
     'strike': 'चुपचाप वार',
+    'assassinate': 'हत्या',
     'sabotage': 'तोड़फोड़',
     'cutPower': 'बिजली काटें',
     'jam': 'सर्वो जाम करें',

@@ -278,6 +278,7 @@ export default {
   'prompt': {
     'salvage': 'Skrot',
     'strike': 'Nedtagning',
+    'assassinate': 'Snigmord',
     'sabotage': 'Sabotér',
     'cutPower': 'Afbryd strøm',
     'jam': 'Blokér servo',

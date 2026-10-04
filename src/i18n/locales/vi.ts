@@ -278,6 +278,7 @@ export default {
   'prompt': {
     'salvage': 'Tháo phế liệu',
     'strike': 'Hạ gục',
+    'assassinate': 'Ám sát',
     'sabotage': 'Phá hoại',
     'cutPower': 'Cắt điện',
     'jam': 'Kẹt động cơ',

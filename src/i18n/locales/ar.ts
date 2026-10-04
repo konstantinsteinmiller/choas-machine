@@ -278,6 +278,7 @@ export default {
   'prompt': {
     'salvage': 'تفكيك',
     'strike': 'إسقاط صامت',
+    'assassinate': 'اغتيال',
     'sabotage': 'تخريب',
     'cutPower': 'قطع الطاقة',
     'jam': 'عطّل المحرك',

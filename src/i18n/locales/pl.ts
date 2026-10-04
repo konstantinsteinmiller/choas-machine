@@ -278,6 +278,7 @@ export default {
   'prompt': {
     'salvage': 'Rozbierz',
     'strike': 'Cios z ukrycia',
+    'assassinate': 'Zamach',
     'sabotage': 'Sabotaż',
     'cutPower': 'Odetnij zasilanie',
     'jam': 'Zablokuj serwo',

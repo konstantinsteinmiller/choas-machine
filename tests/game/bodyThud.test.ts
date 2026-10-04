@@ -114,3 +114,20 @@ describe('the alarm ends with the last defender (jam build)', () => {
     expect(gar.events.some(e => e.type === 'standDown')).toBe(true)
   })
 })
+
+describe('the rope assassination (jam build)', () => {
+  it('offers the person or walking machine below the rope, within reach; not one too far out, not a drone', async () => {
+    const { findRopeStrike, ROPE_STRIKE_REACH } = await import('@/game/sim/melee')
+    const b = new FortressBuilder('t', 40, 40)
+    b.ground(0, 0, 39, 39).insert(1, 1).extract(38, 38)
+    b.guard([[20, 20]], 0).guard([[30, 30]], 0).drone([[20, 22], [22, 22]], 8)
+    const f = b.build()
+    const gar = makeGarrison(f, 1)
+    const [near] = gar.units
+    const o = findRopeStrike(gar, f.grid, near!.x + 1, near!.y + 5, near!.z, Math.PI / 2)
+    expect(o).toEqual({ id: near!.id, kind: 'air' })
+    expect(findRopeStrike(gar, f.grid, near!.x + ROPE_STRIKE_REACH + 1, near!.y + 5, near!.z, 0)).toBeNull()
+    // Level with it: no drop to make.
+    expect(findRopeStrike(gar, f.grid, near!.x + 1, near!.y + 0.5, near!.z, 0)).toBeNull()
+  })
+})

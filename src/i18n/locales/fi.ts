@@ -278,6 +278,7 @@ export default {
   'prompt': {
     'salvage': 'Kierrätä',
     'strike': 'Hiljainen kaato',
+    'assassinate': 'Salamurha',
     'sabotage': 'Sabotoi',
     'cutPower': 'Katkaise virta',
     'jam': 'Jumita servo',

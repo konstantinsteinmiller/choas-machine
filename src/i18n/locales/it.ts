@@ -278,6 +278,7 @@ export default {
   'prompt': {
     'salvage': 'Recupera',
     'strike': 'Neutralizza',
+    'assassinate': 'Assassina',
     'sabotage': 'Sabota',
     'cutPower': 'Stacca corrente',
     'jam': 'Blocca servo',

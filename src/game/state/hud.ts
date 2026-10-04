@@ -78,7 +78,7 @@ export const hud = reactive({
   /** How many heard the hook bite. */
   grappleHeard: 0,
   /** The blade's offer right now, or '' when there is none. */
-  strike: '' as '' | 'backstab' | 'drop' | 'strike',
+  strike: '' as '' | 'backstab' | 'drop' | 'strike' | 'air',
   /** Under a third of its armor: the HUD says so. */
   armorLow: false,
   /** A kill-cam is playing: the HUD stands down. */
@@ -127,7 +127,7 @@ export const hud = reactive({
 export const waypoint = { on: false, x: 0.5, y: 0.5, behind: false, dist: 0 }
 
 /** What a key does where the mech stands, as the in-world prompt names it (#83). */
-export type PromptKind = '' | 'salvage' | 'strike' | 'sabotage' | 'cutPower' | 'jam' | 'grab' | 'drop' | 'hook' | 'rope' | 'burn'
+export type PromptKind = '' | 'salvage' | 'strike' | 'assassinate' | 'sabotage' | 'cutPower' | 'jam' | 'grab' | 'drop' | 'hook' | 'rope' | 'burn'
 
 /** Where the in-world prompt sits: 0 … 1 of the view, and on screen at all. */
 export const prompt = { on: false, x: 0.5, y: 0.5 }

@@ -278,6 +278,7 @@ export default {
   'prompt': {
     'salvage': 'Berg',
     'strike': 'Uskadeliggjør',
+    'assassinate': 'Snikmord',
     'sabotage': 'Saboter',
     'cutPower': 'Kutt strømmen',
     'jam': 'Blokker servo',

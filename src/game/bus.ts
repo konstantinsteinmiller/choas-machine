@@ -47,7 +47,7 @@ export interface GameEvents {
   /** Another weapon was drawn. */
   weapon: { weapon: WeaponId }
   /** The blade went for someone; a decoy lit up. */
-  strike: { kind: 'backstab' | 'drop' | 'strike'; id: number }
+  strike: { kind: 'backstab' | 'drop' | 'strike' | 'air'; id: number }
   decoy: { x: number; y: number; z: number }
   /** A machine powers up; reinforcements arrive. */
   wake: { id: number; kind: PostKind }

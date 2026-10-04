@@ -278,6 +278,7 @@ export default {
   'prompt': {
     'salvage': 'Rastavi',
     'strike': 'Tihi udarac',
+    'assassinate': 'Atentat',
     'sabotage': 'Sabotiraj',
     'cutPower': 'Prekini struju',
     'jam': 'Zaglavi servo',

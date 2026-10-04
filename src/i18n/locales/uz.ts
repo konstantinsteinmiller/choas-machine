@@ -278,6 +278,7 @@ export default {
   'prompt': {
     'salvage': 'Qismlarga ajratish',
     'strike': 'Zararsizlantirish',
+    'assassinate': 'Suiqasd',
     'sabotage': 'Sabotaj',
     'cutPower': 'Quvvatni o\'chirish',
     'jam': 'Servoni to\'sish',

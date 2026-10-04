@@ -278,6 +278,7 @@ export default {
   'prompt': {
     'salvage': 'Išardyti',
     'strike': 'Nutildyti',
+    'assassinate': 'Pasikėsinimas',
     'sabotage': 'Sabotuoti',
     'cutPower': 'Atjungti maitinimą',
     'jam': 'Užblokuoti servo',

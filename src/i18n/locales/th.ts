@@ -278,6 +278,7 @@ export default {
   'prompt': {
     'salvage': 'รื้อเก็บ',
     'strike': 'ลอบสังหาร',
+    'assassinate': 'ลอบสังหารจากด้านบน',
     'sabotage': 'ก่อวินาศกรรม',
     'cutPower': 'ตัดไฟ',
     'jam': 'ขัดมอเตอร์',

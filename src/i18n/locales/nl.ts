@@ -278,6 +278,7 @@ export default {
   'prompt': {
     'salvage': 'Slopen',
     'strike': 'Uitschakelen',
+    'assassinate': 'Liquideren',
     'sabotage': 'Saboteren',
     'cutPower': 'Stroom uit',
     'jam': 'Servo blokkeren',

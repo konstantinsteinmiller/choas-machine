@@ -13,7 +13,7 @@ import { headingTo, lureTo, type Garrison, type Unit } from './garrison'
  * the right-side tap can take it.
  */
 
-export type StrikeKind = 'backstab' | 'drop' | 'strike'
+export type StrikeKind = 'backstab' | 'drop' | 'strike' | 'air'
 export interface Strike { id: number; kind: StrikeKind }
 
 /** Reach of the blade on the level, and of a drop from above. */
@@ -25,6 +25,35 @@ export const DROP_MIN_HEIGHT = 1.8
 const BEHIND = (100 * Math.PI) / 180
 
 const isHuman = (u: Unit): boolean => u.kind === 'guard' || u.kind === 'sentry' || u.kind === 'commander'
+
+/** From a rope (jam build): how far out (m) and how far below (m) a target may be. */
+export const ROPE_STRIKE_REACH = 5.5
+export const ROPE_STRIKE_MIN = 1.4
+export const ROPE_STRIKE_MAX = 9
+
+/** What a rope assassination can take: people and the walking machines, never a boss. */
+const ropeTarget = (u: Unit): boolean =>
+  isHuman(u) || u.kind === 'enforcer' || u.kind === 'roomba' || u.kind === 'hound'
+
+/**
+ * The assassination on offer from a rope (jam build): a person or a walking
+ * machine below, within reach and in clear sight, the one nearest to where
+ * the camera looks. Null when there is none.
+ */
+export const findRopeStrike = (gar: Garrison, g: Grid, x: number, y: number, z: number, lookYaw: number): Strike | null => {
+  let best: Strike | null = null
+  let bestScore = Infinity
+  for (const u of gar.units) {
+    if (u.state === 'dead' || u.state === 'reserve' || u.state === 'dormant' || !ropeTarget(u) || u.boss) continue
+    const dist = Math.hypot(u.x - x, u.z - z)
+    const below = y - u.y
+    if (dist > ROPE_STRIKE_REACH || below < ROPE_STRIKE_MIN || below > ROPE_STRIKE_MAX) continue
+    if (!hasLineOfSight(g, x, y + 0.5, z, u.x, u.y + 1.2, u.z)) continue
+    const score = Math.abs(angleDelta(lookYaw, headingTo(x, z, u.x, u.z))) + dist * 0.15
+    if (score < bestScore) { bestScore = score; best = { id: u.id, kind: 'air' } }
+  }
+  return best
+}
 
 /**
  * The strike on offer from where the mech stands, or null. With several in

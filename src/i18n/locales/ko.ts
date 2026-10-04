@@ -278,6 +278,7 @@ export default {
   'prompt': {
     'salvage': '분해',
     'strike': '암살',
+    'assassinate': '공중 암살',
     'sabotage': '파괴 공작',
     'cutPower': '전원 차단',
     'jam': '서보 고장내기',

@@ -278,6 +278,7 @@ export default {
   'prompt': {
     'salvage': '回収',
     'strike': '闇討ち',
+    'assassinate': '空中暗殺',
     'sabotage': '妨害',
     'cutPower': '電源を切る',
     'jam': 'サーボ妨害',

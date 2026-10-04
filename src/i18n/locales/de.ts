@@ -278,6 +278,7 @@ export default {
   'prompt': {
     'salvage': 'Ausschlachten',
     'strike': 'Takedown',
+    'assassinate': 'Attentat',
     'sabotage': 'Sabotieren',
     'cutPower': 'Strom kappen',
     'jam': 'Servo blockieren',

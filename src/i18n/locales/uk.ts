@@ -278,6 +278,7 @@ export default {
   'prompt': {
     'salvage': 'Розібрати',
     'strike': 'Усунути',
+    'assassinate': 'Вбити згори',
     'sabotage': 'Саботаж',
     'cutPower': 'Вимкнути живлення',
     'jam': 'Заклинити привід',
