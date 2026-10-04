@@ -26,16 +26,16 @@ export default {
     'skip': 'Geç'
   },
   'cine': {
-    'intro': 'The drop',
-    'salvage': 'The haul',
-    'fallBastion': 'The Bastion falls',
-    'fallFoundry': 'The Foundry goes cold',
-    'outro': 'Home'
+    'intro': 'İniş',
+    'salvage': 'Ganimet',
+    'fallBastion': 'Burç düşüyor',
+    'fallFoundry': 'Dökümhane soğuyor',
+    'outro': 'Eve'
   },
   'fortress': {
-    'bastion': 'Bastion',
-    'foundry': 'Foundry',
-    'harbour': 'Harbour'
+    'bastion': 'Burç',
+    'foundry': 'Dökümhane',
+    'harbour': 'Liman'
   },
   'hud': {
     'alert': 'Alarm seviyesi',
@@ -44,9 +44,9 @@ export default {
     'weapons': 'Silahlar',
     'ammo': 'Cephane',
     'reloading': 'Dolduruluyor',
-    'jump': 'Jump',
-    'rope': 'Shoot a rope',
-    'burn': 'Burn it to ash',
+    'jump': 'Zıpla',
+    'rope': 'İp at',
+    'burn': 'Küle çevir',
     'reserve': '{n} tane daha taşınıyor',
     'heat': 'Silah ısısı',
     'armor': 'Zırh',
@@ -93,9 +93,9 @@ export default {
     },
     'threat': 'Tehdit seviyesi',
     'locked': 'Önce {n}. seviyeyi bitir',
-    'fortress': 'Fortress',
-    'fortressLocked': 'Take the {name} at threat {n} first',
-    'story': 'Story',
+    'fortress': 'Kale',
+    'fortressLocked': '{name}: önce tehdit {n} seviyesini geç',
+    'story': 'Hikâye',
     'best': 'En iyi skor',
     'armory': 'Cephanelik',
     'chassis': 'Şasi Bölümü',
@@ -253,9 +253,9 @@ export default {
       'cycle': 'Sonraki silah',
       'pause': 'Duraklat',
       'help': 'Dersleri göster',
-      'jump': 'Jump',
-      'rope': 'Rope gun',
-      'burn': 'Flamethrower'
+      'jump': 'Zıpla',
+      'rope': 'İp silahı',
+      'burn': 'Alev silahı'
     }
   },
   'prompt': {
@@ -267,8 +267,8 @@ export default {
     'grab': 'Cesedi tut',
     'drop': 'Cesedi bırak',
     'hook': 'Kanca',
-    'rope': 'Rope',
-    'burn': 'Burn'
+    'rope': 'İp',
+    'burn': 'Yak'
   },
   'saveStatus': {
     'restoredTitle': 'Bulut kaydı geri yüklendi',

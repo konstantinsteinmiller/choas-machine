@@ -79,7 +79,10 @@ const habitsOf = (r: MissionResult): Habits => ({ headshots: r.headshots, boxUse
 
 export const bankMission = (r: MissionResult, level: number, fort: FortressId = FORTRESS_ID): Payout => {
   const rec = fortressSave(levelKey(level, fort))
-  const pay = payout(r, level, rec, profile.missions)
+  const raw = payout(r, level, rec, profile.missions)
+  // A later fortress pays more, level for level (R47).
+  const k = fortressMeta(fort).pay
+  const pay = k === 1 ? raw : { ...raw, scrap: Math.round(raw.scrap * k), haul: Math.round(raw.haul * k) }
   rec.clears++
   for (const m of MEDAL_IDS) if (pay.medals[m]) rec.medals[m] = true
   rec.bestScore = Math.max(rec.bestScore, pay.score)

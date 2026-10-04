@@ -26,16 +26,16 @@ export default {
     'skip': 'Izlaist'
   },
   'cine': {
-    'intro': 'The drop',
-    'salvage': 'The haul',
-    'fallBastion': 'The Bastion falls',
-    'fallFoundry': 'The Foundry goes cold',
-    'outro': 'Home'
+    'intro': 'Nolaišanās',
+    'salvage': 'Loms',
+    'fallBastion': 'Bastions krīt',
+    'fallFoundry': 'Lietuve atdziest',
+    'outro': 'Mājup'
   },
   'fortress': {
-    'bastion': 'Bastion',
-    'foundry': 'Foundry',
-    'harbour': 'Harbour'
+    'bastion': 'Bastions',
+    'foundry': 'Lietuve',
+    'harbour': 'Osta'
   },
   'hud': {
     'alert': 'Trauksmes līmenis',
@@ -44,9 +44,9 @@ export default {
     'weapons': 'Ieroči',
     'ammo': 'Munīcija',
     'reloading': 'Pārlādē',
-    'jump': 'Jump',
-    'rope': 'Shoot a rope',
-    'burn': 'Burn it to ash',
+    'jump': 'Lēkt',
+    'rope': 'Šaut virvi',
+    'burn': 'Sadedzini pelnos',
     'reserve': 'Vēl {n} līdzi',
     'heat': 'Ieroča karstums',
     'armor': 'Bruņas',
@@ -93,9 +93,9 @@ export default {
     },
     'threat': 'Draudu līmenis',
     'locked': 'Vispirms izpildi {n}. līmeni',
-    'fortress': 'Fortress',
-    'fortressLocked': 'Take the {name} at threat {n} first',
-    'story': 'Story',
+    'fortress': 'Cietoksnis',
+    'fortressLocked': '{name}: vispirms pārvar draudu {n}',
+    'story': 'Stāsts',
     'best': 'Labākais rezultāts',
     'armory': 'Ieroču noliktava',
     'chassis': 'Šasijas nodalījums',
@@ -253,9 +253,9 @@ export default {
       'cycle': 'Nākamais ierocis',
       'pause': 'Pauze',
       'help': 'Rādīt mācības',
-      'jump': 'Jump',
-      'rope': 'Rope gun',
-      'burn': 'Flamethrower'
+      'jump': 'Lēciens',
+      'rope': 'Virvju šautene',
+      'burn': 'Liesmmetējs'
     }
   },
   'prompt': {
@@ -267,8 +267,8 @@ export default {
     'grab': 'Satvert ķermeni',
     'drop': 'Nolikt ķermeni',
     'hook': 'Āķis',
-    'rope': 'Rope',
-    'burn': 'Burn'
+    'rope': 'Virve',
+    'burn': 'Dedzināt'
   },
   'saveStatus': {
     'restoredTitle': 'Mākoņa saglabājums atjaunots',

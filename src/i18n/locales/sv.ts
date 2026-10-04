@@ -26,16 +26,16 @@ export default {
     'skip': 'Hoppa över'
   },
   'cine': {
-    'intro': 'The drop',
-    'salvage': 'The haul',
-    'fallBastion': 'The Bastion falls',
-    'fallFoundry': 'The Foundry goes cold',
-    'outro': 'Home'
+    'intro': 'Landningen',
+    'salvage': 'Bytet',
+    'fallBastion': 'Bastionen faller',
+    'fallFoundry': 'Gjuteriet kallnar',
+    'outro': 'Hem'
   },
   'fortress': {
-    'bastion': 'Bastion',
-    'foundry': 'Foundry',
-    'harbour': 'Harbour'
+    'bastion': 'Bastionen',
+    'foundry': 'Gjuteriet',
+    'harbour': 'Hamnen'
   },
   'hud': {
     'alert': 'Larmnivå',
@@ -44,9 +44,9 @@ export default {
     'weapons': 'Vapen',
     'ammo': 'Ammunition',
     'reloading': 'Laddar om',
-    'jump': 'Jump',
-    'rope': 'Shoot a rope',
-    'burn': 'Burn it to ash',
+    'jump': 'Hoppa',
+    'rope': 'Skjut ett rep',
+    'burn': 'Bränn till aska',
     'reserve': '{n} till i reserv',
     'heat': 'Vapenvärme',
     'armor': 'Pansar',
@@ -93,9 +93,9 @@ export default {
     },
     'threat': 'Hotnivå',
     'locked': 'Klara nivå {n} först',
-    'fortress': 'Fortress',
-    'fortressLocked': 'Take the {name} at threat {n} first',
-    'story': 'Story',
+    'fortress': 'Fästning',
+    'fortressLocked': 'Ta först: {name}, hotnivå {n}',
+    'story': 'Berättelse',
     'best': 'Bästa poäng',
     'armory': 'Vapenförråd',
     'chassis': 'Chassihall',
@@ -253,9 +253,9 @@ export default {
       'cycle': 'Nästa vapen',
       'pause': 'Paus',
       'help': 'Visa lektionerna',
-      'jump': 'Jump',
-      'rope': 'Rope gun',
-      'burn': 'Flamethrower'
+      'jump': 'Hopp',
+      'rope': 'Repkanon',
+      'burn': 'Eldkastare'
     }
   },
   'prompt': {
@@ -267,8 +267,8 @@ export default {
     'grab': 'Ta kroppen',
     'drop': 'Släpp kroppen',
     'hook': 'Hake',
-    'rope': 'Rope',
-    'burn': 'Burn'
+    'rope': 'Rep',
+    'burn': 'Bränn'
   },
   'saveStatus': {
     'restoredTitle': 'Molnsparning återställd',

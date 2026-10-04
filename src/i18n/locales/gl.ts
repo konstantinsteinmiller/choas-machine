@@ -26,16 +26,16 @@ export default {
     'skip': 'Omitir'
   },
   'cine': {
-    'intro': 'The drop',
-    'salvage': 'The haul',
-    'fallBastion': 'The Bastion falls',
-    'fallFoundry': 'The Foundry goes cold',
-    'outro': 'Home'
+    'intro': 'O salto',
+    'salvage': 'O botín',
+    'fallBastion': 'O Bastión cae',
+    'fallFoundry': 'A Fundición arrefría',
+    'outro': 'A casa'
   },
   'fortress': {
-    'bastion': 'Bastion',
-    'foundry': 'Foundry',
-    'harbour': 'Harbour'
+    'bastion': 'Bastión',
+    'foundry': 'Fundición',
+    'harbour': 'Porto'
   },
   'hud': {
     'alert': 'Nivel de alerta',
@@ -44,9 +44,9 @@ export default {
     'weapons': 'Armas',
     'ammo': 'Munición',
     'reloading': 'Recargando',
-    'jump': 'Jump',
-    'rope': 'Shoot a rope',
-    'burn': 'Burn it to ash',
+    'jump': 'Saltar',
+    'rope': 'Disparar unha corda',
+    'burn': 'Reducir a cinzas',
     'reserve': '{n} máis en reserva',
     'heat': 'Calor da arma',
     'armor': 'Armadura',
@@ -93,9 +93,9 @@ export default {
     },
     'threat': 'Nivel de ameaza',
     'locked': 'Supera antes o nivel {n}',
-    'fortress': 'Fortress',
-    'fortressLocked': 'Take the {name} at threat {n} first',
-    'story': 'Story',
+    'fortress': 'Fortaleza',
+    'fortressLocked': 'Antes supera {name} na ameaza {n}',
+    'story': 'Historia',
     'best': 'Mellor puntuación',
     'armory': 'Armaría',
     'chassis': 'Taller de chasis',
@@ -253,9 +253,9 @@ export default {
       'cycle': 'Seguinte arma',
       'pause': 'Pausa',
       'help': 'Mostrar as leccións',
-      'jump': 'Jump',
-      'rope': 'Rope gun',
-      'burn': 'Flamethrower'
+      'jump': 'Saltar',
+      'rope': 'Pistola de corda',
+      'burn': 'Lanzachamas'
     }
   },
   'prompt': {
@@ -267,8 +267,8 @@ export default {
     'grab': 'Agarrar corpo',
     'drop': 'Soltar corpo',
     'hook': 'Gancho',
-    'rope': 'Rope',
-    'burn': 'Burn'
+    'rope': 'Corda',
+    'burn': 'Queimar'
   },
   'saveStatus': {
     'restoredTitle': 'Partida na nube restaurada',

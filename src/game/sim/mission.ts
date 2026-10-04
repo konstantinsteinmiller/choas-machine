@@ -538,7 +538,8 @@ export class Mission implements GameMode {
 
     // Any press skips a scripted shot (once it has had a moment to register).
     // (A takedown needs a later press: the one that started it is still going down.)
-    if (this.cine && i.anyPressed && this.cine.t > (this.cine.kind === 'stab' ? 0.7 : 0.3)) this.skipCine()
+    // The press that skips is spent on the skip: Space must not also jump (#95).
+    if (this.cine && i.anyPressed && this.cine.t > (this.cine.kind === 'stab' ? 0.7 : 0.3)) { this.skipCine(); consumeEdges(i) }
     // The bullet in flight: the world holds its breath. After it lands, and
     // through any kill-cam, nothing moves but the fallen (#91).
     if (this.cine?.kind === 'bullet' && !this.cine.hit) {

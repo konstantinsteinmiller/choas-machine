@@ -2,8 +2,8 @@
   //- The way back into the fortress: pick a threat level, see what has been
   //- won there, and go.
   section.deploy
-    //- Which fortress (#93): the next opens once the one before has fallen at its threat.
-    template(v-if="FORTRESSES.length > 1")
+    //- Which fortress (#93): shown once there is a choice (a second fortress is open).
+    template(v-if="openForts > 1")
       h2.label {{ t('base.fortress') }}
       div.forts(role="radiogroup" :aria-label="t('base.fortress')")
         button.fort(
@@ -57,21 +57,20 @@
         GameIcon(:name="ANSWER_ICONS[a]")
         | {{ t(`base.answer.${a}`) }}
     FButton.go(size="xl" icon="play" block attention data-testid="btn-deploy" @click="deploy") {{ t('base.deploy') }}
-    //- The training ground, any time.
-    FButton.train(type="ghost" size="sm" icon="replay" icon-position="left" data-testid="btn-training" @click="train") {{ t('base.training') }}
-    //- The story's scenes seen so far, to watch again (#100).
-    div.story(v-if="scenes.length" role="group" :aria-label="t('base.story')")
-      span.story-label {{ t('base.story') }}
-      button.scene(
-        v-for="id in scenes"
-        :key="id"
-        type="button"
-        :title="t('cine.' + id)"
-        :aria-label="t('cine.' + id)"
-        :data-testid="'scene-' + id"
-        @click="watch(id)"
-      )
-        GameIcon(name="play")
+    //- The training ground, any time; beside it the story's scenes seen so far, to watch again (#100).
+    div.extras
+      FButton.train(type="ghost" size="sm" icon="replay" icon-position="left" data-testid="btn-training" @click="train") {{ t('base.training') }}
+      div.story(v-if="scenes.length" role="group" :aria-label="t('base.story')")
+        button.scene(
+          v-for="id in scenes"
+          :key="id"
+          type="button"
+          :title="t('cine.' + id)"
+          :aria-label="t('cine.' + id)"
+          :data-testid="'scene-' + id"
+          @click="watch(id)"
+        )
+          GameIcon(name="play")
 </template>
 
 <script setup lang="ts">
@@ -97,6 +96,7 @@ const { t, locale } = useI18n()
 const NUMERALS = ['I', 'II', 'III', 'IV', 'V'] as const
 
 const open = computed(() => unlockedLevel(flow.fortress))
+const openForts = computed(() => FORTRESSES.filter(f => fortressOpen(f.id)).length)
 /** The answers in force for the next raid. */
 const answers = computed<AnswerId[]>(() => { const a = answersTo(profile.habits); return ANSWER_IDS.filter(id => a[id]) })
 const ANSWER_ICONS: Readonly<Record<AnswerId, GameIconName>> = { helmets: 'shield', boxCheck: 'box', perchLight: 'eye' }
@@ -129,14 +129,17 @@ const train = (): void => { void startTraining() }
 </script>
 
 <style scoped lang="sass">
-.story
+.extras
   display: flex
+  flex-wrap: wrap
   align-items: center
   gap: 0.35em
-  flex-wrap: wrap
-.story-label
-  color: var(--cm-dim)
-  font-size: var(--cm-fs-xs, 0.75em)
+  .train
+    flex: 1 1 auto
+.story
+  display: flex
+  gap: 0.25em
+  flex: none
 .scene
   width: 2.5rem
   height: 2.5rem

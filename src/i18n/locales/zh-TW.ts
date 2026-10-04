@@ -26,16 +26,16 @@ export default {
     'skip': '跳過'
   },
   'cine': {
-    'intro': 'The drop',
-    'salvage': 'The haul',
-    'fallBastion': 'The Bastion falls',
-    'fallFoundry': 'The Foundry goes cold',
-    'outro': 'Home'
+    'intro': '空降',
+    'salvage': '戰利品',
+    'fallBastion': '堡壘陷落',
+    'fallFoundry': '熔爐熄滅',
+    'outro': '回家'
   },
   'fortress': {
-    'bastion': 'Bastion',
-    'foundry': 'Foundry',
-    'harbour': 'Harbour'
+    'bastion': '堡壘',
+    'foundry': '鑄造廠',
+    'harbour': '港口'
   },
   'hud': {
     'alert': '警戒等級',
@@ -44,9 +44,9 @@ export default {
     'weapons': '武器',
     'ammo': '彈藥',
     'reloading': '換彈中',
-    'jump': 'Jump',
-    'rope': 'Shoot a rope',
-    'burn': 'Burn it to ash',
+    'jump': '跳躍',
+    'rope': '發射繩索',
+    'burn': '燒成灰燼',
     'reserve': '另攜帶 {n} 發',
     'heat': '武器過熱',
     'armor': '裝甲',
@@ -93,9 +93,9 @@ export default {
     },
     'threat': '威脅等級',
     'locked': '請先通關第 {n} 關',
-    'fortress': 'Fortress',
-    'fortressLocked': 'Take the {name} at threat {n} first',
-    'story': 'Story',
+    'fortress': '要塞',
+    'fortressLocked': '請先在威脅等級 {n} 攻下{name}',
+    'story': '劇情',
     'best': '最高分',
     'armory': '軍械庫',
     'chassis': '底盤艙',
@@ -253,9 +253,9 @@ export default {
       'cycle': '下一把武器',
       'pause': '暫停',
       'help': '顯示教學',
-      'jump': 'Jump',
-      'rope': 'Rope gun',
-      'burn': 'Flamethrower'
+      'jump': '跳躍',
+      'rope': '繩索槍',
+      'burn': '火焰噴射器'
     }
   },
   'prompt': {
@@ -267,8 +267,8 @@ export default {
     'grab': '抓住屍體',
     'drop': '放下屍體',
     'hook': '鉤爪',
-    'rope': 'Rope',
-    'burn': 'Burn'
+    'rope': '繩索',
+    'burn': '焚燒'
   },
   'saveStatus': {
     'restoredTitle': '雲端存檔已還原',

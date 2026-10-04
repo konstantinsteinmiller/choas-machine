@@ -26,16 +26,16 @@ export default {
     'skip': 'Passer'
   },
   'cine': {
-    'intro': 'The drop',
-    'salvage': 'The haul',
-    'fallBastion': 'The Bastion falls',
-    'fallFoundry': 'The Foundry goes cold',
-    'outro': 'Home'
+    'intro': 'Le saut',
+    'salvage': 'Le butin',
+    'fallBastion': 'Le Bastion tombe',
+    'fallFoundry': 'La Fonderie s\'éteint',
+    'outro': 'À la maison'
   },
   'fortress': {
     'bastion': 'Bastion',
-    'foundry': 'Foundry',
-    'harbour': 'Harbour'
+    'foundry': 'Fonderie',
+    'harbour': 'Port'
   },
   'hud': {
     'alert': 'Niveau d\'alerte',
@@ -44,9 +44,9 @@ export default {
     'weapons': 'Armes',
     'ammo': 'Munitions',
     'reloading': 'Rechargement',
-    'jump': 'Jump',
-    'rope': 'Shoot a rope',
-    'burn': 'Burn it to ash',
+    'jump': 'Sauter',
+    'rope': 'Tirer une corde',
+    'burn': 'Réduire en cendres',
     'reserve': '{n} de plus en réserve',
     'heat': 'Chaleur de l\'arme',
     'armor': 'Blindage',
@@ -93,9 +93,9 @@ export default {
     },
     'threat': 'Niveau de menace',
     'locked': 'Finis d\'abord le niveau {n}',
-    'fortress': 'Fortress',
-    'fortressLocked': 'Take the {name} at threat {n} first',
-    'story': 'Story',
+    'fortress': 'Forteresse',
+    'fortressLocked': 'Termine d\'abord {name} au niveau de menace {n}',
+    'story': 'Histoire',
     'best': 'Meilleur score',
     'armory': 'Armurerie',
     'chassis': 'Baie de châssis',
@@ -253,9 +253,9 @@ export default {
       'cycle': 'Arme suivante',
       'pause': 'Pause',
       'help': 'Afficher les leçons',
-      'jump': 'Jump',
-      'rope': 'Rope gun',
-      'burn': 'Flamethrower'
+      'jump': 'Saut',
+      'rope': 'Lance-corde',
+      'burn': 'Lance-flammes'
     }
   },
   'prompt': {
@@ -267,8 +267,8 @@ export default {
     'grab': 'Saisir le corps',
     'drop': 'Lâcher le corps',
     'hook': 'Grappin',
-    'rope': 'Rope',
-    'burn': 'Burn'
+    'rope': 'Corde',
+    'burn': 'Brûler'
   },
   'saveStatus': {
     'restoredTitle': 'Sauvegarde cloud restaurée',

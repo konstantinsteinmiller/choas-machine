@@ -26,16 +26,16 @@ export default {
     'skip': 'O‘tkazib yuborish'
   },
   'cine': {
-    'intro': 'The drop',
-    'salvage': 'The haul',
-    'fallBastion': 'The Bastion falls',
-    'fallFoundry': 'The Foundry goes cold',
-    'outro': 'Home'
+    'intro': 'Tushish',
+    'salvage': 'O\'lja',
+    'fallBastion': 'Bastion quladi',
+    'fallFoundry': 'Quyma zavodi sovimoqda',
+    'outro': 'Uyga'
   },
   'fortress': {
     'bastion': 'Bastion',
-    'foundry': 'Foundry',
-    'harbour': 'Harbour'
+    'foundry': 'Quyma zavodi',
+    'harbour': 'Port'
   },
   'hud': {
     'alert': 'Xavf darajasi',
@@ -44,9 +44,9 @@ export default {
     'weapons': 'Qurollar',
     'ammo': 'O\'q-dorilar',
     'reloading': 'Qayta o\'qlanmoqda',
-    'jump': 'Jump',
-    'rope': 'Shoot a rope',
-    'burn': 'Burn it to ash',
+    'jump': 'Sakra',
+    'rope': 'Arqon ot',
+    'burn': 'Kulga aylantir',
     'reserve': 'Yana {n} ta zaxirada',
     'heat': 'Qurol qizishi',
     'armor': 'Zirh',
@@ -93,9 +93,9 @@ export default {
     },
     'threat': 'Xavf darajasi',
     'locked': 'Avval {n}-bosqichni tugating',
-    'fortress': 'Fortress',
-    'fortressLocked': 'Take the {name} at threat {n} first',
-    'story': 'Story',
+    'fortress': 'Qal\'a',
+    'fortressLocked': '{name}: avval xavf {n} darajasini yeching',
+    'story': 'Hikoya',
     'best': 'Eng yaxshi hisob',
     'armory': 'Qurolxona',
     'chassis': 'Shassi bo\'limi',
@@ -253,9 +253,9 @@ export default {
       'cycle': 'Keyingi qurol',
       'pause': 'Pauza',
       'help': 'Darslarni ko\'rsatish',
-      'jump': 'Jump',
-      'rope': 'Rope gun',
-      'burn': 'Flamethrower'
+      'jump': 'Sakrash',
+      'rope': 'Arqon quroli',
+      'burn': 'Alanga otgich'
     }
   },
   'prompt': {
@@ -267,8 +267,8 @@ export default {
     'grab': 'Jasadni olish',
     'drop': 'Jasadni tashlash',
     'hook': 'Ilgak',
-    'rope': 'Rope',
-    'burn': 'Burn'
+    'rope': 'Arqon',
+    'burn': 'Yoq'
   },
   'saveStatus': {
     'restoredTitle': 'Bulutli saqlash tiklandi',

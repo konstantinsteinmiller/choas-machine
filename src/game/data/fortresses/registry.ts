@@ -19,13 +19,15 @@ export interface FortressMeta {
   theme: ThemeId
   /** Open once this fortress has been cleared at this threat level; null for the first. */
   unlock: { after: FortressId; threat: number } | null
+  /** Its scrap pays this much more than the Bastion's, level for level (R47): a later fortress is worth the trip. */
+  pay: number
 }
 
 export const FORTRESSES: readonly FortressMeta[] = [
-  { id: 'bastion', theme: 'dusk', unlock: null },
+  { id: 'bastion', theme: 'dusk', unlock: null, pay: 1 },
   // Open once the Bastion has fallen at threat III (Q4).
-  { id: 'foundry', theme: 'foundry', unlock: { after: 'bastion', threat: 3 } },
-  { id: 'harbour', theme: 'harbour', unlock: { after: 'foundry', threat: 3 } }
+  { id: 'foundry', theme: 'foundry', unlock: { after: 'bastion', threat: 3 }, pay: 1.35 },
+  { id: 'harbour', theme: 'harbour', unlock: { after: 'foundry', threat: 3 }, pay: 1.7 }
 ]
 
 export const FORTRESS_IDS: readonly FortressId[] = FORTRESSES.map(f => f.id)

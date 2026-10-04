@@ -26,16 +26,16 @@ export default {
     'skip': 'Lewati'
   },
   'cine': {
-    'intro': 'The drop',
-    'salvage': 'The haul',
-    'fallBastion': 'The Bastion falls',
-    'fallFoundry': 'The Foundry goes cold',
-    'outro': 'Home'
+    'intro': 'Pendaratan',
+    'salvage': 'Hasil rampasan',
+    'fallBastion': 'Bastion jatuh',
+    'fallFoundry': 'Pengecoran mendingin',
+    'outro': 'Pulang'
   },
   'fortress': {
     'bastion': 'Bastion',
-    'foundry': 'Foundry',
-    'harbour': 'Harbour'
+    'foundry': 'Pengecoran',
+    'harbour': 'Pelabuhan'
   },
   'hud': {
     'alert': 'Tingkat siaga',
@@ -44,9 +44,9 @@ export default {
     'weapons': 'Senjata',
     'ammo': 'Amunisi',
     'reloading': 'Mengisi ulang',
-    'jump': 'Jump',
-    'rope': 'Shoot a rope',
-    'burn': 'Burn it to ash',
+    'jump': 'Lompat',
+    'rope': 'Tembak tali',
+    'burn': 'Bakar jadi abu',
     'reserve': '{n} lagi dibawa',
     'heat': 'Panas senjata',
     'armor': 'Armor',
@@ -93,9 +93,9 @@ export default {
     },
     'threat': 'Tingkat ancaman',
     'locked': 'Selesaikan level {n} dulu',
-    'fortress': 'Fortress',
-    'fortressLocked': 'Take the {name} at threat {n} first',
-    'story': 'Story',
+    'fortress': 'Benteng',
+    'fortressLocked': 'Taklukkan {name} di ancaman {n} dulu',
+    'story': 'Cerita',
     'best': 'Skor terbaik',
     'armory': 'Gudang Senjata',
     'chassis': 'Bay Sasis',
@@ -253,9 +253,9 @@ export default {
       'cycle': 'Senjata berikutnya',
       'pause': 'Jeda',
       'help': 'Tampilkan pelajaran',
-      'jump': 'Jump',
-      'rope': 'Rope gun',
-      'burn': 'Flamethrower'
+      'jump': 'Lompat',
+      'rope': 'Senapan tali',
+      'burn': 'Penyembur api'
     }
   },
   'prompt': {
@@ -267,8 +267,8 @@ export default {
     'grab': 'Seret tubuh',
     'drop': 'Lepas tubuh',
     'hook': 'Kait',
-    'rope': 'Rope',
-    'burn': 'Burn'
+    'rope': 'Tali',
+    'burn': 'Bakar'
   },
   'saveStatus': {
     'restoredTitle': 'Simpanan cloud dipulihkan',

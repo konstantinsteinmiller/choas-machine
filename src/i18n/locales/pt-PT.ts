@@ -26,16 +26,16 @@ export default {
     'skip': 'Saltar'
   },
   'cine': {
-    'intro': 'The drop',
-    'salvage': 'The haul',
-    'fallBastion': 'The Bastion falls',
-    'fallFoundry': 'The Foundry goes cold',
-    'outro': 'Home'
+    'intro': 'O salto',
+    'salvage': 'O espólio',
+    'fallBastion': 'O Bastião cai',
+    'fallFoundry': 'A Fundição arrefece',
+    'outro': 'A casa'
   },
   'fortress': {
-    'bastion': 'Bastion',
-    'foundry': 'Foundry',
-    'harbour': 'Harbour'
+    'bastion': 'Bastião',
+    'foundry': 'Fundição',
+    'harbour': 'Porto'
   },
   'hud': {
     'alert': 'Nível de alerta',
@@ -44,9 +44,9 @@ export default {
     'weapons': 'Armas',
     'ammo': 'Munições',
     'reloading': 'A recarregar',
-    'jump': 'Jump',
-    'rope': 'Shoot a rope',
-    'burn': 'Burn it to ash',
+    'jump': 'Saltar',
+    'rope': 'Disparar uma corda',
+    'burn': 'Reduzir a cinzas',
     'reserve': 'Mais {n} em reserva',
     'heat': 'Calor da arma',
     'armor': 'Blindagem',
@@ -93,9 +93,9 @@ export default {
     },
     'threat': 'Nível de ameaça',
     'locked': 'Conclui primeiro o nível {n}',
-    'fortress': 'Fortress',
-    'fortressLocked': 'Take the {name} at threat {n} first',
-    'story': 'Story',
+    'fortress': 'Fortaleza',
+    'fortressLocked': 'Antes conclui {name} na ameaça {n}',
+    'story': 'História',
     'best': 'Melhor pontuação',
     'armory': 'Arsenal',
     'chassis': 'Oficina do chassis',
@@ -253,9 +253,9 @@ export default {
       'cycle': 'Arma seguinte',
       'pause': 'Pausa',
       'help': 'Mostrar as lições',
-      'jump': 'Jump',
-      'rope': 'Rope gun',
-      'burn': 'Flamethrower'
+      'jump': 'Saltar',
+      'rope': 'Lança-cordas',
+      'burn': 'Lança-chamas'
     }
   },
   'prompt': {
@@ -267,8 +267,8 @@ export default {
     'grab': 'Agarrar corpo',
     'drop': 'Largar corpo',
     'hook': 'Gancho',
-    'rope': 'Rope',
-    'burn': 'Burn'
+    'rope': 'Corda',
+    'burn': 'Queimar'
   },
   'saveStatus': {
     'restoredTitle': 'Progresso na nuvem restaurado',

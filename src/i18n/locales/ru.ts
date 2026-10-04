@@ -26,16 +26,16 @@ export default {
     'skip': 'Пропустить'
   },
   'cine': {
-    'intro': 'The drop',
-    'salvage': 'The haul',
-    'fallBastion': 'The Bastion falls',
-    'fallFoundry': 'The Foundry goes cold',
-    'outro': 'Home'
+    'intro': 'Высадка',
+    'salvage': 'Добыча',
+    'fallBastion': 'Бастион пал',
+    'fallFoundry': 'Литейная остывает',
+    'outro': 'Домой'
   },
   'fortress': {
-    'bastion': 'Bastion',
-    'foundry': 'Foundry',
-    'harbour': 'Harbour'
+    'bastion': 'Бастион',
+    'foundry': 'Литейная',
+    'harbour': 'Гавань'
   },
   'hud': {
     'alert': 'Уровень тревоги',
@@ -44,9 +44,9 @@ export default {
     'weapons': 'Оружие',
     'ammo': 'Боеприпасы',
     'reloading': 'Перезарядка',
-    'jump': 'Jump',
-    'rope': 'Shoot a rope',
-    'burn': 'Burn it to ash',
+    'jump': 'Прыжок',
+    'rope': 'Выстрелить верёвкой',
+    'burn': 'Сжечь дотла',
     'reserve': 'Ещё {n} в запасе',
     'heat': 'Нагрев оружия',
     'armor': 'Броня',
@@ -93,9 +93,9 @@ export default {
     },
     'threat': 'Уровень угрозы',
     'locked': 'Сначала пройдите уровень {n}',
-    'fortress': 'Fortress',
-    'fortressLocked': 'Take the {name} at threat {n} first',
-    'story': 'Story',
+    'fortress': 'Крепость',
+    'fortressLocked': 'Сначала пройдите: {name}, угроза {n}',
+    'story': 'История',
     'best': 'Лучший счёт',
     'armory': 'Оружейная',
     'chassis': 'Отсек шасси',
@@ -253,9 +253,9 @@ export default {
       'cycle': 'Следующее оружие',
       'pause': 'Пауза',
       'help': 'Показать подсказки',
-      'jump': 'Jump',
-      'rope': 'Rope gun',
-      'burn': 'Flamethrower'
+      'jump': 'Прыжок',
+      'rope': 'Верёвочная пушка',
+      'burn': 'Огнемёт'
     }
   },
   'prompt': {
@@ -267,8 +267,8 @@ export default {
     'grab': 'Схватить тело',
     'drop': 'Бросить тело',
     'hook': 'Крюк',
-    'rope': 'Rope',
-    'burn': 'Burn'
+    'rope': 'Верёвка',
+    'burn': 'Сжечь'
   },
   'saveStatus': {
     'restoredTitle': 'Облачное сохранение восстановлено',

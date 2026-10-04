@@ -26,16 +26,16 @@ export default {
     'skip': 'Пропусни'
   },
   'cine': {
-    'intro': 'The drop',
-    'salvage': 'The haul',
-    'fallBastion': 'The Bastion falls',
-    'fallFoundry': 'The Foundry goes cold',
-    'outro': 'Home'
+    'intro': 'Десантът',
+    'salvage': 'Плячката',
+    'fallBastion': 'Бастионът пада',
+    'fallFoundry': 'Леярната изстива',
+    'outro': 'У дома'
   },
   'fortress': {
-    'bastion': 'Bastion',
-    'foundry': 'Foundry',
-    'harbour': 'Harbour'
+    'bastion': 'Бастион',
+    'foundry': 'Леярна',
+    'harbour': 'Пристанище'
   },
   'hud': {
     'alert': 'Ниво на тревога',
@@ -44,9 +44,9 @@ export default {
     'weapons': 'Оръжия',
     'ammo': 'Боеприпаси',
     'reloading': 'Зареждане',
-    'jump': 'Jump',
-    'rope': 'Shoot a rope',
-    'burn': 'Burn it to ash',
+    'jump': 'Скок',
+    'rope': 'Изстреляй въже',
+    'burn': 'Изгори до пепел',
     'reserve': 'още {n} в резерв',
     'heat': 'Прегряване на оръжието',
     'armor': 'Броня',
@@ -93,9 +93,9 @@ export default {
     },
     'threat': 'Ниво на заплаха',
     'locked': 'Първо мини ниво {n}',
-    'fortress': 'Fortress',
-    'fortressLocked': 'Take the {name} at threat {n} first',
-    'story': 'Story',
+    'fortress': 'Крепост',
+    'fortressLocked': 'Първо минете: {name}, заплаха {n}',
+    'story': 'История',
     'best': 'Най-добър резултат',
     'armory': 'Оръжейница',
     'chassis': 'Шасита',
@@ -253,9 +253,9 @@ export default {
       'cycle': 'Следващо оръжие',
       'pause': 'Пауза',
       'help': 'Покажи уроците',
-      'jump': 'Jump',
-      'rope': 'Rope gun',
-      'burn': 'Flamethrower'
+      'jump': 'Скок',
+      'rope': 'Въжено оръжие',
+      'burn': 'Огнехвъргачка'
     }
   },
   'prompt': {
@@ -267,8 +267,8 @@ export default {
     'grab': 'Хвани тялото',
     'drop': 'Пусни тялото',
     'hook': 'Кука',
-    'rope': 'Rope',
-    'burn': 'Burn'
+    'rope': 'Въже',
+    'burn': 'Изгори'
   },
   'saveStatus': {
     'restoredTitle': 'Облачният запис е възстановен',

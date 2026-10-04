@@ -26,16 +26,16 @@ export default {
     'skip': 'Kihagyás'
   },
   'cine': {
-    'intro': 'The drop',
-    'salvage': 'The haul',
-    'fallBastion': 'The Bastion falls',
-    'fallFoundry': 'The Foundry goes cold',
-    'outro': 'Home'
+    'intro': 'A landolás',
+    'salvage': 'A zsákmány',
+    'fallBastion': 'Elesik a Bástya',
+    'fallFoundry': 'Kihűl az Öntöde',
+    'outro': 'Haza'
   },
   'fortress': {
-    'bastion': 'Bastion',
-    'foundry': 'Foundry',
-    'harbour': 'Harbour'
+    'bastion': 'Bástya',
+    'foundry': 'Öntöde',
+    'harbour': 'Kikötő'
   },
   'hud': {
     'alert': 'Riadószint',
@@ -44,9 +44,9 @@ export default {
     'weapons': 'Fegyverek',
     'ammo': 'Lőszer',
     'reloading': 'Töltés',
-    'jump': 'Jump',
-    'rope': 'Shoot a rope',
-    'burn': 'Burn it to ash',
+    'jump': 'Ugrás',
+    'rope': 'Kötél kilövése',
+    'burn': 'Hamuvá éget',
     'reserve': 'Még {n} nálad',
     'heat': 'Fegyver hőmérséklete',
     'armor': 'Páncél',
@@ -93,9 +93,9 @@ export default {
     },
     'threat': 'Veszélyszint',
     'locked': 'Előbb teljesítsd a(z) {n}. szintet',
-    'fortress': 'Fortress',
-    'fortressLocked': 'Take the {name} at threat {n} first',
-    'story': 'Story',
+    'fortress': 'Erőd',
+    'fortressLocked': 'Előbb foglald el: {name}, veszélyszint {n}',
+    'story': 'Történet',
     'best': 'Legjobb pontszám',
     'armory': 'Fegyvertár',
     'chassis': 'Alvázműhely',
@@ -253,9 +253,9 @@ export default {
       'cycle': 'Következő fegyver',
       'pause': 'Szünet',
       'help': 'Leckék mutatása',
-      'jump': 'Jump',
-      'rope': 'Rope gun',
-      'burn': 'Flamethrower'
+      'jump': 'Ugrás',
+      'rope': 'Kötélvető',
+      'burn': 'Lángszóró'
     }
   },
   'prompt': {
@@ -267,8 +267,8 @@ export default {
     'grab': 'Test megfogása',
     'drop': 'Test eldobása',
     'hook': 'Kampó',
-    'rope': 'Rope',
-    'burn': 'Burn'
+    'rope': 'Kötél',
+    'burn': 'Éget'
   },
   'saveStatus': {
     'restoredTitle': 'Felhőmentés visszaállítva',

@@ -26,16 +26,16 @@ export default {
     'skip': 'छोड़ें'
   },
   'cine': {
-    'intro': 'The drop',
-    'salvage': 'The haul',
-    'fallBastion': 'The Bastion falls',
-    'fallFoundry': 'The Foundry goes cold',
-    'outro': 'Home'
+    'intro': 'उतरना',
+    'salvage': 'लूट का माल',
+    'fallBastion': 'गढ़ का पतन',
+    'fallFoundry': 'भट्टी ठंडी पड़ी',
+    'outro': 'घर वापसी'
   },
   'fortress': {
-    'bastion': 'Bastion',
-    'foundry': 'Foundry',
-    'harbour': 'Harbour'
+    'bastion': 'गढ़',
+    'foundry': 'भट्टी घर',
+    'harbour': 'बंदरगाह'
   },
   'hud': {
     'alert': 'अलर्ट स्तर',
@@ -44,9 +44,9 @@ export default {
     'weapons': 'हथियार',
     'ammo': 'गोला-बारूद',
     'reloading': 'रीलोड हो रहा है',
-    'jump': 'Jump',
-    'rope': 'Shoot a rope',
-    'burn': 'Burn it to ash',
+    'jump': 'कूदें',
+    'rope': 'रस्सी फेंकें',
+    'burn': 'जलाकर राख करो',
     'reserve': '{n} और साथ में',
     'heat': 'हथियार की गर्मी',
     'armor': 'कवच',
@@ -93,9 +93,9 @@ export default {
     },
     'threat': 'खतरे का स्तर',
     'locked': 'पहले लेवल {n} पूरा करें',
-    'fortress': 'Fortress',
-    'fortressLocked': 'Take the {name} at threat {n} first',
-    'story': 'Story',
+    'fortress': 'किला',
+    'fortressLocked': 'पहले खतरे के स्तर {n} पर {name} जीतें',
+    'story': 'कहानी',
     'best': 'सर्वश्रेष्ठ स्कोर',
     'armory': 'शस्त्रागार',
     'chassis': 'चेसिस बे',
@@ -253,9 +253,9 @@ export default {
       'cycle': 'अगला हथियार',
       'pause': 'रोकें',
       'help': 'सबक दिखाएँ',
-      'jump': 'Jump',
-      'rope': 'Rope gun',
-      'burn': 'Flamethrower'
+      'jump': 'कूदना',
+      'rope': 'रस्सी बंदूक',
+      'burn': 'फ्लेमथ्रोवर'
     }
   },
   'prompt': {
@@ -267,8 +267,8 @@ export default {
     'grab': 'शव पकड़ें',
     'drop': 'शव छोड़ें',
     'hook': 'हुक',
-    'rope': 'Rope',
-    'burn': 'Burn'
+    'rope': 'रस्सी',
+    'burn': 'जलाओ'
   },
   'saveStatus': {
     'restoredTitle': 'क्लाउड सेव बहाल हुआ',

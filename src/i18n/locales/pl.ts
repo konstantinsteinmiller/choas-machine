@@ -26,16 +26,16 @@ export default {
     'skip': 'Pomiń'
   },
   'cine': {
-    'intro': 'The drop',
-    'salvage': 'The haul',
-    'fallBastion': 'The Bastion falls',
-    'fallFoundry': 'The Foundry goes cold',
-    'outro': 'Home'
+    'intro': 'Desant',
+    'salvage': 'Łup',
+    'fallBastion': 'Bastion upada',
+    'fallFoundry': 'Huta stygnie',
+    'outro': 'Do domu'
   },
   'fortress': {
     'bastion': 'Bastion',
-    'foundry': 'Foundry',
-    'harbour': 'Harbour'
+    'foundry': 'Huta',
+    'harbour': 'Port'
   },
   'hud': {
     'alert': 'Poziom alarmu',
@@ -44,9 +44,9 @@ export default {
     'weapons': 'Bronie',
     'ammo': 'Amunicja',
     'reloading': 'Przeładowanie',
-    'jump': 'Jump',
-    'rope': 'Shoot a rope',
-    'burn': 'Burn it to ash',
+    'jump': 'Skok',
+    'rope': 'Wystrzel linę',
+    'burn': 'Spal na popiół',
     'reserve': 'Jeszcze {n} w zapasie',
     'heat': 'Temperatura broni',
     'armor': 'Pancerz',
@@ -93,9 +93,9 @@ export default {
     },
     'threat': 'Poziom zagrożenia',
     'locked': 'Najpierw ukończ poziom {n}',
-    'fortress': 'Fortress',
-    'fortressLocked': 'Take the {name} at threat {n} first',
-    'story': 'Story',
+    'fortress': 'Forteca',
+    'fortressLocked': 'Najpierw zdobądź: {name}, zagrożenie {n}',
+    'story': 'Historia',
     'best': 'Najlepszy wynik',
     'armory': 'Zbrojownia',
     'chassis': 'Hangar podwozia',
@@ -253,9 +253,9 @@ export default {
       'cycle': 'Następna broń',
       'pause': 'Pauza',
       'help': 'Pokaż lekcje',
-      'jump': 'Jump',
-      'rope': 'Rope gun',
-      'burn': 'Flamethrower'
+      'jump': 'Skok',
+      'rope': 'Wyrzutnia liny',
+      'burn': 'Miotacz ognia'
     }
   },
   'prompt': {
@@ -267,8 +267,8 @@ export default {
     'grab': 'Chwyć ciało',
     'drop': 'Puść ciało',
     'hook': 'Hak',
-    'rope': 'Rope',
-    'burn': 'Burn'
+    'rope': 'Lina',
+    'burn': 'Spal'
   },
   'saveStatus': {
     'restoredTitle': 'Zapis w chmurze przywrócony',

@@ -233,6 +233,18 @@ quiet machine before release; the suspects in order are the triangle count
 garrison step (scent trail, rigs, chat checks: 3 to 8 ms in the loaded runs,
 1 to 2 before).
 
+## Round 4 check (2026-10-04): sizes only
+
+No timing A/B this round. What the build says: the engine chunk (`boot`)
+is 386 kB (149 kB gzip), the app shell 244 kB (94 kB gzip). New code that
+a raid does not need loads on demand in its own chunk: each fortress's
+builder (Bastion 8 kB, Foundry 6 kB, Harbour 5 kB) behind the fortress
+registry, and the story's scenes (16 kB) behind the boot's cinema factory;
+both loaders are excluded from the obfuscator like every dynamic import.
+Watch: the Bastion grew by a 6-cell ring (60 x 64 to 72 x 76 cells, 1.43x
+the cells to mesh) and gained roofs (each slab run is a ray box); the Foundry
+is a 64 x 64 grid that is mostly one tall block. Neither was profiled.
+
 ## Open
 
 1. **The loud phase's tail.** Work p95 reaches 100 ms at 4× CPU, with tens of

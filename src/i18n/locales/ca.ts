@@ -26,16 +26,16 @@ export default {
     'skip': 'Omet'
   },
   'cine': {
-    'intro': 'The drop',
-    'salvage': 'The haul',
-    'fallBastion': 'The Bastion falls',
-    'fallFoundry': 'The Foundry goes cold',
-    'outro': 'Home'
+    'intro': 'El salt',
+    'salvage': 'El botí',
+    'fallBastion': 'El Bastió cau',
+    'fallFoundry': 'La Foneria s\'apaga',
+    'outro': 'A casa'
   },
   'fortress': {
-    'bastion': 'Bastion',
-    'foundry': 'Foundry',
-    'harbour': 'Harbour'
+    'bastion': 'Bastió',
+    'foundry': 'Foneria',
+    'harbour': 'Port'
   },
   'hud': {
     'alert': 'Nivell d\'alerta',
@@ -44,9 +44,9 @@ export default {
     'weapons': 'Armes',
     'ammo': 'Munició',
     'reloading': 'Recarregant',
-    'jump': 'Jump',
-    'rope': 'Shoot a rope',
-    'burn': 'Burn it to ash',
+    'jump': 'Saltar',
+    'rope': 'Disparar una corda',
+    'burn': 'Reduir a cendres',
     'reserve': '{n} més a sobre',
     'heat': 'Calor de l\'arma',
     'armor': 'Armadura',
@@ -93,9 +93,9 @@ export default {
     },
     'threat': 'Nivell d\'amenaça',
     'locked': 'Supera primer el nivell {n}',
-    'fortress': 'Fortress',
-    'fortressLocked': 'Take the {name} at threat {n} first',
-    'story': 'Story',
+    'fortress': 'Fortalesa',
+    'fortressLocked': 'Abans supera {name} a amenaça {n}',
+    'story': 'Història',
     'best': 'Millor puntuació',
     'armory': 'Armeria',
     'chassis': 'Bàs del xassís',
@@ -253,9 +253,9 @@ export default {
       'cycle': 'Arma següent',
       'pause': 'Pausa',
       'help': 'Mostra les lliçons',
-      'jump': 'Jump',
-      'rope': 'Rope gun',
-      'burn': 'Flamethrower'
+      'jump': 'Saltar',
+      'rope': 'Pistola de corda',
+      'burn': 'Llançaflames'
     }
   },
   'prompt': {
@@ -267,8 +267,8 @@ export default {
     'grab': 'Agafa el cos',
     'drop': 'Deixa el cos',
     'hook': 'Ganxo',
-    'rope': 'Rope',
-    'burn': 'Burn'
+    'rope': 'Corda',
+    'burn': 'Cremar'
   },
   'saveStatus': {
     'restoredTitle': 'Partida al núvol restaurada',

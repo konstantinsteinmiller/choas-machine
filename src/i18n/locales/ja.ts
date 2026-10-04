@@ -26,16 +26,16 @@ export default {
     'skip': 'スキップ'
   },
   'cine': {
-    'intro': 'The drop',
-    'salvage': 'The haul',
-    'fallBastion': 'The Bastion falls',
-    'fallFoundry': 'The Foundry goes cold',
-    'outro': 'Home'
+    'intro': '降下',
+    'salvage': '戦利品',
+    'fallBastion': '砦、陥落',
+    'fallFoundry': '炉の火が消える',
+    'outro': '帰還'
   },
   'fortress': {
-    'bastion': 'Bastion',
-    'foundry': 'Foundry',
-    'harbour': 'Harbour'
+    'bastion': '砦',
+    'foundry': '製錬所',
+    'harbour': '空中港'
   },
   'hud': {
     'alert': '警戒レベル',
@@ -44,9 +44,9 @@ export default {
     'weapons': '武器',
     'ammo': '弾薬',
     'reloading': 'リロード中',
-    'jump': 'Jump',
-    'rope': 'Shoot a rope',
-    'burn': 'Burn it to ash',
+    'jump': 'ジャンプ',
+    'rope': 'ロープを撃つ',
+    'burn': '燃やして灰にする',
     'reserve': '予備あと{n}',
     'heat': '武器の熱',
     'armor': '装甲',
@@ -93,9 +93,9 @@ export default {
     },
     'threat': '脅威レベル',
     'locked': '先にレベル{n}をクリア',
-    'fortress': 'Fortress',
-    'fortressLocked': 'Take the {name} at threat {n} first',
-    'story': 'Story',
+    'fortress': '要塞',
+    'fortressLocked': '先に脅威レベル{n}で{name}を攻略',
+    'story': 'ストーリー',
     'best': 'ベストスコア',
     'armory': '武器庫',
     'chassis': 'シャーシ格納庫',
@@ -253,9 +253,9 @@ export default {
       'cycle': '次の武器',
       'pause': '一時停止',
       'help': 'レッスンを表示',
-      'jump': 'Jump',
-      'rope': 'Rope gun',
-      'burn': 'Flamethrower'
+      'jump': 'ジャンプ',
+      'rope': 'ロープガン',
+      'burn': '火炎放射器'
     }
   },
   'prompt': {
@@ -267,8 +267,8 @@ export default {
     'grab': '体をつかむ',
     'drop': '手放す',
     'hook': 'フック',
-    'rope': 'Rope',
-    'burn': 'Burn'
+    'rope': 'ロープ',
+    'burn': '燃やす'
   },
   'saveStatus': {
     'restoredTitle': 'クラウドセーブを復元しました',

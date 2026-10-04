@@ -26,16 +26,16 @@ export default {
     'skip': 'Omite'
   },
   'cine': {
-    'intro': 'The drop',
-    'salvage': 'The haul',
-    'fallBastion': 'The Bastion falls',
-    'fallFoundry': 'The Foundry goes cold',
-    'outro': 'Home'
+    'intro': 'Aterizarea',
+    'salvage': 'Prada',
+    'fallBastion': 'Bastionul cade',
+    'fallFoundry': 'Turnătoria se răcește',
+    'outro': 'Acasă'
   },
   'fortress': {
     'bastion': 'Bastion',
-    'foundry': 'Foundry',
-    'harbour': 'Harbour'
+    'foundry': 'Turnătoria',
+    'harbour': 'Portul'
   },
   'hud': {
     'alert': 'Nivel de alertă',
@@ -44,9 +44,9 @@ export default {
     'weapons': 'Arme',
     'ammo': 'Muniție',
     'reloading': 'Se reîncarcă',
-    'jump': 'Jump',
-    'rope': 'Shoot a rope',
-    'burn': 'Burn it to ash',
+    'jump': 'Sari',
+    'rope': 'Trage o frânghie',
+    'burn': 'Fă-l scrum',
     'reserve': 'Încă {n} la tine',
     'heat': 'Căldura armei',
     'armor': 'Armură',
@@ -93,9 +93,9 @@ export default {
     },
     'threat': 'Nivel de amenințare',
     'locked': 'Termină mai întâi nivelul {n}',
-    'fortress': 'Fortress',
-    'fortressLocked': 'Take the {name} at threat {n} first',
-    'story': 'Story',
+    'fortress': 'Fortăreața',
+    'fortressLocked': 'Mai întâi cucerește: {name}, amenințarea {n}',
+    'story': 'Povestea',
     'best': 'Cel mai bun scor',
     'armory': 'Armurărie',
     'chassis': 'Baza șasiului',
@@ -253,9 +253,9 @@ export default {
       'cycle': 'Arma următoare',
       'pause': 'Pauză',
       'help': 'Arată lecțiile',
-      'jump': 'Jump',
-      'rope': 'Rope gun',
-      'burn': 'Flamethrower'
+      'jump': 'Săritură',
+      'rope': 'Pistol cu frânghie',
+      'burn': 'Aruncător de flăcări'
     }
   },
   'prompt': {
@@ -267,8 +267,8 @@ export default {
     'grab': 'Apucă corpul',
     'drop': 'Lasă corpul',
     'hook': 'Cârlig',
-    'rope': 'Rope',
-    'burn': 'Burn'
+    'rope': 'Frânghie',
+    'burn': 'Arde'
   },
   'saveStatus': {
     'restoredTitle': 'Salvare din cloud restaurată',

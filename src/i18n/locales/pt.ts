@@ -26,16 +26,16 @@ export default {
     'skip': 'Pular'
   },
   'cine': {
-    'intro': 'The drop',
-    'salvage': 'The haul',
-    'fallBastion': 'The Bastion falls',
-    'fallFoundry': 'The Foundry goes cold',
-    'outro': 'Home'
+    'intro': 'O salto',
+    'salvage': 'O espólio',
+    'fallBastion': 'O Bastião cai',
+    'fallFoundry': 'A Fundição esfria',
+    'outro': 'Para casa'
   },
   'fortress': {
-    'bastion': 'Bastion',
-    'foundry': 'Foundry',
-    'harbour': 'Harbour'
+    'bastion': 'Bastião',
+    'foundry': 'Fundição',
+    'harbour': 'Porto'
   },
   'hud': {
     'alert': 'Nível de alerta',
@@ -44,9 +44,9 @@ export default {
     'weapons': 'Armas',
     'ammo': 'Munição',
     'reloading': 'Recarregando',
-    'jump': 'Jump',
-    'rope': 'Shoot a rope',
-    'burn': 'Burn it to ash',
+    'jump': 'Pular',
+    'rope': 'Atirar uma corda',
+    'burn': 'Reduzir a cinzas',
     'reserve': 'Mais {n} na reserva',
     'heat': 'Calor da arma',
     'armor': 'Armadura',
@@ -93,9 +93,9 @@ export default {
     },
     'threat': 'Nível de ameaça',
     'locked': 'Conclua o nível {n} primeiro',
-    'fortress': 'Fortress',
-    'fortressLocked': 'Take the {name} at threat {n} first',
-    'story': 'Story',
+    'fortress': 'Fortaleza',
+    'fortressLocked': 'Antes conclua {name} na ameaça {n}',
+    'story': 'História',
     'best': 'Melhor pontuação',
     'armory': 'Arsenal',
     'chassis': 'Oficina do chassi',
@@ -253,9 +253,9 @@ export default {
       'cycle': 'Próxima arma',
       'pause': 'Pausa',
       'help': 'Mostrar as lições',
-      'jump': 'Jump',
-      'rope': 'Rope gun',
-      'burn': 'Flamethrower'
+      'jump': 'Pular',
+      'rope': 'Lança-cordas',
+      'burn': 'Lança-chamas'
     }
   },
   'prompt': {
@@ -267,8 +267,8 @@ export default {
     'grab': 'Pegar corpo',
     'drop': 'Soltar corpo',
     'hook': 'Gancho',
-    'rope': 'Rope',
-    'burn': 'Burn'
+    'rope': 'Corda',
+    'burn': 'Queimar'
   },
   'saveStatus': {
     'restoredTitle': 'Salvamento na nuvem restaurado',

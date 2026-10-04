@@ -28,7 +28,8 @@ The game begins with the base unaware of the player's presence.
     *   *Assassinations:* Context-sensitive prompts allow backstabs from behind, or "Drop Assassinations" from ledges, towers, or ropes. 
 *   **Decoys:** The player can deploy holographic decoys (cyan/pink neon projections) to distract humans and machines, opening them up for backstabs or grouping them for an explosive attack.
 *   **Detection (after *Odyssey*'s fort guards):** A guard who glimpses the Mech fills a white mark slowly (a glance is forgiven; slower crouched, at the cone's edge and in shadow); yellow, it walks to where it saw something; red, it is sure: it shouts (the guards round it join the fight) and the nearest guard runs to light an alarm beacon. Stop the runner, or sabotage the beacons first, and the base never reaches full alert. Lost, the guards search the last known position, then return to their rounds warier. Things out of place (a stripped pile, a light shot out) are noticed; bodies can be dragged into containers; crouched in a thicket the Mech is unseen unless a guard is right on top of it.
-*   **Training ground:** A wordless tutorial of ten small rooms, each opened by a ghost of the Mech showing the lesson (twice, and again on request).
+*   **Training ground:** A wordless tutorial of fourteen small rooms (move, jump, cover, weapons, supplies, blade, flamethrower, decoy, disguise, hook, rope gun, beacon, salvage, extraction). In each, a cyan hologram of the Mech over a projector disc shows the lesson, over and over until it is done, then dissolves; a button plays it from the start.
+*   **Moving and tools (round 4):** A jump (it catches ledges), the hook thrown onto the wall top under the Mech's look, a rope gun for lines down from a height, a flamethrower that burns bodies and wrecks so nobody finds them (the fire itself is seen). Ammunition is limited (pouches from fallen guards, ammo crates), armor mends only with repair kits, red barrels go up. Roofs with skylights keep the perch from reading the base.
 
 ### 2.2 The Action Phase (Chaos)
 If the player misses a shot, leaves a body in plain sight, or makes too much noise, the **Alert Level** rises. If the base goes on full alert, the gameplay shifts drastically.
@@ -61,7 +62,9 @@ A visual hub menu (rendered in the pink/cyan UI) where the player upgrades their
 *   **The Armory:** Upgrade the Sniper (zoom, damage, silence level), Mini-gun (cooling rate, damage), and Rocket Launcher (blast radius, ammo capacity).
 *   **Chassis Bay:** Upgrade the Mech's armor (for the loud phases), movement speed (level 1 also quiets the sprint), Decoy duration (level 1 also packs one more decoy) and the grappling hook's reach.
 *   **The base learns:** The last raid's habits are answered in the next (helmets after many headshots, box checkers after much use of the hide box, a searchlight on the perch after snipes from it), and the threat card says so.
-*   **The Forge:** Wait-timers (which can be sped up with premium currency) to construct new weapon tiers from gathered blueprints.
+*   **The Forge:** Upgrades are bought outright (round 4); after a raid the furnace melts the haul for a bonus, and the rifle's lucky wheel adds damage once the rifle track is maxed. Rewarded videos (where a portal allows them) unlock disguises and a sure spin.
+*   **Disguises (round 4):** The toaster is everyone's; a crate, a clown box, a Trojan horse, a bush and a teddy bear unlock, worn from the Chassis Bay.
+*   **Three fortresses (round 4):** The Bastion (a mountain stronghold), the Foundry (rooms cut out of a block of works, joined by bent halls and stair tunnels) and the Harbour (ships moored over the sky). Each opens after threat III of the one before, has its own look, five threat levels and its own records, and pays more than the one before.
 
 ---
 
@@ -77,6 +80,11 @@ A visual hub menu (rendered in the pink/cyan UI) where the player upgrades their
 | **Enforcer Mech** | Powers up only during Alerts. Suppressive fire. | Rockets, Mini-gun to joints | High |
 | **Goliath Tank** | Boss enemy at the end of large bases. Overheats after three shells, its vents swinging toward the Mech. | Decoys (it shells itself) + its rear vents + Rockets | Extreme |
 | **The Warden** | The base commander, a boss on the keep's roof. A powered shield from level IV; past half health he drops it and dashes with a glint. | Cut his generator; step aside from the dash | High |
+| **Roomba** (round 4) | A knee-high disc robot with an SMG (the Peashooter) or a shotgun (the Buckshot); sees low; at home indoors. | A round in its domed eye | Medium |
+| **Shield Guard** (round 4) | A riot shield stops rounds from in front; the head shows over it. | Headshot, a flank, or a blast to knock the shield away | Medium |
+| **Grenadier** (round 4) | Lobs a grenade at the last known position: a red ring, two seconds, then the bang. | Leave the ring; take him first | Medium |
+| **Marksman** (round 4) | On a tower: a red laser draws on the Mech for 1.8 s, then a heavy round from up to 120 m. | Stay out of its lines, or take it out first | High |
+| **The Foreman** | A marked Enforcer holding the Foundry's salvage core. | Jam its servo; rockets to the joints | High |
 
 ---
 
@@ -96,7 +104,7 @@ A visual hub menu (rendered in the pink/cyan UI) where the player upgrades their
 
 ## 6. Narrative & Presentation
 
-*   **Intro Sequence:** A slick, unskippable (but short) 5-second cinematic showing the player's customized Mech dropping from a stealth ship, landing silently on a gargoyle or tower overlooking the fortress.
+*   **Intro Sequence:** Each raid opens with the robo dog's jet board flying the Mech in to its perch (skippable). The story itself is told without words in engine scenes (round 4, `story.md`): a 35 s ability showcase after the training ground, the haul after the first raids, a scene as each fortress falls, and an outro; each has a skip button and Space held half a second skips it, and the base lists the ones seen to watch again. The very first raid opens with a scripted takedown and a rifle shot.
 *   **Outro Sequence:** Upon killing the final enemy or base commander, the Mech turns its back to the camera, deploying a grapple line to extract while the neon UI tallies the score (Stealth Kills, Headshots, Time Bonus).
 *   **Audio Design:** 
     *   *Stealth:* Low synth-bass hums, muffled footsteps, crisp "thwip" of the silenced sniper.

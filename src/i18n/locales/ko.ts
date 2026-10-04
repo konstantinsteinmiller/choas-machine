@@ -26,16 +26,16 @@ export default {
     'skip': '건너뛰기'
   },
   'cine': {
-    'intro': 'The drop',
-    'salvage': 'The haul',
-    'fallBastion': 'The Bastion falls',
-    'fallFoundry': 'The Foundry goes cold',
-    'outro': 'Home'
+    'intro': '강하',
+    'salvage': '전리품',
+    'fallBastion': '보루가 무너지다',
+    'fallFoundry': '용광로가 식다',
+    'outro': '귀환'
   },
   'fortress': {
-    'bastion': 'Bastion',
-    'foundry': 'Foundry',
-    'harbour': 'Harbour'
+    'bastion': '보루',
+    'foundry': '제련소',
+    'harbour': '항구'
   },
   'hud': {
     'alert': '경계 수준',
@@ -44,9 +44,9 @@ export default {
     'weapons': '무기',
     'ammo': '탄약',
     'reloading': '재장전 중',
-    'jump': 'Jump',
-    'rope': 'Shoot a rope',
-    'burn': 'Burn it to ash',
+    'jump': '점프',
+    'rope': '로프 발사',
+    'burn': '태워서 재로',
     'reserve': '{n}발 추가 보유',
     'heat': '무기 열',
     'armor': '장갑',
@@ -93,9 +93,9 @@ export default {
     },
     'threat': '위협 등급',
     'locked': '먼저 레벨 {n} 클리어',
-    'fortress': 'Fortress',
-    'fortressLocked': 'Take the {name} at threat {n} first',
-    'story': 'Story',
+    'fortress': '요새',
+    'fortressLocked': '먼저 위협 등급 {n}에서 {name} 점령',
+    'story': '스토리',
     'best': '최고 점수',
     'armory': '무기고',
     'chassis': '섀시 베이',
@@ -253,9 +253,9 @@ export default {
       'cycle': '다음 무기',
       'pause': '일시정지',
       'help': '튜토리얼 보기',
-      'jump': 'Jump',
-      'rope': 'Rope gun',
-      'burn': 'Flamethrower'
+      'jump': '점프',
+      'rope': '로프건',
+      'burn': '화염방사기'
     }
   },
   'prompt': {
@@ -267,8 +267,8 @@ export default {
     'grab': '시체 잡기',
     'drop': '시체 놓기',
     'hook': '갈고리',
-    'rope': 'Rope',
-    'burn': 'Burn'
+    'rope': '로프',
+    'burn': '태우기'
   },
   'saveStatus': {
     'restoredTitle': '클라우드 저장이 복원되었습니다',

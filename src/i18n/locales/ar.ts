@@ -26,16 +26,16 @@ export default {
     'skip': 'تخطي'
   },
   'cine': {
-    'intro': 'The drop',
-    'salvage': 'The haul',
-    'fallBastion': 'The Bastion falls',
-    'fallFoundry': 'The Foundry goes cold',
-    'outro': 'Home'
+    'intro': 'الإنزال',
+    'salvage': 'الغنيمة',
+    'fallBastion': 'سقوط المعقل',
+    'fallFoundry': 'المسبك يبرد',
+    'outro': 'العودة'
   },
   'fortress': {
-    'bastion': 'Bastion',
-    'foundry': 'Foundry',
-    'harbour': 'Harbour'
+    'bastion': 'المعقل',
+    'foundry': 'المسبك',
+    'harbour': 'الميناء'
   },
   'hud': {
     'alert': 'مستوى الإنذار',
@@ -44,9 +44,9 @@ export default {
     'weapons': 'الأسلحة',
     'ammo': 'الذخيرة',
     'reloading': 'إعادة التعبئة',
-    'jump': 'Jump',
-    'rope': 'Shoot a rope',
-    'burn': 'Burn it to ash',
+    'jump': 'اقفز',
+    'rope': 'أطلق حبلاً',
+    'burn': 'احرقه حتى الرماد',
     'reserve': '{n} إضافية محمولة',
     'heat': 'حرارة السلاح',
     'armor': 'الدرع',
@@ -93,9 +93,9 @@ export default {
     },
     'threat': 'مستوى الخطر',
     'locked': 'أكمل المستوى {n} أولاً',
-    'fortress': 'Fortress',
-    'fortressLocked': 'Take the {name} at threat {n} first',
-    'story': 'Story',
+    'fortress': 'الحصن',
+    'fortressLocked': 'استولِ على {name} عند الخطر {n} أولاً',
+    'story': 'القصة',
     'best': 'أفضل نتيجة',
     'armory': 'الترسانة',
     'chassis': 'حظيرة الهيكل',
@@ -253,9 +253,9 @@ export default {
       'cycle': 'السلاح التالي',
       'pause': 'إيقاف مؤقت',
       'help': 'عرض الدروس',
-      'jump': 'Jump',
-      'rope': 'Rope gun',
-      'burn': 'Flamethrower'
+      'jump': 'قفز',
+      'rope': 'مسدس الحبل',
+      'burn': 'قاذف اللهب'
     }
   },
   'prompt': {
@@ -267,8 +267,8 @@ export default {
     'grab': 'امسك الجثة',
     'drop': 'أفلت الجثة',
     'hook': 'خطّاف',
-    'rope': 'Rope',
-    'burn': 'Burn'
+    'rope': 'حبل',
+    'burn': 'احرق'
   },
   'saveStatus': {
     'restoredTitle': 'تمت استعادة الحفظ السحابي',

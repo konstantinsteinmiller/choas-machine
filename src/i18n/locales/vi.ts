@@ -26,16 +26,16 @@ export default {
     'skip': 'Bỏ qua'
   },
   'cine': {
-    'intro': 'The drop',
-    'salvage': 'The haul',
-    'fallBastion': 'The Bastion falls',
-    'fallFoundry': 'The Foundry goes cold',
-    'outro': 'Home'
+    'intro': 'Cú đáp',
+    'salvage': 'Chiến lợi phẩm',
+    'fallBastion': 'Thành trì thất thủ',
+    'fallFoundry': 'Lò đúc nguội lạnh',
+    'outro': 'Về nhà'
   },
   'fortress': {
-    'bastion': 'Bastion',
-    'foundry': 'Foundry',
-    'harbour': 'Harbour'
+    'bastion': 'Thành Trì',
+    'foundry': 'Lò Đúc',
+    'harbour': 'Hải Cảng'
   },
   'hud': {
     'alert': 'Mức báo động',
@@ -44,9 +44,9 @@ export default {
     'weapons': 'Vũ khí',
     'ammo': 'Đạn dược',
     'reloading': 'Đang nạp đạn',
-    'jump': 'Jump',
-    'rope': 'Shoot a rope',
-    'burn': 'Burn it to ash',
+    'jump': 'Nhảy',
+    'rope': 'Bắn dây',
+    'burn': 'Thiêu thành tro',
     'reserve': 'Mang thêm {n}',
     'heat': 'Nhiệt vũ khí',
     'armor': 'Giáp',
@@ -93,9 +93,9 @@ export default {
     },
     'threat': 'Mức đe dọa',
     'locked': 'Hãy qua màn {n} trước',
-    'fortress': 'Fortress',
-    'fortressLocked': 'Take the {name} at threat {n} first',
-    'story': 'Story',
+    'fortress': 'Pháo đài',
+    'fortressLocked': 'Hãy hạ {name} ở mức đe dọa {n} trước',
+    'story': 'Cốt truyện',
     'best': 'Điểm cao nhất',
     'armory': 'Kho vũ khí',
     'chassis': 'Xưởng khung',
@@ -253,9 +253,9 @@ export default {
       'cycle': 'Vũ khí kế tiếp',
       'pause': 'Tạm dừng',
       'help': 'Hiện bài hướng dẫn',
-      'jump': 'Jump',
-      'rope': 'Rope gun',
-      'burn': 'Flamethrower'
+      'jump': 'Nhảy',
+      'rope': 'Súng bắn dây',
+      'burn': 'Súng phun lửa'
     }
   },
   'prompt': {
@@ -267,8 +267,8 @@ export default {
     'grab': 'Nắm xác',
     'drop': 'Thả xác',
     'hook': 'Móc',
-    'rope': 'Rope',
-    'burn': 'Burn'
+    'rope': 'Dây',
+    'burn': 'Đốt'
   },
   'saveStatus': {
     'restoredTitle': 'Đã khôi phục lưu trên đám mây',

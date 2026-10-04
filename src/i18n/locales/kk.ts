@@ -26,16 +26,16 @@ export default {
     'skip': 'Өткізу'
   },
   'cine': {
-    'intro': 'The drop',
-    'salvage': 'The haul',
-    'fallBastion': 'The Bastion falls',
-    'fallFoundry': 'The Foundry goes cold',
-    'outro': 'Home'
+    'intro': 'Түсу',
+    'salvage': 'Олжа',
+    'fallBastion': 'Бастион құлайды',
+    'fallFoundry': 'Құю цехы суиды',
+    'outro': 'Үйге'
   },
   'fortress': {
-    'bastion': 'Bastion',
-    'foundry': 'Foundry',
-    'harbour': 'Harbour'
+    'bastion': 'Бастион',
+    'foundry': 'Құю цехы',
+    'harbour': 'Айлақ'
   },
   'hud': {
     'alert': 'Дабыл деңгейі',
@@ -44,9 +44,9 @@ export default {
     'weapons': 'Қарулар',
     'ammo': 'Оқ-дәрі',
     'reloading': 'Оқтау',
-    'jump': 'Jump',
-    'rope': 'Shoot a rope',
-    'burn': 'Burn it to ash',
+    'jump': 'Секір',
+    'rope': 'Арқан ату',
+    'burn': 'Күлге айналдыр',
     'reserve': 'Тағы {n} алып жүр',
     'heat': 'Қарудың қызуы',
     'armor': 'Сауыт',
@@ -93,9 +93,9 @@ export default {
     },
     'threat': 'Қауіп деңгейі',
     'locked': 'Алдымен {n}-деңгейді өтіңіз',
-    'fortress': 'Fortress',
-    'fortressLocked': 'Take the {name} at threat {n} first',
-    'story': 'Story',
+    'fortress': 'Бекініс',
+    'fortressLocked': '{name}: алдымен қауіп {n} деңгейін өт',
+    'story': 'Оқиға',
     'best': 'Үздік ұпай',
     'armory': 'Қарулар қоймасы',
     'chassis': 'Шасси бөлімі',
@@ -253,9 +253,9 @@ export default {
       'cycle': 'Келесі қару',
       'pause': 'Үзіліс',
       'help': 'Сабақтарды көрсету',
-      'jump': 'Jump',
-      'rope': 'Rope gun',
-      'burn': 'Flamethrower'
+      'jump': 'Секіру',
+      'rope': 'Арқан тапаншасы',
+      'burn': 'Жалын шашқыш'
     }
   },
   'prompt': {
@@ -267,8 +267,8 @@ export default {
     'grab': 'Денені алу',
     'drop': 'Денені тастау',
     'hook': 'Ілгек',
-    'rope': 'Rope',
-    'burn': 'Burn'
+    'rope': 'Арқан',
+    'burn': 'Өрте'
   },
   'saveStatus': {
     'restoredTitle': 'Бұлттық сақтау қалпына келтірілді',

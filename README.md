@@ -1,7 +1,7 @@
 # Chaos Machine
 
-A casual stealth-action / sniper game for the web. A small mech infiltrates a
-neon fortress: snipe guards and drones from a perch, strike with the energy
+A casual stealth-action / sniper game for the web. A small mech infiltrates
+neon sky fortresses (the Bastion, the Foundry, the Harbour): snipe guards and drones from a perch, strike with the energy
 blade from behind, lure patrols with holographic decoys, and go loud with
 minigun and rockets when the base goes on full alert. Strip the salvage the
 raid is for, reach the pad, and a jet-powered robo dog flies the mech out; back
@@ -9,8 +9,12 @@ home the salvage is forged into upgrades in a three-step smithy. A wordless
 training ground comes first; the fortress stands on a mountain top in a sea of
 clouds, its guards detect like Odyssey's fort guards (white, yellow, red; a
 shout, a runner, a beacon), and it learns the player's habits from raid to raid.
+Round 4 added the jump, the aimed hook, the rope gun, the flamethrower,
+disguises, limited ammunition and repair kits, roofs with skylights, Roombas,
+shield guards, grenadiers and tower marksmen, two more fortresses, hologram
+lessons and a wordless story told in engine scenes ([story.md](story.md)).
 
-- Design: [GDD.md](GDD.md)
+- Design: [GDD.md](GDD.md); the story: [story.md](story.md)
 - Plan and resume point: [game-implementation-plan.md](game-implementation-plan.md)
 - Store copy: [description.md](description.md)
 - What is still placeholder: [art-todo.md](art-todo.md), [sound-todo.md](sound-todo.md)
@@ -37,7 +41,8 @@ Dev-only URLs:
 |---|---|
 | `?level=3` | start at threat level III (1 to 5) |
 | `?fort=proving` | the kit's test layout instead of the Bastion |
-| `?fort=training` / `?fort=bastion` | the training ground / the Bastion, whatever the profile |
+| `?fort=training` / `?fort=bastion` / `?fort=foundry` / `?fort=harbour` | the training ground / a fortress, whatever the profile |
+| `?bench=models&m=roomba` (or `kits`, `drone`, …) | the model bench |
 | `?view=az,el,dist` | a fixed inspection camera |
 | `?art=off` | play without painted drop-ins (works in any build) |
 | `?preview=1` | publish `window.__preview`, the seam the video recorder and the cover-art tool drive the game through |

@@ -26,16 +26,16 @@ export default {
     'skip': 'ข้าม'
   },
   'cine': {
-    'intro': 'The drop',
-    'salvage': 'The haul',
-    'fallBastion': 'The Bastion falls',
-    'fallFoundry': 'The Foundry goes cold',
-    'outro': 'Home'
+    'intro': 'การลงจอด',
+    'salvage': 'ของที่ได้มา',
+    'fallBastion': 'ปราการแตก',
+    'fallFoundry': 'โรงหลอมดับสนิท',
+    'outro': 'กลับบ้าน'
   },
   'fortress': {
-    'bastion': 'Bastion',
-    'foundry': 'Foundry',
-    'harbour': 'Harbour'
+    'bastion': 'ปราการ',
+    'foundry': 'โรงหลอม',
+    'harbour': 'ท่าเรือ'
   },
   'hud': {
     'alert': 'ระดับการเตือนภัย',
@@ -44,9 +44,9 @@ export default {
     'weapons': 'อาวุธ',
     'ammo': 'กระสุน',
     'reloading': 'กำลังโหลดกระสุน',
-    'jump': 'Jump',
-    'rope': 'Shoot a rope',
-    'burn': 'Burn it to ash',
+    'jump': 'กระโดด',
+    'rope': 'ยิงเชือก',
+    'burn': 'เผาให้เป็นเถ้า',
     'reserve': 'พกเพิ่มอีก {n}',
     'heat': 'ความร้อนอาวุธ',
     'armor': 'เกราะ',
@@ -93,9 +93,9 @@ export default {
     },
     'threat': 'ระดับภัยคุกคาม',
     'locked': 'ผ่านด่าน {n} ก่อน',
-    'fortress': 'Fortress',
-    'fortressLocked': 'Take the {name} at threat {n} first',
-    'story': 'Story',
+    'fortress': 'ป้อม',
+    'fortressLocked': 'ยึด{name}ที่ระดับภัยคุกคาม {n} ก่อน',
+    'story': 'เรื่องราว',
     'best': 'คะแนนสูงสุด',
     'armory': 'คลังอาวุธ',
     'chassis': 'ห้องแชสซี',
@@ -253,9 +253,9 @@ export default {
       'cycle': 'อาวุธถัดไป',
       'pause': 'หยุดชั่วคราว',
       'help': 'แสดงบทเรียน',
-      'jump': 'Jump',
-      'rope': 'Rope gun',
-      'burn': 'Flamethrower'
+      'jump': 'กระโดด',
+      'rope': 'ปืนเชือก',
+      'burn': 'พ่นไฟ'
     }
   },
   'prompt': {
@@ -267,8 +267,8 @@ export default {
     'grab': 'จับร่าง',
     'drop': 'ปล่อยร่าง',
     'hook': 'ตะขอ',
-    'rope': 'Rope',
-    'burn': 'Burn'
+    'rope': 'เชือก',
+    'burn': 'เผา'
   },
   'saveStatus': {
     'restoredTitle': 'กู้คืนเซฟบนคลาวด์แล้ว',

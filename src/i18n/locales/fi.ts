@@ -26,16 +26,16 @@ export default {
     'skip': 'Ohita'
   },
   'cine': {
-    'intro': 'The drop',
-    'salvage': 'The haul',
-    'fallBastion': 'The Bastion falls',
-    'fallFoundry': 'The Foundry goes cold',
-    'outro': 'Home'
+    'intro': 'Pudotus',
+    'salvage': 'Saalis',
+    'fallBastion': 'Bastioni kaatuu',
+    'fallFoundry': 'Valimo jäähtyy',
+    'outro': 'Kotiin'
   },
   'fortress': {
-    'bastion': 'Bastion',
-    'foundry': 'Foundry',
-    'harbour': 'Harbour'
+    'bastion': 'Bastioni',
+    'foundry': 'Valimo',
+    'harbour': 'Satama'
   },
   'hud': {
     'alert': 'Hälytystaso',
@@ -44,9 +44,9 @@ export default {
     'weapons': 'Aseet',
     'ammo': 'Ammukset',
     'reloading': 'Ladataan',
-    'jump': 'Jump',
-    'rope': 'Shoot a rope',
-    'burn': 'Burn it to ash',
+    'jump': 'Hyppää',
+    'rope': 'Ammu köysi',
+    'burn': 'Polta tuhkaksi',
     'reserve': '{n} kantamassa lisää',
     'heat': 'Aseen kuumuus',
     'armor': 'Panssari',
@@ -93,9 +93,9 @@ export default {
     },
     'threat': 'Uhkataso',
     'locked': 'Suorita ensin taso {n}',
-    'fortress': 'Fortress',
-    'fortressLocked': 'Take the {name} at threat {n} first',
-    'story': 'Story',
+    'fortress': 'Linnake',
+    'fortressLocked': '{name}: voita ensin uhkataso {n}',
+    'story': 'Tarina',
     'best': 'Paras tulos',
     'armory': 'Asevarasto',
     'chassis': 'Runkoteline',
@@ -253,9 +253,9 @@ export default {
       'cycle': 'Seuraava ase',
       'pause': 'Tauko',
       'help': 'Näytä opit',
-      'jump': 'Jump',
-      'rope': 'Rope gun',
-      'burn': 'Flamethrower'
+      'jump': 'Hyppy',
+      'rope': 'Köysipyssy',
+      'burn': 'Liekinheitin'
     }
   },
   'prompt': {
@@ -267,8 +267,8 @@ export default {
     'grab': 'Ota ruumis',
     'drop': 'Pudota ruumis',
     'hook': 'Koukku',
-    'rope': 'Rope',
-    'burn': 'Burn'
+    'rope': 'Köysi',
+    'burn': 'Polta'
   },
   'saveStatus': {
     'restoredTitle': 'Pilvitallennus palautettu',

@@ -26,16 +26,16 @@ export default {
     'skip': 'Preskoči'
   },
   'cine': {
-    'intro': 'The drop',
-    'salvage': 'The haul',
-    'fallBastion': 'The Bastion falls',
-    'fallFoundry': 'The Foundry goes cold',
-    'outro': 'Home'
+    'intro': 'Desant',
+    'salvage': 'Plijen',
+    'fallBastion': 'Bedem pada',
+    'fallFoundry': 'Ljevaonica se hladi',
+    'outro': 'Kući'
   },
   'fortress': {
-    'bastion': 'Bastion',
-    'foundry': 'Foundry',
-    'harbour': 'Harbour'
+    'bastion': 'Bedem',
+    'foundry': 'Ljevaonica',
+    'harbour': 'Luka'
   },
   'hud': {
     'alert': 'Razina uzbune',
@@ -44,9 +44,9 @@ export default {
     'weapons': 'Oružje',
     'ammo': 'Streljivo',
     'reloading': 'Punjenje',
-    'jump': 'Jump',
-    'rope': 'Shoot a rope',
-    'burn': 'Burn it to ash',
+    'jump': 'Skok',
+    'rope': 'Ispali uže',
+    'burn': 'Spali u pepeo',
     'reserve': 'Još {n} u rezervi',
     'heat': 'Zagrijanost oružja',
     'armor': 'Oklop',
@@ -93,9 +93,9 @@ export default {
     },
     'threat': 'Razina prijetnje',
     'locked': 'Prvo prijeđi razinu {n}',
-    'fortress': 'Fortress',
-    'fortressLocked': 'Take the {name} at threat {n} first',
-    'story': 'Story',
+    'fortress': 'Tvrđava',
+    'fortressLocked': 'Prvo prođi: {name}, prijetnja {n}',
+    'story': 'Priča',
     'best': 'Najbolji rezultat',
     'armory': 'Oružarnica',
     'chassis': 'Hangar šasije',
@@ -253,9 +253,9 @@ export default {
       'cycle': 'Sljedeće oružje',
       'pause': 'Pauza',
       'help': 'Prikaži upute',
-      'jump': 'Jump',
-      'rope': 'Rope gun',
-      'burn': 'Flamethrower'
+      'jump': 'Skok',
+      'rope': 'Pištolj za uže',
+      'burn': 'Bacač plamena'
     }
   },
   'prompt': {
@@ -267,8 +267,8 @@ export default {
     'grab': 'Uhvati tijelo',
     'drop': 'Ispusti tijelo',
     'hook': 'Kuka',
-    'rope': 'Rope',
-    'burn': 'Burn'
+    'rope': 'Uže',
+    'burn': 'Spali'
   },
   'saveStatus': {
     'restoredTitle': 'Spremanje u oblaku vraćeno',

@@ -26,16 +26,16 @@ export default {
     'skip': 'Keç'
   },
   'cine': {
-    'intro': 'The drop',
-    'salvage': 'The haul',
-    'fallBastion': 'The Bastion falls',
-    'fallFoundry': 'The Foundry goes cold',
-    'outro': 'Home'
+    'intro': 'Eniş',
+    'salvage': 'Qənimət',
+    'fallBastion': 'Bürc düşür',
+    'fallFoundry': 'Tökmə zavodu soyuyur',
+    'outro': 'Evə'
   },
   'fortress': {
-    'bastion': 'Bastion',
-    'foundry': 'Foundry',
-    'harbour': 'Harbour'
+    'bastion': 'Bürc',
+    'foundry': 'Tökmə zavodu',
+    'harbour': 'Liman'
   },
   'hud': {
     'alert': 'Həyəcan səviyyəsi',
@@ -44,9 +44,9 @@ export default {
     'weapons': 'Silahlar',
     'ammo': 'Sursat',
     'reloading': 'Doldurulur',
-    'jump': 'Jump',
-    'rope': 'Shoot a rope',
-    'burn': 'Burn it to ash',
+    'jump': 'Tullan',
+    'rope': 'İp at',
+    'burn': 'Külə çevir',
     'reserve': 'daha {n} gəzdirilir',
     'heat': 'Silahın istiliyi',
     'armor': 'Zireh',
@@ -93,9 +93,9 @@ export default {
     },
     'threat': 'Təhlükə səviyyəsi',
     'locked': 'Əvvəlcə {n}-ci səviyyəni bitir',
-    'fortress': 'Fortress',
-    'fortressLocked': 'Take the {name} at threat {n} first',
-    'story': 'Story',
+    'fortress': 'Qala',
+    'fortressLocked': '{name}: əvvəlcə təhlükə {n} səviyyəsini keç',
+    'story': 'Hekayə',
     'best': 'Ən yaxşı nəticə',
     'armory': 'Silahxana',
     'chassis': 'Şassi bölməsi',
@@ -253,9 +253,9 @@ export default {
       'cycle': 'Növbəti silah',
       'pause': 'Fasilə',
       'help': 'Dərsləri göstər',
-      'jump': 'Jump',
-      'rope': 'Rope gun',
-      'burn': 'Flamethrower'
+      'jump': 'Tullanma',
+      'rope': 'İp silahı',
+      'burn': 'Alov silahı'
     }
   },
   'prompt': {
@@ -267,8 +267,8 @@ export default {
     'grab': 'Cəsədi tut',
     'drop': 'Cəsədi burax',
     'hook': 'Qarmaq',
-    'rope': 'Rope',
-    'burn': 'Burn'
+    'rope': 'İp',
+    'burn': 'Yandır'
   },
   'saveStatus': {
     'restoredTitle': 'Bulud yaddaşı bərpa olundu',

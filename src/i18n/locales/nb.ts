@@ -26,16 +26,16 @@ export default {
     'skip': 'Hopp over'
   },
   'cine': {
-    'intro': 'The drop',
-    'salvage': 'The haul',
-    'fallBastion': 'The Bastion falls',
-    'fallFoundry': 'The Foundry goes cold',
-    'outro': 'Home'
+    'intro': 'Nedslaget',
+    'salvage': 'Byttet',
+    'fallBastion': 'Bastionen faller',
+    'fallFoundry': 'Smelteverket går kaldt',
+    'outro': 'Hjem'
   },
   'fortress': {
-    'bastion': 'Bastion',
-    'foundry': 'Foundry',
-    'harbour': 'Harbour'
+    'bastion': 'Bastionen',
+    'foundry': 'Smelteverket',
+    'harbour': 'Havnen'
   },
   'hud': {
     'alert': 'Alarmnivå',
@@ -44,9 +44,9 @@ export default {
     'weapons': 'Våpen',
     'ammo': 'Ammunisjon',
     'reloading': 'Lader om',
-    'jump': 'Jump',
-    'rope': 'Shoot a rope',
-    'burn': 'Burn it to ash',
+    'jump': 'Hopp',
+    'rope': 'Skyt et tau',
+    'burn': 'Brenn til aske',
     'reserve': '{n} til med deg',
     'heat': 'Våpenvarme',
     'armor': 'Panser',
@@ -93,9 +93,9 @@ export default {
     },
     'threat': 'Trusselnivå',
     'locked': 'Fullfør nivå {n} først',
-    'fortress': 'Fortress',
-    'fortressLocked': 'Take the {name} at threat {n} first',
-    'story': 'Story',
+    'fortress': 'Festning',
+    'fortressLocked': '{name}: ta den på trussel {n} først',
+    'story': 'Historie',
     'best': 'Beste poengsum',
     'armory': 'Våpenlager',
     'chassis': 'Chassisrom',
@@ -253,9 +253,9 @@ export default {
       'cycle': 'Neste våpen',
       'pause': 'Pause',
       'help': 'Vis leksjonene',
-      'jump': 'Jump',
-      'rope': 'Rope gun',
-      'burn': 'Flamethrower'
+      'jump': 'Hopp',
+      'rope': 'Taukanon',
+      'burn': 'Flammekaster'
     }
   },
   'prompt': {
@@ -267,8 +267,8 @@ export default {
     'grab': 'Grip kroppen',
     'drop': 'Slipp kroppen',
     'hook': 'Krok',
-    'rope': 'Rope',
-    'burn': 'Burn'
+    'rope': 'Tau',
+    'burn': 'Brenn'
   },
   'saveStatus': {
     'restoredTitle': 'Skylagring gjenopprettet',

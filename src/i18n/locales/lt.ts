@@ -26,16 +26,16 @@ export default {
     'skip': 'Praleisti'
   },
   'cine': {
-    'intro': 'The drop',
-    'salvage': 'The haul',
-    'fallBastion': 'The Bastion falls',
-    'fallFoundry': 'The Foundry goes cold',
-    'outro': 'Home'
+    'intro': 'Nusileidimas',
+    'salvage': 'Grobis',
+    'fallBastion': 'Bastionas griūva',
+    'fallFoundry': 'Liejykla atšąla',
+    'outro': 'Namo'
   },
   'fortress': {
-    'bastion': 'Bastion',
-    'foundry': 'Foundry',
-    'harbour': 'Harbour'
+    'bastion': 'Bastionas',
+    'foundry': 'Liejykla',
+    'harbour': 'Uostas'
   },
   'hud': {
     'alert': 'Pavojaus lygis',
@@ -44,9 +44,9 @@ export default {
     'weapons': 'Ginklai',
     'ammo': 'Amunicija',
     'reloading': 'Perkraunama',
-    'jump': 'Jump',
-    'rope': 'Shoot a rope',
-    'burn': 'Burn it to ash',
+    'jump': 'Šokti',
+    'rope': 'Šauti virvę',
+    'burn': 'Sudeginti į pelenus',
     'reserve': 'Dar {n} su savimi',
     'heat': 'Ginklo kaitra',
     'armor': 'Šarvai',
@@ -93,9 +93,9 @@ export default {
     },
     'threat': 'Grėsmės lygis',
     'locked': 'Pirmiausia įveikite {n} lygį',
-    'fortress': 'Fortress',
-    'fortressLocked': 'Take the {name} at threat {n} first',
-    'story': 'Story',
+    'fortress': 'Tvirtovė',
+    'fortressLocked': '{name}: pirma įveik grėsmę {n}',
+    'story': 'Istorija',
     'best': 'Geriausias rezultatas',
     'armory': 'Ginklinė',
     'chassis': 'Važiuoklės skyrius',
@@ -253,9 +253,9 @@ export default {
       'cycle': 'Kitas ginklas',
       'pause': 'Pauzė',
       'help': 'Rodyti pamokas',
-      'jump': 'Jump',
-      'rope': 'Rope gun',
-      'burn': 'Flamethrower'
+      'jump': 'Šuolis',
+      'rope': 'Virvės šautuvas',
+      'burn': 'Liepsnosvaidis'
     }
   },
   'prompt': {
@@ -267,8 +267,8 @@ export default {
     'grab': 'Paimti kūną',
     'drop': 'Paleisti kūną',
     'hook': 'Kablys',
-    'rope': 'Rope',
-    'burn': 'Burn'
+    'rope': 'Virvė',
+    'burn': 'Deginti'
   },
   'saveStatus': {
     'restoredTitle': 'Debesies išsaugojimas atkurtas',

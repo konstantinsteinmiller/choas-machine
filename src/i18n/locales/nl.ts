@@ -26,16 +26,16 @@ export default {
     'skip': 'Overslaan'
   },
   'cine': {
-    'intro': 'The drop',
-    'salvage': 'The haul',
-    'fallBastion': 'The Bastion falls',
-    'fallFoundry': 'The Foundry goes cold',
-    'outro': 'Home'
+    'intro': 'De sprong',
+    'salvage': 'De buit',
+    'fallBastion': 'Het Bastion valt',
+    'fallFoundry': 'De Gieterij koelt af',
+    'outro': 'Naar huis'
   },
   'fortress': {
     'bastion': 'Bastion',
-    'foundry': 'Foundry',
-    'harbour': 'Harbour'
+    'foundry': 'Gieterij',
+    'harbour': 'Haven'
   },
   'hud': {
     'alert': 'Alarmniveau',
@@ -44,9 +44,9 @@ export default {
     'weapons': 'Wapens',
     'ammo': 'Munitie',
     'reloading': 'Herladen',
-    'jump': 'Jump',
-    'rope': 'Shoot a rope',
-    'burn': 'Burn it to ash',
+    'jump': 'Springen',
+    'rope': 'Schiet een touw',
+    'burn': 'Verbrand tot as',
     'reserve': '{n} extra bij je',
     'heat': 'Wapenhitte',
     'armor': 'Pantser',
@@ -93,9 +93,9 @@ export default {
     },
     'threat': 'Dreigingsniveau',
     'locked': 'Voltooi eerst level {n}',
-    'fortress': 'Fortress',
-    'fortressLocked': 'Take the {name} at threat {n} first',
-    'story': 'Story',
+    'fortress': 'Vesting',
+    'fortressLocked': 'Versla eerst {name} op dreigingsniveau {n}',
+    'story': 'Verhaal',
     'best': 'Beste score',
     'armory': 'Wapenkamer',
     'chassis': 'Chassisbaai',
@@ -253,9 +253,9 @@ export default {
       'cycle': 'Volgend wapen',
       'pause': 'Pauze',
       'help': 'Toon de lessen',
-      'jump': 'Jump',
-      'rope': 'Rope gun',
-      'burn': 'Flamethrower'
+      'jump': 'Springen',
+      'rope': 'Touwkanon',
+      'burn': 'Vlammenwerper'
     }
   },
   'prompt': {
@@ -267,8 +267,8 @@ export default {
     'grab': 'Lichaam pakken',
     'drop': 'Lichaam laten vallen',
     'hook': 'Haak',
-    'rope': 'Rope',
-    'burn': 'Burn'
+    'rope': 'Touw',
+    'burn': 'Verbranden'
   },
   'saveStatus': {
     'restoredTitle': 'Cloudopslag hersteld',

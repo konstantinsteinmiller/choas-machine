@@ -26,16 +26,16 @@ export default {
     'skip': 'Omitir'
   },
   'cine': {
-    'intro': 'The drop',
-    'salvage': 'The haul',
-    'fallBastion': 'The Bastion falls',
-    'fallFoundry': 'The Foundry goes cold',
-    'outro': 'Home'
+    'intro': 'El salto',
+    'salvage': 'El botín',
+    'fallBastion': 'Cae el Bastión',
+    'fallFoundry': 'La Fundición se apaga',
+    'outro': 'A casa'
   },
   'fortress': {
-    'bastion': 'Bastion',
-    'foundry': 'Foundry',
-    'harbour': 'Harbour'
+    'bastion': 'Bastión',
+    'foundry': 'Fundición',
+    'harbour': 'Puerto'
   },
   'hud': {
     'alert': 'Nivel de alerta',
@@ -44,9 +44,9 @@ export default {
     'weapons': 'Armas',
     'ammo': 'Munición',
     'reloading': 'Recargando',
-    'jump': 'Jump',
-    'rope': 'Shoot a rope',
-    'burn': 'Burn it to ash',
+    'jump': 'Saltar',
+    'rope': 'Disparar una cuerda',
+    'burn': 'Reducir a cenizas',
     'reserve': '{n} más en reserva',
     'heat': 'Calor del arma',
     'armor': 'Blindaje',
@@ -93,9 +93,9 @@ export default {
     },
     'threat': 'Nivel de amenaza',
     'locked': 'Supera antes el nivel {n}',
-    'fortress': 'Fortress',
-    'fortressLocked': 'Take the {name} at threat {n} first',
-    'story': 'Story',
+    'fortress': 'Fortaleza',
+    'fortressLocked': 'Antes supera {name} en amenaza {n}',
+    'story': 'Historia',
     'best': 'Mejor puntuación',
     'armory': 'Armería',
     'chassis': 'Taller de chasis',
@@ -253,9 +253,9 @@ export default {
       'cycle': 'Siguiente arma',
       'pause': 'Pausa',
       'help': 'Mostrar las lecciones',
-      'jump': 'Jump',
-      'rope': 'Rope gun',
-      'burn': 'Flamethrower'
+      'jump': 'Saltar',
+      'rope': 'Pistola de cuerda',
+      'burn': 'Lanzallamas'
     }
   },
   'prompt': {
@@ -267,8 +267,8 @@ export default {
     'grab': 'Agarrar cuerpo',
     'drop': 'Soltar cuerpo',
     'hook': 'Gancho',
-    'rope': 'Rope',
-    'burn': 'Burn'
+    'rope': 'Cuerda',
+    'burn': 'Quemar'
   },
   'saveStatus': {
     'restoredTitle': 'Guardado en la nube restaurado',

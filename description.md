@@ -8,9 +8,9 @@ Sneak a cute mech into a neon fortress. Snipe guards, strike from the shadows, t
 
 ## Description (max 500 characters)
 
-You are the Chaos Machine: a small mech raiding a mountain-top fortress for salvage. Snipe from your perch, grapple over walls, take guards from behind and hide in thickets or a box. Stop the runner before the alarm beacon is lit. Strip the salvage, outwit the Warden, and let your robo dog fly you out. If the alarm sounds, the minigun and rockets come out. Forge your haul into upgrades, and mind the base: it learns your habits.
+You are the Chaos Machine: a small mech raiding sky fortresses for salvage. Snipe from your perch, grapple over walls, shoot ropes, take guards from behind, burn the evidence and hide as a toaster. Stop the runner before the beacon is lit. Strip the salvage, outwit the Warden, and fly out on your robo dog. If the alarm sounds, the minigun and rockets come out. Three fortresses, upgrades, and a base that learns your habits.
 
-(431 characters)
+(424 characters)
 
 ## How to play
 
@@ -91,14 +91,18 @@ rounds on target) and **Swift** (inside the time limit).
 | Left mouse button | Fire |
 | Shift (hold) | Sprint |
 | E | Strike with the blade / strip a pile / sabotage a beacon or the boss's power / drag a body |
-| G | Grappling hook (again to recall it) |
+| G | Grappling hook: up the wall in front, or onto the wall top you look at (again to recall it) |
+| Space | Jump (into a ledge: catch it and climb) |
+| T | Rope gun: from up high, a rope to the spot you look at |
+| X | Flamethrower: burn a body or a wreck to ash, so nobody finds it |
 | C | Crouch / stand |
-| B | Hide box on / off |
+| B | Disguise on / off (the toaster; more in the Chassis Bay) |
 | Q | Throw a decoy |
 | 1 / 2 / 3, mouse wheel or Tab | Sniper rifle / minigun / rocket launcher |
 | Mouse wheel while scoped | Zoom the scope in and out |
 | R | Reload |
 | Esc or P | Pause |
+| H or F1 | Show the lessons again |
 | F2 | Mute |
 
 Keys are shown in your own keyboard layout and can be changed in Options →

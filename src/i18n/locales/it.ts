@@ -26,16 +26,16 @@ export default {
     'skip': 'Salta'
   },
   'cine': {
-    'intro': 'The drop',
-    'salvage': 'The haul',
-    'fallBastion': 'The Bastion falls',
-    'fallFoundry': 'The Foundry goes cold',
-    'outro': 'Home'
+    'intro': 'Il lancio',
+    'salvage': 'Il bottino',
+    'fallBastion': 'Il Bastione cade',
+    'fallFoundry': 'La Fonderia si spegne',
+    'outro': 'A casa'
   },
   'fortress': {
-    'bastion': 'Bastion',
-    'foundry': 'Foundry',
-    'harbour': 'Harbour'
+    'bastion': 'Bastione',
+    'foundry': 'Fonderia',
+    'harbour': 'Porto'
   },
   'hud': {
     'alert': 'Livello di allerta',
@@ -44,9 +44,9 @@ export default {
     'weapons': 'Armi',
     'ammo': 'Munizioni',
     'reloading': 'Ricarica',
-    'jump': 'Jump',
-    'rope': 'Shoot a rope',
-    'burn': 'Burn it to ash',
+    'jump': 'Salta',
+    'rope': 'Spara una corda',
+    'burn': 'Riduci in cenere',
     'reserve': 'Altri {n} con te',
     'heat': 'Calore dell\'arma',
     'armor': 'Corazza',
@@ -93,9 +93,9 @@ export default {
     },
     'threat': 'Livello di minaccia',
     'locked': 'Prima completa il livello {n}',
-    'fortress': 'Fortress',
-    'fortressLocked': 'Take the {name} at threat {n} first',
-    'story': 'Story',
+    'fortress': 'Fortezza',
+    'fortressLocked': 'Prima supera {name} a minaccia {n}',
+    'story': 'Storia',
     'best': 'Miglior punteggio',
     'armory': 'Armeria',
     'chassis': 'Baia telaio',
@@ -253,9 +253,9 @@ export default {
       'cycle': 'Arma successiva',
       'pause': 'Pausa',
       'help': 'Mostra le lezioni',
-      'jump': 'Jump',
-      'rope': 'Rope gun',
-      'burn': 'Flamethrower'
+      'jump': 'Salto',
+      'rope': 'Lancia corde',
+      'burn': 'Lanciafiamme'
     }
   },
   'prompt': {
@@ -267,8 +267,8 @@ export default {
     'grab': 'Afferra corpo',
     'drop': 'Lascia corpo',
     'hook': 'Rampino',
-    'rope': 'Rope',
-    'burn': 'Burn'
+    'rope': 'Corda',
+    'burn': 'Brucia'
   },
   'saveStatus': {
     'restoredTitle': 'Salvataggio cloud ripristinato',

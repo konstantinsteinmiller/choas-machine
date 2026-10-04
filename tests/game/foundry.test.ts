@@ -124,6 +124,19 @@ describe('the Foundry', () => {
   })
 })
 
+describe('a later fortress pays more (R47)', () => {
+  beforeEach(() => { Object.assign(profile, defaultProfile()) })
+  it('the same run banks more scrap in the Foundry than in the Bastion, more again in the Harbour', async () => {
+    const { bankMission } = await import('@/game/state/progress')
+    const run = { time: 300, kills: 4, headshots: 2, salvage: 120, piles: 3, loud: false, alerts: 0, deaths: 0, bossDown: false } as never
+    const a = bankMission(run, 1, 'bastion').scrap
+    const b = bankMission(run, 1, 'foundry').scrap
+    const c = bankMission(run, 1, 'harbour').scrap
+    expect(b).toBeGreaterThan(a * 1.3)
+    expect(c).toBeGreaterThan(b * 1.2)
+  })
+})
+
 describe('the picker opens the Foundry after the Bastion at threat III', () => {
   beforeEach(() => { Object.assign(profile, defaultProfile()) })
   it('locked, then open; its own threat levels from I', () => {

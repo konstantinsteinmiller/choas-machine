@@ -26,16 +26,16 @@ export default {
     'skip': 'Überspringen'
   },
   'cine': {
-    'intro': 'The drop',
-    'salvage': 'The haul',
-    'fallBastion': 'The Bastion falls',
-    'fallFoundry': 'The Foundry goes cold',
-    'outro': 'Home'
+    'intro': 'Der Absprung',
+    'salvage': 'Die Beute',
+    'fallBastion': 'Die Bastion fällt',
+    'fallFoundry': 'Die Gießerei erkaltet',
+    'outro': 'Heimflug'
   },
   'fortress': {
     'bastion': 'Bastion',
-    'foundry': 'Foundry',
-    'harbour': 'Harbour'
+    'foundry': 'Gießerei',
+    'harbour': 'Hafen'
   },
   'hud': {
     'alert': 'Alarmstufe',
@@ -44,9 +44,9 @@ export default {
     'weapons': 'Waffen',
     'ammo': 'Munition',
     'reloading': 'Nachladen',
-    'jump': 'Jump',
-    'rope': 'Shoot a rope',
-    'burn': 'Burn it to ash',
+    'jump': 'Springen',
+    'rope': 'Seil schießen',
+    'burn': 'Zu Asche verbrennen',
     'reserve': '{n} weitere dabei',
     'heat': 'Waffenhitze',
     'armor': 'Panzerung',
@@ -93,9 +93,9 @@ export default {
     },
     'threat': 'Bedrohungsstufe',
     'locked': 'Erst Level {n} schaffen',
-    'fortress': 'Fortress',
-    'fortressLocked': 'Take the {name} at threat {n} first',
-    'story': 'Story',
+    'fortress': 'Festung',
+    'fortressLocked': 'Erst {name} auf Bedrohungsstufe {n} schaffen',
+    'story': 'Geschichte',
     'best': 'Bestwert',
     'armory': 'Waffenkammer',
     'chassis': 'Chassis-Bucht',
@@ -253,9 +253,9 @@ export default {
       'cycle': 'Nächste Waffe',
       'pause': 'Pause',
       'help': 'Lektionen zeigen',
-      'jump': 'Jump',
-      'rope': 'Rope gun',
-      'burn': 'Flamethrower'
+      'jump': 'Springen',
+      'rope': 'Seilwerfer',
+      'burn': 'Flammenwerfer'
     }
   },
   'prompt': {
@@ -267,8 +267,8 @@ export default {
     'grab': 'Körper greifen',
     'drop': 'Körper ablegen',
     'hook': 'Haken',
-    'rope': 'Rope',
-    'burn': 'Burn'
+    'rope': 'Seil',
+    'burn': 'Verbrennen'
   },
   'saveStatus': {
     'restoredTitle': 'Cloud-Speicher wiederhergestellt',

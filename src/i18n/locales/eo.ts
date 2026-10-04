@@ -26,16 +26,16 @@ export default {
     'skip': 'Preterpasi'
   },
   'cine': {
-    'intro': 'The drop',
-    'salvage': 'The haul',
-    'fallBastion': 'The Bastion falls',
-    'fallFoundry': 'The Foundry goes cold',
-    'outro': 'Home'
+    'intro': 'La salto',
+    'salvage': 'La akiraĵo',
+    'fallBastion': 'La Bastiono falas',
+    'fallFoundry': 'La Fandejo malvarmiĝas',
+    'outro': 'Hejmen'
   },
   'fortress': {
-    'bastion': 'Bastion',
-    'foundry': 'Foundry',
-    'harbour': 'Harbour'
+    'bastion': 'Bastiono',
+    'foundry': 'Fandejo',
+    'harbour': 'Haveno'
   },
   'hud': {
     'alert': 'Alarmnivelo',
@@ -44,9 +44,9 @@ export default {
     'weapons': 'Armiloj',
     'ammo': 'Municio',
     'reloading': 'Reŝargado',
-    'jump': 'Jump',
-    'rope': 'Shoot a rope',
-    'burn': 'Burn it to ash',
+    'jump': 'Salti',
+    'rope': 'Pafi ŝnuron',
+    'burn': 'Bruligi ĝis cindro',
     'reserve': '{n} pliaj kunportitaj',
     'heat': 'Varmo de armilo',
     'armor': 'Kiraso',
@@ -93,9 +93,9 @@ export default {
     },
     'threat': 'Danĝera nivelo',
     'locked': 'Unue finu nivelon {n}',
-    'fortress': 'Fortress',
-    'fortressLocked': 'Take the {name} at threat {n} first',
-    'story': 'Story',
+    'fortress': 'Fortikaĵo',
+    'fortressLocked': 'Unue venku {name} ĉe minaco {n}',
+    'story': 'Historio',
     'best': 'Plej bona poentaro',
     'armory': 'Armilejo',
     'chassis': 'Ĉasia golfo',
@@ -253,9 +253,9 @@ export default {
       'cycle': 'Sekva armilo',
       'pause': 'Paŭzo',
       'help': 'Montri la lecionojn',
-      'jump': 'Jump',
-      'rope': 'Rope gun',
-      'burn': 'Flamethrower'
+      'jump': 'Salti',
+      'rope': 'Ŝnurpafilo',
+      'burn': 'Flamĵetilo'
     }
   },
   'prompt': {
@@ -267,8 +267,8 @@ export default {
     'grab': 'Preni korpon',
     'drop': 'Lasi korpon',
     'hook': 'Hoko',
-    'rope': 'Rope',
-    'burn': 'Burn'
+    'rope': 'Ŝnuro',
+    'burn': 'Bruligi'
   },
   'saveStatus': {
     'restoredTitle': 'Nuba konservo restarigita',

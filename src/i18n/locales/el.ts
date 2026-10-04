@@ -26,16 +26,16 @@ export default {
     'skip': 'Παράλειψη'
   },
   'cine': {
-    'intro': 'The drop',
-    'salvage': 'The haul',
-    'fallBastion': 'The Bastion falls',
-    'fallFoundry': 'The Foundry goes cold',
-    'outro': 'Home'
+    'intro': 'Η ρίψη',
+    'salvage': 'Η λεία',
+    'fallBastion': 'Το Προπύργιο πέφτει',
+    'fallFoundry': 'Το Χυτήριο ψυχραίνει',
+    'outro': 'Σπίτι'
   },
   'fortress': {
-    'bastion': 'Bastion',
-    'foundry': 'Foundry',
-    'harbour': 'Harbour'
+    'bastion': 'Προπύργιο',
+    'foundry': 'Χυτήριο',
+    'harbour': 'Λιμάνι'
   },
   'hud': {
     'alert': 'Επίπεδο συναγερμού',
@@ -44,9 +44,9 @@ export default {
     'weapons': 'Όπλα',
     'ammo': 'Πυρομαχικά',
     'reloading': 'Επαναφόρτωση',
-    'jump': 'Jump',
-    'rope': 'Shoot a rope',
-    'burn': 'Burn it to ash',
+    'jump': 'Πήδα',
+    'rope': 'Ρίξε σχοινί',
+    'burn': 'Κάψ\' το στάχτη',
     'reserve': 'άλλα {n} μαζί',
     'heat': 'Θερμοκρασία όπλου',
     'armor': 'Θωράκιση',
@@ -93,9 +93,9 @@ export default {
     },
     'threat': 'Επίπεδο απειλής',
     'locked': 'Ολοκλήρωσε πρώτα το επίπεδο {n}',
-    'fortress': 'Fortress',
-    'fortressLocked': 'Take the {name} at threat {n} first',
-    'story': 'Story',
+    'fortress': 'Φρούριο',
+    'fortressLocked': '{name}: πρώτα απειλή {n}',
+    'story': 'Ιστορία',
     'best': 'Καλύτερο σκορ',
     'armory': 'Οπλοστάσιο',
     'chassis': 'Θάλαμος πλαισίου',
@@ -253,9 +253,9 @@ export default {
       'cycle': 'Επόμενο όπλο',
       'pause': 'Παύση',
       'help': 'Εμφάνιση μαθημάτων',
-      'jump': 'Jump',
-      'rope': 'Rope gun',
-      'burn': 'Flamethrower'
+      'jump': 'Άλμα',
+      'rope': 'Όπλο σχοινιού',
+      'burn': 'Φλογοβόλο'
     }
   },
   'prompt': {
@@ -267,8 +267,8 @@ export default {
     'grab': 'Πιάσε το σώμα',
     'drop': 'Άφησε το σώμα',
     'hook': 'Γάντζος',
-    'rope': 'Rope',
-    'burn': 'Burn'
+    'rope': 'Σχοινί',
+    'burn': 'Κάψε'
   },
   'saveStatus': {
     'restoredTitle': 'Η αποθήκευση στο νέφος επανήλθε',

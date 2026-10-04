@@ -26,16 +26,16 @@ export default {
     'skip': 'Пропустити'
   },
   'cine': {
-    'intro': 'The drop',
-    'salvage': 'The haul',
-    'fallBastion': 'The Bastion falls',
-    'fallFoundry': 'The Foundry goes cold',
-    'outro': 'Home'
+    'intro': 'Висадка',
+    'salvage': 'Здобич',
+    'fallBastion': 'Бастіон упав',
+    'fallFoundry': 'Ливарня стигне',
+    'outro': 'Додому'
   },
   'fortress': {
-    'bastion': 'Bastion',
-    'foundry': 'Foundry',
-    'harbour': 'Harbour'
+    'bastion': 'Бастіон',
+    'foundry': 'Ливарня',
+    'harbour': 'Гавань'
   },
   'hud': {
     'alert': 'Рівень тривоги',
@@ -44,9 +44,9 @@ export default {
     'weapons': 'Зброя',
     'ammo': 'Боєприпаси',
     'reloading': 'Перезарядка',
-    'jump': 'Jump',
-    'rope': 'Shoot a rope',
-    'burn': 'Burn it to ash',
+    'jump': 'Стрибок',
+    'rope': 'Вистрілити мотузкою',
+    'burn': 'Спалити дотла',
     'reserve': 'Ще {n} у запасі',
     'heat': 'Нагрів зброї',
     'armor': 'Броня',
@@ -93,9 +93,9 @@ export default {
     },
     'threat': 'Рівень загрози',
     'locked': 'Спершу пройдіть рівень {n}',
-    'fortress': 'Fortress',
-    'fortressLocked': 'Take the {name} at threat {n} first',
-    'story': 'Story',
+    'fortress': 'Фортеця',
+    'fortressLocked': 'Спершу пройдіть: {name}, загроза {n}',
+    'story': 'Історія',
     'best': 'Найкращий рахунок',
     'armory': 'Зброярня',
     'chassis': 'Відсік шасі',
@@ -253,9 +253,9 @@ export default {
       'cycle': 'Наступна зброя',
       'pause': 'Пауза',
       'help': 'Показати підказки',
-      'jump': 'Jump',
-      'rope': 'Rope gun',
-      'burn': 'Flamethrower'
+      'jump': 'Стрибок',
+      'rope': 'Мотузкова гармата',
+      'burn': 'Вогнемет'
     }
   },
   'prompt': {
@@ -267,8 +267,8 @@ export default {
     'grab': 'Схопити тіло',
     'drop': 'Кинути тіло',
     'hook': 'Гак',
-    'rope': 'Rope',
-    'burn': 'Burn'
+    'rope': 'Мотузка',
+    'burn': 'Спалити'
   },
   'saveStatus': {
     'restoredTitle': 'Хмарне збереження відновлено',

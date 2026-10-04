@@ -26,16 +26,16 @@ export default {
     'skip': 'Přeskočit'
   },
   'cine': {
-    'intro': 'The drop',
-    'salvage': 'The haul',
-    'fallBastion': 'The Bastion falls',
-    'fallFoundry': 'The Foundry goes cold',
-    'outro': 'Home'
+    'intro': 'Výsadek',
+    'salvage': 'Kořist',
+    'fallBastion': 'Bašta padá',
+    'fallFoundry': 'Slévárna chladne',
+    'outro': 'Domů'
   },
   'fortress': {
-    'bastion': 'Bastion',
-    'foundry': 'Foundry',
-    'harbour': 'Harbour'
+    'bastion': 'Bašta',
+    'foundry': 'Slévárna',
+    'harbour': 'Přístav'
   },
   'hud': {
     'alert': 'Úroveň poplachu',
@@ -44,9 +44,9 @@ export default {
     'weapons': 'Zbraně',
     'ammo': 'Munice',
     'reloading': 'Nabíjení',
-    'jump': 'Jump',
-    'rope': 'Shoot a rope',
-    'burn': 'Burn it to ash',
+    'jump': 'Skok',
+    'rope': 'Vystřelit lano',
+    'burn': 'Spálit na popel',
     'reserve': 'další {n} v zásobě',
     'heat': 'Žhavost zbraně',
     'armor': 'Pancíř',
@@ -93,9 +93,9 @@ export default {
     },
     'threat': 'Úroveň hrozby',
     'locked': 'Nejdřív dokonči úroveň {n}',
-    'fortress': 'Fortress',
-    'fortressLocked': 'Take the {name} at threat {n} first',
-    'story': 'Story',
+    'fortress': 'Pevnost',
+    'fortressLocked': 'Nejdřív dobyj: {name}, hrozba {n}',
+    'story': 'Příběh',
     'best': 'Nejlepší skóre',
     'armory': 'Zbrojnice',
     'chassis': 'Hangár podvozku',
@@ -253,9 +253,9 @@ export default {
       'cycle': 'Další zbraň',
       'pause': 'Pauza',
       'help': 'Zobrazit lekce',
-      'jump': 'Jump',
-      'rope': 'Rope gun',
-      'burn': 'Flamethrower'
+      'jump': 'Skok',
+      'rope': 'Lanová pistole',
+      'burn': 'Plamenomet'
     }
   },
   'prompt': {
@@ -267,8 +267,8 @@ export default {
     'grab': 'Popadnout tělo',
     'drop': 'Pustit tělo',
     'hook': 'Hák',
-    'rope': 'Rope',
-    'burn': 'Burn'
+    'rope': 'Lano',
+    'burn': 'Spálit'
   },
   'saveStatus': {
     'restoredTitle': 'Uložení v cloudu obnoveno',
