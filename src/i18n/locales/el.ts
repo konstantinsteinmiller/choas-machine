@@ -25,6 +25,10 @@ export default {
     'unmute': 'Ενεργοποίηση ήχου',
     'skip': 'Παράλειψη'
   },
+  'fortress': {
+    'bastion': 'Bastion',
+    'foundry': 'Foundry'
+  },
   'hud': {
     'alert': 'Επίπεδο συναγερμού',
     'strike': 'Χτύπημα',
@@ -81,6 +85,8 @@ export default {
     },
     'threat': 'Επίπεδο απειλής',
     'locked': 'Ολοκλήρωσε πρώτα το επίπεδο {n}',
+    'fortress': 'Fortress',
+    'fortressLocked': 'Take the {name} at threat {n} first',
     'best': 'Καλύτερο σκορ',
     'armory': 'Οπλοστάσιο',
     'chassis': 'Θάλαμος πλαισίου',

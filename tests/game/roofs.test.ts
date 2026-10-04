@@ -15,6 +15,7 @@ import { makePlayer, stepPlayer, type Wish } from '@/game/sim/player'
 import { buildBastion } from '@/game/data/fortresses/bastion'
 import { buildTrainingGround } from '@/game/data/fortresses/training'
 import { buildProvingGround } from '@/game/data/fortresses/proving'
+import { buildFoundry } from '@/game/data/fortresses/foundry'
 import { FORTRESSES, FORTRESS_IDS, fortressMeta, loadFortress } from '@/game/data/fortresses/registry'
 import { THEMES, themeOf } from '@/game/data/themes'
 
@@ -167,7 +168,8 @@ describe('no z-fighting in the fortress mesh', () => {
     ['the roofed hall', hall],
     ['the training ground', buildTrainingGround],
     ['the proving ground', buildProvingGround],
-    ...[1, 2, 3, 4, 5].map(l => [`the Bastion at threat ${l}`, () => buildBastion(l)] as [string, () => Fortress])
+    ...[1, 2, 3, 4, 5].map(l => [`the Bastion at threat ${l}`, () => buildBastion(l)] as [string, () => Fortress]),
+    ...[1, 5].map(l => [`the Foundry at threat ${l}`, () => buildFoundry(l)] as [string, () => Fortress])
   ]
   for (const [name, build] of cases) {
     it(`${name}: no two opaque faces overlap in one plane`, async () => {

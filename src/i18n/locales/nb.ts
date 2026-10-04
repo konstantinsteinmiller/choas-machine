@@ -25,6 +25,10 @@ export default {
     'unmute': 'Slå på lyd',
     'skip': 'Hopp over'
   },
+  'fortress': {
+    'bastion': 'Bastion',
+    'foundry': 'Foundry'
+  },
   'hud': {
     'alert': 'Alarmnivå',
     'strike': 'Stikk',
@@ -81,6 +85,8 @@ export default {
     },
     'threat': 'Trusselnivå',
     'locked': 'Fullfør nivå {n} først',
+    'fortress': 'Fortress',
+    'fortressLocked': 'Take the {name} at threat {n} first',
     'best': 'Beste poengsum',
     'armory': 'Våpenlager',
     'chassis': 'Chassisrom',

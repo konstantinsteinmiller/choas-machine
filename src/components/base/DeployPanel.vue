@@ -2,6 +2,24 @@
   //- The way back into the fortress: pick a threat level, see what has been
   //- won there, and go.
   section.deploy
+    //- Which fortress (#93): the next opens once the one before has fallen at its threat.
+    template(v-if="FORTRESSES.length > 1")
+      h2.label {{ t('base.fortress') }}
+      div.forts(role="radiogroup" :aria-label="t('base.fortress')")
+        button.fort(
+          v-for="f in FORTRESSES"
+          :key="f.id"
+          type="button"
+          role="radio"
+          :aria-checked="f.id === flow.fortress"
+          :disabled="!fortressOpen(f.id)"
+          :class="{ on: f.id === flow.fortress, locked: !fortressOpen(f.id) }"
+          :title="fortTitle(f)"
+          :data-testid="`fort-${f.id}`"
+          @click="pickFort(f.id)"
+        )
+          GameIcon.lock(v-if="!fortressOpen(f.id)" name="lock")
+          span.fort-name {{ t('fortress.' + f.id) }}
     h2.label {{ t('base.threat') }}
     div.levels(role="radiogroup" :aria-label="t('base.threat')")
       button.level(
@@ -50,7 +68,8 @@ import FButton from '@/components/atoms/FButton.vue'
 import GameIcon from '@/components/icons/GameIcon.vue'
 import { flow, startMission, startTraining } from '@/game/flow'
 import { profile } from '@/game/state/profile'
-import { levelKey, unlockedLevel } from '@/game/state/progress'
+import { fortressOpen, levelKey, unlockedLevel } from '@/game/state/progress'
+import { FORTRESSES, type FortressId, type FortressMeta } from '@/game/data/fortresses/registry'
 import { THREAT_LEVELS } from '@/game/sim/rewards'
 import { MEDAL_IDS } from '@/game/data/ids'
 import { MEDAL_ICONS } from '@/components/base/medals'
@@ -63,18 +82,30 @@ const { t, locale } = useI18n()
 /** The numerals on the chips are marks, not words: the same in every language. */
 const NUMERALS = ['I', 'II', 'III', 'IV', 'V'] as const
 
-const open = computed(() => unlockedLevel())
+const open = computed(() => unlockedLevel(flow.fortress))
 /** The answers in force for the next raid. */
 const answers = computed<AnswerId[]>(() => { const a = answersTo(profile.habits); return ANSWER_IDS.filter(id => a[id]) })
 const ANSWER_ICONS: Readonly<Record<AnswerId, GameIconName>> = { helmets: 'shield', boxCheck: 'box', perchLight: 'eye' }
-const clears = (n: number): number => profile.fortresses[levelKey(n)]?.clears ?? 0
-const record = computed(() => profile.fortresses[levelKey(flow.level)])
+const clears = (n: number): number => profile.fortresses[levelKey(n, flow.fortress)]?.clears ?? 0
+const record = computed(() => profile.fortresses[levelKey(flow.level, flow.fortress)])
 const fmt = (n: number): string => formatAmount(n, locale.value)
 
 const pick = (n: number): void => {
   if (n > open.value || n === flow.level) return
   sfx('uiClick')
   flow.level = n
+}
+/** A fortress chip's tooltip: its name, or what opens it. */
+const fortTitle = (f: FortressMeta): string => {
+  const name = t('fortress.' + f.id)
+  if (fortressOpen(f.id) || !f.unlock) return name
+  return t('base.fortressLocked', { name: t('fortress.' + f.unlock.after), n: NUMERALS[f.unlock.threat - 1] })
+}
+const pickFort = (id: FortressId): void => {
+  if (!fortressOpen(id) || id === flow.fortress) return
+  sfx('uiClick')
+  flow.fortress = id
+  flow.level = unlockedLevel(id)
 }
 const deploy = (): void => { void startMission(flow.level) }
 const train = (): void => { void startTraining() }
@@ -117,6 +148,35 @@ const train = (): void => { void startTraining() }
   font-size: var(--cm-fs-s)
   font-weight: normal
   line-height: 1.1
+.forts
+  display: flex
+  gap: clamp(0.25rem, 1.2vmin, 0.5rem)
+.fort
+  flex: 1 1 0
+  min-height: 2.5rem
+  padding: 0 0.5em
+  display: flex
+  align-items: center
+  justify-content: center
+  gap: 0.35em
+  box-sizing: border-box
+  border: var(--cm-edge) solid var(--cm-violet)
+  border-radius: var(--cm-radius-m)
+  background: var(--cm-night)
+  color: var(--cm-lilac)
+  font: inherit
+  font-size: var(--cm-fs-s)
+  cursor: pointer
+  &.on
+    border-color: var(--cm-cyan)
+    color: var(--cm-white, #fff)
+    box-shadow: var(--cm-glow-cyan)
+  &.locked
+    opacity: 0.55
+    cursor: default
+  .lock
+    width: 1em
+    height: 1em
 .levels
   display: flex
   gap: clamp(0.25rem, 1.2vmin, 0.5rem)

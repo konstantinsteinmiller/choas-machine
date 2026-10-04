@@ -25,6 +25,10 @@ export default {
     'unmute': 'Включи звука',
     'skip': 'Пропусни'
   },
+  'fortress': {
+    'bastion': 'Bastion',
+    'foundry': 'Foundry'
+  },
   'hud': {
     'alert': 'Ниво на тревога',
     'strike': 'Удар',
@@ -81,6 +85,8 @@ export default {
     },
     'threat': 'Ниво на заплаха',
     'locked': 'Първо мини ниво {n}',
+    'fortress': 'Fortress',
+    'fortressLocked': 'Take the {name} at threat {n} first',
     'best': 'Най-добър резултат',
     'armory': 'Оръжейница',
     'chassis': 'Шасита',

@@ -25,6 +25,10 @@ export default {
     'unmute': 'Увімкнути звук',
     'skip': 'Пропустити'
   },
+  'fortress': {
+    'bastion': 'Bastion',
+    'foundry': 'Foundry'
+  },
   'hud': {
     'alert': 'Рівень тривоги',
     'strike': 'Удар',
@@ -81,6 +85,8 @@ export default {
     },
     'threat': 'Рівень загрози',
     'locked': 'Спершу пройдіть рівень {n}',
+    'fortress': 'Fortress',
+    'fortressLocked': 'Take the {name} at threat {n} first',
     'best': 'Найкращий рахунок',
     'armory': 'Зброярня',
     'chassis': 'Відсік шасі',

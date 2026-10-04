@@ -25,6 +25,10 @@ export default {
     'unmute': 'Səsi aç',
     'skip': 'Keç'
   },
+  'fortress': {
+    'bastion': 'Bastion',
+    'foundry': 'Foundry'
+  },
   'hud': {
     'alert': 'Həyəcan səviyyəsi',
     'strike': 'Zərbə',
@@ -81,6 +85,8 @@ export default {
     },
     'threat': 'Təhlükə səviyyəsi',
     'locked': 'Əvvəlcə {n}-ci səviyyəni bitir',
+    'fortress': 'Fortress',
+    'fortressLocked': 'Take the {name} at threat {n} first',
     'best': 'Ən yaxşı nəticə',
     'armory': 'Silahxana',
     'chassis': 'Şassi bölməsi',

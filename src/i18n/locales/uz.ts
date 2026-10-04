@@ -25,6 +25,10 @@ export default {
     'unmute': 'Ovozni yoqish',
     'skip': 'O‘tkazib yuborish'
   },
+  'fortress': {
+    'bastion': 'Bastion',
+    'foundry': 'Foundry'
+  },
   'hud': {
     'alert': 'Xavf darajasi',
     'strike': 'Zarba',
@@ -81,6 +85,8 @@ export default {
     },
     'threat': 'Xavf darajasi',
     'locked': 'Avval {n}-bosqichni tugating',
+    'fortress': 'Fortress',
+    'fortressLocked': 'Take the {name} at threat {n} first',
     'best': 'Eng yaxshi hisob',
     'armory': 'Qurolxona',
     'chassis': 'Shassi bo\'limi',

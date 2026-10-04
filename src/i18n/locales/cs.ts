@@ -25,6 +25,10 @@ export default {
     'unmute': 'Zapnout zvuk',
     'skip': 'Přeskočit'
   },
+  'fortress': {
+    'bastion': 'Bastion',
+    'foundry': 'Foundry'
+  },
   'hud': {
     'alert': 'Úroveň poplachu',
     'strike': 'Úder',
@@ -81,6 +85,8 @@ export default {
     },
     'threat': 'Úroveň hrozby',
     'locked': 'Nejdřív dokonči úroveň {n}',
+    'fortress': 'Fortress',
+    'fortressLocked': 'Take the {name} at threat {n} first',
     'best': 'Nejlepší skóre',
     'armory': 'Zbrojnice',
     'chassis': 'Hangár podvozku',

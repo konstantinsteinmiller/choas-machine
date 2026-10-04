@@ -8,7 +8,7 @@ import { input } from './engine/inputState'
 import { buildProvingGround } from './data/fortresses/proving'
 import { buildTrainingGround } from './data/fortresses/training'
 import { answersTo } from './sim/adapt'
-import { loadFortress } from './data/fortresses/registry'
+import { isFortressId, loadFortress } from './data/fortresses/registry'
 import type { GameMode } from './engine/app'
 import { registerModeFactories, createBootMode, flow } from './flow'
 import { CommandBase } from './scenes/commandBase'
@@ -114,7 +114,9 @@ registerModeFactories({
     const level = import.meta.env.DEV ? Number(new URLSearchParams(search).get('level')) || flow.level : flow.level
     // DEV ONLY: `?fort=training` too. The training ground is the flow's call otherwise.
     const fortParam = import.meta.env.DEV ? new URLSearchParams(search).get('fort') : null
-    const training = fortParam === 'training' || (flow.training && fortParam !== 'bastion' && !proving)
+    const training = fortParam === 'training' || (flow.training && !isFortressId(fortParam) && !proving)
+    // DEV ONLY: `?fort=foundry` (or any fortress id) raids that fortress.
+    if (isFortressId(fortParam)) flow.fortress = fortParam
     const fortress = training ? buildTrainingGround() : proving ? buildProvingGround() : await loadFortress(flow.fortress, level, profile.missions, answersTo(profile.habits))
     if (view) return FortressView.create(fortress, view, createSlicer(12), onProgress)
     return Mission.create(fortress, input, createSlicer(12), onProgress, level, currentLoadout())

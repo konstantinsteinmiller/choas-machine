@@ -8,6 +8,7 @@ import { MISS_REFUND, spinCost, winChance, winGain } from '../data/wheel'
 import { THREAT_LEVELS, defeatScrap, payout, type MissionResult, type Payout } from '../sim/rewards'
 import { fortressSave, profile, saveProfile } from './profile'
 import { DISGUISE_SCRAP, type DisguiseId } from '../models/disguiseIds'
+import { FORTRESS_IDS, fortressMeta, type FortressId } from '../data/fortresses/registry'
 
 /**
  * ─── The player's progress ───────────────────────────────────────────────────
@@ -19,16 +20,24 @@ import { DISGUISE_SCRAP, type DisguiseId } from '../models/disguiseIds'
  * the profile.
  */
 
-/** The one fortress of the campaign (plan G5): its five threat levels are
- *  five records, `bastion-1` … `bastion-5`. */
-export const FORTRESS_ID = 'bastion'
-export const levelKey = (level: number): string => `${FORTRESS_ID}-${level}`
+/** The first fortress of the campaign. Each fortress's five threat levels
+ *  are five records, `bastion-1` … `bastion-5`, `foundry-1` … (round 4). */
+export const FORTRESS_ID: FortressId = 'bastion'
+export const levelKey = (level: number, fort: FortressId = FORTRESS_ID): string => `${fort}-${level}`
 
-/** The highest threat level the player may deploy to: one past the last cleared. */
-export const unlockedLevel = (): number => {
+const cleared = (fort: FortressId, level: number): boolean => (profile.fortresses[levelKey(level, fort)]?.clears ?? 0) > 0
+
+/** The highest threat level the player may deploy to in a fortress: one past the last cleared. */
+export const unlockedLevel = (fort: FortressId = FORTRESS_ID): number => {
   let n = 1
-  while (n < THREAT_LEVELS && (profile.fortresses[levelKey(n)]?.clears ?? 0) > 0) n++
+  while (n < THREAT_LEVELS && cleared(fort, n)) n++
   return n
+}
+
+/** May the player raid this fortress yet? The first always; the others once the one before has fallen at its threat (#93). */
+export const fortressOpen = (fort: FortressId): boolean => {
+  const u = fortressMeta(fort).unlock
+  return !u || cleared(u.after, u.threat)
 }
 
 /**
@@ -37,7 +46,7 @@ export const unlockedLevel = (): number => {
  */
 export const campaignScore = (): number => {
   let n = 0
-  for (let l = 1; l <= THREAT_LEVELS; l++) n += profile.fortresses[levelKey(l)]?.bestScore ?? 0
+  for (const fort of FORTRESS_IDS) for (let l = 1; l <= THREAT_LEVELS; l++) n += profile.fortresses[levelKey(l, fort)]?.bestScore ?? 0
   return n
 }
 
@@ -68,8 +77,8 @@ const addStats = (r: MissionResult): void => {
 /** What the base saw of the raid: its habits (`sim/adapt.ts`). */
 const habitsOf = (r: MissionResult): Habits => ({ headshots: r.headshots, boxUses: r.boxUses ?? 0, perchKills: r.perchKills ?? 0 })
 
-export const bankMission = (r: MissionResult, level: number): Payout => {
-  const rec = fortressSave(levelKey(level))
+export const bankMission = (r: MissionResult, level: number, fort: FortressId = FORTRESS_ID): Payout => {
+  const rec = fortressSave(levelKey(level, fort))
   const pay = payout(r, level, rec, profile.missions)
   rec.clears++
   for (const m of MEDAL_IDS) if (pay.medals[m]) rec.medals[m] = true

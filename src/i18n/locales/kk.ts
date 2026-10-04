@@ -25,6 +25,10 @@ export default {
     'unmute': 'Дыбысты қосу',
     'skip': 'Өткізу'
   },
+  'fortress': {
+    'bastion': 'Bastion',
+    'foundry': 'Foundry'
+  },
   'hud': {
     'alert': 'Дабыл деңгейі',
     'strike': 'Соққы',
@@ -81,6 +85,8 @@ export default {
     },
     'threat': 'Қауіп деңгейі',
     'locked': 'Алдымен {n}-деңгейді өтіңіз',
+    'fortress': 'Fortress',
+    'fortressLocked': 'Take the {name} at threat {n} first',
     'best': 'Үздік ұпай',
     'armory': 'Қарулар қоймасы',
     'chassis': 'Шасси бөлімі',

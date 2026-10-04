@@ -25,6 +25,10 @@ export default {
     'unmute': 'Hang be',
     'skip': 'Kihagyás'
   },
+  'fortress': {
+    'bastion': 'Bastion',
+    'foundry': 'Foundry'
+  },
   'hud': {
     'alert': 'Riadószint',
     'strike': 'Szúrás',
@@ -81,6 +85,8 @@ export default {
     },
     'threat': 'Veszélyszint',
     'locked': 'Előbb teljesítsd a(z) {n}. szintet',
+    'fortress': 'Fortress',
+    'fortressLocked': 'Take the {name} at threat {n} first',
     'best': 'Legjobb pontszám',
     'armory': 'Fegyvertár',
     'chassis': 'Alvázműhely',

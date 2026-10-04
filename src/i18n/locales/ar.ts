@@ -25,6 +25,10 @@ export default {
     'unmute': 'تشغيل الصوت',
     'skip': 'تخطي'
   },
+  'fortress': {
+    'bastion': 'Bastion',
+    'foundry': 'Foundry'
+  },
   'hud': {
     'alert': 'مستوى الإنذار',
     'strike': 'اطعن',
@@ -81,6 +85,8 @@ export default {
     },
     'threat': 'مستوى الخطر',
     'locked': 'أكمل المستوى {n} أولاً',
+    'fortress': 'Fortress',
+    'fortressLocked': 'Take the {name} at threat {n} first',
     'best': 'أفضل نتيجة',
     'armory': 'الترسانة',
     'chassis': 'حظيرة الهيكل',

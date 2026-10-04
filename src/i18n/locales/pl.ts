@@ -25,6 +25,10 @@ export default {
     'unmute': 'Włącz dźwięk',
     'skip': 'Pomiń'
   },
+  'fortress': {
+    'bastion': 'Bastion',
+    'foundry': 'Foundry'
+  },
   'hud': {
     'alert': 'Poziom alarmu',
     'strike': 'Cios',
@@ -81,6 +85,8 @@ export default {
     },
     'threat': 'Poziom zagrożenia',
     'locked': 'Najpierw ukończ poziom {n}',
+    'fortress': 'Fortress',
+    'fortressLocked': 'Take the {name} at threat {n} first',
     'best': 'Najlepszy wynik',
     'armory': 'Zbrojownia',
     'chassis': 'Hangar podwozia',

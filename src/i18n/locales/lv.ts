@@ -25,6 +25,10 @@ export default {
     'unmute': 'Ieslēgt skaņu',
     'skip': 'Izlaist'
   },
+  'fortress': {
+    'bastion': 'Bastion',
+    'foundry': 'Foundry'
+  },
   'hud': {
     'alert': 'Trauksmes līmenis',
     'strike': 'Trieciens',
@@ -81,6 +85,8 @@ export default {
     },
     'threat': 'Draudu līmenis',
     'locked': 'Vispirms izpildi {n}. līmeni',
+    'fortress': 'Fortress',
+    'fortressLocked': 'Take the {name} at threat {n} first',
     'best': 'Labākais rezultāts',
     'armory': 'Ieroču noliktava',
     'chassis': 'Šasijas nodalījums',

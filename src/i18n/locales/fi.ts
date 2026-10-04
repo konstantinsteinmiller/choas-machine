@@ -25,6 +25,10 @@ export default {
     'unmute': 'Poista mykistys',
     'skip': 'Ohita'
   },
+  'fortress': {
+    'bastion': 'Bastion',
+    'foundry': 'Foundry'
+  },
   'hud': {
     'alert': 'Hälytystaso',
     'strike': 'Isku',
@@ -81,6 +85,8 @@ export default {
     },
     'threat': 'Uhkataso',
     'locked': 'Suorita ensin taso {n}',
+    'fortress': 'Fortress',
+    'fortressLocked': 'Take the {name} at threat {n} first',
     'best': 'Paras tulos',
     'armory': 'Asevarasto',
     'chassis': 'Runkoteline',

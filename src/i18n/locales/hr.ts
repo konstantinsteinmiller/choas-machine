@@ -25,6 +25,10 @@ export default {
     'unmute': 'Uključi zvuk',
     'skip': 'Preskoči'
   },
+  'fortress': {
+    'bastion': 'Bastion',
+    'foundry': 'Foundry'
+  },
   'hud': {
     'alert': 'Razina uzbune',
     'strike': 'Udarac',
@@ -81,6 +85,8 @@ export default {
     },
     'threat': 'Razina prijetnje',
     'locked': 'Prvo prijeđi razinu {n}',
+    'fortress': 'Fortress',
+    'fortressLocked': 'Take the {name} at threat {n} first',
     'best': 'Najbolji rezultat',
     'armory': 'Oružarnica',
     'chassis': 'Hangar šasije',

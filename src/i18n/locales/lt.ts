@@ -25,6 +25,10 @@ export default {
     'unmute': 'Įjungti garsą',
     'skip': 'Praleisti'
   },
+  'fortress': {
+    'bastion': 'Bastion',
+    'foundry': 'Foundry'
+  },
   'hud': {
     'alert': 'Pavojaus lygis',
     'strike': 'Smūgis',
@@ -81,6 +85,8 @@ export default {
     },
     'threat': 'Grėsmės lygis',
     'locked': 'Pirmiausia įveikite {n} lygį',
+    'fortress': 'Fortress',
+    'fortressLocked': 'Take the {name} at threat {n} first',
     'best': 'Geriausias rezultatas',
     'armory': 'Ginklinė',
     'chassis': 'Važiuoklės skyrius',

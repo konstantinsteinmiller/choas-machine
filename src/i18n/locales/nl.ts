@@ -25,6 +25,10 @@ export default {
     'unmute': 'Geluid aan',
     'skip': 'Overslaan'
   },
+  'fortress': {
+    'bastion': 'Bastion',
+    'foundry': 'Foundry'
+  },
   'hud': {
     'alert': 'Alarmniveau',
     'strike': 'Steken',
@@ -81,6 +85,8 @@ export default {
     },
     'threat': 'Dreigingsniveau',
     'locked': 'Voltooi eerst level {n}',
+    'fortress': 'Fortress',
+    'fortressLocked': 'Take the {name} at threat {n} first',
     'best': 'Beste score',
     'armory': 'Wapenkamer',
     'chassis': 'Chassisbaai',

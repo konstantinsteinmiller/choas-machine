@@ -25,6 +25,10 @@ export default {
     'unmute': 'अनम्यूट करें',
     'skip': 'छोड़ें'
   },
+  'fortress': {
+    'bastion': 'Bastion',
+    'foundry': 'Foundry'
+  },
   'hud': {
     'alert': 'अलर्ट स्तर',
     'strike': 'वार',
@@ -81,6 +85,8 @@ export default {
     },
     'threat': 'खतरे का स्तर',
     'locked': 'पहले लेवल {n} पूरा करें',
+    'fortress': 'Fortress',
+    'fortressLocked': 'Take the {name} at threat {n} first',
     'best': 'सर्वश्रेष्ठ स्कोर',
     'armory': 'शस्त्रागार',
     'chassis': 'चेसिस बे',

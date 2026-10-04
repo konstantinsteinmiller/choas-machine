@@ -25,6 +25,10 @@ export default {
     'unmute': '음소거 해제',
     'skip': '건너뛰기'
   },
+  'fortress': {
+    'bastion': 'Bastion',
+    'foundry': 'Foundry'
+  },
   'hud': {
     'alert': '경계 수준',
     'strike': '찌르기',
@@ -81,6 +85,8 @@ export default {
     },
     'threat': '위협 등급',
     'locked': '먼저 레벨 {n} 클리어',
+    'fortress': 'Fortress',
+    'fortressLocked': 'Take the {name} at threat {n} first',
     'best': '최고 점수',
     'armory': '무기고',
     'chassis': '섀시 베이',

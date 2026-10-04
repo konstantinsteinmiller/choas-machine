@@ -25,6 +25,10 @@ export default {
     'unmute': 'Nyalakan suara',
     'skip': 'Lewati'
   },
+  'fortress': {
+    'bastion': 'Bastion',
+    'foundry': 'Foundry'
+  },
   'hud': {
     'alert': 'Tingkat siaga',
     'strike': 'Tikam',
@@ -81,6 +85,8 @@ export default {
     },
     'threat': 'Tingkat ancaman',
     'locked': 'Selesaikan level {n} dulu',
+    'fortress': 'Fortress',
+    'fortressLocked': 'Take the {name} at threat {n} first',
     'best': 'Skor terbaik',
     'armory': 'Gudang Senjata',
     'chassis': 'Bay Sasis',

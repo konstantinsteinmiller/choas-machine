@@ -25,6 +25,10 @@ export default {
     'unmute': 'Activa el so',
     'skip': 'Omet'
   },
+  'fortress': {
+    'bastion': 'Bastion',
+    'foundry': 'Foundry'
+  },
   'hud': {
     'alert': 'Nivell d\'alerta',
     'strike': 'Cop',
@@ -81,6 +85,8 @@ export default {
     },
     'threat': 'Nivell d\'amenaça',
     'locked': 'Supera primer el nivell {n}',
+    'fortress': 'Fortress',
+    'fortressLocked': 'Take the {name} at threat {n} first',
     'best': 'Millor puntuació',
     'armory': 'Armeria',
     'chassis': 'Bàs del xassís',

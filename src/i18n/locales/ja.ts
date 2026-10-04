@@ -25,6 +25,10 @@ export default {
     'unmute': 'ミュート解除',
     'skip': 'スキップ'
   },
+  'fortress': {
+    'bastion': 'Bastion',
+    'foundry': 'Foundry'
+  },
   'hud': {
     'alert': '警戒レベル',
     'strike': '斬撃',
@@ -81,6 +85,8 @@ export default {
     },
     'threat': '脅威レベル',
     'locked': '先にレベル{n}をクリア',
+    'fortress': 'Fortress',
+    'fortressLocked': 'Take the {name} at threat {n} first',
     'best': 'ベストスコア',
     'armory': '武器庫',
     'chassis': 'シャーシ格納庫',

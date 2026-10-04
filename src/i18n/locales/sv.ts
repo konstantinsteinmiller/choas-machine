@@ -25,6 +25,10 @@ export default {
     'unmute': 'Slå på ljudet',
     'skip': 'Hoppa över'
   },
+  'fortress': {
+    'bastion': 'Bastion',
+    'foundry': 'Foundry'
+  },
   'hud': {
     'alert': 'Larmnivå',
     'strike': 'Hugg',
@@ -81,6 +85,8 @@ export default {
     },
     'threat': 'Hotnivå',
     'locked': 'Klara nivå {n} först',
+    'fortress': 'Fortress',
+    'fortressLocked': 'Take the {name} at threat {n} first',
     'best': 'Bästa poäng',
     'armory': 'Vapenförråd',
     'chassis': 'Chassihall',

@@ -25,6 +25,10 @@ export default {
     'unmute': 'Activer le son',
     'skip': 'Passer'
   },
+  'fortress': {
+    'bastion': 'Bastion',
+    'foundry': 'Foundry'
+  },
   'hud': {
     'alert': 'Niveau d\'alerte',
     'strike': 'Frapper',
@@ -81,6 +85,8 @@ export default {
     },
     'threat': 'Niveau de menace',
     'locked': 'Finis d\'abord le niveau {n}',
+    'fortress': 'Fortress',
+    'fortressLocked': 'Take the {name} at threat {n} first',
     'best': 'Meilleur score',
     'armory': 'Armurerie',
     'chassis': 'Baie de châssis',

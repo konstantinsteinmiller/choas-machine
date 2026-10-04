@@ -25,6 +25,10 @@ export default {
     'unmute': 'เปิดเสียง',
     'skip': 'ข้าม'
   },
+  'fortress': {
+    'bastion': 'Bastion',
+    'foundry': 'Foundry'
+  },
   'hud': {
     'alert': 'ระดับการเตือนภัย',
     'strike': 'แทง',
@@ -81,6 +85,8 @@ export default {
     },
     'threat': 'ระดับภัยคุกคาม',
     'locked': 'ผ่านด่าน {n} ก่อน',
+    'fortress': 'Fortress',
+    'fortressLocked': 'Take the {name} at threat {n} first',
     'best': 'คะแนนสูงสุด',
     'armory': 'คลังอาวุธ',
     'chassis': 'ห้องแชสซี',

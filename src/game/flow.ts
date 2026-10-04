@@ -2,7 +2,7 @@ import { reactive } from 'vue'
 import { app, type GameMode } from './engine/app'
 import { setPhase } from './state/hud'
 import { isFreshProfile, profile, saveProfile } from './state/profile'
-import { bankDefeat, bankMission, campaignScore, highestCleared, unlockedLevel } from './state/progress'
+import { bankDefeat, bankMission, campaignScore, fortressOpen, highestCleared, unlockedLevel } from './state/progress'
 import { reportRun } from '@/use/useLeaderboard'
 import { showMidgameAd } from '@/use/useAds'
 import { canShowInterstitial, markInterstitialShown } from '@/use/useAdGate'
@@ -86,7 +86,7 @@ export const registerModeFactories = (f: Factories): void => {
 export const createBootMode = async (onProgress: Progress = () => {}): Promise<GameMode> => {
   if (!factories) throw new Error('[flow] no mode factories registered')
   const fresh = isFreshProfile()
-  flow.level = fresh ? 1 : unlockedLevel()
+  flow.level = fresh ? 1 : unlockedLevel(flow.fortress)
   // A new player's first scene is the training ground (#57, #58).
   flow.training = fresh && !profile.seen.includes('training')
   const mode = await (fresh ? factories.mission : factories.base)(onProgress)
@@ -130,7 +130,8 @@ const swap = async (screen: Screen, factory: ModeFactory, phase: 'intro' | 'base
 export const startMission = async (level: number = flow.level): Promise<void> => {
   if (!factories) return
   flow.training = false
-  flow.level = Math.min(unlockedLevel(), Math.max(1, level))
+  if (!fortressOpen(flow.fortress)) flow.fortress = 'bastion'
+  flow.level = Math.min(unlockedLevel(flow.fortress), Math.max(1, level))
   await swap('mission', factories.mission, 'intro')
 }
 
@@ -160,7 +161,7 @@ export const goBase = async (): Promise<void> => {
 /** The mech is away: bank the run and show what it paid. */
 export const finishMission = (run: MissionResult): void => {
   flow.run = { ...run }
-  flow.result = bankMission(run, flow.level)
+  flow.result = bankMission(run, flow.level, flow.fortress)
   flow.modal = 'rewards'
   // The board is a decoration on a game that works without it: the rewards
   // screen is already up before the request leaves, and nothing waits on it.

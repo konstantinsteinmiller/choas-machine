@@ -25,6 +25,10 @@ export default {
     'unmute': 'Bật tiếng',
     'skip': 'Bỏ qua'
   },
+  'fortress': {
+    'bastion': 'Bastion',
+    'foundry': 'Foundry'
+  },
   'hud': {
     'alert': 'Mức báo động',
     'strike': 'Đâm',
@@ -81,6 +85,8 @@ export default {
     },
     'threat': 'Mức đe dọa',
     'locked': 'Hãy qua màn {n} trước',
+    'fortress': 'Fortress',
+    'fortressLocked': 'Take the {name} at threat {n} first',
     'best': 'Điểm cao nhất',
     'armory': 'Kho vũ khí',
     'chassis': 'Xưởng khung',

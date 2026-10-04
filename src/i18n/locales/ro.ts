@@ -25,6 +25,10 @@ export default {
     'unmute': 'Activează sunetul',
     'skip': 'Omite'
   },
+  'fortress': {
+    'bastion': 'Bastion',
+    'foundry': 'Foundry'
+  },
   'hud': {
     'alert': 'Nivel de alertă',
     'strike': 'Lovitură',
@@ -81,6 +85,8 @@ export default {
     },
     'threat': 'Nivel de amenințare',
     'locked': 'Termină mai întâi nivelul {n}',
+    'fortress': 'Fortress',
+    'fortressLocked': 'Take the {name} at threat {n} first',
     'best': 'Cel mai bun scor',
     'armory': 'Armurărie',
     'chassis': 'Baza șasiului',

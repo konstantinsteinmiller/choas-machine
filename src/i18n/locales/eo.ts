@@ -25,6 +25,10 @@ export default {
     'unmute': 'Reaktivigi sonon',
     'skip': 'Preterpasi'
   },
+  'fortress': {
+    'bastion': 'Bastion',
+    'foundry': 'Foundry'
+  },
   'hud': {
     'alert': 'Alarmnivelo',
     'strike': 'Frapi',
@@ -81,6 +85,8 @@ export default {
     },
     'threat': 'Danĝera nivelo',
     'locked': 'Unue finu nivelon {n}',
+    'fortress': 'Fortress',
+    'fortressLocked': 'Take the {name} at threat {n} first',
     'best': 'Plej bona poentaro',
     'armory': 'Armilejo',
     'chassis': 'Ĉasia golfo',

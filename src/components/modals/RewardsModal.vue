@@ -85,7 +85,7 @@ const run = computed(() => flow.run)
 const fmt = (n: number): string => formatAmount(n, locale.value)
 // Re-read when a result lands: the profile's best scores have just moved.
 const campaign = computed(() => (pay.value ? campaignScore() : 0))
-const isBest = computed(() => !!pay.value && pay.value.score > 0 && pay.value.score >= (profile.fortresses[levelKey(flow.level)]?.bestScore ?? 0))
+const isBest = computed(() => !!pay.value && pay.value.score > 0 && pay.value.score >= (profile.fortresses[levelKey(flow.level, flow.fortress)]?.bestScore ?? 0))
 
 // ── The reveal: medals light in turn, then the numbers count up ──
 const step = ref(0)

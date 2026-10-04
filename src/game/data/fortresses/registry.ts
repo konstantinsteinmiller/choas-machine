@@ -11,7 +11,7 @@ import type { ThemeId } from '../themes'
  * its own chunk.
  */
 
-export type FortressId = 'bastion'
+export type FortressId = 'bastion' | 'foundry'
 
 export interface FortressMeta {
   id: FortressId
@@ -22,7 +22,9 @@ export interface FortressMeta {
 }
 
 export const FORTRESSES: readonly FortressMeta[] = [
-  { id: 'bastion', theme: 'dusk', unlock: null }
+  { id: 'bastion', theme: 'dusk', unlock: null },
+  // Open once the Bastion has fallen at threat III (Q4).
+  { id: 'foundry', theme: 'foundry', unlock: { after: 'bastion', threat: 3 } }
 ]
 
 export const FORTRESS_IDS: readonly FortressId[] = FORTRESSES.map(f => f.id)
@@ -35,5 +37,6 @@ export const isFortressId = (v: unknown): v is FortressId => typeof v === 'strin
 export const loadFortress = async (id: FortressId, level: number, run: number, answers?: Answers): Promise<Fortress> => {
   switch (id) {
     case 'bastion': return (await import('./bastion')).buildBastion(level, run, answers)
+    case 'foundry': return (await import('./foundry')).buildFoundry(level, run, answers)
   }
 }

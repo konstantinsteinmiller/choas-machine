@@ -25,6 +25,10 @@ export default {
     'unmute': '取消静音',
     'skip': '跳过'
   },
+  'fortress': {
+    'bastion': 'Bastion',
+    'foundry': 'Foundry'
+  },
   'hud': {
     'alert': '警戒等级',
     'strike': '突刺',
@@ -81,6 +85,8 @@ export default {
     },
     'threat': '威胁等级',
     'locked': '请先通关第 {n} 关',
+    'fortress': 'Fortress',
+    'fortressLocked': 'Take the {name} at threat {n} first',
     'best': '最高分',
     'armory': '军械库',
     'chassis': '底盘舱',
