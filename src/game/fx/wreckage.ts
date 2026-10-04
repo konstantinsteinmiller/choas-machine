@@ -7,8 +7,9 @@ import { sceneQuality } from '../engine/quality'
 /**
  * ─── Wreckage ────────────────────────────────────────────────────────────────
  *
- * What is left of a machine: rounded cubes that fly apart, bounce, roll to a
- * stop and STAY for the rest of the mission. They are the evidence a patrol
+ * What is left of a machine: torn metal (#64) that flies apart, bounces, rolls
+ * to a stop and STAYS for the rest of the mission: bent plates, rods and
+ * chunks of a hard-edged block, each piece its own proportions. They are the evidence a patrol
  * finds (the simulation treats the spot as a body), so they are never cleaned
  * up while the mission runs.
  *
@@ -53,6 +54,8 @@ interface Piece {
   /** Spin axis and rate. */
   ax: number; ay: number; az: number; spin: number
   s: number
+  /** Its proportions: a plate, a rod or a chunk (#64). */
+  sx: number; sy: number; sz: number
   awake: boolean
 }
 
@@ -78,9 +81,9 @@ export class Wreckage {
   private moving = 0
 
   constructor(private grid: Grid) {
-    // A cube with its corners knocked off: reads as a machined part, and as
-    // the game's own shape language.
-    this.geo = rbox(1, 1, 1, 0.3, 6, 6)
+    // A hard-edged block, barely rounded: scaled per piece into a torn plate,
+    // a snapped rod or a chunk of housing, it reads as metal (#64).
+    this.geo = rbox(1, 1, 1, 0.1, 4, 4)
     const mat = new MeshToonMaterial({ color: 0xffffff, gradientMap: toonRamp() })
     const cap = sceneQuality() === 'low' ? Math.round(WRECK_CAPACITY * 0.6) : WRECK_CAPACITY
     this.mesh = new InstancedMesh(this.geo, mat, cap)
@@ -116,8 +119,14 @@ export class Wreckage {
         ax: rnd() - 0.5, ay: rnd() - 0.5, az: rnd() - 0.5,
         spin: 4 + rnd() * 10,
         s: w.size[0] + rnd() * (w.size[1] - w.size[0]),
+        sx: 1, sy: 1, sz: 1,
         awake: true
       }
+      // Plates, rods and chunks.
+      const shape = rnd()
+      if (shape < 0.45) { p.sx = 1.2 + rnd() * 0.5; p.sy = 0.14 + rnd() * 0.1; p.sz = 0.8 + rnd() * 0.5 }
+      else if (shape < 0.7) { p.sx = 0.22; p.sy = 0.22; p.sz = 1.3 + rnd() * 0.7 }
+      else { p.sx = 0.8 + rnd() * 0.3; p.sy = 0.6 + rnd() * 0.4; p.sz = 0.8 + rnd() * 0.3 }
       const l = Math.hypot(p.ax, p.ay, p.az) || 1
       p.ax /= l; p.ay /= l; p.az /= l
       let i: number
@@ -145,7 +154,7 @@ export class Wreckage {
   private write(i: number, p: Piece): void {
     _o.position.set(p.x, p.y, p.z)
     _o.quaternion.copy(p.q)
-    _o.scale.setScalar(p.s)
+    _o.scale.set(p.s * p.sx, p.s * p.sy, p.s * p.sz)
     _o.updateMatrix()
     this.mesh.setMatrixAt(i, _o.matrix)
   }
@@ -161,7 +170,8 @@ export class Wreckage {
       p.vy -= GRAVITY * step
       let nx = p.x + p.vx * step
       let nz = p.z + p.vz * step
-      const half = p.s * 0.5
+      // Resting on its thinnest side, near enough.
+      const half = p.s * 0.5 * Math.min(p.sx, p.sy, p.sz, 1)
       // A wall: anything standing higher than the piece is.
       const ahead = heightAt(g, nx, nz)
       if (ahead !== VOID && ahead > p.y - half + 0.25) {

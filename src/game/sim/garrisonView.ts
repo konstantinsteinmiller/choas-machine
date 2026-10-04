@@ -176,14 +176,14 @@ const markTexture = (bang: boolean, siren = false): CanvasTexture => {
 const WRECKS: Partial<Record<PostKind, {
   count: number; size: [number, number]; half: [number, number, number]; lift: number; force: number; colors: readonly string[]
 }>> = {
-  searchlight: { count: 7, size: [0.1, 0.26], half: [0.3, 0.25, 0.3], lift: -0.1, force: 4, colors: [PAL.steel, PAL.steelDeep, PAL.steelDark, PAL.glowWhite] },
-  drone: { count: 9, size: [0.1, 0.24], half: [0.3, 0.15, 0.3], lift: 0, force: 4.5, colors: [PAL.steel, PAL.steelDeep, PAL.steelDark, PAL.glowRed] },
-  enforcer: { count: 26, size: [0.22, 0.62], half: [0.8, 1.4, 0.6], lift: 0.4, force: 6.5, colors: [PAL.steel, PAL.steel, PAL.steelDeep, PAL.steelDeep, PAL.steelDark, PAL.steelDark, PAL.glowYellow] },
+  searchlight: { count: 7, size: [0.1, 0.26], half: [0.3, 0.25, 0.3], lift: -0.1, force: 5.6, colors: [PAL.steel, PAL.steelDeep, PAL.steelDark, PAL.glowWhite] },
+  drone: { count: 9, size: [0.1, 0.24], half: [0.3, 0.15, 0.3], lift: 0, force: 6.3, colors: [PAL.steel, PAL.steelDeep, PAL.steelDark, PAL.glowRed] },
+  enforcer: { count: 26, size: [0.22, 0.62], half: [0.8, 1.4, 0.6], lift: 0.4, force: 9, colors: [PAL.steel, PAL.steel, PAL.steelDeep, PAL.steelDeep, PAL.steelDark, PAL.steelDark, PAL.glowYellow] },
   // A person blown apart in a kill-cam (#64): cloth, skin, boots and the helmet.
   guard: { count: 16, size: [0.1, 0.28], half: [0.25, 0.8, 0.2], lift: 0.9, force: 7, colors: [PAL.uniform, PAL.uniformDeep, PAL.skin, PAL.boot, PAL.helmet, PAL.uniform] },
   sentry: { count: 16, size: [0.1, 0.28], half: [0.25, 0.8, 0.2], lift: 0.9, force: 7, colors: [PAL.uniform, PAL.uniformDeep, PAL.skin, PAL.boot, PAL.helmet, PAL.uniform] },
-  hound: { count: 10, size: [0.1, 0.26], half: [0.3, 0.3, 0.6], lift: 0.5, force: 4.5, colors: [PAL.steel, PAL.steelDeep, PAL.steelDark, PAL.glowRed] },
-  goliath: { count: 54, size: [0.35, 1.1], half: [1.9, 1.1, 2.9], lift: 0.5, force: 9, colors: [PAL.steel, PAL.steel, PAL.steelDeep, PAL.steelDeep, PAL.steelDark, PAL.steelDark, PAL.steelDark, PAL.hazard] }
+  hound: { count: 10, size: [0.1, 0.26], half: [0.3, 0.3, 0.6], lift: 0.5, force: 6.3, colors: [PAL.steel, PAL.steelDeep, PAL.steelDark, PAL.glowRed] },
+  goliath: { count: 54, size: [0.35, 1.1], half: [1.9, 1.1, 2.9], lift: 0.5, force: 12, colors: [PAL.steel, PAL.steel, PAL.steelDeep, PAL.steelDeep, PAL.steelDark, PAL.steelDark, PAL.steelDark, PAL.hazard] }
 }
 
 export class GarrisonView {

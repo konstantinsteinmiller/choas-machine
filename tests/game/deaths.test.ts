@@ -208,8 +208,8 @@ describe('wreckage', () => {
     for (let i = 0; i < w.count; i++) {
       const p = w.at(i)!
       const floor = heightAt(g, p.x, p.z)
-      // On the surface under it (the floor, or the top of the block), not in it.
-      expect(p.y).toBeGreaterThan(floor + 0.05)
+      // On the surface under it (the floor, or the top of the block), not in it: a torn plate lies flat (#64).
+      expect(p.y).toBeGreaterThan(floor + 0.01)
       expect(p.y).toBeLessThan(floor + 0.45)
       expect(Math.hypot(p.x - 20, p.z - 20)).toBeLessThan(14)
     }
