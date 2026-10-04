@@ -9,7 +9,8 @@ import { CINEMA_HOLD_S, CINEMA_IDS, CINEMA_LENGTH, cinemaAfterClear } from '@/ga
 import { newHold, pressHold, stepHold } from '@/game/story/holdSkip'
 import { buildBastion } from '@/game/data/fortresses/bastion'
 import { validateFortress } from '@/game/world/validate'
-import { CELL, hasLineOfSight, heightAt } from '@/game/world/grid'
+import { CELL, heightAt } from '@/game/world/grid'
+import { WALK_EARSHOT } from '@/game/sim/garrison'
 
 describe('which scene a first clear earns', () => {
   it('the haul after Bastion I and II, the falls at III, the outro at Harbour V, nothing on a replay', () => {
@@ -76,25 +77,20 @@ describe('the scenes', () => {
   }
 })
 
-describe('the first raid opens behind the teaching guard (#104)', () => {
-  it('the board sets the mech down on the battery, behind the guard, a crate beside it', () => {
-    const f = buildBastion(1, 0, undefined, true)
-    expect(f.opening).toBe(true)
+describe('threat I arrives on a platform to practise on (the jam build)', () => {
+  it('a crate in the middle, one guard at the far edge looking at the fortress, its back to the landing, out of a step\'s earshot', () => {
+    const f = buildBastion(1)
     expect(validateFortress(f)).toEqual([])
-    const g = f.posts.find(p => p.kind === 'guard' && p.route.length === 0 && Math.abs(heightAt(f.grid, p.x, p.z) - 4) < 0.01)!
+    const g = f.posts.find(p => p.kind === 'guard' && p.route.length === 0 && Math.hypot(p.x - f.insert.x, p.z - f.insert.z) < CELL * 8)!
     expect(g).toBeDefined()
-    // On the battery (4 m), a few metres behind the guard (it faces east, the mech lands west of it).
-    expect(heightAt(f.grid, f.insert.x, f.insert.z)).toBe(4)
-    const behind = (f.insert.x - g.x) * Math.sin(g.facing) + (f.insert.z - g.z) * Math.cos(g.facing)
-    expect(behind).toBeLessThan(-CELL * 2)
-    // A guard across the cable is in a rifle's sight from behind the teaching guard.
-    const eye = 4 + 1.4
-    const from = { x: g.x - Math.sin(g.facing) * 1.5, z: g.z - Math.cos(g.facing) * 1.5 }
-    const seen = f.posts.filter(p => p !== g && (p.kind === 'guard' || p.kind === 'sentry') && !p.reserve &&
-      hasLineOfSight(f.grid, from.x, eye, from.z, p.x, heightAt(f.grid, p.x, p.z) + 1.54, p.z))
-    expect(seen.length).toBeGreaterThan(0)
-    // Any later raid lands on the perch as before.
-    expect(buildBastion(1).insert).not.toEqual(f.insert)
-    expect(buildBastion(1).opening).toBeUndefined()
+    expect(heightAt(f.grid, f.insert.x, f.insert.z)).toBe(heightAt(f.grid, g.x, g.z))
+    const d = Math.hypot(g.x - f.insert.x, g.z - f.insert.z)
+    expect(d).toBeGreaterThan(WALK_EARSHOT * 2)
+    expect(d).toBeLessThan(18)
+    // Its back to the mech: the landing is behind it.
+    const ahead = (f.insert.x - g.x) * Math.sin(g.facing) + (f.insert.z - g.z) * Math.cos(g.facing)
+    expect(ahead).toBeLessThan(-CELL * 2)
+    // No scripted opening any more.
+    expect((f as unknown as { opening?: boolean }).opening).toBeUndefined()
   })
 })

@@ -2,7 +2,7 @@ import {
   BackSide, BufferGeometry, Color, CylinderGeometry, DirectionalLight, Euler, Float32BufferAttribute, Fog, Group, HemisphereLight,
   InstancedMesh, Matrix4, Mesh, MeshBasicMaterial, Quaternion, Scene, SphereGeometry, Vector3
 } from 'three'
-import { merge, rbox, rock, sph, torus, paint, paintBy } from '../models/kit'
+import { merge, rbox, rock, sph, torus, paint, paintBy, weldKey } from '../models/kit'
 import { toonVCInstanced } from '../models/toon'
 import { mulberry32 } from './rng'
 import { sceneQuality } from '../engine/quality'
@@ -213,7 +213,7 @@ const buildMountain = (c: SkyColors, centre: Vector3, half: number): Mesh => {
   const rng = mulberry32(9091)
   const bumps = new Map<string, number>()
   for (let i = 0; i < pos.count; i++) {
-    const key = `${pos.getX(i).toFixed(2)},${pos.getY(i).toFixed(2)},${pos.getZ(i).toFixed(2)}`
+    const key = weldKey(pos.getX(i), pos.getY(i), pos.getZ(i), 2)
     let k = bumps.get(key)
     if (k === undefined) { k = 0.85 + rng() * 0.3; bumps.set(key, k) }
     pos.setX(i, pos.getX(i) * k)
@@ -228,6 +228,13 @@ const buildMountain = (c: SkyColors, centre: Vector3, half: number): Mesh => {
   mesh.position.set(centre.x, centre.y - 22 - 6, centre.z)
   return mesh
 }
+
+/**
+ * Where on its spire a chain is anchored, as a share of the spire's half
+ * height above its middle: the rock is squashed to 0.8 and jittered 0.84 …
+ * 1.14, so its crown is 0.67 … 0.91 up; 0.62 is inside the rock every time.
+ */
+const SPIRE_ANCHOR = 0.62
 
 /** Two great chains from the base's edge to the tops of two spires, link by link. */
 const buildChains = (c: SkyColors, ends: ReadonlyArray<{ a: Vector3; b: Vector3 }>): Group => {
@@ -330,9 +337,11 @@ export const buildSky = (scene: Scene, centre: Vector3, c: SkyColors = DUSK, gro
     spots.push(...anchorSpires)
     const mountain = buildMountain(c, centre, half)
     extra.push(mountain)
+    // The far end sits ON its spire: on its axis, a little down into its
+    // top (the rock tapers and dips there; 4 m off the axis it hung in the air).
     chains = buildChains(c, anchorSpires.map((s, k) => ({
       a: new Vector3(centre.x + (k === 0 ? -ground.w / 2 + 3 : ground.w / 2 - 3), centre.y - 1.5, s.z),
-      b: new Vector3(s.x + (k === 0 ? 4 : -4), CLOUD_SEA_Y + s.h - 8, s.z)
+      b: new Vector3(s.x, CLOUD_SEA_Y + s.h / 2 - 8 + SPIRE_ANCHOR * (s.h / 2), s.z)
     })))
     extra.push(chains)
   }

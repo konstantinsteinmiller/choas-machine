@@ -129,8 +129,6 @@ export interface Fortress {
   barrels?: Array<{ cx: number; cz: number; x: number; y: number; z: number }>
   /** Its look (#79): palette, sky, haze. The dusk when unset. */
   theme?: ThemeId
-  /** The first raid's scripted opening plays here (#104). */
-  opening?: boolean
 }
 
 /** An exploding barrel's cell is raised this much: it is cover (`sim/barrels.ts` BARREL_H). */

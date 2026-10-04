@@ -77,7 +77,7 @@ const BREACH_H = 1.6
 /** Always live: the teaching pile and the big one on the keep. */
 const ALWAYS = [0, 8]
 
-export const buildBastion = (level = 1, run = 0, answers: Answers = NO_ANSWERS, opening = false): Fortress => {
+export const buildBastion = (level = 1, run = 0, answers: Answers = NO_ANSWERS): Fortress => {
   const rng = mulberry32(0xba5 + run * 7919)
   // Built in the old 60 × 64 frame, then grown (#88).
   const b = new FortressBuilder('bastion', 60, 64).island(2).look('dusk')
@@ -239,15 +239,19 @@ export const buildBastion = (level = 1, run = 0, answers: Answers = NO_ANSWERS, 
   // Rifle kills from the perch: a light on the battery's corner sweeps it.
   if (answers.perchLight) b.searchlight(7, 54, [[3, 58, 1.2], [4, 57, 1], [2, 57, 1.2], [3, 59, 1]])
 
-  // The very first raid (#104): the board sets the mech down on the battery,
-  // behind the teaching guard, a crate beside the landing; the opening plays
-  // from there.
-  if (opening) {
-    b.insert(11, 48, Math.PI / 2)
-    b.solid('stack', 11, 50, 1.4)
-    // And the shot: a guard on the west barracks' roof, where the cable from
-    // the north-west tower lands, its back to the battery.
-    b.guard([[10, 30]], Math.PI)
+  // Threat I: the arrival is a lesson to choose from (the jam build: no
+  // scripted opening, the intro already showed the moves). The outcrop is
+  // widened east into a platform; the board sets the mech down on its
+  // south-west corner, a crate in the middle, and one guard at the far edge
+  // looking at the fortress, its back to the mech: 13 m away, well out of a
+  // walking step's earshot (4.5 m). Blade, rifle, or the loud guns: the
+  // battery and the south yard are 20-30 m off, inside a mini-gun's or a
+  // rocket's earshot, out of a silenced rifle's.
+  if (level === 1) {
+    b.ground(1, 56, 10, 62)
+    b.insert(4, 61, Math.PI * 0.78)
+    b.cover(7, 59, 1)
+    b.guard([[9, 57]], Math.PI * 0.75)
   }
 
   // ── Round 4: the island grows, and what is added is placed in the old frame through `at` ──
@@ -307,6 +311,5 @@ export const buildBastion = (level = 1, run = 0, answers: Answers = NO_ANSWERS, 
 
   const f = b.build()
   f.answers = { ...answers }
-  if (opening) f.opening = true
   return f
 }

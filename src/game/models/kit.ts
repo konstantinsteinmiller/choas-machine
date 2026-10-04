@@ -157,6 +157,17 @@ export const rboxSplit = (
  * and pole vertices get the same bump, so the surface cannot crack open.
  * Same seed, same rock.
  */
+/**
+ * A vertex's weld key: its position rounded to `digits`. Rounded through a
+ * number first, so a seam vertex at −0.0000000000000002 and its twin at 0
+ * share one key ("-0.000" ≠ "0.000" split every rock open down its seam).
+ */
+export const weldKey = (x: number, y: number, z: number, digits = 3): string => {
+  const f = 10 ** digits
+  const r = (v: number): string => (Math.round(v * f) / f + 0).toFixed(digits)
+  return `${r(x)},${r(y)},${r(z)}`
+}
+
 export const rock = (r: number, seed = 1, ws = 9, hs = 7): BufferGeometry => {
   const g = new SphereGeometry(1, ws, hs)
   const pos = g.attributes.position!
@@ -167,7 +178,7 @@ export const rock = (r: number, seed = 1, ws = 9, hs = 7): BufferGeometry => {
     const x = pos.getX(i)
     const y = pos.getY(i)
     const z = pos.getZ(i)
-    const key = `${x.toFixed(3)},${y.toFixed(3)},${z.toFixed(3)}`
+    const key = weldKey(x, y, z)
     keys.push(key)
     let k = bumps.get(key)
     if (k === undefined) {

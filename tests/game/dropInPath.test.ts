@@ -35,7 +35,6 @@ describe('the drop-in flies through nothing solid (#105)', () => {
     ['the training ground', buildTrainingGround],
     ['the proving ground', buildProvingGround],
     ...[1, 2, 3, 4, 5].map(l => [`the Bastion at threat ${l}`, () => buildBastion(l)] as [string, () => Fortress]),
-    ['the first raid\'s opening landing', () => buildBastion(1, 0, undefined, true)],
     ['the Foundry', () => buildFoundry(1)],
     ['the Harbour', () => buildHarbour(1)]
   ]

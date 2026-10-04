@@ -60,7 +60,9 @@ describe('the rings', () => {
   })
 
   it('the cable from the perch lands on a railed ledge with a ladder down', () => {
-    const c = f.grid.cables.find(k => Math.hypot(cellMid(k.ax) - f.insert.x, cellMid(k.az) - f.insert.z) < CELL * 2)
+    // From threat II the board lands on the perch itself (threat I lands on the platform beside it).
+    const p = buildBastion(2)
+    const c = f.grid.cables.find(k => Math.hypot(cellMid(k.ax) - p.insert.x, cellMid(k.az) - p.insert.z) < CELL * 2)
     expect(c).toBeDefined()
     expect(f.decor.some(d => d.kind === 'rail' && Math.hypot(d.x - cellMid(c!.bx), d.z - cellMid(c!.bz)) < CELL * 2)).toBe(true)
     expect(f.grid.ladders.some(l => Math.hypot(l.cx - c!.bx, l.cz - c!.bz) <= 1.5)).toBe(true)
