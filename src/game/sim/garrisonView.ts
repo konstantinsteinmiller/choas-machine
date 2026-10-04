@@ -338,6 +338,20 @@ export class GarrisonView {
   }
 
   /** Light a defender up for a moment (a hit, the x-ray of a kill-cam). */
+  /** A unit stood up again (the training ground): its rig whole and showing again. */
+  restore(id: number): void {
+    const v = this.views[id]
+    if (!v) return
+    v.wrecked = false
+    v.landed = false
+    v.grip = 0
+    v.rig.root.visible = true
+    v.rig.root.scale.setScalar(1)
+    const sb = v.rig.bones.shield
+    if (sb) sb.scale.setScalar(1)
+    this.flash(id, '#5fe9ff', 0.8)
+  }
+
   flash(id: number, hex: string, seconds = 0.5): void {
     const v = this.views[id]
     if (!v) return

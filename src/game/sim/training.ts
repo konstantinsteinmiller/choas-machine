@@ -139,8 +139,8 @@ export const DEMOS: Readonly<Record<LessonId, readonly DemoKey[]>> = {
   // the platform with T, along it, and down.
   rope: [
     { t: 0, x: 3.4, z: 7, y: 4, rope: 0, face: [8.5, 7] }, { t: 0.8, hint: 'rope', rope: 0 }, { t: 1.1, rope: 1 },
-    { t: 1.6, x: 3.4, z: 7, y: 4, cable: 1 }, { t: 4.4, x: 8.4, z: 7, y: 2, cable: 1 }, { t: 4.6, cable: 0 },
-    { t: 5.1, x: 9.6, z: 7, y: 0, air: 1 }, { t: 5.3, air: 0 }, { t: 6, x: 10.4, z: 7, y: 0 }
+    { t: 1.6, x: 3.5, z: 7, y: 4, cable: 1 }, { t: 4, x: 7.5, z: 7, y: 2, cable: 1 }, { t: 4.2, cable: 0 },
+    { t: 4.8, x: 9.3, z: 7, y: 2 }, { t: 5.2, x: 9.9, z: 7, y: 0, air: 1 }, { t: 5.4, air: 0 }, { t: 6, x: 10.4, z: 7, y: 0 }
   ],
   beacon: [{ t: 0, x: 1.5, z: 7 }, { t: 3, x: 5.4, z: 8.3, hint: 'sabotage' }, { t: 5, x: 5.4, z: 8.3, face: [6, 9] }],
   salvage: [
@@ -234,6 +234,23 @@ export const lessonDone = (i: number, c: TrainingContext, b: TrainingContext): b
     case 'beacon': return c.sabotaged > b.sabotaged
     case 'salvage': return c.piles > b.piles
     case 'extract': return false
+  }
+}
+
+/** What a lesson still has to work with: defenders standing in its room, bodies left to burn, fuel, ropes. */
+export interface LessonStock { alive: number; bodies: number; fuel: number; ropes: number }
+
+/**
+ * The lesson can no longer be done with what is left in its room: the
+ * blade room's guards shot instead of bladed, the body gone, the fuel or the
+ * ropes spent. The room is then set up again (`restoreLesson` in the mission).
+ */
+export const lessonStuck = (i: number, c: TrainingContext, b: TrainingContext, s: LessonStock): boolean => {
+  switch (TRAINING_ROOMS[i]!.lesson) {
+    case 'blade': return c.bladeKills - b.bladeKills + s.alive < 2
+    case 'burn': return c.burns <= b.burns && (s.bodies === 0 || s.fuel <= 0)
+    case 'rope': return c.ropes <= b.ropes && s.ropes <= 0
+    default: return false
   }
 }
 

@@ -122,6 +122,7 @@ export const installGameSounds = (): void => {
   on('helmet', () => sfx('zap'))
   on('bossTell', ({ what }) => { if (what === 'glint') sfx('glint'); else if (what === 'overheat') sfx('vent'); else if (what === 'shield' || what === 'phase') sfx('zap') })
   on('trainingReset', () => sfx('shout'))
+  on('lessonRestored', () => sfx('shard'))
   on('zoomed', () => sfx('zoom'))
   on('repair', () => sfx('repair'))
   on('drag', () => sfx('drag'))

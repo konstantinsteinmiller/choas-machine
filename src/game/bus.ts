@@ -80,6 +80,8 @@ export interface GameEvents {
   lessonDone: { room: number }
   trainingReplay: Record<string, never>
   trainingReset: Record<string, never>
+  /** A training room set up again: its lesson could no longer be done. */
+  lessonRestored: { room: number }
   /** The scope's zoom changed (the touch chip asks with `zoom`). */
   zoomed: { level: number }
   zoom: Record<string, never>

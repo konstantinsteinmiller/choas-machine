@@ -287,3 +287,24 @@ describe('the decoy lesson plays the whole trick (#115)', () => {
     expect((g.x - v.x) * lookX + (g.z - v.z) * lookZ).toBeLessThan(0)
   })
 })
+
+describe('a lesson that can no longer be done is set up again', () => {
+  it('names the blade room whose guards were shot, the burn room without a body or fuel, the rope room without ropes', async () => {
+    const { lessonStuck } = await import('@/game/sim/training')
+    const base = { x: 0, y: 0, z: 0, bladeKills: 0, sniperKills: 0, rockets: 0, overheats: 0, zooms: 0, sabotaged: 0, piles: 0, supplies: 0, stocked: false, burns: 0, ropes: 0 }
+    const stock = { alive: 2, bodies: 1, fuel: 4, ropes: 3 }
+    const blade = LESSON_IDS.indexOf('blade')
+    const burn = LESSON_IDS.indexOf('burn')
+    const rope = LESSON_IDS.indexOf('rope')
+    expect(lessonStuck(blade, base, base, stock)).toBe(false)
+    // One bladed, one shot: one blade kill, nobody left to take.
+    expect(lessonStuck(blade, { ...base, bladeKills: 1 }, base, { ...stock, alive: 0 })).toBe(true)
+    expect(lessonStuck(blade, { ...base, bladeKills: 1 }, base, { ...stock, alive: 1 })).toBe(false)
+    expect(lessonStuck(blade, base, base, { ...stock, alive: 0 })).toBe(true)
+    expect(lessonStuck(burn, base, base, { ...stock, bodies: 0 })).toBe(true)
+    expect(lessonStuck(burn, base, base, { ...stock, fuel: 0 })).toBe(true)
+    expect(lessonStuck(burn, { ...base, burns: 1 }, base, { ...stock, bodies: 0 })).toBe(false)
+    expect(lessonStuck(rope, base, base, { ...stock, ropes: 0 })).toBe(true)
+    expect(lessonStuck(LESSON_IDS.indexOf('move'), base, base, { alive: 0, bodies: 0, fuel: 0, ropes: 0 })).toBe(false)
+  })
+})

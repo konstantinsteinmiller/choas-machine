@@ -9,7 +9,7 @@ import { consumeEdges, type Input } from '../engine/input'
 import { input as sharedInput, inputClock } from '../engine/inputState'
 import { emit, on } from '../bus'
 import { gun, hud, mirror, runHudTickers, setPhase, threats, vital, waypoint, MAX_THREATS, callouts, MAX_CALLOUTS, prompt, bars, MAX_BARS, uplinks, MAX_UPLINKS, type PromptKind } from '../state/hud'
-import { CELL, VOID, ceilingAt, heightAt, raycast, hasLineOfSight, toCell, inGrid, cellKind, cellHeight, CellKind, shadeAt, Shade } from '../world/grid'
+import { CELL, VOID, cableSpan, ceilingAt, heightAt, raycast, hasLineOfSight, toCell, inGrid, cellKind, cellHeight, CellKind, shadeAt, Shade } from '../world/grid'
 import type { Fortress } from '../world/fortress'
 import { buildFortressMesh, type FortressMesh } from '../world/fortressMesh'
 import { buildDecor, type DecorMesh } from '../world/decor'
@@ -48,7 +48,7 @@ import { MARKSMAN_AIM_S, stepFire } from './chaos'
 import { hurtArmor, makeArmor, stepArmor, type Armor } from './armor'
 import { flow, finishMission, failMission, finishTraining } from '../flow'
 import { TrainingDirector } from './trainingDirector'
-import { entryOf, roomAt } from './training'
+import { entryOf, lessonStuck, roomAt } from './training'
 import { TRAINING_ID, TRAINING_ROOMS } from '../data/fortresses/training'
 import { COVER_H } from '../world/fortress'
 import { BASE_LOADOUT, type Loadout } from '../data/upgrades'
@@ -105,6 +105,8 @@ const MUZZLE_REACH: Readonly<Record<WeaponId, number>> = { sniper: 1.75, minigun
 const MUZZLE_TIP: Readonly<Record<WeaponId, readonly [string, number, number, number]>> = {
   sniper: ['sniper', 0, -1.42, 0.02], minigun: ['minigunBarrels', 0, -0.66, 0], rocket: ['rocket', 0, -0.95, 0.06]
 }
+/** The next practice decoy, in the training ground. */
+const TRAINING_DECOY_COOL_S = 3
 /** An aimed decoy lands this near (looking down) to this far (looking level or up) (#115). */
 const DECOY_NEAR = 2.5
 const DECOY_FAR = 18
@@ -503,6 +505,7 @@ export class Mission implements GameMode {
         u.found = false
       }
       drainEvents(m.garrison)
+      m.trainingStart = m.garrison.units.map(u => structuredClone(u))
     }
     m.salvageView = new SalvageView(m.piles)
     m.scene.add(m.salvageView.group)
@@ -1688,14 +1691,25 @@ export class Mission implements GameMode {
     this.ropesLeft--
     this.ropesShot++
     this.ropeAim = null
-    const len = Math.hypot(r.bx - r.ax, r.by - r.ay, r.bz - r.az)
-    const mesh = new Mesh(this.ropeGeo, this.ropeMat)
-    mesh.position.set((r.ax + r.bx) / 2, (r.ay + r.by) / 2 + 0.75, (r.az + r.bz) / 2)
-    mesh.scale.set(1, len, 1)
-    mesh.quaternion.setFromUnitVectors(UP, new Vector3(r.bx - r.ax, r.by - r.ay, r.bz - r.az).normalize())
-    this.scene.add(mesh)
-    this.ropeMeshes.push(mesh)
-    this.fx.particles.sparks(r.bx, r.by + 0.75, r.bz, '#fff1c9', 10, 3, 0.25)
+    // From this platform's edge to the far one's, where the mech walks it,
+    // with a spike driven in at each end.
+    const s = cableSpan(g, r.cable)
+    const ex = r.ax + (r.bx - r.ax) * s.ta
+    const ez = r.az + (r.bz - r.az) * s.ta
+    const fx = r.ax + (r.bx - r.ax) * s.tb
+    const fz = r.az + (r.bz - r.az) * s.tb
+    const stretch = (x0: number, y0: number, z0: number, x1: number, y1: number, z1: number, thick: number): void => {
+      const mesh = new Mesh(this.ropeGeo, this.ropeMat)
+      mesh.position.set((x0 + x1) / 2, (y0 + y1) / 2, (z0 + z1) / 2)
+      mesh.scale.set(thick, Math.hypot(x1 - x0, y1 - y0, z1 - z0), thick)
+      mesh.quaternion.setFromUnitVectors(UP, new Vector3(x1 - x0, y1 - y0, z1 - z0).normalize())
+      this.scene.add(mesh)
+      this.ropeMeshes.push(mesh)
+    }
+    stretch(ex, r.ay + 0.06, ez, fx, r.by + 0.06, fz, 1)
+    stretch(ex, r.ay, ez, ex, r.ay + 0.45, ez, 2)
+    stretch(fx, r.by, fz, fx, r.by + 0.45, fz, 2)
+    this.fx.particles.sparks(fx, r.by + 0.3, fz, '#fff1c9', 10, 3, 0.25)
     // A line strung across the base is a thing out of place for whoever sees it.
     noteChange(this.garrison, (r.ax + r.bx) / 2, (r.ay + r.by) / 2 + 0.5, (r.az + r.bz) / 2, 'rope')
     emit('rope', {})
@@ -1748,7 +1762,8 @@ export class Mission implements GameMode {
     const p = this.player
     // Aimed (#115), or thrown ahead; with a wall in the face, dropped at the mech's feet.
     const spot = aimed ?? decoySpot(this.fortress.grid, p.x, p.y, p.z, this.cam.yaw) ?? { x: p.x, y: p.y, z: p.z }
-    this.decoyCool = this.loadout.decoyCooldown
+    // The training ground is for practice: the next decoy is ready at once, nearly.
+    this.decoyCool = this.training ? TRAINING_DECOY_COOL_S : this.loadout.decoyCooldown
     // It faces back at the mech: a mech-shaped light looking at the guards
     // who come round the corner after it.
     this.decoys.push({ ...spot, yaw: this.cam.yaw + Math.PI, t: 0, life: this.loadout.decoySeconds, pulse: 0 })
@@ -2398,6 +2413,8 @@ export class Mission implements GameMode {
   /** Supplies picked up, bodies burnt, ropes shot (the round-4 lessons). */
   private suppliesTaken = 0
   private burnsDone = 0
+  /** The training ground's defenders as they started: a room whose lesson can no longer be done is set back to this. */
+  private trainingStart: Unit[] = []
   private ropesShot = 0
   /** The scope's zoom: an index into SCOPE_ZOOMS. */
   private scopeZoom = 0
@@ -2437,18 +2454,59 @@ export class Mission implements GameMode {
     return here.length > 0 && here.every(u => !isAlive(u))
   }
 
+  /**
+   * A lesson that can no longer be done gets its room back: its
+   * defenders stand again where they started (the burn room's body lies there
+   * again), and the fuel and ropes are topped up. Each one shimmers in.
+   */
+  private restoreLesson(room: number): void {
+    for (const u of this.garrison.units) {
+      if (roomAt(u.homeX) !== room || u.gripped) continue
+      const start = this.trainingStart[u.id]
+      if (!start) continue
+      if (isAlive(u) && isAlive(start)) continue
+      if (!isAlive(start) && !u.hidden && u.state === 'dead') continue
+      if (u.id === this.dragId) this.dropBody()
+      Object.assign(u, structuredClone(start))
+      this.garrisonView.restore(u.id)
+      for (let k = this.residues.length - 1; k >= 0; k--) {
+        const r = this.residues[k]!
+        if (Math.hypot(r.position.x - u.x, r.position.z - u.z) > 2.5) continue
+        this.scene.remove(r)
+        this.residues.splice(k, 1)
+      }
+      this.fx.particles.sparks(u.x, u.y + 1, u.z, '#5fe9ff', 18, 2.5, 0.5)
+    }
+    this.fuelLeft = Math.max(this.fuelLeft, this.loadout.fuel)
+    this.ropesLeft = Math.max(this.ropesLeft, this.loadout.ropes)
+    emit('lessonRestored', { room })
+  }
+
   /** The training ground, each step: lessons, gates, the demo's glyph, a seen mech sent back. */
   private stepTraining(dt: number): void {
     const tr = this.training
     if (!tr) return
     const p = this.player
-    const ev = tr.step({
+    const ctx = {
       x: p.x, y: p.y, z: p.z, bladeKills: this.stats.bladeKills, sniperKills: this.sniperKills, rockets: this.rocketsFired,
       overheats: this.overheats, zooms: this.zooms, sabotaged: this.sabotaged, piles: this.stats.piles,
       supplies: this.suppliesTaken, burns: this.burnsDone, ropes: this.ropesShot,
       cleared: this.roomCleared(tr.state.room),
       stocked: this.supplies.every(s => s.taken || !wants(s, this.arsenal, this.armor, this.loadout.rockets))
-    }, dt)
+    }
+    const ev = tr.step(ctx, dt)
+    // Nothing left in the room to do the lesson with: set it up again.
+    const cur = tr.state.room
+    if (cur >= 0 && !tr.state.done[cur] && tr.state.base && !this.burning) {
+      const here = this.garrison.units.filter(u => roomAt(u.homeX) === cur)
+      const stock = {
+        alive: here.filter(u => isAlive(u)).length,
+        bodies: here.filter(u => u.state === 'dead' && !u.hidden).length,
+        fuel: this.fuelLeft,
+        ropes: this.ropesLeft
+      }
+      if (lessonStuck(cur, ctx, tr.state.base, stock)) this.restoreLesson(cur)
+    }
     for (const e of ev) {
       if (e.type === 'done') {
         haptic('reward')

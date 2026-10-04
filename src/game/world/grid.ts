@@ -155,6 +155,35 @@ export const cellMid = (c: number): number => (c + 0.5) * CELL
 /** Height of the surface under a world position; VOID off the island. */
 export const heightAt = (g: Grid, x: number, z: number): number => cellHeight(g, toCell(x), toCell(z))
 
+/**
+ * Where a cable leaves its first end's platform and reaches its second's, as
+ * fractions of the way from one cell's middle to the other's: the
+ * line runs from edge to edge, the mech walks flat to the edge first.
+ */
+export const cableSpan = (g: Grid, c: Cable): { ta: number; tb: number } => {
+  const ax = cellMid(c.ax)
+  const az = cellMid(c.az)
+  const bx = cellMid(c.bx)
+  const bz = cellMid(c.bz)
+  const ay = cellHeight(g, c.ax, c.az)
+  const by = cellHeight(g, c.bx, c.bz)
+  const len = Math.hypot(bx - ax, bz - az)
+  const n = Math.max(2, Math.ceil(len / 0.05))
+  const on = (t: number, y: number): boolean => Math.abs(heightAt(g, ax + (bx - ax) * t, az + (bz - az) * t) - y) < 0.05
+  let ta = 0
+  while (ta < 1 && on(ta + 1 / n, ay)) ta += 1 / n
+  let tb = 1
+  while (tb > ta && on(tb - 1 / n, by)) tb -= 1 / n
+  return { ta: Math.min(ta, tb), tb }
+}
+
+/** A cable's height at fraction `t` of the way: flat over each platform, straight from edge to edge. */
+export const cableY = (ay: number, by: number, s: { ta: number; tb: number }, t: number): number => {
+  if (t <= s.ta) return ay
+  if (t >= s.tb) return by
+  return ay + (by - ay) * ((t - s.ta) / Math.max(1e-6, s.tb - s.ta))
+}
+
 /** A cell's roof underside, or VOID (open sky, or a hole). */
 export const roofAt = (g: Grid, cx: number, cz: number): number => (inGrid(g, cx, cz) ? g.roof[cz * g.w + cx]! : VOID)
 

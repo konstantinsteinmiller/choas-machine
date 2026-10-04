@@ -387,11 +387,11 @@ export class TrainingDirector {
       const down = dt >= tg.dies
       poseGuard(tg.rig, { ...restGuardPose(), time: time + tg.at[0], deadT: down ? Math.max(1e-3, dt - tg.dies) : 0, death: tg.death })
     }
-    // The rope: tower edge to the platform, once shot.
+    // The rope: from the tower's edge to the platform's, once shot.
     this.rope.visible = f.rope > 0.5
     if (this.rope.visible) {
-      const a = new Vector3(toX(3.5), ROPE_TOWER_H + 0.75, toZ(7))
-      const b = new Vector3(toX(8.5), ROPE_DECK_H + 0.75, toZ(7))
+      const a = new Vector3(toX(3.5), ROPE_TOWER_H + 0.06, toZ(7))
+      const b = new Vector3(toX(7.5), ROPE_DECK_H + 0.06, toZ(7))
       this.rope.position.copy(a).add(b).multiplyScalar(0.5)
       this.rope.scale.set(1, a.distanceTo(b), 1)
       this.rope.quaternion.copy(new Quaternion().setFromUnitVectors(new Vector3(0, 1, 0), b.sub(a).normalize()))

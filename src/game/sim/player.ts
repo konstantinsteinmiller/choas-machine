@@ -1,5 +1,5 @@
 import {
-  CELL, STEP_DOWN, STEP_UP, VOID, ceilingAt, cellHeight, cellMid, floorAt, heightAt, moveCircle, toCell,
+  CELL, STEP_DOWN, STEP_UP, VOID, cableSpan, cableY, ceilingAt, cellHeight, cellMid, floorAt, heightAt, moveCircle, toCell,
   type Cable, type Grid, type Ladder, type MoveRule
 } from '../world/grid'
 import { MECH_EYE, MECH_EYE_CROUCH, MECH_HEIGHT as MECH_HEAD, MECH_RADIUS } from '../models/mech'
@@ -256,7 +256,8 @@ export const stepPlayer = (p: Player, g: Grid, w: Wish, dt: number): PlayerEvent
     const t = Math.min(1, Math.max(0, p.cableT))
     p.x = e.ax + (e.bx - e.ax) * t
     p.z = e.az + (e.bz - e.az) * t
-    p.y = e.ay + (e.by - e.ay) * t
+    // Flat to the platform's edge, then down (or up) the line to the other's.
+    p.y = cableY(e.ay, e.by, cableSpan(g, p.cable), t)
     if (p.cableT >= 1 || p.cableT <= 0) {
       p.mode = 'ground'
       p.cable = null

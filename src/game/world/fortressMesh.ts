@@ -1,5 +1,5 @@
 import { BufferGeometry, Color, Float32BufferAttribute, Group, Mesh } from 'three'
-import { CELL, CellKind, ROOF_T, Surf, VOID, cellHeight, cellKind, cellSurf, roofAt, type Grid, Shade } from './grid'
+import { CELL, CellKind, ROOF_T, Surf, VOID, cableSpan, cellHeight, cellKind, cellSurf, roofAt, type Grid, Shade } from './grid'
 import type { Fortress } from './fortress'
 import { levelMaterial, glowVC } from '../models/toon'
 import { levelAtlas } from './textures'
@@ -593,10 +593,15 @@ const buildLinks = (g: Grid, pal: Palette): Quads => {
     const bz = (c.bz + 0.5) * CELL
     const ay = cellHeight(g, c.ax, c.az)
     const by = cellHeight(g, c.bx, c.bz)
-    beam(q, ax, ay + 0.06, az, bx, by + 0.06, bz, 0.05, pal.cable)
-    // An anchor post at each end, so the cable has something to hang from.
-    beam(q, ax, ay, az, ax, ay + 0.5, az, 0.09, pal.cable)
-    beam(q, bx, by, bz, bx, by + 0.5, bz, 0.09, pal.cable)
+    // From one platform's edge to the other's, an anchor post on each edge.
+    const s = cableSpan(g, c)
+    const ex = ax + (bx - ax) * s.ta
+    const ez = az + (bz - az) * s.ta
+    const fx = ax + (bx - ax) * s.tb
+    const fz = az + (bz - az) * s.tb
+    beam(q, ex, ay + 0.06, ez, fx, by + 0.06, fz, 0.05, pal.cable)
+    beam(q, ex, ay, ez, ex, ay + 0.5, ez, 0.09, pal.cable)
+    beam(q, fx, by, fz, fx, by + 0.5, fz, 0.09, pal.cable)
   }
   return q
 }
