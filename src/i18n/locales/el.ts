@@ -31,8 +31,8 @@ export default {
     'decoy': 'Δόλωμα',
     'weapons': 'Όπλα',
     'ammo': 'Πυρομαχικά',
-    'reloading': 'Reloading',
-    'reserve': '{n} more carried',
+    'reloading': 'Επαναφόρτωση',
+    'reserve': 'άλλα {n} μαζί',
     'heat': 'Θερμοκρασία όπλου',
     'armor': 'Θωράκιση',
     'crouch': 'Σκύψε',
@@ -94,7 +94,7 @@ export default {
     'minigunDamage': 'Ζημιά μίνιγκαν',
     'rocketBlast': 'Ακτίνα έκρηξης',
     'rocketAmmo': 'Ρουκέτες',
-    'ammoRacks': 'Ammo racks',
+    'ammoRacks': 'Ράφια πυρομαχικών',
     'armor': 'Θωράκιση',
     'speed': 'Ταχύτητα σέρβο',
     'decoy': 'Διάρκεια δολώματος',
@@ -120,36 +120,36 @@ export default {
     'stars': '{n} από 3 αστέρια'
   },
   'melt': {
-    'start': 'Melt the haul: up to +{n}'
+    'start': 'Λιώσε τα λάφυρα: έως +{n}'
   },
   'wheel': {
-    'title': 'Lucky wheel',
-    'locked': 'Max out rifle damage to open the wheel',
-    'chance': 'Win chance',
-    'gain': 'Next win',
-    'spin': 'Spin',
-    'sure': 'Sure win',
-    'watch': 'Watch a video for a sure win',
-    'won': 'Rifle damage +{n}',
-    'miss': 'Missed: {n} scrap back',
-    'pity': 'A sure win in {n} spins'
+    'title': 'Τροχός τύχης',
+    'locked': 'Μεγιστοποίησε τη ζημιά του τυφεκίου για να ανοίξει ο τροχός',
+    'chance': 'Πιθανότητα νίκης',
+    'gain': 'Επόμενη νίκη',
+    'spin': 'Γύρνα',
+    'sure': 'Σίγουρη νίκη',
+    'watch': 'Δες βίντεο για σίγουρη νίκη',
+    'won': 'Ζημιά τυφεκίου +{n}',
+    'miss': 'Αστοχία: επιστρέφουν {n} scrap',
+    'pity': 'Σίγουρη νίκη σε {n} γυρίσματα'
   },
   'disguise': {
-    'title': 'Disguises',
-    'toaster': 'Toaster',
-    'crate': 'Sneaky crate',
-    'clown': 'Clown box',
-    'horse': 'Trojan horse',
-    'bush': 'Bush',
-    'teddy': 'Teddy bear',
-    'wear': 'Wear the {name}',
-    'wearShort': 'Wear',
-    'unlock': 'Unlock the {name}',
-    'watch': 'Watch a video to unlock the {name}'
+    'title': 'Μεταμφιέσεις',
+    'toaster': 'Τοστιέρα',
+    'crate': 'Πονηρό κιβώτιο',
+    'clown': 'Κουτί κλόουν',
+    'horse': 'Δούρειος Ίππος',
+    'bush': 'Θάμνος',
+    'teddy': 'Αρκουδάκι',
+    'wear': 'Φόρεσε: {name}',
+    'wearShort': 'Φόρεσε',
+    'unlock': 'Ξεκλείδωμα: {name}',
+    'watch': 'Δες βίντεο για ξεκλείδωμα: {name}'
   },
   'ads': {
-    'blockedTitle': 'Ads blocked',
-    'blockedBody': 'An ad blocker stopped the video, so there is no reward this time.',
+    'blockedTitle': 'Διαφημίσεις αποκλεισμένες',
+    'blockedBody': 'Ένα πρόγραμμα αποκλεισμού διαφημίσεων σταμάτησε το βίντεο, οπότε δεν υπάρχει ανταμοιβή αυτή τη φορά.',
     'ok': 'OK'
   },
   'medal': {
@@ -234,18 +234,18 @@ export default {
       'weapon3': 'Εκτοξευτής ρουκετών',
       'cycle': 'Επόμενο όπλο',
       'pause': 'Παύση',
-      'help': 'Show the lessons'
+      'help': 'Εμφάνιση μαθημάτων'
     }
   },
   'prompt': {
-    'salvage': 'Salvage',
-    'strike': 'Takedown',
-    'sabotage': 'Sabotage',
-    'cutPower': 'Cut power',
-    'jam': 'Jam servo',
-    'grab': 'Grab body',
-    'drop': 'Drop body',
-    'hook': 'Hook'
+    'salvage': 'Ανάκτηση',
+    'strike': 'Αθόρυβη εξόντωση',
+    'sabotage': 'Δολιοφθορά',
+    'cutPower': 'Κόψε το ρεύμα',
+    'jam': 'Μπλόκαρε σέρβο',
+    'grab': 'Πιάσε το σώμα',
+    'drop': 'Άφησε το σώμα',
+    'hook': 'Γάντζος'
   },
   'saveStatus': {
     'restoredTitle': 'Η αποθήκευση στο νέφος επανήλθε',

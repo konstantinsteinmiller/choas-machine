@@ -31,8 +31,8 @@ export default {
     'decoy': 'Umpan',
     'weapons': 'Senjata',
     'ammo': 'Amunisi',
-    'reloading': 'Reloading',
-    'reserve': '{n} more carried',
+    'reloading': 'Mengisi ulang',
+    'reserve': '{n} lagi dibawa',
     'heat': 'Panas senjata',
     'armor': 'Armor',
     'crouch': 'Jongkok',
@@ -94,7 +94,7 @@ export default {
     'minigunDamage': 'Daya mini-gun',
     'rocketBlast': 'Radius ledakan',
     'rocketAmmo': 'Roket',
-    'ammoRacks': 'Ammo racks',
+    'ammoRacks': 'Rak amunisi',
     'armor': 'Pelat baja',
     'speed': 'Kecepatan servo',
     'decoy': 'Durasi umpan',
@@ -120,36 +120,36 @@ export default {
     'stars': '{n} dari 3 bintang'
   },
   'melt': {
-    'start': 'Melt the haul: up to +{n}'
+    'start': 'Lebur hasil jarahan: hingga +{n}'
   },
   'wheel': {
-    'title': 'Lucky wheel',
-    'locked': 'Max out rifle damage to open the wheel',
-    'chance': 'Win chance',
-    'gain': 'Next win',
-    'spin': 'Spin',
-    'sure': 'Sure win',
-    'watch': 'Watch a video for a sure win',
-    'won': 'Rifle damage +{n}',
-    'miss': 'Missed: {n} scrap back',
-    'pity': 'A sure win in {n} spins'
+    'title': 'Roda keberuntungan',
+    'locked': 'Maksimalkan damage senapan untuk membuka roda',
+    'chance': 'Peluang menang',
+    'gain': 'Kemenangan berikutnya',
+    'spin': 'Putar',
+    'sure': 'Menang pasti',
+    'watch': 'Tonton video untuk menang pasti',
+    'won': 'Damage senapan +{n}',
+    'miss': 'Meleset: {n} rongsok kembali',
+    'pity': 'Menang pasti dalam {n} putaran'
   },
   'disguise': {
-    'title': 'Disguises',
-    'toaster': 'Toaster',
-    'crate': 'Sneaky crate',
-    'clown': 'Clown box',
-    'horse': 'Trojan horse',
-    'bush': 'Bush',
-    'teddy': 'Teddy bear',
-    'wear': 'Wear the {name}',
-    'wearShort': 'Wear',
-    'unlock': 'Unlock the {name}',
-    'watch': 'Watch a video to unlock the {name}'
+    'title': 'Penyamaran',
+    'toaster': 'Pemanggang roti',
+    'crate': 'Peti diam-diam',
+    'clown': 'Kotak badut',
+    'horse': 'Kuda Troya',
+    'bush': 'Semak',
+    'teddy': 'Boneka beruang',
+    'wear': 'Pakai: {name}',
+    'wearShort': 'Pakai',
+    'unlock': 'Buka: {name}',
+    'watch': 'Tonton video untuk membuka: {name}'
   },
   'ads': {
-    'blockedTitle': 'Ads blocked',
-    'blockedBody': 'An ad blocker stopped the video, so there is no reward this time.',
+    'blockedTitle': 'Iklan diblokir',
+    'blockedBody': 'Pemblokir iklan menghentikan video, jadi kali ini tidak ada hadiah.',
     'ok': 'OK'
   },
   'medal': {
@@ -234,18 +234,18 @@ export default {
       'weapon3': 'Peluncur roket',
       'cycle': 'Senjata berikutnya',
       'pause': 'Jeda',
-      'help': 'Show the lessons'
+      'help': 'Tampilkan pelajaran'
     }
   },
   'prompt': {
-    'salvage': 'Salvage',
-    'strike': 'Takedown',
-    'sabotage': 'Sabotage',
-    'cutPower': 'Cut power',
-    'jam': 'Jam servo',
-    'grab': 'Grab body',
-    'drop': 'Drop body',
-    'hook': 'Hook'
+    'salvage': 'Bongkar',
+    'strike': 'Lumpuhkan',
+    'sabotage': 'Sabotase',
+    'cutPower': 'Putus listrik',
+    'jam': 'Macetkan servo',
+    'grab': 'Seret tubuh',
+    'drop': 'Lepas tubuh',
+    'hook': 'Kait'
   },
   'saveStatus': {
     'restoredTitle': 'Simpanan cloud dipulihkan',

@@ -31,8 +31,8 @@ export default {
     'decoy': 'デコイ',
     'weapons': '武器',
     'ammo': '弾薬',
-    'reloading': 'Reloading',
-    'reserve': '{n} more carried',
+    'reloading': 'リロード中',
+    'reserve': '予備あと{n}',
     'heat': '武器の熱',
     'armor': '装甲',
     'crouch': 'しゃがむ',
@@ -94,7 +94,7 @@ export default {
     'minigunDamage': 'ミニガン威力',
     'rocketBlast': '爆発範囲',
     'rocketAmmo': 'ロケット弾',
-    'ammoRacks': 'Ammo racks',
+    'ammoRacks': '弾薬ラック',
     'armor': '装甲',
     'speed': 'サーボ速度',
     'decoy': 'デコイ持続時間',
@@ -120,36 +120,36 @@ export default {
     'stars': '星 {n}/3'
   },
   'melt': {
-    'start': 'Melt the haul: up to +{n}'
+    'start': '戦利品を溶かす: 最大+{n}'
   },
   'wheel': {
-    'title': 'Lucky wheel',
-    'locked': 'Max out rifle damage to open the wheel',
-    'chance': 'Win chance',
-    'gain': 'Next win',
-    'spin': 'Spin',
-    'sure': 'Sure win',
-    'watch': 'Watch a video for a sure win',
-    'won': 'Rifle damage +{n}',
-    'miss': 'Missed: {n} scrap back',
-    'pity': 'A sure win in {n} spins'
+    'title': 'ラッキーホイール',
+    'locked': 'ライフルのダメージを最大にするとルーレットが開く',
+    'chance': '当選確率',
+    'gain': '次の当たり',
+    'spin': '回す',
+    'sure': '確定当たり',
+    'watch': '動画を見て確定当たり',
+    'won': 'ライフルダメージ +{n}',
+    'miss': 'ハズレ: スクラップ{n}戻る',
+    'pity': 'あと{n}回で確定当たり'
   },
   'disguise': {
-    'title': 'Disguises',
-    'toaster': 'Toaster',
-    'crate': 'Sneaky crate',
-    'clown': 'Clown box',
-    'horse': 'Trojan horse',
-    'bush': 'Bush',
-    'teddy': 'Teddy bear',
-    'wear': 'Wear the {name}',
-    'wearShort': 'Wear',
-    'unlock': 'Unlock the {name}',
-    'watch': 'Watch a video to unlock the {name}'
+    'title': '変装',
+    'toaster': 'トースター',
+    'crate': 'こっそり箱',
+    'clown': 'ピエロ箱',
+    'horse': 'トロイの木馬',
+    'bush': '茂み',
+    'teddy': 'テディベア',
+    'wear': '{name}を着る',
+    'wearShort': '着る',
+    'unlock': '{name}を解放',
+    'watch': '動画を見て{name}を解放'
   },
   'ads': {
-    'blockedTitle': 'Ads blocked',
-    'blockedBody': 'An ad blocker stopped the video, so there is no reward this time.',
+    'blockedTitle': '広告がブロックされました',
+    'blockedBody': '広告ブロッカーが動画を止めたため、今回は報酬がありません。',
     'ok': 'OK'
   },
   'medal': {
@@ -234,18 +234,18 @@ export default {
       'weapon3': 'ロケットランチャー',
       'cycle': '次の武器',
       'pause': '一時停止',
-      'help': 'Show the lessons'
+      'help': 'レッスンを表示'
     }
   },
   'prompt': {
-    'salvage': 'Salvage',
-    'strike': 'Takedown',
-    'sabotage': 'Sabotage',
-    'cutPower': 'Cut power',
-    'jam': 'Jam servo',
-    'grab': 'Grab body',
-    'drop': 'Drop body',
-    'hook': 'Hook'
+    'salvage': '回収',
+    'strike': '闇討ち',
+    'sabotage': '妨害',
+    'cutPower': '電源を切る',
+    'jam': 'サーボ妨害',
+    'grab': '体をつかむ',
+    'drop': '手放す',
+    'hook': 'フック'
   },
   'saveStatus': {
     'restoredTitle': 'クラウドセーブを復元しました',

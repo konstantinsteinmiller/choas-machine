@@ -31,8 +31,8 @@ export default {
     'decoy': 'Принада',
     'weapons': 'Зброя',
     'ammo': 'Боєприпаси',
-    'reloading': 'Reloading',
-    'reserve': '{n} more carried',
+    'reloading': 'Перезарядка',
+    'reserve': 'Ще {n} у запасі',
     'heat': 'Нагрів зброї',
     'armor': 'Броня',
     'crouch': 'Пригнутися',
@@ -94,7 +94,7 @@ export default {
     'minigunDamage': 'Шкода мінігана',
     'rocketBlast': 'Радіус вибуху',
     'rocketAmmo': 'Ракети',
-    'ammoRacks': 'Ammo racks',
+    'ammoRacks': 'Стелажі з набоями',
     'armor': 'Бронеплити',
     'speed': 'Швидкість серв',
     'decoy': 'Тривалість принади',
@@ -120,37 +120,37 @@ export default {
     'stars': '{n} з 3 зірок'
   },
   'melt': {
-    'start': 'Melt the haul: up to +{n}'
+    'start': 'Переплавити здобич: до +{n}'
   },
   'wheel': {
-    'title': 'Lucky wheel',
-    'locked': 'Max out rifle damage to open the wheel',
-    'chance': 'Win chance',
-    'gain': 'Next win',
-    'spin': 'Spin',
-    'sure': 'Sure win',
-    'watch': 'Watch a video for a sure win',
-    'won': 'Rifle damage +{n}',
-    'miss': 'Missed: {n} scrap back',
-    'pity': 'A sure win in {n} spins'
+    'title': 'Колесо щастя',
+    'locked': 'Покращ шкоду гвинтівки до максимуму, щоб відкрити колесо',
+    'chance': 'Шанс перемоги',
+    'gain': 'Наступний виграш',
+    'spin': 'Крутити',
+    'sure': 'Певна перемога',
+    'watch': 'Подивитися відео для певної перемоги',
+    'won': 'Шкода гвинтівки +{n}',
+    'miss': 'Мимо: повернено брухту: {n}',
+    'pity': 'Певна перемога за {n} обертань'
   },
   'disguise': {
-    'title': 'Disguises',
-    'toaster': 'Toaster',
-    'crate': 'Sneaky crate',
-    'clown': 'Clown box',
-    'horse': 'Trojan horse',
-    'bush': 'Bush',
-    'teddy': 'Teddy bear',
-    'wear': 'Wear the {name}',
-    'wearShort': 'Wear',
-    'unlock': 'Unlock the {name}',
-    'watch': 'Watch a video to unlock the {name}'
+    'title': 'Маскування',
+    'toaster': 'Тостер',
+    'crate': 'Хитрий ящик',
+    'clown': 'Коробка з клоуном',
+    'horse': 'Троянський кінь',
+    'bush': 'Кущ',
+    'teddy': 'Плюшевий ведмедик',
+    'wear': 'Вдягнути: {name}',
+    'wearShort': 'Вдягнути',
+    'unlock': 'Відкрити: {name}',
+    'watch': 'Подивитися відео, щоб відкрити: {name}'
   },
   'ads': {
-    'blockedTitle': 'Ads blocked',
-    'blockedBody': 'An ad blocker stopped the video, so there is no reward this time.',
-    'ok': 'OK'
+    'blockedTitle': 'Рекламу заблоковано',
+    'blockedBody': 'Блокувальник реклами зупинив відео, тому цього разу нагороди немає.',
+    'ok': 'Гаразд'
   },
   'medal': {
     'ghost': 'Привид',
@@ -234,18 +234,18 @@ export default {
       'weapon3': 'Ракетниця',
       'cycle': 'Наступна зброя',
       'pause': 'Пауза',
-      'help': 'Show the lessons'
+      'help': 'Показати підказки'
     }
   },
   'prompt': {
-    'salvage': 'Salvage',
-    'strike': 'Takedown',
-    'sabotage': 'Sabotage',
-    'cutPower': 'Cut power',
-    'jam': 'Jam servo',
-    'grab': 'Grab body',
-    'drop': 'Drop body',
-    'hook': 'Hook'
+    'salvage': 'Розібрати',
+    'strike': 'Усунути',
+    'sabotage': 'Саботаж',
+    'cutPower': 'Вимкнути живлення',
+    'jam': 'Заклинити привід',
+    'grab': 'Схопити тіло',
+    'drop': 'Кинути тіло',
+    'hook': 'Гак'
   },
   'saveStatus': {
     'restoredTitle': 'Хмарне збереження відновлено',

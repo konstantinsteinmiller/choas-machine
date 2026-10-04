@@ -31,8 +31,8 @@ export default {
     'decoy': 'Yem',
     'weapons': 'Silahlar',
     'ammo': 'Sursat',
-    'reloading': 'Reloading',
-    'reserve': '{n} more carried',
+    'reloading': 'Doldurulur',
+    'reserve': 'daha {n} gəzdirilir',
     'heat': 'Silahın istiliyi',
     'armor': 'Zireh',
     'crouch': 'Çömel',
@@ -94,7 +94,7 @@ export default {
     'minigunDamage': 'Mini-qan zərəri',
     'rocketBlast': 'Partlayış radiusu',
     'rocketAmmo': 'Raketlər',
-    'ammoRacks': 'Ammo racks',
+    'ammoRacks': 'Sursat rəfləri',
     'armor': 'Zireh',
     'speed': 'Servo sürəti',
     'decoy': 'Yem müddəti',
@@ -120,36 +120,36 @@ export default {
     'stars': '3 ulduzdan {n}'
   },
   'melt': {
-    'start': 'Melt the haul: up to +{n}'
+    'start': 'Qənimət əridin: +{n} qədər'
   },
   'wheel': {
-    'title': 'Lucky wheel',
-    'locked': 'Max out rifle damage to open the wheel',
-    'chance': 'Win chance',
-    'gain': 'Next win',
-    'spin': 'Spin',
-    'sure': 'Sure win',
-    'watch': 'Watch a video for a sure win',
-    'won': 'Rifle damage +{n}',
-    'miss': 'Missed: {n} scrap back',
-    'pity': 'A sure win in {n} spins'
+    'title': 'Şans çarxı',
+    'locked': 'Çarxı açmaq üçün tüfəng zərərini maksimuma çatdır',
+    'chance': 'Qazanma şansı',
+    'gain': 'Növbəti qazanc',
+    'spin': 'Fırlat',
+    'sure': 'Qəti qələbə',
+    'watch': 'Qəti qələbə üçün video izlə',
+    'won': 'Tüfəng zərəri +{n}',
+    'miss': 'Uduzdun: {n} qırıntı geri qayıtdı',
+    'pity': '{n} fırlanmadan sonra qəti qələbə'
   },
   'disguise': {
-    'title': 'Disguises',
-    'toaster': 'Toaster',
-    'crate': 'Sneaky crate',
-    'clown': 'Clown box',
-    'horse': 'Trojan horse',
-    'bush': 'Bush',
-    'teddy': 'Teddy bear',
-    'wear': 'Wear the {name}',
-    'wearShort': 'Wear',
-    'unlock': 'Unlock the {name}',
-    'watch': 'Watch a video to unlock the {name}'
+    'title': 'Maskalar',
+    'toaster': 'Toster',
+    'crate': 'Gizli yeşik',
+    'clown': 'Təlxək qutusu',
+    'horse': 'Troya atı',
+    'bush': 'Kol',
+    'teddy': 'Ayıcıq',
+    'wear': 'Gey: {name}',
+    'wearShort': 'Gey',
+    'unlock': 'Aç: {name}',
+    'watch': 'Açmaq üçün video izlə: {name}'
   },
   'ads': {
-    'blockedTitle': 'Ads blocked',
-    'blockedBody': 'An ad blocker stopped the video, so there is no reward this time.',
+    'blockedTitle': 'Reklamlar bloklanıb',
+    'blockedBody': 'Reklam bloklayıcı videonu dayandırdı, bu dəfə mükafat yoxdur.',
     'ok': 'OK'
   },
   'medal': {
@@ -234,18 +234,18 @@ export default {
       'weapon3': 'Raket atan',
       'cycle': 'Növbəti silah',
       'pause': 'Fasilə',
-      'help': 'Show the lessons'
+      'help': 'Dərsləri göstər'
     }
   },
   'prompt': {
-    'salvage': 'Salvage',
-    'strike': 'Takedown',
-    'sabotage': 'Sabotage',
-    'cutPower': 'Cut power',
-    'jam': 'Jam servo',
-    'grab': 'Grab body',
-    'drop': 'Drop body',
-    'hook': 'Hook'
+    'salvage': 'Söküb götür',
+    'strike': 'Sakit zərbə',
+    'sabotage': 'Sabotaj',
+    'cutPower': 'Cərəyanı kəs',
+    'jam': 'Servonu blokla',
+    'grab': 'Cəsədi tut',
+    'drop': 'Cəsədi burax',
+    'hook': 'Qarmaq'
   },
   'saveStatus': {
     'restoredTitle': 'Bulud yaddaşı bərpa olundu',

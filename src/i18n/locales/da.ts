@@ -31,8 +31,8 @@ export default {
     'decoy': 'Lokkedue',
     'weapons': 'Våben',
     'ammo': 'Ammunition',
-    'reloading': 'Reloading',
-    'reserve': '{n} more carried',
+    'reloading': 'Genlader',
+    'reserve': '{n} mere i reserve',
     'heat': 'Våbenvarme',
     'armor': 'Panser',
     'crouch': 'Dukke sig',
@@ -94,7 +94,7 @@ export default {
     'minigunDamage': 'Minigunskade',
     'rocketBlast': 'Eksplosionsradius',
     'rocketAmmo': 'Raketter',
-    'ammoRacks': 'Ammo racks',
+    'ammoRacks': 'Ammunitionsreoler',
     'armor': 'Panser',
     'speed': 'Servohastighed',
     'decoy': 'Lokkeduens varighed',
@@ -120,36 +120,36 @@ export default {
     'stars': '{n} af 3 stjerner'
   },
   'melt': {
-    'start': 'Melt the haul: up to +{n}'
+    'start': 'Smelt byttet: op til +{n}'
   },
   'wheel': {
-    'title': 'Lucky wheel',
-    'locked': 'Max out rifle damage to open the wheel',
-    'chance': 'Win chance',
-    'gain': 'Next win',
+    'title': 'Lykkehjul',
+    'locked': 'Maksimer riflens skade for at åbne hjulet',
+    'chance': 'Vinderchance',
+    'gain': 'Næste gevinst',
     'spin': 'Spin',
-    'sure': 'Sure win',
-    'watch': 'Watch a video for a sure win',
-    'won': 'Rifle damage +{n}',
-    'miss': 'Missed: {n} scrap back',
-    'pity': 'A sure win in {n} spins'
+    'sure': 'Sikker gevinst',
+    'watch': 'Se en video for en sikker gevinst',
+    'won': 'Riflens skade +{n}',
+    'miss': 'Forbi: {n} skrot tilbage',
+    'pity': 'En sikker gevinst om {n} spin'
   },
   'disguise': {
-    'title': 'Disguises',
-    'toaster': 'Toaster',
-    'crate': 'Sneaky crate',
-    'clown': 'Clown box',
-    'horse': 'Trojan horse',
-    'bush': 'Bush',
-    'teddy': 'Teddy bear',
-    'wear': 'Wear the {name}',
-    'wearShort': 'Wear',
-    'unlock': 'Unlock the {name}',
-    'watch': 'Watch a video to unlock the {name}'
+    'title': 'Forklædninger',
+    'toaster': 'Brødrister',
+    'crate': 'Snigende kasse',
+    'clown': 'Klovneæske',
+    'horse': 'Trojansk hest',
+    'bush': 'Busk',
+    'teddy': 'Bamse',
+    'wear': 'Tag på: {name}',
+    'wearShort': 'Tag på',
+    'unlock': 'Lås op: {name}',
+    'watch': 'Se en video for at låse op: {name}'
   },
   'ads': {
-    'blockedTitle': 'Ads blocked',
-    'blockedBody': 'An ad blocker stopped the video, so there is no reward this time.',
+    'blockedTitle': 'Reklamer blokeret',
+    'blockedBody': 'En reklameblokering stoppede videoen, så der er ingen belønning denne gang.',
     'ok': 'OK'
   },
   'medal': {
@@ -234,18 +234,18 @@ export default {
       'weapon3': 'Raketkaster',
       'cycle': 'Næste våben',
       'pause': 'Pause',
-      'help': 'Show the lessons'
+      'help': 'Vis lektionerne'
     }
   },
   'prompt': {
-    'salvage': 'Salvage',
-    'strike': 'Takedown',
-    'sabotage': 'Sabotage',
-    'cutPower': 'Cut power',
-    'jam': 'Jam servo',
-    'grab': 'Grab body',
-    'drop': 'Drop body',
-    'hook': 'Hook'
+    'salvage': 'Skrot',
+    'strike': 'Nedtagning',
+    'sabotage': 'Sabotér',
+    'cutPower': 'Afbryd strøm',
+    'jam': 'Blokér servo',
+    'grab': 'Tag kroppen',
+    'drop': 'Slip kroppen',
+    'hook': 'Krog'
   },
   'saveStatus': {
     'restoredTitle': 'Skygemning gendannet',

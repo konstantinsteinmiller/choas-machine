@@ -31,8 +31,8 @@ export default {
     'decoy': 'Parany',
     'weapons': 'Armes',
     'ammo': 'Munició',
-    'reloading': 'Reloading',
-    'reserve': '{n} more carried',
+    'reloading': 'Recarregant',
+    'reserve': '{n} més a sobre',
     'heat': 'Calor de l\'arma',
     'armor': 'Armadura',
     'crouch': 'Ajupir-se',
@@ -94,7 +94,7 @@ export default {
     'minigunDamage': 'Dany del minigun',
     'rocketBlast': 'Radi d\'explosió',
     'rocketAmmo': 'Coets',
-    'ammoRacks': 'Ammo racks',
+    'ammoRacks': 'Prestatgeries de munició',
     'armor': 'Blindatge',
     'speed': 'Velocitat dels servos',
     'decoy': 'Durada del parany',
@@ -120,37 +120,37 @@ export default {
     'stars': '{n} de 3 estrelles'
   },
   'melt': {
-    'start': 'Melt the haul: up to +{n}'
+    'start': 'Fon el botí: fins a +{n}'
   },
   'wheel': {
-    'title': 'Lucky wheel',
-    'locked': 'Max out rifle damage to open the wheel',
-    'chance': 'Win chance',
-    'gain': 'Next win',
-    'spin': 'Spin',
-    'sure': 'Sure win',
-    'watch': 'Watch a video for a sure win',
-    'won': 'Rifle damage +{n}',
-    'miss': 'Missed: {n} scrap back',
-    'pity': 'A sure win in {n} spins'
+    'title': 'Roda de la sort',
+    'locked': 'Maximitza el dany del rifle per obrir la roda',
+    'chance': 'Probabilitat de guanyar',
+    'gain': 'Pròxim premi',
+    'spin': 'Gira',
+    'sure': 'Victòria segura',
+    'watch': 'Mira un vídeo per una victòria segura',
+    'won': 'Dany del rifle +{n}',
+    'miss': 'Fallat: tornen {n} de ferralla',
+    'pity': 'Victòria segura en {n} tirades'
   },
   'disguise': {
-    'title': 'Disguises',
-    'toaster': 'Toaster',
-    'crate': 'Sneaky crate',
-    'clown': 'Clown box',
-    'horse': 'Trojan horse',
-    'bush': 'Bush',
-    'teddy': 'Teddy bear',
-    'wear': 'Wear the {name}',
-    'wearShort': 'Wear',
-    'unlock': 'Unlock the {name}',
-    'watch': 'Watch a video to unlock the {name}'
+    'title': 'Disfresses',
+    'toaster': 'Torradora',
+    'crate': 'Caixa sigilosa',
+    'clown': 'Caixa de pallasso',
+    'horse': 'Cavall de Troia',
+    'bush': 'Arbust',
+    'teddy': 'Ós de peluix',
+    'wear': 'Posa\'t: {name}',
+    'wearShort': 'Posa-t\'ho',
+    'unlock': 'Desbloqueja: {name}',
+    'watch': 'Mira un vídeo per desbloquejar: {name}'
   },
   'ads': {
-    'blockedTitle': 'Ads blocked',
-    'blockedBody': 'An ad blocker stopped the video, so there is no reward this time.',
-    'ok': 'OK'
+    'blockedTitle': 'Anuncis bloquejats',
+    'blockedBody': 'Un bloquejador d\'anuncis ha aturat el vídeo, així que aquesta vegada no hi ha recompensa.',
+    'ok': 'D\'acord'
   },
   'medal': {
     'ghost': 'Fantasma',
@@ -234,18 +234,18 @@ export default {
       'weapon3': 'Llançamíssils',
       'cycle': 'Arma següent',
       'pause': 'Pausa',
-      'help': 'Show the lessons'
+      'help': 'Mostra les lliçons'
     }
   },
   'prompt': {
-    'salvage': 'Salvage',
-    'strike': 'Takedown',
-    'sabotage': 'Sabotage',
-    'cutPower': 'Cut power',
-    'jam': 'Jam servo',
-    'grab': 'Grab body',
-    'drop': 'Drop body',
-    'hook': 'Hook'
+    'salvage': 'Recupera',
+    'strike': 'Atac silenciós',
+    'sabotage': 'Sabota',
+    'cutPower': 'Talla el corrent',
+    'jam': 'Encalla el servo',
+    'grab': 'Agafa el cos',
+    'drop': 'Deixa el cos',
+    'hook': 'Ganxo'
   },
   'saveStatus': {
     'restoredTitle': 'Partida al núvol restaurada',

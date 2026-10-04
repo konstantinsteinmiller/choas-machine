@@ -31,8 +31,8 @@ export default {
     'decoy': 'Leurre',
     'weapons': 'Armes',
     'ammo': 'Munitions',
-    'reloading': 'Reloading',
-    'reserve': '{n} more carried',
+    'reloading': 'Rechargement',
+    'reserve': '{n} de plus en réserve',
     'heat': 'Chaleur de l\'arme',
     'armor': 'Blindage',
     'crouch': 'S\'accroupir',
@@ -94,7 +94,7 @@ export default {
     'minigunDamage': 'Dégâts du minigun',
     'rocketBlast': 'Rayon d\'explosion',
     'rocketAmmo': 'Roquettes',
-    'ammoRacks': 'Ammo racks',
+    'ammoRacks': 'Râteliers de munitions',
     'armor': 'Blindage',
     'speed': 'Vitesse des servos',
     'decoy': 'Durée du leurre',
@@ -120,36 +120,36 @@ export default {
     'stars': '{n} étoiles sur 3'
   },
   'melt': {
-    'start': 'Melt the haul: up to +{n}'
+    'start': 'Fondre le butin : jusqu\'à +{n}'
   },
   'wheel': {
-    'title': 'Lucky wheel',
-    'locked': 'Max out rifle damage to open the wheel',
-    'chance': 'Win chance',
-    'gain': 'Next win',
-    'spin': 'Spin',
-    'sure': 'Sure win',
-    'watch': 'Watch a video for a sure win',
-    'won': 'Rifle damage +{n}',
-    'miss': 'Missed: {n} scrap back',
-    'pity': 'A sure win in {n} spins'
+    'title': 'Roue de la chance',
+    'locked': 'Maximise les dégâts du fusil pour ouvrir la roue',
+    'chance': 'Chance de gain',
+    'gain': 'Prochain gain',
+    'spin': 'Lancer',
+    'sure': 'Victoire assurée',
+    'watch': 'Regarder une vidéo pour une victoire assurée',
+    'won': 'Dégâts du fusil +{n}',
+    'miss': 'Raté : {n} de ferraille rendus',
+    'pity': 'Victoire assurée dans {n} tours'
   },
   'disguise': {
-    'title': 'Disguises',
-    'toaster': 'Toaster',
-    'crate': 'Sneaky crate',
-    'clown': 'Clown box',
-    'horse': 'Trojan horse',
-    'bush': 'Bush',
-    'teddy': 'Teddy bear',
-    'wear': 'Wear the {name}',
-    'wearShort': 'Wear',
-    'unlock': 'Unlock the {name}',
-    'watch': 'Watch a video to unlock the {name}'
+    'title': 'Déguisements',
+    'toaster': 'Grille-pain',
+    'crate': 'Caisse furtive',
+    'clown': 'Boîte à clown',
+    'horse': 'Cheval de Troie',
+    'bush': 'Buisson',
+    'teddy': 'Ours en peluche',
+    'wear': 'Porter : {name}',
+    'wearShort': 'Porter',
+    'unlock': 'Débloquer : {name}',
+    'watch': 'Regarder une vidéo pour débloquer : {name}'
   },
   'ads': {
-    'blockedTitle': 'Ads blocked',
-    'blockedBody': 'An ad blocker stopped the video, so there is no reward this time.',
+    'blockedTitle': 'Publicités bloquées',
+    'blockedBody': 'Un bloqueur de publicités a arrêté la vidéo, donc pas de récompense cette fois.',
     'ok': 'OK'
   },
   'medal': {
@@ -234,18 +234,18 @@ export default {
       'weapon3': 'Lance-roquettes',
       'cycle': 'Arme suivante',
       'pause': 'Pause',
-      'help': 'Show the lessons'
+      'help': 'Afficher les leçons'
     }
   },
   'prompt': {
-    'salvage': 'Salvage',
-    'strike': 'Takedown',
-    'sabotage': 'Sabotage',
-    'cutPower': 'Cut power',
-    'jam': 'Jam servo',
-    'grab': 'Grab body',
-    'drop': 'Drop body',
-    'hook': 'Hook'
+    'salvage': 'Récupérer',
+    'strike': 'Neutraliser',
+    'sabotage': 'Saboter',
+    'cutPower': 'Couper le courant',
+    'jam': 'Bloquer servo',
+    'grab': 'Saisir le corps',
+    'drop': 'Lâcher le corps',
+    'hook': 'Grappin'
   },
   'saveStatus': {
     'restoredTitle': 'Sauvegarde cloud restaurée',

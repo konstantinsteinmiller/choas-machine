@@ -31,8 +31,8 @@ export default {
     'decoy': '诱饵',
     'weapons': '武器',
     'ammo': '弹药',
-    'reloading': 'Reloading',
-    'reserve': '{n} more carried',
+    'reloading': '换弹中',
+    'reserve': '另携带 {n} 发',
     'heat': '武器过热',
     'armor': '装甲',
     'crouch': '蹲下',
@@ -94,7 +94,7 @@ export default {
     'minigunDamage': '机枪伤害',
     'rocketBlast': '爆炸范围',
     'rocketAmmo': '火箭弹',
-    'ammoRacks': 'Ammo racks',
+    'ammoRacks': '弹药架',
     'armor': '装甲板',
     'speed': '伺服速度',
     'decoy': '诱饵持续时间',
@@ -120,37 +120,37 @@ export default {
     'stars': '{n}/3 星'
   },
   'melt': {
-    'start': 'Melt the haul: up to +{n}'
+    'start': '熔炼战利品：最多 +{n}'
   },
   'wheel': {
-    'title': 'Lucky wheel',
-    'locked': 'Max out rifle damage to open the wheel',
-    'chance': 'Win chance',
-    'gain': 'Next win',
-    'spin': 'Spin',
-    'sure': 'Sure win',
-    'watch': 'Watch a video for a sure win',
-    'won': 'Rifle damage +{n}',
-    'miss': 'Missed: {n} scrap back',
-    'pity': 'A sure win in {n} spins'
+    'title': '幸运转盘',
+    'locked': '将步枪伤害升到最高即可开启转盘',
+    'chance': '获胜概率',
+    'gain': '下次获胜',
+    'spin': '旋转',
+    'sure': '必定获胜',
+    'watch': '观看视频必定获胜',
+    'won': '步枪伤害 +{n}',
+    'miss': '未中：返还 {n} 废料',
+    'pity': '{n} 次旋转后必定获胜'
   },
   'disguise': {
-    'title': 'Disguises',
-    'toaster': 'Toaster',
-    'crate': 'Sneaky crate',
-    'clown': 'Clown box',
-    'horse': 'Trojan horse',
-    'bush': 'Bush',
-    'teddy': 'Teddy bear',
-    'wear': 'Wear the {name}',
-    'wearShort': 'Wear',
-    'unlock': 'Unlock the {name}',
-    'watch': 'Watch a video to unlock the {name}'
+    'title': '伪装',
+    'toaster': '烤面包机',
+    'crate': '鬼祟箱子',
+    'clown': '小丑盒',
+    'horse': '特洛伊木马',
+    'bush': '灌木丛',
+    'teddy': '泰迪熊',
+    'wear': '穿上：{name}',
+    'wearShort': '穿上',
+    'unlock': '解锁：{name}',
+    'watch': '观看视频以解锁：{name}'
   },
   'ads': {
-    'blockedTitle': 'Ads blocked',
-    'blockedBody': 'An ad blocker stopped the video, so there is no reward this time.',
-    'ok': 'OK'
+    'blockedTitle': '广告已被拦截',
+    'blockedBody': '广告拦截器中止了视频，所以这次没有奖励。',
+    'ok': '确定'
   },
   'medal': {
     'ghost': '幽灵',
@@ -234,18 +234,18 @@ export default {
       'weapon3': '火箭筒',
       'cycle': '下一把武器',
       'pause': '暂停',
-      'help': 'Show the lessons'
+      'help': '显示教程'
     }
   },
   'prompt': {
-    'salvage': 'Salvage',
-    'strike': 'Takedown',
-    'sabotage': 'Sabotage',
-    'cutPower': 'Cut power',
-    'jam': 'Jam servo',
-    'grab': 'Grab body',
-    'drop': 'Drop body',
-    'hook': 'Hook'
+    'salvage': '拆解',
+    'strike': '击倒',
+    'sabotage': '破坏',
+    'cutPower': '切断电源',
+    'jam': '卡住伺服',
+    'grab': '抓住尸体',
+    'drop': '放下尸体',
+    'hook': '钩爪'
   },
   'saveStatus': {
     'restoredTitle': '云存档已恢复',

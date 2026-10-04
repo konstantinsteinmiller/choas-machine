@@ -31,8 +31,8 @@ export default {
     'decoy': 'Yem',
     'weapons': 'Qurollar',
     'ammo': 'O\'q-dorilar',
-    'reloading': 'Reloading',
-    'reserve': '{n} more carried',
+    'reloading': 'Qayta o\'qlanmoqda',
+    'reserve': 'Yana {n} ta zaxirada',
     'heat': 'Qurol qizishi',
     'armor': 'Zirh',
     'crouch': 'Cho\'kka tushish',
@@ -94,7 +94,7 @@ export default {
     'minigunDamage': 'Minigan zarari',
     'rocketBlast': 'Portlash radiusi',
     'rocketAmmo': 'Raketalar',
-    'ammoRacks': 'Ammo racks',
+    'ammoRacks': 'O\'q-dori javonlari',
     'armor': 'Zirh plitalari',
     'speed': 'Servo tezligi',
     'decoy': 'Aldamchi davomiyligi',
@@ -120,36 +120,36 @@ export default {
     'stars': '3 yulduzdan {n}'
   },
   'melt': {
-    'start': 'Melt the haul: up to +{n}'
+    'start': 'O\'ljani eritish: +{n} gacha'
   },
   'wheel': {
-    'title': 'Lucky wheel',
-    'locked': 'Max out rifle damage to open the wheel',
-    'chance': 'Win chance',
-    'gain': 'Next win',
-    'spin': 'Spin',
-    'sure': 'Sure win',
-    'watch': 'Watch a video for a sure win',
-    'won': 'Rifle damage +{n}',
-    'miss': 'Missed: {n} scrap back',
-    'pity': 'A sure win in {n} spins'
+    'title': 'Omad g\'ildiragi',
+    'locked': 'G\'ildirakni ochish uchun miltiq zararini maksimumga yetkazing',
+    'chance': 'Yutish ehtimoli',
+    'gain': 'Keyingi yutuq',
+    'spin': 'Aylantirish',
+    'sure': 'Aniq yutuq',
+    'watch': 'Aniq yutuq uchun video ko\'ring',
+    'won': 'Miltiq zarari +{n}',
+    'miss': 'O\'tkazib yuborildi: {n} metall qaytdi',
+    'pity': '{n} aylanishdan so\'ng aniq yutuq'
   },
   'disguise': {
-    'title': 'Disguises',
-    'toaster': 'Toaster',
-    'crate': 'Sneaky crate',
-    'clown': 'Clown box',
-    'horse': 'Trojan horse',
-    'bush': 'Bush',
-    'teddy': 'Teddy bear',
-    'wear': 'Wear the {name}',
-    'wearShort': 'Wear',
-    'unlock': 'Unlock the {name}',
-    'watch': 'Watch a video to unlock the {name}'
+    'title': 'Niqoblar',
+    'toaster': 'Tosterxona',
+    'crate': 'Pinhona yashik',
+    'clown': 'Masxaraboz qutisi',
+    'horse': 'Troya oti',
+    'bush': 'Buta',
+    'teddy': 'Ayiqcha',
+    'wear': 'Kiyish: {name}',
+    'wearShort': 'Kiyish',
+    'unlock': 'Ochish: {name}',
+    'watch': 'Ochish uchun video ko\'ring: {name}'
   },
   'ads': {
-    'blockedTitle': 'Ads blocked',
-    'blockedBody': 'An ad blocker stopped the video, so there is no reward this time.',
+    'blockedTitle': 'Reklamalar bloklandi',
+    'blockedBody': 'Reklama blokeri videoni to\'xtatdi, shuning uchun bu safar mukofot yo\'q.',
     'ok': 'OK'
   },
   'medal': {
@@ -234,18 +234,18 @@ export default {
       'weapon3': 'Raketa uchirgich',
       'cycle': 'Keyingi qurol',
       'pause': 'Pauza',
-      'help': 'Show the lessons'
+      'help': 'Darslarni ko\'rsatish'
     }
   },
   'prompt': {
-    'salvage': 'Salvage',
-    'strike': 'Takedown',
-    'sabotage': 'Sabotage',
-    'cutPower': 'Cut power',
-    'jam': 'Jam servo',
-    'grab': 'Grab body',
-    'drop': 'Drop body',
-    'hook': 'Hook'
+    'salvage': 'Qismlarga ajratish',
+    'strike': 'Zararsizlantirish',
+    'sabotage': 'Sabotaj',
+    'cutPower': 'Quvvatni o\'chirish',
+    'jam': 'Servoni to\'sish',
+    'grab': 'Jasadni olish',
+    'drop': 'Jasadni tashlash',
+    'hook': 'Ilgak'
   },
   'saveStatus': {
     'restoredTitle': 'Bulutli saqlash tiklandi',

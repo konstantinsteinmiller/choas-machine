@@ -31,8 +31,8 @@ export default {
     'decoy': 'Logilo',
     'weapons': 'Armiloj',
     'ammo': 'Municio',
-    'reloading': 'Reloading',
-    'reserve': '{n} more carried',
+    'reloading': 'Reŝargado',
+    'reserve': '{n} pliaj kunportitaj',
     'heat': 'Varmo de armilo',
     'armor': 'Kiraso',
     'crouch': 'Kaŝkaŭri',
@@ -94,7 +94,7 @@ export default {
     'minigunDamage': 'Mitralila damaĝo',
     'rocketBlast': 'Eksploda radiuso',
     'rocketAmmo': 'Raketoj',
-    'ammoRacks': 'Ammo racks',
+    'ammoRacks': 'Municiaj bretaroj',
     'armor': 'Kirasado',
     'speed': 'Servo-rapido',
     'decoy': 'Logaĵa daŭro',
@@ -120,37 +120,37 @@ export default {
     'stars': '{n} el 3 steloj'
   },
   'melt': {
-    'start': 'Melt the haul: up to +{n}'
+    'start': 'Fandu la akiron: ĝis +{n}'
   },
   'wheel': {
-    'title': 'Lucky wheel',
-    'locked': 'Max out rifle damage to open the wheel',
-    'chance': 'Win chance',
-    'gain': 'Next win',
-    'spin': 'Spin',
-    'sure': 'Sure win',
-    'watch': 'Watch a video for a sure win',
-    'won': 'Rifle damage +{n}',
-    'miss': 'Missed: {n} scrap back',
-    'pity': 'A sure win in {n} spins'
+    'title': 'Ŝanca rado',
+    'locked': 'Maksimumigu fusilan damaĝon por malfermi la radon',
+    'chance': 'Ŝanco venki',
+    'gain': 'Venonta gajno',
+    'spin': 'Turni',
+    'sure': 'Certa venko',
+    'watch': 'Spektu videon por certa venko',
+    'won': 'Fusila damaĝo +{n}',
+    'miss': 'Maltrafo: {n} rubo revenas',
+    'pity': 'Certa venko post {n} turnoj'
   },
   'disguise': {
-    'title': 'Disguises',
-    'toaster': 'Toaster',
-    'crate': 'Sneaky crate',
-    'clown': 'Clown box',
-    'horse': 'Trojan horse',
-    'bush': 'Bush',
-    'teddy': 'Teddy bear',
-    'wear': 'Wear the {name}',
-    'wearShort': 'Wear',
-    'unlock': 'Unlock the {name}',
-    'watch': 'Watch a video to unlock the {name}'
+    'title': 'Alivestoj',
+    'toaster': 'Panrostilo',
+    'crate': 'Ŝtela kesto',
+    'clown': 'Klaŭna skatolo',
+    'horse': 'Troja ĉevalo',
+    'bush': 'Arbusto',
+    'teddy': 'Pluŝa urso',
+    'wear': 'Surmeti: {name}',
+    'wearShort': 'Surmeti',
+    'unlock': 'Malŝlosi: {name}',
+    'watch': 'Spektu videon por malŝlosi: {name}'
   },
   'ads': {
-    'blockedTitle': 'Ads blocked',
-    'blockedBody': 'An ad blocker stopped the video, so there is no reward this time.',
-    'ok': 'OK'
+    'blockedTitle': 'Reklamoj blokitaj',
+    'blockedBody': 'Reklambloko haltigis la videon, do ĉi-foje ne estas rekompenco.',
+    'ok': 'Bone'
   },
   'medal': {
     'ghost': 'Fantomo',
@@ -234,18 +234,18 @@ export default {
       'weapon3': 'Raketlanĉilo',
       'cycle': 'Sekva armilo',
       'pause': 'Paŭzo',
-      'help': 'Show the lessons'
+      'help': 'Montri la lecionojn'
     }
   },
   'prompt': {
-    'salvage': 'Salvage',
-    'strike': 'Takedown',
-    'sabotage': 'Sabotage',
-    'cutPower': 'Cut power',
-    'jam': 'Jam servo',
-    'grab': 'Grab body',
-    'drop': 'Drop body',
-    'hook': 'Hook'
+    'salvage': 'Savi',
+    'strike': 'Silenta bato',
+    'sabotage': 'Sabotado',
+    'cutPower': 'Tranĉi kurenton',
+    'jam': 'Bloki servon',
+    'grab': 'Preni korpon',
+    'drop': 'Lasi korpon',
+    'hook': 'Hoko'
   },
   'saveStatus': {
     'restoredTitle': 'Nuba konservo restarigita',

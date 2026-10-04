@@ -31,8 +31,8 @@ export default {
     'decoy': 'طُعم',
     'weapons': 'الأسلحة',
     'ammo': 'الذخيرة',
-    'reloading': 'Reloading',
-    'reserve': '{n} more carried',
+    'reloading': 'إعادة التعبئة',
+    'reserve': '{n} إضافية محمولة',
     'heat': 'حرارة السلاح',
     'armor': 'الدرع',
     'crouch': 'انحناء',
@@ -94,7 +94,7 @@ export default {
     'minigunDamage': 'ضرر المدفع الرشاش',
     'rocketBlast': 'نطاق الانفجار',
     'rocketAmmo': 'الصواريخ',
-    'ammoRacks': 'Ammo racks',
+    'ammoRacks': 'رفوف الذخيرة',
     'armor': 'دروع الحماية',
     'speed': 'سرعة المحركات',
     'decoy': 'مدة الشرَك',
@@ -120,37 +120,37 @@ export default {
     'stars': '{n} من 3 نجوم'
   },
   'melt': {
-    'start': 'Melt the haul: up to +{n}'
+    'start': 'اصهر الغنيمة: حتى +{n}'
   },
   'wheel': {
-    'title': 'Lucky wheel',
-    'locked': 'Max out rifle damage to open the wheel',
-    'chance': 'Win chance',
-    'gain': 'Next win',
-    'spin': 'Spin',
-    'sure': 'Sure win',
-    'watch': 'Watch a video for a sure win',
-    'won': 'Rifle damage +{n}',
-    'miss': 'Missed: {n} scrap back',
-    'pity': 'A sure win in {n} spins'
+    'title': 'عجلة الحظ',
+    'locked': 'ارفع ضرر البندقية للحد الأقصى لفتح العجلة',
+    'chance': 'فرصة الفوز',
+    'gain': 'الفوز التالي',
+    'spin': 'لف',
+    'sure': 'فوز مضمون',
+    'watch': 'شاهد فيديو لفوز مضمون',
+    'won': 'ضرر البندقية +{n}',
+    'miss': 'خسارة: عاد {n} من الخردة',
+    'pity': 'فوز مضمون بعد {n} لفات'
   },
   'disguise': {
-    'title': 'Disguises',
-    'toaster': 'Toaster',
-    'crate': 'Sneaky crate',
-    'clown': 'Clown box',
-    'horse': 'Trojan horse',
-    'bush': 'Bush',
-    'teddy': 'Teddy bear',
-    'wear': 'Wear the {name}',
-    'wearShort': 'Wear',
-    'unlock': 'Unlock the {name}',
-    'watch': 'Watch a video to unlock the {name}'
+    'title': 'التنكرات',
+    'toaster': 'محمصة',
+    'crate': 'صندوق التسلل',
+    'clown': 'صندوق المهرج',
+    'horse': 'حصان طروادة',
+    'bush': 'شجيرة',
+    'teddy': 'دبدوب',
+    'wear': 'ارتداء: {name}',
+    'wearShort': 'ارتداء',
+    'unlock': 'فتح: {name}',
+    'watch': 'شاهد فيديو لفتح: {name}'
   },
   'ads': {
-    'blockedTitle': 'Ads blocked',
-    'blockedBody': 'An ad blocker stopped the video, so there is no reward this time.',
-    'ok': 'OK'
+    'blockedTitle': 'الإعلانات محظورة',
+    'blockedBody': 'منع مانع الإعلانات الفيديو، فلا توجد مكافأة هذه المرة.',
+    'ok': 'حسنًا'
   },
   'medal': {
     'ghost': 'شبح',
@@ -234,18 +234,18 @@ export default {
       'weapon3': 'قاذفة صواريخ',
       'cycle': 'السلاح التالي',
       'pause': 'إيقاف مؤقت',
-      'help': 'Show the lessons'
+      'help': 'عرض الدروس'
     }
   },
   'prompt': {
-    'salvage': 'Salvage',
-    'strike': 'Takedown',
-    'sabotage': 'Sabotage',
-    'cutPower': 'Cut power',
-    'jam': 'Jam servo',
-    'grab': 'Grab body',
-    'drop': 'Drop body',
-    'hook': 'Hook'
+    'salvage': 'تفكيك',
+    'strike': 'إسقاط صامت',
+    'sabotage': 'تخريب',
+    'cutPower': 'قطع الطاقة',
+    'jam': 'عطّل المحرك',
+    'grab': 'امسك الجثة',
+    'drop': 'أفلت الجثة',
+    'hook': 'خطّاف'
   },
   'saveStatus': {
     'restoredTitle': 'تمت استعادة الحفظ السحابي',

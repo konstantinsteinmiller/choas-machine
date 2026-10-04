@@ -31,8 +31,8 @@ export default {
     'decoy': 'Wabik',
     'weapons': 'Bronie',
     'ammo': 'Amunicja',
-    'reloading': 'Reloading',
-    'reserve': '{n} more carried',
+    'reloading': 'Przeładowanie',
+    'reserve': 'Jeszcze {n} w zapasie',
     'heat': 'Temperatura broni',
     'armor': 'Pancerz',
     'crouch': 'Kucnij',
@@ -94,7 +94,7 @@ export default {
     'minigunDamage': 'Obrażenia minigunu',
     'rocketBlast': 'Zasięg wybuchu',
     'rocketAmmo': 'Rakiety',
-    'ammoRacks': 'Ammo racks',
+    'ammoRacks': 'Stojaki na amunicję',
     'armor': 'Płyty pancerne',
     'speed': 'Prędkość serw',
     'decoy': 'Czas wabika',
@@ -120,36 +120,36 @@ export default {
     'stars': '{n} z 3 gwiazdek'
   },
   'melt': {
-    'start': 'Melt the haul: up to +{n}'
+    'start': 'Przetop łup: do +{n}'
   },
   'wheel': {
-    'title': 'Lucky wheel',
-    'locked': 'Max out rifle damage to open the wheel',
-    'chance': 'Win chance',
-    'gain': 'Next win',
-    'spin': 'Spin',
-    'sure': 'Sure win',
-    'watch': 'Watch a video for a sure win',
-    'won': 'Rifle damage +{n}',
-    'miss': 'Missed: {n} scrap back',
-    'pity': 'A sure win in {n} spins'
+    'title': 'Koło szczęścia',
+    'locked': 'Maksymalnie ulepsz obrażenia karabinu, by otworzyć koło',
+    'chance': 'Szansa wygranej',
+    'gain': 'Następna wygrana',
+    'spin': 'Zakręć',
+    'sure': 'Pewna wygrana',
+    'watch': 'Obejrzyj film po pewną wygraną',
+    'won': 'Obrażenia karabinu +{n}',
+    'miss': 'Pudło: zwrot {n} złomu',
+    'pity': 'Pewna wygrana za {n} zakr.'
   },
   'disguise': {
-    'title': 'Disguises',
-    'toaster': 'Toaster',
-    'crate': 'Sneaky crate',
-    'clown': 'Clown box',
-    'horse': 'Trojan horse',
-    'bush': 'Bush',
-    'teddy': 'Teddy bear',
-    'wear': 'Wear the {name}',
-    'wearShort': 'Wear',
-    'unlock': 'Unlock the {name}',
-    'watch': 'Watch a video to unlock the {name}'
+    'title': 'Przebrania',
+    'toaster': 'Toster',
+    'crate': 'Zdradziecka skrzynia',
+    'clown': 'Pudełko z klaunem',
+    'horse': 'Koń trojański',
+    'bush': 'Krzak',
+    'teddy': 'Miś',
+    'wear': 'Załóż: {name}',
+    'wearShort': 'Załóż',
+    'unlock': 'Odblokuj: {name}',
+    'watch': 'Obejrzyj film, by odblokować: {name}'
   },
   'ads': {
-    'blockedTitle': 'Ads blocked',
-    'blockedBody': 'An ad blocker stopped the video, so there is no reward this time.',
+    'blockedTitle': 'Reklamy zablokowane',
+    'blockedBody': 'Bloker reklam zatrzymał film, więc tym razem nie ma nagrody.',
     'ok': 'OK'
   },
   'medal': {
@@ -234,18 +234,18 @@ export default {
       'weapon3': 'Wyrzutnia rakiet',
       'cycle': 'Następna broń',
       'pause': 'Pauza',
-      'help': 'Show the lessons'
+      'help': 'Pokaż lekcje'
     }
   },
   'prompt': {
-    'salvage': 'Salvage',
-    'strike': 'Takedown',
-    'sabotage': 'Sabotage',
-    'cutPower': 'Cut power',
-    'jam': 'Jam servo',
-    'grab': 'Grab body',
-    'drop': 'Drop body',
-    'hook': 'Hook'
+    'salvage': 'Rozbierz',
+    'strike': 'Cios z ukrycia',
+    'sabotage': 'Sabotaż',
+    'cutPower': 'Odetnij zasilanie',
+    'jam': 'Zablokuj serwo',
+    'grab': 'Chwyć ciało',
+    'drop': 'Puść ciało',
+    'hook': 'Hak'
   },
   'saveStatus': {
     'restoredTitle': 'Zapis w chmurze przywrócony',

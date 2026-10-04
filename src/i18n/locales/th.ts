@@ -31,8 +31,8 @@ export default {
     'decoy': 'ตัวล่อ',
     'weapons': 'อาวุธ',
     'ammo': 'กระสุน',
-    'reloading': 'Reloading',
-    'reserve': '{n} more carried',
+    'reloading': 'กำลังโหลดกระสุน',
+    'reserve': 'พกเพิ่มอีก {n}',
     'heat': 'ความร้อนอาวุธ',
     'armor': 'เกราะ',
     'crouch': 'ย่อตัว',
@@ -94,7 +94,7 @@ export default {
     'minigunDamage': 'ดาเมจมินิกัน',
     'rocketBlast': 'รัศมีระเบิด',
     'rocketAmmo': 'จรวด',
-    'ammoRacks': 'Ammo racks',
+    'ammoRacks': 'ชั้นเก็บกระสุน',
     'armor': 'แผ่นเกราะ',
     'speed': 'ความเร็วเซอร์โว',
     'decoy': 'ระยะเวลาตัวล่อ',
@@ -120,37 +120,37 @@ export default {
     'stars': '{n} จาก 3 ดาว'
   },
   'melt': {
-    'start': 'Melt the haul: up to +{n}'
+    'start': 'หลอมของที่ได้: สูงสุด +{n}'
   },
   'wheel': {
-    'title': 'Lucky wheel',
-    'locked': 'Max out rifle damage to open the wheel',
-    'chance': 'Win chance',
-    'gain': 'Next win',
-    'spin': 'Spin',
-    'sure': 'Sure win',
-    'watch': 'Watch a video for a sure win',
-    'won': 'Rifle damage +{n}',
-    'miss': 'Missed: {n} scrap back',
-    'pity': 'A sure win in {n} spins'
+    'title': 'วงล้อนำโชค',
+    'locked': 'อัปเกรดความเสียหายปืนไรเฟิลให้สูงสุดเพื่อเปิดวงล้อ',
+    'chance': 'โอกาสชนะ',
+    'gain': 'รางวัลครั้งถัดไป',
+    'spin': 'หมุน',
+    'sure': 'ชนะแน่นอน',
+    'watch': 'ดูวิดีโอเพื่อชนะแน่นอน',
+    'won': 'ความเสียหายปืนไรเฟิล +{n}',
+    'miss': 'พลาด: คืนเศษเหล็ก {n}',
+    'pity': 'ชนะแน่นอนใน {n} สปิน'
   },
   'disguise': {
-    'title': 'Disguises',
-    'toaster': 'Toaster',
-    'crate': 'Sneaky crate',
-    'clown': 'Clown box',
-    'horse': 'Trojan horse',
-    'bush': 'Bush',
-    'teddy': 'Teddy bear',
-    'wear': 'Wear the {name}',
-    'wearShort': 'Wear',
-    'unlock': 'Unlock the {name}',
-    'watch': 'Watch a video to unlock the {name}'
+    'title': 'ชุดพรางตัว',
+    'toaster': 'เครื่องปิ้งขนมปัง',
+    'crate': 'ลังจอมลับ',
+    'clown': 'กล่องตัวตลก',
+    'horse': 'ม้าไม้ทรอย',
+    'bush': 'พุ่มไม้',
+    'teddy': 'หมีเท็ดดี้',
+    'wear': 'สวม: {name}',
+    'wearShort': 'สวม',
+    'unlock': 'ปลดล็อก: {name}',
+    'watch': 'ดูวิดีโอเพื่อปลดล็อก: {name}'
   },
   'ads': {
-    'blockedTitle': 'Ads blocked',
-    'blockedBody': 'An ad blocker stopped the video, so there is no reward this time.',
-    'ok': 'OK'
+    'blockedTitle': 'โฆษณาถูกบล็อก',
+    'blockedBody': 'ตัวบล็อกโฆษณาหยุดวิดีโอไว้ จึงไม่ได้รับรางวัลในครั้งนี้',
+    'ok': 'ตกลง'
   },
   'medal': {
     'ghost': 'ภูตผี',
@@ -234,18 +234,18 @@ export default {
       'weapon3': 'เครื่องยิงจรวด',
       'cycle': 'อาวุธถัดไป',
       'pause': 'หยุดชั่วคราว',
-      'help': 'Show the lessons'
+      'help': 'แสดงบทเรียน'
     }
   },
   'prompt': {
-    'salvage': 'Salvage',
-    'strike': 'Takedown',
-    'sabotage': 'Sabotage',
-    'cutPower': 'Cut power',
-    'jam': 'Jam servo',
-    'grab': 'Grab body',
-    'drop': 'Drop body',
-    'hook': 'Hook'
+    'salvage': 'รื้อเก็บ',
+    'strike': 'ลอบสังหาร',
+    'sabotage': 'ก่อวินาศกรรม',
+    'cutPower': 'ตัดไฟ',
+    'jam': 'ขัดมอเตอร์',
+    'grab': 'จับร่าง',
+    'drop': 'ปล่อยร่าง',
+    'hook': 'ตะขอ'
   },
   'saveStatus': {
     'restoredTitle': 'กู้คืนเซฟบนคลาวด์แล้ว',

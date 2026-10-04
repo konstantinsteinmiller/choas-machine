@@ -31,8 +31,8 @@ export default {
     'decoy': '誘餌',
     'weapons': '武器',
     'ammo': '彈藥',
-    'reloading': 'Reloading',
-    'reserve': '{n} more carried',
+    'reloading': '換彈中',
+    'reserve': '另攜帶 {n} 發',
     'heat': '武器過熱',
     'armor': '裝甲',
     'crouch': '蹲下',
@@ -94,7 +94,7 @@ export default {
     'minigunDamage': '機槍傷害',
     'rocketBlast': '爆炸範圍',
     'rocketAmmo': '火箭彈',
-    'ammoRacks': 'Ammo racks',
+    'ammoRacks': '彈藥架',
     'armor': '裝甲板',
     'speed': '伺服速度',
     'decoy': '誘餌持續時間',
@@ -120,37 +120,37 @@ export default {
     'stars': '{n}/3 星'
   },
   'melt': {
-    'start': 'Melt the haul: up to +{n}'
+    'start': '熔煉戰利品：最多 +{n}'
   },
   'wheel': {
-    'title': 'Lucky wheel',
-    'locked': 'Max out rifle damage to open the wheel',
-    'chance': 'Win chance',
-    'gain': 'Next win',
-    'spin': 'Spin',
-    'sure': 'Sure win',
-    'watch': 'Watch a video for a sure win',
-    'won': 'Rifle damage +{n}',
-    'miss': 'Missed: {n} scrap back',
-    'pity': 'A sure win in {n} spins'
+    'title': '幸運轉盤',
+    'locked': '將步槍傷害升到最高即可開啟轉盤',
+    'chance': '獲勝機率',
+    'gain': '下次獲勝',
+    'spin': '旋轉',
+    'sure': '必定獲勝',
+    'watch': '觀看影片必定獲勝',
+    'won': '步槍傷害 +{n}',
+    'miss': '沒中：返還 {n} 廢料',
+    'pity': '{n} 次旋轉後必定獲勝'
   },
   'disguise': {
-    'title': 'Disguises',
-    'toaster': 'Toaster',
-    'crate': 'Sneaky crate',
-    'clown': 'Clown box',
-    'horse': 'Trojan horse',
-    'bush': 'Bush',
-    'teddy': 'Teddy bear',
-    'wear': 'Wear the {name}',
-    'wearShort': 'Wear',
-    'unlock': 'Unlock the {name}',
-    'watch': 'Watch a video to unlock the {name}'
+    'title': '偽裝',
+    'toaster': '烤麵包機',
+    'crate': '偷偷摸摸的箱子',
+    'clown': '小丑盒',
+    'horse': '特洛伊木馬',
+    'bush': '灌木叢',
+    'teddy': '泰迪熊',
+    'wear': '穿上：{name}',
+    'wearShort': '穿上',
+    'unlock': '解鎖：{name}',
+    'watch': '觀看影片以解鎖：{name}'
   },
   'ads': {
-    'blockedTitle': 'Ads blocked',
-    'blockedBody': 'An ad blocker stopped the video, so there is no reward this time.',
-    'ok': 'OK'
+    'blockedTitle': '廣告已被封鎖',
+    'blockedBody': '廣告攔截器中止了影片，所以這次沒有獎勵。',
+    'ok': '確定'
   },
   'medal': {
     'ghost': '幽靈',
@@ -234,18 +234,18 @@ export default {
       'weapon3': '火箭筒',
       'cycle': '下一把武器',
       'pause': '暫停',
-      'help': 'Show the lessons'
+      'help': '顯示教學'
     }
   },
   'prompt': {
-    'salvage': 'Salvage',
-    'strike': 'Takedown',
-    'sabotage': 'Sabotage',
-    'cutPower': 'Cut power',
-    'jam': 'Jam servo',
-    'grab': 'Grab body',
-    'drop': 'Drop body',
-    'hook': 'Hook'
+    'salvage': '拆解',
+    'strike': '擊倒',
+    'sabotage': '破壞',
+    'cutPower': '切斷電源',
+    'jam': '卡住伺服',
+    'grab': '抓住屍體',
+    'drop': '放下屍體',
+    'hook': '鉤爪'
   },
   'saveStatus': {
     'restoredTitle': '雲端存檔已還原',

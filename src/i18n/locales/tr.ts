@@ -31,8 +31,8 @@ export default {
     'decoy': 'Yem',
     'weapons': 'Silahlar',
     'ammo': 'Cephane',
-    'reloading': 'Reloading',
-    'reserve': '{n} more carried',
+    'reloading': 'Dolduruluyor',
+    'reserve': '{n} tane daha taşınıyor',
     'heat': 'Silah ısısı',
     'armor': 'Zırh',
     'crouch': 'Çömel',
@@ -94,7 +94,7 @@ export default {
     'minigunDamage': 'Minigun hasarı',
     'rocketBlast': 'Patlama yarıçapı',
     'rocketAmmo': 'Roketler',
-    'ammoRacks': 'Ammo racks',
+    'ammoRacks': 'Cephane rafları',
     'armor': 'Zırh plakaları',
     'speed': 'Servo hızı',
     'decoy': 'Tuzak süresi',
@@ -120,37 +120,37 @@ export default {
     'stars': '3 yıldızdan {n}'
   },
   'melt': {
-    'start': 'Melt the haul: up to +{n}'
+    'start': 'Ganimeti erit: en çok +{n}'
   },
   'wheel': {
-    'title': 'Lucky wheel',
-    'locked': 'Max out rifle damage to open the wheel',
-    'chance': 'Win chance',
-    'gain': 'Next win',
-    'spin': 'Spin',
-    'sure': 'Sure win',
-    'watch': 'Watch a video for a sure win',
-    'won': 'Rifle damage +{n}',
-    'miss': 'Missed: {n} scrap back',
-    'pity': 'A sure win in {n} spins'
+    'title': 'Şans çarkı',
+    'locked': 'Çarkı açmak için tüfek hasarını en üste çıkar',
+    'chance': 'Kazanma şansı',
+    'gain': 'Sonraki kazanç',
+    'spin': 'Çevir',
+    'sure': 'Kesin kazanç',
+    'watch': 'Kesin kazanç için video izle',
+    'won': 'Tüfek hasarı +{n}',
+    'miss': 'Kaçtı: {n} hurda geri',
+    'pity': '{n} çevirmede kesin kazanç'
   },
   'disguise': {
-    'title': 'Disguises',
-    'toaster': 'Toaster',
-    'crate': 'Sneaky crate',
-    'clown': 'Clown box',
-    'horse': 'Trojan horse',
-    'bush': 'Bush',
-    'teddy': 'Teddy bear',
-    'wear': 'Wear the {name}',
-    'wearShort': 'Wear',
-    'unlock': 'Unlock the {name}',
-    'watch': 'Watch a video to unlock the {name}'
+    'title': 'Kılıklar',
+    'toaster': 'Ekmek kızartma makinesi',
+    'crate': 'Sinsi sandık',
+    'clown': 'Palyaço kutusu',
+    'horse': 'Truva atı',
+    'bush': 'Çalı',
+    'teddy': 'Oyuncak ayı',
+    'wear': 'Giy: {name}',
+    'wearShort': 'Giy',
+    'unlock': 'Kilidi aç: {name}',
+    'watch': 'Kilidi açmak için video izle: {name}'
   },
   'ads': {
-    'blockedTitle': 'Ads blocked',
-    'blockedBody': 'An ad blocker stopped the video, so there is no reward this time.',
-    'ok': 'OK'
+    'blockedTitle': 'Reklamlar engellendi',
+    'blockedBody': 'Bir reklam engelleyici videoyu durdurdu, bu yüzden bu sefer ödül yok.',
+    'ok': 'Tamam'
   },
   'medal': {
     'ghost': 'Hayalet',
@@ -234,18 +234,18 @@ export default {
       'weapon3': 'Roketatar',
       'cycle': 'Sonraki silah',
       'pause': 'Duraklat',
-      'help': 'Show the lessons'
+      'help': 'Dersleri göster'
     }
   },
   'prompt': {
-    'salvage': 'Salvage',
-    'strike': 'Takedown',
-    'sabotage': 'Sabotage',
-    'cutPower': 'Cut power',
-    'jam': 'Jam servo',
-    'grab': 'Grab body',
-    'drop': 'Drop body',
-    'hook': 'Hook'
+    'salvage': 'Parçala',
+    'strike': 'Etkisiz hale getir',
+    'sabotage': 'Sabotaj',
+    'cutPower': 'Gücü kes',
+    'jam': 'Servoyu blokla',
+    'grab': 'Cesedi tut',
+    'drop': 'Cesedi bırak',
+    'hook': 'Kanca'
   },
   'saveStatus': {
     'restoredTitle': 'Bulut kaydı geri yüklendi',

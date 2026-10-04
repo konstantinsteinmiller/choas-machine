@@ -31,8 +31,8 @@ export default {
     'decoy': 'Návnada',
     'weapons': 'Zbraně',
     'ammo': 'Munice',
-    'reloading': 'Reloading',
-    'reserve': '{n} more carried',
+    'reloading': 'Nabíjení',
+    'reserve': 'další {n} v zásobě',
     'heat': 'Žhavost zbraně',
     'armor': 'Pancíř',
     'crouch': 'Skrčit se',
@@ -94,7 +94,7 @@ export default {
     'minigunDamage': 'Poškození minigunu',
     'rocketBlast': 'Dosah výbuchu',
     'rocketAmmo': 'Rakety',
-    'ammoRacks': 'Ammo racks',
+    'ammoRacks': 'Stojany na munici',
     'armor': 'Pancíř',
     'speed': 'Rychlost serv',
     'decoy': 'Trvání návnady',
@@ -120,36 +120,36 @@ export default {
     'stars': '{n} ze 3 hvězd'
   },
   'melt': {
-    'start': 'Melt the haul: up to +{n}'
+    'start': 'Roztavit kořist: až +{n}'
   },
   'wheel': {
-    'title': 'Lucky wheel',
-    'locked': 'Max out rifle damage to open the wheel',
-    'chance': 'Win chance',
-    'gain': 'Next win',
-    'spin': 'Spin',
-    'sure': 'Sure win',
-    'watch': 'Watch a video for a sure win',
-    'won': 'Rifle damage +{n}',
-    'miss': 'Missed: {n} scrap back',
-    'pity': 'A sure win in {n} spins'
+    'title': 'Kolo štěstí',
+    'locked': 'Vylepši poškození pušky na maximum a otevři kolo',
+    'chance': 'Šance na výhru',
+    'gain': 'Další výhra',
+    'spin': 'Zatočit',
+    'sure': 'Jistá výhra',
+    'watch': 'Sledovat video pro jistou výhru',
+    'won': 'Poškození pušky +{n}',
+    'miss': 'Netrefa: {n} šrotu zpět',
+    'pity': 'Jistá výhra za {n} zatočení'
   },
   'disguise': {
-    'title': 'Disguises',
-    'toaster': 'Toaster',
-    'crate': 'Sneaky crate',
-    'clown': 'Clown box',
-    'horse': 'Trojan horse',
-    'bush': 'Bush',
-    'teddy': 'Teddy bear',
-    'wear': 'Wear the {name}',
-    'wearShort': 'Wear',
-    'unlock': 'Unlock the {name}',
-    'watch': 'Watch a video to unlock the {name}'
+    'title': 'Převleky',
+    'toaster': 'Toustovač',
+    'crate': 'Lstivá bedna',
+    'clown': 'Klaunova krabice',
+    'horse': 'Trojský kůň',
+    'bush': 'Keř',
+    'teddy': 'Plyšový medvídek',
+    'wear': 'Obléct: {name}',
+    'wearShort': 'Obléct',
+    'unlock': 'Odemknout: {name}',
+    'watch': 'Odemknout sledováním videa: {name}'
   },
   'ads': {
-    'blockedTitle': 'Ads blocked',
-    'blockedBody': 'An ad blocker stopped the video, so there is no reward this time.',
+    'blockedTitle': 'Reklamy zablokovány',
+    'blockedBody': 'Blokování reklam zastavilo video, takže tentokrát nebude odměna.',
     'ok': 'OK'
   },
   'medal': {
@@ -234,18 +234,18 @@ export default {
       'weapon3': 'Raketomet',
       'cycle': 'Další zbraň',
       'pause': 'Pauza',
-      'help': 'Show the lessons'
+      'help': 'Zobrazit lekce'
     }
   },
   'prompt': {
-    'salvage': 'Salvage',
-    'strike': 'Takedown',
-    'sabotage': 'Sabotage',
-    'cutPower': 'Cut power',
-    'jam': 'Jam servo',
-    'grab': 'Grab body',
-    'drop': 'Drop body',
-    'hook': 'Hook'
+    'salvage': 'Rozebrat',
+    'strike': 'Tichý zásah',
+    'sabotage': 'Sabotovat',
+    'cutPower': 'Vypnout proud',
+    'jam': 'Zablokovat servo',
+    'grab': 'Popadnout tělo',
+    'drop': 'Pustit tělo',
+    'hook': 'Hák'
   },
   'saveStatus': {
     'restoredTitle': 'Uložení v cloudu obnoveno',

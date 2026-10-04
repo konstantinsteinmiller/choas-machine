@@ -31,8 +31,8 @@ export default {
     'decoy': 'Señuelo',
     'weapons': 'Armas',
     'ammo': 'Munición',
-    'reloading': 'Reloading',
-    'reserve': '{n} more carried',
+    'reloading': 'Recargando',
+    'reserve': '{n} más en reserva',
     'heat': 'Calor del arma',
     'armor': 'Blindaje',
     'crouch': 'Agacharse',
@@ -94,7 +94,7 @@ export default {
     'minigunDamage': 'Daño del minigun',
     'rocketBlast': 'Radio de explosión',
     'rocketAmmo': 'Cohetes',
-    'ammoRacks': 'Ammo racks',
+    'ammoRacks': 'Estantes de munición',
     'armor': 'Blindaje',
     'speed': 'Velocidad de servos',
     'decoy': 'Duración del señuelo',
@@ -120,37 +120,37 @@ export default {
     'stars': '{n} de 3 estrellas'
   },
   'melt': {
-    'start': 'Melt the haul: up to +{n}'
+    'start': 'Funde el botín: hasta +{n}'
   },
   'wheel': {
-    'title': 'Lucky wheel',
-    'locked': 'Max out rifle damage to open the wheel',
-    'chance': 'Win chance',
-    'gain': 'Next win',
-    'spin': 'Spin',
-    'sure': 'Sure win',
-    'watch': 'Watch a video for a sure win',
-    'won': 'Rifle damage +{n}',
-    'miss': 'Missed: {n} scrap back',
-    'pity': 'A sure win in {n} spins'
+    'title': 'Ruleta de la suerte',
+    'locked': 'Maximiza el daño del rifle para abrir la ruleta',
+    'chance': 'Probabilidad de ganar',
+    'gain': 'Próximo premio',
+    'spin': 'Girar',
+    'sure': 'Victoria segura',
+    'watch': 'Ver un vídeo para una victoria segura',
+    'won': 'Daño del rifle +{n}',
+    'miss': 'Fallo: vuelven {n} de chatarra',
+    'pity': 'Victoria segura en {n} giros'
   },
   'disguise': {
-    'title': 'Disguises',
-    'toaster': 'Toaster',
-    'crate': 'Sneaky crate',
-    'clown': 'Clown box',
-    'horse': 'Trojan horse',
-    'bush': 'Bush',
-    'teddy': 'Teddy bear',
-    'wear': 'Wear the {name}',
-    'wearShort': 'Wear',
-    'unlock': 'Unlock the {name}',
-    'watch': 'Watch a video to unlock the {name}'
+    'title': 'Disfraces',
+    'toaster': 'Tostadora',
+    'crate': 'Caja sigilosa',
+    'clown': 'Caja de payaso',
+    'horse': 'Caballo de Troya',
+    'bush': 'Arbusto',
+    'teddy': 'Osito de peluche',
+    'wear': 'Ponerse: {name}',
+    'wearShort': 'Ponerse',
+    'unlock': 'Desbloquear: {name}',
+    'watch': 'Ver un vídeo para desbloquear: {name}'
   },
   'ads': {
-    'blockedTitle': 'Ads blocked',
-    'blockedBody': 'An ad blocker stopped the video, so there is no reward this time.',
-    'ok': 'OK'
+    'blockedTitle': 'Anuncios bloqueados',
+    'blockedBody': 'Un bloqueador de anuncios detuvo el vídeo, así que esta vez no hay recompensa.',
+    'ok': 'Aceptar'
   },
   'medal': {
     'ghost': 'Fantasma',
@@ -234,18 +234,18 @@ export default {
       'weapon3': 'Lanzacohetes',
       'cycle': 'Siguiente arma',
       'pause': 'Pausa',
-      'help': 'Show the lessons'
+      'help': 'Mostrar las lecciones'
     }
   },
   'prompt': {
-    'salvage': 'Salvage',
-    'strike': 'Takedown',
-    'sabotage': 'Sabotage',
-    'cutPower': 'Cut power',
-    'jam': 'Jam servo',
-    'grab': 'Grab body',
-    'drop': 'Drop body',
-    'hook': 'Hook'
+    'salvage': 'Recuperar',
+    'strike': 'Derribo',
+    'sabotage': 'Sabotear',
+    'cutPower': 'Cortar luz',
+    'jam': 'Atascar servo',
+    'grab': 'Agarrar cuerpo',
+    'drop': 'Soltar cuerpo',
+    'hook': 'Gancho'
   },
   'saveStatus': {
     'restoredTitle': 'Guardado en la nube restaurado',

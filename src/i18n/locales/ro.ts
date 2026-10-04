@@ -31,8 +31,8 @@ export default {
     'decoy': 'Momeală',
     'weapons': 'Arme',
     'ammo': 'Muniție',
-    'reloading': 'Reloading',
-    'reserve': '{n} more carried',
+    'reloading': 'Se reîncarcă',
+    'reserve': 'Încă {n} la tine',
     'heat': 'Căldura armei',
     'armor': 'Armură',
     'crouch': 'Ghemuiește-te',
@@ -94,7 +94,7 @@ export default {
     'minigunDamage': 'Daune minigun',
     'rocketBlast': 'Raza exploziei',
     'rocketAmmo': 'Rachete',
-    'ammoRacks': 'Ammo racks',
+    'ammoRacks': 'Rafturi de muniție',
     'armor': 'Plăci blindate',
     'speed': 'Viteză servo',
     'decoy': 'Durata momelii',
@@ -120,36 +120,36 @@ export default {
     'stars': '{n} din 3 stele'
   },
   'melt': {
-    'start': 'Melt the haul: up to +{n}'
+    'start': 'Topește prada: până la +{n}'
   },
   'wheel': {
-    'title': 'Lucky wheel',
-    'locked': 'Max out rifle damage to open the wheel',
-    'chance': 'Win chance',
-    'gain': 'Next win',
-    'spin': 'Spin',
-    'sure': 'Sure win',
-    'watch': 'Watch a video for a sure win',
-    'won': 'Rifle damage +{n}',
-    'miss': 'Missed: {n} scrap back',
-    'pity': 'A sure win in {n} spins'
+    'title': 'Roata norocului',
+    'locked': 'Maximizează daunele puștii pentru a deschide roata',
+    'chance': 'Șansă de câștig',
+    'gain': 'Următorul câștig',
+    'spin': 'Rotește',
+    'sure': 'Câștig sigur',
+    'watch': 'Urmărește un videoclip pentru câștig sigur',
+    'won': 'Daune pușcă +{n}',
+    'miss': 'Ratat: {n} fier vechi înapoi',
+    'pity': 'Câștig sigur în {n} rotiri'
   },
   'disguise': {
-    'title': 'Disguises',
-    'toaster': 'Toaster',
-    'crate': 'Sneaky crate',
-    'clown': 'Clown box',
-    'horse': 'Trojan horse',
-    'bush': 'Bush',
-    'teddy': 'Teddy bear',
-    'wear': 'Wear the {name}',
-    'wearShort': 'Wear',
-    'unlock': 'Unlock the {name}',
-    'watch': 'Watch a video to unlock the {name}'
+    'title': 'Deghizări',
+    'toaster': 'Prăjitor de pâine',
+    'crate': 'Lada vicleană',
+    'clown': 'Cutia cu clovn',
+    'horse': 'Calul troian',
+    'bush': 'Tufiș',
+    'teddy': 'Ursuleț de pluș',
+    'wear': 'Îmbracă: {name}',
+    'wearShort': 'Îmbracă',
+    'unlock': 'Deblochează: {name}',
+    'watch': 'Urmărește un videoclip pentru a debloca: {name}'
   },
   'ads': {
-    'blockedTitle': 'Ads blocked',
-    'blockedBody': 'An ad blocker stopped the video, so there is no reward this time.',
+    'blockedTitle': 'Reclame blocate',
+    'blockedBody': 'Un blocant de reclame a oprit videoclipul, deci de data aceasta nu primești recompensă.',
     'ok': 'OK'
   },
   'medal': {
@@ -234,18 +234,18 @@ export default {
       'weapon3': 'Lansator de rachete',
       'cycle': 'Arma următoare',
       'pause': 'Pauză',
-      'help': 'Show the lessons'
+      'help': 'Arată lecțiile'
     }
   },
   'prompt': {
-    'salvage': 'Salvage',
-    'strike': 'Takedown',
-    'sabotage': 'Sabotage',
-    'cutPower': 'Cut power',
-    'jam': 'Jam servo',
-    'grab': 'Grab body',
-    'drop': 'Drop body',
-    'hook': 'Hook'
+    'salvage': 'Recuperează',
+    'strike': 'Elimină',
+    'sabotage': 'Sabotează',
+    'cutPower': 'Taie curentul',
+    'jam': 'Blochează servo',
+    'grab': 'Apucă corpul',
+    'drop': 'Lasă corpul',
+    'hook': 'Cârlig'
   },
   'saveStatus': {
     'restoredTitle': 'Salvare din cloud restaurată',

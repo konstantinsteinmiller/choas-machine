@@ -31,8 +31,8 @@ export default {
     'decoy': 'Mồi nhử',
     'weapons': 'Vũ khí',
     'ammo': 'Đạn dược',
-    'reloading': 'Reloading',
-    'reserve': '{n} more carried',
+    'reloading': 'Đang nạp đạn',
+    'reserve': 'Mang thêm {n}',
     'heat': 'Nhiệt vũ khí',
     'armor': 'Giáp',
     'crouch': 'Cúi xuống',
@@ -94,7 +94,7 @@ export default {
     'minigunDamage': 'Sát thương minigun',
     'rocketBlast': 'Bán kính nổ',
     'rocketAmmo': 'Tên lửa',
-    'ammoRacks': 'Ammo racks',
+    'ammoRacks': 'Giá đạn',
     'armor': 'Giáp tấm',
     'speed': 'Tốc độ servo',
     'decoy': 'Thời gian mồi nhử',
@@ -120,36 +120,36 @@ export default {
     'stars': '{n}/3 sao'
   },
   'melt': {
-    'start': 'Melt the haul: up to +{n}'
+    'start': 'Nung chảy chiến lợi phẩm: tối đa +{n}'
   },
   'wheel': {
-    'title': 'Lucky wheel',
-    'locked': 'Max out rifle damage to open the wheel',
-    'chance': 'Win chance',
-    'gain': 'Next win',
-    'spin': 'Spin',
-    'sure': 'Sure win',
-    'watch': 'Watch a video for a sure win',
-    'won': 'Rifle damage +{n}',
-    'miss': 'Missed: {n} scrap back',
-    'pity': 'A sure win in {n} spins'
+    'title': 'Vòng quay may mắn',
+    'locked': 'Nâng sát thương súng trường tối đa để mở vòng quay',
+    'chance': 'Cơ hội thắng',
+    'gain': 'Lần thắng tới',
+    'spin': 'Quay',
+    'sure': 'Chắc thắng',
+    'watch': 'Xem video để chắc thắng',
+    'won': 'Sát thương súng trường +{n}',
+    'miss': 'Trượt: hoàn lại {n} phế liệu',
+    'pity': 'Chắc thắng sau {n} lượt quay'
   },
   'disguise': {
-    'title': 'Disguises',
-    'toaster': 'Toaster',
-    'crate': 'Sneaky crate',
-    'clown': 'Clown box',
-    'horse': 'Trojan horse',
-    'bush': 'Bush',
-    'teddy': 'Teddy bear',
-    'wear': 'Wear the {name}',
-    'wearShort': 'Wear',
-    'unlock': 'Unlock the {name}',
-    'watch': 'Watch a video to unlock the {name}'
+    'title': 'Ngụy trang',
+    'toaster': 'Máy nướng bánh mì',
+    'crate': 'Thùng lén lút',
+    'clown': 'Hộp chú hề',
+    'horse': 'Ngựa thành Troy',
+    'bush': 'Bụi cây',
+    'teddy': 'Gấu bông',
+    'wear': 'Mặc: {name}',
+    'wearShort': 'Mặc',
+    'unlock': 'Mở khóa: {name}',
+    'watch': 'Xem video để mở khóa: {name}'
   },
   'ads': {
-    'blockedTitle': 'Ads blocked',
-    'blockedBody': 'An ad blocker stopped the video, so there is no reward this time.',
+    'blockedTitle': 'Quảng cáo bị chặn',
+    'blockedBody': 'Trình chặn quảng cáo đã dừng video nên lần này không có phần thưởng.',
     'ok': 'OK'
   },
   'medal': {
@@ -234,18 +234,18 @@ export default {
       'weapon3': 'Súng phóng tên lửa',
       'cycle': 'Vũ khí kế tiếp',
       'pause': 'Tạm dừng',
-      'help': 'Show the lessons'
+      'help': 'Hiện bài hướng dẫn'
     }
   },
   'prompt': {
-    'salvage': 'Salvage',
-    'strike': 'Takedown',
-    'sabotage': 'Sabotage',
-    'cutPower': 'Cut power',
-    'jam': 'Jam servo',
-    'grab': 'Grab body',
-    'drop': 'Drop body',
-    'hook': 'Hook'
+    'salvage': 'Tháo phế liệu',
+    'strike': 'Hạ gục',
+    'sabotage': 'Phá hoại',
+    'cutPower': 'Cắt điện',
+    'jam': 'Kẹt động cơ',
+    'grab': 'Nắm xác',
+    'drop': 'Thả xác',
+    'hook': 'Móc'
   },
   'saveStatus': {
     'restoredTitle': 'Đã khôi phục lưu trên đám mây',

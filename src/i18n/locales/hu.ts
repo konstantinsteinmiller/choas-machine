@@ -31,8 +31,8 @@ export default {
     'decoy': 'Csali',
     'weapons': 'Fegyverek',
     'ammo': 'Lőszer',
-    'reloading': 'Reloading',
-    'reserve': '{n} more carried',
+    'reloading': 'Töltés',
+    'reserve': 'Még {n} nálad',
     'heat': 'Fegyver hőmérséklete',
     'armor': 'Páncél',
     'crouch': 'Guggolás',
@@ -94,7 +94,7 @@ export default {
     'minigunDamage': 'Minigun sebzése',
     'rocketBlast': 'Robbanási sugár',
     'rocketAmmo': 'Rakéták',
-    'ammoRacks': 'Ammo racks',
+    'ammoRacks': 'Lőszerállványok',
     'armor': 'Páncélzat',
     'speed': 'Szervósebesség',
     'decoy': 'Csalétek időtartama',
@@ -120,36 +120,36 @@ export default {
     'stars': '{n}/3 csillag'
   },
   'melt': {
-    'start': 'Melt the haul: up to +{n}'
+    'start': 'Zsákmány olvasztása: akár +{n}'
   },
   'wheel': {
-    'title': 'Lucky wheel',
-    'locked': 'Max out rifle damage to open the wheel',
-    'chance': 'Win chance',
-    'gain': 'Next win',
-    'spin': 'Spin',
-    'sure': 'Sure win',
-    'watch': 'Watch a video for a sure win',
-    'won': 'Rifle damage +{n}',
-    'miss': 'Missed: {n} scrap back',
-    'pity': 'A sure win in {n} spins'
+    'title': 'Szerencsekerék',
+    'locked': 'Maxold a puska sebzését a kerék feloldásához',
+    'chance': 'Nyerési esély',
+    'gain': 'Következő nyeremény',
+    'spin': 'Pörgetés',
+    'sure': 'Biztos nyeremény',
+    'watch': 'Nézz videót a biztos nyereményért',
+    'won': 'Puska sebzése +{n}',
+    'miss': 'Mellé: {n} hulladék vissza',
+    'pity': 'Biztos nyeremény {n} pörgetés múlva'
   },
   'disguise': {
-    'title': 'Disguises',
-    'toaster': 'Toaster',
-    'crate': 'Sneaky crate',
-    'clown': 'Clown box',
-    'horse': 'Trojan horse',
-    'bush': 'Bush',
-    'teddy': 'Teddy bear',
-    'wear': 'Wear the {name}',
-    'wearShort': 'Wear',
-    'unlock': 'Unlock the {name}',
-    'watch': 'Watch a video to unlock the {name}'
+    'title': 'Álruhák',
+    'toaster': 'Kenyérpirító',
+    'crate': 'Settenkedő láda',
+    'clown': 'Bohócdoboz',
+    'horse': 'Trójai faló',
+    'bush': 'Bokor',
+    'teddy': 'Plüssmaci',
+    'wear': 'Felvétel: {name}',
+    'wearShort': 'Felvesz',
+    'unlock': 'Feloldás: {name}',
+    'watch': 'Nézz videót a feloldáshoz: {name}'
   },
   'ads': {
-    'blockedTitle': 'Ads blocked',
-    'blockedBody': 'An ad blocker stopped the video, so there is no reward this time.',
+    'blockedTitle': 'Reklámok letiltva',
+    'blockedBody': 'Egy reklámblokkoló megállította a videót, így most nincs jutalom.',
     'ok': 'OK'
   },
   'medal': {
@@ -234,18 +234,18 @@ export default {
       'weapon3': 'Rakétavető',
       'cycle': 'Következő fegyver',
       'pause': 'Szünet',
-      'help': 'Show the lessons'
+      'help': 'Leckék mutatása'
     }
   },
   'prompt': {
-    'salvage': 'Salvage',
-    'strike': 'Takedown',
-    'sabotage': 'Sabotage',
-    'cutPower': 'Cut power',
-    'jam': 'Jam servo',
-    'grab': 'Grab body',
-    'drop': 'Drop body',
-    'hook': 'Hook'
+    'salvage': 'Bontás',
+    'strike': 'Leszedés',
+    'sabotage': 'Szabotálás',
+    'cutPower': 'Áram levágása',
+    'jam': 'Szervó leblokkolása',
+    'grab': 'Test megfogása',
+    'drop': 'Test eldobása',
+    'hook': 'Kampó'
   },
   'saveStatus': {
     'restoredTitle': 'Felhőmentés visszaállítva',

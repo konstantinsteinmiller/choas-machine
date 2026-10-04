@@ -31,8 +31,8 @@ export default {
     'decoy': 'Lokaas',
     'weapons': 'Wapens',
     'ammo': 'Munitie',
-    'reloading': 'Reloading',
-    'reserve': '{n} more carried',
+    'reloading': 'Herladen',
+    'reserve': '{n} extra bij je',
     'heat': 'Wapenhitte',
     'armor': 'Pantser',
     'crouch': 'Bukken',
@@ -94,7 +94,7 @@ export default {
     'minigunDamage': 'Minigun-schade',
     'rocketBlast': 'Explosieradius',
     'rocketAmmo': 'Raketten',
-    'ammoRacks': 'Ammo racks',
+    'ammoRacks': 'Munitieschappen',
     'armor': 'Pantserplaten',
     'speed': 'Servosnelheid',
     'decoy': 'Duur van lokvogel',
@@ -120,36 +120,36 @@ export default {
     'stars': '{n} van 3 sterren'
   },
   'melt': {
-    'start': 'Melt the haul: up to +{n}'
+    'start': 'Smelt de buit: tot +{n}'
   },
   'wheel': {
-    'title': 'Lucky wheel',
-    'locked': 'Max out rifle damage to open the wheel',
-    'chance': 'Win chance',
-    'gain': 'Next win',
-    'spin': 'Spin',
-    'sure': 'Sure win',
-    'watch': 'Watch a video for a sure win',
-    'won': 'Rifle damage +{n}',
-    'miss': 'Missed: {n} scrap back',
-    'pity': 'A sure win in {n} spins'
+    'title': 'Gelukswiel',
+    'locked': 'Maximaliseer geweerschade om het rad te openen',
+    'chance': 'Winkans',
+    'gain': 'Volgende winst',
+    'spin': 'Draaien',
+    'sure': 'Zekere winst',
+    'watch': 'Bekijk een video voor zekere winst',
+    'won': 'Geweerschade +{n}',
+    'miss': 'Gemist: {n} schroot terug',
+    'pity': 'Gegarandeerde winst over {n} draaien'
   },
   'disguise': {
-    'title': 'Disguises',
-    'toaster': 'Toaster',
-    'crate': 'Sneaky crate',
-    'clown': 'Clown box',
-    'horse': 'Trojan horse',
-    'bush': 'Bush',
-    'teddy': 'Teddy bear',
-    'wear': 'Wear the {name}',
-    'wearShort': 'Wear',
-    'unlock': 'Unlock the {name}',
-    'watch': 'Watch a video to unlock the {name}'
+    'title': 'Vermommingen',
+    'toaster': 'Broodrooster',
+    'crate': 'Sluwe kist',
+    'clown': 'Clownsdoos',
+    'horse': 'Trojaans paard',
+    'bush': 'Struik',
+    'teddy': 'Teddybeer',
+    'wear': 'Aantrekken: {name}',
+    'wearShort': 'Aantrekken',
+    'unlock': 'Ontgrendel: {name}',
+    'watch': 'Bekijk een video om te ontgrendelen: {name}'
   },
   'ads': {
-    'blockedTitle': 'Ads blocked',
-    'blockedBody': 'An ad blocker stopped the video, so there is no reward this time.',
+    'blockedTitle': 'Advertenties geblokkeerd',
+    'blockedBody': 'Een adblocker stopte de video, dus deze keer is er geen beloning.',
     'ok': 'OK'
   },
   'medal': {
@@ -234,18 +234,18 @@ export default {
       'weapon3': 'Raketwerper',
       'cycle': 'Volgend wapen',
       'pause': 'Pauze',
-      'help': 'Show the lessons'
+      'help': 'Toon de lessen'
     }
   },
   'prompt': {
-    'salvage': 'Salvage',
-    'strike': 'Takedown',
-    'sabotage': 'Sabotage',
-    'cutPower': 'Cut power',
-    'jam': 'Jam servo',
-    'grab': 'Grab body',
-    'drop': 'Drop body',
-    'hook': 'Hook'
+    'salvage': 'Slopen',
+    'strike': 'Uitschakelen',
+    'sabotage': 'Saboteren',
+    'cutPower': 'Stroom uit',
+    'jam': 'Servo blokkeren',
+    'grab': 'Lichaam pakken',
+    'drop': 'Lichaam laten vallen',
+    'hook': 'Haak'
   },
   'saveStatus': {
     'restoredTitle': 'Cloudopslag hersteld',

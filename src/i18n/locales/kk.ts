@@ -31,8 +31,8 @@ export default {
     'decoy': 'Алдамшы',
     'weapons': 'Қарулар',
     'ammo': 'Оқ-дәрі',
-    'reloading': 'Reloading',
-    'reserve': '{n} more carried',
+    'reloading': 'Оқтау',
+    'reserve': 'Тағы {n} алып жүр',
     'heat': 'Қарудың қызуы',
     'armor': 'Сауыт',
     'crouch': 'Бүгілу',
@@ -94,7 +94,7 @@ export default {
     'minigunDamage': 'Миниган зияны',
     'rocketBlast': 'Жарылыс радиусы',
     'rocketAmmo': 'Зымырандар',
-    'ammoRacks': 'Ammo racks',
+    'ammoRacks': 'Оқ-дәрі сөрелері',
     'armor': 'Сауыт тақталары',
     'speed': 'Серво жылдамдығы',
     'decoy': 'Жалғандың ұзақтығы',
@@ -120,37 +120,37 @@ export default {
     'stars': '3 жұлдыздан {n}'
   },
   'melt': {
-    'start': 'Melt the haul: up to +{n}'
+    'start': 'Олжаны балқыту: +{n} дейін'
   },
   'wheel': {
-    'title': 'Lucky wheel',
-    'locked': 'Max out rifle damage to open the wheel',
-    'chance': 'Win chance',
-    'gain': 'Next win',
-    'spin': 'Spin',
-    'sure': 'Sure win',
-    'watch': 'Watch a video for a sure win',
-    'won': 'Rifle damage +{n}',
-    'miss': 'Missed: {n} scrap back',
-    'pity': 'A sure win in {n} spins'
+    'title': 'Бақыт дөңгелегі',
+    'locked': 'Дөңгелекті ашу үшін мылтық зақымын максимумға жеткіз',
+    'chance': 'Ұтыс мүмкіндігі',
+    'gain': 'Келесі ұтыс',
+    'spin': 'Айналдыру',
+    'sure': 'Сенімді ұтыс',
+    'watch': 'Сенімді ұтыс үшін бейне көру',
+    'won': 'Мылтық зақымы +{n}',
+    'miss': 'Өтпеді: {n} сынық қайтты',
+    'pity': '{n} айналымнан кейін сенімді ұтыс'
   },
   'disguise': {
-    'title': 'Disguises',
-    'toaster': 'Toaster',
-    'crate': 'Sneaky crate',
-    'clown': 'Clown box',
-    'horse': 'Trojan horse',
-    'bush': 'Bush',
-    'teddy': 'Teddy bear',
-    'wear': 'Wear the {name}',
-    'wearShort': 'Wear',
-    'unlock': 'Unlock the {name}',
-    'watch': 'Watch a video to unlock the {name}'
+    'title': 'Кейіп',
+    'toaster': 'Тостер',
+    'crate': 'Жасырын жәшік',
+    'clown': 'Масқарабоз қорабы',
+    'horse': 'Троя тұлпары',
+    'bush': 'Бұта',
+    'teddy': 'Ойыншық аю',
+    'wear': 'Кию: {name}',
+    'wearShort': 'Кию',
+    'unlock': 'Ашу: {name}',
+    'watch': 'Ашу үшін бейне көру: {name}'
   },
   'ads': {
-    'blockedTitle': 'Ads blocked',
-    'blockedBody': 'An ad blocker stopped the video, so there is no reward this time.',
-    'ok': 'OK'
+    'blockedTitle': 'Жарнама бұғатталды',
+    'blockedBody': 'Жарнама блоктаушысы бейнені тоқтатты, сондықтан бұл жолы сыйлық жоқ.',
+    'ok': 'Жарайды'
   },
   'medal': {
     'ghost': 'Елес',
@@ -234,18 +234,18 @@ export default {
       'weapon3': 'Ракета атқыш',
       'cycle': 'Келесі қару',
       'pause': 'Үзіліс',
-      'help': 'Show the lessons'
+      'help': 'Сабақтарды көрсету'
     }
   },
   'prompt': {
-    'salvage': 'Salvage',
-    'strike': 'Takedown',
-    'sabotage': 'Sabotage',
-    'cutPower': 'Cut power',
-    'jam': 'Jam servo',
-    'grab': 'Grab body',
-    'drop': 'Drop body',
-    'hook': 'Hook'
+    'salvage': 'Бөлшектеу',
+    'strike': 'Үнсіз соққы',
+    'sabotage': 'Бүлдіру',
+    'cutPower': 'Тоқты өшіру',
+    'jam': 'Серво бұғаттау',
+    'grab': 'Денені алу',
+    'drop': 'Денені тастау',
+    'hook': 'Ілгек'
   },
   'saveStatus': {
     'restoredTitle': 'Бұлттық сақтау қалпына келтірілді',

@@ -31,8 +31,8 @@ export default {
     'decoy': 'Lockbete',
     'weapons': 'Vapen',
     'ammo': 'Ammunition',
-    'reloading': 'Reloading',
-    'reserve': '{n} more carried',
+    'reloading': 'Laddar om',
+    'reserve': '{n} till i reserv',
     'heat': 'Vapenvärme',
     'armor': 'Pansar',
     'crouch': 'Huka dig',
@@ -94,7 +94,7 @@ export default {
     'minigunDamage': 'Minigun-skada',
     'rocketBlast': 'Explosionsradie',
     'rocketAmmo': 'Raketer',
-    'ammoRacks': 'Ammo racks',
+    'ammoRacks': 'Ammunitionsställ',
     'armor': 'Pansarplåt',
     'speed': 'Servofart',
     'decoy': 'Lockbetets varaktighet',
@@ -120,36 +120,36 @@ export default {
     'stars': '{n} av 3 stjärnor'
   },
   'melt': {
-    'start': 'Melt the haul: up to +{n}'
+    'start': 'Smält fångsten: upp till +{n}'
   },
   'wheel': {
-    'title': 'Lucky wheel',
-    'locked': 'Max out rifle damage to open the wheel',
-    'chance': 'Win chance',
-    'gain': 'Next win',
-    'spin': 'Spin',
-    'sure': 'Sure win',
-    'watch': 'Watch a video for a sure win',
-    'won': 'Rifle damage +{n}',
-    'miss': 'Missed: {n} scrap back',
-    'pity': 'A sure win in {n} spins'
+    'title': 'Lyckohjul',
+    'locked': 'Maxa gevärets skada för att öppna hjulet',
+    'chance': 'Vinstchans',
+    'gain': 'Nästa vinst',
+    'spin': 'Snurra',
+    'sure': 'Säker vinst',
+    'watch': 'Titta på en video för en säker vinst',
+    'won': 'Gevärsskada +{n}',
+    'miss': 'Miss: {n} skrot tillbaka',
+    'pity': 'Säker vinst om {n} snurr'
   },
   'disguise': {
-    'title': 'Disguises',
-    'toaster': 'Toaster',
-    'crate': 'Sneaky crate',
-    'clown': 'Clown box',
-    'horse': 'Trojan horse',
-    'bush': 'Bush',
-    'teddy': 'Teddy bear',
-    'wear': 'Wear the {name}',
-    'wearShort': 'Wear',
-    'unlock': 'Unlock the {name}',
-    'watch': 'Watch a video to unlock the {name}'
+    'title': 'Förklädnader',
+    'toaster': 'Brödrost',
+    'crate': 'Lömsk låda',
+    'clown': 'Clownlåda',
+    'horse': 'Trojansk häst',
+    'bush': 'Buske',
+    'teddy': 'Nallebjörn',
+    'wear': 'Ta på: {name}',
+    'wearShort': 'Ta på',
+    'unlock': 'Lås upp: {name}',
+    'watch': 'Titta på en video för att låsa upp: {name}'
   },
   'ads': {
-    'blockedTitle': 'Ads blocked',
-    'blockedBody': 'An ad blocker stopped the video, so there is no reward this time.',
+    'blockedTitle': 'Annonser blockerade',
+    'blockedBody': 'En annonsblockerare stoppade videon, så det blir ingen belöning den här gången.',
     'ok': 'OK'
   },
   'medal': {
@@ -234,18 +234,18 @@ export default {
       'weapon3': 'Raketgevär',
       'cycle': 'Nästa vapen',
       'pause': 'Paus',
-      'help': 'Show the lessons'
+      'help': 'Visa lektionerna'
     }
   },
   'prompt': {
-    'salvage': 'Salvage',
-    'strike': 'Takedown',
-    'sabotage': 'Sabotage',
-    'cutPower': 'Cut power',
-    'jam': 'Jam servo',
-    'grab': 'Grab body',
-    'drop': 'Drop body',
-    'hook': 'Hook'
+    'salvage': 'Bärga',
+    'strike': 'Slå ner',
+    'sabotage': 'Sabotera',
+    'cutPower': 'Slå av strömmen',
+    'jam': 'Kärva servot',
+    'grab': 'Ta kroppen',
+    'drop': 'Släpp kroppen',
+    'hook': 'Hake'
   },
   'saveStatus': {
     'restoredTitle': 'Molnsparning återställd',

@@ -31,8 +31,8 @@ export default {
     'decoy': 'Houkutin',
     'weapons': 'Aseet',
     'ammo': 'Ammukset',
-    'reloading': 'Reloading',
-    'reserve': '{n} more carried',
+    'reloading': 'Ladataan',
+    'reserve': '{n} kantamassa lisää',
     'heat': 'Aseen kuumuus',
     'armor': 'Panssari',
     'crouch': 'Kyyristy',
@@ -94,7 +94,7 @@ export default {
     'minigunDamage': 'Minigunin vahinko',
     'rocketBlast': 'Räjähdyssäde',
     'rocketAmmo': 'Raketit',
-    'ammoRacks': 'Ammo racks',
+    'ammoRacks': 'Ammustelineet',
     'armor': 'Panssarointi',
     'speed': 'Servojen nopeus',
     'decoy': 'Houkuttimen kesto',
@@ -120,36 +120,36 @@ export default {
     'stars': '{n}/3 tähteä'
   },
   'melt': {
-    'start': 'Melt the haul: up to +{n}'
+    'start': 'Sulata saalis: jopa +{n}'
   },
   'wheel': {
-    'title': 'Lucky wheel',
-    'locked': 'Max out rifle damage to open the wheel',
-    'chance': 'Win chance',
-    'gain': 'Next win',
-    'spin': 'Spin',
-    'sure': 'Sure win',
-    'watch': 'Watch a video for a sure win',
-    'won': 'Rifle damage +{n}',
-    'miss': 'Missed: {n} scrap back',
-    'pity': 'A sure win in {n} spins'
+    'title': 'Onnenpyörä',
+    'locked': 'Maksimoi kiväärin vahinko avataksesi pyörän',
+    'chance': 'Voittotodennäköisyys',
+    'gain': 'Seuraava voitto',
+    'spin': 'Pyöräytä',
+    'sure': 'Varma voitto',
+    'watch': 'Katso video varmaa voittoa varten',
+    'won': 'Kiväärin vahinko +{n}',
+    'miss': 'Hukkaan: {n} romua takaisin',
+    'pity': 'Varma voitto {n} pyöräytyksen päästä'
   },
   'disguise': {
-    'title': 'Disguises',
-    'toaster': 'Toaster',
-    'crate': 'Sneaky crate',
-    'clown': 'Clown box',
-    'horse': 'Trojan horse',
-    'bush': 'Bush',
-    'teddy': 'Teddy bear',
-    'wear': 'Wear the {name}',
-    'wearShort': 'Wear',
-    'unlock': 'Unlock the {name}',
-    'watch': 'Watch a video to unlock the {name}'
+    'title': 'Valepuvut',
+    'toaster': 'Leivänpaahdin',
+    'crate': 'Salakavala laatikko',
+    'clown': 'Klovnilaatikko',
+    'horse': 'Troijan hevonen',
+    'bush': 'Pensas',
+    'teddy': 'Nalle',
+    'wear': 'Pue: {name}',
+    'wearShort': 'Pue',
+    'unlock': 'Avaa: {name}',
+    'watch': 'Katso video ja avaa: {name}'
   },
   'ads': {
-    'blockedTitle': 'Ads blocked',
-    'blockedBody': 'An ad blocker stopped the video, so there is no reward this time.',
+    'blockedTitle': 'Mainokset estetty',
+    'blockedBody': 'Mainosten esto pysäytti videon, joten palkintoa ei tule tällä kertaa.',
     'ok': 'OK'
   },
   'medal': {
@@ -234,18 +234,18 @@ export default {
       'weapon3': 'Raketinheitin',
       'cycle': 'Seuraava ase',
       'pause': 'Tauko',
-      'help': 'Show the lessons'
+      'help': 'Näytä opit'
     }
   },
   'prompt': {
-    'salvage': 'Salvage',
-    'strike': 'Takedown',
-    'sabotage': 'Sabotage',
-    'cutPower': 'Cut power',
-    'jam': 'Jam servo',
-    'grab': 'Grab body',
-    'drop': 'Drop body',
-    'hook': 'Hook'
+    'salvage': 'Kierrätä',
+    'strike': 'Hiljainen kaato',
+    'sabotage': 'Sabotoi',
+    'cutPower': 'Katkaise virta',
+    'jam': 'Jumita servo',
+    'grab': 'Ota ruumis',
+    'drop': 'Pudota ruumis',
+    'hook': 'Koukku'
   },
   'saveStatus': {
     'restoredTitle': 'Pilvitallennus palautettu',

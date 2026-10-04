@@ -31,8 +31,8 @@ export default {
     'decoy': 'Mamac',
     'weapons': 'Oružje',
     'ammo': 'Streljivo',
-    'reloading': 'Reloading',
-    'reserve': '{n} more carried',
+    'reloading': 'Punjenje',
+    'reserve': 'Još {n} u rezervi',
     'heat': 'Zagrijanost oružja',
     'armor': 'Oklop',
     'crouch': 'Čučni',
@@ -94,7 +94,7 @@ export default {
     'minigunDamage': 'Šteta minigana',
     'rocketBlast': 'Radijus eksplozije',
     'rocketAmmo': 'Rakete',
-    'ammoRacks': 'Ammo racks',
+    'ammoRacks': 'Stalci za streljivo',
     'armor': 'Oklop',
     'speed': 'Brzina servo motora',
     'decoy': 'Trajanje mamca',
@@ -120,37 +120,37 @@ export default {
     'stars': '{n} od 3 zvjezdice'
   },
   'melt': {
-    'start': 'Melt the haul: up to +{n}'
+    'start': 'Pretopi plijen: do +{n}'
   },
   'wheel': {
-    'title': 'Lucky wheel',
-    'locked': 'Max out rifle damage to open the wheel',
-    'chance': 'Win chance',
-    'gain': 'Next win',
-    'spin': 'Spin',
-    'sure': 'Sure win',
-    'watch': 'Watch a video for a sure win',
-    'won': 'Rifle damage +{n}',
-    'miss': 'Missed: {n} scrap back',
-    'pity': 'A sure win in {n} spins'
+    'title': 'Kotač sreće',
+    'locked': 'Maksimiziraj štetu puške za otključavanje kotača',
+    'chance': 'Šansa za dobitak',
+    'gain': 'Sljedeći dobitak',
+    'spin': 'Zavrti',
+    'sure': 'Sigurna pobjeda',
+    'watch': 'Pogledaj video za sigurnu pobjedu',
+    'won': 'Šteta puške +{n}',
+    'miss': 'Promašaj: {n} otpada natrag',
+    'pity': 'Sigurna pobjeda za {n} okreta'
   },
   'disguise': {
-    'title': 'Disguises',
-    'toaster': 'Toaster',
-    'crate': 'Sneaky crate',
-    'clown': 'Clown box',
-    'horse': 'Trojan horse',
-    'bush': 'Bush',
-    'teddy': 'Teddy bear',
-    'wear': 'Wear the {name}',
-    'wearShort': 'Wear',
-    'unlock': 'Unlock the {name}',
-    'watch': 'Watch a video to unlock the {name}'
+    'title': 'Maske',
+    'toaster': 'Toster',
+    'crate': 'Podmukla kutija',
+    'clown': 'Kutija s klaunom',
+    'horse': 'Trojanski konj',
+    'bush': 'Grm',
+    'teddy': 'Plišani medo',
+    'wear': 'Obuci: {name}',
+    'wearShort': 'Obuci',
+    'unlock': 'Otključaj: {name}',
+    'watch': 'Pogledaj video za otključavanje: {name}'
   },
   'ads': {
-    'blockedTitle': 'Ads blocked',
-    'blockedBody': 'An ad blocker stopped the video, so there is no reward this time.',
-    'ok': 'OK'
+    'blockedTitle': 'Oglasi blokirani',
+    'blockedBody': 'Blokator oglasa zaustavio je video pa ovaj put nema nagrade.',
+    'ok': 'U redu'
   },
   'medal': {
     'ghost': 'Duh',
@@ -234,18 +234,18 @@ export default {
       'weapon3': 'Bacač raketa',
       'cycle': 'Sljedeće oružje',
       'pause': 'Pauza',
-      'help': 'Show the lessons'
+      'help': 'Prikaži upute'
     }
   },
   'prompt': {
-    'salvage': 'Salvage',
-    'strike': 'Takedown',
-    'sabotage': 'Sabotage',
-    'cutPower': 'Cut power',
-    'jam': 'Jam servo',
-    'grab': 'Grab body',
-    'drop': 'Drop body',
-    'hook': 'Hook'
+    'salvage': 'Rastavi',
+    'strike': 'Tihi udarac',
+    'sabotage': 'Sabotiraj',
+    'cutPower': 'Prekini struju',
+    'jam': 'Zaglavi servo',
+    'grab': 'Uhvati tijelo',
+    'drop': 'Ispusti tijelo',
+    'hook': 'Kuka'
   },
   'saveStatus': {
     'restoredTitle': 'Spremanje u oblaku vraćeno',

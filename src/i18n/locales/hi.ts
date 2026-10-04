@@ -31,8 +31,8 @@ export default {
     'decoy': 'नकली लक्ष्य',
     'weapons': 'हथियार',
     'ammo': 'गोला-बारूद',
-    'reloading': 'Reloading',
-    'reserve': '{n} more carried',
+    'reloading': 'रीलोड हो रहा है',
+    'reserve': '{n} और साथ में',
     'heat': 'हथियार की गर्मी',
     'armor': 'कवच',
     'crouch': 'झुकें',
@@ -94,7 +94,7 @@ export default {
     'minigunDamage': 'मिनी-गन डैमेज',
     'rocketBlast': 'धमाके का दायरा',
     'rocketAmmo': 'रॉकेट',
-    'ammoRacks': 'Ammo racks',
+    'ammoRacks': 'गोला-बारूद रैक',
     'armor': 'कवच',
     'speed': 'सर्वो स्पीड',
     'decoy': 'डिकॉय अवधि',
@@ -120,37 +120,37 @@ export default {
     'stars': '3 में से {n} सितारे'
   },
   'melt': {
-    'start': 'Melt the haul: up to +{n}'
+    'start': 'माल पिघलाएँ: +{n} तक'
   },
   'wheel': {
-    'title': 'Lucky wheel',
-    'locked': 'Max out rifle damage to open the wheel',
-    'chance': 'Win chance',
-    'gain': 'Next win',
-    'spin': 'Spin',
-    'sure': 'Sure win',
-    'watch': 'Watch a video for a sure win',
-    'won': 'Rifle damage +{n}',
-    'miss': 'Missed: {n} scrap back',
-    'pity': 'A sure win in {n} spins'
+    'title': 'लकी व्हील',
+    'locked': 'पहिया खोलने के लिए राइफल डैमेज पूरा बढ़ाएँ',
+    'chance': 'जीत की संभावना',
+    'gain': 'अगली जीत',
+    'spin': 'घुमाएँ',
+    'sure': 'पक्की जीत',
+    'watch': 'पक्की जीत के लिए वीडियो देखें',
+    'won': 'राइफल डैमेज +{n}',
+    'miss': 'चूके: {n} स्क्रैप वापस',
+    'pity': '{n} स्पिन में पक्की जीत'
   },
   'disguise': {
-    'title': 'Disguises',
-    'toaster': 'Toaster',
-    'crate': 'Sneaky crate',
-    'clown': 'Clown box',
-    'horse': 'Trojan horse',
-    'bush': 'Bush',
-    'teddy': 'Teddy bear',
-    'wear': 'Wear the {name}',
-    'wearShort': 'Wear',
-    'unlock': 'Unlock the {name}',
-    'watch': 'Watch a video to unlock the {name}'
+    'title': 'भेस',
+    'toaster': 'टोस्टर',
+    'crate': 'चुपके वाला क्रेट',
+    'clown': 'जोकर का डिब्बा',
+    'horse': 'ट्रोजन घोड़ा',
+    'bush': 'झाड़ी',
+    'teddy': 'टेडी बियर',
+    'wear': 'पहनें: {name}',
+    'wearShort': 'पहनें',
+    'unlock': 'अनलॉक करें: {name}',
+    'watch': 'वीडियो देखकर अनलॉक करें: {name}'
   },
   'ads': {
-    'blockedTitle': 'Ads blocked',
-    'blockedBody': 'An ad blocker stopped the video, so there is no reward this time.',
-    'ok': 'OK'
+    'blockedTitle': 'विज्ञापन ब्लॉक हैं',
+    'blockedBody': 'एड ब्लॉकर ने वीडियो रोक दिया, इसलिए इस बार कोई इनाम नहीं है।',
+    'ok': 'ठीक है'
   },
   'medal': {
     'ghost': 'घोस्ट',
@@ -234,18 +234,18 @@ export default {
       'weapon3': 'रॉकेट लॉन्चर',
       'cycle': 'अगला हथियार',
       'pause': 'रोकें',
-      'help': 'Show the lessons'
+      'help': 'सबक दिखाएँ'
     }
   },
   'prompt': {
-    'salvage': 'Salvage',
-    'strike': 'Takedown',
-    'sabotage': 'Sabotage',
-    'cutPower': 'Cut power',
-    'jam': 'Jam servo',
-    'grab': 'Grab body',
-    'drop': 'Drop body',
-    'hook': 'Hook'
+    'salvage': 'कबाड़ निकालें',
+    'strike': 'चुपचाप वार',
+    'sabotage': 'तोड़फोड़',
+    'cutPower': 'बिजली काटें',
+    'jam': 'सर्वो जाम करें',
+    'grab': 'शव पकड़ें',
+    'drop': 'शव छोड़ें',
+    'hook': 'हुक'
   },
   'saveStatus': {
     'restoredTitle': 'क्लाउड सेव बहाल हुआ',

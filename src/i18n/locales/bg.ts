@@ -31,8 +31,8 @@ export default {
     'decoy': 'Примамка',
     'weapons': 'Оръжия',
     'ammo': 'Боеприпаси',
-    'reloading': 'Reloading',
-    'reserve': '{n} more carried',
+    'reloading': 'Зареждане',
+    'reserve': 'още {n} в резерв',
     'heat': 'Прегряване на оръжието',
     'armor': 'Броня',
     'crouch': 'Клекни',
@@ -94,7 +94,7 @@ export default {
     'minigunDamage': 'Щета на минигана',
     'rocketBlast': 'Радиус на взрива',
     'rocketAmmo': 'Ракети',
-    'ammoRacks': 'Ammo racks',
+    'ammoRacks': 'Стелажи за муниции',
     'armor': 'Броня',
     'speed': 'Скорост на серво',
     'decoy': 'Време на примамката',
@@ -120,37 +120,37 @@ export default {
     'stars': '{n} от 3 звезди'
   },
   'melt': {
-    'start': 'Melt the haul: up to +{n}'
+    'start': 'Претопи плячката: до +{n}'
   },
   'wheel': {
-    'title': 'Lucky wheel',
-    'locked': 'Max out rifle damage to open the wheel',
-    'chance': 'Win chance',
-    'gain': 'Next win',
-    'spin': 'Spin',
-    'sure': 'Sure win',
-    'watch': 'Watch a video for a sure win',
-    'won': 'Rifle damage +{n}',
-    'miss': 'Missed: {n} scrap back',
-    'pity': 'A sure win in {n} spins'
+    'title': 'Колело на късмета',
+    'locked': 'Максимизирай щетите на пушката, за да отвориш колелото',
+    'chance': 'Шанс за победа',
+    'gain': 'Следваща победа',
+    'spin': 'Завърти',
+    'sure': 'Сигурна победа',
+    'watch': 'Гледай видео за сигурна победа',
+    'won': 'Щети на пушката +{n}',
+    'miss': 'Пропуск: {n} скрап се връща',
+    'pity': 'Сигурна победа след {n} завъртания'
   },
   'disguise': {
-    'title': 'Disguises',
-    'toaster': 'Toaster',
-    'crate': 'Sneaky crate',
-    'clown': 'Clown box',
-    'horse': 'Trojan horse',
-    'bush': 'Bush',
-    'teddy': 'Teddy bear',
-    'wear': 'Wear the {name}',
-    'wearShort': 'Wear',
-    'unlock': 'Unlock the {name}',
-    'watch': 'Watch a video to unlock the {name}'
+    'title': 'Маскировки',
+    'toaster': 'Тостер',
+    'crate': 'Хитра щайга',
+    'clown': 'Кутия с клоун',
+    'horse': 'Троянски кон',
+    'bush': 'Храст',
+    'teddy': 'Плюшено мече',
+    'wear': 'Облечи: {name}',
+    'wearShort': 'Облечи',
+    'unlock': 'Отключи: {name}',
+    'watch': 'Гледай видео, за да отключиш: {name}'
   },
   'ads': {
-    'blockedTitle': 'Ads blocked',
-    'blockedBody': 'An ad blocker stopped the video, so there is no reward this time.',
-    'ok': 'OK'
+    'blockedTitle': 'Рекламите са блокирани',
+    'blockedBody': 'Блокер на реклами спря видеото, затова този път няма награда.',
+    'ok': 'ОК'
   },
   'medal': {
     'ghost': 'Призрак',
@@ -234,18 +234,18 @@ export default {
       'weapon3': 'Ракетомет',
       'cycle': 'Следващо оръжие',
       'pause': 'Пауза',
-      'help': 'Show the lessons'
+      'help': 'Покажи уроците'
     }
   },
   'prompt': {
-    'salvage': 'Salvage',
-    'strike': 'Takedown',
-    'sabotage': 'Sabotage',
-    'cutPower': 'Cut power',
-    'jam': 'Jam servo',
-    'grab': 'Grab body',
-    'drop': 'Drop body',
-    'hook': 'Hook'
+    'salvage': 'Разглоби',
+    'strike': 'Тих удар',
+    'sabotage': 'Саботаж',
+    'cutPower': 'Спри тока',
+    'jam': 'Блокирай серво',
+    'grab': 'Хвани тялото',
+    'drop': 'Пусни тялото',
+    'hook': 'Кука'
   },
   'saveStatus': {
     'restoredTitle': 'Облачният запис е възстановен',

@@ -31,8 +31,8 @@ export default {
     'decoy': 'Masalas',
     'weapons': 'Ginklai',
     'ammo': 'Amunicija',
-    'reloading': 'Reloading',
-    'reserve': '{n} more carried',
+    'reloading': 'Perkraunama',
+    'reserve': 'Dar {n} su savimi',
     'heat': 'Ginklo kaitra',
     'armor': 'Šarvai',
     'crouch': 'Pritūpti',
@@ -94,7 +94,7 @@ export default {
     'minigunDamage': 'Miniginklo žala',
     'rocketBlast': 'Sprogimo spindulys',
     'rocketAmmo': 'Raketos',
-    'ammoRacks': 'Ammo racks',
+    'ammoRacks': 'Šaudmenų lentynos',
     'armor': 'Šarvų plokštės',
     'speed': 'Servo greitis',
     'decoy': 'Kvailio trukmė',
@@ -120,37 +120,37 @@ export default {
     'stars': '{n} iš 3 žvaigždžių'
   },
   'melt': {
-    'start': 'Melt the haul: up to +{n}'
+    'start': 'Išlydyti grobį: iki +{n}'
   },
   'wheel': {
-    'title': 'Lucky wheel',
-    'locked': 'Max out rifle damage to open the wheel',
-    'chance': 'Win chance',
-    'gain': 'Next win',
-    'spin': 'Spin',
-    'sure': 'Sure win',
-    'watch': 'Watch a video for a sure win',
-    'won': 'Rifle damage +{n}',
-    'miss': 'Missed: {n} scrap back',
-    'pity': 'A sure win in {n} spins'
+    'title': 'Laimės ratas',
+    'locked': 'Maksimaliai padidink šautuvo žalą, kad atrakintum ratą',
+    'chance': 'Laimėjimo šansas',
+    'gain': 'Kitas laimėjimas',
+    'spin': 'Sukti',
+    'sure': 'Tikras laimėjimas',
+    'watch': 'Žiūrėti vaizdo įrašą tikram laimėjimui',
+    'won': 'Šautuvo žala +{n}',
+    'miss': 'Nepavyko: grąžinta {n} laužo',
+    'pity': 'Tikras laimėjimas po {n} sukimų'
   },
   'disguise': {
-    'title': 'Disguises',
-    'toaster': 'Toaster',
-    'crate': 'Sneaky crate',
-    'clown': 'Clown box',
-    'horse': 'Trojan horse',
-    'bush': 'Bush',
-    'teddy': 'Teddy bear',
-    'wear': 'Wear the {name}',
-    'wearShort': 'Wear',
-    'unlock': 'Unlock the {name}',
-    'watch': 'Watch a video to unlock the {name}'
+    'title': 'Maskuotės',
+    'toaster': 'Skrudintuvas',
+    'crate': 'Klastinga dėžė',
+    'clown': 'Klouno dėžė',
+    'horse': 'Trojos arklys',
+    'bush': 'Krūmas',
+    'teddy': 'Meškiukas',
+    'wear': 'Apsivilkti: {name}',
+    'wearShort': 'Apsivilkti',
+    'unlock': 'Atrakinti: {name}',
+    'watch': 'Žiūrėti vaizdo įrašą ir atrakinti: {name}'
   },
   'ads': {
-    'blockedTitle': 'Ads blocked',
-    'blockedBody': 'An ad blocker stopped the video, so there is no reward this time.',
-    'ok': 'OK'
+    'blockedTitle': 'Skelbimai užblokuoti',
+    'blockedBody': 'Skelbimų blokatorius sustabdė vaizdo įrašą, todėl šįkart atlygio nėra.',
+    'ok': 'Gerai'
   },
   'medal': {
     'ghost': 'Vaiduoklis',
@@ -234,18 +234,18 @@ export default {
       'weapon3': 'Raketsvaidis',
       'cycle': 'Kitas ginklas',
       'pause': 'Pauzė',
-      'help': 'Show the lessons'
+      'help': 'Rodyti pamokas'
     }
   },
   'prompt': {
-    'salvage': 'Salvage',
-    'strike': 'Takedown',
-    'sabotage': 'Sabotage',
-    'cutPower': 'Cut power',
-    'jam': 'Jam servo',
-    'grab': 'Grab body',
-    'drop': 'Drop body',
-    'hook': 'Hook'
+    'salvage': 'Išardyti',
+    'strike': 'Nutildyti',
+    'sabotage': 'Sabotuoti',
+    'cutPower': 'Atjungti maitinimą',
+    'jam': 'Užblokuoti servo',
+    'grab': 'Paimti kūną',
+    'drop': 'Paleisti kūną',
+    'hook': 'Kablys'
   },
   'saveStatus': {
     'restoredTitle': 'Debesies išsaugojimas atkurtas',

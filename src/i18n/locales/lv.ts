@@ -31,8 +31,8 @@ export default {
     'decoy': 'Ēsma',
     'weapons': 'Ieroči',
     'ammo': 'Munīcija',
-    'reloading': 'Reloading',
-    'reserve': '{n} more carried',
+    'reloading': 'Pārlādē',
+    'reserve': 'Vēl {n} līdzi',
     'heat': 'Ieroča karstums',
     'armor': 'Bruņas',
     'crouch': 'Pietupties',
@@ -94,7 +94,7 @@ export default {
     'minigunDamage': 'Minipuļģa bojājumi',
     'rocketBlast': 'Sprādziena rādiuss',
     'rocketAmmo': 'Raķetes',
-    'ammoRacks': 'Ammo racks',
+    'ammoRacks': 'Munīcijas statīvi',
     'armor': 'Bruņu plāksnes',
     'speed': 'Servo ātrums',
     'decoy': 'Mānekļa ilgums',
@@ -120,37 +120,37 @@ export default {
     'stars': '{n} no 3 zvaigznēm'
   },
   'melt': {
-    'start': 'Melt the haul: up to +{n}'
+    'start': 'Izkausē ieguvumu: līdz +{n}'
   },
   'wheel': {
-    'title': 'Lucky wheel',
-    'locked': 'Max out rifle damage to open the wheel',
-    'chance': 'Win chance',
-    'gain': 'Next win',
-    'spin': 'Spin',
-    'sure': 'Sure win',
-    'watch': 'Watch a video for a sure win',
-    'won': 'Rifle damage +{n}',
-    'miss': 'Missed: {n} scrap back',
-    'pity': 'A sure win in {n} spins'
+    'title': 'Laimes rats',
+    'locked': 'Maksimāli uzlabo šautenes postījumus, lai atvērtu ratu',
+    'chance': 'Uzvaras iespēja',
+    'gain': 'Nākamā uzvara',
+    'spin': 'Griezt',
+    'sure': 'Droša uzvara',
+    'watch': 'Noskaties video drošai uzvarai',
+    'won': 'Šautenes postījumi +{n}',
+    'miss': 'Garām: atpakaļ {n} lūžņu',
+    'pity': 'Droša uzvara pēc {n} griezieniem'
   },
   'disguise': {
-    'title': 'Disguises',
-    'toaster': 'Toaster',
-    'crate': 'Sneaky crate',
-    'clown': 'Clown box',
-    'horse': 'Trojan horse',
-    'bush': 'Bush',
-    'teddy': 'Teddy bear',
-    'wear': 'Wear the {name}',
-    'wearShort': 'Wear',
-    'unlock': 'Unlock the {name}',
-    'watch': 'Watch a video to unlock the {name}'
+    'title': 'Maskēšanās',
+    'toaster': 'Tosteris',
+    'crate': 'Viltīgā kaste',
+    'clown': 'Klaunu kaste',
+    'horse': 'Trojas zirgs',
+    'bush': 'Krūms',
+    'teddy': 'Lācītis',
+    'wear': 'Uzvilkt: {name}',
+    'wearShort': 'Uzvilkt',
+    'unlock': 'Atbloķēt: {name}',
+    'watch': 'Noskaties video un atbloķē: {name}'
   },
   'ads': {
-    'blockedTitle': 'Ads blocked',
-    'blockedBody': 'An ad blocker stopped the video, so there is no reward this time.',
-    'ok': 'OK'
+    'blockedTitle': 'Reklāmas bloķētas',
+    'blockedBody': 'Reklāmu bloķētājs apturēja video, tāpēc šoreiz balvas nav.',
+    'ok': 'Labi'
   },
   'medal': {
     'ghost': 'Rēgs',
@@ -234,18 +234,18 @@ export default {
       'weapon3': 'Raķešmetējs',
       'cycle': 'Nākamais ierocis',
       'pause': 'Pauze',
-      'help': 'Show the lessons'
+      'help': 'Rādīt mācības'
     }
   },
   'prompt': {
-    'salvage': 'Salvage',
-    'strike': 'Takedown',
-    'sabotage': 'Sabotage',
-    'cutPower': 'Cut power',
-    'jam': 'Jam servo',
-    'grab': 'Grab body',
-    'drop': 'Drop body',
-    'hook': 'Hook'
+    'salvage': 'Izjaukt',
+    'strike': 'Nogalināt',
+    'sabotage': 'Sabotēt',
+    'cutPower': 'Atslēgt strāvu',
+    'jam': 'Iesprostot servo',
+    'grab': 'Satvert ķermeni',
+    'drop': 'Nolikt ķermeni',
+    'hook': 'Āķis'
   },
   'saveStatus': {
     'restoredTitle': 'Mākoņa saglabājums atjaunots',

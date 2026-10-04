@@ -31,8 +31,8 @@ export default {
     'decoy': '미끼',
     'weapons': '무기',
     'ammo': '탄약',
-    'reloading': 'Reloading',
-    'reserve': '{n} more carried',
+    'reloading': '재장전 중',
+    'reserve': '{n}발 추가 보유',
     'heat': '무기 열',
     'armor': '장갑',
     'crouch': '앉기',
@@ -94,7 +94,7 @@ export default {
     'minigunDamage': '미니건 피해',
     'rocketBlast': '폭발 반경',
     'rocketAmmo': '로켓',
-    'ammoRacks': 'Ammo racks',
+    'ammoRacks': '탄약 선반',
     'armor': '장갑판',
     'speed': '서보 속도',
     'decoy': '디코이 지속시간',
@@ -120,37 +120,37 @@ export default {
     'stars': '별 {n}/3'
   },
   'melt': {
-    'start': 'Melt the haul: up to +{n}'
+    'start': '전리품 녹이기: 최대 +{n}'
   },
   'wheel': {
-    'title': 'Lucky wheel',
-    'locked': 'Max out rifle damage to open the wheel',
-    'chance': 'Win chance',
-    'gain': 'Next win',
-    'spin': 'Spin',
-    'sure': 'Sure win',
-    'watch': 'Watch a video for a sure win',
-    'won': 'Rifle damage +{n}',
-    'miss': 'Missed: {n} scrap back',
-    'pity': 'A sure win in {n} spins'
+    'title': '행운의 룰렛',
+    'locked': '라이플 공격력을 최대로 올리면 룰렛이 열립니다',
+    'chance': '당첨 확률',
+    'gain': '다음 당첨',
+    'spin': '돌리기',
+    'sure': '확정 당첨',
+    'watch': '영상을 보고 확정 당첨',
+    'won': '라이플 공격력 +{n}',
+    'miss': '꽝: 스크랩 {n} 반환',
+    'pity': '{n}회 후 확정 당첨'
   },
   'disguise': {
-    'title': 'Disguises',
-    'toaster': 'Toaster',
-    'crate': 'Sneaky crate',
-    'clown': 'Clown box',
-    'horse': 'Trojan horse',
-    'bush': 'Bush',
-    'teddy': 'Teddy bear',
-    'wear': 'Wear the {name}',
-    'wearShort': 'Wear',
-    'unlock': 'Unlock the {name}',
-    'watch': 'Watch a video to unlock the {name}'
+    'title': '변장',
+    'toaster': '토스터',
+    'crate': '몰래 상자',
+    'clown': '광대 상자',
+    'horse': '트로이 목마',
+    'bush': '덤불',
+    'teddy': '곰인형',
+    'wear': '착용: {name}',
+    'wearShort': '착용',
+    'unlock': '잠금 해제: {name}',
+    'watch': '영상을 보고 잠금 해제: {name}'
   },
   'ads': {
-    'blockedTitle': 'Ads blocked',
-    'blockedBody': 'An ad blocker stopped the video, so there is no reward this time.',
-    'ok': 'OK'
+    'blockedTitle': '광고 차단됨',
+    'blockedBody': '광고 차단기가 영상을 막아서 이번에는 보상이 없습니다.',
+    'ok': '확인'
   },
   'medal': {
     'ghost': '유령',
@@ -234,18 +234,18 @@ export default {
       'weapon3': '로켓 런처',
       'cycle': '다음 무기',
       'pause': '일시정지',
-      'help': 'Show the lessons'
+      'help': '튜토리얼 보기'
     }
   },
   'prompt': {
-    'salvage': 'Salvage',
-    'strike': 'Takedown',
-    'sabotage': 'Sabotage',
-    'cutPower': 'Cut power',
-    'jam': 'Jam servo',
-    'grab': 'Grab body',
-    'drop': 'Drop body',
-    'hook': 'Hook'
+    'salvage': '분해',
+    'strike': '암살',
+    'sabotage': '파괴 공작',
+    'cutPower': '전원 차단',
+    'jam': '서보 고장내기',
+    'grab': '시체 잡기',
+    'drop': '시체 놓기',
+    'hook': '갈고리'
   },
   'saveStatus': {
     'restoredTitle': '클라우드 저장이 복원되었습니다',

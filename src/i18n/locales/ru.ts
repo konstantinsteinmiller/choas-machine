@@ -31,8 +31,8 @@ export default {
     'decoy': 'Приманка',
     'weapons': 'Оружие',
     'ammo': 'Боеприпасы',
-    'reloading': 'Reloading',
-    'reserve': '{n} more carried',
+    'reloading': 'Перезарядка',
+    'reserve': 'Ещё {n} в запасе',
     'heat': 'Нагрев оружия',
     'armor': 'Броня',
     'crouch': 'Пригнуться',
@@ -94,7 +94,7 @@ export default {
     'minigunDamage': 'Урон миниган',
     'rocketBlast': 'Радиус взрыва',
     'rocketAmmo': 'Ракеты',
-    'ammoRacks': 'Ammo racks',
+    'ammoRacks': 'Стеллажи с патронами',
     'armor': 'Броневые плиты',
     'speed': 'Скорость серв',
     'decoy': 'Время действия приманки',
@@ -120,37 +120,37 @@ export default {
     'stars': '{n} из 3 звёзд'
   },
   'melt': {
-    'start': 'Melt the haul: up to +{n}'
+    'start': 'Переплавить добычу: до +{n}'
   },
   'wheel': {
-    'title': 'Lucky wheel',
-    'locked': 'Max out rifle damage to open the wheel',
-    'chance': 'Win chance',
-    'gain': 'Next win',
-    'spin': 'Spin',
-    'sure': 'Sure win',
-    'watch': 'Watch a video for a sure win',
-    'won': 'Rifle damage +{n}',
-    'miss': 'Missed: {n} scrap back',
-    'pity': 'A sure win in {n} spins'
+    'title': 'Колесо удачи',
+    'locked': 'Улучшите урон винтовки до максимума, чтобы открыть колесо',
+    'chance': 'Шанс победы',
+    'gain': 'Следующий выигрыш',
+    'spin': 'Крутить',
+    'sure': 'Верная победа',
+    'watch': 'Посмотреть видео для верной победы',
+    'won': 'Урон винтовки +{n}',
+    'miss': 'Мимо: возвращено лома: {n}',
+    'pity': 'Верная победа через {n} вращ.'
   },
   'disguise': {
-    'title': 'Disguises',
-    'toaster': 'Toaster',
-    'crate': 'Sneaky crate',
-    'clown': 'Clown box',
-    'horse': 'Trojan horse',
-    'bush': 'Bush',
-    'teddy': 'Teddy bear',
-    'wear': 'Wear the {name}',
-    'wearShort': 'Wear',
-    'unlock': 'Unlock the {name}',
-    'watch': 'Watch a video to unlock the {name}'
+    'title': 'Маскировки',
+    'toaster': 'Тостер',
+    'crate': 'Хитрый ящик',
+    'clown': 'Коробка с клоуном',
+    'horse': 'Троянский конь',
+    'bush': 'Куст',
+    'teddy': 'Плюшевый мишка',
+    'wear': 'Надеть: {name}',
+    'wearShort': 'Надеть',
+    'unlock': 'Открыть: {name}',
+    'watch': 'Посмотреть видео, чтобы открыть: {name}'
   },
   'ads': {
-    'blockedTitle': 'Ads blocked',
-    'blockedBody': 'An ad blocker stopped the video, so there is no reward this time.',
-    'ok': 'OK'
+    'blockedTitle': 'Реклама заблокирована',
+    'blockedBody': 'Блокировщик рекламы остановил видео, поэтому в этот раз награды нет.',
+    'ok': 'ОК'
   },
   'medal': {
     'ghost': 'Призрак',
@@ -234,18 +234,18 @@ export default {
       'weapon3': 'Ракетница',
       'cycle': 'Следующее оружие',
       'pause': 'Пауза',
-      'help': 'Show the lessons'
+      'help': 'Показать подсказки'
     }
   },
   'prompt': {
-    'salvage': 'Salvage',
-    'strike': 'Takedown',
-    'sabotage': 'Sabotage',
-    'cutPower': 'Cut power',
-    'jam': 'Jam servo',
-    'grab': 'Grab body',
-    'drop': 'Drop body',
-    'hook': 'Hook'
+    'salvage': 'Разобрать',
+    'strike': 'Устранить',
+    'sabotage': 'Саботаж',
+    'cutPower': 'Отключить питание',
+    'jam': 'Заклинить привод',
+    'grab': 'Схватить тело',
+    'drop': 'Бросить тело',
+    'hook': 'Крюк'
   },
   'saveStatus': {
     'restoredTitle': 'Облачное сохранение восстановлено',
