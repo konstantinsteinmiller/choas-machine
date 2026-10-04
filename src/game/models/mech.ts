@@ -273,8 +273,11 @@ export const poseMech = (rig: Rig, s: MechPose): void => {
     const crouchKnee = CROUCH_KNEE * s.crouch
     const climbThigh = -(0.5 + Math.sin(s.climbPhase * sign) * 0.5) * s.climb
     const climbKnee = (0.6 + Math.sin(s.climbPhase * sign) * 0.5) * s.climb
-    const airThigh = -0.35 * s.air * (sign > 0 ? 1 : 0.4)
-    const airKnee = 0.7 * s.air
+    // In the air the legs keep going (#106): a slow pedal, one leg reaching
+    // forward as the other tucks, so a jump has some life in it.
+    const pedal = Math.sin(s.time * 5.5 + (sign > 0 ? 0 : Math.PI))
+    const airThigh = (-0.35 * (sign > 0 ? 1 : 0.4) - 0.32 * pedal) * s.air
+    const airKnee = (0.75 + 0.35 * Math.max(0, -pedal) + 0.15 * pedal) * s.air
     const thigh = walkThigh + crouchThigh + climbThigh + airThigh
     const knee = walkKnee + crouchKnee + climbKnee + airKnee
     // On a cable each foot is set down on the line under the middle of the

@@ -93,6 +93,8 @@ export interface Trigger {
   /** Draw this weapon, or the next one. */
   select: WeaponId | null
   cycle: boolean
+  /** The weapon is up and on the line (#110): the mini-gun spins up regardless, but only fires on it. Unset means ready. */
+  ready?: boolean
 }
 
 export const nextWeapon = (w: WeaponId): WeaponId => WEAPON_IDS[(WEAPON_IDS.indexOf(w) + 1) % WEAPON_IDS.length]!
@@ -170,7 +172,7 @@ export const stepArsenal = (a: Arsenal, t: Trigger, dt: number): number => {
   const hold = a.current === 'minigun' && drawn && (t.touch ? t.aimHeld : t.fireHeld || t.aimHeld)
   a.spool = Math.min(1, Math.max(0, a.spool + (hold ? dt / MINIGUN_SPOOL_S : -dt / 0.8)))
   a.spin += a.spool * 34 * dt
-  const firing = a.current === 'minigun' && drawn && a.spool >= 1 && !a.overheated && a.minigunBelt > 0 && (t.touch ? t.aimHeld : t.fireHeld)
+  const firing = a.current === 'minigun' && drawn && a.spool >= 1 && !a.overheated && a.minigunBelt > 0 && (t.touch ? t.aimHeld : t.fireHeld) && t.ready !== false
   if (firing) {
     a.heat = Math.min(1, a.heat + dt / a.heatSeconds)
     if (a.heat >= 1) a.overheated = true

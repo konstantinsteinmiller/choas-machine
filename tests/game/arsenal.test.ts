@@ -312,3 +312,16 @@ describe('rockets', () => {
     expect(bursts[1]!.y).toBeGreaterThan(100)
   })
 })
+
+describe('the mini-gun waits for the weapon to be on the line (#110)', () => {
+  it('it spins up while the body turns, but fires only once ready', () => {
+    const a = makeArsenal()
+    stepArsenal(a, hands({ select: 'minigun' }), 0.1)
+    hold(a, hands({}), SWITCH_S + 0.1)
+    const notYet = hold(a, hands({ touch: false, fireHeld: true, ready: false }), 1)
+    expect(notYet).toBe(0)
+    expect(a.spool).toBe(1)
+    const now = hold(a, hands({ touch: false, fireHeld: true, ready: true }), 0.3)
+    expect(now).toBeGreaterThan(0)
+  })
+})

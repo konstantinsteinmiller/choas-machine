@@ -95,6 +95,19 @@ const JUMP_EARSHOT = 6
 const RIFLE_EARSHOT_M = 4
 /** From the shoulder point `aimLine` traces from out to each weapon's muzzle (m). */
 const MUZZLE_REACH: Readonly<Record<WeaponId, number>> = { sniper: 1.75, minigun: 1.45, rocket: 1.3 }
+/**
+ * Where each weapon's nose is on its bone (the bone's local frame: the barrel
+ * runs down −y). The round's flash, trail and rocket leave from here, once
+ * the weapon is up and pointing where the mech looks.
+ */
+const MUZZLE_TIP: Readonly<Record<WeaponId, readonly [string, number, number, number]>> = {
+  sniper: ['sniper', 0, -1.42, 0.02], minigun: ['minigunBarrels', 0, -0.66, 0], rocket: ['rocket', 0, -0.95, 0.06]
+}
+/** The weapon is ready when the body faces the aim this closely, and the aim pose is this far up. */
+const READY_YAW = 0.16
+const READY_AIM = 0.8
+/** A press waits this long for the mech to turn and bring the weapon up, then lapses. */
+const FIRE_INTENT_S = 0.8
 /** The scope's sway, radians: standing, and steadied in a crouch. */
 const SWAY = 0.0022
 const SWAY_CROUCH = 0.0008
@@ -293,6 +306,7 @@ export class Mission implements GameMode {
   private flame!: Mesh
   private flameMat = makeFlameMaterial({ core: '#fff4c2', mid: '#ff9a3d', edge: '#c8202f' })
   private lasers: Array<{ id: number; mesh: Mesh }> = []
+  private muzzleTmp = new Vector3()
   private laserGeo = new CylinderGeometry(0.035, 0.035, 1, 5)
   private laserMat = new MeshBasicMaterial({ color: '#ff2a3a', transparent: true, opacity: 0.85, toneMapped: false, depthWrite: false })
   /** What a burn leaves: ash for a person, slag for a machine. */
@@ -729,7 +743,29 @@ export class Mission implements GameMode {
   private weaponUp(): boolean {
     const i = this.input
     if (this.strike || this.player.mode !== 'ground' || hud.phase !== 'play') return false
-    return i.aimHeld || (i.fireHeld && i.device === 'mouse' && this.arsenal.current !== 'sniper')
+    // A press of the trigger brings the weapon up and turns the body to the aim first.
+    return i.aimHeld || this.fireIntent > 0 || (i.fireHeld && i.device === 'mouse' && this.arsenal.current !== 'sniper')
+  }
+
+  /** A shot waiting for the weapon to come up; the time a press keeps the weapon wanted. */
+  private pendingRounds = 0
+  private fireIntent = 0
+
+  /**
+   * The weapon is up and on the line: the body faces where the camera looks
+   * and the aim pose is (nearly) all the way up. Only then does a round leave.
+   */
+  private aimReady(): boolean {
+    const p = this.player
+    return p.mode === 'ground' && Math.abs(angleDelta(p.yaw, this.cam.yaw)) < READY_YAW && this.cam.aim >= READY_AIM
+  }
+
+  /** The weapon's nose in the world, from the posed rig (last frame's pose). */
+  private muzzleAt(w: WeaponId, out: Vector3): Vector3 | null {
+    const [bone, x, y, z] = MUZZLE_TIP[w]
+    const b = this.rig?.bones[bone]
+    if (!b) return null
+    return b.localToWorld(out.set(x, y, z))
   }
 
   private stepWeapons(dt: number): void {
@@ -742,8 +778,15 @@ export class Mission implements GameMode {
     t.touch = i.device === 'touch'
     t.aimHeld = free && i.aimHeld
     t.aimReleased = free && i.aimReleased
+    // A press is an intent: the body turns and the weapon comes up, and only
+    // then is the round let go (#110). The mini-gun spins up once it is on the line.
+    const ready = free && this.aimReady()
+    if (free && (i.firePressed || i.fireHeld || i.aimReleased)) this.fireIntent = FIRE_INTENT_S
+    else this.fireIntent = Math.max(0, this.fireIntent - dt)
+    if (!free) { this.pendingRounds = 0; this.fireIntent = 0 }
     t.firePressed = free && i.firePressed
     t.fireHeld = free && i.fireHeld
+    t.ready = ready
     t.reload = i.reloadQueued
     t.select = i.weaponQueued ? WEAPON_IDS[i.weaponQueued - 1]! : null
     // The wheel: on the scope it zooms; off it, it changes weapon.
@@ -757,7 +800,12 @@ export class Mission implements GameMode {
       emit('weapon', { weapon: a.current })
       this.learn('weapon')
     }
-    for (let k = 0; k < rounds; k++) this.fireRound()
+    // Rounds wait for the weapon to be on the line (one at most: the rifle and the launcher fire singly).
+    this.pendingRounds = Math.min(a.current === 'minigun' ? 4 : 1, this.pendingRounds + rounds)
+    if (this.pendingRounds > 0 && (ready || this.aimReady())) {
+      for (let k = 0; k < this.pendingRounds; k++) this.fireRound()
+      this.pendingRounds = 0
+    } else if (this.pendingRounds > 0 && this.fireIntent <= 0) this.pendingRounds = 0
     this.mirrorWeapons()
   }
 
@@ -792,10 +840,11 @@ export class Mission implements GameMode {
     const eyeY = p.y + eyeHeight(p)
     const skip = Math.max(0, (p.x - cp.x) * fx + (eyeY - cp.y) * fy + (p.z - cp.z) * fz)
     const h = castShot(this.fortress.grid, this.garrison.units, cp.x + fx * skip, cp.y + fy * skip, cp.z + fz * skip, fx, fy, fz, SHOT_RANGE, this.hit)
-    // The barrel: at the mech's right shoulder (its right is −x when it faces +z).
-    const ox = p.x - Math.cos(cam.yaw) * 0.42 + Math.sin(cam.yaw) * 0.5
+    // The barrel: at the mech's right shoulder (its right is −x when it faces +z),
+    // on the body's own heading: the weapon is where the mech points it.
+    const ox = p.x - Math.cos(p.yaw) * 0.42 + Math.sin(p.yaw) * 0.5
     const oy = eyeY - 0.28
-    const oz = p.z + Math.sin(cam.yaw) * 0.42 + Math.cos(cam.yaw) * 0.5
+    const oz = p.z + Math.sin(p.yaw) * 0.42 + Math.cos(p.yaw) * 0.5
     const len = Math.hypot(h.x - ox, h.y - oy, h.z - oz)
     if (len > 1.5) {
       fx = (h.x - ox) / len
@@ -838,9 +887,19 @@ export class Mission implements GameMode {
     // aimed arm (#81); the round itself is traced from the shoulder, so a
     // barrel poking through a wall never shoots from the far side of it.
     const reach = Math.min(MUZZLE_REACH[w], Math.max(0, castShot(g, gar.units, ox, oy, oz, dx, dy, dz, MUZZLE_REACH[w], this.hit).t - 0.2))
-    const mx = ox + dx * reach
-    const my = oy + dy * reach
-    const mz = oz + dz * reach
+    let mx = ox + dx * reach
+    let my = oy + dy * reach
+    let mz = oz + dz * reach
+    // The weapon's own nose, when nothing stands between the shoulder and it (#110).
+    const nose = this.muzzleAt(w, this.muzzleTmp)
+    if (nose) {
+      const nl = Math.hypot(nose.x - ox, nose.y - oy, nose.z - oz)
+      if (nl > 0.05 && nl < 3 && !raycast(g, ox, oy, oz, (nose.x - ox) / nl, (nose.y - oy) / nl, (nose.z - oz) / nl, nl).hit) {
+        mx = nose.x
+        my = nose.y
+        mz = nose.z
+      }
+    }
     this.fx.muzzle(mx, my, mz, dx, dy, dz, w)
     haptic(w)
     emit('shot', { weapon: w })
