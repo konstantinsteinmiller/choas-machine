@@ -1,5 +1,6 @@
 import type { Answers } from '../sim/adapt'
-import { addBox, findHoles, CELL, cellHeight, CellKind, cellKind, cellMid, inGrid, makeGrid, Surf, VOID, type Grid, Shade } from './grid'
+import type { ThemeId } from '../data/themes'
+import { addBox, addRoof, findHoles, CELL, cellHeight, CellKind, cellKind, cellMid, inGrid, makeGrid, ROOF_HEADROOM, Surf, VOID, type Grid, Shade } from './grid'
 
 /**
  * ─── A fortress, as data ─────────────────────────────────────────────────────
@@ -126,6 +127,8 @@ export interface Fortress {
   supplies?: Array<{ kind: 'kit' | 'crate'; x: number; y: number; z: number }>
   /** Exploding barrels (#78): the cell, and the floor the barrel stands on. */
   barrels?: Array<{ cx: number; cz: number; x: number; y: number; z: number }>
+  /** Its look (#79): palette, sky, haze. The dusk when unset. */
+  theme?: ThemeId
 }
 
 /** An exploding barrel's cell is raised this much: it is cover (`sim/barrels.ts` BARREL_H). */
@@ -145,6 +148,7 @@ export class FortressBuilder {
   private generatorSpots: Array<{ x: number; y: number; z: number }> = []
   private supplySpots: Array<{ kind: 'kit' | 'crate'; x: number; y: number; z: number }> = []
   private barrelSpots: Array<{ cx: number; cz: number; x: number; y: number; z: number }> = []
+  private themeId: ThemeId | undefined
 
   constructor(readonly id: string, w: number, d: number) {
     this.grid = makeGrid(w, d)
@@ -242,6 +246,23 @@ export class FortressBuilder {
       throw new Error(`[fortress ${this.id}] ladder at ${cx},${cz} ${dir} climbs nothing`)
     }
     this.grid.ladders.push({ cx, cz, dx, dz })
+    return this
+  }
+
+  /**
+   * A roof over cells [x0..x1] × [z0..z1] (#96): bodies walk under it, the
+   * mech can stand on it, rounds and eyes stop at it. `at` is the underside
+   * (by default ROOF_HEADROOM over the highest floor beneath); `holes` are
+   * the cells left open, skylights to drop through.
+   */
+  roof(x0: number, z0: number, x1: number, z1: number, opts: { at?: number; holes?: ReadonlyArray<readonly [number, number]> } = {}): this {
+    let floor = -Infinity
+    for (let cz = Math.min(z0, z1); cz <= Math.max(z0, z1); cz++) {
+      for (let cx = Math.min(x0, x1); cx <= Math.max(x0, x1); cx++) floor = Math.max(floor, this.heightOf(cx, cz))
+    }
+    const at = opts.at ?? floor + ROOF_HEADROOM
+    if (at - floor < ROOF_HEADROOM - 1e-6) throw new Error(`[fortress ${this.id}] roof at ${at} leaves under ${ROOF_HEADROOM} m over ${x0},${z0}`)
+    addRoof(this.grid, x0, z0, x1, z1, at, opts.holes)
     return this
   }
 
@@ -611,6 +632,12 @@ export class FortressBuilder {
     return this
   }
 
+  /** This fortress's look (`data/themes.ts`). */
+  look(theme: ThemeId): this {
+    this.themeId = theme
+    return this
+  }
+
   build(): Fortress {
     if (!this.insertAt) throw new Error(`[fortress ${this.id}] no insertion point`)
     this.seal()
@@ -626,7 +653,8 @@ export class FortressBuilder {
       beacons: this.beaconSpots,
       generators: this.generatorSpots,
       supplies: this.supplySpots,
-      barrels: this.barrelSpots
+      barrels: this.barrelSpots,
+      theme: this.themeId
     }
   }
 }

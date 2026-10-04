@@ -8,6 +8,7 @@ import { showMidgameAd } from '@/use/useAds'
 import { canShowInterstitial, markInterstitialShown } from '@/use/useAdGate'
 import { isAdShowing } from '@/use/useGamePause'
 import type { MissionResult, Payout } from './sim/rewards'
+import type { FortressId } from './data/fortresses/registry'
 
 /**
  * ─── Game flow ───────────────────────────────────────────────────────────────
@@ -32,6 +33,8 @@ export const flow = reactive({
   loadProgress: 0,
   /** The boot loader is still on screen: nothing scripted starts under it. */
   curtain: true,
+  /** The fortress of the mission in play, or picked for the next one (`data/fortresses/registry.ts`). */
+  fortress: 'bastion' as FortressId,
   /** The threat level of the mission in play, or picked for the next one. */
   level: 1,
   /** What the last extraction paid (the rewards screen reads it). */

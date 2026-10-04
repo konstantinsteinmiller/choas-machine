@@ -8,7 +8,7 @@ import { input } from './engine/inputState'
 import { buildProvingGround } from './data/fortresses/proving'
 import { buildTrainingGround } from './data/fortresses/training'
 import { answersTo } from './sim/adapt'
-import { buildBastion } from './data/fortresses/bastion'
+import { loadFortress } from './data/fortresses/registry'
 import type { GameMode } from './engine/app'
 import { registerModeFactories, createBootMode, flow } from './flow'
 import { CommandBase } from './scenes/commandBase'
@@ -115,7 +115,7 @@ registerModeFactories({
     // DEV ONLY: `?fort=training` too. The training ground is the flow's call otherwise.
     const fortParam = import.meta.env.DEV ? new URLSearchParams(search).get('fort') : null
     const training = fortParam === 'training' || (flow.training && fortParam !== 'bastion' && !proving)
-    const fortress = training ? buildTrainingGround() : proving ? buildProvingGround() : buildBastion(level, profile.missions, answersTo(profile.habits))
+    const fortress = training ? buildTrainingGround() : proving ? buildProvingGround() : await loadFortress(flow.fortress, level, profile.missions, answersTo(profile.habits))
     if (view) return FortressView.create(fortress, view, createSlicer(12), onProgress)
     return Mission.create(fortress, input, createSlicer(12), onProgress, level, currentLoadout())
   },

@@ -8,7 +8,7 @@ import { consumeEdges, type Input } from '../engine/input'
 import { input as sharedInput, inputClock } from '../engine/inputState'
 import { emit, on } from '../bus'
 import { gun, hud, mirror, runHudTickers, setPhase, threats, vital, waypoint, MAX_THREATS, callouts, MAX_CALLOUTS, prompt, bars, MAX_BARS, uplinks, MAX_UPLINKS, type PromptKind } from '../state/hud'
-import { CELL, VOID, heightAt, raycast, hasLineOfSight, toCell, inGrid, cellKind, cellHeight, CellKind, shadeAt, Shade } from '../world/grid'
+import { CELL, VOID, ceilingAt, heightAt, raycast, hasLineOfSight, toCell, inGrid, cellKind, cellHeight, CellKind, shadeAt, Shade } from '../world/grid'
 import type { Fortress } from '../world/fortress'
 import { buildFortressMesh, type FortressMesh } from '../world/fortressMesh'
 import { buildDecor, type DecorMesh } from '../world/decor'
@@ -60,6 +60,7 @@ import { buildDisguise, disposeDisguise } from '../models/disguises'
 import { supplyUnderfoot, take, type Supply } from './supplies'
 import { findRopeShot, type RopeShot } from './ropes'
 import { makeFlameMaterial, setFlame } from '../fx/flameCone'
+import { themeOf } from '../data/themes'
 import { BARREL_EARSHOT, BARREL_POWER, BARREL_RADIUS, barrelAt, barrelHurt, ignite, stepBarrels, type Barrel } from './barrels'
 import { SupplyView } from '../fx/supplyView'
 import { buildBeacon, disposeBeacon, poseBeacon, BEACON_TOP, type BeaconView } from '../models/beacon'
@@ -375,8 +376,9 @@ export class Mission implements GameMode {
     level = 1, loadout: Loadout = BASE_LOADOUT
   ): Promise<Mission> {
     const m = new Mission(fortress, input, level, loadout)
-    m.sky = buildSky(m.scene, m.centre, undefined, { w: fortress.grid.w * CELL, d: fortress.grid.d * CELL })
-    m.mesh = await buildFortressMesh(fortress, undefined, slice, p => onProgress(p * 0.8))
+    const look = themeOf(fortress.theme)
+    m.sky = buildSky(m.scene, m.centre, look.sky, { w: fortress.grid.w * CELL, d: fortress.grid.d * CELL })
+    m.mesh = await buildFortressMesh(fortress, look.mesh, slice, p => onProgress(p * 0.8))
     m.decor = buildDecor(fortress.decor)
     await slice()
     m.rig = buildMech()
@@ -621,7 +623,9 @@ export class Mission implements GameMode {
         if (i.actQueued && !this.offer && this.lootOffer && !this.strike) this.startLoot(this.lootOffer)
         else if (i.actQueued && !this.offer && !this.strike && (this.dragId >= 0 || this.dragOffer >= 0)) { this.actDrag(); i.actQueued = false }
         // A wall too high to pull up onto, straight ahead: the hook can take it.
-        this.hookSpot = p.mode === 'ground' && !this.strike ? findGrapple(this.fortress.grid, p.x, p.y, p.z, p.yaw, this.loadout.hookReach, this.loadout.hookMax) : null
+        // Under a roof the hook has no sky to fly into (#96).
+        const roofed = ceilingAt(this.fortress.grid, p.x, p.z, p.y) < Infinity
+        this.hookSpot = p.mode === 'ground' && !this.strike && !roofed ? findGrapple(this.fortress.grid, p.x, p.y, p.z, p.yaw, this.loadout.hookReach, this.loadout.hookMax) : null
         this.aimGear()
         // At the foot of a wall the hook goes straight up it; otherwise at the wall top the mech looks at.
         const hook = this.hookSpot ?? this.hookAim
@@ -1315,6 +1319,7 @@ export class Mission implements GameMode {
     this.ropeAim = null
     const p = this.player
     if (p.mode !== 'ground' || this.strike || this.grapple || this.weaponUp()) return
+    if (ceilingAt(this.fortress.grid, p.x, p.z, p.y) < Infinity) return
     const f = camForward(this.cam)
     const cp = this.camera.position
     // From the camera, starting past the mech, as the reticle does.

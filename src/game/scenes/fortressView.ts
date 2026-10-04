@@ -7,6 +7,7 @@ import type { Fortress } from '../world/fortress'
 import { buildFortressMesh, type FortressMesh } from '../world/fortressMesh'
 import { buildDecor, type DecorMesh } from '../world/decor'
 import { buildSky, type Sky } from '../world/sky'
+import { themeOf } from '../data/themes'
 
 /**
  * A fortress on a turntable: the island, its sky and its dressing, with the
@@ -41,8 +42,9 @@ export class FortressView implements GameMode {
   ): Promise<FortressView> {
     const v = new FortressView(fortress, angle)
     v.centre.set((fortress.grid.w * CELL) / 2, 2, (fortress.grid.d * CELL) / 2)
-    v.sky = buildSky(v.scene, v.centre)
-    v.mesh = await buildFortressMesh(fortress, undefined, slice, onProgress)
+    const look = themeOf(fortress.theme)
+    v.sky = buildSky(v.scene, v.centre, look.sky)
+    v.mesh = await buildFortressMesh(fortress, look.mesh, slice, onProgress)
     v.decor = buildDecor(fortress.decor)
     v.scene.add(v.mesh.group, v.decor.group)
     v.place(0)

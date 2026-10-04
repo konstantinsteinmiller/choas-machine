@@ -12,8 +12,11 @@
  *
  * Coordinates: world x and z in metres, the grid's corner at the origin, y up.
  * Cell (cx, cz) covers x in [cx·CELL, (cx+1)·CELL) and the same in z.
- * One height per cell means nothing can be walked UNDER; ladders and cables
- * are links between cells, not cells, so they may cross above the ground.
+ * One height per cell means nothing can be walked under a BLOCK; ladders and
+ * cables are links between cells, not cells, so they may cross above the
+ * ground. A cell may also carry a ROOF (round 4, #96 #93): a slab overhead
+ * that bodies walk under and may stand on, that stops rounds, sight, light and
+ * the camera. A hole is a cell with no slab.
  */
 
 /** Edge length of a cell in metres. */
@@ -24,6 +27,12 @@ export const VOID = -1000
 export const STEP_UP = 0.55
 /** Deepest drop a body walks off without it counting as a fall. */
 export const STEP_DOWN = 0.55
+/** A roof slab's thickness (#96). */
+export const ROOF_T = 0.4
+/** A body this close under a roof's top, or above it, stands on the roof. */
+const ROOF_SNAP = 0.9
+/** Room under a roof: the slab's underside is at least this far over the floor (a mech, and its jump). */
+export const ROOF_HEADROOM = 4
 
 export const CellKind = {
   /** Open ground of the island. */
@@ -83,6 +92,8 @@ export interface Grid {
    */
   boxes: Box[]
   boxAt: Map<number, number[]>
+  /** A roof slab's underside per cell, or VOID for open sky (#96). Its top is `ROOF_T` higher. */
+  roof: Float32Array
   ladders: Ladder[]
   cables: Cable[]
 }
@@ -123,6 +134,7 @@ export const makeGrid = (w: number, d: number): Grid => ({
   base: new Float32Array(w * d).fill(VOID),
   boxes: [],
   boxAt: new Map(),
+  roof: new Float32Array(w * d).fill(VOID),
   ladders: [],
   cables: []
 })
@@ -142,6 +154,60 @@ export const cellMid = (c: number): number => (c + 0.5) * CELL
 
 /** Height of the surface under a world position; VOID off the island. */
 export const heightAt = (g: Grid, x: number, z: number): number => cellHeight(g, toCell(x), toCell(z))
+
+/** A cell's roof underside, or VOID (open sky, or a hole). */
+export const roofAt = (g: Grid, cx: number, cz: number): number => (inGrid(g, cx, cz) ? g.roof[cz * g.w + cx]! : VOID)
+
+/**
+ * What a body at height `y` stands on in a cell: the roof's top when it is on
+ * (or just over) the roof, the cell's own top otherwise. Bodies under a roof
+ * see only the floor; the mech on a roof walks it (#96).
+ */
+export const surfaceAt = (g: Grid, cx: number, cz: number, y: number): number => {
+  const r = roofAt(g, cx, cz)
+  if (r !== VOID && y >= r + ROOF_T - ROOF_SNAP) return r + ROOF_T
+  return cellHeight(g, cx, cz)
+}
+
+/** `surfaceAt` for a world position. */
+export const floorAt = (g: Grid, x: number, z: number, y: number): number => surfaceAt(g, toCell(x), toCell(z), y)
+
+/**
+ * The underside of the roof over a body standing at `y`, or Infinity: what a
+ * jump hits its head on.
+ */
+export const ceilingAt = (g: Grid, x: number, z: number, y: number): number => {
+  const r = roofAt(g, toCell(x), toCell(z))
+  return r !== VOID && y < r ? r : Infinity
+}
+
+/**
+ * Lay a roof over cells [cx0..cx1] × [cz0..cz1] with its underside at
+ * `under`, leaving out the `holes` (cells). The slabs go in as boxes too, so
+ * every ray (a round, a guard's eye, a light pool, the camera) stops at them.
+ */
+export const addRoof = (
+  g: Grid, cx0: number, cz0: number, cx1: number, cz1: number, under: number,
+  holes: ReadonlyArray<readonly [number, number]> = []
+): void => {
+  const hole = new Set(holes.map(([x, z]) => `${x},${z}`))
+  for (let cz = Math.min(cz0, cz1); cz <= Math.max(cz0, cz1); cz++) {
+    // One box per run of slab along x: few boxes, rays stay cheap.
+    let run = -1
+    const close = (end: number): void => {
+      if (run < 0) return
+      addBox(g, { x0: run * CELL, y0: under, z0: cz * CELL, x1: end * CELL - 1e-4, y1: under + ROOF_T, z1: (cz + 1) * CELL - 1e-4 })
+      run = -1
+    }
+    for (let cx = Math.min(cx0, cx1); cx <= Math.max(cx0, cx1) + 1; cx++) {
+      const on = cx <= Math.max(cx0, cx1) && inGrid(g, cx, cz) && !hole.has(`${cx},${cz}`)
+      if (on) {
+        g.roof[cz * g.w + cx] = under
+        if (run < 0) run = cx
+      } else close(cx)
+    }
+  }
+}
 
 // ─── Standing and moving ─────────────────────────────────────────────────────
 
@@ -190,7 +256,7 @@ export const moveCircle = (
     const c1z = toCell(nz + r)
     for (let cz = c0z; cz <= c1z; cz++) {
       for (let cx = c0x; cx <= c1x; cx++) {
-        if (canStep(y, cellHeight(g, cx, cz), rule)) continue
+        if (canStep(y, surfaceAt(g, cx, cz, y), rule)) continue
         // Closest point of the blocking cell to the circle's centre.
         const px = Math.max(cx * CELL, Math.min(nx, (cx + 1) * CELL))
         const pz = Math.max(cz * CELL, Math.min(nz, (cz + 1) * CELL))

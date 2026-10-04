@@ -1,8 +1,8 @@
 import {
-  CELL, STEP_DOWN, STEP_UP, VOID, cellHeight, cellMid, heightAt, moveCircle, toCell,
+  CELL, STEP_DOWN, STEP_UP, VOID, ceilingAt, cellHeight, cellMid, floorAt, heightAt, moveCircle, toCell,
   type Cable, type Grid, type Ladder, type MoveRule
 } from '../world/grid'
-import { MECH_EYE, MECH_EYE_CROUCH, MECH_RADIUS } from '../models/mech'
+import { MECH_EYE, MECH_EYE_CROUCH, MECH_HEIGHT as MECH_HEAD, MECH_RADIUS } from '../models/mech'
 
 /**
  * ─── The mech's body ─────────────────────────────────────────────────────────
@@ -339,7 +339,7 @@ export const stepPlayer = (p: Player, g: Grid, w: Wish, dt: number): PlayerEvent
     if (mag > 0.5 && wanted > 1e-5 && went < wanted * 0.4) {
       const ax = p.x + dirX * (MECH_RADIUS + 0.35)
       const az = p.z + dirZ * (MECH_RADIUS + 0.35)
-      const h = heightAt(g, ax, az)
+      const h = floorAt(g, ax, az, p.y)
       if (h !== VOID && h - p.y > STEP_UP && h - p.y <= MANTLE_MAX) {
         pushing = true
         p.push += dt
@@ -361,7 +361,7 @@ export const stepPlayer = (p: Player, g: Grid, w: Wish, dt: number): PlayerEvent
     }
     if (!pushing) p.push = 0
 
-    const floor = heightAt(g, p.x, p.z)
+    const floor = floorAt(g, p.x, p.z, p.y)
     if (floor !== VOID && p.y - floor > STEP_DOWN) {
       // Walked off a ledge.
       p.mode = 'air'
@@ -377,7 +377,7 @@ export const stepPlayer = (p: Player, g: Grid, w: Wish, dt: number): PlayerEvent
     // A jump into a ledge: caught, and climbed (#95).
     const ax = p.x + dirX * (MECH_RADIUS + 0.35)
     const az = p.z + dirZ * (MECH_RADIUS + 0.35)
-    const h = heightAt(g, ax, az)
+    const h = floorAt(g, ax, az, p.y)
     if (h !== VOID && h - p.y > STEP_UP && h - p.y <= AIR_CATCH) {
       const cx = toCell(ax)
       const cz = toCell(az)
@@ -395,7 +395,10 @@ export const stepPlayer = (p: Player, g: Grid, w: Wish, dt: number): PlayerEvent
   if (p.mode === 'air') {
     p.vy -= GRAVITY * dt
     p.y += p.vy * dt
-    const floor = heightAt(g, p.x, p.z)
+    // A jump under a roof stops at its underside (#96).
+    const ceil = ceilingAt(g, p.x, p.z, p.y)
+    if (p.y + MECH_HEAD > ceil) { p.y = ceil - MECH_HEAD; p.vy = Math.min(0, p.vy) }
+    const floor = floorAt(g, p.x, p.z, p.y)
     if (floor !== VOID && p.y <= floor) {
       p.y = floor
       p.mode = 'ground'

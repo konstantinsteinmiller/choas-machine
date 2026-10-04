@@ -1,4 +1,4 @@
-import { findHoles, CELL, VOID, WALK, cellHeight, findPath, heightAt, toCell, type MoveRule } from './grid'
+import { findHoles, CELL, VOID, WALK, cellHeight, findPath, heightAt, roofAt, toCell, type MoveRule } from './grid'
 import type { Fortress } from './fortress'
 
 /**
@@ -90,8 +90,19 @@ export const validateFortress = (f: Fortress): string[] => {
     if (heightAt(g, p.x, p.z) === VOID) { problems.push(`salvage #${i} at ${at(p.x, p.z)} is off the island`); continue }
     if (problems.length === 0 && !reachable(f, MECH, p.x, p.z)) problems.push(`salvage #${i} at ${at(p.x, p.z)} cannot be reached`)
   }
+  // Room under every roof (#96): a standing mech fits under the slab, over whatever is beneath.
+  for (let cz = 0; cz < g.d; cz++) {
+    for (let cx = 0; cx < g.w; cx++) {
+      const r = roofAt(g, cx, cz)
+      const h = cellHeight(g, cx, cz)
+      if (r !== VOID && h !== VOID && r - h < ROOF_ROOM) problems.push(`the roof over ${cx},${cz} is ${(r - h).toFixed(1)} m over the floor`)
+    }
+  }
   return problems
 }
+
+/** The least room under a roof: a standing mech (2.5 m) and a little more. */
+const ROOF_ROOM = 2.6
 
 /**
  * Flood from the insertion cell under `rule`, also riding ladders (both ways)

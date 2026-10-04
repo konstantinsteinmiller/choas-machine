@@ -1,5 +1,5 @@
 import { BufferGeometry, Color, Float32BufferAttribute, Group, Mesh } from 'three'
-import { CELL, CellKind, Surf, VOID, cellHeight, cellKind, cellSurf, type Grid, Shade } from './grid'
+import { CELL, CellKind, ROOF_T, Surf, VOID, cellHeight, cellKind, cellSurf, roofAt, type Grid, Shade } from './grid'
 import type { Fortress } from './fortress'
 import { levelMaterial, glowVC } from '../models/toon'
 import { levelAtlas } from './textures'
@@ -480,7 +480,8 @@ const buildChunk = (g: Grid, pal: Palette, c0x: number, c0z: number, midX: numbe
           // Spikes along the lip of a WALL (not a tower or the keep): scrap
           // steel cut to points, leaning out. They stand outside the cell, so
           // nothing ever walks through one.
-          if (h < 5) {
+          // Not over a roof: the points would stand through its slab (#96).
+          if (h < 5 && roofAt(g, cx + s.dx, cz + s.dz) === VOID) {
             for (const e of [-0.5, 0.5]) {
               const mx = (ax + bx) / 2 + ((bx - ax) / CELL) * e
               const mz = (az + bz) / 2 + ((bz - az) / CELL) * e
@@ -500,7 +501,44 @@ const buildChunk = (g: Grid, pal: Palette, c0x: number, c0z: number, midX: numbe
       }
     }
   }
+  buildRoofs(g, pal, lit, c0x, c0z)
   return { lit, glow }
+}
+
+/**
+ * Roof slabs (#96): a deck on top, a dark underside, and an edge where the
+ * slab ends (at a hole or open sky). An edge is drawn only above whatever
+ * stands beside it, so it never lies in the same plane as a wall's face: no
+ * two opaque faces share a plane.
+ */
+const buildRoofs = (g: Grid, pal: Palette, lit: Quads, c0x: number, c0z: number): void => {
+  const under = shade(pal.blockFoot, 0.9)
+  for (let cz = c0z; cz < Math.min(g.d, c0z + CHUNK); cz++) {
+    for (let cx = c0x; cx < Math.min(g.w, c0x + CHUNK); cx++) {
+      const r = roofAt(g, cx, cz)
+      if (r === VOID) continue
+      const t = r + ROOF_T
+      const x0 = cx * CELL
+      const x1 = x0 + CELL
+      const z0 = cz * CELL
+      const z1 = z0 + CELL
+      const top = (cx + cz) % 2 === 0 ? pal.plate : shade(pal.plate, 0.95)
+      lit.add([x0, t, z1, x1, t, z1, x1, t, z0, x0, t, z0], [0, 1, 0], top, top, top, top, CELL_FLOOR)
+      lit.add([x0, r, z0, x1, r, z0, x1, r, z1, x0, r, z1], [0, -1, 0], under, under, under, under)
+      for (const s of SIDES) {
+        const nr = roofAt(g, cx + s.dx, cz + s.dz)
+        if (nr !== VOID && Math.abs(nr - r) < 1e-6) continue
+        const nh = shownHeight(g, cx + s.dx, cz + s.dz)
+        const bottom = Math.max(r, nh === VOID ? r : nh)
+        if (bottom >= t - 1e-6) continue
+        const ax = x0 + s.a[0] * CELL
+        const az = z0 + s.a[1] * CELL
+        const bx = x0 + s.b[0] * CELL
+        const bz = z0 + s.b[1] * CELL
+        lit.add([ax, t, az, ax, bottom, az, bx, bottom, bz, bx, t, bz], [s.dx, 0, s.dz], pal.hazard, pal.blockSide, pal.blockSide, pal.hazard)
+      }
+    }
+  }
 }
 
 /** A box between two points with a square section, as six quads. */

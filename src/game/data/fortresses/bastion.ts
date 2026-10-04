@@ -65,7 +65,7 @@ const ALWAYS = [0, 8]
 
 export const buildBastion = (level = 1, run = 0, answers: Answers = NO_ANSWERS): Fortress => {
   const rng = mulberry32(0xba5 + run * 7919)
-  const b = new FortressBuilder('bastion', 60, 64).island(2)
+  const b = new FortressBuilder('bastion', 60, 64).island(2).look('dusk')
   // The mountain top: a level plateau under the whole curtain.
   b.ground(5, 7, 54, 56)
 

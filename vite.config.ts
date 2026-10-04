@@ -357,6 +357,9 @@ export default defineConfig(({ mode, command }) => {
           // '@/utils/save/CrazyGamesStrategy'` at runtime (CG QA flagged
           // it 2026-05-20).
           /use[\\/]useCrazyGames\.ts$/,
+          // The fortress registry loads each level's builder on demand
+          // (`import('./bastion')`, one chunk per fortress). Same constraint.
+          /fortresses[\\/]registry\.ts$/,
           // GameDistributionProvider lazy-loads the heavy
           // `@/utils/gameDistributionPlugin` (~500 LOC) via dynamic
           // import so non-GD builds don't ship the GD SDK code.

@@ -35,6 +35,9 @@ export const buildProvingGround = (): Fortress => {
   b.cover(13, 24, 2).cover(24, 24, 2).cover(13, 13, 1).cover(26, 13, 2, 'z')
   b.cover(18, 33, 1).cover(21, 33, 1).cover(15, 27, 1).cover(23, 21, 2)
 
+  // ── A roofed shed in the west yard, with a skylight (#96) ──
+  b.roof(10, 15, 14, 19, { holes: [[12, 17]] })
+
   // ── The insertion perch and its cable into the base ──
   b.tower(4, 31, 2, TOWER_H).ladder(6, 32, 'w')
   b.cable(5, 31, 9, 30)
