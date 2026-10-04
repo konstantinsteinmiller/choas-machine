@@ -208,6 +208,21 @@ export class Wreckage {
     this.mesh.instanceMatrix.needsUpdate = true
   }
 
+  /** Melt the pieces lying within `r` of a point (the flamethrower, #99): they are gone. Returns how many. */
+  clearNear(x: number, z: number, r: number): number {
+    let n = 0
+    for (let i = 0; i < this.pieces.length; i++) {
+      const p = this.pieces[i]!
+      if (p.s <= 0.0001 || Math.hypot(p.x - x, p.z - z) > r) continue
+      if (p.awake) { p.awake = false; this.moving-- }
+      p.s = 0.0001
+      this.write(i, p)
+      n++
+    }
+    if (n > 0) this.mesh.instanceMatrix.needsUpdate = true
+    return n
+  }
+
   /** Where a piece lies (tests, and the debug view). */
   at(i: number): { x: number; y: number; z: number; awake: boolean } | null {
     const p = this.pieces[i]

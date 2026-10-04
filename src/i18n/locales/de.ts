@@ -34,6 +34,7 @@ export default {
     'reloading': 'Nachladen',
     'jump': 'Jump',
     'rope': 'Shoot a rope',
+    'burn': 'Burn it to ash',
     'reserve': '{n} weitere dabei',
     'heat': 'Waffenhitze',
     'armor': 'Panzerung',
@@ -238,7 +239,8 @@ export default {
       'pause': 'Pause',
       'help': 'Lektionen zeigen',
       'jump': 'Jump',
-      'rope': 'Rope gun'
+      'rope': 'Rope gun',
+      'burn': 'Flamethrower'
     }
   },
   'prompt': {
@@ -250,7 +252,8 @@ export default {
     'grab': 'Körper greifen',
     'drop': 'Körper ablegen',
     'hook': 'Haken',
-    'rope': 'Rope'
+    'rope': 'Rope',
+    'burn': 'Burn'
   },
   'saveStatus': {
     'restoredTitle': 'Cloud-Speicher wiederhergestellt',

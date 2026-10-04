@@ -34,6 +34,7 @@ export default {
     'reloading': 'रीलोड हो रहा है',
     'jump': 'Jump',
     'rope': 'Shoot a rope',
+    'burn': 'Burn it to ash',
     'reserve': '{n} और साथ में',
     'heat': 'हथियार की गर्मी',
     'armor': 'कवच',
@@ -238,7 +239,8 @@ export default {
       'pause': 'रोकें',
       'help': 'सबक दिखाएँ',
       'jump': 'Jump',
-      'rope': 'Rope gun'
+      'rope': 'Rope gun',
+      'burn': 'Flamethrower'
     }
   },
   'prompt': {
@@ -250,7 +252,8 @@ export default {
     'grab': 'शव पकड़ें',
     'drop': 'शव छोड़ें',
     'hook': 'हुक',
-    'rope': 'Rope'
+    'rope': 'Rope',
+    'burn': 'Burn'
   },
   'saveStatus': {
     'restoredTitle': 'क्लाउड सेव बहाल हुआ',

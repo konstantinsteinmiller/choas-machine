@@ -34,6 +34,7 @@ export default {
     'reloading': '换弹中',
     'jump': 'Jump',
     'rope': 'Shoot a rope',
+    'burn': 'Burn it to ash',
     'reserve': '另携带 {n} 发',
     'heat': '武器过热',
     'armor': '装甲',
@@ -238,7 +239,8 @@ export default {
       'pause': '暂停',
       'help': '显示教程',
       'jump': 'Jump',
-      'rope': 'Rope gun'
+      'rope': 'Rope gun',
+      'burn': 'Flamethrower'
     }
   },
   'prompt': {
@@ -250,7 +252,8 @@ export default {
     'grab': '抓住尸体',
     'drop': '放下尸体',
     'hook': '钩爪',
-    'rope': 'Rope'
+    'rope': 'Rope',
+    'burn': 'Burn'
   },
   'saveStatus': {
     'restoredTitle': '云存档已恢复',

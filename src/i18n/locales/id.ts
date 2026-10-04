@@ -34,6 +34,7 @@ export default {
     'reloading': 'Mengisi ulang',
     'jump': 'Jump',
     'rope': 'Shoot a rope',
+    'burn': 'Burn it to ash',
     'reserve': '{n} lagi dibawa',
     'heat': 'Panas senjata',
     'armor': 'Armor',
@@ -238,7 +239,8 @@ export default {
       'pause': 'Jeda',
       'help': 'Tampilkan pelajaran',
       'jump': 'Jump',
-      'rope': 'Rope gun'
+      'rope': 'Rope gun',
+      'burn': 'Flamethrower'
     }
   },
   'prompt': {
@@ -250,7 +252,8 @@ export default {
     'grab': 'Seret tubuh',
     'drop': 'Lepas tubuh',
     'hook': 'Kait',
-    'rope': 'Rope'
+    'rope': 'Rope',
+    'burn': 'Burn'
   },
   'saveStatus': {
     'restoredTitle': 'Simpanan cloud dipulihkan',

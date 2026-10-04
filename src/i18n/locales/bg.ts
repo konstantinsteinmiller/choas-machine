@@ -34,6 +34,7 @@ export default {
     'reloading': 'Зареждане',
     'jump': 'Jump',
     'rope': 'Shoot a rope',
+    'burn': 'Burn it to ash',
     'reserve': 'още {n} в резерв',
     'heat': 'Прегряване на оръжието',
     'armor': 'Броня',
@@ -238,7 +239,8 @@ export default {
       'pause': 'Пауза',
       'help': 'Покажи уроците',
       'jump': 'Jump',
-      'rope': 'Rope gun'
+      'rope': 'Rope gun',
+      'burn': 'Flamethrower'
     }
   },
   'prompt': {
@@ -250,7 +252,8 @@ export default {
     'grab': 'Хвани тялото',
     'drop': 'Пусни тялото',
     'hook': 'Кука',
-    'rope': 'Rope'
+    'rope': 'Rope',
+    'burn': 'Burn'
   },
   'saveStatus': {
     'restoredTitle': 'Облачният запис е възстановен',

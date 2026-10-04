@@ -34,6 +34,7 @@ export default {
     'reloading': 'Nabíjení',
     'jump': 'Jump',
     'rope': 'Shoot a rope',
+    'burn': 'Burn it to ash',
     'reserve': 'další {n} v zásobě',
     'heat': 'Žhavost zbraně',
     'armor': 'Pancíř',
@@ -238,7 +239,8 @@ export default {
       'pause': 'Pauza',
       'help': 'Zobrazit lekce',
       'jump': 'Jump',
-      'rope': 'Rope gun'
+      'rope': 'Rope gun',
+      'burn': 'Flamethrower'
     }
   },
   'prompt': {
@@ -250,7 +252,8 @@ export default {
     'grab': 'Popadnout tělo',
     'drop': 'Pustit tělo',
     'hook': 'Hák',
-    'rope': 'Rope'
+    'rope': 'Rope',
+    'burn': 'Burn'
   },
   'saveStatus': {
     'restoredTitle': 'Uložení v cloudu obnoveno',

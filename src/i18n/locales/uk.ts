@@ -34,6 +34,7 @@ export default {
     'reloading': 'Перезарядка',
     'jump': 'Jump',
     'rope': 'Shoot a rope',
+    'burn': 'Burn it to ash',
     'reserve': 'Ще {n} у запасі',
     'heat': 'Нагрів зброї',
     'armor': 'Броня',
@@ -238,7 +239,8 @@ export default {
       'pause': 'Пауза',
       'help': 'Показати підказки',
       'jump': 'Jump',
-      'rope': 'Rope gun'
+      'rope': 'Rope gun',
+      'burn': 'Flamethrower'
     }
   },
   'prompt': {
@@ -250,7 +252,8 @@ export default {
     'grab': 'Схопити тіло',
     'drop': 'Кинути тіло',
     'hook': 'Гак',
-    'rope': 'Rope'
+    'rope': 'Rope',
+    'burn': 'Burn'
   },
   'saveStatus': {
     'restoredTitle': 'Хмарне збереження відновлено',

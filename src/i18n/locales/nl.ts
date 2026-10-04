@@ -34,6 +34,7 @@ export default {
     'reloading': 'Herladen',
     'jump': 'Jump',
     'rope': 'Shoot a rope',
+    'burn': 'Burn it to ash',
     'reserve': '{n} extra bij je',
     'heat': 'Wapenhitte',
     'armor': 'Pantser',
@@ -238,7 +239,8 @@ export default {
       'pause': 'Pauze',
       'help': 'Toon de lessen',
       'jump': 'Jump',
-      'rope': 'Rope gun'
+      'rope': 'Rope gun',
+      'burn': 'Flamethrower'
     }
   },
   'prompt': {
@@ -250,7 +252,8 @@ export default {
     'grab': 'Lichaam pakken',
     'drop': 'Lichaam laten vallen',
     'hook': 'Haak',
-    'rope': 'Rope'
+    'rope': 'Rope',
+    'burn': 'Burn'
   },
   'saveStatus': {
     'restoredTitle': 'Cloudopslag hersteld',

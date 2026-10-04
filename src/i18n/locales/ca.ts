@@ -34,6 +34,7 @@ export default {
     'reloading': 'Recarregant',
     'jump': 'Jump',
     'rope': 'Shoot a rope',
+    'burn': 'Burn it to ash',
     'reserve': '{n} més a sobre',
     'heat': 'Calor de l\'arma',
     'armor': 'Armadura',
@@ -238,7 +239,8 @@ export default {
       'pause': 'Pausa',
       'help': 'Mostra les lliçons',
       'jump': 'Jump',
-      'rope': 'Rope gun'
+      'rope': 'Rope gun',
+      'burn': 'Flamethrower'
     }
   },
   'prompt': {
@@ -250,7 +252,8 @@ export default {
     'grab': 'Agafa el cos',
     'drop': 'Deixa el cos',
     'hook': 'Ganxo',
-    'rope': 'Rope'
+    'rope': 'Rope',
+    'burn': 'Burn'
   },
   'saveStatus': {
     'restoredTitle': 'Partida al núvol restaurada',

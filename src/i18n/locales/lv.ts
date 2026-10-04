@@ -34,6 +34,7 @@ export default {
     'reloading': 'Pārlādē',
     'jump': 'Jump',
     'rope': 'Shoot a rope',
+    'burn': 'Burn it to ash',
     'reserve': 'Vēl {n} līdzi',
     'heat': 'Ieroča karstums',
     'armor': 'Bruņas',
@@ -238,7 +239,8 @@ export default {
       'pause': 'Pauze',
       'help': 'Rādīt mācības',
       'jump': 'Jump',
-      'rope': 'Rope gun'
+      'rope': 'Rope gun',
+      'burn': 'Flamethrower'
     }
   },
   'prompt': {
@@ -250,7 +252,8 @@ export default {
     'grab': 'Satvert ķermeni',
     'drop': 'Nolikt ķermeni',
     'hook': 'Āķis',
-    'rope': 'Rope'
+    'rope': 'Rope',
+    'burn': 'Burn'
   },
   'saveStatus': {
     'restoredTitle': 'Mākoņa saglabājums atjaunots',

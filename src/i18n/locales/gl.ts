@@ -34,6 +34,7 @@ export default {
     'reloading': 'Recargando',
     'jump': 'Jump',
     'rope': 'Shoot a rope',
+    'burn': 'Burn it to ash',
     'reserve': '{n} máis en reserva',
     'heat': 'Calor da arma',
     'armor': 'Armadura',
@@ -238,7 +239,8 @@ export default {
       'pause': 'Pausa',
       'help': 'Mostrar as leccións',
       'jump': 'Jump',
-      'rope': 'Rope gun'
+      'rope': 'Rope gun',
+      'burn': 'Flamethrower'
     }
   },
   'prompt': {
@@ -250,7 +252,8 @@ export default {
     'grab': 'Agarrar corpo',
     'drop': 'Soltar corpo',
     'hook': 'Gancho',
-    'rope': 'Rope'
+    'rope': 'Rope',
+    'burn': 'Burn'
   },
   'saveStatus': {
     'restoredTitle': 'Partida na nube restaurada',

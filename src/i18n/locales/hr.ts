@@ -34,6 +34,7 @@ export default {
     'reloading': 'Punjenje',
     'jump': 'Jump',
     'rope': 'Shoot a rope',
+    'burn': 'Burn it to ash',
     'reserve': 'Još {n} u rezervi',
     'heat': 'Zagrijanost oružja',
     'armor': 'Oklop',
@@ -238,7 +239,8 @@ export default {
       'pause': 'Pauza',
       'help': 'Prikaži upute',
       'jump': 'Jump',
-      'rope': 'Rope gun'
+      'rope': 'Rope gun',
+      'burn': 'Flamethrower'
     }
   },
   'prompt': {
@@ -250,7 +252,8 @@ export default {
     'grab': 'Uhvati tijelo',
     'drop': 'Ispusti tijelo',
     'hook': 'Kuka',
-    'rope': 'Rope'
+    'rope': 'Rope',
+    'burn': 'Burn'
   },
   'saveStatus': {
     'restoredTitle': 'Spremanje u oblaku vraćeno',

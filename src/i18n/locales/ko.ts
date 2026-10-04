@@ -34,6 +34,7 @@ export default {
     'reloading': '재장전 중',
     'jump': 'Jump',
     'rope': 'Shoot a rope',
+    'burn': 'Burn it to ash',
     'reserve': '{n}발 추가 보유',
     'heat': '무기 열',
     'armor': '장갑',
@@ -238,7 +239,8 @@ export default {
       'pause': '일시정지',
       'help': '튜토리얼 보기',
       'jump': 'Jump',
-      'rope': 'Rope gun'
+      'rope': 'Rope gun',
+      'burn': 'Flamethrower'
     }
   },
   'prompt': {
@@ -250,7 +252,8 @@ export default {
     'grab': '시체 잡기',
     'drop': '시체 놓기',
     'hook': '갈고리',
-    'rope': 'Rope'
+    'rope': 'Rope',
+    'burn': 'Burn'
   },
   'saveStatus': {
     'restoredTitle': '클라우드 저장이 복원되었습니다',

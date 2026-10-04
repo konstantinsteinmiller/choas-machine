@@ -34,6 +34,7 @@ export default {
     'reloading': 'Ladataan',
     'jump': 'Jump',
     'rope': 'Shoot a rope',
+    'burn': 'Burn it to ash',
     'reserve': '{n} kantamassa lisää',
     'heat': 'Aseen kuumuus',
     'armor': 'Panssari',
@@ -238,7 +239,8 @@ export default {
       'pause': 'Tauko',
       'help': 'Näytä opit',
       'jump': 'Jump',
-      'rope': 'Rope gun'
+      'rope': 'Rope gun',
+      'burn': 'Flamethrower'
     }
   },
   'prompt': {
@@ -250,7 +252,8 @@ export default {
     'grab': 'Ota ruumis',
     'drop': 'Pudota ruumis',
     'hook': 'Koukku',
-    'rope': 'Rope'
+    'rope': 'Rope',
+    'burn': 'Burn'
   },
   'saveStatus': {
     'restoredTitle': 'Pilvitallennus palautettu',

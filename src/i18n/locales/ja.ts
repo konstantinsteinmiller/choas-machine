@@ -34,6 +34,7 @@ export default {
     'reloading': 'リロード中',
     'jump': 'Jump',
     'rope': 'Shoot a rope',
+    'burn': 'Burn it to ash',
     'reserve': '予備あと{n}',
     'heat': '武器の熱',
     'armor': '装甲',
@@ -238,7 +239,8 @@ export default {
       'pause': '一時停止',
       'help': 'レッスンを表示',
       'jump': 'Jump',
-      'rope': 'Rope gun'
+      'rope': 'Rope gun',
+      'burn': 'Flamethrower'
     }
   },
   'prompt': {
@@ -250,7 +252,8 @@ export default {
     'grab': '体をつかむ',
     'drop': '手放す',
     'hook': 'フック',
-    'rope': 'Rope'
+    'rope': 'Rope',
+    'burn': 'Burn'
   },
   'saveStatus': {
     'restoredTitle': 'クラウドセーブを復元しました',

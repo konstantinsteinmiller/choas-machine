@@ -34,6 +34,7 @@ export default {
     'reloading': 'إعادة التعبئة',
     'jump': 'Jump',
     'rope': 'Shoot a rope',
+    'burn': 'Burn it to ash',
     'reserve': '{n} إضافية محمولة',
     'heat': 'حرارة السلاح',
     'armor': 'الدرع',
@@ -238,7 +239,8 @@ export default {
       'pause': 'إيقاف مؤقت',
       'help': 'عرض الدروس',
       'jump': 'Jump',
-      'rope': 'Rope gun'
+      'rope': 'Rope gun',
+      'burn': 'Flamethrower'
     }
   },
   'prompt': {
@@ -250,7 +252,8 @@ export default {
     'grab': 'امسك الجثة',
     'drop': 'أفلت الجثة',
     'hook': 'خطّاف',
-    'rope': 'Rope'
+    'rope': 'Rope',
+    'burn': 'Burn'
   },
   'saveStatus': {
     'restoredTitle': 'تمت استعادة الحفظ السحابي',

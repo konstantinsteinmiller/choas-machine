@@ -106,6 +106,8 @@ export interface Loadout {
   hookMax: number
   /** Ropes the rope gun carries into a raid (#94): the hook track adds one at levels 2 and 4. */
   ropes: number
+  /** The flamethrower's fuel: bodies and wrecks it can burn in a raid (#99). */
+  fuel: number
 }
 
 /** The mech as it leaves the factory. */
@@ -126,7 +128,8 @@ export const BASE_LOADOUT: Readonly<Loadout> = {
   sprintEarshot: 9,
   hookReach: 3.2,
   hookMax: 9.5,
-  ropes: 3
+  ropes: 3,
+  fuel: 4
 }
 
 export interface LoadoutSource {
@@ -164,7 +167,8 @@ export const loadoutOf = (src: LoadoutSource): Loadout => {
     sprintEarshot: level(src, 'speed') >= 1 ? BASE_LOADOUT.sprintEarshot * 0.6 - 0.3 * (level(src, 'speed') - 1) : BASE_LOADOUT.sprintEarshot,
     hookReach: BASE_LOADOUT.hookReach + 0.6 * level(src, 'hook'),
     hookMax: BASE_LOADOUT.hookMax + 1.2 * level(src, 'hook'),
-    ropes: BASE_LOADOUT.ropes + Math.floor(level(src, 'hook') / 2)
+    ropes: BASE_LOADOUT.ropes + Math.floor(level(src, 'hook') / 2),
+    fuel: BASE_LOADOUT.fuel
   }
 }
 

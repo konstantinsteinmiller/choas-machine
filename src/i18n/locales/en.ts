@@ -38,6 +38,7 @@ export default {
     'reloading': 'Reloading',
     'jump': 'Jump',
     'rope': 'Shoot a rope',
+    'burn': 'Burn it to ash',
     'reserve': '{n} more carried',
     'heat': 'Weapon heat',
     'armor': 'Armor',
@@ -242,7 +243,8 @@ export default {
       'pause': 'Pause',
       'help': 'Show the lessons',
       'jump': 'Jump',
-      'rope': 'Rope gun'
+      'rope': 'Rope gun',
+      'burn': 'Flamethrower'
     }
   },
   'prompt': {
@@ -254,7 +256,8 @@ export default {
     'grab': 'Grab body',
     'drop': 'Drop body',
     'hook': 'Hook',
-    'rope': 'Rope'
+    'rope': 'Rope',
+    'burn': 'Burn'
   },
   'saveStatus': {
     'restoredTitle': 'Cloud save restored',

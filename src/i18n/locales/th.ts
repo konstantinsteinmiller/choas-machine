@@ -34,6 +34,7 @@ export default {
     'reloading': 'กำลังโหลดกระสุน',
     'jump': 'Jump',
     'rope': 'Shoot a rope',
+    'burn': 'Burn it to ash',
     'reserve': 'พกเพิ่มอีก {n}',
     'heat': 'ความร้อนอาวุธ',
     'armor': 'เกราะ',
@@ -238,7 +239,8 @@ export default {
       'pause': 'หยุดชั่วคราว',
       'help': 'แสดงบทเรียน',
       'jump': 'Jump',
-      'rope': 'Rope gun'
+      'rope': 'Rope gun',
+      'burn': 'Flamethrower'
     }
   },
   'prompt': {
@@ -250,7 +252,8 @@ export default {
     'grab': 'จับร่าง',
     'drop': 'ปล่อยร่าง',
     'hook': 'ตะขอ',
-    'rope': 'Rope'
+    'rope': 'Rope',
+    'burn': 'Burn'
   },
   'saveStatus': {
     'restoredTitle': 'กู้คืนเซฟบนคลาวด์แล้ว',

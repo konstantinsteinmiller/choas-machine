@@ -65,6 +65,10 @@ export const hud = reactive({
   /** The rope gun has somewhere to shoot (#94), and ropes left. */
   rope: false,
   ropes: 0,
+  /** The flamethrower (#99): something at the mech's feet to burn, fuel left, and 0 … 1 through a burn. */
+  burn: false,
+  fuel: 0,
+  burning: 0,
   /** The hook is out: 'up' while it can still be recalled, 'over' once it cannot. */
   grappling: '' as '' | 'up' | 'over',
   /** How many heard the hook bite. */
@@ -119,7 +123,7 @@ export const hud = reactive({
 export const waypoint = { on: false, x: 0.5, y: 0.5, behind: false, dist: 0 }
 
 /** What a key does where the mech stands, as the in-world prompt names it (#83). */
-export type PromptKind = '' | 'salvage' | 'strike' | 'sabotage' | 'cutPower' | 'jam' | 'grab' | 'drop' | 'hook' | 'rope'
+export type PromptKind = '' | 'salvage' | 'strike' | 'sabotage' | 'cutPower' | 'jam' | 'grab' | 'drop' | 'hook' | 'rope' | 'burn'
 
 /** Where the in-world prompt sits: 0 … 1 of the view, and on screen at all. */
 export const prompt = { on: false, x: 0.5, y: 0.5 }

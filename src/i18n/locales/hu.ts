@@ -34,6 +34,7 @@ export default {
     'reloading': 'Töltés',
     'jump': 'Jump',
     'rope': 'Shoot a rope',
+    'burn': 'Burn it to ash',
     'reserve': 'Még {n} nálad',
     'heat': 'Fegyver hőmérséklete',
     'armor': 'Páncél',
@@ -238,7 +239,8 @@ export default {
       'pause': 'Szünet',
       'help': 'Leckék mutatása',
       'jump': 'Jump',
-      'rope': 'Rope gun'
+      'rope': 'Rope gun',
+      'burn': 'Flamethrower'
     }
   },
   'prompt': {
@@ -250,7 +252,8 @@ export default {
     'grab': 'Test megfogása',
     'drop': 'Test eldobása',
     'hook': 'Kampó',
-    'rope': 'Rope'
+    'rope': 'Rope',
+    'burn': 'Burn'
   },
   'saveStatus': {
     'restoredTitle': 'Felhőmentés visszaállítva',

@@ -111,6 +111,8 @@ export interface GameEvents {
   /** The mech hopped (#95); a rope was shot (#94). */
   hop: Record<string, never>
   rope: Record<string, never>
+  /** The flamethrower lit on a body or a wreck, and done with it (#99). */
+  burn: { beat: 'start' | 'done' }
   /** Two bodies found: the base is on edge for the rest of the raid (#98). */
   heightened: Record<string, never>
   /** The drop-in ended and the mech is the player's; the mech is away. */

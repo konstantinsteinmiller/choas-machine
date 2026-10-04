@@ -34,6 +34,7 @@ export default {
     'reloading': 'Reŝargado',
     'jump': 'Jump',
     'rope': 'Shoot a rope',
+    'burn': 'Burn it to ash',
     'reserve': '{n} pliaj kunportitaj',
     'heat': 'Varmo de armilo',
     'armor': 'Kiraso',
@@ -238,7 +239,8 @@ export default {
       'pause': 'Paŭzo',
       'help': 'Montri la lecionojn',
       'jump': 'Jump',
-      'rope': 'Rope gun'
+      'rope': 'Rope gun',
+      'burn': 'Flamethrower'
     }
   },
   'prompt': {
@@ -250,7 +252,8 @@ export default {
     'grab': 'Preni korpon',
     'drop': 'Lasi korpon',
     'hook': 'Hoko',
-    'rope': 'Rope'
+    'rope': 'Rope',
+    'burn': 'Burn'
   },
   'saveStatus': {
     'restoredTitle': 'Nuba konservo restarigita',

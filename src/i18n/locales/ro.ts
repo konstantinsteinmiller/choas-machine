@@ -34,6 +34,7 @@ export default {
     'reloading': 'Se reîncarcă',
     'jump': 'Jump',
     'rope': 'Shoot a rope',
+    'burn': 'Burn it to ash',
     'reserve': 'Încă {n} la tine',
     'heat': 'Căldura armei',
     'armor': 'Armură',
@@ -238,7 +239,8 @@ export default {
       'pause': 'Pauză',
       'help': 'Arată lecțiile',
       'jump': 'Jump',
-      'rope': 'Rope gun'
+      'rope': 'Rope gun',
+      'burn': 'Flamethrower'
     }
   },
   'prompt': {
@@ -250,7 +252,8 @@ export default {
     'grab': 'Apucă corpul',
     'drop': 'Lasă corpul',
     'hook': 'Cârlig',
-    'rope': 'Rope'
+    'rope': 'Rope',
+    'burn': 'Burn'
   },
   'saveStatus': {
     'restoredTitle': 'Salvare din cloud restaurată',

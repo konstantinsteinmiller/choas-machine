@@ -34,6 +34,7 @@ export default {
     'reloading': 'Lader om',
     'jump': 'Jump',
     'rope': 'Shoot a rope',
+    'burn': 'Burn it to ash',
     'reserve': '{n} til med deg',
     'heat': 'Våpenvarme',
     'armor': 'Panser',
@@ -238,7 +239,8 @@ export default {
       'pause': 'Pause',
       'help': 'Vis leksjonene',
       'jump': 'Jump',
-      'rope': 'Rope gun'
+      'rope': 'Rope gun',
+      'burn': 'Flamethrower'
     }
   },
   'prompt': {
@@ -250,7 +252,8 @@ export default {
     'grab': 'Grip kroppen',
     'drop': 'Slipp kroppen',
     'hook': 'Krok',
-    'rope': 'Rope'
+    'rope': 'Rope',
+    'burn': 'Burn'
   },
   'saveStatus': {
     'restoredTitle': 'Skylagring gjenopprettet',

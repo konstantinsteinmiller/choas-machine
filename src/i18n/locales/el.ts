@@ -34,6 +34,7 @@ export default {
     'reloading': 'Επαναφόρτωση',
     'jump': 'Jump',
     'rope': 'Shoot a rope',
+    'burn': 'Burn it to ash',
     'reserve': 'άλλα {n} μαζί',
     'heat': 'Θερμοκρασία όπλου',
     'armor': 'Θωράκιση',
@@ -238,7 +239,8 @@ export default {
       'pause': 'Παύση',
       'help': 'Εμφάνιση μαθημάτων',
       'jump': 'Jump',
-      'rope': 'Rope gun'
+      'rope': 'Rope gun',
+      'burn': 'Flamethrower'
     }
   },
   'prompt': {
@@ -250,7 +252,8 @@ export default {
     'grab': 'Πιάσε το σώμα',
     'drop': 'Άφησε το σώμα',
     'hook': 'Γάντζος',
-    'rope': 'Rope'
+    'rope': 'Rope',
+    'burn': 'Burn'
   },
   'saveStatus': {
     'restoredTitle': 'Η αποθήκευση στο νέφος επανήλθε',

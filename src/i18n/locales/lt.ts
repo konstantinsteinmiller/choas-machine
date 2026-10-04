@@ -34,6 +34,7 @@ export default {
     'reloading': 'Perkraunama',
     'jump': 'Jump',
     'rope': 'Shoot a rope',
+    'burn': 'Burn it to ash',
     'reserve': 'Dar {n} su savimi',
     'heat': 'Ginklo kaitra',
     'armor': 'Šarvai',
@@ -238,7 +239,8 @@ export default {
       'pause': 'Pauzė',
       'help': 'Rodyti pamokas',
       'jump': 'Jump',
-      'rope': 'Rope gun'
+      'rope': 'Rope gun',
+      'burn': 'Flamethrower'
     }
   },
   'prompt': {
@@ -250,7 +252,8 @@ export default {
     'grab': 'Paimti kūną',
     'drop': 'Paleisti kūną',
     'hook': 'Kablys',
-    'rope': 'Rope'
+    'rope': 'Rope',
+    'burn': 'Burn'
   },
   'saveStatus': {
     'restoredTitle': 'Debesies išsaugojimas atkurtas',

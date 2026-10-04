@@ -34,6 +34,7 @@ export default {
     'reloading': 'Laddar om',
     'jump': 'Jump',
     'rope': 'Shoot a rope',
+    'burn': 'Burn it to ash',
     'reserve': '{n} till i reserv',
     'heat': 'Vapenvärme',
     'armor': 'Pansar',
@@ -238,7 +239,8 @@ export default {
       'pause': 'Paus',
       'help': 'Visa lektionerna',
       'jump': 'Jump',
-      'rope': 'Rope gun'
+      'rope': 'Rope gun',
+      'burn': 'Flamethrower'
     }
   },
   'prompt': {
@@ -250,7 +252,8 @@ export default {
     'grab': 'Ta kroppen',
     'drop': 'Släpp kroppen',
     'hook': 'Hake',
-    'rope': 'Rope'
+    'rope': 'Rope',
+    'burn': 'Burn'
   },
   'saveStatus': {
     'restoredTitle': 'Molnsparning återställd',

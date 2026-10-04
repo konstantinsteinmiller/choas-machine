@@ -27,7 +27,7 @@ import { makeCam, lookCam, stepCam, placeCam, stickToWorld, camForward, type Cam
 import { alertSegments } from './alert'
 import {
   SPECS, SUSPECT_AT, sabotageBeacon, searchForShooter, noteChange, tagUnit, cutRig, helmetPops, isAlive, stepFallen, estimateShot, shotPassed, IMPACT_M, UPLINK_S, drainEvents, headingTo, killUnit, damageUnit, makeGarrison, noiseAt, hearAt, wonderAt, voidNoise, stepGarrison, alarmUnit, startleUnit, isLight,
-  type Garrison, type Target, type Unit
+  type Garrison, type Target, type Unit, type Change
 } from './garrison'
 import { GarrisonView } from './garrisonView'
 import { SALVAGE_EARSHOT, SALVAGE_S, makePiles, nearestPile, pileInReach, salvageNeed, type Pile } from './salvage'
@@ -59,6 +59,7 @@ import { buildRobodog, poseRobodog, restDogPose, type DogPose } from '../models/
 import { buildDisguise, disposeDisguise } from '../models/disguises'
 import { supplyUnderfoot, take, type Supply } from './supplies'
 import { findRopeShot, type RopeShot } from './ropes'
+import { makeFlameMaterial, setFlame } from '../fx/flameCone'
 import { BARREL_EARSHOT, BARREL_POWER, BARREL_RADIUS, barrelAt, barrelHurt, ignite, stepBarrels, type Barrel } from './barrels'
 import { SupplyView } from '../fx/supplyView'
 import { buildBeacon, disposeBeacon, poseBeacon, BEACON_TOP, type BeaconView } from '../models/beacon'
@@ -84,6 +85,9 @@ const UP = new Vector3(0, 1, 0)
 
 /** How far a round flies. */
 const SHOT_RANGE = 260
+/** The flamethrower (#99): how near the body must be, and how long a burn takes. */
+const BURN_REACH = 2.4
+const BURN_S = 2
 /** A jump is heard this near (#95). */
 const JUMP_EARSHOT = 6
 /** The silenced rifle is heard this near its muzzle (#68). */
@@ -221,7 +225,7 @@ export class Mission implements GameMode {
   /** What the mech is fitted with (the Armory, the Chassis Bay, the Forge). */
   readonly loadout: Loadout
   /** DEV: is a strike or a cutscene moving the mech right now (`game/preview.ts`)? */
-  get busy(): boolean { return !!this.strike || !!this.cine || !!this.grapple || !!this.looting || !!this.sabotaging }
+  get busy(): boolean { return !!this.strike || !!this.cine || !!this.grapple || !!this.looting || !!this.sabotaging || !!this.burning }
   /** DEV: the next kill gets the kill-cam (`game/preview.ts`). */
   forceKillcam = false
   /** The strike on offer right now. */
@@ -280,6 +284,18 @@ export class Mission implements GameMode {
   /** Metres to the waypoint, as last drawn. */
   private waypointDist = 0
   private looting: { pile: Pile; t: number } | null = null
+  /** The flamethrower (#99): the body or wreck under it, and how far through. */
+  private burning: { id: number; t: number; seen: number } | null = null
+  private burnOffer = -1
+  private burnChange: Change | null = null
+  private fuelLeft = 0
+  private flame!: Mesh
+  private flameMat = makeFlameMaterial({ core: '#fff4c2', mid: '#ff9a3d', edge: '#c8202f' })
+  /** What a burn leaves: ash for a person, slag for a machine. */
+  private residues: Mesh[] = []
+  private ashGeo = new CylinderGeometry(0.75, 0.9, 0.08, 10)
+  private ashMat = new MeshBasicMaterial({ color: '#2b2438' })
+  private slagMat = new MeshBasicMaterial({ color: '#8a4a2a' })
   private sparkleT = 0
   private smokeT = 0
   /** The boss whose bar is up: the last one hit. */
@@ -332,6 +348,7 @@ export class Mission implements GameMode {
     this.salvageNeed = salvageNeed(level, this.piles.length)
     this.arsenal = makeArsenal(loadout.rockets, loadout.heatSeconds, loadout.coolRate, loadout.rifleReserve, loadout.belt)
     this.ropesLeft = loadout.ropes
+    this.fuelLeft = loadout.fuel
     this.supplies = (fortress.supplies ?? []).map(s => ({ ...s, taken: false }))
     this.barrels = (fortress.barrels ?? []).map(b => ({ ...b, live: true, fuse: -1 }))
     // Level I is gentler: half again the armour (the curve comes from more
@@ -391,6 +408,10 @@ export class Mission implements GameMode {
     m.scene.add(m.hideBox)
     m.supplyView = new SupplyView(m.supplies, m.barrels)
     m.scene.add(m.supplyView.group)
+    m.flame = new Mesh(new CylinderGeometry(0.85, 0.08, 1, 14, 1, true), m.flameMat)
+    m.flame.visible = false
+    m.flame.renderOrder = 4
+    m.scene.add(m.flame)
     m.dog = buildRobodog()
     m.dog.root.visible = false
     // The way out: a column of light on the pad, lit once the target is down.
@@ -528,6 +549,8 @@ export class Mission implements GameMode {
         this.stepStrike(dt)
       } else if (this.grapple) {
         this.stepHook(dt)
+      } else if (this.burning) {
+        this.stepBurn(dt)
       } else if (this.looting) {
         this.stepLoot(dt)
       } else if (this.sabotaging) {
@@ -592,6 +615,8 @@ export class Mission implements GameMode {
         const hook = this.hookSpot ?? this.hookAim
         if (i.grappleQueued && hook && !this.strike) this.throwHook(hook)
         if (i.ropeQueued && this.ropeAim && !this.strike) this.shootRope(this.ropeAim)
+        this.burnOffer = p.mode === 'ground' && !this.strike && this.fuelLeft > 0 && this.dragId < 0 ? this.burnInReach() : -1
+        if (i.burnQueued && this.burnOffer >= 0) this.startBurn(this.burnOffer)
         if (i.decoyQueued) this.throwDecoy()
         // On the pad with the job done: the line comes down.
         if (this.objective === 'extract' && p.mode === 'ground') {
@@ -649,6 +674,9 @@ export class Mission implements GameMode {
     mirror('grapple', !this.grapple && !!(this.hookSpot ?? this.hookAim) && hud.phase === 'play')
     mirror('rope', !this.grapple && !!this.ropeAim && hud.phase === 'play')
     mirror('ropes', this.ropesLeft)
+    mirror('burn', !this.burning && this.burnOffer >= 0 && hud.phase === 'play')
+    mirror('fuel', this.fuelLeft)
+    mirror('burning', this.burning ? Math.min(1, this.burning.t / BURN_S) : 0)
     mirror('grappling', !this.grapple ? '' : canCancel(this.grapple) ? 'up' : 'over')
     mirror('grappleHeard', this.grapple?.heard ?? 0)
     mirror('loot', !this.looting && !!this.lootOffer && hud.phase === 'play')
@@ -1292,6 +1320,105 @@ export class Mission implements GameMode {
     if (this.ropesLeft > 0 && !this.hookAim) this.ropeAim = findRopeShot(this.fortress.grid, p.x, p.y, p.z, hx, hy, hz, hit.ny)
   }
 
+  /** A body or a wreck at the mech's feet the flamethrower can take (#99), or −1. */
+  private burnInReach(): number {
+    const p = this.player
+    let best = -1
+    let bestD = BURN_REACH
+    for (const u of this.garrison.units) {
+      if (u.state !== 'dead' || u.hidden || u.kind === 'searchlight' || u.deadT < u.hold + 0.8) continue
+      if (Math.abs(u.y - p.y) > 1.5) continue
+      const d = Math.hypot(u.x - p.x, u.z - p.z)
+      if (d < bestD) { bestD = d; best = u.id }
+    }
+    return best
+  }
+
+  private startBurn(id: number): void {
+    const p = this.player
+    const u = this.garrison.units[id]!
+    p.boxed = false
+    p.vx = p.vz = 0
+    p.speed01 = 0
+    p.yaw = headingTo(p.x, p.z, u.x, u.z)
+    this.burning = { id, t: 0, seen: 0 }
+    this.burnOffer = -1
+    // The fire glows: while it burns it is a thing out of place for whoever sees it.
+    noteChange(this.garrison, u.x, u.y, u.z, 'fire')
+    this.burnChange = this.garrison.changes[this.garrison.changes.length - 1] ?? null
+    this.fuelLeft--
+    this.flame.visible = true
+    emit('burn', { beat: 'start' })
+  }
+
+  /**
+   * Burning (#99): the jet on the body for BURN_S. The fire glows: while it
+   * burns, a defender that sees it notices a thing out of place and comes to
+   * look. Walking away stops it (the fuel is spent).
+   */
+  private stepBurn(dt: number): void {
+    const b = this.burning!
+    const p = this.player
+    const u = this.garrison.units[b.id]!
+    p.px = p.x
+    p.py = p.y
+    p.pz = p.z
+    p.pyaw = p.yaw
+    if (Math.hypot(this.input.moveX, this.input.moveY) > 0.5 || u.hidden) {
+      this.endBurn()
+      return
+    }
+    b.t += dt
+    // The jet: from the mech's hand to the body.
+    const hx = p.x + Math.sin(p.yaw) * 0.8
+    const hz = p.z + Math.cos(p.yaw) * 0.8
+    const hy = p.y + 1.25
+    const tx = u.x
+    const ty = u.y + 0.35
+    const tz = u.z
+    const len = Math.max(0.5, Math.hypot(tx - hx, ty - hy, tz - hz))
+    this.flame.position.set((hx + tx) / 2, (hy + ty) / 2, (hz + tz) / 2)
+    this.flame.scale.set(1, len, 1)
+    this.flame.quaternion.setFromUnitVectors(UP, new Vector3(tx - hx, ty - hy, tz - hz).normalize())
+    setFlame(this.flameMat, 0.9, this.time)
+    if (Math.floor(b.t / 0.06) !== Math.floor((b.t - dt) / 0.06)) {
+      // Flames licking up off the body, and the jet's own sparks.
+      for (let k = 0; k < 3; k++) {
+        this.fx.particles.emit({
+          x: u.x + (Math.random() - 0.5) * 0.9, y: u.y + 0.2, z: u.z + (Math.random() - 0.5) * 0.9,
+          vx: (Math.random() - 0.5) * 0.6, vy: 2.2 + Math.random() * 1.6, vz: (Math.random() - 0.5) * 0.6,
+          color: k === 0 ? '#fff1a8' : k === 1 ? '#ff9a3d' : '#ff4a2a', size: 0.7, sizeEnd: 0.1, life: 0.55, drag: 0.8
+        })
+      }
+      this.fx.particles.sparks(hx + (tx - hx) * 0.5, hy + (ty - hy) * 0.5, hz + (tz - hz) * 0.5, '#ffd27a', 2, 2.5, 0.2)
+    }
+    if (b.t < BURN_S) return
+    // Gone: ash for a person, slag for a machine; nobody will find it now.
+    const human = camKind(u.kind) === 'human'
+    u.hidden = true
+    if (u.rag) u.rag.pin = null
+    this.garrisonView.wreckage.clearNear(u.x, u.z, 3)
+    const r = new Mesh(this.ashGeo, human ? this.ashMat : this.slagMat)
+    const floor = heightAt(this.fortress.grid, u.x, u.z)
+    r.position.set(u.x, (floor === VOID ? u.y : floor) + 0.04, u.z)
+    r.scale.set(human ? 1 : 1.3, 1, human ? 1 : 1.3)
+    this.scene.add(r)
+    this.residues.push(r)
+    this.fx.particles.sparks(u.x, u.y + 0.3, u.z, human ? '#6f6488' : '#ffb061', 16, 3, 0.3)
+    this.endBurn()
+    emit('burn', { beat: 'done' })
+  }
+
+  private endBurn(): void {
+    // Burnt out: the glow is gone, and with it the thing to notice (unless somebody already did).
+    const c = this.burnChange
+    if (c && !c.found) this.garrison.changes.splice(this.garrison.changes.indexOf(c), 1)
+    this.burnChange = null
+    this.burning = null
+    this.flame.visible = false
+    setFlame(this.flameMat, 0, this.time)
+  }
+
   /** The rope gun (#94): a line from here to there, walked at once like any cable. */
   private shootRope(r: RopeShot): void {
     const g = this.fortress.grid
@@ -1847,13 +1974,15 @@ export class Mission implements GameMode {
     let z = 0
     const gar = this.garrison
     const at = (k: PromptKind, px: number, py: number, pz: number): void => { kind = k; x = px; y = py; z = pz }
-    if (show && !this.looting && !this.sabotaging && !this.grapple) {
+    if (show && !this.looting && !this.sabotaging && !this.grapple && !this.burning) {
       const o = this.offer && !this.strike ? gar.units[this.offer.id] : undefined
       if (o) at('strike', o.x, o.y + SPECS[o.kind].height + 0.35, o.z)
       else if (this.beaconOffer >= 0) { const b = gar.beacons[this.beaconOffer]!; at('sabotage', b.x, b.y + 2.6, b.z) }
       else if (this.rigOffer >= 0) { const r = gar.rigs[this.rigOffer]!; at(r.kind === 'generator' ? 'cutPower' : 'jam', r.x, r.y + 2.2, r.z) }
       else if (this.lootOffer) at('salvage', this.lootOffer.x, this.lootOffer.y + 1.0, this.lootOffer.z)
       else if (this.dragId >= 0) { const u = gar.units[this.dragId]!; at('drop', u.x, u.y + 0.9, u.z) }
+      // The flamethrower is offered by its prompt (#99), before the drag.
+      else if (this.burnOffer >= 0) { const u = gar.units[this.burnOffer]!; at('burn', u.x, u.y + 0.9, u.z) }
       else if (this.dragOffer >= 0) { const u = gar.units[this.dragOffer]!; at('grab', u.x, u.y + 0.9, u.z) }
       else if (this.hookSpot) at('hook', this.hookSpot.edge.x, this.hookSpot.edge.y + 0.5, this.hookSpot.edge.z)
       else if (this.hookAim) at('hook', this.hookAim.edge.x, this.hookAim.edge.y + 0.5, this.hookAim.edge.z)
@@ -2164,6 +2293,7 @@ export class Mission implements GameMode {
     const s = supplyUnderfoot(this.supplies, p.x, p.y, p.z, this.arsenal, this.armor, this.loadout.rockets)
     if (!s) return
     take(s, this.arsenal, this.armor, this.loadout.rockets)
+    if (s.kind === 'crate') this.fuelLeft = Math.min(this.loadout.fuel, this.fuelLeft + 2)
     vital.armor = this.armor.hp / this.armor.max
     this.fx.particles.sparks(s.x, s.y + 0.5, s.z, s.kind === 'kit' ? '#5dff9a' : '#ffd23f', 12, 3, 0.25)
     emit('pickup', { kind: s.kind })
@@ -2696,6 +2826,11 @@ export class Mission implements GameMode {
     this.supplyView.dispose()
     this.ropeGeo.dispose()
     this.ropeMat.dispose()
+    this.flame.geometry.dispose()
+    this.flameMat.dispose()
+    this.ashGeo.dispose()
+    this.ashMat.dispose()
+    this.slagMat.dispose()
     this.ghost.material.dispose()
     this.ghost.glowMaterial.dispose()
     this.dog.mesh.geometry.dispose()

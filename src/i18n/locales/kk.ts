@@ -34,6 +34,7 @@ export default {
     'reloading': 'Оқтау',
     'jump': 'Jump',
     'rope': 'Shoot a rope',
+    'burn': 'Burn it to ash',
     'reserve': 'Тағы {n} алып жүр',
     'heat': 'Қарудың қызуы',
     'armor': 'Сауыт',
@@ -238,7 +239,8 @@ export default {
       'pause': 'Үзіліс',
       'help': 'Сабақтарды көрсету',
       'jump': 'Jump',
-      'rope': 'Rope gun'
+      'rope': 'Rope gun',
+      'burn': 'Flamethrower'
     }
   },
   'prompt': {
@@ -250,7 +252,8 @@ export default {
     'grab': 'Денені алу',
     'drop': 'Денені тастау',
     'hook': 'Ілгек',
-    'rope': 'Rope'
+    'rope': 'Rope',
+    'burn': 'Burn'
   },
   'saveStatus': {
     'restoredTitle': 'Бұлттық сақтау қалпына келтірілді',

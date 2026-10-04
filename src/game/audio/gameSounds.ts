@@ -115,6 +115,7 @@ export const installGameSounds = (): void => {
   on('pickup', () => sfx('shard'))
   on('hop', () => sfx('crouch', 0, 1.3))
   on('rope', () => { sfx('hookThrow'); sfx('hookBite') })
+  on('burn', ({ beat }) => sfx(beat === 'start' ? 'melt' : 'hiss'))
   on('tagged', () => sfx('tag'))
   on('bark', () => sfx('growl'))
   on('lessonDone', () => sfx('gate'))

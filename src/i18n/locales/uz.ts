@@ -34,6 +34,7 @@ export default {
     'reloading': 'Qayta o\'qlanmoqda',
     'jump': 'Jump',
     'rope': 'Shoot a rope',
+    'burn': 'Burn it to ash',
     'reserve': 'Yana {n} ta zaxirada',
     'heat': 'Qurol qizishi',
     'armor': 'Zirh',
@@ -238,7 +239,8 @@ export default {
       'pause': 'Pauza',
       'help': 'Darslarni ko\'rsatish',
       'jump': 'Jump',
-      'rope': 'Rope gun'
+      'rope': 'Rope gun',
+      'burn': 'Flamethrower'
     }
   },
   'prompt': {
@@ -250,7 +252,8 @@ export default {
     'grab': 'Jasadni olish',
     'drop': 'Jasadni tashlash',
     'hook': 'Ilgak',
-    'rope': 'Rope'
+    'rope': 'Rope',
+    'burn': 'Burn'
   },
   'saveStatus': {
     'restoredTitle': 'Bulutli saqlash tiklandi',

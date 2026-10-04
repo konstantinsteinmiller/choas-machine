@@ -34,6 +34,7 @@ export default {
     'reloading': 'Đang nạp đạn',
     'jump': 'Jump',
     'rope': 'Shoot a rope',
+    'burn': 'Burn it to ash',
     'reserve': 'Mang thêm {n}',
     'heat': 'Nhiệt vũ khí',
     'armor': 'Giáp',
@@ -238,7 +239,8 @@ export default {
       'pause': 'Tạm dừng',
       'help': 'Hiện bài hướng dẫn',
       'jump': 'Jump',
-      'rope': 'Rope gun'
+      'rope': 'Rope gun',
+      'burn': 'Flamethrower'
     }
   },
   'prompt': {
@@ -250,7 +252,8 @@ export default {
     'grab': 'Nắm xác',
     'drop': 'Thả xác',
     'hook': 'Móc',
-    'rope': 'Rope'
+    'rope': 'Rope',
+    'burn': 'Burn'
   },
   'saveStatus': {
     'restoredTitle': 'Đã khôi phục lưu trên đám mây',

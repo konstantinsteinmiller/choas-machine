@@ -22,7 +22,7 @@ import { KEY_BINDINGS_KEY } from '@/keys'
 export type Action =
   | 'forward' | 'back' | 'left' | 'right' | 'turnLeft' | 'turnRight'
   | 'sprint' | 'crouch' | 'hide' | 'act' | 'grapple' | 'decoy' | 'reload'
-  | 'weapon1' | 'weapon2' | 'weapon3' | 'cycle' | 'pause' | 'help' | 'jump' | 'rope'
+  | 'weapon1' | 'weapon2' | 'weapon3' | 'cycle' | 'pause' | 'help' | 'jump' | 'rope' | 'burn'
 
 /** Defaults: the first code is the action's main key, the rest alternates.
  *  No action sits on Ctrl: Ctrl+W, with W held for walking, closes the tab. */
@@ -53,7 +53,9 @@ export const DEFAULT_BINDINGS: Readonly<Record<Action, readonly string[]>> = {
   help: ['KeyH'],
   // Round 4: the jump (#95) on the bar every game puts it on, the rope gun (#94).
   jump: ['Space'],
-  rope: ['KeyT']
+  rope: ['KeyT'],
+  // The flamethrower (#99): a body to ash, a wreck to slag.
+  burn: ['KeyX']
 }
 
 /** The order the Controls tab lists them in. */

@@ -34,6 +34,7 @@ export default {
     'reloading': 'Doldurulur',
     'jump': 'Jump',
     'rope': 'Shoot a rope',
+    'burn': 'Burn it to ash',
     'reserve': 'daha {n} gəzdirilir',
     'heat': 'Silahın istiliyi',
     'armor': 'Zireh',
@@ -238,7 +239,8 @@ export default {
       'pause': 'Fasilə',
       'help': 'Dərsləri göstər',
       'jump': 'Jump',
-      'rope': 'Rope gun'
+      'rope': 'Rope gun',
+      'burn': 'Flamethrower'
     }
   },
   'prompt': {
@@ -250,7 +252,8 @@ export default {
     'grab': 'Cəsədi tut',
     'drop': 'Cəsədi burax',
     'hook': 'Qarmaq',
-    'rope': 'Rope'
+    'rope': 'Rope',
+    'burn': 'Burn'
   },
   'saveStatus': {
     'restoredTitle': 'Bulud yaddaşı bərpa olundu',

@@ -109,7 +109,7 @@
 
     //- A body within reach: the same tap grabs it; in tow, the tap lets go
     //- (into a container, if one is at hand).
-    div.strike.drag(v-if="hud.drag && !hud.strike && !hud.loot && !hud.sabotage")
+    div.strike.drag(v-if="hud.drag && !hud.strike && !hud.loot && !hud.sabotage && !hud.burn")
       FHudButton(
         :icon="hud.drag === 'grab' ? 'skull' : 'box'"
         tone="cyan"
@@ -134,6 +134,21 @@
       )
         template(#badge)
           FHudBadge(v-if="hud.grappling && hud.grappleHeard > 0" tone="warn") {{ hud.grappleHeard }}
+
+    //- The flamethrower (#99): a body or a wreck at the mech's feet, to ash.
+    div.strike.burn(v-if="(hud.burn || hud.burning > 0) && !hud.strike && !hud.loot && !hud.sabotage")
+      FHudButton(
+        icon="flame"
+        tone="warn"
+        :attention="hud.burning === 0"
+        :hotkey="kb('burn')"
+        :aria-label="t('hud.burn')"
+        data-testid="btn-burn"
+        @click="input.burnQueued = true"
+      )
+        template(#badge)
+          FHudBadge(v-if="hud.burning > 0" tone="warn") {{ Math.round(hud.burning * 100) }}%
+          FHudBadge(v-else tone="warn") {{ hud.fuel }}
 
     //- The rope gun (#94): somewhere to shoot a line to, from up high.
     div.strike.rope(v-if="hud.rope && !hud.strike && !hud.loot && !hud.sabotage && !hud.drag")
