@@ -10,8 +10,11 @@ import { CELL } from '../world/grid'
 import { buildFortressMesh, type FortressMesh } from '../world/fortressMesh'
 import { buildSky, type Sky } from '../world/sky'
 import { themeOf, type ThemeId } from '../data/themes'
-import { buildMech, poseMech, restPose, type MechPose } from '../models/mech'
-import { BOARD_HOVER, buildRobodog, poseRobodog, restDogPose, type DogPose } from '../models/robodog'
+import { MUZZLE_TIP, buildMech, poseMech, restPose, type MechPose } from '../models/mech'
+import { BOARD_HOVER, DOG_STAND, buildRobodog, poseRobodog, restDogPose, type DogPose } from '../models/robodog'
+import { CombatFx } from '../fx/combatFx'
+import type { Rocket } from '../sim/rockets'
+import type { WeaponId } from '../data/ids'
 import {
   buildDrone, buildEnforcer, buildGoliath, buildGuard, poseDrone, poseEnforcer, poseGoliath, poseGuard, restGuardPose
 } from '../models/garrison'
@@ -68,8 +71,16 @@ interface Stage {
   dog: Rig
   dp: DogPose
   fx: Particles
-  /** Cast and props each scene adds. */
-  extra: Record<string, Rig | Object3D | Dropship | Mesh>
+  /**
+   * The game's own combat effects (#117): muzzle flashes, tracers, the rocket
+   * with its exhaust, the explosion. Null where there is no canvas (tests).
+   */
+  cfx: CombatFx | null
+  /** Rockets in flight, drawn as the game draws them. */
+  rockets: Rocket[]
+  /** The nose of the mech's weapon, as posed last frame (where its rounds leave from). */
+  muzzle: (w: WeaponId, out: Vector3) => Vector3
+  extra: Record<string, Rig | Object3D | Dropship | Mesh | Vector3>
   /** Moments that have fired (sounds, bursts): once each. */
   fired: Set<string>
   once: (key: string, at: number, f: () => void) => void
@@ -113,8 +124,8 @@ const INTRO: Script = {
     s.extra.tank = tank
     root.add(drone.root, tank.root)
     const glow = new MeshBasicMaterial({ color: '#5fe9ff', toneMapped: false })
-    for (const k of ['hookLine', 'rope', 'tracer']) {
-      const m = new Mesh(new CylinderGeometry(0.04, 0.04, 1, 6), k === 'tracer' ? new MeshBasicMaterial({ color: '#fff3c9', toneMapped: false }) : glow)
+    for (const k of ['hookLine', 'rope']) {
+      const m = new Mesh(new CylinderGeometry(0.04, 0.04, 1, 6), glow)
       m.visible = false
       s.extra[k] = m
       root.add(m)
@@ -149,6 +160,8 @@ const INTRO: Script = {
       const d = track([[5, 12, 3, 24], [8, 30, 22, 14], [30, 72, 22, 24], [32, 77.6, 14 + BOARD_HOVER, 25.4]], t, tmpA)
       dp.fold = t < 31 ? 1 : 1 - span(t, 31.2, 32.6)
       dp.thrust = dp.fold
+      // Unfolding on the perch, it rises onto its legs: feet on the deck, not in it (#117).
+      d.y += (DOG_STAND - BOARD_HOVER) * (1 - dp.fold)
       s.place(s.dog.root, d, t < 31 ? Math.PI / 2 : Math.PI)
     }
     // The hook up the cliff.
@@ -202,19 +215,25 @@ const INTRO: Script = {
     const sentryDead = t >= 19.3
     s.place(g(2).root, tmpA.set(73, 14, 11), -Math.PI * 0.8)
     poseGuard(g(2), { ...restGuardPose(), time: t, deadT: sentryDead ? t - 19.3 : 0, death: 'back' })
-    const tracer = s.extra.tracer as Mesh
-    tracer.visible = false
     if (between(t, 17, 21)) {
       s.place(s.mech.root, tmpA.set(50, 10, 24), Math.atan2(73 - 50, 11 - 24))
       mp.aim = 1
       mp.weapon = 'sniper'
       mp.aimPitch = 0.08
       mp.recoil = between(t, 19.2, 19.6) ? 1 - span(t, 19.2, 19.6) : 0
-      tracer.visible = between(t, 19.2, 19.35)
-      s.line(tracer, tmpB.set(50.5, 12.2, 23.5), tmpC.set(73, 15.5, 11))
       const zoom = 50 - 32 * span(t, 17.4, 19)
       s.look(tmpB.set(49.2, 12.4, 25.6), tmpC.set(73, 15.4, 11), zoom)
-      s.once('shot', 19.2, () => { sfx('sniper'); s.fx.sparks(73, 15.5, 11, '#ffe9a0', 14, 5, 0.25) })
+      // The round leaves the barrel with the game's own flash and trail (#117).
+      s.once('shot', 19.2, () => {
+        sfx('sniper')
+        const n = s.muzzle('sniper', tmpB)
+        if (s.cfx) {
+          const d = tmpC.set(73 - n.x, 15.5 - n.y, 11 - n.z).normalize()
+          s.cfx.muzzle(n.x, n.y, n.z, d.x, d.y, d.z, 'sniper')
+          s.cfx.tracer(n.x, n.y, n.z, 73, 15.5, 11, 'sniper')
+          s.cfx.impact(73, 15.5, 11, -d.x, -d.y, -d.z, true, 'sniper')
+        } else s.fx.sparks(73, 15.5, 11, '#ffe9a0', 14, 5, 0.25)
+      })
     }
     // The mini-gun takes a drone out of the air.
     const dd = t >= 23.8
@@ -227,7 +246,28 @@ const INTRO: Script = {
       mp.weapon = 'minigun'
       mp.spin = t * 30
       mp.aimPitch = 0.28
-      if (between(t, 22, 23.8) && Math.floor(t * 20) !== Math.floor((t - s.dt) * 20)) s.fx.sparks(62 + Math.random() - 0.5, 16, 36, '#ffd27a', 4, 4, 0.18)
+      // Each round: the flash at the spinning barrels, its tracer, and where it bites (#117).
+      if (between(t, 22, 23.8) && Math.floor(t * 20) !== Math.floor((t - s.dt) * 20)) {
+        const hx = 62 + (Math.random() - 0.5) * 0.8
+        const hy = 16 + (Math.random() - 0.5) * 0.5
+        const hz = 36 + (Math.random() - 0.5) * 0.8
+        if (s.cfx) {
+          const n = s.muzzle('minigun', tmpB)
+          const d = tmpC.set(hx - n.x, hy - n.y, hz - n.z).normalize()
+          s.cfx.muzzle(n.x, n.y, n.z, d.x, d.y, d.z, 'minigun')
+          s.cfx.tracer(n.x, n.y, n.z, hx, hy, hz, 'minigun')
+          // From the intro's distance a single hot dot is lost: each round also
+          // draws a short streak flying the line, so the stream reads.
+          const len = Math.hypot(hx - n.x, hy - n.y, hz - n.z)
+          for (let q = 0; q < 6; q++) {
+            s.cfx.particles.emit({
+              x: n.x + d.x * (1 + q * 0.5), y: n.y + d.y * (1 + q * 0.5), z: n.z + d.z * (1 + q * 0.5),
+              vx: d.x * 90, vy: d.y * 90, vz: d.z * 90, color: q === 0 ? '#ffffff' : '#ffd27a', size: 0.22 - q * 0.025, sizeEnd: 0.08, life: Math.max(0.05, (len - 1 - q * 0.5) / 90)
+            })
+          }
+          s.cfx.impact(hx, hy, hz, -d.x, -d.y, -d.z, false, 'minigun')
+        } else s.fx.sparks(hx, hy, hz, '#ffd27a', 4, 4, 0.18)
+      }
       s.look(tmpB.set(46, 12, 22), tmpC.set(60, 14.5, 34))
       s.once('spin', 21.6, () => sfx('minigun'))
       s.once('drone', 23.8, () => { sfx('explode'); s.fx.orbBurst(62, 16, 36, '#ffb061', 0.7) })
@@ -235,17 +275,44 @@ const INTRO: Script = {
     // A rocket into the Goliath's flank.
     s.place(tank.root, tmpA.set(66, 10, 44), -Math.PI / 2)
     poseGoliath(tank, { time: t, turretYaw: -0.4, barrelPitch: 0.05, recoil: 0, rumble: t > 27 ? 1 - span(t, 27, 30) : 0.5, dead: 0 })
+    // The game's own rocket (#117): out of the tube, a hot core and a trail
+    // that swells into smoke, and the game's blast where it lands.
     const rocket = s.extra.rocket as Mesh
-    rocket.visible = between(t, 26.2, 27)
+    rocket.visible = !s.cfx && between(t, 26.2, 27)
     if (rocket.visible) s.place(rocket, tmpA.lerpVectors(tmpB.set(53, 12, 30), tmpC.set(64.5, 11.5, 42), span(t, 26.2, 27)))
+    if (s.cfx) {
+      const from = s.extra.rocketFrom as Vector3 | undefined
+      if (between(t, 26.2, 27) && from) {
+        const r = s.rockets[0] ?? (s.rockets[0] = { x: from.x, y: from.y, z: from.z, px: from.x, py: from.y, pz: from.z, dx: 0, dy: 0, dz: 1, t: 0 })
+        r.px = r.x; r.py = r.y; r.pz = r.z
+        const k = span(t, 26.2, 27)
+        r.x = from.x + (64.5 - from.x) * k
+        r.y = from.y + (11.5 - from.y) * k
+        r.z = from.z + (42 - from.z) * k
+        const len = Math.hypot(64.5 - from.x, 11.5 - from.y, 42 - from.z) || 1
+        r.dx = (64.5 - from.x) / len; r.dy = (11.5 - from.y) / len; r.dz = (42 - from.z) / len
+      } else s.rockets.length = 0
+    }
     if (between(t, 25, 30)) {
       s.place(s.mech.root, tmpA.set(52, 10, 29), Math.atan2(66 - 52, 44 - 29))
       mp.aim = t < 27 ? 1 : 0
       mp.weapon = 'rocket'
       mp.recoil = between(t, 26.2, 26.6) ? 1 : 0
       s.look(tmpB.set(56, 15, 26), tmpC.set(65, 11, 43))
-      s.once('rocket', 26.2, () => sfx('rocket'))
-      s.once('boom', 27, () => { sfx('explode'); s.fx.orbBurst(64.5, 11.5, 42, '#ff9a3d', 1.4); s.fx.sparks(64.5, 11.5, 42, '#ffd27a', 30, 8, 0.3) })
+      s.once('rocket', 26.2, () => {
+        sfx('rocket')
+        const n = s.muzzle('rocket', new Vector3())
+        s.extra.rocketFrom = n
+        if (s.cfx) {
+          const d = tmpC.set(64.5 - n.x, 11.5 - n.y, 42 - n.z).normalize()
+          s.cfx.muzzle(n.x, n.y, n.z, d.x, d.y, d.z, 'rocket')
+        }
+      })
+      s.once('boom', 27, () => {
+        sfx('explode')
+        if (s.cfx) s.cfx.explosion(64.5, 11.5, 42, 10)
+        else { s.fx.orbBurst(64.5, 11.5, 42, '#ff9a3d', 1.4); s.fx.sparks(64.5, 11.5, 42, '#ffd27a', 30, 8, 0.3) }
+      })
       if (t > 27 && Math.floor(t * 8) !== Math.floor((t - s.dt) * 8)) {
         s.fx.emit({ x: 66, y: 13, z: 44, vx: 0.3, vy: 1.8, vz: 0, color: '#3a3050', size: 1.4, sizeEnd: 3, life: 2.4, drag: 0.4 })
       }
@@ -502,6 +569,7 @@ export class Cinema implements GameMode {
   private finish!: () => void
   private over = false
   private stage!: Stage
+  private cfx: CombatFx | null = null
   private script: Script
   private sky!: Sky
   private mesh!: FortressMesh
@@ -534,9 +602,20 @@ export class Cinema implements GameMode {
     const dog = buildRobodog()
     const fx = particleMap ? new Particles(600, particleMap) : new Particles(600)
     c.root.add(mech.root, dog.root, fx.points)
+    // The game's combat effects need a canvas for their sprites: none in the tests.
+    const cfx = particleMap ? null : new CombatFx()
+    if (cfx) c.root.add(cfx.group)
+    c.cfx = cfx
     const fired = new Set<string>()
     const st: Stage = {
-      t: 0, dt: 0, cam: c.camera, mech, mp: restPose(), dog, dp: restDogPose(), fx, extra: {}, fired,
+      t: 0, dt: 0, cam: c.camera, mech, mp: restPose(), dog, dp: restDogPose(), fx, cfx, rockets: [], extra: {}, fired,
+      muzzle: (w, out) => {
+        const [bone, x, y, z] = MUZZLE_TIP[w]
+        const b = mech.bones[bone]
+        if (!b) return out.copy(mech.root.position).setY(mech.root.position.y + 1.4)
+        mech.root.updateMatrixWorld(true)
+        return b.localToWorld(out.set(x, y, z))
+      },
       once: (key, at, f) => { if (st.t >= at && !fired.has(key)) { fired.add(key); f() } },
       line: (m, a, bb) => {
         const len = Math.max(0.01, a.distanceTo(bb))
@@ -571,6 +650,7 @@ export class Cinema implements GameMode {
     st.t = Math.min(this.length, st.t + dt)
     this.script.frame(st)
     st.fx.update(dt)
+    st.cfx?.update(dt, 1, st.rockets, [], getRenderer().domElement.height || 720, this.camera.fov)
     this.sky.update(this.camera.position, st.t)
     if (st.t >= this.length) this.end()
   }
@@ -600,6 +680,7 @@ export class Cinema implements GameMode {
   dispose(): void {
     this.mesh.dispose()
     this.sky.dispose()
+    this.cfx?.dispose()
     this.root.traverse((o) => {
       const m = o as Mesh
       if (m.geometry) m.geometry.dispose()

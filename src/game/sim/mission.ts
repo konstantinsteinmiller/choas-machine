@@ -18,7 +18,7 @@ import { ringTexture } from '../world/textures'
 import { FloorMarkers, makeBlobShadow } from '../fx/markers'
 import { CombatFx } from '../fx/combatFx'
 import type { Rig } from '../models/kit'
-import { buildMech, poseMech, restPose, MECH_HEIGHT, MECH_HEIGHT_CROUCH, type MechPose , MECH_KNEEL_S, MECH_DOWN_S } from '../models/mech'
+import { MUZZLE_TIP, buildMech, poseMech, restPose, MECH_HEIGHT, MECH_HEIGHT_CROUCH, type MechPose , MECH_KNEEL_S, MECH_DOWN_S } from '../models/mech'
 import { PAL } from '../models/palette'
 import { WEAPON_IDS, type WeaponId } from '../data/ids'
 import { haptic } from '@/use/useHaptics'
@@ -97,14 +97,6 @@ const JUMP_EARSHOT = 6
 const RIFLE_EARSHOT_M = 4
 /** From the shoulder point `aimLine` traces from out to each weapon's muzzle (m). */
 const MUZZLE_REACH: Readonly<Record<WeaponId, number>> = { sniper: 1.75, minigun: 1.45, rocket: 1.3 }
-/**
- * Where each weapon's nose is on its bone (the bone's local frame: the barrel
- * runs down −y). The round's flash, trail and rocket leave from here, once
- * the weapon is up and pointing where the mech looks.
- */
-const MUZZLE_TIP: Readonly<Record<WeaponId, readonly [string, number, number, number]>> = {
-  sniper: ['sniper', 0, -1.42, 0.02], minigun: ['minigunBarrels', 0, -0.66, 0], rocket: ['rocket', 0, -0.95, 0.06]
-}
 /** A scripted camera pulled in by a wall holds there this long, then eases out at this share of its length a second (#119). */
 const CINE_ARM_HOLD_S = 0.5
 const CINE_ARM_OUT = 1.5

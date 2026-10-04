@@ -4,6 +4,15 @@ import { PAL } from './palette'
 import type { WeaponId } from '../data/ids'
 
 /**
+ * Where each weapon's nose is on its bone (the bone's local frame: the barrel
+ * runs down −y). The round's flash, trail and rocket leave from here, in the
+ * game and in the story's scenes (#117).
+ */
+export const MUZZLE_TIP: Readonly<Record<WeaponId, readonly [string, number, number, number]>> = {
+  sniper: ['sniper', 0, -1.42, 0.02], minigun: ['minigunBarrels', 0, -0.66, 0], rocket: ['rocket', 0, -0.95, 0.06]
+}
+
+/**
  * ─── The mech ────────────────────────────────────────────────────────────────
  *
  * The player's machine: about 2.5 m tall, chunky and friendly, lilac armour

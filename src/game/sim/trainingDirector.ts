@@ -5,7 +5,7 @@ import {
 import { demoPop } from '../state/hud'
 import { CELL, CellKind, cellMid, heightAt, VOID, type Grid } from '../world/grid'
 import type { Fortress } from '../world/fortress'
-import { ROOM_WALL_H, ROPE_DECK_H, ROPE_TOWER_H, TRAINING_ROOMS } from '../data/fortresses/training'
+import { HOOK_WALL_H, ROOM_WALL_H, ROPE_DECK_H, ROPE_TOWER_H, TRAINING_ROOMS } from '../data/fortresses/training'
 import { TD_FREE, takedownPose, victimPose, type TakedownPose, type VictimPose } from './takedown'
 import { buildMech, poseMech, restPose, type MechPose } from '../models/mech'
 import { buildGuard, poseGuard, restGuardPose } from '../models/garrison'
@@ -52,6 +52,8 @@ export class TrainingDirector {
   private bodyPose = { ...restGuardPose(), deadT: 3, death: 'front' as const }
   private disguise: Group
   private rope: Mesh
+  private hookLine: Mesh
+  private hookHead: Mesh
   private flame: Mesh
   /** The decoy lesson's decoy (#114): an orb in flight, then a hologram of the mech where it lands. */
   private decoyOrb: Mesh
@@ -98,6 +100,11 @@ export class TrainingDirector {
     this.rope = new Mesh(new CylinderGeometry(0.05, 0.05, 1, 6), this.holo)
     this.rope.visible = false
     this.group.add(this.rope)
+    // The grappling hook's line and its three-pronged head (#117), as the mission draws them.
+    this.hookLine = new Mesh(new CylinderGeometry(0.03, 0.03, 1, 6), this.holo)
+    this.hookHead = new Mesh(new ConeGeometry(0.16, 0.34, 3), this.holo)
+    this.hookLine.visible = this.hookHead.visible = false
+    this.group.add(this.hookLine, this.hookHead)
     const fg = new ConeGeometry(0.55, 1, 10, 1, true)
     fg.translate(0, -0.5, 0)
     this.flame = new Mesh(fg, this.holo)
@@ -396,6 +403,20 @@ export class TrainingDirector {
       this.rope.scale.set(1, a.distanceTo(b), 1)
       this.rope.quaternion.copy(new Quaternion().setFromUnitVectors(new Vector3(0, 1, 0), b.sub(a).normalize()))
     }
+    // The hook (#117): out of the raised hand to the top of the wall, and the
+    // line the mech is reeled up on.
+    this.hookLine.visible = this.hookHead.visible = r.lesson === 'hook' && f.hook > 0.01
+    if (this.hookLine.visible) {
+      const hand = new Vector3(f.x + Math.sin(f.yaw) * 0.25, y + 2.05, f.z + Math.cos(f.yaw) * 0.25)
+      const top = new Vector3(toX(10.55), HOOK_WALL_H + 0.05, toZ(7))
+      const end = hand.clone().lerp(top, Math.min(1, f.hook))
+      const len = Math.max(0.05, hand.distanceTo(end))
+      this.hookLine.position.copy(hand).add(end).multiplyScalar(0.5)
+      this.hookLine.scale.set(1, len, 1)
+      this.hookLine.quaternion.setFromUnitVectors(new Vector3(0, 1, 0), end.clone().sub(hand).normalize())
+      this.hookHead.position.copy(end)
+      this.hookHead.quaternion.copy(this.hookLine.quaternion)
+    }
     // The body: down where the guard stood, until the flame takes it.
     this.body.root.visible = f.body > 0.02
     if (this.body.root.visible) {
@@ -442,6 +463,8 @@ export class TrainingDirector {
     this.victim.glowMaterial.dispose()
     for (const tg of this.targets) { tg.rig.mesh.geometry.dispose(); tg.rig.outline?.geometry.dispose(); tg.rig.material.dispose(); tg.rig.glowMaterial.dispose() }
     this.rope.geometry.dispose()
+    this.hookLine.geometry.dispose()
+    this.hookHead.geometry.dispose()
     this.flame.geometry.dispose()
     this.discMat.dispose()
     this.discGeo.dispose()

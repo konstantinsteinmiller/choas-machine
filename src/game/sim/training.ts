@@ -37,6 +37,8 @@ export interface DemoKey {
   cable?: number
   /** Props the lesson needs: the rope it shoots, the body it burns (shown 0 … 1), the flame. */
   rope?: number
+  /** The grappling hook's line, out from the hand to the wall top (0 … 1, #117). */
+  hook?: number
   body?: number
   burn?: number
   /** A takedown starts here (#110): the full choreography, on the hologram guard. */
@@ -131,9 +133,13 @@ export const DEMOS: Readonly<Record<LessonId, readonly DemoKey[]>> = {
     { t: 0, x: 1.5, z: 7, boxed: 0, hint: 'hide' }, { t: 0.6, boxed: 1 }, { t: 3, x: 5, z: 7, boxed: 1 },
     { t: 4.2, x: 5, z: 7, boxed: 1 }, { t: 6.6, x: 10.4, z: 7, boxed: 1 }
   ],
+  // To the foot of the wall, the hook up to its top, reeled up on the line,
+  // over the top, and down the far side (#117: the hook flies, it is no ladder).
   hook: [
-    { t: 0, x: 1.5, z: 7 }, { t: 3.2, x: 9.6, z: 7, y: 0, climb: 0 }, { t: 3.6, hint: 'grapple', y: 0, climb: 1 },
-    { t: 4.6, x: 10.4, z: 7, y: 6, climb: 1 }, { t: 5.2, x: 11, z: 7, y: 6, climb: 0 }, { t: 5.8, x: 11.8, z: 7, y: 0 }
+    { t: 0, x: 1.5, z: 7 }, { t: 3.2, x: 9.6, z: 7, y: 0 }, { t: 3.3, hint: 'grapple', hook: 0 }, { t: 3.6, hook: 1 },
+    { t: 3.75, x: 9.6, z: 7, y: 0, air: 0, hook: 1 }, { t: 4.6, x: 10.2, z: 7, y: 5.3, air: 1, hook: 1 },
+    { t: 4.9, x: 10.7, z: 7, y: 6, air: 0, hook: 0 }, { t: 5.3, x: 11, z: 7, y: 6 },
+    { t: 5.8, x: 11.8, z: 7, y: 0, air: 1 }, { t: 6, air: 0 }
   ],
   // Up on the tower already (#116: the climb is not the lesson): a rope to
   // the platform with T, along it, and down.
@@ -380,6 +386,8 @@ export interface DemoFrame {
   air: number
   cable: number
   rope: number
+  /** The hook's line, out from the hand (0 … 1, #117). */
+  hook: number
   body: number
   burn: number
   /** Seconds into the demo's takedown (#110), or −1. */
@@ -398,7 +406,7 @@ export const demoFrame = (i: number, time: number): DemoFrame => {
   // Fill every key from the one before.
   let prev: Required<Omit<DemoKey, 'hint' | 'face' | 'takedown' | 'decoy'>> & { face: readonly [number, number] | null } = {
     t: 0, x: 1.5, z: 7, y: 0, crouch: 0, aim: 0, weapon: 'sniper', stab: 0, boxed: 0, loot: 0,
-    climb: 0, air: 0, cable: 0, rope: 0, body: 0, burn: 0, face: null
+    climb: 0, air: 0, cable: 0, rope: 0, hook: 0, body: 0, burn: 0, face: null
   }
   const full = keys.map((k) => {
     prev = { ...prev, ...k, face: k.face ?? (k.x !== undefined || k.z !== undefined ? null : prev.face) } as typeof prev
@@ -435,6 +443,6 @@ export const demoFrame = (i: number, time: number): DemoFrame => {
     crouch: lerp(a.crouch, b.crouch), aim: lerp(a.aim, b.aim), weapon: a.weapon,
     stab: lerp(a.stab, b.stab), boxed: lerp(a.boxed, b.boxed), loot: lerp(a.loot, b.loot),
     climb: lerp(a.climb, b.climb), air: lerp(a.air, b.air), cable: lerp(a.cable, b.cable),
-    rope: lerp(a.rope, b.rope), body: lerp(a.body, b.body), burn: lerp(a.burn, b.burn), td, decoy, press, hint
+    rope: lerp(a.rope, b.rope), hook: lerp(a.hook, b.hook), body: lerp(a.body, b.body), burn: lerp(a.burn, b.burn), td, decoy, press, hint
   }
 }
