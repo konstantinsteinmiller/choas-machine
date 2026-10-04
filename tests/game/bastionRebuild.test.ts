@@ -3,19 +3,19 @@
 // thickets and shadow, and a raid that is not the same twice.
 
 import { describe, expect, it } from 'vitest'
-import { buildBastion } from '@/game/data/fortresses/bastion'
+import { BASTION_PAD as P, buildBastion } from '@/game/data/fortresses/bastion'
 import { CELL, Shade, cellHeight, cellMid, hasLineOfSight, heightAt, VOID } from '@/game/world/grid'
 import { FortressBuilder } from '@/game/world/fortress'
 import { drainEvents, makeGarrison, stepGarrison, type Target } from '@/game/sim/garrison'
 
 const EYE = 2.2
 
-/** Share of the cells in a rectangle whose floor (1.4 m up) can be seen from a point. */
+/** Share of the cells in a rectangle (in the Bastion's old 60 × 64 frame) whose floor (1.4 m up) can be seen from a point. */
 const seen = (f: ReturnType<typeof buildBastion>, ex: number, ey: number, ez: number, x0: number, z0: number, x1: number, z1: number, below = Infinity): number => {
   let n = 0
   let k = 0
-  for (let cz = z0; cz <= z1; cz++) {
-    for (let cx = x0; cx <= x1; cx++) {
+  for (let cz = z0 + P; cz <= z1 + P; cz++) {
+    for (let cx = x0 + P; cx <= x1 + P; cx++) {
       const h = cellHeight(f.grid, cx, cz)
       if (h === VOID || h >= below) continue
       n++
@@ -42,11 +42,11 @@ describe('sight from the perch', () => {
   })
 
   it('the watchtower (hook only) is the early high point that sees into the inner ward', () => {
-    const wx = cellMid(37) + 1
-    const wz = cellMid(47) + 1
+    const wx = cellMid(37 + P) + 1
+    const wz = cellMid(47 + P) + 1
     const wt = heightAt(f.grid, wx, wz)
     expect(wt).toBeGreaterThan(8)
-    expect(f.grid.ladders.some(l => Math.abs(l.cx - 37.5) < 2 && Math.abs(l.cz - 47.5) < 2)).toBe(false)
+    expect(f.grid.ladders.some(l => Math.abs(l.cx - 37.5 - P) < 2 && Math.abs(l.cz - 47.5 - P) < 2)).toBe(false)
     expect(seen(f, wx, wt + EYE, wz, 19, 15, 42, 36)).toBeGreaterThan(0.2)
   })
 })
@@ -54,9 +54,9 @@ describe('sight from the perch', () => {
 describe('the rings', () => {
   const f = buildBastion(1)
   it('the battery is up, the inner ward is up, the keep is higher', () => {
-    expect(cellHeight(f.grid, 12, 48)).toBe(4)
-    expect(cellHeight(f.grid, 30, 30)).toBe(3)
-    expect(cellHeight(f.grid, 29, 21)).toBe(8)
+    expect(cellHeight(f.grid, 12 + P, 48 + P)).toBe(4)
+    expect(cellHeight(f.grid, 30 + P, 30 + P)).toBe(3)
+    expect(cellHeight(f.grid, 29 + P, 21 + P)).toBe(8)
   })
 
   it('the cable from the perch lands on a railed ledge with a ladder down', () => {
@@ -96,7 +96,7 @@ describe('a raid is not the same twice', () => {
         const f = buildBastion(level, run)
         expect(f.salvage.length).toBeGreaterThan(Math.min(9, 2 + level) - 1)
         expect(f.salvage.some(p => p.big)).toBe(true)
-        expect(f.salvage.some(p => Math.floor(p.x / CELL) === 11 && Math.floor(p.z / CELL) === 53)).toBe(true)
+        expect(f.salvage.some(p => Math.floor(p.x / CELL) === 11 + P && Math.floor(p.z / CELL) === 53 + P)).toBe(true)
       }
     }
   })

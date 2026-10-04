@@ -254,6 +254,8 @@ export interface Unit {
   shellT: number
   shellX: number
   shellZ: number
+  /** The shell in the air was called onto a decoy (only that can bring it down on the tank itself, #72). */
+  shellLure: boolean
   /** 0 … 1 kick of its last shot, for the pose. */
   recoil: number
   /** Tagged through the scope: its round is drawn and its mark shows through walls. */
@@ -624,6 +626,11 @@ const TOKEN_EVERY_S = 0.5
 const GOLIATH_LOST_S = 8
 /** And rolls this far at most to a spot with a clear line on where it was last reported (#71). */
 const GOLIATH_ROLL_M = 12
+/**
+ * The Goliath shells nothing nearer than this (#72): a mech on a wall right
+ * over it is out of its reach, so it rolls back until it has the room.
+ */
+export const GOLIATH_MIN_M = 10
 const ALERT_AFTER = 0.6
 /** On alert patrol, sight is this much wider and further. */
 export const WARY_CONE = 1.25
@@ -778,7 +785,7 @@ export const makeGarrison = (f: Fortress, level = 2): Garrison => {
       stride: 0, speed01: 0, homeX: p.x, homeZ: p.z, homeYaw: p.facing, altitude: p.altitude,
       spotX: spot.x, spotZ: spot.z,
       seed: (id * 2.399) % (Math.PI * 2),
-      power: mech ? 0 : 1, aimT: 0, fireT: 0, burst: 0, burstT: 0, shellT: 0, shellX: 0, shellZ: 0, recoil: 0,
+      power: mech ? 0 : 1, aimT: 0, fireT: 0, burst: 0, burstT: 0, shellT: 0, shellX: 0, shellZ: 0, shellLure: false, recoil: 0,
       tagged: false, hidden: false, partner: p.partner ?? -1, chatting: false, poke: false, changeT: 0,
       role: p.role ?? null, shotgun: p.gun === 'shotgun', grenadeT: 0, job: null, jobT: 0, scentT: -1e9,
       rag: null, ragHow: 'shot', ragStruck: false,
@@ -1554,9 +1561,11 @@ const fight = (u: Unit, g: Grid, gar: Garrison, target: Target, dt: number): voi
     }
     u.lostT = u.sees ? 0 : u.lostT + dt
     if (u.lostT > GOLIATH_LOST_S) { u.lostT = 0; u.path = []; enter(u, 'search'); return }
-    if (!u.sees && u.lostT > 1.5 && u.path.length === 0 && (u.repath -= dt) <= 0) {
+    // Too close to shell (a mech on the wall over it): back off to where it has room.
+    const close = u.sees && Math.hypot(target.x - u.x, target.z - u.z) < GOLIATH_MIN_M
+    if (((!u.sees && u.lostT > 1.5) || close) && u.path.length === 0 && (u.repath -= dt) <= 0) {
       u.repath = 2
-      const spot = tankSpot(u, g, gar)
+      const spot = tankSpot(u, g, gar, close ? target : null)
       if (spot) u.path = [spot]
     }
     if (u.path.length > 0) {
@@ -1606,7 +1615,10 @@ const fight = (u: Unit, g: Grid, gar: Garrison, target: Target, dt: number): voi
  * open, level ground (its whole width clear), with a clear line from its
  * turret onto where the mech was last reported; null if there is none.
  */
-const tankSpot = (u: Unit, g: Grid, gar: Garrison): { x: number; z: number } | null => {
+const tankSpot = (u: Unit, g: Grid, gar: Garrison, mech: Target | null = null): { x: number; z: number } | null => {
+  const ax = mech ? mech.x : gar.lkp.x
+  const ay = mech ? mech.y : gar.lkp.y
+  const az = mech ? mech.z : gar.lkp.z
   const eye = SPECS.goliath.eye
   const r = SPECS.goliath.radius
   const clearAt = (x: number, z: number): boolean => {
@@ -1621,7 +1633,8 @@ const tankSpot = (u: Unit, g: Grid, gar: Garrison): { x: number; z: number } | n
     const d = GOLIATH_ROLL_M * (0.4 + 0.6 * ((k * 0.61) % 1))
     const x = u.x + Math.sin(a) * d
     const z = u.z + Math.cos(a) * d
-    if (!hasLineOfSight(g, x, u.y + eye, z, gar.lkp.x, gar.lkp.y + 1.2, gar.lkp.z)) continue
+    if (Math.hypot(ax - x, az - z) < GOLIATH_MIN_M) continue
+    if (!hasLineOfSight(g, x, u.y + eye, z, ax, ay + 1.2, az)) continue
     let ok = true
     for (let s = 1; s <= Math.ceil(d); s++) {
       const t = s / Math.ceil(d)

@@ -138,7 +138,7 @@ const DIRS = { n: [0, -1], s: [0, 1], e: [1, 0], w: [-1, 0] } as const
 export type Dir = keyof typeof DIRS
 
 export class FortressBuilder {
-  readonly grid: Grid
+  grid: Grid
   private insertAt: (Point & { facing: number }) | null = null
   private extractAt: Point | null = null
   private posts: Post[] = []
@@ -183,6 +183,57 @@ export class FortressBuilder {
         if (nx * nx + nz * nz <= wobble * wobble) this.set(cx, cz, 0, CellKind.Ground)
       }
     }
+    return this
+  }
+
+  /**
+   * Widen the island by `pad` cells on every side (#88): everything built so
+   * far moves `pad` cells in, and a new island (a rounded square, so the
+   * corners get room too) is laid round it. Later calls use the new cells.
+   */
+  grow(pad: number, margin = 2): this {
+    const old = this.grid
+    const g = makeGrid(old.w + pad * 2, old.d + pad * 2)
+    const m = pad * CELL
+    for (let cz = 0; cz < old.d; cz++) {
+      for (let cx = 0; cx < old.w; cx++) {
+        const i = cz * old.w + cx
+        const j = (cz + pad) * g.w + cx + pad
+        g.h[j] = old.h[i]!
+        g.kind[j] = old.kind[i]!
+        g.surf[j] = old.surf[i]!
+        g.shade[j] = old.shade[i]!
+        g.base[j] = old.base[i]!
+        g.roof[j] = old.roof[i]!
+      }
+    }
+    this.grid = g
+    for (const b of old.boxes) addBox(g, { x0: b.x0 + m, y0: b.y0, z0: b.z0 + m, x1: b.x1 + m, y1: b.y1, z1: b.z1 + m })
+    for (const l of old.ladders) g.ladders.push({ ...l, cx: l.cx + pad, cz: l.cz + pad })
+    for (const c of old.cables) g.cables.push({ ax: c.ax + pad, az: c.az + pad, bx: c.bx + pad, bz: c.bz + pad })
+    // The new ground: a rounded square (|x|⁴ + |z|⁴ ≤ 1), its rim roughened.
+    const rx = g.w / 2 - margin
+    const rz = g.d / 2 - margin
+    for (let cz = 0; cz < g.d; cz++) {
+      for (let cx = 0; cx < g.w; cx++) {
+        if (g.h[cz * g.w + cx]! !== VOID) continue
+        const nx = (cx + 0.5 - g.w / 2) / rx
+        const nz = (cz + 0.5 - g.d / 2) / rz
+        const a = Math.atan2(nz, nx)
+        const wobble = 1 + 0.05 * (Math.sin(a * 5 + 1.3) + 0.6 * Math.sin(a * 9 + 0.4))
+        if (nx ** 4 + nz ** 4 <= wobble ** 4) this.set(cx, cz, 0, CellKind.Ground)
+      }
+    }
+    const move = <T extends { x: number; z: number }>(p: T): void => { p.x += m; p.z += m }
+    if (this.insertAt) move(this.insertAt)
+    if (this.extractAt) move(this.extractAt)
+    for (const p of this.posts) { move(p); for (const w of p.route) move(w) }
+    for (const d of this.decor) move(d)
+    for (const s of this.piles) move(s)
+    for (const s of this.beaconSpots) move(s)
+    for (const s of this.generatorSpots) move(s)
+    for (const s of this.supplySpots) move(s)
+    for (const s of this.barrelSpots) { move(s); s.cx += pad; s.cz += pad }
     return this
   }
 

@@ -1,7 +1,7 @@
 import type { Grid } from '../world/grid'
 import { VOID, heightAt } from '../world/grid'
 import { angleDelta } from './player'
-import { SPECS, fireTokens, goliathAim, headingTo, isAlive, killUnit, type Garrison, type Target, type Unit } from './garrison'
+import { GOLIATH_MIN_M, SPECS, fireTokens, goliathAim, headingTo, isAlive, killUnit, type Garrison, type Target, type Unit } from './garrison'
 
 /**
  * ─── The base shoots back ────────────────────────────────────────────────────
@@ -198,7 +198,8 @@ const stepCannon = (u: Unit, gar: Garrison, g: Grid, target: Target, dt: number)
     gar.events.push({ type: 'shell', id: u.id, x: u.shellX, y, z: u.shellZ, damage })
     u.fireT = SHELL_RELOAD_S
     // Lured into calling a shell onto a decoy at its own feet: it is under it.
-    if (Math.hypot(u.x - u.shellX, u.z - u.shellZ) < SHELL_RADIUS + SPECS.goliath.radius) {
+    // Only a decoy does that (#72): it never shells the mech that close.
+    if (u.shellLure && Math.hypot(u.x - u.shellX, u.z - u.shellZ) < SHELL_RADIUS + SPECS.goliath.radius) {
       const self = Math.round(u.maxHp * SELF_SHELL)
       u.hp -= self
       gar.events.push({ type: 'selfHit', id: u.id, damage: self })
@@ -216,11 +217,15 @@ const stepCannon = (u: Unit, gar: Garrison, g: Grid, target: Target, dt: number)
   if (u.fireT > 0) return
   const aim = goliathAim(u, gar, g, target)
   if (!aim) return
-  if (Math.hypot(aim.x - u.x, aim.z - u.z) > SPECS.goliath.range) return
+  const reach = Math.hypot(aim.x - u.x, aim.z - u.z)
+  if (reach > SPECS.goliath.range) return
+  // The mech too close under its guns: it holds fire and rolls back (#72).
+  if (!aim.lure && reach < GOLIATH_MIN_M) return
   const off = Math.abs(angleDelta(u.yaw + u.look, headingTo(u.x, u.z, aim.x, aim.z)))
   if (off > SHELL_ALIGN) return
   u.shellX = aim.x
   u.shellZ = aim.z
+  u.shellLure = aim.lure
   u.shellT = SHELL_WARN_S
   gar.events.push({ type: 'telegraph', id: u.id, x: aim.x, z: aim.z, radius: SHELL_RADIUS, dur: SHELL_WARN_S })
 }

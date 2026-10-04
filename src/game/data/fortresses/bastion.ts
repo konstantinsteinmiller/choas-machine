@@ -41,8 +41,18 @@ import { NO_ANSWERS, type Answers } from '../../sim/adapt'
  *
  * Rotation (`run`): which piles are live, and which way one patrol in each
  * zone walks, change from raid to raid (seeded, so a retry is the same raid).
+ *
+ * Round 4 (R43): the island grows by BASTION_PAD cells on every side, so a
+ * ring of open ground runs round the curtain wall (#88: cover, nets, rubble,
+ * a shadowed ditch line, two breaches to climb); from threat II roofs with
+ * skylights cover the inner ward's arcade and two sheds (#96); more barrels,
+ * cables, a kit and a crate (#78 #94 #76); the new defenders by level (#72
+ * #90). Layout coordinates below are written in the old 60 × 64 frame and
+ * moved by the pad when the island grows (`at` for anything added after).
  */
 export const BASTION_LEVELS = 5
+/** Cells the island grew by on every side (#88). Old-frame cell + BASTION_PAD = cell. */
+export const BASTION_PAD = 6
 
 /** The salvage spots: [cx, cz, amount, big?], each a puzzle of its own. Round 4 (#75) pays a quarter less a pile. */
 const PILES: ReadonlyArray<readonly [number, number, number, boolean?]> = [
@@ -60,11 +70,16 @@ const PILES: ReadonlyArray<readonly [number, number, number, boolean?]> = [
 const KITS: ReadonlyArray<readonly [number, number]> = [[12, 50], [44, 46], [34, 35], [13, 22], [24, 13]]
 const CRATES: ReadonlyArray<readonly [number, number]> = [[14, 46], [45, 14]]
 const BARRELS: ReadonlyArray<readonly [number, number]> = [[44, 40], [38, 12], [10, 40], [50, 30]]
+/** The south-east shed's walls: up to its roof (#96). */
+const SHED_H = 4
+/** A breach in the curtain (#88): rubble a mech pulls itself up onto. */
+const BREACH_H = 1.6
 /** Always live: the teaching pile and the big one on the keep. */
 const ALWAYS = [0, 8]
 
 export const buildBastion = (level = 1, run = 0, answers: Answers = NO_ANSWERS): Fortress => {
   const rng = mulberry32(0xba5 + run * 7919)
+  // Built in the old 60 × 64 frame, then grown (#88).
   const b = new FortressBuilder('bastion', 60, 64).island(2).look('dusk')
   // The mountain top: a level plateau under the whole curtain.
   b.ground(5, 7, 54, 56)
@@ -223,6 +238,61 @@ export const buildBastion = (level = 1, run = 0, answers: Answers = NO_ANSWERS):
   // ── What the base learned last time (R26) ──
   // Rifle kills from the perch: a light on the battery's corner sweeps it.
   if (answers.perchLight) b.searchlight(7, 54, [[3, 58, 1.2], [4, 57, 1], [2, 57, 1.2], [3, 59, 1]])
+
+  // ── Round 4: the island grows, and what is added is placed in the old frame through `at` ──
+  b.grow(BASTION_PAD)
+  const P = BASTION_PAD
+  const at = (cx: number, cz: number): [number, number] => [cx + P, cz + P]
+  const route = (r: ReadonlyArray<readonly [number, number, number?]>): Array<[number, number, number?]> => r.map(([x, z, w]) => [x + P, z + P, w])
+
+  // The ring outside the curtain (#88): cover to run between, nets and
+  // tangles to crouch in, rubble, a ditch line in shadow along the west and
+  // north, and two breaches low enough to pull up through.
+  for (const [cx, cz, n, d] of [[0, 20, 2, 'z'], [58, 24, 2, 'z'], [2, 44, 1, 'x'], [57, 46, 1, 'z'], [20, 61, 2, 'x'], [44, 62, 2, 'x'], [14, 3, 2, 'x'], [44, 2, 1, 'x']] as const) {
+    b.cover(...at(cx, cz), n, d)
+  }
+  b.thicket(...at(59, 34), 'net', 3, 'z').thicket(...at(0, 31), 'tangle', 2, 'z').thicket(...at(38, 61), 'net', 2).thicket(...at(-1, 8), 'tangle', 2)
+  b.heap(...at(-1, 13), 0.8).heap(...at(59, 12), 1.3).heap(...at(10, 62), 0.5).heap(...at(57, 59), 2)
+  b.shadow(...at(1, 12), ...at(4, 50)).shadow(...at(10, 3), ...at(50, 6))
+  b.fill(...at(6, 38), ...at(6, 39), BREACH_H).fill(...at(53, 44), ...at(53, 45), BREACH_H)
+  b.prop('girder', ...at(5, 37), Math.PI / 2).prop('girder', ...at(54, 46), -Math.PI / 2)
+
+  // More red barrels (#78), a kit and a crate out in the ring (#76 #101), and two more cables (#94).
+  for (const [cx, cz] of [[2, 28], [57, 51], [33, 60]] as const) b.fuel(...at(cx, cz))
+  b.kit(...at(59, 41)).ammo(...at(-1, 41))
+  b.cable(...at(52, 54), ...at(39, 45))
+  b.cable(...at(7, 9), ...at(9, 29))
+
+  // Roofs from threat II (#96): the inner ward's arcade along its south wall,
+  // a shed over the yard's beacon, one over the south-east pile, one over the
+  // west lane. Skylights to drop
+  // a blade through; nothing to snipe down into from the perch.
+  if (level >= 2) {
+    b.roof(...at(19, 34), ...at(42, 36), { holes: [at(24, 35), at(33, 35), at(40, 35)] })
+    b.roof(...at(31, 47), ...at(35, 53), { holes: [at(33, 50)] })
+    b.roof(...at(8, 14), ...at(12, 22), { holes: [at(10, 17)] })
+    // The south-east shed is walled on its west and south (the sides the perch looks in from), open north and east.
+    b.wall(...at(38, 49), ...at(38, 54), SHED_H).wall(...at(39, 54), ...at(44, 54), SHED_H)
+    b.roof(...at(39, 49), ...at(44, 53), { holes: [at(42, 50)] })
+  }
+
+  // The new defenders (#72 #90).
+  if (level >= 2) {
+    // A Peashooter under the arcade; a grenadier down the east lane.
+    b.roomba(route([[21, 35, 2], [40, 35, 2]]), Math.PI / 2)
+    b.grenadier(route([[50, 22, 3], [50, 34, 3]]))
+  }
+  if (level >= 3) {
+    // A Buckshot in the yard shed; a shield at the main gate; a marksman on the watchtower.
+    b.roomba(route([[32, 48, 2], [34, 52, 2]]), 0, true)
+    b.shieldGuard(route([[29, 35, 3], [30, 35, 3]]), 0)
+    b.marksman(...at(38, 48), -Math.PI * 0.3)
+  }
+  if (level >= 4) {
+    b.grenadier(route([[36, 31, 3], [41, 31, 3]]))
+    b.shieldGuard(route([[40, 50, 2], [46, 50, 2]]))
+  }
+  if (level >= 5) b.roomba(route([[9, 15, 2], [11, 21, 2]]), 0)
 
   const f = b.build()
   f.answers = { ...answers }
