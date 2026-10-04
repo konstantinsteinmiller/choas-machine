@@ -120,7 +120,7 @@ export default {
   },
   'trackVerb': {
     'speed': 'Level 1: lari lebih senyap',
-    'decoy': 'Level 1: satu umpan lagi'
+    'decoy': 'Level 1: umpan berikutnya siap lebih cepat'
   },
   'workshop': {
     'max': 'Maks',

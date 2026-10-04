@@ -3,7 +3,7 @@ import { TRAINING_ROOMS, type LessonId } from '../data/fortresses/training'
 import type { WeaponId } from '../data/ids'
 import type { HintId } from './coach'
 import { isAlive, type Garrison } from './garrison'
-import { TD_END } from './takedown'
+import { TAKEDOWN, TD_END } from './takedown'
 
 /**
  * ─── The training ground's lessons (#57, #58) ────────────────────────────────
@@ -41,13 +41,16 @@ export interface DemoKey {
   burn?: number
   /** A takedown starts here (#110): the full choreography, on the hologram guard. */
   takedown?: true
+  /** A decoy is thrown here, at this cell (#114): it arcs out and stands there, a light the guard turns to. */
+  decoy?: readonly [number, number]
   /** The control this moment shows: its glyph pulses. */
   hint?: HintId
 }
 
 /** The blade room's hologram guard, in the room's own cells (its back to the way in), and how far behind it the takedown starts. */
 export const BLADE_VICTIM: readonly [number, number] = [7, 3.5]
-const TD_REACH_CELLS = 0.6
+/** The takedown starts as far behind as the real one (#114: the blade goes in). */
+const TD_REACH_CELLS = TAKEDOWN.reach / CELL
 
 /** The demo of each lesson. Missing values carry over from the key before. */
 export const DEMOS: Readonly<Record<LessonId, readonly DemoKey[]>> = {
@@ -89,7 +92,7 @@ export const DEMOS: Readonly<Record<LessonId, readonly DemoKey[]>> = {
     { t: 7.2, x: 10.4, z: 7 }
   ],
   decoy: [
-    { t: 0, x: 1.5, z: 7 }, { t: 1, x: 2.2, z: 7, face: [7, 2], hint: 'decoy' }, { t: 2.6, x: 2.2, z: 7, face: [7, 2] },
+    { t: 0, x: 1.5, z: 7 }, { t: 1, x: 2.2, z: 7, face: [7, 2], hint: 'decoy', decoy: [7, 2] }, { t: 2.6, x: 2.2, z: 7, face: [7, 2] },
     { t: 4, x: 2.2, z: 10 }, { t: 7, x: 10, z: 10 }, { t: 7.8, x: 10.4, z: 7 }
   ],
   box: [
@@ -312,6 +315,10 @@ export interface DemoFrame {
   burn: number
   /** Seconds into the demo's takedown (#110), or −1. */
   td: number
+  /** The decoy thrown (#114): where it lands (metres) and seconds since the throw; null before. */
+  decoy: { x: number; z: number; t: number } | null
+  /** The control just pressed (#114): its key pops up over the hologram, for HINT_HOLD_S. */
+  press: { hint: HintId; t: number } | null
   /** The control whose glyph should pulse now, if any. */
   hint: HintId | null
 }
@@ -320,7 +327,7 @@ export const demoFrame = (i: number, time: number): DemoFrame => {
   const r = TRAINING_ROOMS[i]!
   const keys = DEMOS[r.lesson]
   // Fill every key from the one before.
-  let prev: Required<Omit<DemoKey, 'hint' | 'face' | 'takedown'>> & { face: readonly [number, number] | null } = {
+  let prev: Required<Omit<DemoKey, 'hint' | 'face' | 'takedown' | 'decoy'>> & { face: readonly [number, number] | null } = {
     t: 0, x: 1.5, z: 7, y: 0, crouch: 0, aim: 0, weapon: 'sniper', stab: 0, boxed: 0, loot: 0,
     climb: 0, air: 0, cable: 0, rope: 0, body: 0, burn: 0, face: null
   }
@@ -349,12 +356,16 @@ export const demoFrame = (i: number, time: number): DemoFrame => {
   for (const k of keys) if (k.hint && k.t <= time && time - k.t < HINT_HOLD_S) hint = k.hint
   let td = -1
   for (const k of keys) if (k.takedown && time >= k.t && time - k.t <= TD_END + 4) td = time - k.t
+  let decoy: DemoFrame['decoy'] = null
+  for (const k of keys) if (k.decoy && time >= k.t) decoy = { x: toX(k.decoy[0]), z: toZ(k.decoy[1]), t: time - k.t }
+  let press: DemoFrame['press'] = null
+  for (const k of keys) if (k.hint && k.t <= time && time - k.t < HINT_HOLD_S) press = { hint: k.hint, t: time - k.t }
   return {
     x: toX(lx), y: lerp(a.y, b.y), z: toZ(lz), yaw,
     speed: moving ? Math.min(1, Math.hypot(dx, dz) / span / 3) : 0,
     crouch: lerp(a.crouch, b.crouch), aim: lerp(a.aim, b.aim), weapon: a.weapon,
     stab: lerp(a.stab, b.stab), boxed: lerp(a.boxed, b.boxed), loot: lerp(a.loot, b.loot),
     climb: lerp(a.climb, b.climb), air: lerp(a.air, b.air), cable: lerp(a.cable, b.cable),
-    rope: lerp(a.rope, b.rope), body: lerp(a.body, b.body), burn: lerp(a.burn, b.burn), td, hint
+    rope: lerp(a.rope, b.rope), body: lerp(a.body, b.body), burn: lerp(a.burn, b.burn), td, decoy, press, hint
   }
 }

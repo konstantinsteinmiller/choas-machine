@@ -120,7 +120,7 @@ export default {
   },
   'trackVerb': {
     'speed': 'Úroveň 1: tišší sprint',
-    'decoy': 'Úroveň 1: o návnadu víc'
+    'decoy': 'Úroveň 1: další návnada je připravena dřív'
   },
   'workshop': {
     'max': 'Max',

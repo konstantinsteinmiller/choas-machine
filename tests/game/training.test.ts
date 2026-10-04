@@ -7,7 +7,7 @@ import {
   HOOK_WALL_H, LESSON_IDS, ROOM_WALL_H, TRAINING_ROOMS, buildTrainingGround, roomCell
 } from '@/game/data/fortresses/training'
 import {
-  DEMOS, demoFrame, demoLength, doorOf, entryOf, lessonDone, makeTraining, replayDemo, roomAt, stepTraining,
+  BLADE_VICTIM, DEMOS, demoFrame, demoLength, doorOf, entryOf, lessonDone, makeTraining, replayDemo, roomAt, stepTraining,
   type TrainingContext
 } from '@/game/sim/training'
 import { CELL, cellHeight, cellMid, findHoles, findPath, heightAt } from '@/game/world/grid'
@@ -112,6 +112,27 @@ describe('the lessons', () => {
     const blade = demoFrame(LESSON_IDS.indexOf('blade'), DEMOS.blade.find(k => k.takedown)!.t + 0.5)
     expect(blade.td).toBeGreaterThan(0)
     expect(DEMOS.burn.some(k => k.hint === 'blade' || k.stab !== undefined)).toBe(false)
+  })
+
+  it('the decoy lesson throws a decoy that lands where the guard will look; every press pops its key; the blade goes in (#114)', async () => {
+    const { TAKEDOWN } = await import('@/game/sim/takedown')
+    const i = LESSON_IDS.indexOf('decoy')
+    const k = DEMOS.decoy.find(d => d.decoy)!
+    expect(demoFrame(i, k.t - 0.1).decoy).toBeNull()
+    const f = demoFrame(i, k.t + 1)
+    expect(f.decoy).not.toBeNull()
+    expect(f.press?.hint).toBe('decoy')
+    const [cx, cz] = roomCell(i, k.decoy![0], k.decoy![1])
+    expect(f.decoy!.x).toBeCloseTo(cellMid(cx))
+    expect(f.decoy!.z).toBeCloseTo(cellMid(cz))
+    // The takedown starts at the real one's reach behind the hologram guard.
+    const b = LESSON_IDS.indexOf('blade')
+    const td = DEMOS.blade.find(d => d.takedown)!
+    const at = demoFrame(b, td.t)
+    const r = TRAINING_ROOMS[b]!
+    const vx = (r.x0 + BLADE_VICTIM[0] - 1) * CELL + CELL / 2
+    const vz = (r.z0 + BLADE_VICTIM[1] - 1) * CELL + CELL / 2
+    expect(Math.hypot(at.x - vx, at.z - vz)).toBeCloseTo(TAKEDOWN.reach, 1)
   })
 
   it('the weapons room also opens once every defender in it is down, however they fell (#109)', () => {

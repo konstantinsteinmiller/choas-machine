@@ -120,7 +120,7 @@ export default {
   },
   'trackVerb': {
     'speed': 'Nivell 1: esprint més silenciós',
-    'decoy': 'Nivell 1: un parany més'
+    'decoy': 'Nivell 1: el següent parany està a punt abans'
   },
   'workshop': {
     'max': 'Màx',

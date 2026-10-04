@@ -120,7 +120,7 @@ export default {
   },
   'trackVerb': {
     'speed': 'Nível 1: corrida mais silenciosa',
-    'decoy': 'Nível 1: mais um isco'
+    'decoy': 'Nível 1: o próximo isco fica pronto mais depressa'
   },
   'workshop': {
     'max': 'Máx.',

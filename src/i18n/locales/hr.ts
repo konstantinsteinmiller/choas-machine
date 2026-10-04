@@ -120,7 +120,7 @@ export default {
   },
   'trackVerb': {
     'speed': 'Razina 1: tiši sprint',
-    'decoy': 'Razina 1: još jedan mamac'
+    'decoy': 'Razina 1: sljedeći mamac je spreman prije'
   },
   'workshop': {
     'max': 'Maks.',

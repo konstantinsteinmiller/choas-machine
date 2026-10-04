@@ -120,7 +120,7 @@ export default {
   },
   'trackVerb': {
     'speed': '레벨 1: 더 조용한 질주',
-    'decoy': '레벨 1: 미끼 하나 추가'
+    'decoy': '레벨 1: 다음 미끼가 더 빨리 준비됨'
   },
   'workshop': {
     'max': '최대',

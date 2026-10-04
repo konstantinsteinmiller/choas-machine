@@ -120,7 +120,7 @@ export default {
   },
   'trackVerb': {
     'speed': 'Cấp 1: chạy êm hơn',
-    'decoy': 'Cấp 1: thêm một mồi nhử'
+    'decoy': 'Cấp 1: mồi nhử tiếp theo sẵn sàng sớm hơn'
   },
   'workshop': {
     'max': 'Tối đa',

@@ -60,7 +60,10 @@ export const hud = reactive({
   dry: false,
   reloading: false,
   overheated: false,
+  /** A decoy is ready (1) or not (0): they never run out, they cool down (#114). */
   decoys: 0,
+  /** Whole seconds until the next decoy is ready; 0 when it is. */
+  decoyCool: 0,
   /** A wall the hook can take is in front of the mech, or under its look (#102). */
   grapple: false,
   /** The rope gun has somewhere to shoot (#94), and ropes left. */
@@ -128,6 +131,13 @@ export type PromptKind = '' | 'salvage' | 'strike' | 'sabotage' | 'cutPower' | '
 
 /** Where the in-world prompt sits: 0 … 1 of the view, and on screen at all. */
 export const prompt = { on: false, x: 0.5, y: 0.5 }
+
+/**
+ * The training hologram's button press (#114): which control, where over its
+ * head on screen (0 … 1), and a count that changes with every press (the pop
+ * restarts on it). Written each frame by the training ground.
+ */
+export const demoPop = { on: false, x: 0.5, y: 0.5, hint: '' as string, seq: 0 }
 
 // ─── Machines uplinking to the base (#73): per-frame, outside Vue ────────────
 

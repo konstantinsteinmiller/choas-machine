@@ -97,8 +97,10 @@ export interface Loadout {
   armor: number
   speed: number
   decoySeconds: number
-  /** Decoys the mech carries into a raid. */
+  /** Decoys the mech carries into a raid (no longer counted, #114: kept for old saves' numbers). */
   decoys: number
+  /** Seconds before the next decoy is ready after a throw (#114). */
+  decoyCooldown: number
   /** How far a sprint is heard, metres. */
   sprintEarshot: number
   /** How far ahead a wall may be for the hook, and how high it reaches. */
@@ -111,6 +113,10 @@ export interface Loadout {
 }
 
 /** The mech as it leaves the factory. */
+/** Decoys never run out (#114): the next is ready this many seconds after a throw; the decoy track's first level takes DECOY_COOLDOWN_PERK off. */
+export const DECOY_COOLDOWN_S = 20
+export const DECOY_COOLDOWN_PERK = 4
+
 export const BASE_LOADOUT: Readonly<Loadout> = {
   scopeFov: 17,
   damage: { sniper: 1, minigun: 1, rocket: 1 },
@@ -125,6 +131,7 @@ export const BASE_LOADOUT: Readonly<Loadout> = {
   speed: 1,
   decoySeconds: 9,
   decoys: 3,
+  decoyCooldown: DECOY_COOLDOWN_S,
   sprintEarshot: 9,
   hookReach: 3.2,
   hookMax: 9.5,
@@ -162,8 +169,9 @@ export const loadoutOf = (src: LoadoutSource): Loadout => {
     speed: BASE_LOADOUT.speed + 0.04 * level(src, 'speed'),
     decoySeconds: BASE_LOADOUT.decoySeconds + 2 * level(src, 'decoy'),
     // The verbs: the first level of servo speed quiets the sprint, the first
-    // of the decoy track packs one more.
+    // of the decoy track has the next decoy ready sooner (#114).
     decoys: BASE_LOADOUT.decoys + (level(src, 'decoy') >= 1 ? 1 : 0),
+    decoyCooldown: DECOY_COOLDOWN_S - (level(src, 'decoy') >= 1 ? DECOY_COOLDOWN_PERK : 0),
     sprintEarshot: level(src, 'speed') >= 1 ? BASE_LOADOUT.sprintEarshot * 0.6 - 0.3 * (level(src, 'speed') - 1) : BASE_LOADOUT.sprintEarshot,
     hookReach: BASE_LOADOUT.hookReach + 0.6 * level(src, 'hook'),
     hookMax: BASE_LOADOUT.hookMax + 1.2 * level(src, 'hook'),

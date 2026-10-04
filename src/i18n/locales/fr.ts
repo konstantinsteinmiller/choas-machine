@@ -120,7 +120,7 @@ export default {
   },
   'trackVerb': {
     'speed': 'Niveau 1 : un sprint plus discret',
-    'decoy': 'Niveau 1 : un leurre de plus'
+    'decoy': 'Niveau 1 : le prochain leurre est prêt plus vite'
   },
   'workshop': {
     'max': 'Max',

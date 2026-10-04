@@ -120,7 +120,7 @@ export default {
   },
   'trackVerb': {
     'speed': 'Niveau 1: stillere sprint',
-    'decoy': 'Niveau 1: één lokvogel extra'
+    'decoy': 'Niveau 1: de volgende lokvogel is sneller klaar'
   },
   'workshop': {
     'max': 'Max',

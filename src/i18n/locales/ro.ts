@@ -120,7 +120,7 @@ export default {
   },
   'trackVerb': {
     'speed': 'Nivelul 1: sprint mai silențios',
-    'decoy': 'Nivelul 1: încă o momeală'
+    'decoy': 'Nivelul 1: următoarea momeală este gata mai repede'
   },
   'workshop': {
     'max': 'Max',

@@ -145,3 +145,12 @@ describe('the rope gun (#94)', () => {
     expect(findRopeShot(wide, cellMid(3), 6, cellMid(11), cellMid(3) + ROPE_RANGE + 6, 0, cellMid(11), 1)).toBeNull()
   })
 })
+
+describe('decoys never run out (#114)', () => {
+  it('the next is ready 20 s after a throw; the decoy track\'s first level has it ready 4 s sooner', async () => {
+    const { BASE_LOADOUT, DECOY_COOLDOWN_S, DECOY_COOLDOWN_PERK, loadoutOf } = await import('@/game/data/upgrades')
+    expect(BASE_LOADOUT.decoyCooldown).toBe(20)
+    expect(DECOY_COOLDOWN_S - DECOY_COOLDOWN_PERK).toBe(16)
+    expect(loadoutOf({ blueprints: {}, tiers: {}, upgrades: { decoy: 1 }, unlocks: [], wheel: undefined } as never).decoyCooldown).toBe(16)
+  })
+})

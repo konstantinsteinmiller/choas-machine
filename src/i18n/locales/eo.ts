@@ -120,7 +120,7 @@ export default {
   },
   'trackVerb': {
     'speed': 'Nivelo 1: pli silenta spurto',
-    'decoy': 'Nivelo 1: unu plia logaĵo'
+    'decoy': 'Nivelo 1: la sekva logaĵo pretas pli frue'
   },
   'workshop': {
     'max': 'Maks.',

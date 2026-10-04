@@ -120,7 +120,7 @@ export default {
   },
   'trackVerb': {
     'speed': '1. līmenis: klusāks sprints',
-    'decoy': '1. līmenis: vēl viena ēsma'
+    'decoy': '1. līmenis: nākamā ēsma ir gatava ātrāk'
   },
   'workshop': {
     'max': 'Maks.',

@@ -124,7 +124,7 @@ export default {
   },
   'trackVerb': {
     'speed': 'Level 1: a quieter sprint',
-    'decoy': 'Level 1: one more decoy'
+    'decoy': 'Level 1: the next decoy is ready sooner'
   },
   'workshop': {
     'max': 'Max',

@@ -120,7 +120,7 @@ export default {
   },
   'trackVerb': {
     'speed': '1-daraja: jimroq yugurish',
-    'decoy': '1-daraja: yana bitta yem'
+    'decoy': '1-daraja: keyingi yem tezroq tayyor bo\'ladi'
   },
   'workshop': {
     'max': 'Maks.',

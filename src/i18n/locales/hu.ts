@@ -120,7 +120,7 @@ export default {
   },
   'trackVerb': {
     'speed': '1. szint: halkabb sprint',
-    'decoy': '1. szint: még egy csali'
+    'decoy': '1. szint: a következő csali hamarabb kész'
   },
   'workshop': {
     'max': 'Max',

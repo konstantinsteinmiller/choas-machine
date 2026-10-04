@@ -120,7 +120,7 @@ export default {
   },
   'trackVerb': {
     'speed': 'Poziom 1: cichszy sprint',
-    'decoy': 'Poziom 1: jeszcze jeden wabik'
+    'decoy': 'Poziom 1: kolejny wabik jest gotowy szybciej'
   },
   'workshop': {
     'max': 'Maks.',

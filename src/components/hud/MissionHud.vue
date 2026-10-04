@@ -10,6 +10,7 @@
     UplinkRings
     ObjectiveMarker
     WorldPrompt
+    DemoPop
     ControlHints
 
     div.top-centre
@@ -229,8 +230,9 @@
         data-testid="btn-decoy"
         @click="input.decoyQueued = true"
       )
-        template(#badge)
-          FHudBadge(tone="cyan") {{ hud.decoys }}
+        //- The next decoy in N seconds (#114); nothing on the chip when one is ready.
+        template(#badge v-if="hud.decoyCool > 0")
+          FHudBadge(tone="cyan") {{ hud.decoyCool }}
       //- The hide box: down over the mech, and off again.
       FHudButton(
         icon="box"
@@ -289,6 +291,7 @@ import FHudButton from '@/components/atoms/FHudButton.vue'
 import HealthBars from '@/components/hud/HealthBars.vue'
 import UplinkRings from '@/components/hud/UplinkRings.vue'
 import WorldPrompt from '@/components/hud/WorldPrompt.vue'
+import DemoPop from '@/components/hud/DemoPop.vue'
 import GameIcon from '@/components/icons/GameIcon.vue'
 import FHudBadge from '@/components/atoms/FHudBadge.vue'
 import Joystick from '@/components/hud/Joystick.vue'

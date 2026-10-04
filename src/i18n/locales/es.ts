@@ -120,7 +120,7 @@ export default {
   },
   'trackVerb': {
     'speed': 'Nivel 1: sprint más silencioso',
-    'decoy': 'Nivel 1: un señuelo más'
+    'decoy': 'Nivel 1: el siguiente señuelo está listo antes'
   },
   'workshop': {
     'max': 'Máx.',

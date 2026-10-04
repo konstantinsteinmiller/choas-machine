@@ -120,7 +120,7 @@ export default {
   },
   'trackVerb': {
     'speed': 'レベル1：静かなダッシュ',
-    'decoy': 'レベル1：デコイ+1'
+    'decoy': 'レベル1：次のデコイがより早く使える'
   },
   'workshop': {
     'max': '最大',

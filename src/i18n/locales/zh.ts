@@ -120,7 +120,7 @@ export default {
   },
   'trackVerb': {
     'speed': '等级 1：冲刺更安静',
-    'decoy': '等级 1：多一个诱饵'
+    'decoy': '等级 1：下一个诱饵更快就绪'
   },
   'workshop': {
     'max': '已满级',

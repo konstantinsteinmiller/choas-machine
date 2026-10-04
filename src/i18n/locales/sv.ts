@@ -120,7 +120,7 @@ export default {
   },
   'trackVerb': {
     'speed': 'Nivå 1: tystare spurt',
-    'decoy': 'Nivå 1: ett lockbete till'
+    'decoy': 'Nivå 1: nästa lockbete är klart snabbare'
   },
   'workshop': {
     'max': 'Max',

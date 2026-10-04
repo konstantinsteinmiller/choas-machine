@@ -120,7 +120,7 @@ export default {
   },
   'trackVerb': {
     'speed': 'Livello 1: scatto più silenzioso',
-    'decoy': 'Livello 1: un\'esca in più'
+    'decoy': 'Livello 1: la prossima esca è pronta prima'
   },
   'workshop': {
     'max': 'Max',

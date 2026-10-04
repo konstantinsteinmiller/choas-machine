@@ -120,7 +120,7 @@ export default {
   },
   'trackVerb': {
     'speed': '1 lygis: tylesnis sprintas',
-    'decoy': '1 lygis: dar vienas masalas'
+    'decoy': '1 lygis: kitas masalas paruoštas greičiau'
   },
   'workshop': {
     'max': 'Maks.',

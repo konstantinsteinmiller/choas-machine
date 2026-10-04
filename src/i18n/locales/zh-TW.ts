@@ -120,7 +120,7 @@ export default {
   },
   'trackVerb': {
     'speed': '等級 1：衝刺更安靜',
-    'decoy': '等級 1：多一個誘餌'
+    'decoy': '等級 1：下一個誘餌更快就緒'
   },
   'workshop': {
     'max': '已滿級',

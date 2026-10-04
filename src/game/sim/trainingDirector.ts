@@ -1,7 +1,8 @@
 import {
   AdditiveBlending, BoxGeometry, CircleGeometry, ConeGeometry, CylinderGeometry, DoubleSide, Group, Mesh, MeshBasicMaterial,
-  Quaternion, RingGeometry, Vector3, type Object3D, type Scene, type ShaderMaterial
+  Quaternion, RingGeometry, SphereGeometry, Vector3, type Camera, type Object3D, type Scene, type ShaderMaterial
 } from 'three'
+import { demoPop } from '../state/hud'
 import { CELL, CellKind, cellMid, heightAt, VOID, type Grid } from '../world/grid'
 import type { Fortress } from '../world/fortress'
 import { ROOM_WALL_H, ROPE_DECK_H, ROPE_TOWER_H, TRAINING_ROOMS } from '../data/fortresses/training'
@@ -37,6 +38,8 @@ import type { HintId } from './coach'
  */
 
 const GATE_COLOR = '#5fe9ff'
+/** The demo's decoy flies this long before it stands (#114). */
+const DECOY_FLY_S = 0.55
 
 export class TrainingDirector {
   readonly state: Training = makeTraining()
@@ -50,6 +53,11 @@ export class TrainingDirector {
   private disguise: Group
   private rope: Mesh
   private flame: Mesh
+  /** The decoy lesson's decoy (#114): an orb in flight, then a hologram of the mech where it lands. */
+  private decoyOrb: Mesh
+  private decoyHolo: Rig
+  private lastPress = ''
+  private popV = new Vector3()
   /** The blade room's hologram guard, taken from behind on every loop (#110). */
   private victim: Rig
   private tdPose: TakedownPose = { grab: 0, draw: 0, plunge: 0, blade: 0 }
@@ -95,6 +103,14 @@ export class TrainingDirector {
     this.flame = new Mesh(fg, this.holo)
     this.flame.visible = false
     this.group.add(this.flame)
+    this.decoyOrb = new Mesh(new SphereGeometry(0.22, 12, 8), this.holo)
+    this.decoyOrb.visible = false
+    this.group.add(this.decoyOrb)
+    this.decoyHolo = buildMech()
+    this.decoyHolo.mesh.material = this.holo
+    if (this.decoyHolo.outline) this.decoyHolo.outline.visible = false
+    this.decoyHolo.root.visible = false
+    this.group.add(this.decoyHolo.root)
     this.victim = buildGuard()
     this.victim.mesh.material = this.holo
     if (this.victim.outline) this.victim.outline.visible = false
@@ -218,8 +234,8 @@ export class TrainingDirector {
     place(e.x, e.z, Math.PI / 2)
   }
 
-  /** Pose the hologram for this frame. */
-  update(dt: number, time: number): void {
+  /** Pose the hologram for this frame (`camera`: where its button presses pop up on screen, #114). */
+  update(dt: number, time: number, camera?: Camera): void {
     const t = this.state
     // A projector disc glows while its room's lesson is still to do.
     this.discs.forEach((d, i) => { d.visible = !t.done[i] })
@@ -232,6 +248,8 @@ export class TrainingDirector {
     this.ghost.root.visible = on
     setHologram(this.holo, time, this.fade)
     if (!on) {
+      demoPop.on = false
+      this.decoyOrb.visible = this.decoyHolo.root.visible = false
       this.body.root.visible = this.disguise.visible = this.rope.visible = this.flame.visible = false
       for (const tg of this.targets) tg.rig.root.visible = false
       this.victim.root.visible = false
@@ -284,7 +302,46 @@ export class TrainingDirector {
       this.disguise.rotation.y = f.yaw
     }
     this.props(t.room, f, y, time)
+    this.pops(f, y, camera)
+    this.throwDecoy(f, y, time)
     this.gateMat.opacity = 0.26 + 0.08 * Math.sin(time * 3)
+  }
+
+  /**
+   * The key of each control the hologram uses pops up over its head (#114):
+   * on screen, from the hologram's head, it rises and fades (DemoPop.vue).
+   */
+  private pops(f: ReturnType<typeof demoFrame>, y: number, camera?: Camera): void {
+    if (!camera || !f.press) { demoPop.on = false; if (!f.press) this.lastPress = ''; return }
+    const key = `${f.press.hint}@${(this.state.demoT - f.press.t).toFixed(2)}`
+    if (key !== this.lastPress) { this.lastPress = key; demoPop.seq++ }
+    const p = this.popV.set(f.x, y + 3, f.z).project(camera)
+    demoPop.on = p.z < 1 && Math.abs(p.x) < 1.1 && Math.abs(p.y) < 1.1
+    demoPop.x = (p.x + 1) / 2
+    demoPop.y = (1 - p.y) / 2
+    demoPop.hint = f.press.hint
+  }
+
+  /** The decoy lesson's decoy (#114): it arcs from the hologram's hand and stands where it lands, flickering. */
+  private throwDecoy(f: ReturnType<typeof demoFrame>, y: number, time: number): void {
+    const d = f.decoy
+    this.decoyOrb.visible = !!d && d.t < DECOY_FLY_S
+    this.decoyHolo.root.visible = !!d && d.t >= DECOY_FLY_S
+    if (!d) return
+    if (d.t < DECOY_FLY_S) {
+      const k = d.t / DECOY_FLY_S
+      const hx = f.x + Math.sin(f.yaw) * 0.6
+      const hz = f.z + Math.cos(f.yaw) * 0.6
+      this.decoyOrb.position.set(hx + (d.x - hx) * k, y + 1.6 + Math.sin(k * Math.PI) * 2.5 - 1.2 * k, hz + (d.z - hz) * k)
+      return
+    }
+    // Standing where it fell, facing back the way it came, breathing.
+    const r = this.decoyHolo.root
+    r.position.set(d.x, 0, d.z)
+    r.rotation.y = f.yaw + Math.PI
+    const grow = Math.min(1, (d.t - DECOY_FLY_S) / 0.25)
+    r.scale.setScalar(grow * (1 + Math.sin(time * 6) * 0.02))
+    poseMech(this.decoyHolo, { ...restPose(), time })
   }
 
   /** The lesson's props: the rope it shoots, the body it burns and the flame, the targets that fall. */
@@ -359,6 +416,11 @@ export class TrainingDirector {
     this.body.material.dispose()
     this.body.glowMaterial.dispose()
     disposeDisguise(this.disguise)
+    this.decoyOrb.geometry.dispose()
+    this.decoyHolo.mesh.geometry.dispose()
+    this.decoyHolo.outline?.geometry.dispose()
+    this.decoyHolo.material.dispose()
+    this.decoyHolo.glowMaterial.dispose()
     this.victim.mesh.geometry.dispose()
     this.victim.outline?.geometry.dispose()
     this.victim.material.dispose()

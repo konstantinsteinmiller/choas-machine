@@ -120,7 +120,7 @@ export default {
   },
   'trackVerb': {
     'speed': 'Stufe 1: leiseres Sprinten',
-    'decoy': 'Stufe 1: ein Köder mehr'
+    'decoy': 'Stufe 1: der nächste Köder ist früher bereit'
   },
   'workshop': {
     'max': 'Max',

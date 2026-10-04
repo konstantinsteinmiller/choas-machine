@@ -120,7 +120,7 @@ export default {
   },
   'trackVerb': {
     'speed': 'Taso 1: hiljaisempi pikajuoksu',
-    'decoy': 'Taso 1: yksi houkutin lisää'
+    'decoy': 'Taso 1: seuraava houkutin on valmis nopeammin'
   },
   'workshop': {
     'max': 'Maks.',

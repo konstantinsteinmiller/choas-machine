@@ -120,7 +120,7 @@ export default {
   },
   'trackVerb': {
     'speed': 'Nivel 1: esprint máis silandeiro',
-    'decoy': 'Nivel 1: un reclamo máis'
+    'decoy': 'Nivel 1: o seguinte reclamo está listo antes'
   },
   'workshop': {
     'max': 'Máx.',

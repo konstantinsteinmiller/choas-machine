@@ -120,7 +120,7 @@ export default {
   },
   'trackVerb': {
     'speed': 'Seviye 1: daha sessiz koşu',
-    'decoy': 'Seviye 1: bir yem daha'
+    'decoy': 'Seviye 1: sonraki yem daha çabuk hazır olur'
   },
   'workshop': {
     'max': 'Maks',

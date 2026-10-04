@@ -40,7 +40,7 @@ import { TAKEDOWN, TD_END, TD_HOLD, TD_IN, TD_PULL, takedownCam, takedownPose } 
 import { castShot, makeShotHit, HEAD_Y } from './hitscan'
 import { blast, shotDamage } from './damage'
 import { SNIPER_MAG, SPREAD, ammoOf, isDry, makeArsenal, reloadProgress, reserveOf, stepArsenal, type Arsenal, type Trigger } from './weapons'
-import { DECOYS_PER_MISSION, decoySpot, findStrike, stepDecoys, type Decoy, type Strike, type StrikeKind } from './melee'
+import { decoySpot, findStrike, stepDecoys, type Decoy, type Strike, type StrikeKind } from './melee'
 import { fireRocket, stepRockets, type Rocket } from './rockets'
 import { blastRagdoll, nearRay, push, wake as wakeRagdoll } from './ragdoll'
 import { MARKSMAN_AIM_S, stepFire } from './chaos'
@@ -236,7 +236,8 @@ export class Mission implements GameMode {
   readonly decoys: Decoy[] = []
   readonly rockets: Rocket[] = []
   readonly stats: MissionStats = { time: 0, shots: 0, hits: 0, headshots: 0, kills: 0, bladeKills: 0, spotted: 0, bodiesFound: 0, loud: false, salvage: 0, piles: 0, bossDown: false, boxUses: 0, perchKills: 0 }
-  decoysLeft = DECOYS_PER_MISSION
+  /** Seconds until the next decoy is ready (#114: no count, a cooldown). */
+  decoyCool = 0
   /** The threat level this mission is played at, 1 … 5. */
   readonly level: number
   /** What the mech is fitted with (the Armory, the Chassis Bay, the Forge). */
@@ -382,7 +383,6 @@ export class Mission implements GameMode {
     this.armor = makeArmor(loadout.armor * (level === 1 ? 1.5 : 1))
     this.player = makePlayer(x, heightAt(g, x, z), z, facing)
     this.player.speedMul = loadout.speed
-    this.decoysLeft = loadout.decoys
     this.cam = makeCam(facing)
     this.garrison = makeGarrison(fortress, level)
     // The training ground's defenders are a drill: no alarm, no voices.
@@ -684,7 +684,10 @@ export class Mission implements GameMode {
       }
       this.stepWeapons(dt)
       this.stepRockets(dt)
-      if (stepDecoys(this.decoys, this.garrison, this.fortress.grid, dt) > 0) mirror('decoys', this.decoysLeft)
+      stepDecoys(this.decoys, this.garrison, this.fortress.grid, dt)
+      if (this.decoyCool > 0) this.decoyCool = Math.max(0, this.decoyCool - dt)
+      mirror('decoys', this.decoyCool <= 0 ? 1 : 0)
+      mirror('decoyCool', Math.ceil(this.decoyCool))
       if (this.finaleT >= 0 && (this.finaleT -= dt) < 0) {
         // The finale: the base goes loud and the Goliath powers up.
         this.goLoud()
@@ -844,7 +847,7 @@ export class Mission implements GameMode {
     gun.reload = reloadProgress(a)
     mirror('reloading', gun.reload > 0)
     mirror('overheated', a.overheated)
-    mirror('decoys', this.decoysLeft)
+    mirror('decoys', this.decoyCool <= 0 ? 1 : 0)
     gun.heat = a.heat
     gun.spool = a.spool
   }
@@ -1667,11 +1670,11 @@ export class Mission implements GameMode {
   }
 
   private throwDecoy(): void {
-    if (this.decoysLeft <= 0 || this.player.mode !== 'ground') return
+    if (this.decoyCool > 0 || this.player.mode !== 'ground') return
     const p = this.player
     // Thrown ahead; with a wall in the face, dropped at the mech's feet.
     const spot = decoySpot(this.fortress.grid, p.x, p.y, p.z, this.cam.yaw) ?? { x: p.x, y: p.y, z: p.z }
-    this.decoysLeft--
+    this.decoyCool = this.loadout.decoyCooldown
     // It faces back at the mech: a mech-shaped light looking at the guards
     // who come round the corner after it.
     this.decoys.push({ ...spot, yaw: this.cam.yaw + Math.PI, t: 0, life: this.loadout.decoySeconds, pulse: 0 })
@@ -1679,7 +1682,7 @@ export class Mission implements GameMode {
     haptic('tap')
     this.learn('decoy')
     emit('decoy', { x: spot.x, y: spot.y, z: spot.z })
-    mirror('decoys', this.decoysLeft)
+    mirror('decoys', 0)
   }
 
   // ─── The garrison ──────────────────────────────────────────────────────────
@@ -1989,7 +1992,7 @@ export class Mission implements GameMode {
     c.aiming = aiming
     c.chaos = gar.alert.chaos
     c.strike = !!this.offer
-    c.decoys = this.decoysLeft
+    c.decoys = this.decoyCool <= 0 ? 1 : 0
     let threat = 0
     let near = false
     let enemies = false
@@ -3014,7 +3017,7 @@ export class Mission implements GameMode {
     }
 
     this.stepGhost(dt)
-    this.training?.update(dt, this.time)
+    this.training?.update(dt, this.time, this.camera)
     this.stepTag(dt)
     this.stepDrag()
     this.supplyView.update(this.supplies, this.barrels, this.time)
