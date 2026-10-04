@@ -38,6 +38,8 @@ interface Props {
   pressed?: boolean
   /** The key that works it, lettered in a corner (desktop, #82). */
   hotkey?: Action
+  /** The mouse wheel does it too: a little mouse with its wheel lit, before the key ("wheel / Tab"). */
+  wheel?: boolean
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -63,7 +65,12 @@ const { t, te } = useI18n()
 const resolvedAriaLabel = computed<string | undefined>(
   () => resolveIconLabel(props.ariaLabel, props.icon, t, te)
 )
-const keyText = computed(() => (props.hotkey ? keyLabel(primaryCode(props.hotkey)) : ''))
+const keyText = computed(() => {
+  if (!props.hotkey) return ''
+  const code = primaryCode(props.hotkey)
+  // Beside the wheel the Tab key is spelled out: "wheel / Tab" reads better than an arrow.
+  return props.wheel && code === 'Tab' ? 'Tab' : keyLabel(code)
+})
 </script>
 
 <template lang="pug">
@@ -80,7 +87,13 @@ const keyText = computed(() => (props.hotkey ? keyLabel(primaryCode(props.hotkey
       slot
     span.f-hud-button__badge(v-if="$slots.badge")
       slot(name="badge")
-    span.f-hud-button__key(v-if="keyText" aria-hidden="true" :class="{ wide: keyText.length > 1 }") {{ keyText }}
+    span.f-hud-button__key(v-if="keyText" aria-hidden="true" :class="{ wide: keyText.length > 1 || wheel }")
+      template(v-if="wheel")
+        svg.f-hud-button__wheel(viewBox="0 0 12 16")
+          rect(x="1" y="1" width="10" height="14" rx="5")
+          rect.lit(x="5" y="3" width="2" height="4" rx="1")
+        span.f-hud-button__or /
+      | {{ keyText }}
 </template>
 
 <style scoped lang="sass">
@@ -170,6 +183,21 @@ const keyText = computed(() => (props.hotkey ? keyLabel(primaryCode(props.hotkey
   justify-content: center
   pointer-events: none
 
+// The mouse wheel that works it too (the weapons chip): before the key, "wheel / Tab".
+.f-hud-button__wheel
+  width: 0.6rem
+  height: 0.8rem
+  flex: none
+  rect
+    fill: none
+    stroke: currentColor
+    stroke-width: 1.4
+  rect.lit
+    fill: currentColor
+    stroke: none
+.f-hud-button__or
+  margin: 0 0.12rem
+  opacity: 0.7
 // The key that works it: a small keycap on the bottom-left corner.
 .f-hud-button__key
   position: absolute

@@ -218,6 +218,7 @@
           :attention="teaching('weapon')"
           :aria-label="t('hud.weapons')"
           :hotkey="kb('cycle')"
+          wheel
         data-testid="btn-weapons"
           @click="wheelOpen = true"
         )
