@@ -1,5 +1,5 @@
 import { BufferGeometry, Group, Mesh } from 'three'
-import { cap, dome, ell, merge, paint, rbox, rcone, rcyl, sph, torus, xform, type V3 } from './kit'
+import { cap, ell, merge, paint, rbox, rcone, rcyl, sph, torus, xform, type V3 } from './kit'
 import { glowVC, toonVC } from './toon'
 import { buildHideBox, BOX_LIFT } from './hideBox'
 
@@ -14,12 +14,8 @@ import { buildHideBox, BOX_LIFT } from './hideBox'
  * mech's feet show under its rim when it creeps.
  */
 
-export const DISGUISE_IDS = ['toaster', 'crate', 'clown', 'horse', 'bush', 'teddy'] as const
-export type DisguiseId = (typeof DISGUISE_IDS)[number]
-/** The one every mech has from the start. */
-export const FREE_DISGUISE: DisguiseId = 'toaster'
-/** Scrap to unlock one where there is no rewarded video (and always as the alternative). */
-export const DISGUISE_SCRAP = 400
+export { DISGUISE_IDS, DISGUISE_SCRAP, FREE_DISGUISE, type DisguiseId } from './disguiseIds'
+import type { DisguiseId } from './disguiseIds'
 
 const part = (g: BufferGeometry, color: string, p: V3, r: V3 = [0, 0, 0]): BufferGeometry => paint(xform(g, p, r), color)
 
@@ -124,7 +120,10 @@ const horse = (): Group => {
     part(sph(0.06, 6, 4), '#5fe9ff', [-0.2, 2.55, 1.5]),
     part(sph(0.06, 6, 4), '#5fe9ff', [0.2, 2.55, 1.5])
   ]
-  return assemble('disguise-horse', lit, glow)
+  const g = assemble('disguise-horse', lit, glow)
+  // A horse is long: kept to the box's footprint, near enough.
+  g.scale.setScalar(0.88)
+  return g
 }
 
 /** A leafy bush: green lumps of leaves over a few twigs. */
@@ -190,6 +189,3 @@ export const buildDisguise = (id: DisguiseId): Group => {
 export const disposeDisguise = (g: Group): void => {
   for (const c of g.children) (c as Mesh).geometry.dispose()
 }
-
-/** Ignore unused helper warnings in builds that tree-shake a disguise away. */
-export const __shapes = { dome }

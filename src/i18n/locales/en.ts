@@ -138,6 +138,19 @@ export default {
     'miss': 'Missed: {n} scrap back',
     'pity': 'A sure win in {n} spins'
   },
+  'disguise': {
+    'title': 'Disguises',
+    'toaster': 'Toaster',
+    'crate': 'Sneaky crate',
+    'clown': 'Clown box',
+    'horse': 'Trojan horse',
+    'bush': 'Bush',
+    'teddy': 'Teddy bear',
+    'wear': 'Wear the {name}',
+    'wearShort': 'Wear',
+    'unlock': 'Unlock the {name}',
+    'watch': 'Watch a video to unlock the {name}'
+  },
   'ads': {
     'blockedTitle': 'Ads blocked',
     'blockedBody': 'An ad blocker stopped the video, so there is no reward this time.',

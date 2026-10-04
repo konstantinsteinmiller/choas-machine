@@ -15,7 +15,9 @@
       template(v-if="tab === 'armory'")
         UpgradeList(station="armory" @focus="shown")
         RifleWheel(@focus="emit('show', 'sniper')")
-      UpgradeList(v-else-if="tab === 'chassis'" station="chassis" @focus="shown")
+      template(v-else-if="tab === 'chassis'")
+        UpgradeList(station="chassis" @focus="shown")
+        DisguisePanel(@preview="emit('disguise', $event)")
       ForgePanel(v-else @focus="emit('show', $event)")
 </template>
 
@@ -28,13 +30,15 @@ import Wallet from '@/components/base/Wallet.vue'
 import UpgradeList from '@/components/base/UpgradeList.vue'
 import ForgePanel from '@/components/base/ForgePanel.vue'
 import RifleWheel from '@/components/base/RifleWheel.vue'
+import DisguisePanel from '@/components/base/DisguisePanel.vue'
+import type { DisguiseId } from '@/game/models/disguiseIds'
 import { TRACKS, type TrackId } from '@/game/data/upgrades'
 import type { WeaponId } from '@/game/data/ids'
 
 export type WorkshopTab = 'armory' | 'chassis' | 'forge'
 
 const props = defineProps<{ open: boolean; start: WorkshopTab }>()
-const emit = defineEmits<{ (e: 'close'): void; (e: 'show', weapon: WeaponId): void }>()
+const emit = defineEmits<{ (e: 'close'): void; (e: 'show', weapon: WeaponId): void; (e: 'disguise', id: DisguiseId | null): void }>()
 const { t } = useI18n()
 
 const tab = ref<WorkshopTab>(props.start)

@@ -35,7 +35,7 @@
 
     SystemCorner
     LeaderboardModal(v-if="leaderboardEnabled" v-model="showBoard" :score="campaign")
-    WorkshopModal(:open="shop !== null" :start="shop ?? 'armory'" @close="closeShop" @show="showWeapon")
+    WorkshopModal(:open="shop !== null" :start="shop ?? 'armory'" @close="closeShop" @show="showWeapon" @disguise="showDisguise")
 </template>
 
 <script setup lang="ts">
@@ -55,6 +55,7 @@ import { profile } from '@/game/state/profile'
 import { campaignScore, canForge } from '@/game/state/progress'
 import { WEAPON_IDS } from '@/game/data/ids'
 import type { WeaponId } from '@/game/data/ids'
+import type { DisguiseId } from '@/game/models/disguiseIds'
 
 const { t } = useI18n()
 const shop = ref<WorkshopTab | null>(null)
@@ -73,8 +74,14 @@ const openShop = (tab: WorkshopTab): void => {
 }
 const closeShop = (): void => {
   shop.value = null
+  showDisguise(null)
   const s = stage()
   if (s) s.present = 0
+}
+/** A disguise under the pointer in the Chassis Bay stands over the mech (#97). */
+const showDisguise = (id: DisguiseId | null): void => {
+  const m = app.mode as unknown as { disguise?: DisguiseId | null } | null
+  if (m && 'disguise' in m) m.disguise = id
 }
 /** The mech holds up whatever was just bought or built. */
 const showWeapon = (w: WeaponId): void => {

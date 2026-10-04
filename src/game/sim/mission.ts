@@ -56,7 +56,7 @@ import {
   type CinePose
 } from './cine'
 import { buildRobodog, poseRobodog, restDogPose, type DogPose } from '../models/robodog'
-import { buildHideBox, disposeHideBox } from '../models/hideBox'
+import { buildDisguise, disposeDisguise } from '../models/disguises'
 import { supplyUnderfoot, take, type Supply } from './supplies'
 import { BARREL_EARSHOT, BARREL_POWER, BARREL_RADIUS, barrelAt, barrelHurt, ignite, stepBarrels, type Barrel } from './barrels'
 import { SupplyView } from '../fx/supplyView'
@@ -376,7 +376,8 @@ export class Mission implements GameMode {
       m.scene.add(v.group)
       m.beaconViews.push(v)
     }
-    m.hideBox = buildHideBox()
+    // What comes down over the mech when it hides: the disguise it wears (#97).
+    m.hideBox = buildDisguise(profile.cosmetics.worn)
     m.scene.add(m.hideBox)
     m.supplyView = new SupplyView(m.supplies, m.barrels)
     m.scene.add(m.supplyView.group)
@@ -2614,7 +2615,7 @@ export class Mission implements GameMode {
     this.offHelp?.()
     hud.hints = []
     app.setTimeScale(1)
-    disposeHideBox(this.hideBox)
+    disposeDisguise(this.hideBox)
     for (const v of this.beaconViews) disposeBeacon(v)
     this.ghost.mesh.geometry.dispose()
     this.ghostMat.dispose()

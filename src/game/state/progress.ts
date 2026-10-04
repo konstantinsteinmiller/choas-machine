@@ -7,6 +7,7 @@ import { MELT_BONUS, meltStars } from '../sim/smithy'
 import { MISS_REFUND, spinCost, winChance, winGain } from '../data/wheel'
 import { THREAT_LEVELS, defeatScrap, payout, type MissionResult, type Payout } from '../sim/rewards'
 import { fortressSave, profile, saveProfile } from './profile'
+import { DISGUISE_SCRAP, type DisguiseId } from '../models/disguiseIds'
 
 /**
  * ─── The player's progress ───────────────────────────────────────────────────
@@ -209,4 +210,29 @@ export const spinWheel = (pay: SpinPay, roll: number): SpinResult | null => {
   }
   saveProfile()
   return { won, gain, refund }
+}
+
+// ─── Disguises (#97) ─────────────────────────────────────────────────────────
+
+export const ownsDisguise = (id: DisguiseId): boolean => profile.cosmetics.owned.includes(id)
+
+/** Unlock a disguise for good: for scrap, or (`free`) after a rewarded video finished. */
+export const unlockDisguise = (id: DisguiseId, free = false): boolean => {
+  if (ownsDisguise(id)) return false
+  if (!free) {
+    if (profile.scrap < DISGUISE_SCRAP) return false
+    profile.scrap -= DISGUISE_SCRAP
+  }
+  profile.cosmetics.owned.push(id)
+  profile.cosmetics.worn = id
+  saveProfile()
+  return true
+}
+
+/** Wear an owned disguise: it is what comes down over the mech when it hides. */
+export const wearDisguise = (id: DisguiseId): boolean => {
+  if (!ownsDisguise(id) || profile.cosmetics.worn === id) return false
+  profile.cosmetics.worn = id
+  saveProfile()
+  return true
 }

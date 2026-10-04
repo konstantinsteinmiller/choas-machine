@@ -1,4 +1,4 @@
-import { CylinderGeometry, Mesh, PerspectiveCamera, Vector3, type BufferGeometry } from 'three'
+import { CylinderGeometry, Group, Mesh, PerspectiveCamera, Vector3, type BufferGeometry } from 'three'
 import { getRenderer, fovForAspect } from '../engine/renderer'
 import { newScene, type GameMode } from '../engine/app'
 import { noSlice, type Slice } from '../engine/slicer'
@@ -11,6 +11,7 @@ import { makeBlobShadow } from '../fx/markers'
 import { buildSky, type Sky } from '../world/sky'
 import { runHudTickers } from '../state/hud'
 import type { WeaponId } from '../data/ids'
+import { buildDisguise, disposeDisguise, type DisguiseId } from '../models/disguises'
 
 /**
  * ─── The Mobile Command Base ─────────────────────────────────────────────────
@@ -42,6 +43,10 @@ export class CommandBase implements GameMode {
   weapon: WeaponId = 'sniper'
   /** 0 … 1 the mech shows the weapon off (a station is open). */
   present = 0
+  /** A disguise being looked at in the Chassis Bay: it stands over the mech (#97); null for none. */
+  disguise: DisguiseId | null = null
+  private disguises = new Map<DisguiseId, Group>()
+  private shownDisguise: DisguiseId | null = null
 
   static async create(slice: Slice = noSlice, onProgress: (p01: number) => void = () => {}): Promise<CommandBase> {
     const b = new CommandBase()
@@ -116,6 +121,18 @@ export class CommandBase implements GameMode {
     s.spin += dt * 4 * this.present
     poseMech(this.rig, s)
     this.ship.group.position.y = 2.2 + Math.sin(this.time * 0.8) * 0.12
+    // The disguise under the cursor, standing over the mech on the pad.
+    if (this.disguise !== this.shownDisguise) {
+      if (this.shownDisguise) this.disguises.get(this.shownDisguise)!.visible = false
+      this.shownDisguise = this.disguise
+      if (this.disguise) {
+        let g = this.disguises.get(this.disguise)
+        if (!g) { g = buildDisguise(this.disguise); this.disguises.set(this.disguise, g); this.scene.add(g) }
+        g.visible = true
+      }
+    }
+    this.rig.root.visible = !this.shownDisguise
+    if (this.shownDisguise) this.disguises.get(this.shownDisguise)!.rotation.y = this.rig.root.rotation.y
     this.sky.update(this.camera.position, this.time)
     runHudTickers(dt)
     const r = getRenderer()
@@ -124,6 +141,7 @@ export class CommandBase implements GameMode {
   }
 
   dispose(): void {
+    for (const g of this.disguises.values()) disposeDisguise(g)
     this.sky.dispose()
     this.ship.dispose()
     for (const g of this.geos) g.dispose()

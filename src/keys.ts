@@ -48,6 +48,8 @@ export const SEEN_KEY = 'cm_seen'
 export const STATS_KEY = 'cm_stats'
 /** The last raid's habits (`sim/adapt.ts`): what the base answers next time. */
 export const HABITS_KEY = 'cm_habits'
+/** `CosmeticsSave` — the disguises owned and the one worn (#97). */
+export const COSMETICS_KEY = 'cm_cosmetics'
 
 // ─── User settings ──────────────────────────────────────────────────────────
 
