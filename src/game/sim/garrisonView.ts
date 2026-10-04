@@ -376,8 +376,13 @@ export class GarrisonView {
       const a = yaw - view.halfAngle + (2 * view.halfAngle * s) / CONE_SEGS
       const dx = Math.sin(a)
       const dz = Math.cos(a)
+      // Each slice of the cone runs as far as the first wall taller than the
+      // eye along it, and its rings are spread over that much: the cone
+      // reaches the wall, with no ragged cut-outs short of it.
+      const wall = raycast(g, u.x, eyeY - 0.2, u.z, dx, 0, dz, view.range)
+      const reach = wall.hit ? Math.max(0.4, wall.t - 0.06) : view.range
       for (let r = 0; r < H; r++) {
-        const k = r / CONE_RINGS
+        const k = (r / CONE_RINGS) * (reach / view.range)
         const o = (s * H + r) * 4
         const x = u.x + dx * view.range * k
         const z = u.z + dz * view.range * k
