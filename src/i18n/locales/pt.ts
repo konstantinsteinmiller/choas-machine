@@ -32,6 +32,8 @@ export default {
     'weapons': 'Armas',
     'ammo': 'Munição',
     'reloading': 'Recarregando',
+    'jump': 'Jump',
+    'rope': 'Shoot a rope',
     'reserve': 'Mais {n} na reserva',
     'heat': 'Calor da arma',
     'armor': 'Armadura',
@@ -234,7 +236,9 @@ export default {
       'weapon3': 'Lança-foguetes',
       'cycle': 'Próxima arma',
       'pause': 'Pausa',
-      'help': 'Mostrar as lições'
+      'help': 'Mostrar as lições',
+      'jump': 'Jump',
+      'rope': 'Rope gun'
     }
   },
   'prompt': {
@@ -245,7 +249,8 @@ export default {
     'jam': 'Travar servo',
     'grab': 'Pegar corpo',
     'drop': 'Soltar corpo',
-    'hook': 'Gancho'
+    'hook': 'Gancho',
+    'rope': 'Rope'
   },
   'saveStatus': {
     'restoredTitle': 'Salvamento na nuvem restaurado',

@@ -32,6 +32,8 @@ export default {
     'weapons': 'Silahlar',
     'ammo': 'Sursat',
     'reloading': 'Doldurulur',
+    'jump': 'Jump',
+    'rope': 'Shoot a rope',
     'reserve': 'daha {n} gəzdirilir',
     'heat': 'Silahın istiliyi',
     'armor': 'Zireh',
@@ -234,7 +236,9 @@ export default {
       'weapon3': 'Raket atan',
       'cycle': 'Növbəti silah',
       'pause': 'Fasilə',
-      'help': 'Dərsləri göstər'
+      'help': 'Dərsləri göstər',
+      'jump': 'Jump',
+      'rope': 'Rope gun'
     }
   },
   'prompt': {
@@ -245,7 +249,8 @@ export default {
     'jam': 'Servonu blokla',
     'grab': 'Cəsədi tut',
     'drop': 'Cəsədi burax',
-    'hook': 'Qarmaq'
+    'hook': 'Qarmaq',
+    'rope': 'Rope'
   },
   'saveStatus': {
     'restoredTitle': 'Bulud yaddaşı bərpa olundu',

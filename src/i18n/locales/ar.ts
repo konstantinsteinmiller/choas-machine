@@ -32,6 +32,8 @@ export default {
     'weapons': 'الأسلحة',
     'ammo': 'الذخيرة',
     'reloading': 'إعادة التعبئة',
+    'jump': 'Jump',
+    'rope': 'Shoot a rope',
     'reserve': '{n} إضافية محمولة',
     'heat': 'حرارة السلاح',
     'armor': 'الدرع',
@@ -234,7 +236,9 @@ export default {
       'weapon3': 'قاذفة صواريخ',
       'cycle': 'السلاح التالي',
       'pause': 'إيقاف مؤقت',
-      'help': 'عرض الدروس'
+      'help': 'عرض الدروس',
+      'jump': 'Jump',
+      'rope': 'Rope gun'
     }
   },
   'prompt': {
@@ -245,7 +249,8 @@ export default {
     'jam': 'عطّل المحرك',
     'grab': 'امسك الجثة',
     'drop': 'أفلت الجثة',
-    'hook': 'خطّاف'
+    'hook': 'خطّاف',
+    'rope': 'Rope'
   },
   'saveStatus': {
     'restoredTitle': 'تمت استعادة الحفظ السحابي',

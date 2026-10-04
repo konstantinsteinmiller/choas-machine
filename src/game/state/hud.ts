@@ -60,8 +60,11 @@ export const hud = reactive({
   reloading: false,
   overheated: false,
   decoys: 0,
-  /** A wall the hook can take is in front of the mech. */
+  /** A wall the hook can take is in front of the mech, or under its look (#102). */
   grapple: false,
+  /** The rope gun has somewhere to shoot (#94), and ropes left. */
+  rope: false,
+  ropes: 0,
   /** The hook is out: 'up' while it can still be recalled, 'over' once it cannot. */
   grappling: '' as '' | 'up' | 'over',
   /** How many heard the hook bite. */
@@ -116,7 +119,7 @@ export const hud = reactive({
 export const waypoint = { on: false, x: 0.5, y: 0.5, behind: false, dist: 0 }
 
 /** What a key does where the mech stands, as the in-world prompt names it (#83). */
-export type PromptKind = '' | 'salvage' | 'strike' | 'sabotage' | 'cutPower' | 'jam' | 'grab' | 'drop' | 'hook'
+export type PromptKind = '' | 'salvage' | 'strike' | 'sabotage' | 'cutPower' | 'jam' | 'grab' | 'drop' | 'hook' | 'rope'
 
 /** Where the in-world prompt sits: 0 … 1 of the view, and on screen at all. */
 export const prompt = { on: false, x: 0.5, y: 0.5 }

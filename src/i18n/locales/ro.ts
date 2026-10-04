@@ -32,6 +32,8 @@ export default {
     'weapons': 'Arme',
     'ammo': 'Muniție',
     'reloading': 'Se reîncarcă',
+    'jump': 'Jump',
+    'rope': 'Shoot a rope',
     'reserve': 'Încă {n} la tine',
     'heat': 'Căldura armei',
     'armor': 'Armură',
@@ -234,7 +236,9 @@ export default {
       'weapon3': 'Lansator de rachete',
       'cycle': 'Arma următoare',
       'pause': 'Pauză',
-      'help': 'Arată lecțiile'
+      'help': 'Arată lecțiile',
+      'jump': 'Jump',
+      'rope': 'Rope gun'
     }
   },
   'prompt': {
@@ -245,7 +249,8 @@ export default {
     'jam': 'Blochează servo',
     'grab': 'Apucă corpul',
     'drop': 'Lasă corpul',
-    'hook': 'Cârlig'
+    'hook': 'Cârlig',
+    'rope': 'Rope'
   },
   'saveStatus': {
     'restoredTitle': 'Salvare din cloud restaurată',

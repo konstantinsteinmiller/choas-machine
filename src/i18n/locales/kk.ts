@@ -32,6 +32,8 @@ export default {
     'weapons': 'Қарулар',
     'ammo': 'Оқ-дәрі',
     'reloading': 'Оқтау',
+    'jump': 'Jump',
+    'rope': 'Shoot a rope',
     'reserve': 'Тағы {n} алып жүр',
     'heat': 'Қарудың қызуы',
     'armor': 'Сауыт',
@@ -234,7 +236,9 @@ export default {
       'weapon3': 'Ракета атқыш',
       'cycle': 'Келесі қару',
       'pause': 'Үзіліс',
-      'help': 'Сабақтарды көрсету'
+      'help': 'Сабақтарды көрсету',
+      'jump': 'Jump',
+      'rope': 'Rope gun'
     }
   },
   'prompt': {
@@ -245,7 +249,8 @@ export default {
     'jam': 'Серво бұғаттау',
     'grab': 'Денені алу',
     'drop': 'Денені тастау',
-    'hook': 'Ілгек'
+    'hook': 'Ілгек',
+    'rope': 'Rope'
   },
   'saveStatus': {
     'restoredTitle': 'Бұлттық сақтау қалпына келтірілді',

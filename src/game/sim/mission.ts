@@ -33,7 +33,7 @@ import { GarrisonView } from './garrisonView'
 import { SALVAGE_EARSHOT, SALVAGE_S, makePiles, nearestPile, pileInReach, salvageNeed, type Pile } from './salvage'
 import { SalvageView } from '../world/salvageView'
 import {
-  GRAPPLE_EARSHOT, cancelGrapple, canCancel, findGrapple, hookAt, startGrapple, stepGrapple, type GrappleRun, type GrappleSpot
+  GRAPPLE_EARSHOT, cancelGrapple, canCancel, findGrapple, findGrappleAimed, hookAt, startGrapple, stepGrapple, type GrappleRun, type GrappleSpot
 } from './grapple'
 import { sfx } from '../audio/sfx'
 import { TAKEDOWN, TD_END, TD_HOLD, TD_IN, TD_PULL, takedownCam, takedownPose } from './takedown'
@@ -58,6 +58,7 @@ import {
 import { buildRobodog, poseRobodog, restDogPose, type DogPose } from '../models/robodog'
 import { buildDisguise, disposeDisguise } from '../models/disguises'
 import { supplyUnderfoot, take, type Supply } from './supplies'
+import { findRopeShot, type RopeShot } from './ropes'
 import { BARREL_EARSHOT, BARREL_POWER, BARREL_RADIUS, barrelAt, barrelHurt, ignite, stepBarrels, type Barrel } from './barrels'
 import { SupplyView } from '../fx/supplyView'
 import { buildBeacon, disposeBeacon, poseBeacon, BEACON_TOP, type BeaconView } from '../models/beacon'
@@ -83,6 +84,8 @@ const UP = new Vector3(0, 1, 0)
 
 /** How far a round flies. */
 const SHOT_RANGE = 260
+/** A jump is heard this near (#95). */
+const JUMP_EARSHOT = 6
 /** The silenced rifle is heard this near its muzzle (#68). */
 const RIFLE_EARSHOT_M = 4
 /** From the shoulder point `aimLine` traces from out to each weapon's muzzle (m). */
@@ -260,6 +263,12 @@ export class Mission implements GameMode {
   private hook!: Mesh
   /** The wall the hook could take from here, and the throw in progress. */
   private hookSpot: GrappleSpot | null = null
+  /** A wall top under the mech's look the hook could take (#102), and where a rope would go (#94). */
+  private hookAim: GrappleSpot | null = null
+  private ropeAim: RopeShot | null = null
+  private ropesLeft = 0
+  /** The ropes the mech has shot this raid, drawn. */
+  private ropeMeshes: Mesh[] = []
   private grapple: GrappleRun | null = null
   private hookPos = { x: 0, y: 0, z: 0 }
   /** The raid's salvage, how much of it is needed, and the pile being stripped. */
@@ -322,6 +331,7 @@ export class Mission implements GameMode {
     this.piles = makePiles(fortress.salvage)
     this.salvageNeed = salvageNeed(level, this.piles.length)
     this.arsenal = makeArsenal(loadout.rockets, loadout.heatSeconds, loadout.coolRate, loadout.rifleReserve, loadout.belt)
+    this.ropesLeft = loadout.ropes
     this.supplies = (fortress.supplies ?? []).map(s => ({ ...s, taken: false }))
     this.barrels = (fortress.barrels ?? []).map(b => ({ ...b, live: true, fuse: -1 }))
     // Level I is gentler: half again the armour (the curve comes from more
@@ -531,10 +541,17 @@ export class Mission implements GameMode {
           crouch: i.crouchQueued,
           box: i.hideQueued,
           sprint: i.sprintHeld,
+          jump: i.jumpQueued,
           aiming: this.weaponUp(),
           aimYaw: this.cam.yaw
         }, dt)
         for (const e of events) {
+          if (e.type === 'jump') {
+            // A hop is heard close by, like a sprinting step (#95).
+            hearAt(this.garrison, p.x, p.z, JUMP_EARSHOT)
+            emit('hop', {})
+          }
+          if (e.type === 'jump') continue
           if (e.type === 'land') {
             emit('land', { drop: e.drop })
             if (e.drop > 2) { this.shake = Math.max(this.shake, 0.25); haptic('tap') }
@@ -570,7 +587,11 @@ export class Mission implements GameMode {
         else if (i.actQueued && !this.offer && !this.strike && (this.dragId >= 0 || this.dragOffer >= 0)) { this.actDrag(); i.actQueued = false }
         // A wall too high to pull up onto, straight ahead: the hook can take it.
         this.hookSpot = p.mode === 'ground' && !this.strike ? findGrapple(this.fortress.grid, p.x, p.y, p.z, p.yaw, this.loadout.hookReach, this.loadout.hookMax) : null
-        if (i.grappleQueued && this.hookSpot && !this.strike) this.throwHook(this.hookSpot)
+        this.aimGear()
+        // At the foot of a wall the hook goes straight up it; otherwise at the wall top the mech looks at.
+        const hook = this.hookSpot ?? this.hookAim
+        if (i.grappleQueued && hook && !this.strike) this.throwHook(hook)
+        if (i.ropeQueued && this.ropeAim && !this.strike) this.shootRope(this.ropeAim)
         if (i.decoyQueued) this.throwDecoy()
         // On the pad with the job done: the line comes down.
         if (this.objective === 'extract' && p.mode === 'ground') {
@@ -625,7 +646,9 @@ export class Mission implements GameMode {
     mirror('aiming', this.weaponUp())
     mirror('mode', p.mode)
     mirror('strike', this.strike ? '' : this.offer?.kind ?? '')
-    mirror('grapple', !this.grapple && !!this.hookSpot && hud.phase === 'play')
+    mirror('grapple', !this.grapple && !!(this.hookSpot ?? this.hookAim) && hud.phase === 'play')
+    mirror('rope', !this.grapple && !!this.ropeAim && hud.phase === 'play')
+    mirror('ropes', this.ropesLeft)
     mirror('grappling', !this.grapple ? '' : canCancel(this.grapple) ? 'up' : 'over')
     mirror('grappleHeard', this.grapple?.heard ?? 0)
     mirror('loot', !this.looting && !!this.lootOffer && hud.phase === 'play')
@@ -1242,6 +1265,53 @@ export class Mission implements GameMode {
     if (r.phase === 'done') this.grapple = null
   }
 
+  /**
+   * What the hook and the rope gun could take along the camera's line (#102,
+   * #94): a wall top the hook reaches, a spot below for a rope. Only on the
+   * ground, with the hands free and the weapon down.
+   */
+  private aimGear(): void {
+    this.hookAim = null
+    this.ropeAim = null
+    const p = this.player
+    if (p.mode !== 'ground' || this.strike || this.grapple || this.weaponUp()) return
+    const f = camForward(this.cam)
+    const cp = this.camera.position
+    // From the camera, starting past the mech, as the reticle does.
+    const eyeY = p.y + eyeHeight(p)
+    const skip = Math.max(0, (p.x - cp.x) * f.x + (eyeY - cp.y) * f.y + (p.z - cp.z) * f.z)
+    const ox = cp.x + f.x * skip
+    const oy = cp.y + f.y * skip
+    const oz = cp.z + f.z * skip
+    const hit = raycast(this.fortress.grid, ox, oy, oz, f.x, f.y, f.z, 46)
+    if (!hit.hit) return
+    const hx = ox + f.x * hit.t
+    const hy = oy + f.y * hit.t
+    const hz = oz + f.z * hit.t
+    this.hookAim = findGrappleAimed(this.fortress.grid, { x: p.x, y: p.y, z: p.z }, { x: hx, y: hy, z: hz }, { x: hit.nx, y: hit.ny, z: hit.nz }, this.loadout.hookMax)
+    if (this.ropesLeft > 0 && !this.hookAim) this.ropeAim = findRopeShot(this.fortress.grid, p.x, p.y, p.z, hx, hy, hz, hit.ny)
+  }
+
+  /** The rope gun (#94): a line from here to there, walked at once like any cable. */
+  private shootRope(r: RopeShot): void {
+    const g = this.fortress.grid
+    g.cables.push(r.cable)
+    this.ropesLeft--
+    this.ropeAim = null
+    const len = Math.hypot(r.bx - r.ax, r.by - r.ay, r.bz - r.az)
+    const mesh = new Mesh(this.ropeGeo, this.ropeMat)
+    mesh.position.set((r.ax + r.bx) / 2, (r.ay + r.by) / 2 + 0.75, (r.az + r.bz) / 2)
+    mesh.scale.set(1, len, 1)
+    mesh.quaternion.setFromUnitVectors(UP, new Vector3(r.bx - r.ax, r.by - r.ay, r.bz - r.az).normalize())
+    this.scene.add(mesh)
+    this.ropeMeshes.push(mesh)
+    this.fx.particles.sparks(r.bx, r.by + 0.75, r.bz, '#fff1c9', 10, 3, 0.25)
+    // A line strung across the base is a thing out of place for whoever sees it.
+    noteChange(this.garrison, (r.ax + r.bx) / 2, (r.ay + r.by) / 2 + 0.5, (r.az + r.bz) / 2, 'rope')
+    emit('rope', {})
+    haptic('tap')
+  }
+
   private throwDecoy(): void {
     if (this.decoysLeft <= 0 || this.player.mode !== 'ground') return
     const p = this.player
@@ -1786,6 +1856,8 @@ export class Mission implements GameMode {
       else if (this.dragId >= 0) { const u = gar.units[this.dragId]!; at('drop', u.x, u.y + 0.9, u.z) }
       else if (this.dragOffer >= 0) { const u = gar.units[this.dragOffer]!; at('grab', u.x, u.y + 0.9, u.z) }
       else if (this.hookSpot) at('hook', this.hookSpot.edge.x, this.hookSpot.edge.y + 0.5, this.hookSpot.edge.z)
+      else if (this.hookAim) at('hook', this.hookAim.edge.x, this.hookAim.edge.y + 0.5, this.hookAim.edge.z)
+      else if (this.ropeAim) at('rope', this.ropeAim.bx, this.ropeAim.by + 0.8, this.ropeAim.bz)
     }
     mirror('prompt', kind)
     prompt.on = kind !== '' && !hud.scoped
@@ -2077,6 +2149,8 @@ export class Mission implements GameMode {
   private supplies: Supply[] = []
   private barrels: Barrel[] = []
   private supplyView!: SupplyView
+  private ropeGeo = new CylinderGeometry(0.04, 0.04, 1, 6)
+  private ropeMat = new MeshBasicMaterial({ color: '#7ff4ff', toneMapped: false })
 
   private dropPouch(x: number, y: number, z: number): void {
     const pouches = this.supplies.filter(s => s.kind === 'pouch' && !s.taken)
@@ -2620,6 +2694,8 @@ export class Mission implements GameMode {
     this.ghost.mesh.geometry.dispose()
     this.ghostMat.dispose()
     this.supplyView.dispose()
+    this.ropeGeo.dispose()
+    this.ropeMat.dispose()
     this.ghost.material.dispose()
     this.ghost.glowMaterial.dispose()
     this.dog.mesh.geometry.dispose()

@@ -32,6 +32,8 @@ export default {
     'weapons': 'हथियार',
     'ammo': 'गोला-बारूद',
     'reloading': 'रीलोड हो रहा है',
+    'jump': 'Jump',
+    'rope': 'Shoot a rope',
     'reserve': '{n} और साथ में',
     'heat': 'हथियार की गर्मी',
     'armor': 'कवच',
@@ -234,7 +236,9 @@ export default {
       'weapon3': 'रॉकेट लॉन्चर',
       'cycle': 'अगला हथियार',
       'pause': 'रोकें',
-      'help': 'सबक दिखाएँ'
+      'help': 'सबक दिखाएँ',
+      'jump': 'Jump',
+      'rope': 'Rope gun'
     }
   },
   'prompt': {
@@ -245,7 +249,8 @@ export default {
     'jam': 'सर्वो जाम करें',
     'grab': 'शव पकड़ें',
     'drop': 'शव छोड़ें',
-    'hook': 'हुक'
+    'hook': 'हुक',
+    'rope': 'Rope'
   },
   'saveStatus': {
     'restoredTitle': 'क्लाउड सेव बहाल हुआ',

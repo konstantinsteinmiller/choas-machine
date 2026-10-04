@@ -108,6 +108,9 @@ export interface GameEvents {
   finale: Record<string, never>
   /** The player asked for the control hints back (the "?" button). */
   help: Record<string, never>
+  /** The mech hopped (#95); a rope was shot (#94). */
+  hop: Record<string, never>
+  rope: Record<string, never>
   /** Two bodies found: the base is on edge for the rest of the raid (#98). */
   heightened: Record<string, never>
   /** The drop-in ended and the mech is the player's; the mech is away. */

@@ -32,6 +32,8 @@ export default {
     'weapons': 'Våpen',
     'ammo': 'Ammunisjon',
     'reloading': 'Lader om',
+    'jump': 'Jump',
+    'rope': 'Shoot a rope',
     'reserve': '{n} til med deg',
     'heat': 'Våpenvarme',
     'armor': 'Panser',
@@ -234,7 +236,9 @@ export default {
       'weapon3': 'Rakettkaster',
       'cycle': 'Neste våpen',
       'pause': 'Pause',
-      'help': 'Vis leksjonene'
+      'help': 'Vis leksjonene',
+      'jump': 'Jump',
+      'rope': 'Rope gun'
     }
   },
   'prompt': {
@@ -245,7 +249,8 @@ export default {
     'jam': 'Blokker servo',
     'grab': 'Grip kroppen',
     'drop': 'Slipp kroppen',
-    'hook': 'Krok'
+    'hook': 'Krok',
+    'rope': 'Rope'
   },
   'saveStatus': {
     'restoredTitle': 'Skylagring gjenopprettet',

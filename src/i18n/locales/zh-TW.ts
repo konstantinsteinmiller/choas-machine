@@ -32,6 +32,8 @@ export default {
     'weapons': '武器',
     'ammo': '彈藥',
     'reloading': '換彈中',
+    'jump': 'Jump',
+    'rope': 'Shoot a rope',
     'reserve': '另攜帶 {n} 發',
     'heat': '武器過熱',
     'armor': '裝甲',
@@ -234,7 +236,9 @@ export default {
       'weapon3': '火箭筒',
       'cycle': '下一把武器',
       'pause': '暫停',
-      'help': '顯示教學'
+      'help': '顯示教學',
+      'jump': 'Jump',
+      'rope': 'Rope gun'
     }
   },
   'prompt': {
@@ -245,7 +249,8 @@ export default {
     'jam': '卡住伺服',
     'grab': '抓住屍體',
     'drop': '放下屍體',
-    'hook': '鉤爪'
+    'hook': '鉤爪',
+    'rope': 'Rope'
   },
   'saveStatus': {
     'restoredTitle': '雲端存檔已還原',

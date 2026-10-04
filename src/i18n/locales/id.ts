@@ -32,6 +32,8 @@ export default {
     'weapons': 'Senjata',
     'ammo': 'Amunisi',
     'reloading': 'Mengisi ulang',
+    'jump': 'Jump',
+    'rope': 'Shoot a rope',
     'reserve': '{n} lagi dibawa',
     'heat': 'Panas senjata',
     'armor': 'Armor',
@@ -234,7 +236,9 @@ export default {
       'weapon3': 'Peluncur roket',
       'cycle': 'Senjata berikutnya',
       'pause': 'Jeda',
-      'help': 'Tampilkan pelajaran'
+      'help': 'Tampilkan pelajaran',
+      'jump': 'Jump',
+      'rope': 'Rope gun'
     }
   },
   'prompt': {
@@ -245,7 +249,8 @@ export default {
     'jam': 'Macetkan servo',
     'grab': 'Seret tubuh',
     'drop': 'Lepas tubuh',
-    'hook': 'Kait'
+    'hook': 'Kait',
+    'rope': 'Rope'
   },
   'saveStatus': {
     'restoredTitle': 'Simpanan cloud dipulihkan',

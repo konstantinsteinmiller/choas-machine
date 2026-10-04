@@ -32,6 +32,8 @@ export default {
     'weapons': 'Оружие',
     'ammo': 'Боеприпасы',
     'reloading': 'Перезарядка',
+    'jump': 'Jump',
+    'rope': 'Shoot a rope',
     'reserve': 'Ещё {n} в запасе',
     'heat': 'Нагрев оружия',
     'armor': 'Броня',
@@ -234,7 +236,9 @@ export default {
       'weapon3': 'Ракетница',
       'cycle': 'Следующее оружие',
       'pause': 'Пауза',
-      'help': 'Показать подсказки'
+      'help': 'Показать подсказки',
+      'jump': 'Jump',
+      'rope': 'Rope gun'
     }
   },
   'prompt': {
@@ -245,7 +249,8 @@ export default {
     'jam': 'Заклинить привод',
     'grab': 'Схватить тело',
     'drop': 'Бросить тело',
-    'hook': 'Крюк'
+    'hook': 'Крюк',
+    'rope': 'Rope'
   },
   'saveStatus': {
     'restoredTitle': 'Облачное сохранение восстановлено',

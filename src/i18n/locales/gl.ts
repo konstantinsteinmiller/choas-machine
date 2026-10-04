@@ -32,6 +32,8 @@ export default {
     'weapons': 'Armas',
     'ammo': 'Munición',
     'reloading': 'Recargando',
+    'jump': 'Jump',
+    'rope': 'Shoot a rope',
     'reserve': '{n} máis en reserva',
     'heat': 'Calor da arma',
     'armor': 'Armadura',
@@ -234,7 +236,9 @@ export default {
       'weapon3': 'Lanzamisiles',
       'cycle': 'Seguinte arma',
       'pause': 'Pausa',
-      'help': 'Mostrar as leccións'
+      'help': 'Mostrar as leccións',
+      'jump': 'Jump',
+      'rope': 'Rope gun'
     }
   },
   'prompt': {
@@ -245,7 +249,8 @@ export default {
     'jam': 'Bloquear servo',
     'grab': 'Agarrar corpo',
     'drop': 'Soltar corpo',
-    'hook': 'Gancho'
+    'hook': 'Gancho',
+    'rope': 'Rope'
   },
   'saveStatus': {
     'restoredTitle': 'Partida na nube restaurada',

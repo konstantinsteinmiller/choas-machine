@@ -32,6 +32,8 @@ export default {
     'weapons': 'Armes',
     'ammo': 'Munició',
     'reloading': 'Recarregant',
+    'jump': 'Jump',
+    'rope': 'Shoot a rope',
     'reserve': '{n} més a sobre',
     'heat': 'Calor de l\'arma',
     'armor': 'Armadura',
@@ -234,7 +236,9 @@ export default {
       'weapon3': 'Llançamíssils',
       'cycle': 'Arma següent',
       'pause': 'Pausa',
-      'help': 'Mostra les lliçons'
+      'help': 'Mostra les lliçons',
+      'jump': 'Jump',
+      'rope': 'Rope gun'
     }
   },
   'prompt': {
@@ -245,7 +249,8 @@ export default {
     'jam': 'Encalla el servo',
     'grab': 'Agafa el cos',
     'drop': 'Deixa el cos',
-    'hook': 'Ganxo'
+    'hook': 'Ganxo',
+    'rope': 'Rope'
   },
   'saveStatus': {
     'restoredTitle': 'Partida al núvol restaurada',

@@ -32,6 +32,8 @@ export default {
     'weapons': 'Fegyverek',
     'ammo': 'Lőszer',
     'reloading': 'Töltés',
+    'jump': 'Jump',
+    'rope': 'Shoot a rope',
     'reserve': 'Még {n} nálad',
     'heat': 'Fegyver hőmérséklete',
     'armor': 'Páncél',
@@ -234,7 +236,9 @@ export default {
       'weapon3': 'Rakétavető',
       'cycle': 'Következő fegyver',
       'pause': 'Szünet',
-      'help': 'Leckék mutatása'
+      'help': 'Leckék mutatása',
+      'jump': 'Jump',
+      'rope': 'Rope gun'
     }
   },
   'prompt': {
@@ -245,7 +249,8 @@ export default {
     'jam': 'Szervó leblokkolása',
     'grab': 'Test megfogása',
     'drop': 'Test eldobása',
-    'hook': 'Kampó'
+    'hook': 'Kampó',
+    'rope': 'Rope'
   },
   'saveStatus': {
     'restoredTitle': 'Felhőmentés visszaállítva',

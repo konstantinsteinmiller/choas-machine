@@ -32,6 +32,8 @@ export default {
     'weapons': 'Όπλα',
     'ammo': 'Πυρομαχικά',
     'reloading': 'Επαναφόρτωση',
+    'jump': 'Jump',
+    'rope': 'Shoot a rope',
     'reserve': 'άλλα {n} μαζί',
     'heat': 'Θερμοκρασία όπλου',
     'armor': 'Θωράκιση',
@@ -234,7 +236,9 @@ export default {
       'weapon3': 'Εκτοξευτής ρουκετών',
       'cycle': 'Επόμενο όπλο',
       'pause': 'Παύση',
-      'help': 'Εμφάνιση μαθημάτων'
+      'help': 'Εμφάνιση μαθημάτων',
+      'jump': 'Jump',
+      'rope': 'Rope gun'
     }
   },
   'prompt': {
@@ -245,7 +249,8 @@ export default {
     'jam': 'Μπλόκαρε σέρβο',
     'grab': 'Πιάσε το σώμα',
     'drop': 'Άφησε το σώμα',
-    'hook': 'Γάντζος'
+    'hook': 'Γάντζος',
+    'rope': 'Rope'
   },
   'saveStatus': {
     'restoredTitle': 'Η αποθήκευση στο νέφος επανήλθε',

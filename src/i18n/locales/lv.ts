@@ -32,6 +32,8 @@ export default {
     'weapons': 'Ieroči',
     'ammo': 'Munīcija',
     'reloading': 'Pārlādē',
+    'jump': 'Jump',
+    'rope': 'Shoot a rope',
     'reserve': 'Vēl {n} līdzi',
     'heat': 'Ieroča karstums',
     'armor': 'Bruņas',
@@ -234,7 +236,9 @@ export default {
       'weapon3': 'Raķešmetējs',
       'cycle': 'Nākamais ierocis',
       'pause': 'Pauze',
-      'help': 'Rādīt mācības'
+      'help': 'Rādīt mācības',
+      'jump': 'Jump',
+      'rope': 'Rope gun'
     }
   },
   'prompt': {
@@ -245,7 +249,8 @@ export default {
     'jam': 'Iesprostot servo',
     'grab': 'Satvert ķermeni',
     'drop': 'Nolikt ķermeni',
-    'hook': 'Āķis'
+    'hook': 'Āķis',
+    'rope': 'Rope'
   },
   'saveStatus': {
     'restoredTitle': 'Mākoņa saglabājums atjaunots',

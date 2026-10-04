@@ -32,6 +32,8 @@ export default {
     'weapons': 'Aseet',
     'ammo': 'Ammukset',
     'reloading': 'Ladataan',
+    'jump': 'Jump',
+    'rope': 'Shoot a rope',
     'reserve': '{n} kantamassa lisää',
     'heat': 'Aseen kuumuus',
     'armor': 'Panssari',
@@ -234,7 +236,9 @@ export default {
       'weapon3': 'Raketinheitin',
       'cycle': 'Seuraava ase',
       'pause': 'Tauko',
-      'help': 'Näytä opit'
+      'help': 'Näytä opit',
+      'jump': 'Jump',
+      'rope': 'Rope gun'
     }
   },
   'prompt': {
@@ -245,7 +249,8 @@ export default {
     'jam': 'Jumita servo',
     'grab': 'Ota ruumis',
     'drop': 'Pudota ruumis',
-    'hook': 'Koukku'
+    'hook': 'Koukku',
+    'rope': 'Rope'
   },
   'saveStatus': {
     'restoredTitle': 'Pilvitallennus palautettu',

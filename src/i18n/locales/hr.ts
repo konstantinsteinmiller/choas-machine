@@ -32,6 +32,8 @@ export default {
     'weapons': 'Oružje',
     'ammo': 'Streljivo',
     'reloading': 'Punjenje',
+    'jump': 'Jump',
+    'rope': 'Shoot a rope',
     'reserve': 'Još {n} u rezervi',
     'heat': 'Zagrijanost oružja',
     'armor': 'Oklop',
@@ -234,7 +236,9 @@ export default {
       'weapon3': 'Bacač raketa',
       'cycle': 'Sljedeće oružje',
       'pause': 'Pauza',
-      'help': 'Prikaži upute'
+      'help': 'Prikaži upute',
+      'jump': 'Jump',
+      'rope': 'Rope gun'
     }
   },
   'prompt': {
@@ -245,7 +249,8 @@ export default {
     'jam': 'Zaglavi servo',
     'grab': 'Uhvati tijelo',
     'drop': 'Ispusti tijelo',
-    'hook': 'Kuka'
+    'hook': 'Kuka',
+    'rope': 'Rope'
   },
   'saveStatus': {
     'restoredTitle': 'Spremanje u oblaku vraćeno',

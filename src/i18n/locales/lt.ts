@@ -32,6 +32,8 @@ export default {
     'weapons': 'Ginklai',
     'ammo': 'Amunicija',
     'reloading': 'Perkraunama',
+    'jump': 'Jump',
+    'rope': 'Shoot a rope',
     'reserve': 'Dar {n} su savimi',
     'heat': 'Ginklo kaitra',
     'armor': 'Šarvai',
@@ -234,7 +236,9 @@ export default {
       'weapon3': 'Raketsvaidis',
       'cycle': 'Kitas ginklas',
       'pause': 'Pauzė',
-      'help': 'Rodyti pamokas'
+      'help': 'Rodyti pamokas',
+      'jump': 'Jump',
+      'rope': 'Rope gun'
     }
   },
   'prompt': {
@@ -245,7 +249,8 @@ export default {
     'jam': 'Užblokuoti servo',
     'grab': 'Paimti kūną',
     'drop': 'Paleisti kūną',
-    'hook': 'Kablys'
+    'hook': 'Kablys',
+    'rope': 'Rope'
   },
   'saveStatus': {
     'restoredTitle': 'Debesies išsaugojimas atkurtas',

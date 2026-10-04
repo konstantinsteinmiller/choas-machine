@@ -48,6 +48,57 @@ export interface GrappleSpot {
   /** The way the mech faces the wall. */
   yaw: number
   rise: number
+  /**
+   * Thrown at a wall top the mech looked at (#102), not from its foot: the
+   * mech is pulled across from where it stands (`foot` is then the point on
+   * the face it is pulled to, at the height it threw from).
+   */
+  aimed?: boolean
+}
+
+/** How far the hook can be thrown at a wall top the mech looks at (#102). */
+export const AIM_RANGE = 18
+
+/**
+ * The wall top the camera's line meets (#102), if the hook can take it: a
+ * face or a top of a block higher than the mech can mantle, not higher than
+ * the line reaches, within AIM_RANGE, with ground to stand on at the top.
+ * `hit` is where the line met the block and `n` the face's outward normal
+ * (`raycast`'s answer); `from` is where the mech stands.
+ */
+export const findGrappleAimed = (
+  g: Grid, from: Point3, hit: Point3, n: Point3, max = GRAPPLE_MAX
+): GrappleSpot | null => {
+  // The block the line met: just inside the face it came through.
+  let cx = toCell(hit.x - n.x * 0.05)
+  let cz = toCell(hit.z - n.z * 0.05)
+  let nx = Math.round(n.x)
+  let nz = Math.round(n.z)
+  if (n.y > 0.5) {
+    // The top of something: the edge nearest the mech.
+    const dx = from.x - hit.x
+    const dz = from.z - hit.z
+    cx = toCell(hit.x)
+    cz = toCell(hit.z)
+    if (Math.abs(dx) > Math.abs(dz)) { nx = Math.sign(dx); nz = 0 } else { nx = 0; nz = Math.sign(dz) }
+  }
+  if ((nx === 0 && nz === 0) || !inGrid(g, cx, cz)) return null
+  const h = cellHeight(g, cx, cz)
+  if (h === VOID || cellKind(g, cx, cz) === CellKind.Cover) return null
+  const rise = h - from.y
+  if (rise <= MANTLE_MAX || rise > max) return null
+  const faceX = nx !== 0 ? (nx > 0 ? (cx + 1) * CELL : cx * CELL) : Math.min((cx + 1) * CELL - 0.6, Math.max(cx * CELL + 0.6, hit.x))
+  const faceZ = nz !== 0 ? (nz > 0 ? (cz + 1) * CELL : cz * CELL) : Math.min((cz + 1) * CELL - 0.6, Math.max(cz * CELL + 0.6, hit.z))
+  if (Math.hypot(faceX - from.x, faceZ - from.z) > AIM_RANGE) return null
+  const off = MECH_RADIUS + 0.12
+  return {
+    foot: { x: faceX + nx * off, y: from.y, z: faceZ + nz * off },
+    edge: { x: faceX, y: h, z: faceZ },
+    top: { x: faceX - nx * (MECH_RADIUS + 0.3), y: h, z: faceZ - nz * (MECH_RADIUS + 0.3) },
+    yaw: Math.atan2(-nx, -nz),
+    rise,
+    aimed: true
+  }
 }
 
 /**
@@ -128,10 +179,15 @@ export interface GrappleRun {
   cancelled: boolean
 }
 
-export const startGrapple = (p: Player, spot: GrappleSpot): GrappleRun => ({
-  spot, phase: 'fly', t: 0, from: { x: p.x, y: p.y, z: p.z }, noise: 0, heard: 0,
-  climbS: Math.min(CLIMB_MAX, Math.max(CLIMB_MIN, spot.rise / REEL)), hook: 0, vy: 0, cancelled: false
-})
+export const startGrapple = (p: Player, spot: GrappleSpot): GrappleRun => {
+  // Pulled across a gap as well as up: the reel takes the whole line.
+  const across = spot.aimed ? Math.hypot(spot.foot.x - p.x, spot.foot.z - p.z) : 0
+  const reel = Math.hypot(spot.rise, across)
+  return {
+    spot, phase: 'fly', t: 0, from: { x: p.x, y: p.y, z: p.z }, noise: 0, heard: 0,
+    climbS: Math.min(CLIMB_MAX * (spot.aimed ? 1.6 : 1), Math.max(CLIMB_MIN, reel / REEL)), hook: 0, vy: 0, cancelled: false
+  }
+}
 
 export type GrappleEvent =
   /** The hook caught at the top: the noise is made here. */
@@ -172,9 +228,11 @@ export const stepGrapple = (r: GrappleRun, p: Player, dt: number): GrappleEvent[
 
   if (r.phase === 'fly') {
     const k = Math.min(1, r.t / FLY_S)
-    // Step up to the wall while the hook is in the air.
-    p.x = r.from.x + (s.foot.x - r.from.x) * smooth(k)
-    p.z = r.from.z + (s.foot.z - r.from.z) * smooth(k)
+    // Step up to the wall while the hook is in the air (thrown from afar, stand and wait).
+    if (!s.aimed) {
+      p.x = r.from.x + (s.foot.x - r.from.x) * smooth(k)
+      p.z = r.from.z + (s.foot.z - r.from.z) * smooth(k)
+    }
     p.y = s.foot.y
     p.mode = 'ground'
     r.hook = k
@@ -188,8 +246,15 @@ export const stepGrapple = (r: GrappleRun, p: Player, dt: number): GrappleEvent[
   }
   if (r.phase === 'climb') {
     const k = Math.max(0, (r.t - TAUT_S) / r.climbS)
-    p.x = s.foot.x
-    p.z = s.foot.z
+    if (s.aimed) {
+      // Pulled across to the face, rising as it goes (#102).
+      const e = smooth(Math.min(1, k))
+      p.x = r.from.x + (s.foot.x - r.from.x) * e
+      p.z = r.from.z + (s.foot.z - r.from.z) * e
+    } else {
+      p.x = s.foot.x
+      p.z = s.foot.z
+    }
     // Up the face: quick off the ground, slowing into the edge.
     p.y = s.foot.y + (s.rise - 1.1) * (1 - (1 - Math.min(1, k)) ** 2)
     p.mode = 'ladder'
@@ -221,8 +286,11 @@ export const stepGrapple = (r: GrappleRun, p: Player, dt: number): GrappleEvent[
     const from = p.y
     r.vy -= GRAVITY * dt
     p.y = Math.max(s.foot.y, p.y + r.vy * dt)
-    p.x += (s.foot.x - p.x) * Math.min(1, dt * 10)
-    p.z += (s.foot.z - p.z) * Math.min(1, dt * 10)
+    // Back to where it threw from (an aimed throw may hang over a gap).
+    const bx = s.aimed ? r.from.x : s.foot.x
+    const bz = s.aimed ? r.from.z : s.foot.z
+    p.x += (bx - p.x) * Math.min(1, dt * 10)
+    p.z += (bz - p.z) * Math.min(1, dt * 10)
     p.mode = p.y > s.foot.y ? 'air' : 'ground'
     r.hook = Math.max(0, r.hook - dt * 5)
     if (p.y <= s.foot.y) {
@@ -240,8 +308,10 @@ export const stepGrapple = (r: GrappleRun, p: Player, dt: number): GrappleEvent[
 export const hookAt = (r: GrappleRun, out: Point3): Point3 => {
   const s = r.spot
   const k = r.hook
-  out.x = s.foot.x + (s.edge.x - s.foot.x) * k
+  const ox = s.aimed ? r.from.x : s.foot.x
+  const oz = s.aimed ? r.from.z : s.foot.z
+  out.x = ox + (s.edge.x - ox) * k
   out.y = s.foot.y + 1.9 + (s.edge.y - s.foot.y - 1.9) * k
-  out.z = s.foot.z + (s.edge.z - s.foot.z) * k
+  out.z = oz + (s.edge.z - oz) * k
   return out
 }

@@ -32,6 +32,8 @@ export default {
     'weapons': 'Qurollar',
     'ammo': 'O\'q-dorilar',
     'reloading': 'Qayta o\'qlanmoqda',
+    'jump': 'Jump',
+    'rope': 'Shoot a rope',
     'reserve': 'Yana {n} ta zaxirada',
     'heat': 'Qurol qizishi',
     'armor': 'Zirh',
@@ -234,7 +236,9 @@ export default {
       'weapon3': 'Raketa uchirgich',
       'cycle': 'Keyingi qurol',
       'pause': 'Pauza',
-      'help': 'Darslarni ko\'rsatish'
+      'help': 'Darslarni ko\'rsatish',
+      'jump': 'Jump',
+      'rope': 'Rope gun'
     }
   },
   'prompt': {
@@ -245,7 +249,8 @@ export default {
     'jam': 'Servoni to\'sish',
     'grab': 'Jasadni olish',
     'drop': 'Jasadni tashlash',
-    'hook': 'Ilgak'
+    'hook': 'Ilgak',
+    'rope': 'Rope'
   },
   'saveStatus': {
     'restoredTitle': 'Bulutli saqlash tiklandi',

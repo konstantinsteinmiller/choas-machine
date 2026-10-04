@@ -32,6 +32,8 @@ export default {
     'weapons': 'Armes',
     'ammo': 'Munitions',
     'reloading': 'Rechargement',
+    'jump': 'Jump',
+    'rope': 'Shoot a rope',
     'reserve': '{n} de plus en réserve',
     'heat': 'Chaleur de l\'arme',
     'armor': 'Blindage',
@@ -234,7 +236,9 @@ export default {
       'weapon3': 'Lance-roquettes',
       'cycle': 'Arme suivante',
       'pause': 'Pause',
-      'help': 'Afficher les leçons'
+      'help': 'Afficher les leçons',
+      'jump': 'Jump',
+      'rope': 'Rope gun'
     }
   },
   'prompt': {
@@ -245,7 +249,8 @@ export default {
     'jam': 'Bloquer servo',
     'grab': 'Saisir le corps',
     'drop': 'Lâcher le corps',
-    'hook': 'Grappin'
+    'hook': 'Grappin',
+    'rope': 'Rope'
   },
   'saveStatus': {
     'restoredTitle': 'Sauvegarde cloud restaurée',

@@ -68,6 +68,9 @@ export interface Input {
   actQueued: boolean
   /** Throw the grappling hook, or take it back. */
   grappleQueued: boolean
+  /** Jump (#95), and shoot a rope (#94). */
+  jumpQueued: boolean
+  ropeQueued: boolean
   crouchQueued: boolean
   /** The hide box, toggled. */
   hideQueued: boolean
@@ -141,7 +144,7 @@ export const createInput = (): Input => ({
   moveX: 0, moveY: 0, turn: 0, lookDX: 0, lookDY: 0,
   aimHeld: false, aimPressed: false, aimReleased: false, aimCancelled: false, fireHeld: false, firePressed: false,
   sprintHeld: false,
-  actQueued: false, grappleQueued: false, crouchQueued: false, hideQueued: false, decoyQueued: false, reloadQueued: false, weaponQueued: 0, cycleQueued: false, wheelQueued: 0,
+  actQueued: false, grappleQueued: false, jumpQueued: false, ropeQueued: false, crouchQueued: false, hideQueued: false, decoyQueued: false, reloadQueued: false, weaponQueued: 0, cycleQueued: false, wheelQueued: 0,
   pauseQueued: false, anyPressed: false,
   joyActive: false, joyOriginX: 0, joyOriginY: 0, joyX: 0, joyY: 0, joyHomeX: 0, joyHomeY: 0, joyHomeR: 0, joyRadius: 56,
   holdX: 0, holdY: 0, hold01: 0,
@@ -164,6 +167,8 @@ export const consumeEdges = (i: Input): void => {
   i.firePressed = false
   i.actQueued = false
   i.grappleQueued = false
+  i.jumpQueued = false
+  i.ropeQueued = false
   i.crouchQueued = false
   i.hideQueued = false
   i.decoyQueued = false
@@ -595,6 +600,12 @@ export const attachInput = (surface: HTMLElement, input: Input, opts: InputOptio
         break
       case 'grapple':
         input.grappleQueued = true
+        break
+      case 'jump':
+        input.jumpQueued = true
+        break
+      case 'rope':
+        input.ropeQueued = true
         break
       case 'decoy':
         input.decoyQueued = true

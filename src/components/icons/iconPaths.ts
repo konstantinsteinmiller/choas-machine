@@ -235,6 +235,12 @@ export const ICON_PATHS: Record<GameIconName, string[]> = {
     'M21.3 19.6A1.7 1.7 0 0 1 19.6 21.3L15.2 21.3A1.5 1.5 0 0 1 13.7 19.8L13.7 19.6A1.5 1.5 0 0 1 15.2 18.1L17.1 18.1A1 1 0 0 0 18.1 17.1L18.1 15.2A1.5 1.5 0 0 1 19.6 13.7L19.8 13.7A1.5 1.5 0 0 1 21.3 15.2L21.3 19.6Z'
   ],
   // Nodes drawn over their connectors; both windings agree so the joins merge.
+  // A coil of line with its hook: the rope gun.
+  'rope': [
+    'M12 3.2A6.3 6.3 0 1 1 5.7 9.5A6.3 6.3 0 0 1 12 3.2ZM12 5.6A3.9 3.9 0 1 0 15.9 9.5A3.9 3.9 0 0 0 12 5.6Z',
+    'M12 7.8A1.7 1.7 0 1 1 10.3 9.5A1.7 1.7 0 0 1 12 7.8Z',
+    'M16.2 14.4L20.6 19.4A1.1 1.1 0 0 1 18.9 20.8L14.6 15.9Z'
+  ],
   // A film camera: the mark of a rewarded video.
   'video': [
     'M4 6.25H14.5A2 2 0 0 1 16.5 8.25V15.75A2 2 0 0 1 14.5 17.75H4A2 2 0 0 1 2 15.75V8.25A2 2 0 0 1 4 6.25Z',

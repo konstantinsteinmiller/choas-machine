@@ -32,6 +32,8 @@ export default {
     'weapons': 'Armiloj',
     'ammo': 'Municio',
     'reloading': 'Reŝargado',
+    'jump': 'Jump',
+    'rope': 'Shoot a rope',
     'reserve': '{n} pliaj kunportitaj',
     'heat': 'Varmo de armilo',
     'armor': 'Kiraso',
@@ -234,7 +236,9 @@ export default {
       'weapon3': 'Raketlanĉilo',
       'cycle': 'Sekva armilo',
       'pause': 'Paŭzo',
-      'help': 'Montri la lecionojn'
+      'help': 'Montri la lecionojn',
+      'jump': 'Jump',
+      'rope': 'Rope gun'
     }
   },
   'prompt': {
@@ -245,7 +249,8 @@ export default {
     'jam': 'Bloki servon',
     'grab': 'Preni korpon',
     'drop': 'Lasi korpon',
-    'hook': 'Hoko'
+    'hook': 'Hoko',
+    'rope': 'Rope'
   },
   'saveStatus': {
     'restoredTitle': 'Nuba konservo restarigita',

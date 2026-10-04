@@ -32,6 +32,8 @@ export default {
     'weapons': 'Зброя',
     'ammo': 'Боєприпаси',
     'reloading': 'Перезарядка',
+    'jump': 'Jump',
+    'rope': 'Shoot a rope',
     'reserve': 'Ще {n} у запасі',
     'heat': 'Нагрів зброї',
     'armor': 'Броня',
@@ -234,7 +236,9 @@ export default {
       'weapon3': 'Ракетниця',
       'cycle': 'Наступна зброя',
       'pause': 'Пауза',
-      'help': 'Показати підказки'
+      'help': 'Показати підказки',
+      'jump': 'Jump',
+      'rope': 'Rope gun'
     }
   },
   'prompt': {
@@ -245,7 +249,8 @@ export default {
     'jam': 'Заклинити привід',
     'grab': 'Схопити тіло',
     'drop': 'Кинути тіло',
-    'hook': 'Гак'
+    'hook': 'Гак',
+    'rope': 'Rope'
   },
   'saveStatus': {
     'restoredTitle': 'Хмарне збереження відновлено',

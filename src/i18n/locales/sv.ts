@@ -32,6 +32,8 @@ export default {
     'weapons': 'Vapen',
     'ammo': 'Ammunition',
     'reloading': 'Laddar om',
+    'jump': 'Jump',
+    'rope': 'Shoot a rope',
     'reserve': '{n} till i reserv',
     'heat': 'Vapenvärme',
     'armor': 'Pansar',
@@ -234,7 +236,9 @@ export default {
       'weapon3': 'Raketgevär',
       'cycle': 'Nästa vapen',
       'pause': 'Paus',
-      'help': 'Visa lektionerna'
+      'help': 'Visa lektionerna',
+      'jump': 'Jump',
+      'rope': 'Rope gun'
     }
   },
   'prompt': {
@@ -245,7 +249,8 @@ export default {
     'jam': 'Kärva servot',
     'grab': 'Ta kroppen',
     'drop': 'Släpp kroppen',
-    'hook': 'Hake'
+    'hook': 'Hake',
+    'rope': 'Rope'
   },
   'saveStatus': {
     'restoredTitle': 'Molnsparning återställd',

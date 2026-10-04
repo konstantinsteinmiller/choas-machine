@@ -135,6 +135,20 @@
         template(#badge)
           FHudBadge(v-if="hud.grappling && hud.grappleHeard > 0" tone="warn") {{ hud.grappleHeard }}
 
+    //- The rope gun (#94): somewhere to shoot a line to, from up high.
+    div.strike.rope(v-if="hud.rope && !hud.strike && !hud.loot && !hud.sabotage && !hud.drag")
+      FHudButton(
+        icon="rope"
+        tone="cyan"
+        attention
+        :hotkey="kb('rope')"
+        :aria-label="t('hud.rope')"
+        data-testid="btn-rope"
+        @click="input.ropeQueued = true"
+      )
+        template(#badge)
+          FHudBadge(tone="cyan") {{ hud.ropes }}
+
     //- The right thumb's column, above where it rests.
     div.actions
       //- On touch, on the scope: a chip that zooms a notch (and round again).
@@ -227,6 +241,16 @@
         :aria-label="t('hud.sprint')"
         data-testid="btn-sprint"
         @click="input.sprintHeld = !input.sprintHeld"
+      )
+      //- A thumb has no space bar: the jump has its chip (#95).
+      FHudButton(
+        v-if="hud.device === 'touch'"
+        icon="up"
+        tone="cyan"
+        :is-disabled="hud.mode !== 'ground'"
+        :aria-label="t('hud.jump')"
+        data-testid="btn-jump"
+        @click="input.jumpQueued = true"
       )
       FHudButton(
         :icon="hud.crouched ? 'stand' : 'crouch'"

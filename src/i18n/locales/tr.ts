@@ -32,6 +32,8 @@ export default {
     'weapons': 'Silahlar',
     'ammo': 'Cephane',
     'reloading': 'Dolduruluyor',
+    'jump': 'Jump',
+    'rope': 'Shoot a rope',
     'reserve': '{n} tane daha taşınıyor',
     'heat': 'Silah ısısı',
     'armor': 'Zırh',
@@ -234,7 +236,9 @@ export default {
       'weapon3': 'Roketatar',
       'cycle': 'Sonraki silah',
       'pause': 'Duraklat',
-      'help': 'Dersleri göster'
+      'help': 'Dersleri göster',
+      'jump': 'Jump',
+      'rope': 'Rope gun'
     }
   },
   'prompt': {
@@ -245,7 +249,8 @@ export default {
     'jam': 'Servoyu blokla',
     'grab': 'Cesedi tut',
     'drop': 'Cesedi bırak',
-    'hook': 'Kanca'
+    'hook': 'Kanca',
+    'rope': 'Rope'
   },
   'saveStatus': {
     'restoredTitle': 'Bulut kaydı geri yüklendi',

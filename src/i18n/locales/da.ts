@@ -32,6 +32,8 @@ export default {
     'weapons': 'Våben',
     'ammo': 'Ammunition',
     'reloading': 'Genlader',
+    'jump': 'Jump',
+    'rope': 'Shoot a rope',
     'reserve': '{n} mere i reserve',
     'heat': 'Våbenvarme',
     'armor': 'Panser',
@@ -234,7 +236,9 @@ export default {
       'weapon3': 'Raketkaster',
       'cycle': 'Næste våben',
       'pause': 'Pause',
-      'help': 'Vis lektionerne'
+      'help': 'Vis lektionerne',
+      'jump': 'Jump',
+      'rope': 'Rope gun'
     }
   },
   'prompt': {
@@ -245,7 +249,8 @@ export default {
     'jam': 'Blokér servo',
     'grab': 'Tag kroppen',
     'drop': 'Slip kroppen',
-    'hook': 'Krog'
+    'hook': 'Krog',
+    'rope': 'Rope'
   },
   'saveStatus': {
     'restoredTitle': 'Skygemning gendannet',

@@ -104,6 +104,8 @@ export interface Loadout {
   /** How far ahead a wall may be for the hook, and how high it reaches. */
   hookReach: number
   hookMax: number
+  /** Ropes the rope gun carries into a raid (#94): the hook track adds one at levels 2 and 4. */
+  ropes: number
 }
 
 /** The mech as it leaves the factory. */
@@ -123,7 +125,8 @@ export const BASE_LOADOUT: Readonly<Loadout> = {
   decoys: 3,
   sprintEarshot: 9,
   hookReach: 3.2,
-  hookMax: 9.5
+  hookMax: 9.5,
+  ropes: 3
 }
 
 export interface LoadoutSource {
@@ -160,7 +163,8 @@ export const loadoutOf = (src: LoadoutSource): Loadout => {
     decoys: BASE_LOADOUT.decoys + (level(src, 'decoy') >= 1 ? 1 : 0),
     sprintEarshot: level(src, 'speed') >= 1 ? BASE_LOADOUT.sprintEarshot * 0.6 - 0.3 * (level(src, 'speed') - 1) : BASE_LOADOUT.sprintEarshot,
     hookReach: BASE_LOADOUT.hookReach + 0.6 * level(src, 'hook'),
-    hookMax: BASE_LOADOUT.hookMax + 1.2 * level(src, 'hook')
+    hookMax: BASE_LOADOUT.hookMax + 1.2 * level(src, 'hook'),
+    ropes: BASE_LOADOUT.ropes + Math.floor(level(src, 'hook') / 2)
   }
 }
 

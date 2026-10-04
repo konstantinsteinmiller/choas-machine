@@ -32,6 +32,8 @@ export default {
     'weapons': '武器',
     'ammo': '弾薬',
     'reloading': 'リロード中',
+    'jump': 'Jump',
+    'rope': 'Shoot a rope',
     'reserve': '予備あと{n}',
     'heat': '武器の熱',
     'armor': '装甲',
@@ -234,7 +236,9 @@ export default {
       'weapon3': 'ロケットランチャー',
       'cycle': '次の武器',
       'pause': '一時停止',
-      'help': 'レッスンを表示'
+      'help': 'レッスンを表示',
+      'jump': 'Jump',
+      'rope': 'Rope gun'
     }
   },
   'prompt': {
@@ -245,7 +249,8 @@ export default {
     'jam': 'サーボ妨害',
     'grab': '体をつかむ',
     'drop': '手放す',
-    'hook': 'フック'
+    'hook': 'フック',
+    'rope': 'Rope'
   },
   'saveStatus': {
     'restoredTitle': 'クラウドセーブを復元しました',

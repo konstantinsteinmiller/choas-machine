@@ -32,6 +32,8 @@ export default {
     'weapons': 'Vũ khí',
     'ammo': 'Đạn dược',
     'reloading': 'Đang nạp đạn',
+    'jump': 'Jump',
+    'rope': 'Shoot a rope',
     'reserve': 'Mang thêm {n}',
     'heat': 'Nhiệt vũ khí',
     'armor': 'Giáp',
@@ -234,7 +236,9 @@ export default {
       'weapon3': 'Súng phóng tên lửa',
       'cycle': 'Vũ khí kế tiếp',
       'pause': 'Tạm dừng',
-      'help': 'Hiện bài hướng dẫn'
+      'help': 'Hiện bài hướng dẫn',
+      'jump': 'Jump',
+      'rope': 'Rope gun'
     }
   },
   'prompt': {
@@ -245,7 +249,8 @@ export default {
     'jam': 'Kẹt động cơ',
     'grab': 'Nắm xác',
     'drop': 'Thả xác',
-    'hook': 'Móc'
+    'hook': 'Móc',
+    'rope': 'Rope'
   },
   'saveStatus': {
     'restoredTitle': 'Đã khôi phục lưu trên đám mây',

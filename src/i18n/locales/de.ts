@@ -32,6 +32,8 @@ export default {
     'weapons': 'Waffen',
     'ammo': 'Munition',
     'reloading': 'Nachladen',
+    'jump': 'Jump',
+    'rope': 'Shoot a rope',
     'reserve': '{n} weitere dabei',
     'heat': 'Waffenhitze',
     'armor': 'Panzerung',
@@ -234,7 +236,9 @@ export default {
       'weapon3': 'Raketenwerfer',
       'cycle': 'Nächste Waffe',
       'pause': 'Pause',
-      'help': 'Lektionen zeigen'
+      'help': 'Lektionen zeigen',
+      'jump': 'Jump',
+      'rope': 'Rope gun'
     }
   },
   'prompt': {
@@ -245,7 +249,8 @@ export default {
     'jam': 'Servo blockieren',
     'grab': 'Körper greifen',
     'drop': 'Körper ablegen',
-    'hook': 'Haken'
+    'hook': 'Haken',
+    'rope': 'Rope'
   },
   'saveStatus': {
     'restoredTitle': 'Cloud-Speicher wiederhergestellt',

@@ -36,6 +36,8 @@ export default {
     'weapons': 'Weapons',
     'ammo': 'Ammunition',
     'reloading': 'Reloading',
+    'jump': 'Jump',
+    'rope': 'Shoot a rope',
     'reserve': '{n} more carried',
     'heat': 'Weapon heat',
     'armor': 'Armor',
@@ -238,7 +240,9 @@ export default {
       'weapon3': 'Rocket launcher',
       'cycle': 'Next weapon',
       'pause': 'Pause',
-      'help': 'Show the lessons'
+      'help': 'Show the lessons',
+      'jump': 'Jump',
+      'rope': 'Rope gun'
     }
   },
   'prompt': {
@@ -249,7 +253,8 @@ export default {
     'jam': 'Jam servo',
     'grab': 'Grab body',
     'drop': 'Drop body',
-    'hook': 'Hook'
+    'hook': 'Hook',
+    'rope': 'Rope'
   },
   'saveStatus': {
     'restoredTitle': 'Cloud save restored',

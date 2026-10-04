@@ -32,6 +32,8 @@ export default {
     'weapons': 'Armi',
     'ammo': 'Munizioni',
     'reloading': 'Ricarica',
+    'jump': 'Jump',
+    'rope': 'Shoot a rope',
     'reserve': 'Altri {n} con te',
     'heat': 'Calore dell\'arma',
     'armor': 'Corazza',
@@ -234,7 +236,9 @@ export default {
       'weapon3': 'Lanciarazzi',
       'cycle': 'Arma successiva',
       'pause': 'Pausa',
-      'help': 'Mostra le lezioni'
+      'help': 'Mostra le lezioni',
+      'jump': 'Jump',
+      'rope': 'Rope gun'
     }
   },
   'prompt': {
@@ -245,7 +249,8 @@ export default {
     'jam': 'Blocca servo',
     'grab': 'Afferra corpo',
     'drop': 'Lascia corpo',
-    'hook': 'Rampino'
+    'hook': 'Rampino',
+    'rope': 'Rope'
   },
   'saveStatus': {
     'restoredTitle': 'Salvataggio cloud ripristinato',

@@ -113,6 +113,8 @@ export const installGameSounds = (): void => {
   on('checkin', () => sfx('radio'))
   on('shout', () => sfx('shout'))
   on('pickup', () => sfx('shard'))
+  on('hop', () => sfx('crouch', 0, 1.3))
+  on('rope', () => { sfx('hookThrow'); sfx('hookBite') })
   on('tagged', () => sfx('tag'))
   on('bark', () => sfx('growl'))
   on('lessonDone', () => sfx('gate'))

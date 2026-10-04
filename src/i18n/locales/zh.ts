@@ -32,6 +32,8 @@ export default {
     'weapons': '武器',
     'ammo': '弹药',
     'reloading': '换弹中',
+    'jump': 'Jump',
+    'rope': 'Shoot a rope',
     'reserve': '另携带 {n} 发',
     'heat': '武器过热',
     'armor': '装甲',
@@ -234,7 +236,9 @@ export default {
       'weapon3': '火箭筒',
       'cycle': '下一把武器',
       'pause': '暂停',
-      'help': '显示教程'
+      'help': '显示教程',
+      'jump': 'Jump',
+      'rope': 'Rope gun'
     }
   },
   'prompt': {
@@ -245,7 +249,8 @@ export default {
     'jam': '卡住伺服',
     'grab': '抓住尸体',
     'drop': '放下尸体',
-    'hook': '钩爪'
+    'hook': '钩爪',
+    'rope': 'Rope'
   },
   'saveStatus': {
     'restoredTitle': '云存档已恢复',

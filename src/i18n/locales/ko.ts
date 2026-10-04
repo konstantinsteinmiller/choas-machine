@@ -32,6 +32,8 @@ export default {
     'weapons': '무기',
     'ammo': '탄약',
     'reloading': '재장전 중',
+    'jump': 'Jump',
+    'rope': 'Shoot a rope',
     'reserve': '{n}발 추가 보유',
     'heat': '무기 열',
     'armor': '장갑',
@@ -234,7 +236,9 @@ export default {
       'weapon3': '로켓 런처',
       'cycle': '다음 무기',
       'pause': '일시정지',
-      'help': '튜토리얼 보기'
+      'help': '튜토리얼 보기',
+      'jump': 'Jump',
+      'rope': 'Rope gun'
     }
   },
   'prompt': {
@@ -245,7 +249,8 @@ export default {
     'jam': '서보 고장내기',
     'grab': '시체 잡기',
     'drop': '시체 놓기',
-    'hook': '갈고리'
+    'hook': '갈고리',
+    'rope': 'Rope'
   },
   'saveStatus': {
     'restoredTitle': '클라우드 저장이 복원되었습니다',

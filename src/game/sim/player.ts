@@ -8,9 +8,9 @@ import { MECH_EYE, MECH_EYE_CROUCH, MECH_RADIUS } from '../models/mech'
  * ─── The mech's body ─────────────────────────────────────────────────────────
  *
  * Where the mech is and how it gets about the fortress: it walks, crouches,
- * climbs ladders, walks cables, mantles onto low blocks and drops off ledges.
- * There is no jump button: every way up or down engages by walking into it
- * (GDD 2.1, "simple touch controls").
+ * climbs ladders, walks cables, mantles onto low blocks, drops off ledges and
+ * (round 4, #95) jumps: a short hop that clears a gap with a run-up and turns
+ * into a mantle when it meets a ledge.
  *
  * Pure: a `Player` record, the grid, a wish (which way, how hard), a time
  * step. No three.js, no input module, so every rule here is unit-tested.
@@ -36,6 +36,10 @@ const MANTLE_S = 0.42
 /** Standing on a ledge crouched, the mech will not step off a drop deeper
  *  than this: sneaking along a wall top never ends in a fall. */
 const CROUCH_LEDGE = 1.2
+/** The jump (#95): take-off speed, for an apex of about 1.1 m. */
+export const JUMP_V = 7.3
+/** In the air, a ledge this far above the feet is caught and climbed. */
+const AIR_CATCH = 1.4
 
 export type PlayerMode = 'ground' | 'ladder' | 'cable' | 'air' | 'mantle'
 
@@ -80,13 +84,15 @@ export interface Player {
   boxed: boolean
   box: number
   sprint: number
+  /** In the air from a jump, not a fall: only a jump catches a ledge (#95). */
+  hop: boolean
 }
 
 export const makePlayer = (x: number, y: number, z: number, yaw = 0): Player => ({
   x, y, z, px: x, py: y, pz: z, yaw, pyaw: yaw, vx: 0, vz: 0, vy: 0,
   mode: 'ground', crouched: false, crouch: 0, stride: 0, speed01: 0,
   ladder: null, cable: null, cableT: 0, airFrom: y, push: 0, mantle: null, climbPhase: 0, speedMul: 1,
-  sprinting: false, sprint: 0, boxed: false, box: 0
+  sprinting: false, sprint: 0, boxed: false, box: 0, hop: false
 })
 
 /** What the hands ask of the body this step. */
@@ -102,6 +108,8 @@ export interface Wish {
   sprint?: boolean
   /** Toggle the hide box this step. Optional, like sprint. */
   box?: boolean
+  /** Jump this step (#95). Optional, like sprint. */
+  jump?: boolean
   /** The weapon is up: the mech walks slowly and faces `aimYaw`. */
   aiming: boolean
   aimYaw: number
@@ -109,6 +117,7 @@ export interface Wish {
 
 export type PlayerEvent =
   | { type: 'land'; drop: number }
+  | { type: 'jump' }
   | { type: 'ladder' }
   | { type: 'cable' }
   | { type: 'mantle' }
@@ -305,6 +314,17 @@ export const stepPlayer = (p: Player, g: Grid, w: Wish, dt: number): PlayerEvent
     }
   }
 
+  // The jump (#95): off the ground, standing up, out from under a box.
+  if (w.jump && p.mode === 'ground' && !w.aiming) {
+    p.mode = 'air'
+    p.vy = JUMP_V
+    p.airFrom = p.y
+    p.crouched = false
+    p.boxed = false
+    p.hop = true
+    events.push({ type: 'jump' })
+  }
+
   const stepX = p.vx * dt
   const stepZ = p.vz * dt
   const wanted = Math.hypot(stepX, stepZ)
@@ -353,6 +373,25 @@ export const stepPlayer = (p: Player, g: Grid, w: Wish, dt: number): PlayerEvent
     }
   }
 
+  if (p.mode === 'air' && p.hop && mag > 0.5 && wanted > 1e-5 && went < wanted * 0.4) {
+    // A jump into a ledge: caught, and climbed (#95).
+    const ax = p.x + dirX * (MECH_RADIUS + 0.35)
+    const az = p.z + dirZ * (MECH_RADIUS + 0.35)
+    const h = heightAt(g, ax, az)
+    if (h !== VOID && h - p.y > STEP_UP && h - p.y <= AIR_CATCH) {
+      const cx = toCell(ax)
+      const cz = toCell(az)
+      const tx = Math.min((cx + 1) * CELL - MECH_RADIUS - 0.1, Math.max(cx * CELL + MECH_RADIUS + 0.1, p.x + dirX * (MECH_RADIUS * 2 + 0.3)))
+      const tz = Math.min((cz + 1) * CELL - MECH_RADIUS - 0.1, Math.max(cz * CELL + MECH_RADIUS + 0.1, p.z + dirZ * (MECH_RADIUS * 2 + 0.3)))
+      p.mode = 'mantle'
+      p.mantle = { fx: p.x, fy: p.y, fz: p.z, tx, ty: h, tz, t: 0.3 }
+      p.vx = p.vz = p.vy = 0
+      p.hop = false
+      events.push({ type: 'mantle' })
+      return events
+    }
+  }
+
   if (p.mode === 'air') {
     p.vy -= GRAVITY * dt
     p.y += p.vy * dt
@@ -360,6 +399,7 @@ export const stepPlayer = (p: Player, g: Grid, w: Wish, dt: number): PlayerEvent
     if (floor !== VOID && p.y <= floor) {
       p.y = floor
       p.mode = 'ground'
+      p.hop = false
       events.push({ type: 'land', drop: p.airFrom - floor })
       p.vy = 0
     }

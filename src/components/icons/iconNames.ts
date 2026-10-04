@@ -32,7 +32,9 @@ export const GAME_ICON_NAMES = [
   // In the field
   'scope', 'eye', 'crouch', 'stand', 'sprint', 'hook', 'box', 'siren', 'warning', 'skull', 'drone', 'fullscreen', 'share',
   // A rewarded video is always marked with this (CrazyGames' rule, #75)
-  'video'
+  'video',
+  // The rope gun's line (#94)
+  'rope'
 ] as const
 
 export type GameIconName = (typeof GAME_ICON_NAMES)[number]

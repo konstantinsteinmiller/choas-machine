@@ -32,6 +32,8 @@ export default {
     'weapons': 'Оръжия',
     'ammo': 'Боеприпаси',
     'reloading': 'Зареждане',
+    'jump': 'Jump',
+    'rope': 'Shoot a rope',
     'reserve': 'още {n} в резерв',
     'heat': 'Прегряване на оръжието',
     'armor': 'Броня',
@@ -234,7 +236,9 @@ export default {
       'weapon3': 'Ракетомет',
       'cycle': 'Следващо оръжие',
       'pause': 'Пауза',
-      'help': 'Покажи уроците'
+      'help': 'Покажи уроците',
+      'jump': 'Jump',
+      'rope': 'Rope gun'
     }
   },
   'prompt': {
@@ -245,7 +249,8 @@ export default {
     'jam': 'Блокирай серво',
     'grab': 'Хвани тялото',
     'drop': 'Пусни тялото',
-    'hook': 'Кука'
+    'hook': 'Кука',
+    'rope': 'Rope'
   },
   'saveStatus': {
     'restoredTitle': 'Облачният запис е възстановен',

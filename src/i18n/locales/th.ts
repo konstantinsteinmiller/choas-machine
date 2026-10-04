@@ -32,6 +32,8 @@ export default {
     'weapons': 'อาวุธ',
     'ammo': 'กระสุน',
     'reloading': 'กำลังโหลดกระสุน',
+    'jump': 'Jump',
+    'rope': 'Shoot a rope',
     'reserve': 'พกเพิ่มอีก {n}',
     'heat': 'ความร้อนอาวุธ',
     'armor': 'เกราะ',
@@ -234,7 +236,9 @@ export default {
       'weapon3': 'เครื่องยิงจรวด',
       'cycle': 'อาวุธถัดไป',
       'pause': 'หยุดชั่วคราว',
-      'help': 'แสดงบทเรียน'
+      'help': 'แสดงบทเรียน',
+      'jump': 'Jump',
+      'rope': 'Rope gun'
     }
   },
   'prompt': {
@@ -245,7 +249,8 @@ export default {
     'jam': 'ขัดมอเตอร์',
     'grab': 'จับร่าง',
     'drop': 'ปล่อยร่าง',
-    'hook': 'ตะขอ'
+    'hook': 'ตะขอ',
+    'rope': 'Rope'
   },
   'saveStatus': {
     'restoredTitle': 'กู้คืนเซฟบนคลาวด์แล้ว',

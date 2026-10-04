@@ -366,7 +366,7 @@ export interface Change {
   x: number
   y: number
   z: number
-  kind: 'pile' | 'light'
+  kind: 'pile' | 'light' | 'rope'
   found: boolean
 }
 

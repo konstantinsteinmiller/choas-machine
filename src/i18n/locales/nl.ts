@@ -32,6 +32,8 @@ export default {
     'weapons': 'Wapens',
     'ammo': 'Munitie',
     'reloading': 'Herladen',
+    'jump': 'Jump',
+    'rope': 'Shoot a rope',
     'reserve': '{n} extra bij je',
     'heat': 'Wapenhitte',
     'armor': 'Pantser',
@@ -234,7 +236,9 @@ export default {
       'weapon3': 'Raketwerper',
       'cycle': 'Volgend wapen',
       'pause': 'Pauze',
-      'help': 'Toon de lessen'
+      'help': 'Toon de lessen',
+      'jump': 'Jump',
+      'rope': 'Rope gun'
     }
   },
   'prompt': {
@@ -245,7 +249,8 @@ export default {
     'jam': 'Servo blokkeren',
     'grab': 'Lichaam pakken',
     'drop': 'Lichaam laten vallen',
-    'hook': 'Haak'
+    'hook': 'Haak',
+    'rope': 'Rope'
   },
   'saveStatus': {
     'restoredTitle': 'Cloudopslag hersteld',

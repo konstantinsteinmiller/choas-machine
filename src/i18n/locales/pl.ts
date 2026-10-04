@@ -32,6 +32,8 @@ export default {
     'weapons': 'Bronie',
     'ammo': 'Amunicja',
     'reloading': 'Przeładowanie',
+    'jump': 'Jump',
+    'rope': 'Shoot a rope',
     'reserve': 'Jeszcze {n} w zapasie',
     'heat': 'Temperatura broni',
     'armor': 'Pancerz',
@@ -234,7 +236,9 @@ export default {
       'weapon3': 'Wyrzutnia rakiet',
       'cycle': 'Następna broń',
       'pause': 'Pauza',
-      'help': 'Pokaż lekcje'
+      'help': 'Pokaż lekcje',
+      'jump': 'Jump',
+      'rope': 'Rope gun'
     }
   },
   'prompt': {
@@ -245,7 +249,8 @@ export default {
     'jam': 'Zablokuj serwo',
     'grab': 'Chwyć ciało',
     'drop': 'Puść ciało',
-    'hook': 'Hak'
+    'hook': 'Hak',
+    'rope': 'Rope'
   },
   'saveStatus': {
     'restoredTitle': 'Zapis w chmurze przywrócony',

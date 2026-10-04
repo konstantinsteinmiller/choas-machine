@@ -32,6 +32,8 @@ export default {
     'weapons': 'Zbraně',
     'ammo': 'Munice',
     'reloading': 'Nabíjení',
+    'jump': 'Jump',
+    'rope': 'Shoot a rope',
     'reserve': 'další {n} v zásobě',
     'heat': 'Žhavost zbraně',
     'armor': 'Pancíř',
@@ -234,7 +236,9 @@ export default {
       'weapon3': 'Raketomet',
       'cycle': 'Další zbraň',
       'pause': 'Pauza',
-      'help': 'Zobrazit lekce'
+      'help': 'Zobrazit lekce',
+      'jump': 'Jump',
+      'rope': 'Rope gun'
     }
   },
   'prompt': {
@@ -245,7 +249,8 @@ export default {
     'jam': 'Zablokovat servo',
     'grab': 'Popadnout tělo',
     'drop': 'Pustit tělo',
-    'hook': 'Hák'
+    'hook': 'Hák',
+    'rope': 'Rope'
   },
   'saveStatus': {
     'restoredTitle': 'Uložení v cloudu obnoveno',
