@@ -467,7 +467,22 @@ export class Mission implements GameMode {
     m.hook = new Mesh(new ConeGeometry(0.16, 0.34, 3), new MeshBasicMaterial({ color: PAL.glowCyan, toneMapped: false }))
     m.hook.visible = false
     m.scene.add(m.rope, m.hook)
-    if (fortress.id === TRAINING_ID) m.training = new TrainingDirector(m.scene, fortress, m.garrison)
+    if (fortress.id === TRAINING_ID) {
+      m.training = new TrainingDirector(m.scene, fortress, m.garrison)
+      // The flamethrower room's guard is already down (#113): its lesson is the burning.
+      const room = TRAINING_ROOMS.findIndex(r => r.lesson === 'burn')
+      for (const u of m.garrison.units) {
+        if (roomAt(u.homeX) !== room) continue
+        killUnit(m.garrison, u.id, u.x, u.z - 1, 'blade')
+        u.death = 'front'
+        u.rag = null
+        u.hold = 0
+        u.deadT = 30
+        u.thud = true
+        u.found = false
+      }
+      drainEvents(m.garrison)
+    }
     m.salvageView = new SalvageView(m.piles)
     m.scene.add(m.salvageView.group)
     m.scene.add(

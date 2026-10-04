@@ -672,6 +672,8 @@ export const FOCUS_S = 20
 export const FOCUS_RANGE = 3
 const FOCUS_HALF = 1.31
 export const IMPACT_M = 6
+/** A defender that heard a round brings those this near it into the search (#110). */
+export const SHOT_NOTIFY_M = 6
 export const NEAR_MISS_M = 3
 /**
  * Where a shot came from (#70): the guess is off by a share of the distance
@@ -1308,8 +1310,9 @@ export const shotPassed = (
   ox: number, oy: number, oz: number, hx: number, hy: number, hz: number,
   impactM: number, earshot: number, hit = -1, cause: AlertCause | null = null
 ): number => {
-  if (gar.drill) return 0
+  // (On the training drill too, #110: a round by a guard's head is always noticed; the drill only keeps the alarm off.)
   let n = 0
+  const reached: Unit[] = []
   const lx = hx - ox
   const ly = hy - oy
   const lz = hz - oz
@@ -1326,7 +1329,19 @@ export const shotPassed = (
     u.detect = Math.max(u.detect, SUSPECT_AT + 0.05)
     u.lured = false
     suspect(gar, u, from.x, from.z, false)
+    reached.push(u)
     n++
+  }
+  // Whoever heard it brings the ones right beside it along, guards and machines (#110).
+  for (const r of reached) {
+    for (const o of gar.units) {
+      if (o === r || o.id === hit || reached.includes(o) || !isAlive(o) || o.state === 'combat' || o.state === 'dormant' || o.gripped || isLight(o) || o.kind === 'goliath') continue
+      if (Math.hypot(o.x - r.x, o.z - r.z) > SHOT_NOTIFY_M) continue
+      o.focusT = Math.max(o.focusT, FOCUS_S)
+      o.detect = Math.max(o.detect, SUSPECT_AT + 0.05)
+      suspect(gar, o, from.x, from.z, false)
+      n++
+    }
   }
   if (n > 0) {
     gar.lkp.x = from.x

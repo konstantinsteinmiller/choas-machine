@@ -44,3 +44,29 @@ describe('a body falling is heard (#108)', () => {
     expect(near!.state).toBe('patrol')
   })
 })
+
+describe('a round by a guard is always noticed, and the ones beside it come too (#110)', () => {
+  it('on the training drill as in a raid: the near one hears it, the one beside it joins the search toward the shot', async () => {
+    const { estimateShot, shotPassed, IMPACT_M, SHOT_NOTIFY_M } = await import('@/game/sim/garrison')
+    for (const drill of [false, true]) {
+      const b = new FortressBuilder('t', 50, 50)
+      b.ground(0, 0, 49, 49).insert(1, 1).extract(48, 48)
+      // The round lands by the first; the second stands a few metres on, past the impact's reach.
+      b.guard([[20, 20]], 0).guard([[23, 20]], 0).guard([[40, 40]], 0)
+      const f = b.build()
+      const gar = makeGarrison(f, 1)
+      gar.drill = drill
+      const [a, c, far] = gar.units
+      const dist = Math.hypot(c!.x - a!.x, c!.z - a!.z)
+      expect(dist).toBeGreaterThan(IMPACT_M - 1)
+      expect(dist).toBeLessThan(SHOT_NOTIFY_M + 0.1)
+      const from = estimateShot(gar, cellMid(2), 2, cellMid(2), a!.x, a!.z)
+      shotPassed(gar, { x: cellMid(2), y: 0, z: cellMid(2), height: 2.6, crouched: true, visible: false }, from, cellMid(2), 2, cellMid(2), a!.x - 1.5, 1.5, a!.z, 1.5, 4)
+      expect(a!.state, `drill ${drill}`).toBe('suspicious')
+      expect(c!.state, `drill ${drill}`).toBe('suspicious')
+      expect(far!.state).toBe('patrol')
+      // They look toward where the round came from.
+      expect(Math.hypot(a!.seenX - from.x, a!.seenZ - from.z)).toBeLessThan(1e-6)
+    }
+  })
+})

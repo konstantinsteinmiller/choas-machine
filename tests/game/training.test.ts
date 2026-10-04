@@ -108,6 +108,12 @@ describe('the lessons', () => {
     expect(lessonDone(i, ctx(0, 0, { sniperKills: 1, rockets: 2, overheats: 1, zooms: 1 }), b)).toBe(true)
   })
 
+  it('the blade lesson shows a full takedown on a hologram guard; the flame room does not teach it again (#110, #113)', () => {
+    const blade = demoFrame(LESSON_IDS.indexOf('blade'), DEMOS.blade.find(k => k.takedown)!.t + 0.5)
+    expect(blade.td).toBeGreaterThan(0)
+    expect(DEMOS.burn.some(k => k.hint === 'blade' || k.stab !== undefined)).toBe(false)
+  })
+
   it('the weapons room also opens once every defender in it is down, however they fell (#109)', () => {
     const i = LESSON_IDS.indexOf('weapons')
     expect(lessonDone(i, ctx(0, 0, { sniperKills: 1, cleared: true }), ctx(0, 0))).toBe(true)

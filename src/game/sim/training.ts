@@ -3,6 +3,7 @@ import { TRAINING_ROOMS, type LessonId } from '../data/fortresses/training'
 import type { WeaponId } from '../data/ids'
 import type { HintId } from './coach'
 import { isAlive, type Garrison } from './garrison'
+import { TD_END } from './takedown'
 
 /**
  * ─── The training ground's lessons (#57, #58) ────────────────────────────────
@@ -38,9 +39,15 @@ export interface DemoKey {
   rope?: number
   body?: number
   burn?: number
+  /** A takedown starts here (#110): the full choreography, on the hologram guard. */
+  takedown?: true
   /** The control this moment shows: its glyph pulses. */
   hint?: HintId
 }
+
+/** The blade room's hologram guard, in the room's own cells (its back to the way in), and how far behind it the takedown starts. */
+export const BLADE_VICTIM: readonly [number, number] = [7, 3.5]
+const TD_REACH_CELLS = 0.6
 
 /** The demo of each lesson. Missing values carry over from the key before. */
 export const DEMOS: Readonly<Record<LessonId, readonly DemoKey[]>> = {
@@ -66,17 +73,20 @@ export const DEMOS: Readonly<Record<LessonId, readonly DemoKey[]>> = {
   ],
   // Over the crate: it is the mech's.
   supply: [{ t: 0, x: 1.5, z: 7, hint: 'supply' }, { t: 2.4, x: 5, z: 7 }, { t: 2.8, x: 5, z: 7 }, { t: 4.6, x: 10.4, z: 7 }],
+  // Crouched, from behind, up to the hologram guard: the takedown, all of it (#110).
   blade: [
-    { t: 0, x: 1.5, z: 7, crouch: 0, hint: 'crouch' }, { t: 0.6, crouch: 1 }, { t: 4.4, x: 7, z: 7, crouch: 1 },
-    { t: 4.7, stab: 0, hint: 'blade' }, { t: 5.3, stab: 1 }, { t: 6.1, stab: 0 },
-    { t: 8.4, x: 3.6, z: 11, crouch: 1, face: [5, 11] }, { t: 8.7, stab: 0, hint: 'blade' }, { t: 9.3, stab: 1 }, { t: 10.1, stab: 0 }
+    { t: 0, x: 1.5, z: 7, crouch: 0, hint: 'crouch' }, { t: 0.6, crouch: 1 },
+    { t: 4, x: BLADE_VICTIM[0] - TD_REACH_CELLS, z: BLADE_VICTIM[1], crouch: 1, face: [BLADE_VICTIM[0], BLADE_VICTIM[1]] },
+    { t: 4.3, hint: 'blade', takedown: true, crouch: 0 },
+    { t: 4.3 + TD_END, x: BLADE_VICTIM[0] - TD_REACH_CELLS, z: BLADE_VICTIM[1] },
+    { t: 5.6 + TD_END, x: 6, z: 7 }
   ],
-  // From behind, the blade; then the flame, until nothing is left (#99).
+  // The guard here is already down (#113: one takedown lesson is enough):
+  // over to the body, and the flame, until nothing is left (#99).
   burn: [
-    { t: 0, x: 1.5, z: 7, crouch: 0, body: 0, burn: 0 }, { t: 0.6, crouch: 1, hint: 'crouch' }, { t: 3.8, x: 6, z: 8.6, crouch: 1, face: [6, 10] },
-    { t: 4.1, stab: 0, hint: 'blade' }, { t: 4.7, stab: 1 }, { t: 5.3, stab: 0, crouch: 0, body: 1 },
-    { t: 5.9, burn: 0, hint: 'burn' }, { t: 6.1, burn: 1 }, { t: 8, burn: 1, body: 0 }, { t: 8.2, burn: 0 },
-    { t: 9.8, x: 10.4, z: 7 }
+    { t: 0, x: 1.5, z: 7, body: 1, burn: 0 }, { t: 3, x: 6, z: 8.6, face: [6, 10] },
+    { t: 3.3, burn: 0, hint: 'burn' }, { t: 3.5, burn: 1 }, { t: 5.4, burn: 1, body: 0 }, { t: 5.6, burn: 0 },
+    { t: 7.2, x: 10.4, z: 7 }
   ],
   decoy: [
     { t: 0, x: 1.5, z: 7 }, { t: 1, x: 2.2, z: 7, face: [7, 2], hint: 'decoy' }, { t: 2.6, x: 2.2, z: 7, face: [7, 2] },
@@ -300,6 +310,8 @@ export interface DemoFrame {
   rope: number
   body: number
   burn: number
+  /** Seconds into the demo's takedown (#110), or −1. */
+  td: number
   /** The control whose glyph should pulse now, if any. */
   hint: HintId | null
 }
@@ -308,7 +320,7 @@ export const demoFrame = (i: number, time: number): DemoFrame => {
   const r = TRAINING_ROOMS[i]!
   const keys = DEMOS[r.lesson]
   // Fill every key from the one before.
-  let prev: Required<Omit<DemoKey, 'hint' | 'face'>> & { face: readonly [number, number] | null } = {
+  let prev: Required<Omit<DemoKey, 'hint' | 'face' | 'takedown'>> & { face: readonly [number, number] | null } = {
     t: 0, x: 1.5, z: 7, y: 0, crouch: 0, aim: 0, weapon: 'sniper', stab: 0, boxed: 0, loot: 0,
     climb: 0, air: 0, cable: 0, rope: 0, body: 0, burn: 0, face: null
   }
@@ -335,12 +347,14 @@ export const demoFrame = (i: number, time: number): DemoFrame => {
   const yaw = face ? Math.atan2(toX(face[0]) - toX(lx), toZ(face[1]) - toZ(lz)) : moving ? Math.atan2(dx, dz) : Math.PI / 2
   let hint: HintId | null = null
   for (const k of keys) if (k.hint && k.t <= time && time - k.t < HINT_HOLD_S) hint = k.hint
+  let td = -1
+  for (const k of keys) if (k.takedown && time >= k.t && time - k.t <= TD_END + 4) td = time - k.t
   return {
     x: toX(lx), y: lerp(a.y, b.y), z: toZ(lz), yaw,
     speed: moving ? Math.min(1, Math.hypot(dx, dz) / span / 3) : 0,
     crouch: lerp(a.crouch, b.crouch), aim: lerp(a.aim, b.aim), weapon: a.weapon,
     stab: lerp(a.stab, b.stab), boxed: lerp(a.boxed, b.boxed), loot: lerp(a.loot, b.loot),
     climb: lerp(a.climb, b.climb), air: lerp(a.air, b.air), cable: lerp(a.cable, b.cable),
-    rope: lerp(a.rope, b.rope), body: lerp(a.body, b.body), burn: lerp(a.burn, b.burn), hint
+    rope: lerp(a.rope, b.rope), body: lerp(a.body, b.body), burn: lerp(a.burn, b.burn), td, hint
   }
 }

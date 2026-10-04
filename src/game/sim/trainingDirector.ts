@@ -5,6 +5,7 @@ import {
 import { CELL, CellKind, cellMid, heightAt, VOID, type Grid } from '../world/grid'
 import type { Fortress } from '../world/fortress'
 import { ROOM_WALL_H, ROPE_DECK_H, ROPE_TOWER_H, TRAINING_ROOMS } from '../data/fortresses/training'
+import { TD_FREE, takedownPose, victimPose, type TakedownPose, type VictimPose } from './takedown'
 import { buildMech, poseMech, restPose, type MechPose } from '../models/mech'
 import { buildGuard, poseGuard, restGuardPose } from '../models/garrison'
 import { buildDisguise, disposeDisguise } from '../models/disguises'
@@ -13,7 +14,7 @@ import { makeHologramMaterial, setHologram } from '../fx/hologram'
 import type { Rig } from '../models/kit'
 import type { Garrison } from './garrison'
 import {
-  demoFrame, doorOf, entryOf, makeTraining, replayDemo, rewindRoom, roomAt, stepTraining,
+  BLADE_VICTIM, demoFrame, doorOf, entryOf, makeTraining, replayDemo, rewindRoom, roomAt, stepTraining,
   type Training, type TrainingContext, type TrainingEvent
 } from './training'
 import type { HintId } from './coach'
@@ -49,6 +50,10 @@ export class TrainingDirector {
   private disguise: Group
   private rope: Mesh
   private flame: Mesh
+  /** The blade room's hologram guard, taken from behind on every loop (#110). */
+  private victim: Rig
+  private tdPose: TakedownPose = { grab: 0, draw: 0, plunge: 0, blade: 0 }
+  private vPose: VictimPose = { gripped: 0, impaled: 0, limp: 0 }
   /** The weapons room's targets, in the same light: they fall to the demo's rounds (#109). */
   private targets: Array<{ rig: Rig; at: readonly [number, number]; yaw: number; dies: number; death: 'back' | 'front' | 'thrown' }> = []
   /** A projector disc by each room's way in. */
@@ -90,6 +95,11 @@ export class TrainingDirector {
     this.flame = new Mesh(fg, this.holo)
     this.flame.visible = false
     this.group.add(this.flame)
+    this.victim = buildGuard()
+    this.victim.mesh.material = this.holo
+    if (this.victim.outline) this.victim.outline.visible = false
+    this.victim.root.visible = false
+    this.group.add(this.victim.root)
     // The sentry the rifle takes, the two the rocket throws down (as the demo's keys time them).
     for (const [at, yaw, dies, death] of [[[10, 2], Math.PI, 1.85, 'back'], [[8, 11], 0, 3.55, 'thrown'], [[9, 11], 0, 3.6, 'thrown']] as const) {
       const rig = buildGuard()
@@ -224,6 +234,7 @@ export class TrainingDirector {
     if (!on) {
       this.body.root.visible = this.disguise.visible = this.rope.visible = this.flame.visible = false
       for (const tg of this.targets) tg.rig.root.visible = false
+      this.victim.root.visible = false
       return
     }
     if (!playing) return
@@ -252,6 +263,17 @@ export class TrainingDirector {
     s.climbPhase = f.y
     s.air = f.air
     s.cable = f.cable
+    s.grab = s.draw = s.plunge = 0
+    // The takedown (#110): the mech's half as the mission plays it.
+    if (f.td >= 0) {
+      const td = takedownPose(f.td, this.tdPose)
+      s.stab = 0
+      s.grab = td.grab
+      s.draw = td.draw
+      s.plunge = td.plunge
+      s.blade = td.blade
+      s.crouch = 0
+    }
     poseMech(this.ghost, s)
     // The disguise: the toaster stands where the mech was (#97).
     const boxed = f.boxed > 0.5
@@ -271,6 +293,20 @@ export class TrainingDirector {
     const toX = (v: number): number => (r.x0 + v - 1) * CELL + CELL / 2
     const toZ = (v: number): number => (r.z0 + v - 1) * CELL + CELL / 2
     const dt = this.state.demoT
+    // The blade room's guard: standing with its back to the way in, until the
+    // takedown seizes it, runs it through, and lets it down (#110).
+    this.victim.root.visible = r.lesson === 'blade'
+    if (this.victim.root.visible) {
+      this.victim.root.position.set(toX(BLADE_VICTIM[0]), 0, toZ(BLADE_VICTIM[1]))
+      this.victim.root.rotation.y = Math.PI / 2
+      const v = f.td >= 0 ? victimPose(f.td, this.vPose) : null
+      const down = f.td >= TD_FREE
+      poseGuard(this.victim, {
+        ...restGuardPose(), time,
+        gripped: down ? 0 : v?.gripped ?? 0, impaled: down ? 0 : v?.impaled ?? 0, limp: down ? 0 : v?.limp ?? 0,
+        deadT: down ? Math.max(1e-3, f.td - TD_FREE) : 0, death: 'front'
+      })
+    }
     for (const tg of this.targets) {
       tg.rig.root.visible = r.lesson === 'weapons'
       if (!tg.rig.root.visible) continue
@@ -323,6 +359,10 @@ export class TrainingDirector {
     this.body.material.dispose()
     this.body.glowMaterial.dispose()
     disposeDisguise(this.disguise)
+    this.victim.mesh.geometry.dispose()
+    this.victim.outline?.geometry.dispose()
+    this.victim.material.dispose()
+    this.victim.glowMaterial.dispose()
     for (const tg of this.targets) { tg.rig.mesh.geometry.dispose(); tg.rig.outline?.geometry.dispose(); tg.rig.material.dispose(); tg.rig.glowMaterial.dispose() }
     this.rope.geometry.dispose()
     this.flame.geometry.dispose()
