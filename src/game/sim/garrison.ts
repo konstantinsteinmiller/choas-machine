@@ -1776,6 +1776,18 @@ export const stepFallen = (gar: Garrison, g: Grid, dt: number): void => {
 export const stepGarrison = (gar: Garrison, g: Grid, target: Target, dt: number): void => {
   gar.time += dt
   checkIns(gar)
+  // Nobody left to raise it: every defender is down (searchlights are no
+  // one), so the alarm is over at once and completely (jam build): the meter
+  // empties, the beacons go out, no more waves come.
+  if ((gar.alert.chaos || gar.alert.level > 0) && !gar.units.some(o => isAlive(o) && o.kind !== 'searchlight')) {
+    gar.alert.chaos = false
+    gar.alert.level = 0
+    gar.alert.quiet = 0
+    for (const b of gar.beacons) if (b.state === 'lit') { b.state = 'ready'; b.lit = 0 }
+    if (gar.runner >= 0) stopRunner(gar)
+    gar.leader = -1
+    gar.events.push({ type: 'standDown' })
+  }
   // A full alert that has gone cold stands down, whatever is still alive
   // (#89): the machines go back to their rounds too, the waves stop, and the
   // base stays on edge for the rest of the raid.

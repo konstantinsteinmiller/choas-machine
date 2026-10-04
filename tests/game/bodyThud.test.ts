@@ -90,3 +90,27 @@ describe('footsteps (#116)', () => {
     expect(far!.detect).toBe(0)
   })
 })
+
+describe('the alarm ends with the last defender (jam build)', () => {
+  it('everyone down: the full alert is over at once, the meter empty, a stand-down', async () => {
+    const { stepGarrison, killUnit } = await import('@/game/sim/garrison')
+    const b = new FortressBuilder('t', 40, 40)
+    b.ground(0, 0, 39, 39).insert(1, 1).extract(38, 38)
+    b.guard([[20, 20]], 0).guard([[30, 30]], 0)
+    const f = b.build()
+    const gar = makeGarrison(f, 1)
+    gar.alert.chaos = true
+    gar.alert.level = 3
+    // Seen a moment ago: the alert is hot, not one going cold.
+    gar.lkp = { x: 2, y: 0, z: 2, t: 0 }
+    const target = { x: 2, y: 0, z: 2, visible: false } as Parameters<typeof stepGarrison>[2]
+    stepGarrison(gar, f.grid, target, 0.1)
+    expect(gar.alert.chaos).toBe(true)
+    for (const u of gar.units) killUnit(gar, u.id, u.x, u.z, 'blade')
+    gar.events.length = 0
+    stepGarrison(gar, f.grid, target, 0.1)
+    expect(gar.alert.chaos).toBe(false)
+    expect(gar.alert.level).toBe(0)
+    expect(gar.events.some(e => e.type === 'standDown')).toBe(true)
+  })
+})
