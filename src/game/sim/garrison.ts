@@ -283,6 +283,8 @@ export interface Unit {
   rag: Ragdoll | null
   ragHow: KillHow
   ragStruck: boolean
+  /** The body has hit the ground, and been heard doing it (#108). */
+  thud: boolean
   /** Wears a helmet (R26): the first round to the head takes it off instead. */
   helmet: boolean
   /** Seconds it has looked at a box that keeps too still (a box checker). */
@@ -788,7 +790,7 @@ export const makeGarrison = (f: Fortress, level = 2): Garrison => {
       power: mech ? 0 : 1, aimT: 0, fireT: 0, burst: 0, burstT: 0, shellT: 0, shellX: 0, shellZ: 0, shellLure: false, recoil: 0,
       tagged: false, hidden: false, partner: p.partner ?? -1, chatting: false, poke: false, changeT: 0,
       role: p.role ?? null, shotgun: p.gun === 'shotgun', grenadeT: 0, job: null, jobT: 0, scentT: -1e9,
-      rag: null, ragHow: 'shot', ragStruck: false,
+      rag: null, ragHow: 'shot', ragStruck: false, thud: false,
       helmet: !!f.answers?.helmets && (p.kind === 'guard' || p.kind === 'sentry'), boxLook: 0, focusT: 0, bodySearch: false, uplinkT: 0, lostT: 0,
       jammed: false, shells: 0, overheat: 0, phase2: false, glintT: 0, dashT: 0, dashX: 0, dashZ: 0, dashCool: 2, dashHit: false
     }
@@ -1792,6 +1794,9 @@ export const stepGarrison = (gar: Garrison, g: Grid, target: Target, dt: number)
     if (u.focusT > 0) u.focusT = Math.max(0, u.focusT - dt)
     if (u.state === 'dead') {
       stepDead(u, g, dt)
+      // The body hits the ground: a thud and a clatter whoever is near hears (#108).
+      // (A light coming down is noticed as a light gone out instead.)
+      if (!u.thud && !u.hidden && !isLight(u) && u.deadT >= u.hold + BODY_THUD_S) { u.thud = true; bodyThud(gar, u) }
       continue
     }
     if (u.state === 'dormant' || u.state === 'reserve') continue
@@ -2188,6 +2193,27 @@ export const hearAt = (gar: Garrison, x: number, z: number, radius: number): num
     n++
   }
   return n
+}
+
+/** A body is down this long after the blow; it is heard this far (#108). */
+export const BODY_THUD_S = 0.6
+export const BODY_THUD_M = 8
+
+/**
+ * A body falling (#108): every defender in earshot that is not already
+ * fighting turns to where it fell, its attention up, and comes to look (a
+ * person and a machine alike). On the training ground's drill they only turn
+ * their heads to it: a lesson is not sent back to its door for a thud.
+ */
+const bodyThud = (gar: Garrison, d: Unit): void => {
+  for (const u of gar.units) {
+    if (u === d || !isAlive(u) || u.state === 'combat' || u.state === 'dormant' || u.gripped || isLight(u) || u.kind === 'goliath') continue
+    if (Math.hypot(u.x - d.x, u.z - d.z) > BODY_THUD_M * (u.kind === 'hound' ? HOUND_EARS : 1)) continue
+    if (gar.drill) { u.look = angleDelta(u.yaw, headingTo(u.x, u.z, d.x, d.z)); continue }
+    u.focusT = Math.max(u.focusT, FOCUS_S)
+    u.detect = Math.max(u.detect, SUSPECT_AT + 0.05)
+    suspect(gar, u, d.x, d.z, false)
+  }
 }
 
 /** How long a listener wonders about a noise before it goes to look. */
