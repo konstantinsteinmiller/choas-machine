@@ -47,6 +47,28 @@ export const installDebugUnlock = (): void => {
 }
 installDebugUnlock()
 
+let cheatUnlockInstalled = false
+/** Typing "cmonc" anywhere switches the dev cheats on or off (`localStorage.cheat`), no reload needed (#116). */
+export const installCheatUnlock = (): void => {
+  if (typeof window === 'undefined' || cheatUnlockInstalled) return
+  cheatUnlockInstalled = true
+  const target = 'cmonc'
+  let buf = ''
+  window.addEventListener('keydown', (e) => {
+    const el = e.target
+    if (el instanceof HTMLElement && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.isContentEditable)) { buf = ''; return }
+    const k = e.key.toLowerCase()
+    if (k.length !== 1) return
+    buf = (buf + k).slice(-target.length)
+    if (buf !== target) return
+    buf = ''
+    isCheat.value = !isCheat.value
+    try { localStorage.setItem('cheat', isCheat.value ? 'true' : 'false') } catch { /* private mode */ }
+    console.warn(`[CHEAT] ${isCheat.value ? 'on' : 'off'}`)
+  })
+}
+installCheatUnlock()
+
 const buildShortcut = (e: KeyboardEvent): string => {
   const parts: string[] = []
   if (e.ctrlKey || e.metaKey) parts.push('ctrl')
@@ -60,9 +82,9 @@ const buildShortcut = (e: KeyboardEvent): string => {
 }
 
 const useCheats = () => {
-  if (!isCheat.value) return { isCheat }
-
+  // Always listening; a key does nothing unless cheats are on (they can be switched on by typing, #116).
   const handleKeyDown = (e: KeyboardEvent) => {
+    if (!isCheat.value) return
     const entry = cheats.get(buildShortcut(e))
     if (!entry) return
     e.preventDefault()

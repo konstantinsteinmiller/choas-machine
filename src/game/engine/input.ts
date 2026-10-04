@@ -112,6 +112,8 @@ export interface Input {
   touched: boolean
   /** Sprint: the key is down, or the touch chip is switched on. */
   sprintHeld: boolean
+  /** The decoy key held: aiming where it will land (#115). */
+  decoyHeld: boolean
   /** Last input device family, for control hints. */
   device: 'touch' | 'mouse'
   /** Desktop: the mouse is captured — movement looks, the buttons aim and fire. */
@@ -148,6 +150,7 @@ export const createInput = (): Input => ({
   moveX: 0, moveY: 0, turn: 0, lookDX: 0, lookDY: 0,
   aimHeld: false, aimPressed: false, aimReleased: false, aimCancelled: false, fireHeld: false, firePressed: false,
   sprintHeld: false,
+  decoyHeld: false,
   actQueued: false, grappleQueued: false, jumpQueued: false, ropeQueued: false, burnQueued: false, dragQueued: false, crouchQueued: false, hideQueued: false, decoyQueued: false, reloadQueued: false, weaponQueued: 0, cycleQueued: false, wheelQueued: 0,
   pauseQueued: false, anyPressed: false,
   joyActive: false, joyOriginX: 0, joyOriginY: 0, joyX: 0, joyY: 0, joyHomeX: 0, joyHomeY: 0, joyHomeR: 0, joyRadius: 56,
@@ -320,6 +323,7 @@ export const attachInput = (surface: HTMLElement, input: Input, opts: InputOptio
     // who never finds the drag still has one).
     input.turn = (held('turnRight') ? 1 : 0) - (held('turnLeft') ? 1 : 0)
     input.sprintHeld = held('sprint')
+    input.decoyHeld = held('decoy')
     const l = Math.hypot(x, y)
     input.moveX = l > 0 ? x / l : 0
     input.moveY = l > 0 ? y / l : 0
@@ -666,6 +670,7 @@ export const attachInput = (surface: HTMLElement, input: Input, opts: InputOptio
     input.moveY = 0
     input.turn = 0
     input.sprintHeld = false
+    input.decoyHeld = false
     input.fireHeld = false
     cancelAim(input)
     input.joyActive = false

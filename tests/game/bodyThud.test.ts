@@ -70,3 +70,23 @@ describe('a round by a guard is always noticed, and the ones beside it come too 
     }
   })
 })
+
+describe('footsteps (#116)', () => {
+  it('walking close by is heard: each step raises the guard\'s attention, a few and it comes to look; further off, nothing', async () => {
+    const { stepHeard, WALK_EARSHOT, SUSPECT_AT } = await import('@/game/sim/garrison')
+    const b = new FortressBuilder('t', 40, 40)
+    b.ground(0, 0, 39, 39).insert(1, 1).extract(38, 38)
+    b.guard([[20, 20]], 0).guard([[30, 30]], 0)
+    const f = b.build()
+    const gar = makeGarrison(f, 1)
+    const [near, far] = gar.units
+    const x = near!.x + WALK_EARSHOT - 1
+    stepHeard(gar, x, near!.z)
+    expect(near!.detect).toBeGreaterThan(0)
+    expect(near!.detect).toBeLessThan(SUSPECT_AT)
+    expect(near!.state).toBe('patrol')
+    for (let k = 0; k < 6; k++) stepHeard(gar, x, near!.z)
+    expect(near!.state).toBe('suspicious')
+    expect(far!.detect).toBe(0)
+  })
+})

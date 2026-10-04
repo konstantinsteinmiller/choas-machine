@@ -2307,6 +2307,28 @@ const stepInspect = (u: Unit, gar: Garrison, g: Grid, target: Target, dt: number
   return true
 }
 
+/** A walking step is heard this near (#116); each heard step adds STEP_NOTICE to a listener's attention. */
+export const WALK_EARSHOT = 4.5
+const STEP_NOTICE = 0.14
+
+/**
+ * A footstep (#116): walking (not crouched) is heard close by. Each step
+ * raises a listener's attention a little and turns its head toward it; a few
+ * in a row and it is suspicious and comes to look. Crouched steps are silent.
+ */
+export const stepHeard = (gar: Garrison, x: number, z: number, radius = WALK_EARSHOT): number => {
+  let n = 0
+  for (const u of gar.units) {
+    if (!isAlive(u) || u.state === 'combat' || u.state === 'dormant' || u.gripped || isLight(u) || u.kind === 'goliath') continue
+    if (Math.hypot(u.x - x, u.z - z) > radius * (u.kind === 'hound' ? HOUND_EARS : 1)) continue
+    u.detect = Math.min(SUSPECT_AT + 0.05, u.detect + STEP_NOTICE)
+    u.look = angleDelta(u.yaw, headingTo(u.x, u.z, x, z)) * 0.6
+    if (u.detect >= SUSPECT_AT && u.state === 'patrol') suspect(gar, u, x, z, false)
+    n++
+  }
+  return n
+}
+
 /** How long a listener wonders about a noise before it goes to look. */
 export const WONDER_S = 2
 

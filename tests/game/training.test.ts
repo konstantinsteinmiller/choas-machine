@@ -226,6 +226,8 @@ describe('the demos', () => {
 
   it('a demo starts at the room\'s way in', () => {
     for (let i = 0; i < TRAINING_ROOMS.length; i++) {
+      // The rope demo starts on its tower (#116: the climb is not the lesson).
+      if (TRAINING_ROOMS[i]!.lesson === 'rope') continue
       const fr = demoFrame(i, 0)
       const e = entryOf(i)
       expect(Math.hypot(fr.x - e.x, fr.z - e.z)).toBeLessThan(CELL * 1.2)
@@ -263,5 +265,25 @@ describe('seen in a training room (#67)', () => {
       rewindRoom(gar, later)
       expect(calm.x).toBe(calm.homeX + 1)
     }
+  })
+})
+
+describe('the decoy lesson plays the whole trick (#115)', () => {
+  it('the hologram guard walks to the decoy and stares at it; the mech comes up behind it and the takedown lines up', async () => {
+    const { victimFrame } = await import('@/game/sim/training')
+    const { TAKEDOWN } = await import('@/game/sim/takedown')
+    const i = LESSON_IDS.indexOf('decoy')
+    const start = victimFrame(i, 0)!
+    const there = victimFrame(i, 6)!
+    expect(Math.hypot(there.x - start.x, there.z - start.z)).toBeGreaterThan(CELL * 2)
+    expect(there.speed).toBe(0)
+    const td = DEMOS.decoy.find(k => k.takedown)!
+    const g = demoFrame(i, td.t)
+    const v = victimFrame(i, td.t)!
+    expect(Math.hypot(g.x - v.x, g.z - v.z)).toBeCloseTo(TAKEDOWN.reach, 1)
+    // From behind: the mech is on the far side from where the guard looks.
+    const lookX = Math.sin(v.yaw)
+    const lookZ = Math.cos(v.yaw)
+    expect((g.x - v.x) * lookX + (g.z - v.z) * lookZ).toBeLessThan(0)
   })
 })

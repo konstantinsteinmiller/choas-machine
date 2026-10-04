@@ -52,6 +52,32 @@ export const BLADE_VICTIM: readonly [number, number] = [7, 3.5]
 /** The takedown starts as far behind as the real one (#114: the blade goes in). */
 const TD_REACH_CELLS = TAKEDOWN.reach / CELL
 
+/** Where to stand to take a guard at `v` facing toward `face` from behind (room cells). */
+const behind = (v: readonly [number, number], face: readonly [number, number]): [number, number] => {
+  const dx = face[0] - v[0]
+  const dz = face[1] - v[1]
+  const l = Math.hypot(dx, dz) || 1
+  return [v[0] - (dx / l) * TD_REACH_CELLS, v[1] - (dz / l) * TD_REACH_CELLS]
+}
+
+/**
+ * The decoy room's hologram guard (#115): it turns to the decoy, walks over,
+ * and stands staring at it, puzzled; the mech comes round and takes it.
+ */
+const DECOY_AT: readonly [number, number] = [7, 3]
+const DECOY_GUARD: readonly [number, number] = [7.6, 3.9]
+const DECOY_BEHIND = behind(DECOY_GUARD, DECOY_AT)
+
+/** A hologram guard a lesson's takedown is played on: where it stands (room cells), facing what; missing values carry over. */
+export interface VictimKey { t: number; x?: number; z?: number; face?: readonly [number, number] }
+export const VICTIMS: Readonly<Partial<Record<LessonId, readonly VictimKey[]>>> = {
+  blade: [{ t: 0, x: 7, z: 3.5, face: [9, 3.5] }],
+  decoy: [
+    { t: 0, x: 9, z: 7, face: [1, 7] }, { t: 1.6, x: 9, z: 7, face: DECOY_AT },
+    { t: 4.2, x: DECOY_GUARD[0], z: DECOY_GUARD[1], face: DECOY_AT }
+  ]
+}
+
 /** The demo of each lesson. Missing values carry over from the key before. */
 export const DEMOS: Readonly<Record<LessonId, readonly DemoKey[]>> = {
   move: [
@@ -91,9 +117,15 @@ export const DEMOS: Readonly<Record<LessonId, readonly DemoKey[]>> = {
     { t: 3.3, burn: 0, hint: 'burn' }, { t: 3.5, burn: 1 }, { t: 5.4, burn: 1, body: 0 }, { t: 5.6, burn: 0 },
     { t: 7.2, x: 10.4, z: 7 }
   ],
+  // A decoy where the guard will see it; the guard goes to look; round the
+  // cover, crouched, up behind it while it stares; the takedown (#115).
   decoy: [
-    { t: 0, x: 1.5, z: 7 }, { t: 1, x: 2.2, z: 7, face: [7, 2], hint: 'decoy', decoy: [7, 2] }, { t: 2.6, x: 2.2, z: 7, face: [7, 2] },
-    { t: 4, x: 2.2, z: 10 }, { t: 7, x: 10, z: 10 }, { t: 7.8, x: 10.4, z: 7 }
+    { t: 0, x: 1.5, z: 7 }, { t: 0.8, x: 2.2, z: 7, face: DECOY_AT, hint: 'decoy', decoy: DECOY_AT }, { t: 1.8, x: 2.2, z: 7, face: DECOY_AT },
+    { t: 2.3, crouch: 1, hint: 'crouch' }, { t: 3.6, x: 2.2, z: 10.5, crouch: 1 }, { t: 5.2, x: 5.5, z: 10.5, crouch: 1 },
+    { t: 7, x: DECOY_BEHIND[0], z: DECOY_BEHIND[1], crouch: 1, face: DECOY_GUARD },
+    { t: 7.2, hint: 'blade', takedown: true, crouch: 0 },
+    { t: 7.2 + TD_END, x: DECOY_BEHIND[0], z: DECOY_BEHIND[1] },
+    { t: 8.8 + TD_END, x: 10.4, z: 7 }
   ],
   box: [
     { t: 0, x: 1.5, z: 7, boxed: 0, hint: 'hide' }, { t: 0.6, boxed: 1 }, { t: 3, x: 5, z: 7, boxed: 1 },
@@ -103,13 +135,12 @@ export const DEMOS: Readonly<Record<LessonId, readonly DemoKey[]>> = {
     { t: 0, x: 1.5, z: 7 }, { t: 3.2, x: 9.6, z: 7, y: 0, climb: 0 }, { t: 3.6, hint: 'grapple', y: 0, climb: 1 },
     { t: 4.6, x: 10.4, z: 7, y: 6, climb: 1 }, { t: 5.2, x: 11, z: 7, y: 6, climb: 0 }, { t: 5.8, x: 11.8, z: 7, y: 0 }
   ],
-  // Up the tower, a rope to the platform, along it, and down.
+  // Up on the tower already (#116: the climb is not the lesson): a rope to
+  // the platform with T, along it, and down.
   rope: [
-    { t: 0, x: 1.5, z: 7, y: 0, rope: 0 }, { t: 1.4, x: 1.5, z: 4, y: 0, climb: 0 }, { t: 1.6, climb: 1, hint: 'climb' },
-    { t: 3.2, x: 2.4, z: 4, y: 4, climb: 1 }, { t: 3.4, climb: 0 }, { t: 4.6, x: 3.4, z: 7, y: 4, face: [8.5, 7] },
-    { t: 5, hint: 'rope', rope: 0 }, { t: 5.3, rope: 1 }, { t: 5.8, x: 3.4, z: 7, y: 4, cable: 1 },
-    { t: 8.6, x: 8.4, z: 7, y: 2, cable: 1 }, { t: 8.8, cable: 0 }, { t: 9.3, x: 9.6, z: 7, y: 0, air: 1 }, { t: 9.5, air: 0 },
-    { t: 10.2, x: 10.4, z: 7, y: 0 }
+    { t: 0, x: 3.4, z: 7, y: 4, rope: 0, face: [8.5, 7] }, { t: 0.8, hint: 'rope', rope: 0 }, { t: 1.1, rope: 1 },
+    { t: 1.6, x: 3.4, z: 7, y: 4, cable: 1 }, { t: 4.4, x: 8.4, z: 7, y: 2, cable: 1 }, { t: 4.6, cable: 0 },
+    { t: 5.1, x: 9.6, z: 7, y: 0, air: 1 }, { t: 5.3, air: 0 }, { t: 6, x: 10.4, z: 7, y: 0 }
   ],
   beacon: [{ t: 0, x: 1.5, z: 7 }, { t: 3, x: 5.4, z: 8.3, hint: 'sabotage' }, { t: 5, x: 5.4, z: 8.3, face: [6, 9] }],
   salvage: [
@@ -292,6 +323,27 @@ export const stepTraining = (t: Training, c: TrainingContext, dt: number): Train
     if (t.gap <= 0) t.demoT = 0
   }
   return out
+}
+
+/** A lesson's hologram guard at `time` (#110, #115): where (metres), its heading, whether it walks; null for a lesson without one. */
+export const victimFrame = (i: number, time: number): { x: number; z: number; yaw: number; speed: number } | null => {
+  const r = TRAINING_ROOMS[i]!
+  const keys = VICTIMS[r.lesson]
+  if (!keys) return null
+  let prev = { t: 0, x: keys[0]!.x ?? 0, z: keys[0]!.z ?? 0, face: keys[0]!.face ?? null as readonly [number, number] | null }
+  const full = keys.map((k) => { prev = { t: k.t, x: k.x ?? prev.x, z: k.z ?? prev.z, face: k.face ?? prev.face }; return prev })
+  let a = full[0]!
+  let b = full[0]!
+  for (let k = 0; k < full.length; k++) if (full[k]!.t <= time) { a = full[k]!; b = full[Math.min(k + 1, full.length - 1)]! }
+  const f = b === a ? 0 : Math.min(1, Math.max(0, (time - a.t) / Math.max(1e-3, b.t - a.t)))
+  const lx = a.x + (b.x - a.x) * f
+  const lz = a.z + (b.z - a.z) * f
+  const moving = b !== a && f < 1 && Math.hypot(b.x - a.x, b.z - a.z) > 0.05
+  const toX = (v: number): number => (r.x0 + v - 1) * CELL + CELL / 2
+  const toZ = (v: number): number => (r.z0 + v - 1) * CELL + CELL / 2
+  const face = moving ? [b.x, b.z] as const : a.face
+  const yaw = face ? Math.atan2(toX(face[0]) - toX(lx), toZ(face[1]) - toZ(lz)) : 0
+  return { x: toX(lx), z: toZ(lz), yaw, speed: moving ? 0.5 : 0 }
 }
 
 /** Where the ghost is and what it does, at `time` into room `i`'s demo, in metres. */

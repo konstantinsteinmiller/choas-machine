@@ -1,5 +1,6 @@
 import {
-  PerspectiveCamera, Sprite, SpriteMaterial, AdditiveBlending, Vector3, Mesh, ConeGeometry, CylinderGeometry, MeshBasicMaterial, DoubleSide, Group
+  PerspectiveCamera, Sprite, SpriteMaterial, AdditiveBlending, Vector3, Mesh, ConeGeometry, CylinderGeometry, MeshBasicMaterial, DoubleSide, Group,
+  BufferAttribute, BufferGeometry, Line, LineBasicMaterial, RingGeometry
 } from 'three'
 import { getRenderer, fovForAspect } from '../engine/renderer'
 import { app, newScene, type GameMode } from '../engine/app'
@@ -26,7 +27,7 @@ import { makePlayer, stepPlayer, eyeHeight, angleDelta, type Player } from './pl
 import { makeCam, lookCam, stepCam, placeCam, stickToWorld, camForward, type Cam } from './camera'
 import { alertSegments } from './alert'
 import {
-  SPECS, SUSPECT_AT, sabotageBeacon, searchForShooter, noteChange, tagUnit, cutRig, helmetPops, isAlive, stepFallen, estimateShot, shotPassed, IMPACT_M, UPLINK_S, drainEvents, headingTo, killUnit, damageUnit, makeGarrison, noiseAt, hearAt, wonderAt, voidNoise, stepGarrison, alarmUnit, startleUnit, isLight,
+  SPECS, SUSPECT_AT, stepHeard, sabotageBeacon, searchForShooter, noteChange, tagUnit, cutRig, helmetPops, isAlive, stepFallen, estimateShot, shotPassed, IMPACT_M, UPLINK_S, drainEvents, headingTo, killUnit, damageUnit, makeGarrison, noiseAt, hearAt, wonderAt, voidNoise, stepGarrison, alarmUnit, startleUnit, isLight,
   type Garrison, type Target, type Unit, type Change
 } from './garrison'
 import { GarrisonView } from './garrisonView'
@@ -47,7 +48,7 @@ import { MARKSMAN_AIM_S, stepFire } from './chaos'
 import { hurtArmor, makeArmor, stepArmor, type Armor } from './armor'
 import { flow, finishMission, failMission, finishTraining } from '../flow'
 import { TrainingDirector } from './trainingDirector'
-import { roomAt } from './training'
+import { entryOf, roomAt } from './training'
 import { TRAINING_ID, TRAINING_ROOMS } from '../data/fortresses/training'
 import { COVER_H } from '../world/fortress'
 import { BASE_LOADOUT, type Loadout } from '../data/upgrades'
@@ -104,6 +105,12 @@ const MUZZLE_REACH: Readonly<Record<WeaponId, number>> = { sniper: 1.75, minigun
 const MUZZLE_TIP: Readonly<Record<WeaponId, readonly [string, number, number, number]>> = {
   sniper: ['sniper', 0, -1.42, 0.02], minigun: ['minigunBarrels', 0, -0.66, 0], rocket: ['rocket', 0, -0.95, 0.06]
 }
+/** An aimed decoy lands this near (looking down) to this far (looking level or up) (#115). */
+const DECOY_NEAR = 2.5
+const DECOY_FAR = 18
+const DECOY_PITCH_LOW = -0.9
+const DECOY_PITCH_HIGH = 0.3
+const AIM_ARC_N = 18
 /** How long the mech takes to fold into its disguise, or out of it (#111). */
 const MORPH_S = 0.8
 /** The weapon is ready when the body faces the aim this closely, and the aim pose is this far up. */
@@ -311,6 +318,10 @@ export class Mission implements GameMode {
   private flameMat = makeFlameMaterial({ core: '#fff4c2', mid: '#ff9a3d', edge: '#c8202f' })
   private lasers: Array<{ id: number; mesh: Mesh }> = []
   private muzzleTmp = new Vector3()
+  /** Aiming a decoy (#115), and what shows where it will land. */
+  private decoyAiming = false
+  private aimRing!: Mesh
+  private aimArc!: Line
   private flyTo = new Vector3()
   /** 0 the mech … 1 folded into its disguise (#111). */
   private morph = 0
@@ -439,6 +450,15 @@ export class Mission implements GameMode {
     m.flame.visible = false
     m.flame.renderOrder = 4
     m.scene.add(m.flame)
+    m.aimRing = new Mesh(new RingGeometry(0.55, 0.8, 28).rotateX(-Math.PI / 2), new MeshBasicMaterial({ color: '#5fe9ff', transparent: true, opacity: 0.85, depthWrite: false, toneMapped: false }))
+    m.aimRing.visible = false
+    m.aimRing.renderOrder = 5
+    const arc = new BufferGeometry()
+    arc.setAttribute('position', new BufferAttribute(new Float32Array(AIM_ARC_N * 3), 3))
+    m.aimArc = new Line(arc, new LineBasicMaterial({ color: '#5fe9ff', transparent: true, opacity: 0.8, depthWrite: false, toneMapped: false }))
+    m.aimArc.visible = false
+    m.aimArc.frustumCulled = false
+    m.scene.add(m.aimRing, m.aimArc)
     // A marksman's laser sight (#90): a red line that draws on the mech before the round.
     for (const u of m.garrison.units) {
       if (u.role !== 'marksman') continue
@@ -644,6 +664,8 @@ export class Mission implements GameMode {
           emit('step', { sprint: p.sprinting })
           // Running feet carry: whoever is near turns to see what that was.
           if (p.sprinting) hearAt(this.garrison, p.x, p.z, this.loadout.sprintEarshot)
+          // Walking is heard close by (#116); only a crouched step is silent.
+          else if (!p.crouched && !p.boxed) stepHeard(this.garrison, p.x, p.z)
         }
         if (p.crouched !== wasCrouched) {
           emit('crouch', { crouched: p.crouched })
@@ -675,7 +697,18 @@ export class Mission implements GameMode {
         if (i.ropeQueued && this.ropeAim && !this.strike) this.shootRope(this.ropeAim)
         this.burnOffer = p.mode === 'ground' && !this.strike && this.fuelLeft > 0 && this.dragId < 0 ? this.burnInReach() : -1
         if (i.burnQueued && this.burnOffer >= 0) this.startBurn(this.burnOffer)
-        if (i.decoyQueued) this.throwDecoy()
+        // The decoy (#115): held, it aims (a ring where it will land, moved by the
+        // look); let go, it is thrown there. A tap on touch throws it ahead.
+        if (i.decoyQueued) {
+          if (i.decoyHeld && i.device === 'mouse' && this.decoyCool <= 0 && p.mode === 'ground') this.decoyAiming = true
+          else if (!this.decoyAiming) this.throwDecoy()
+        }
+        if (this.decoyAiming && !i.decoyHeld) {
+          this.decoyAiming = false
+          const at = this.decoyTarget()
+          if (at) this.throwDecoy(at)
+        }
+        if (this.decoyAiming && (p.mode !== 'ground' || this.decoyCool > 0)) this.decoyAiming = false
         // On the pad with the job done: the line comes down.
         if (this.objective === 'extract' && p.mode === 'ground') {
           const e = this.fortress.extract
@@ -1669,11 +1702,52 @@ export class Mission implements GameMode {
     haptic('tap')
   }
 
-  private throwDecoy(): void {
+  /**
+   * Where an aimed decoy would land (#115): along the look, nearer the lower
+   * the look, from DECOY_NEAR to DECOY_FAR, on whatever floor is there (over a
+   * wall too: it is lobbed). Null over the void.
+   */
+  private decoyTarget(): { x: number; y: number; z: number } | null {
+    const p = this.player
+    const k = Math.min(1, Math.max(0, (this.cam.pitch - DECOY_PITCH_LOW) / (DECOY_PITCH_HIGH - DECOY_PITCH_LOW)))
+    const d = DECOY_NEAR + (DECOY_FAR - DECOY_NEAR) * k
+    const x = p.x + Math.sin(this.cam.yaw) * d
+    const z = p.z + Math.cos(this.cam.yaw) * d
+    const y = heightAt(this.fortress.grid, x, z)
+    return y === VOID ? null : { x, y, z }
+  }
+
+  /** The aimed decoy's preview (#115): a ring on the ground where it lands, and the arc it flies. */
+  private drawDecoyAim(): void {
+    const on = this.decoyAiming && hud.phase === 'play'
+    this.aimRing.visible = this.aimArc.visible = on
+    if (!on) return
+    const p = this.player
+    const at = this.decoyTarget()
+    const ok = !!at
+    const tx = at?.x ?? p.x + Math.sin(this.cam.yaw) * DECOY_FAR
+    const tz = at?.z ?? p.z + Math.cos(this.cam.yaw) * DECOY_FAR
+    const ty = at?.y ?? p.y
+    this.aimRing.position.set(tx, ty + 0.06, tz)
+    ;(this.aimRing.material as MeshBasicMaterial).color.set(ok ? '#5fe9ff' : '#ff4060')
+    ;(this.aimArc.material as LineBasicMaterial).color.set(ok ? '#5fe9ff' : '#ff4060')
+    const pos = this.aimArc.geometry.attributes.position as BufferAttribute
+    const hx = p.x + Math.sin(p.yaw) * 0.5
+    const hy = p.y + 1.6
+    const hz = p.z + Math.cos(p.yaw) * 0.5
+    const lift = 1.5 + Math.hypot(tx - hx, tz - hz) * 0.25
+    for (let n = 0; n < AIM_ARC_N; n++) {
+      const k = n / (AIM_ARC_N - 1)
+      pos.setXYZ(n, hx + (tx - hx) * k, hy + (ty + 0.1 - hy) * k + Math.sin(k * Math.PI) * lift, hz + (tz - hz) * k)
+    }
+    pos.needsUpdate = true
+  }
+
+  private throwDecoy(aimed?: { x: number; y: number; z: number }): void {
     if (this.decoyCool > 0 || this.player.mode !== 'ground') return
     const p = this.player
-    // Thrown ahead; with a wall in the face, dropped at the mech's feet.
-    const spot = decoySpot(this.fortress.grid, p.x, p.y, p.z, this.cam.yaw) ?? { x: p.x, y: p.y, z: p.z }
+    // Aimed (#115), or thrown ahead; with a wall in the face, dropped at the mech's feet.
+    const spot = aimed ?? decoySpot(this.fortress.grid, p.x, p.y, p.z, this.cam.yaw) ?? { x: p.x, y: p.y, z: p.z }
     this.decoyCool = this.loadout.decoyCooldown
     // It faces back at the mech: a mech-shaped light looking at the guards
     // who come round the corner after it.
@@ -2337,6 +2411,23 @@ export class Mission implements GameMode {
     this.zooms++
     mirror('zoom', SCOPE_ZOOMS[next]!)
     emit('zoomed', { level: next })
+  }
+
+  /** DEV CHEAT (#116): straight to training room `i`, the rooms before it done and open. */
+  cheatTrainingRoom(i: number): void {
+    const tr = this.training
+    if (!tr || i < 0 || i >= TRAINING_ROOMS.length) return
+    tr.skipTo(i)
+    const e = entryOf(i)
+    const p = this.player
+    p.x = p.px = e.x
+    p.z = p.pz = e.z
+    const floor = heightAt(this.fortress.grid, e.x, e.z)
+    p.y = p.py = floor > VOID ? floor : 0
+    p.vx = p.vz = p.vy = 0
+    p.mode = 'ground'
+    p.yaw = p.pyaw = Math.PI / 2
+    this.cam.yaw = Math.PI / 2
   }
 
   /** Every defender whose place is in this training room is down (#109); false for a room without any. */
@@ -3086,6 +3177,7 @@ export class Mission implements GameMode {
     this.writeCallouts(dt)
     this.writePrompt(playing && !scripted)
     this.drawLasers()
+    this.drawDecoyAim()
     this.writeUplinks(playing && !scripted)
     this.writeBars(playing && !scripted)
     this.writeWaypoint(x, z, playing && !scripted)
@@ -3155,6 +3247,10 @@ export class Mission implements GameMode {
     this.supplyView.dispose()
     this.ropeGeo.dispose()
     this.ropeMat.dispose()
+    this.aimRing.geometry.dispose()
+    ;(this.aimRing.material as MeshBasicMaterial).dispose()
+    this.aimArc.geometry.dispose()
+    ;(this.aimArc.material as LineBasicMaterial).dispose()
     this.laserGeo.dispose()
     this.laserMat.dispose()
     this.flame.geometry.dispose()

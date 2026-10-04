@@ -17,6 +17,8 @@ export const registerCheat = (_shortcut: string, _label: string, _fn: () => void
 
 export const installDebugUnlock = (): void => {}
 
+export const installCheatUnlock = (): void => {}
+
 const useCheats = () => ({ isCheat: ref(false) })
 
 export default useCheats

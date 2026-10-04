@@ -15,7 +15,7 @@ import { makeHologramMaterial, setHologram } from '../fx/hologram'
 import type { Rig } from '../models/kit'
 import type { Garrison } from './garrison'
 import {
-  BLADE_VICTIM, demoFrame, doorOf, entryOf, makeTraining, replayDemo, rewindRoom, roomAt, stepTraining,
+  demoFrame, victimFrame, doorOf, entryOf, makeTraining, replayDemo, rewindRoom, roomAt, stepTraining,
   type Training, type TrainingContext, type TrainingEvent
 } from './training'
 import type { HintId } from './coach'
@@ -178,6 +178,17 @@ export class TrainingDirector {
       if (r.door && g) { this.setDoor(r.door, false); g.visible = false }
     }
     return ev
+  }
+
+  /** DEV CHEAT (#116): every room before `i` done and its gate open, the demo reset. */
+  skipTo(i: number): void {
+    TRAINING_ROOMS.forEach((r, k) => {
+      if (k >= i || this.state.done[k]) return
+      this.state.done[k] = true
+      const g = this.gates[k]
+      if (r.door && g) { this.setDoor(r.door, false); g.visible = false }
+    })
+    this.state.room = Math.min(this.state.room, i - 1)
   }
 
   /** The replay button. */
@@ -350,16 +361,20 @@ export class TrainingDirector {
     const toX = (v: number): number => (r.x0 + v - 1) * CELL + CELL / 2
     const toZ = (v: number): number => (r.z0 + v - 1) * CELL + CELL / 2
     const dt = this.state.demoT
-    // The blade room's guard: standing with its back to the way in, until the
-    // takedown seizes it, runs it through, and lets it down (#110).
-    this.victim.root.visible = r.lesson === 'blade'
-    if (this.victim.root.visible) {
-      this.victim.root.position.set(toX(BLADE_VICTIM[0]), 0, toZ(BLADE_VICTIM[1]))
-      this.victim.root.rotation.y = Math.PI / 2
+    // The lesson's hologram guard (#110, #115): it stands (or walks over to the
+    // decoy and stares at it, puzzled) until the takedown seizes it, runs it
+    // through, and lets it down.
+    const vf = victimFrame(room, dt)
+    this.victim.root.visible = !!vf
+    if (vf) {
+      this.victim.root.position.set(vf.x, 0, vf.z)
+      this.victim.root.rotation.y = vf.yaw
       const v = f.td >= 0 ? victimPose(f.td, this.vPose) : null
       const down = f.td >= TD_FREE
+      const puzzled = r.lesson === 'decoy' && !v && vf.speed === 0 && dt > 4
       poseGuard(this.victim, {
-        ...restGuardPose(), time,
+        ...restGuardPose(), time, speed: vf.speed, stride: time * 4.5,
+        wary: puzzled ? 1 : 0, caution: puzzled ? 1 : 0, lookYaw: puzzled ? Math.sin(time * 1.7) * 0.35 : 0,
         gripped: down ? 0 : v?.gripped ?? 0, impaled: down ? 0 : v?.impaled ?? 0, limp: down ? 0 : v?.limp ?? 0,
         deadT: down ? Math.max(1e-3, f.td - TD_FREE) : 0, death: 'front'
       })
