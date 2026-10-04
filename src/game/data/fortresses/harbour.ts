@@ -21,7 +21,7 @@ import { NO_ANSWERS, type Answers } from '../../sim/adapt'
  *   south: the approach, the perch and its cable onto the west warehouse
  */
 
-export const HARBOUR_LEVELS = 5
+export const HARBOUR_LEVELS = 3
 /** A container's height; two stacked. */
 const BOX = 2.6
 const DOCK_WALL_H = 5

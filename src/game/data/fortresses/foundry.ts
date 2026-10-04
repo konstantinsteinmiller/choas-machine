@@ -26,7 +26,7 @@ import { NO_ANSWERS, type Answers } from '../../sim/adapt'
  * ring round the block (`at` maps the frame for what is added after).
  */
 
-export const FOUNDRY_LEVELS = 5
+export const FOUNDRY_LEVELS = 3
 export const FOUNDRY_PAD = 6
 /** The block the rooms are cut from: taller than a hook ever reaches from the core's floor. */
 const MASS_H = 25

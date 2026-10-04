@@ -147,6 +147,6 @@ describe('the picker opens the Foundry after the Bastion at threat III', () => {
     profile.fortresses[levelKey(3)] = { clears: 1, medals: {} as never, bestScore: 10, bestTime: 60 }
     expect(fortressOpen('foundry')).toBe(true)
     expect(unlockedLevel('foundry')).toBe(1)
-    expect(unlockedLevel('bastion')).toBe(4)
+    expect(unlockedLevel('bastion')).toBe(3)
   })
 })

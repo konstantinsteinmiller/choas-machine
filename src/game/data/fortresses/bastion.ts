@@ -50,7 +50,7 @@ import { NO_ANSWERS, type Answers } from '../../sim/adapt'
  * #90). Layout coordinates below are written in the old 60 × 64 frame and
  * moved by the pad when the island grows (`at` for anything added after).
  */
-export const BASTION_LEVELS = 5
+export const BASTION_LEVELS = 3
 /** Cells the island grew by on every side (#88). Old-frame cell + BASTION_PAD = cell. */
 export const BASTION_PAD = 6
 

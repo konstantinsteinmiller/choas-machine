@@ -15,7 +15,7 @@ import { MEDAL_IDS, WEAPON_IDS, type MedalId, type WeaponId } from '../data/ids'
  *    time it is won at a level, one for the first clear of a level.
  */
 
-export const THREAT_LEVELS = 5
+export const THREAT_LEVELS = 3
 
 export interface MissionResult {
   /** Seconds from control to extraction. */

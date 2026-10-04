@@ -40,14 +40,14 @@ export const TOTAL = 2400
 
 /** The campaign's threat levels (`THREAT_LEVELS` in `sim/rewards.ts`; the test
  *  holds the two together). */
-export const LEVELS = 5
+export const LEVELS = 3
 
 /**
  * Of the players on the board, the share who have cleared AT LEAST this many
  * levels. Everyone has cleared one (that is what puts them on the board);
  * each further level loses a little under half of those who got that far.
  */
-export const SURVIVAL = [1, 0.55, 0.28, 0.13, 0.05]
+export const SURVIVAL = [1, 0.55, 0.28]
 
 /**
  * A typical best score at each level, for a middling run: a few kills, found
@@ -56,9 +56,9 @@ export const SURVIVAL = [1, 0.55, 0.28, 0.13, 0.05]
  * it by 1 + 0.25 × (level − 1)). COPIES of the game's numbers: the test
  * re-derives them from the game's own module.
  */
-export const TYPICAL = [2600, 3250, 3900, 4550, 5200]
+export const TYPICAL = [2600, 3250, 3900]
 /** The best a flawless run scores at each level: the model's ceiling. */
-export const CEILING = [7600, 9500, 11400, 13300, 15200]
+export const CEILING = [7600, 9500, 11400]
 
 /** Scores are bucketed to this, which keeps the histogram to a few hundred
  *  entries. A real score falls between two buckets and is ranked exactly. */
