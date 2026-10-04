@@ -259,7 +259,8 @@ export default {
       'help': 'Show the lessons',
       'jump': 'Jump',
       'rope': 'Rope gun',
-      'burn': 'Flamethrower'
+      'burn': 'Flamethrower',
+      'drag': 'Grab body'
     }
   },
   'prompt': {

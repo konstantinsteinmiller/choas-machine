@@ -255,7 +255,8 @@ export default {
       'help': 'Prikaži upute',
       'jump': 'Skok',
       'rope': 'Pištolj za uže',
-      'burn': 'Bacač plamena'
+      'burn': 'Bacač plamena',
+      'drag': 'Uhvati tijelo'
     }
   },
   'prompt': {

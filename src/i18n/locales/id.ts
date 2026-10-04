@@ -255,7 +255,8 @@ export default {
       'help': 'Tampilkan pelajaran',
       'jump': 'Lompat',
       'rope': 'Senapan tali',
-      'burn': 'Penyembur api'
+      'burn': 'Penyembur api',
+      'drag': 'Seret tubuh'
     }
   },
   'prompt': {

@@ -3,7 +3,7 @@
   //- the wall top. Pinned by a HUD ticker as the camera moves; the key is the
   //- player's own binding, lettered as on their keyboard.
   div.world-prompt(ref="el" :class="`k-${hud.prompt}`" aria-hidden="true")
-    KeyCap.key(v-if="hud.device === 'mouse' && hud.prompt" :action="hud.prompt === 'hook' ? 'grapple' : 'act'")
+    KeyCap.key(v-if="hud.device === 'mouse' && hud.prompt" :action="keyFor(hud.prompt)")
     span.label(v-if="hud.prompt") {{ t(`prompt.${hud.prompt}`) }}
 </template>
 
@@ -11,9 +11,13 @@
 import { onMounted, onUnmounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import KeyCap from '@/components/hud/hints/KeyCap.vue'
-import { addHudTicker, hud, prompt } from '@/game/state/hud'
+import { addHudTicker, hud, prompt, type PromptKind } from '@/game/state/hud'
+import type { Action } from '@/game/engine/keyBindings'
 
 const { t } = useI18n()
+/** The key that does what the prompt offers: the hook, a rope, a body to drag, else the act key (E). */
+const keyFor = (kind: PromptKind): Action =>
+  kind === 'hook' ? 'grapple' : kind === 'rope' ? 'rope' : kind === 'grab' || kind === 'drop' ? 'drag' : 'act'
 const el = ref<HTMLElement | null>(null)
 let off: (() => void) | null = null
 

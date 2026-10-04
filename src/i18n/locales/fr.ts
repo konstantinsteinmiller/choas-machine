@@ -255,7 +255,8 @@ export default {
       'help': 'Afficher les leçons',
       'jump': 'Saut',
       'rope': 'Lance-corde',
-      'burn': 'Lance-flammes'
+      'burn': 'Lance-flammes',
+      'drag': 'Saisir le corps'
     }
   },
   'prompt': {

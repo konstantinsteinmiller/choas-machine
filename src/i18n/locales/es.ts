@@ -255,7 +255,8 @@ export default {
       'help': 'Mostrar las lecciones',
       'jump': 'Saltar',
       'rope': 'Pistola de cuerda',
-      'burn': 'Lanzallamas'
+      'burn': 'Lanzallamas',
+      'drag': 'Agarrar cuerpo'
     }
   },
   'prompt': {

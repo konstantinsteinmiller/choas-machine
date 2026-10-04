@@ -255,7 +255,8 @@ export default {
       'help': 'Toon de lessen',
       'jump': 'Springen',
       'rope': 'Touwkanon',
-      'burn': 'Vlammenwerper'
+      'burn': 'Vlammenwerper',
+      'drag': 'Lichaam pakken'
     }
   },
   'prompt': {

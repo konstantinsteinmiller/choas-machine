@@ -255,7 +255,8 @@ export default {
       'help': 'Hiện bài hướng dẫn',
       'jump': 'Nhảy',
       'rope': 'Súng bắn dây',
-      'burn': 'Súng phun lửa'
+      'burn': 'Súng phun lửa',
+      'drag': 'Nắm xác'
     }
   },
   'prompt': {

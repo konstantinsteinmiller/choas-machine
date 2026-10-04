@@ -255,7 +255,8 @@ export default {
       'help': 'Pokaż lekcje',
       'jump': 'Skok',
       'rope': 'Wyrzutnia liny',
-      'burn': 'Miotacz ognia'
+      'burn': 'Miotacz ognia',
+      'drag': 'Chwyć ciało'
     }
   },
   'prompt': {

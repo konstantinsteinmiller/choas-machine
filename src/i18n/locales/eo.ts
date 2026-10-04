@@ -255,7 +255,8 @@ export default {
       'help': 'Montri la lecionojn',
       'jump': 'Salti',
       'rope': 'Ŝnurpafilo',
-      'burn': 'Flamĵetilo'
+      'burn': 'Flamĵetilo',
+      'drag': 'Preni korpon'
     }
   },
   'prompt': {

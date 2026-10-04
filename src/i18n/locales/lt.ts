@@ -255,7 +255,8 @@ export default {
       'help': 'Rodyti pamokas',
       'jump': 'Šuolis',
       'rope': 'Virvės šautuvas',
-      'burn': 'Liepsnosvaidis'
+      'burn': 'Liepsnosvaidis',
+      'drag': 'Paimti kūną'
     }
   },
   'prompt': {

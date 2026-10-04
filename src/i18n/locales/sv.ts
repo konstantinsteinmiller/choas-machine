@@ -255,7 +255,8 @@ export default {
       'help': 'Visa lektionerna',
       'jump': 'Hopp',
       'rope': 'Repkanon',
-      'burn': 'Eldkastare'
+      'burn': 'Eldkastare',
+      'drag': 'Ta kroppen'
     }
   },
   'prompt': {

@@ -109,15 +109,16 @@
 
     //- A body within reach: the same tap grabs it; in tow, the tap lets go
     //- (into a container, if one is at hand).
-    div.strike.drag(v-if="hud.drag && !hud.strike && !hud.loot && !hud.sabotage && !hud.burn")
+    //- Beside the flame chip when a body could be burned as well (#99: E burns, F drags).
+    div.strike.drag(v-if="hud.drag && !hud.strike && !hud.loot && !hud.sabotage" :class="{ beside: hud.burn }")
       FHudButton(
         :icon="hud.drag === 'grab' ? 'skull' : 'box'"
         tone="cyan"
         :attention="hud.drag === 'grab'"
         :aria-label="t(hud.drag === 'grab' ? 'hud.dragBody' : 'hud.dropBody')"
-        :hotkey="kb('act')"
+        :hotkey="kb('drag')"
         data-testid="btn-drag"
-        @click="input.actQueued = true"
+        @click="input.dragQueued = true"
       )
 
     //- The hook's offer at the foot of a wall; once it is out, the same
@@ -141,7 +142,7 @@
         icon="flame"
         tone="warn"
         :attention="hud.burning === 0"
-        :hotkey="kb('burn')"
+        :hotkey="kb('act')"
         :aria-label="t('hud.burn')"
         data-testid="btn-burn"
         @click="input.burnQueued = true"
@@ -553,4 +554,6 @@ onUnmounted(() => window.clearTimeout(closeTimer))
   right: calc(var(--cm-safe-right) + var(--cm-chip) + var(--gap) * 2)
   bottom: calc(var(--cm-safe-bottom) + var(--cm-chip) * 1.2)
   --cm-chip: clamp(3.2rem, 14vmin, 4.6rem)
+  &.beside
+    right: calc(var(--cm-safe-right) + var(--cm-chip) * 2 + var(--gap) * 3)
 </style>

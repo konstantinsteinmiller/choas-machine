@@ -255,7 +255,8 @@ export default {
       'help': 'Lektionen zeigen',
       'jump': 'Springen',
       'rope': 'Seilwerfer',
-      'burn': 'Flammenwerfer'
+      'burn': 'Flammenwerfer',
+      'drag': 'Körper greifen'
     }
   },
   'prompt': {

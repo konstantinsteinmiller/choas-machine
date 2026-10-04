@@ -255,7 +255,8 @@ export default {
       'help': 'Darslarni ko\'rsatish',
       'jump': 'Sakrash',
       'rope': 'Arqon quroli',
-      'burn': 'Alanga otgich'
+      'burn': 'Alanga otgich',
+      'drag': 'Jasadni olish'
     }
   },
   'prompt': {

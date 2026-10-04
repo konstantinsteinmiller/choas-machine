@@ -641,7 +641,9 @@ export class Mission implements GameMode {
         // A pile within reach (and no blade on offer): the same key strips it.
         this.lootOffer = p.mode === 'ground' && !this.offer && !this.strike ? pileInReach(this.piles, p.x, p.y, p.z) : null
         if (i.actQueued && !this.offer && this.lootOffer && !this.strike) this.startLoot(this.lootOffer)
-        else if (i.actQueued && !this.offer && !this.strike && (this.dragId >= 0 || this.dragOffer >= 0)) { this.actDrag(); i.actQueued = false }
+        // A body (or a wreck) at the mech's feet: E burns it to ash (#99); F drags it.
+        else if (i.actQueued && !this.offer && !this.strike && this.burnOffer >= 0) { this.startBurn(this.burnOffer); i.actQueued = false }
+        if (i.dragQueued && !this.offer && !this.strike && (this.dragId >= 0 || this.dragOffer >= 0)) this.actDrag()
         // A wall too high to pull up onto, straight ahead: the hook can take it.
         // Under a roof the hook has no sky to fly into (#96).
         const roofed = ceilingAt(this.fortress.grid, p.x, p.z, p.y) < Infinity

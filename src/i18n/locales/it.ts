@@ -255,7 +255,8 @@ export default {
       'help': 'Mostra le lezioni',
       'jump': 'Salto',
       'rope': 'Lancia corde',
-      'burn': 'Lanciafiamme'
+      'burn': 'Lanciafiamme',
+      'drag': 'Afferra corpo'
     }
   },
   'prompt': {

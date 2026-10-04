@@ -255,7 +255,8 @@ export default {
       'help': '튜토리얼 보기',
       'jump': '점프',
       'rope': '로프건',
-      'burn': '화염방사기'
+      'burn': '화염방사기',
+      'drag': '시체 잡기'
     }
   },
   'prompt': {

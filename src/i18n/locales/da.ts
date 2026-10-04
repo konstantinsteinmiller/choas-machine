@@ -255,7 +255,8 @@ export default {
       'help': 'Vis lektionerne',
       'jump': 'Hop',
       'rope': 'Rebkanon',
-      'burn': 'Flammekaster'
+      'burn': 'Flammekaster',
+      'drag': 'Tag kroppen'
     }
   },
   'prompt': {

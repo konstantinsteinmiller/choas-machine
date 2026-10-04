@@ -255,7 +255,8 @@ export default {
       'help': 'Dersleri göster',
       'jump': 'Zıpla',
       'rope': 'İp silahı',
-      'burn': 'Alev silahı'
+      'burn': 'Alev silahı',
+      'drag': 'Cesedi tut'
     }
   },
   'prompt': {

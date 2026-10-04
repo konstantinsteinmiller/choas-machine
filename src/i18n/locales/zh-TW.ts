@@ -255,7 +255,8 @@ export default {
       'help': '顯示教學',
       'jump': '跳躍',
       'rope': '繩索槍',
-      'burn': '火焰噴射器'
+      'burn': '火焰噴射器',
+      'drag': '抓住屍體'
     }
   },
   'prompt': {

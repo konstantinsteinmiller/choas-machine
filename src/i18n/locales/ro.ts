@@ -255,7 +255,8 @@ export default {
       'help': 'Arată lecțiile',
       'jump': 'Săritură',
       'rope': 'Pistol cu frânghie',
-      'burn': 'Aruncător de flăcări'
+      'burn': 'Aruncător de flăcări',
+      'drag': 'Apucă corpul'
     }
   },
   'prompt': {

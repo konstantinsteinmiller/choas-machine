@@ -255,7 +255,8 @@ export default {
       'help': 'Mostra les lliçons',
       'jump': 'Saltar',
       'rope': 'Pistola de corda',
-      'burn': 'Llançaflames'
+      'burn': 'Llançaflames',
+      'drag': 'Agafa el cos'
     }
   },
   'prompt': {

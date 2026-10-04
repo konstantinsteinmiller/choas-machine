@@ -255,7 +255,8 @@ export default {
       'help': 'Leckék mutatása',
       'jump': 'Ugrás',
       'rope': 'Kötélvető',
-      'burn': 'Lángszóró'
+      'burn': 'Lángszóró',
+      'drag': 'Test megfogása'
     }
   },
   'prompt': {

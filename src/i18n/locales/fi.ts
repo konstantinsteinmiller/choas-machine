@@ -255,7 +255,8 @@ export default {
       'help': 'Näytä opit',
       'jump': 'Hyppy',
       'rope': 'Köysipyssy',
-      'burn': 'Liekinheitin'
+      'burn': 'Liekinheitin',
+      'drag': 'Ota ruumis'
     }
   },
   'prompt': {

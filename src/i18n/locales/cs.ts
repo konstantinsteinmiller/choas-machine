@@ -255,7 +255,8 @@ export default {
       'help': 'Zobrazit lekce',
       'jump': 'Skok',
       'rope': 'Lanová pistole',
-      'burn': 'Plamenomet'
+      'burn': 'Plamenomet',
+      'drag': 'Popadnout tělo'
     }
   },
   'prompt': {

@@ -255,7 +255,8 @@ export default {
       'help': 'レッスンを表示',
       'jump': 'ジャンプ',
       'rope': 'ロープガン',
-      'burn': '火炎放射器'
+      'burn': '火炎放射器',
+      'drag': '体をつかむ'
     }
   },
   'prompt': {

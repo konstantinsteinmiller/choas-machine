@@ -255,7 +255,8 @@ export default {
       'help': 'Rādīt mācības',
       'jump': 'Lēciens',
       'rope': 'Virvju šautene',
-      'burn': 'Liesmmetējs'
+      'burn': 'Liesmmetējs',
+      'drag': 'Satvert ķermeni'
     }
   },
   'prompt': {
