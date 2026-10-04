@@ -38,6 +38,9 @@ const MANTLE_S = 0.42
 const CROUCH_LEDGE = 1.2
 /** The jump (#95): take-off speed, for an apex of about 1.1 m. */
 export const JUMP_V = 7.3
+/** Dropping off a rope (jam build): a small hop up, and this fast to the side the keys lean to. */
+export const ROPE_DROP_V = 3.2
+export const ROPE_DROP_SIDE = 4
 /** In the air, a ledge this far above the feet is caught and climbed. */
 const AIR_CATCH = 1.4
 
@@ -248,6 +251,23 @@ export const stepPlayer = (p: Player, g: Grid, w: Wish, dt: number): PlayerEvent
     const e = cableEnds(g, p.cable)
     const ux = (e.bx - e.ax) / e.len
     const uz = (e.bz - e.az) / e.len
+    // Off the rope (jam build): a hop, and down to the side the keys lean to
+    // (straight down with none), steering a little in the air as any jump.
+    if (w.jump && !w.aiming) {
+      const nx = -uz
+      const nz = ux
+      const side = w.mx * nx + w.mz * nz
+      const push = Math.abs(side) > 0.3 ? Math.sign(side) * ROPE_DROP_SIDE : 0
+      p.mode = 'air'
+      p.cable = null
+      p.vx = nx * push
+      p.vz = nz * push
+      p.vy = ROPE_DROP_V
+      p.airFrom = p.y
+      p.hop = true
+      events.push({ type: 'jump' })
+      return events
+    }
     const v = (w.mx * ux + w.mz * uz) * CABLE_SPEED
     p.cableT += (v * dt) / e.len
     p.stride += Math.abs(v) * dt * 2.2

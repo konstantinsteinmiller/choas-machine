@@ -237,3 +237,37 @@ describe('the bite is heard', () => {
     expect(gar.units.every(u => u.state === 'patrol')).toBe(true)
   })
 })
+
+describe('down a ledge on the hook (jam build)', () => {
+  it('at a 5 m drop, facing it: the hook is set at the lip, the mech lowered to the foot, crouched, without a bite', async () => {
+    const { findRappel, startGrapple: start, stepGrapple: step } = await import('@/game/sim/grapple')
+    const { makePlayer: mk } = await import('@/game/sim/player')
+    const { FortressBuilder: FB } = await import('@/game/world/fortress')
+    const b = new FB('t', 20, 10)
+    b.ground(0, 0, 19, 9).insert(1, 1).extract(18, 8)
+    b.fill(0, 0, 9, 9, 5)
+    const g = b.build().grid
+    // On the 5 m block, at its east edge (x = 20 m), facing east.
+    const p = mk(19.2, 5, 9)
+    expect(findRappel(g, p.x, p.y, p.z, Math.PI / 2 + 1.2)).toBeNull()
+    const s = findRappel(g, p.x, p.y, p.z, Math.PI / 2)!
+    expect(s).not.toBeNull()
+    expect(s.down).toBe(true)
+    expect(s.foot.y).toBe(0)
+    expect(s.foot.x).toBeGreaterThan(20)
+    // Its back to the drop: facing west, at the wall.
+    expect(Math.sin(s.yaw)).toBeLessThan(-0.9)
+    const r = start(p, s)
+    const events = []
+    for (let i = 0; i < 600 && r.phase !== 'done'; i++) events.push(...step(r, p, 1 / 60))
+    expect(r.phase).toBe('done')
+    expect(p.y).toBe(0)
+    expect(p.mode).toBe('ground')
+    expect(p.crouched).toBe(true)
+    expect(events.some(e => e.type === 'bite')).toBe(false)
+    // A step off a low edge is no rappel.
+    const low = new FB('u', 20, 10)
+    low.ground(0, 0, 19, 9).insert(1, 1).extract(18, 8).fill(0, 0, 9, 9, 1.5)
+    expect(findRappel(low.build().grid, 19.2, 1.5, 9, Math.PI / 2)).toBeNull()
+  })
+})

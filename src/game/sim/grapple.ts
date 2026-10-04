@@ -54,6 +54,65 @@ export interface GrappleSpot {
    * the face it is pulled to, at the height it threw from).
    */
   aimed?: boolean
+  /**
+   * Down, not up (jam build): the hook is set at the lip the mech stands on
+   * and it lowers itself down the face on the cord, quietly; `top` is where
+   * it starts, `foot` where it ends, `yaw` faces the wall (its back to the drop).
+   */
+  down?: boolean
+}
+
+/** A drop at least this deep (m) is the hook's to go down; anything less the mech just steps off. */
+export const RAPPEL_MIN = 2.2
+/** The cord lowers the mech this fast (m/s). */
+const LOWER_RATE = 3.4
+
+/**
+ * A ledge the mech could go down on the hook from here, looking along `yaw`:
+ * the first place the floor ahead falls away, within reach, at least
+ * RAPPEL_MIN and at most `max` deep, onto floor it can stand on. Null when
+ * there is none.
+ */
+export const findRappel = (g: Grid, x: number, y: number, z: number, yaw: number, reach = 1.6, max = GRAPPLE_MAX + 3): GrappleSpot | null => {
+  const dx = Math.sin(yaw)
+  const dz = Math.cos(yaw)
+  let pcx = toCell(x)
+  let pcz = toCell(z)
+  for (let d = 0.2; d <= reach; d += 0.1) {
+    const cx = toCell(x + dx * d)
+    const cz = toCell(z + dz * d)
+    if (cx === pcx && cz === pcz) continue
+    if (!inGrid(g, cx, cz)) return null
+    const h = cellHeight(g, cx, cz)
+    if (h === VOID) return null
+    const drop = y - h
+    if (drop < -STEP_UP) return null
+    if (drop < RAPPEL_MIN) { pcx = cx; pcz = cz; continue }
+    if (drop > max || cellKind(g, cx, cz) === CellKind.Cover) return null
+    // The lip: the face between the cell it stands on and the one below.
+    let nx = pcx - cx
+    let nz = pcz - cz
+    if (nx !== 0 && nz !== 0) {
+      if (Math.abs(dx) > Math.abs(dz)) nz = 0
+      else nx = 0
+    }
+    nx = Math.sign(nx)
+    nz = Math.sign(nz)
+    const lo = MECH_RADIUS + 0.15
+    const along = (v: number, c: number): number => Math.min((c + 1) * CELL - lo, Math.max(c * CELL + lo, v))
+    const faceX = nx !== 0 ? (nx > 0 ? (cx + 1) * CELL : cx * CELL) : along(x, cx)
+    const faceZ = nz !== 0 ? (nz > 0 ? (cz + 1) * CELL : cz * CELL) : along(z, cz)
+    const off = MECH_RADIUS + 0.12
+    return {
+      foot: { x: faceX - nx * off, y: h, z: faceZ - nz * off },
+      edge: { x: faceX, y, z: faceZ },
+      top: { x: faceX + nx * (MECH_RADIUS + 0.3), y, z: faceZ + nz * (MECH_RADIUS + 0.3) },
+      yaw: Math.atan2(nx, nz),
+      rise: drop,
+      down: true
+    }
+  }
+  return null
 }
 
 /** How far the hook can be thrown at a wall top the mech looks at (#102). */
@@ -185,7 +244,8 @@ export const startGrapple = (p: Player, spot: GrappleSpot): GrappleRun => {
   const reel = Math.hypot(spot.rise, across)
   return {
     spot, phase: 'fly', t: 0, from: { x: p.x, y: p.y, z: p.z }, noise: 0, heard: 0,
-    climbS: Math.min(CLIMB_MAX * (spot.aimed ? 1.6 : 1), Math.max(CLIMB_MIN, reel / REEL)), hook: 0, vy: 0, cancelled: false
+    climbS: spot.down ? Math.max(0.5, (spot.rise - 1.1) / LOWER_RATE) : Math.min(CLIMB_MAX * (spot.aimed ? 1.6 : 1), Math.max(CLIMB_MIN, reel / REEL)),
+    hook: 0, vy: 0, cancelled: false
   }
 }
 
@@ -225,6 +285,7 @@ export const stepGrapple = (r: GrappleRun, p: Player, dt: number): GrappleEvent[
   p.crouched = false
   r.t += dt
   if (r.phase !== 'drop') p.yaw += angleDelta(p.yaw, s.yaw) * Math.min(1, dt * 14)
+  if (s.down && r.phase !== 'drop') return stepDown(r, p, dt, events)
 
   if (r.phase === 'fly') {
     const k = Math.min(1, r.t / FLY_S)
@@ -300,6 +361,52 @@ export const stepGrapple = (r: GrappleRun, p: Player, dt: number): GrappleEvent[
       r.phase = 'done'
       events.push({ type: 'landed', drop: Math.max(0, from - s.foot.y) + Math.abs(r.vy) * 0.05 })
     }
+  }
+  return events
+}
+
+/**
+ * Down the face (jam build): set the hook at the lip and turn round (`fly`),
+ * back over the edge (`over`), lowered down the face on the cord (`climb`),
+ * and crouched at its foot. Quiet: no bite, no landing.
+ */
+const stepDown = (r: GrappleRun, p: Player, dt: number, events: GrappleEvent[]): GrappleEvent[] => {
+  const s = r.spot
+  if (r.phase === 'fly') {
+    const k = Math.min(1, r.t / FLY_S)
+    p.x = r.from.x + (s.top.x - r.from.x) * smooth(k)
+    p.z = r.from.z + (s.top.z - r.from.z) * smooth(k)
+    p.y = s.top.y
+    p.mode = 'ground'
+    r.hook = 1
+    if (k >= 1) { r.phase = 'over'; r.t = 0 }
+    return events
+  }
+  if (r.phase === 'over') {
+    const k = Math.min(1, r.t / (OVER_S * 1.3))
+    const e = smooth(k)
+    p.x = s.top.x + (s.foot.x - s.top.x) * e
+    p.z = s.top.z + (s.foot.z - s.top.z) * e
+    p.y = s.top.y - 1.1 * e
+    p.mode = 'mantle'
+    if (k >= 1) { r.phase = 'climb'; r.t = 0 }
+    return events
+  }
+  // Lowered: steady on the cord, easing onto the floor.
+  const k = Math.min(1, r.t / r.climbS)
+  p.x = s.foot.x
+  p.z = s.foot.z
+  p.y = s.top.y - 1.1 - (s.rise - 1.1) * (k < 0.85 ? k : 0.85 + (1 - (1 - (k - 0.85) / 0.15) ** 2) * 0.15)
+  p.mode = 'ladder'
+  p.climbPhase -= dt * 7
+  if (k >= 1) {
+    p.y = s.foot.y
+    p.vy = 0
+    p.airFrom = p.y
+    p.mode = 'ground'
+    p.crouched = true
+    r.hook = 0
+    r.phase = 'done'
   }
   return events
 }

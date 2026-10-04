@@ -36,7 +36,7 @@ import { GarrisonView } from './garrisonView'
 import { SALVAGE_EARSHOT, SALVAGE_S, makePiles, nearestPile, pileInReach, salvageNeed, type Pile } from './salvage'
 import { SalvageView } from '../world/salvageView'
 import {
-  GRAPPLE_EARSHOT, cancelGrapple, canCancel, findGrapple, findGrappleAimed, hookAt, startGrapple, stepGrapple, type GrappleRun, type GrappleSpot
+  GRAPPLE_EARSHOT, cancelGrapple, canCancel, findGrapple, findGrappleAimed, findRappel, hookAt, startGrapple, stepGrapple, type GrappleRun, type GrappleSpot
 } from './grapple'
 import { sfx } from '../audio/sfx'
 import { TAKEDOWN, TD_END, TD_HOLD, TD_IN, TD_PULL, takedownCam, takedownPose } from './takedown'
@@ -692,6 +692,8 @@ export class Mission implements GameMode {
         // Under a roof the hook has no sky to fly into (#96).
         const roofed = ceilingAt(this.fortress.grid, p.x, p.z, p.y) < Infinity
         this.hookSpot = p.mode === 'ground' && !this.strike && !roofed ? findGrapple(this.fortress.grid, p.x, p.y, p.z, p.yaw, this.loadout.hookReach, this.loadout.hookMax) : null
+        // At a ledge, facing the drop: the hook goes down it (jam build: sneak down onto a guard).
+        if (!this.hookSpot && p.mode === 'ground' && !this.strike) this.hookSpot = findRappel(this.fortress.grid, p.x, p.y, p.z, p.yaw)
         this.aimGear()
         // At the foot of a wall the hook goes straight up it; otherwise at the wall top the mech looks at.
         const hook = this.hookSpot ?? this.hookAim
@@ -3268,7 +3270,7 @@ export class Mission implements GameMode {
 
     // The hook's line: from the mech's raised hand to the hook.
     const gr = this.grapple
-    const lineOn = !!gr && gr.hook > 0.01 && gr.phase !== 'over'
+    const lineOn = !!gr && gr.hook > 0.01 && (gr.phase !== 'over' || !!gr.spot.down)
     this.rope.visible = lineOn
     this.hook.visible = lineOn
     if (gr && lineOn) {
