@@ -1,6 +1,6 @@
-import { BufferGeometry, Group, Mesh } from 'three'
-import { merge, paint, rbox, rcyl, xform, type V3 } from './kit'
-import { glowVC, toonVC } from './toon'
+import type { BufferGeometry, Group } from 'three'
+import { paint, rbox, rcyl, xform, type V3 } from './kit'
+import { assemblePieces, disposePieces } from './pieces'
 
 /**
  * ─── The hide box ────────────────────────────────────────────────────────────
@@ -66,20 +66,8 @@ export const buildHideBox = (): Group => {
     part(rbox(0.38, 0.07, 0.04, 0.45, 4, 3), SLIT, [-0.32, h * 0.72, w / 2 + 0.03], [0, 0, 0.12]),
     part(rbox(0.38, 0.07, 0.04, 0.45, 4, 3), SLIT, [0.32, h * 0.72, w / 2 + 0.03], [0, 0, -0.12])
   ]
-  const group = new Group()
-  group.name = 'hide-box'
-  const a = merge(lit)
-  const b = merge(glow)
-  for (const g of [...lit, ...glow]) g.dispose()
-  const shell = new Mesh(a, toonVC())
-  shell.position.y = BOX_LIFT
-  const eyes = new Mesh(b, glowVC())
-  eyes.position.y = BOX_LIFT
-  group.add(shell, eyes)
-  group.visible = false
-  return group
+  // In pieces, in the mech's colours: the crate is one more thing it folds into (#111).
+  return assemblePieces('hide-box', lit, glow)
 }
 
-export const disposeHideBox = (g: Group): void => {
-  for (const c of g.children) (c as Mesh).geometry.dispose()
-}
+export const disposeHideBox = (g: Group): void => disposePieces(g)

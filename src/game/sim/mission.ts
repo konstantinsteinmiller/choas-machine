@@ -57,7 +57,7 @@ import {
   type CinePose
 } from './cine'
 import { buildRobodog, poseRobodog, restDogPose, type DogPose } from '../models/robodog'
-import { buildDisguise, disposeDisguise } from '../models/disguises'
+import { buildDisguise, disposeDisguise, morphDisguise } from '../models/disguises'
 import { supplyUnderfoot, take, wants, type Supply } from './supplies'
 import { findRopeShot, type RopeShot } from './ropes'
 import { makeFlameMaterial, setFlame } from '../fx/flameCone'
@@ -104,6 +104,8 @@ const MUZZLE_REACH: Readonly<Record<WeaponId, number>> = { sniper: 1.75, minigun
 const MUZZLE_TIP: Readonly<Record<WeaponId, readonly [string, number, number, number]>> = {
   sniper: ['sniper', 0, -1.42, 0.02], minigun: ['minigunBarrels', 0, -0.66, 0], rocket: ['rocket', 0, -0.95, 0.06]
 }
+/** How long the mech takes to fold into its disguise, or out of it (#111). */
+const MORPH_S = 0.8
 /** The weapon is ready when the body faces the aim this closely, and the aim pose is this far up. */
 const READY_YAW = 0.16
 const READY_AIM = 0.8
@@ -308,6 +310,8 @@ export class Mission implements GameMode {
   private flameMat = makeFlameMaterial({ core: '#fff4c2', mid: '#ff9a3d', edge: '#c8202f' })
   private lasers: Array<{ id: number; mesh: Mesh }> = []
   private muzzleTmp = new Vector3()
+  /** 0 the mech … 1 folded into its disguise (#111). */
+  private morph = 0
   /** The board's way in to the perch (#105). */
   private approach: { approach: number; high: number; reach: number } | null = null
   private laserGeo = new CylinderGeometry(0.035, 0.035, 1, 5)
@@ -1674,7 +1678,8 @@ export class Mission implements GameMode {
     t.height = MECH_HEIGHT + (MECH_HEIGHT_CROUCH - MECH_HEIGHT) * p.crouch
     t.crouched = p.crouched
     // Under the box: still is a box; creeping is a box that moves.
-    t.box = p.boxed && p.box > 0.9 ? (Math.hypot(p.vx, p.vz) > 0.35 ? 'creep' : 'still') : undefined
+    // A disguise counts once the mech has folded all the way into it (#111).
+    t.box = p.boxed && p.box > 0.9 && this.morph > 0.97 ? (Math.hypot(p.vx, p.vz) > 0.35 ? 'creep' : 'still') : undefined
     t.moving = p.mode === 'ground' ? p.speed01 : 0.6
     // Shadow and thickets underfoot (`Shade`).
     const sh = p.mode === 'ground' ? shadeAt(this.fortress.grid, p.x, p.z) : 0
@@ -2878,6 +2883,21 @@ export class Mission implements GameMode {
     this.rig.root.position.set(x + this.rideX, y + this.lift, z + this.rideZ)
     this.rig.root.rotation.y = yaw
     this.rig.root.visible = inside < 0.6
+    // Folding into the disguise (#111): the mech spins, squats and shrinks
+    // into itself while the disguise's pieces fly out of its chest.
+    const was = this.morph
+    this.morph = Math.max(0, Math.min(1, this.morph + (this.player.boxed ? dt : -dt) / MORPH_S))
+    if (this.morph > 0) {
+      const fold = Math.min(1, this.morph / 0.6)
+      const e = fold * fold * (3 - 2 * fold)
+      this.rig.root.scale.set(1 - 0.6 * e, 1 - 0.8 * e, 1 - 0.6 * e)
+      this.rig.root.rotation.y = yaw + e * Math.PI * 2
+      if (this.morph > 0.7) this.rig.root.visible = false
+    } else if (was > 0) this.rig.root.scale.setScalar(1)
+    if ((was < 0.3 && this.morph >= 0.3) || (was > 0.6 && this.morph <= 0.6)) {
+      sfx('clang', 0, 0.6)
+      this.fx.particles.sparks(x, y + 1.2, z, '#5fe9ff', 14, 3.5, 0.18)
+    }
     // Pressed close by a wall, the camera has craned over the mech's shoulder:
     // the mech fades out of its own way.
     this.fadeMech(scripted ? 0 : follow.fade)
@@ -2941,11 +2961,10 @@ export class Mission implements GameMode {
       }
     }
 
-    // The hide box drops over the mech, and lifts off it.
-    const bx = this.player.box
-    this.hideBox.visible = bx > 0.01
+    // The disguise unfolds out of the mech, and folds back into it (#111).
+    this.hideBox.visible = morphDisguise(this.hideBox, Math.max(0, (this.morph - 0.15) / 0.85))
     if (this.hideBox.visible) {
-      this.hideBox.position.set(x, y + (1 - bx) * (1 - bx) * 2.6, z)
+      this.hideBox.position.set(x, y, z)
       this.hideBox.rotation.y = yaw
     }
 

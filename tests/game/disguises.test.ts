@@ -4,7 +4,7 @@
 // the hide box's size, and none changes the rules.
 
 import { beforeEach, describe, expect, it } from 'vitest'
-import { Box3 } from 'three'
+import { Box3, type Mesh } from 'three'
 import { DISGUISE_IDS, DISGUISE_SCRAP, FREE_DISGUISE, buildDisguise, disposeDisguise } from '@/game/models/disguises'
 import { defaultProfile, profile } from '@/game/state/profile'
 import { ownsDisguise, unlockDisguise, wearDisguise } from '@/game/state/progress'
@@ -58,4 +58,31 @@ describe('the models', () => {
       disposeDisguise(g)
     })
   }
+})
+
+describe('the mech folds into its disguise (#111)', () => {
+  it('folded away at 0, half out on the way, whole at 1; in the mech\'s colours, its antenna on top', async () => {
+    const { morphDisguise } = await import('@/game/models/disguises')
+    const { PAL } = await import('@/game/models/palette')
+    const { Color } = await import('three')
+    for (const id of DISGUISE_IDS) {
+      const g = buildDisguise(id)
+      const pieces = g.children as Mesh[]
+      expect(pieces.length).toBeGreaterThan(4)
+      expect(morphDisguise(g, 0)).toBe(false)
+      morphDisguise(g, 0.4)
+      const some = pieces.filter(p => p.visible).length
+      expect(some).toBeGreaterThan(0)
+      expect(some).toBeLessThan(pieces.length)
+      morphDisguise(g, 1)
+      expect(pieces.every(p => p.visible && Math.abs(p.scale.x - 1) < 1e-6)).toBe(true)
+      // Every colour on it is one of the mech's own.
+      const mech = new Set([PAL.mechArmor, PAL.mechArmorHi, PAL.mechArmorDeep, PAL.mechSuit, PAL.mechSuitDeep, PAL.mechEye, PAL.mechCore].map(h => new Color(h).getHex()))
+      for (const p of pieces) {
+        const c = p.geometry.attributes.color!
+        expect(mech.has(new Color(c.getX(0), c.getY(0), c.getZ(0)).getHex()), id).toBe(true)
+      }
+      disposeDisguise(g)
+    }
+  })
 })

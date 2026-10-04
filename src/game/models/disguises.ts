@@ -1,17 +1,17 @@
-import { BufferGeometry, Group, Mesh } from 'three'
-import { cap, ell, merge, paint, rbox, rcone, rcyl, sph, torus, xform, type V3 } from './kit'
-import { glowVC, toonVC } from './toon'
-import { buildHideBox, BOX_LIFT } from './hideBox'
+import { BufferGeometry, Group } from 'three'
+import { cap, ell, paint, rbox, rcone, rcyl, sph, torus, xform, type V3 } from './kit'
+import { buildHideBox } from './hideBox'
+import { assemblePieces, disposePieces } from './pieces'
 
 /**
  * ─── The disguises (#97) ─────────────────────────────────────────────────────
  *
- * What comes down over the crouched mech when it hides. The toaster is the
- * one every mech has; the rest are unlocked (one rewarded video each, or
- * scrap where there are no videos). They are looks only: every one keeps the
- * hide box's rules. Each is about two metres across, built in code from the
- * rig kit, origin at the bottom middle, facing +z, lifted a little so the
- * mech's feet show under its rim when it creeps.
+ * What the mech folds itself into when it hides (#111: like a Transformer,
+ * in its own colours and parts, `pieces.ts`). The toaster is the one every
+ * mech has; the rest are unlocked (one rewarded video each, or scrap where
+ * there are no videos). They are looks only: every one keeps the same rules.
+ * Each is about two metres across, built in code from the rig kit, origin at
+ * the bottom middle, facing +z.
  */
 
 export { DISGUISE_IDS, DISGUISE_SCRAP, FREE_DISGUISE, type DisguiseId } from './disguiseIds'
@@ -19,23 +19,7 @@ import type { DisguiseId } from './disguiseIds'
 
 const part = (g: BufferGeometry, color: string, p: V3, r: V3 = [0, 0, 0]): BufferGeometry => paint(xform(g, p, r), color)
 
-const assemble = (name: string, lit: BufferGeometry[], glow: BufferGeometry[]): Group => {
-  const group = new Group()
-  group.name = name
-  const a = merge(lit)
-  const b = merge(glow)
-  for (const g of [...lit, ...glow]) g.dispose()
-  const shell = new Mesh(a, toonVC())
-  shell.position.y = BOX_LIFT
-  group.add(shell)
-  if (glow.length > 0) {
-    const eyes = new Mesh(b, glowVC())
-    eyes.position.y = BOX_LIFT
-    group.add(eyes)
-  } else b.dispose()
-  group.visible = false
-  return group
-}
+const assemble = (name: string, lit: BufferGeometry[], glow: BufferGeometry[]): Group => assemblePieces(name, lit, glow)
 
 /** A chrome toaster: two slots that glow, a lever on the side, a dial, and toast. */
 const toaster = (): Group => {
@@ -186,6 +170,6 @@ export const buildDisguise = (id: DisguiseId): Group => {
   }
 }
 
-export const disposeDisguise = (g: Group): void => {
-  for (const c of g.children) (c as Mesh).geometry.dispose()
-}
+export const disposeDisguise = (g: Group): void => disposePieces(g)
+
+export { morphDisguise } from './pieces'
