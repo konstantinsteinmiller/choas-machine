@@ -1,6 +1,6 @@
 import type { Zone } from './hitscan'
 import { makeRagdoll, ragdollAt, stepRagdoll, strike, type Ragdoll } from './ragdoll'
-import { VOID, findPath, hasLineOfSight, heightAt, smoothPath, toCell, walkLine, type Grid } from '../world/grid'
+import { VOID, canStep, findPath, hasLineOfSight, heightAt, smoothPath, toCell, walkLine, type Grid } from '../world/grid'
 import type { Fortress, PostKind, Waypoint } from '../world/fortress'
 import { exposure, type Viewer, type Seen, fillRate, GRACE_S, CLOSE_M } from './perception'
 import { makeAlert, raiseAlert, pressAlert, stepAlert, ENGAGED_PER_S, BEACON_CAP, ALERT_MAX, type Alert, type AlertCause } from './alert'
@@ -289,6 +289,14 @@ export interface Unit {
   helmet: boolean
   /** Seconds it has looked at a box that keeps too still (a box checker). */
   boxLook: number
+  /**
+   * A still disguise it walked close to (#111): it goes up to it, stares at
+   * it puzzled, backs off, raises its gun and fires one test round; nothing
+   * moving, it shrugs and walks on. Null when it is not at it.
+   */
+  inspect: { phase: 'approach' | 'stare' | 'back' | 'shot'; t: number } | null
+  /** Seconds before it gives a disguise another look. */
+  inspectCool: number
   /** The Foreman: its servo jammed on its pad (slow to wake, slow to turn, soft at the joints). */
   jammed: boolean
   /** The Goliath: shells since it last cooled, and seconds of overheat left (its vents open). */
@@ -412,6 +420,21 @@ export const DASH_EVERY_S = 4.5
 export const JAM_WAKE = 2.5
 export const JAM_SLOW = 0.4
 
+/**
+ * The disguise (#111): a still one is never seen for what it is; a defender
+ * that comes within INSPECT_M (BOX_CHECK_M once the base has learned the box)
+ * and sees it walks up to INSPECT_STAND, stares INSPECT_STARE_S puzzled, backs
+ * off INSPECT_BACK m, fires one test round (INSPECT_DAMAGE) and walks on, not
+ * looking again for INSPECT_COOL_S. A disguise that MOVES in sight of anyone
+ * is an intruder at once.
+ */
+export const INSPECT_M = 4.5
+export const INSPECT_STAND = 2.2
+export const INSPECT_STARE_S = 5
+const INSPECT_BACK = 1.6
+const INSPECT_BACK_S = 1.1
+export const INSPECT_DAMAGE = 12
+const INSPECT_COOL_S = 30
 /** A box checker looks this long at a still box this near before it pokes it. */
 export const BOX_CHECK_M = 9
 export const BOX_CHECK_S = 2.5
@@ -791,7 +814,7 @@ export const makeGarrison = (f: Fortress, level = 2): Garrison => {
       tagged: false, hidden: false, partner: p.partner ?? -1, chatting: false, poke: false, changeT: 0,
       role: p.role ?? null, shotgun: p.gun === 'shotgun', grenadeT: 0, job: null, jobT: 0, scentT: -1e9,
       rag: null, ragHow: 'shot', ragStruck: false, thud: false,
-      helmet: !!f.answers?.helmets && (p.kind === 'guard' || p.kind === 'sentry'), boxLook: 0, focusT: 0, bodySearch: false, uplinkT: 0, lostT: 0,
+      helmet: !!f.answers?.helmets && (p.kind === 'guard' || p.kind === 'sentry'), boxLook: 0, inspect: null, inspectCool: 0, focusT: 0, bodySearch: false, uplinkT: 0, lostT: 0,
       jammed: false, shells: 0, overheat: 0, phase2: false, glintT: 0, dashT: 0, dashX: 0, dashZ: 0, dashCool: 2, dashHit: false
     }
   })
@@ -1811,29 +1834,31 @@ export const stepGarrison = (gar: Garrison, g: Grid, target: Target, dt: number)
 
     // ── What it sees of the mech ──
     let exposed = target.visible ? sight(u, g, seen, gar) : 0
-    // A box checker (R26): a box that sits still in plain view, near, gets a long look, then a poke.
-    if (gar.boxCheck && target.box === 'still' && exposed > 0 && !isLight(u) && u.state !== 'combat' && Math.hypot(target.x - u.x, target.z - u.z) < BOX_CHECK_M) {
-      u.boxLook += dt
-      if (u.boxLook > BOX_CHECK_S && !u.poke) {
-        u.poke = true
-        u.detect = Math.max(u.detect, SUSPECT_AT + 0.02)
-        u.seenX = target.x
-        u.seenZ = target.z
-        suspect(gar, u, target.x, target.z, false)
-        gar.events.push({ type: 'poke', id: u.id })
-      }
-    } else u.boxLook = 0
+    if (u.inspectCool > 0) u.inspectCool -= dt
     // In a thicket, crouched: nobody sees it but from right on top of it (Odyssey's bushes).
     if (target.brush && Math.hypot(target.x - u.x, target.z - u.z) > BRUSH_SEEN_M) exposed = 0
-    // Under the box: a box is a box, unless it moves, or somebody walks into it.
-    const boxedAway = !!target.box && Math.hypot(target.x - u.x, target.z - u.z) > BOX_BUMP
-    if (boxedAway) exposed = target.box === 'still' ? 0 : exposed * BOX_CREEP_SEEN
+    // The disguise (#111). Moving, it is an intruder for anyone who sees it.
+    if (target.box === 'creep' && exposed > 0) {
+      u.detect = 1
+      u.seenX = target.x
+      u.seenZ = target.z
+    }
+    // Still, it is a toaster (or a crate…): never noticed for what it is, but
+    // walked close to, it gets a puzzled look and a test round.
+    if (target.box === 'still') {
+      const near = Math.hypot(target.x - u.x, target.z - u.z)
+      const reach = gar.boxCheck ? BOX_CHECK_M : INSPECT_M
+      if (exposed > 0 && near < reach && !u.inspect && u.inspectCool <= 0 && u.state !== 'combat' && !isLight(u) && !!gunOfKind(u)) {
+        u.inspect = { phase: 'approach', t: 0 }
+        u.path = []
+        gar.events.push({ type: 'poke', id: u.id })
+      }
+      exposed = 0
+    }
     u.sees = exposed > 0
-    // A box seen moving: it goes over to give it a poke.
-    if (u.sees && boxedAway && target.box === 'creep' && u.seenFor > POKE_AFTER_S && !isLight(u) && u.state !== 'combat' && !u.poke) {
-      u.poke = true
-      u.detect = Math.max(u.detect, SUSPECT_AT + 0.02)
-      gar.events.push({ type: 'poke', id: u.id })
+    // ── At a disguise: the puzzled look, the step back, the test round ──
+    if (u.inspect) {
+      if (stepInspect(u, gar, g, target, dt)) continue
     }
     if (u.sees) {
       u.seenFor += dt
@@ -1855,7 +1880,7 @@ export const stepGarrison = (gar: Garrison, g: Grid, target: Target, dt: number)
       // Sharper senses once it has been looking: a fresh white fill is quicker.
       // The yellow band is not: the player gets a fair moment to duck out.
       const wary = !yellow && (u.state === 'suspicious' || u.state === 'search') ? WARY_GAIN : 1
-      if (!grace) u.detect = Math.min(boxedAway && u.state !== 'combat' ? BOX_CREEP_CAP : 1, u.detect + rate * wary * gar.threat.notice * dt)
+      if (!grace) u.detect = Math.min(1, u.detect + rate * wary * gar.threat.notice * dt)
       u.seenX = target.x
       u.seenZ = target.z
       gar.lkp.x = target.x
@@ -1907,17 +1932,6 @@ export const stepGarrison = (gar: Garrison, g: Grid, target: Target, dt: number)
       u.lured = false
     }
 
-    // ── The poke: there, and the box is still there ──
-    if (u.poke) {
-      if (u.state === 'patrol' || u.state === 'combat' || !target.box) u.poke = false
-      else if (Math.hypot(target.x - u.x, target.z - u.z) < BOX_BUMP + 0.8) {
-        // A poke, and the box says ow.
-        u.poke = false
-        u.detect = 1
-        u.seenX = target.x
-        u.seenZ = target.z
-      }
-    }
 
     // ── The hound's nose ──
     if (u.kind === 'hound' && u.state !== 'combat') sniff(gar, g, u, target)
@@ -2214,6 +2228,68 @@ const bodyThud = (gar: Garrison, d: Unit): void => {
     u.detect = Math.max(u.detect, SUSPECT_AT + 0.05)
     suspect(gar, u, d.x, d.z, false)
   }
+}
+
+/** Whether a defender has a gun to test a disguise with (#111): people and the gun-carrying machines. */
+const gunOfKind = (u: Unit): boolean =>
+  u.kind === 'guard' || u.kind === 'sentry' || u.kind === 'commander' || u.kind === 'roomba' || u.kind === 'enforcer'
+
+/**
+ * One step at a disguise (#111). True while it is busy there (its round
+ * waits). It walks up to it, stares, backs off with its gun up, fires once,
+ * and goes back to its round. The disguise gone (the mech stood up) or a
+ * fight on, it lets it be.
+ */
+const stepInspect = (u: Unit, gar: Garrison, g: Grid, target: Target, dt: number): boolean => {
+  const ins = u.inspect!
+  if (!target.box || u.state === 'combat' || u.detect >= 1) { u.inspect = null; return false }
+  ins.t += dt
+  const spec = SPECS[u.kind]
+  const toward = headingTo(u.x, u.z, target.x, target.z)
+  const d = Math.hypot(target.x - u.x, target.z - u.z)
+  u.seenX = target.x
+  u.seenZ = target.z
+  if (ins.phase === 'approach') {
+    if (d <= INSPECT_STAND + 0.3 || ins.t > 5) { ins.phase = 'stare'; ins.t = 0; u.path = []; stand(u); return true }
+    const sx = target.x - Math.sin(toward) * INSPECT_STAND
+    const sz = target.z - Math.cos(toward) * INSPECT_STAND
+    if (u.path.length === 0 && !goTo(u, g, sx, sz)) { ins.phase = 'stare'; ins.t = 0; return true }
+    follow(u, g, spec.walk, dt)
+    return true
+  }
+  // Facing it the whole time; the head tilts this way and that (the view reads it as puzzled).
+  stand(u)
+  turnToward(u, toward, dt)
+  if (ins.phase === 'stare') {
+    u.look = Math.sin(ins.t * 1.7) * 0.35
+    u.detect = Math.max(u.detect, SUSPECT_AT * 0.6)
+    if (ins.t >= INSPECT_STARE_S) { ins.phase = 'back'; ins.t = 0 }
+    return true
+  }
+  if (ins.phase === 'back') {
+    // A few steps backwards, the gun coming up.
+    u.look = 0
+    const step = (INSPECT_BACK / INSPECT_BACK_S) * dt
+    const nx = u.x - Math.sin(toward) * step
+    const nz = u.z - Math.cos(toward) * step
+    if (canStep(u.y, heightAt(g, nx, nz))) { u.x = nx; u.z = nz }
+    if (ins.t >= INSPECT_BACK_S) { ins.phase = 'shot'; ins.t = 0 }
+    return true
+  }
+  // The test round: one, at the thing. Then it walks on, if nothing happened.
+  if (ins.t >= 0.35 && ins.t - dt < 0.35) {
+    u.recoil = 1
+    const hits = hasLineOfSight(g, u.x, u.y + spec.eye, u.z, target.x, target.y + 0.8, target.z)
+    gar.events.push({ type: 'fire', id: u.id, damage: hits ? Math.max(1, Math.round(INSPECT_DAMAGE * gar.threat.damage)) : 0 })
+  }
+  if (ins.t >= 1.2) {
+    u.inspect = null
+    u.inspectCool = INSPECT_COOL_S
+    u.detect = Math.min(u.detect, SUSPECT_AT * 0.4)
+    u.path = []
+    return false
+  }
+  return true
 }
 
 /** How long a listener wonders about a noise before it goes to look. */

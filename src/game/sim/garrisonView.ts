@@ -521,7 +521,10 @@ export class GarrisonView {
       v.rig.root.rotation.y = yaw
       const hot = u.state === 'combat'
       const wary = u.state === 'suspicious' || u.state === 'search'
-      v.aim += ((hot ? 1 : 0) - v.aim) * ease
+      // At a disguise (#111): puzzled while it stares, the gun up as it backs off to test it.
+      const testing = u.inspect?.phase === 'back' || u.inspect?.phase === 'shot'
+      const puzzled = !!u.inspect && !testing
+      v.aim += ((hot || testing ? 1 : 0) - v.aim) * ease
       v.wary += ((wary ? 1 : 0) - v.wary) * ease
       v.caution += ((wary ? 1 : 0) - v.caution) * Math.min(1, dt * 4)
       if (u.state !== v.lastState) {
@@ -686,7 +689,7 @@ export class GarrisonView {
       // The mark over its head.
       if (v.mark) {
         const m = v.mark.material as SpriteMaterial
-        const show = !dead && (hot || wary || u.detect > 0.06)
+        const show = !dead && (hot || wary || puzzled || testing || u.detect > 0.06)
         const chat = !dead && !show && u.chatting
         v.mark.visible = show || chat
         if (chat) {
@@ -703,14 +706,16 @@ export class GarrisonView {
           const bang = hot
           const running = u.runner >= 0
           m.map = this.textures[running ? 2 : bang ? 1 : 0]!
-          m.color.copy(bang ? HOT : wary ? WARY : NOTICE)
-          m.opacity = bang || wary ? 1 : Math.min(1, 0.3 + 0.7 * (u.detect / SUSPECT_AT))
+          m.color.copy(bang ? HOT : wary || testing ? WARY : NOTICE)
+          m.opacity = bang || wary || puzzled || testing ? 1 : Math.min(1, 0.3 + 0.7 * (u.detect / SUSPECT_AT))
           const top = isLight(u) ? 0.8 : SPECS[u.kind].height + 0.55
           v.mark.position.set(x, y + top, z)
           // Keep it readable from sniping range: grow with distance.
           const d = Math.hypot(camX - x, camY - y, camZ - z)
-          const size = Math.min(Math.max(0.34, d * 0.055), 4) * (1 + v.pop * 0.6) * (bang || wary ? 1 : 0.55 + 0.45 * Math.min(1, u.detect / SUSPECT_AT))
+          // Puzzled: the "?" rocks from side to side.
+          const size = Math.min(Math.max(0.34, d * 0.055), 4) * (1 + v.pop * 0.6) * (bang || wary || puzzled || testing ? 1 : 0.55 + 0.45 * Math.min(1, u.detect / SUSPECT_AT))
           v.mark.scale.set(size, size, 1)
+          m.rotation = puzzled ? Math.sin(time * 4) * 0.35 : 0
         }
       }
 

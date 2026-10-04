@@ -84,15 +84,10 @@ describe('things out of place', () => {
 })
 
 describe('the hide box', () => {
-  it('a box seen creeping gets walked over to and poked: then the mech is found', () => {
+  it('a disguise seen moving is an intruder at once (#111)', () => {
     const f = yard().guard([[10, 10]], 0).build()
     const gar = makeGarrison(f, 1)
-    const t = at(10, 16, { crouched: true, box: 'creep' })
-    const ev = run(gar, f, t, 1.5)
-    expect(ev.some(e => e.type === 'poke')).toBe(true)
-    // It holds still now; the guard comes anyway, and pokes.
-    t.box = 'still'
-    run(gar, f, t, 12)
+    run(gar, f, at(10, 16, { crouched: true, box: 'creep' }), 1.5)
     expect(gar.units[0]!.state).toBe('combat')
   })
 

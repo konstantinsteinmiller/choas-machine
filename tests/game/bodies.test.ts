@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest'
 import { FortressBuilder } from '@/game/world/fortress'
 import { cellMid } from '@/game/world/grid'
 import {
-  BOX_BUMP, CHECKIN_JITTER_S, CHECKIN_S, drainEvents, killUnit, makeGarrison, stepGarrison, SUSPECT_AT,
+  INSPECT_M, INSPECT_STAND, INSPECT_STARE_S, CHECKIN_JITTER_S, CHECKIN_S, drainEvents, killUnit, makeGarrison, stepGarrison, SUSPECT_AT,
   type Garrison, type GarrisonEvent, type Target
 } from '@/game/sim/garrison'
 import { BOX_SPEED, makePlayer, stepPlayer, type Wish } from '@/game/sim/player'
@@ -91,25 +91,45 @@ describe('the hide box, as the guards see it', () => {
     expect(gar.units[0]!.state).toBe('patrol')
   })
 
-  it('a box that creeps is odd: worth a look, never sure from afar', () => {
+  it('a disguise that moves, even far off, is an intruder (#111)', () => {
     const f = fortress()
     const gar = makeGarrison(f)
-    // Kept out of the guard's walk so it cannot come up close.
-    const t = mech('creep', 12)
-    for (let i = 0; i < Math.round(12 / DT); i++) {
-      stepGarrison(gar, f.grid, t, DT)
-      drainEvents(gar)
-      gar.units[0]!.x = cellMid(16)
-      gar.units[0]!.z = cellMid(10)
-    }
-    expect(gar.units[0]!.detect).toBeGreaterThan(0)
-    expect(gar.units[0]!.state).not.toBe('combat')
+    run(gar, f, mech('creep', 12), 2)
+    expect(gar.units[0]!.state).toBe('combat')
   })
 
-  it('walked into, a box is a mech', () => {
+  it('close to a still disguise: up to it, a puzzled stare, a step back, one test round, and on with the round (#111)', () => {
     const f = fortress()
     const gar = makeGarrison(f)
-    run(gar, f, mech('still', BOX_BUMP - 0.6), 3)
+    const u = gar.units[0]!
+    const t = mech('still', INSPECT_M - 1)
+    const phases = new Set<string>()
+    let fired = 0
+    let closest = Infinity
+    for (let i = 0; i < Math.round((INSPECT_STARE_S + 6) / DT); i++) {
+      stepGarrison(gar, f.grid, t, DT)
+      for (const e of drainEvents(gar)) if (e.type === 'fire') { fired++; expect(e.damage).toBeGreaterThan(0) }
+      if (u.inspect) phases.add(u.inspect.phase)
+      closest = Math.min(closest, Math.hypot(u.x - t.x, u.z - t.z))
+    }
+    expect([...phases]).toEqual(expect.arrayContaining(['stare', 'back', 'shot']))
+    expect(closest).toBeLessThan(INSPECT_STAND + 0.6)
+    expect(fired).toBe(1)
+    expect(u.state).not.toBe('combat')
+    expect(u.inspect).toBeNull()
+    // Nothing moved: it does not come back to it straight away.
+    run(gar, f, t, 4)
+    expect(u.inspect).toBeNull()
+  })
+
+  it('a disguise that moves while it is being stared at gives the mech away', () => {
+    const f = fortress()
+    const gar = makeGarrison(f)
+    const t = mech('still', INSPECT_M - 1)
+    run(gar, f, t, 2.5)
+    expect(gar.units[0]!.inspect).not.toBeNull()
+    t.box = 'creep'
+    run(gar, f, t, 0.5)
     expect(gar.units[0]!.state).toBe('combat')
   })
 })

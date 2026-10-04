@@ -36,6 +36,8 @@ describe('helmets', () => {
 })
 
 describe('box checkers', () => {
+  // #111: a still disguise is never taken for the mech; a box checker comes to
+  // test it from further off (it fires its round from BOX_CHECK_M, not INSPECT_M).
   const watch = (check: boolean): string => {
     const b = new FortressBuilder('t', 30, 30)
     b.ground(0, 0, 29, 29).insert(1, 1).extract(28, 28)
@@ -44,12 +46,13 @@ describe('box checkers', () => {
     f.answers = { helmets: false, boxCheck: check, perchLight: false }
     const gar = makeGarrison(f, 1)
     const t: Target = { x: cellMid(10), y: 0, z: cellMid(10), height: 1.8, crouched: true, visible: true, box: 'still' }
-    for (let k = 0; k < 30 * 14; k++) { stepGarrison(gar, f.grid, t, 1 / 30); drainEvents(gar) }
-    return gar.units[0]!.state
+    let fired = false
+    for (let k = 0; k < 30 * 14; k++) { stepGarrison(gar, f.grid, t, 1 / 30); if (drainEvents(gar).some(e => e.type === 'fire')) fired = true }
+    return fired ? 'tested' : gar.units[0]!.state
   }
-  it('a box that sits still in plain view is a box, until the base has learned the box', () => {
+  it('a box that sits still 8 m off is left alone, until the base has learned the box: then it gets a test round', () => {
     expect(watch(false)).toBe('patrol')
-    expect(watch(true)).toBe('combat')
+    expect(watch(true)).toBe('tested')
   })
 })
 
