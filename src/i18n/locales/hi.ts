@@ -112,18 +112,32 @@ export default {
   'forge': {
     'tier': 'टियर {n}',
     'build': 'बनाएँ',
-    'claim': 'लें',
-    'finish': 'अभी पूरा करें',
-    'busy': 'फोर्ज व्यस्त है',
     'top': 'सर्वोच्च टियर'
   },
   'smithy': {
     'furnace': 'भट्ठी: धौंकनी दबाए रखें ताकि गर्मी पट्टी में रहे',
-    'anvil': 'निहाई: जब छल्ला निशान पर आए तब चोट करें',
-    'quench': 'बुझाना: जब चेरी-लाल चमके तब डुबोएं',
     'pump': 'धौंकनी चलाएं',
-    'dip': 'डुबोएं',
     'stars': '3 में से {n} सितारे'
+  },
+  'melt': {
+    'start': 'Melt the haul: up to +{n}'
+  },
+  'wheel': {
+    'title': 'Lucky wheel',
+    'locked': 'Max out rifle damage to open the wheel',
+    'chance': 'Win chance',
+    'gain': 'Next win',
+    'spin': 'Spin',
+    'sure': 'Sure win',
+    'watch': 'Watch a video for a sure win',
+    'won': 'Rifle damage +{n}',
+    'miss': 'Missed: {n} scrap back',
+    'pity': 'A sure win in {n} spins'
+  },
+  'ads': {
+    'blockedTitle': 'Ads blocked',
+    'blockedBody': 'An ad blocker stopped the video, so there is no reward this time.',
+    'ok': 'OK'
   },
   'medal': {
     'ghost': 'घोस्ट',

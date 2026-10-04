@@ -112,18 +112,32 @@ export default {
   'forge': {
     'tier': 'Grado {n}',
     'build': 'Konstrui',
-    'claim': 'Preni',
-    'finish': 'Finu nun',
-    'busy': 'Forĝejo okupata',
     'top': 'Plej alta grado'
   },
   'smithy': {
     'furnace': 'Forno: tenu la blovilon por teni la varmon en la bendo',
-    'anvil': 'Amboso: frapu kiam la ringo atingas la markon',
-    'quench': 'Hardado: trempu kiam ĝi ardas ĉerize ruĝe',
     'pump': 'Pumpi la blovilon',
-    'dip': 'Trempi',
     'stars': '{n} el 3 steloj'
+  },
+  'melt': {
+    'start': 'Melt the haul: up to +{n}'
+  },
+  'wheel': {
+    'title': 'Lucky wheel',
+    'locked': 'Max out rifle damage to open the wheel',
+    'chance': 'Win chance',
+    'gain': 'Next win',
+    'spin': 'Spin',
+    'sure': 'Sure win',
+    'watch': 'Watch a video for a sure win',
+    'won': 'Rifle damage +{n}',
+    'miss': 'Missed: {n} scrap back',
+    'pity': 'A sure win in {n} spins'
+  },
+  'ads': {
+    'blockedTitle': 'Ads blocked',
+    'blockedBody': 'An ad blocker stopped the video, so there is no reward this time.',
+    'ok': 'OK'
   },
   'medal': {
     'ghost': 'Fantomo',

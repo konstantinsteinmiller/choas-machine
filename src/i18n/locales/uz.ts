@@ -112,18 +112,32 @@ export default {
   'forge': {
     'tier': '{n}-pog\'ona',
     'build': 'Yasash',
-    'claim': 'Olish',
-    'finish': 'Hozir tugatish',
-    'busy': 'Temirchilik band',
     'top': 'Eng yuqori pog\'ona'
   },
   'smithy': {
     'furnace': 'Pech: issiqlik chiziqda qolishi uchun damni bosib tur',
-    'anvil': 'Sandon: halqa belgiga yetganda ur',
-    'quench': 'Toblash: olcha-qizil yonganda botir',
     'pump': 'Damni bosish',
-    'dip': 'Botirish',
     'stars': '3 yulduzdan {n}'
+  },
+  'melt': {
+    'start': 'Melt the haul: up to +{n}'
+  },
+  'wheel': {
+    'title': 'Lucky wheel',
+    'locked': 'Max out rifle damage to open the wheel',
+    'chance': 'Win chance',
+    'gain': 'Next win',
+    'spin': 'Spin',
+    'sure': 'Sure win',
+    'watch': 'Watch a video for a sure win',
+    'won': 'Rifle damage +{n}',
+    'miss': 'Missed: {n} scrap back',
+    'pity': 'A sure win in {n} spins'
+  },
+  'ads': {
+    'blockedTitle': 'Ads blocked',
+    'blockedBody': 'An ad blocker stopped the video, so there is no reward this time.',
+    'ok': 'OK'
   },
   'medal': {
     'ghost': 'Arvoh',

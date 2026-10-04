@@ -112,18 +112,32 @@ export default {
   'forge': {
     'tier': 'Stupeň {n}',
     'build': 'Vyrobit',
-    'claim': 'Vyzvednout',
-    'finish': 'Dokončit hned',
-    'busy': 'Kovárna je obsazená',
     'top': 'Nejvyšší stupeň'
   },
   'smithy': {
     'furnace': 'Pec: drž měch, ať žár zůstane v pásu',
-    'anvil': 'Kovadlina: udeř, když kruh dosedne na značku',
-    'quench': 'Kalení: ponoř, když žhne třešňově',
     'pump': 'Pumpovat měch',
-    'dip': 'Ponořit',
     'stars': '{n} ze 3 hvězd'
+  },
+  'melt': {
+    'start': 'Melt the haul: up to +{n}'
+  },
+  'wheel': {
+    'title': 'Lucky wheel',
+    'locked': 'Max out rifle damage to open the wheel',
+    'chance': 'Win chance',
+    'gain': 'Next win',
+    'spin': 'Spin',
+    'sure': 'Sure win',
+    'watch': 'Watch a video for a sure win',
+    'won': 'Rifle damage +{n}',
+    'miss': 'Missed: {n} scrap back',
+    'pity': 'A sure win in {n} spins'
+  },
+  'ads': {
+    'blockedTitle': 'Ads blocked',
+    'blockedBody': 'An ad blocker stopped the video, so there is no reward this time.',
+    'ok': 'OK'
   },
   'medal': {
     'ghost': 'Duch',

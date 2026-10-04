@@ -112,18 +112,32 @@ export default {
   'forge': {
     'tier': 'Pillə {n}',
     'build': 'Qur',
-    'claim': 'Götür',
-    'finish': 'İndi bitir',
-    'busy': 'Zavod məşğuldur',
     'top': 'Ən yüksək pillə'
   },
   'smithy': {
     'furnace': 'Soba: istilik zolaqda qalsın deyə körüyü basılı saxla',
-    'anvil': 'Zindan: halqa işarəyə çatanda vur',
-    'quench': 'Suvarma: albalı-qırmızı parlayanda batır',
     'pump': 'Körüyü bas',
-    'dip': 'Batır',
     'stars': '3 ulduzdan {n}'
+  },
+  'melt': {
+    'start': 'Melt the haul: up to +{n}'
+  },
+  'wheel': {
+    'title': 'Lucky wheel',
+    'locked': 'Max out rifle damage to open the wheel',
+    'chance': 'Win chance',
+    'gain': 'Next win',
+    'spin': 'Spin',
+    'sure': 'Sure win',
+    'watch': 'Watch a video for a sure win',
+    'won': 'Rifle damage +{n}',
+    'miss': 'Missed: {n} scrap back',
+    'pity': 'A sure win in {n} spins'
+  },
+  'ads': {
+    'blockedTitle': 'Ads blocked',
+    'blockedBody': 'An ad blocker stopped the video, so there is no reward this time.',
+    'ok': 'OK'
   },
   'medal': {
     'ghost': 'Kabus',

@@ -35,7 +35,7 @@ describe('a new player', () => {
     expect(P.profile.scrap).toBe(0)
     expect(P.profile.arsenal.tiers).toEqual({ sniper: 1, minigun: 1, rocket: 1 })
     expect(P.profile.arsenal.unlocks).toEqual([])
-    expect(P.profile.forge).toBeNull()
+    expect(P.profile.arsenal.wheel).toEqual({ wins: 0, misses: 0 })
     expect(P.isFreshProfile()).toBe(true)
   })
 })
@@ -64,7 +64,7 @@ describe('saving', () => {
     f.medals.ghost = true
     f.bestScore = 8800
     f.bestTime = 171
-    P.profile.forge = { weapon: 'rocket', tier: 2, step: 'anvil', total: 14, remaining: 9, stamp: 1_790_000_000_000, scores: [0.75], paid: 120 }
+    P.profile.arsenal.wheel = { wins: 3, misses: 2 }
     P.profile.lessons.touch.scope = 3
     P.profile.seen.push('firstLaunch')
     P.profile.stats.headshots = 12
@@ -129,22 +129,20 @@ describe('loading a damaged or partial save', () => {
       clears: 2, medals: { ghost: false, marksman: false, swift: true }, bestScore: 0, bestTime: 0
     })
     expect(P.profile.fortresses.f02!.clears).toBe(0)
-    expect(P.profile.forge).toBeNull()
     expect(P.profile.lessons).toEqual({ touch: {}, desk: {} })
     expect(P.profile.seen).toEqual(['a'])
     expect(P.profile.stats.kills).toBe(0)
   })
 
-  it('keeps a running smithy job and clamps its clock', () => {
-    S.setStates({ cm_forge: { weapon: 'sniper', tier: 3, track: 'sniperZoom', step: 'anvil', total: 12, remaining: 9999, stamp: 5, scores: [0.5, 7, 'x'], paid: 96 } })
+  it('a smithy job from an older save is granted at once (#75), and not twice', () => {
+    S.setStates({ cm_forge: { weapon: 'sniper', tier: 3, track: 'sniperZoom', step: 'anvil', total: 12, remaining: 9999, stamp: 5, scores: [0.5], paid: 96 } })
     P.loadProfile()
-    expect(P.profile.forge).toEqual({ weapon: 'sniper', tier: 3, track: 'sniperZoom', step: 'anvil', total: 12, remaining: 12, stamp: 5, scores: [0.5], paid: 96 })
-  })
-
-  it('an hour-long build from before the smithy goes on to the quench, its wait cut short', () => {
+    expect(P.profile.arsenal.upgrades.sniperZoom).toBe(3)
+    P.saveProfile()
+    expect(stored().cm_forge).toBeNull()
     S.setStates({ cm_forge: { weapon: 'rocket', tier: 9, total: 3600, remaining: 2000, stamp: 5 } })
     P.loadProfile()
-    expect(P.profile.forge).toEqual({ weapon: 'rocket', tier: 5, step: 'quench', total: 20, remaining: 20, stamp: 5, scores: [], paid: 0 })
+    expect(P.profile.arsenal.tiers.rocket).toBe(5)
   })
 })
 

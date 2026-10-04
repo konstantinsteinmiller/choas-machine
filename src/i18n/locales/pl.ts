@@ -112,18 +112,32 @@ export default {
   'forge': {
     'tier': 'Poziom {n}',
     'build': 'Buduj',
-    'claim': 'Odbierz',
-    'finish': 'Ukończ teraz',
-    'busy': 'Kuźnia zajęta',
     'top': 'Najwyższy poziom'
   },
   'smithy': {
     'furnace': 'Piec: przytrzymaj miech, by utrzymać żar w pasie',
-    'anvil': 'Kowadło: uderz, gdy pierścień trafi w znak',
-    'quench': 'Hartowanie: zanurz, gdy żarzy się na wiśniowo',
     'pump': 'Pompuj miech',
-    'dip': 'Zanurz',
     'stars': '{n} z 3 gwiazdek'
+  },
+  'melt': {
+    'start': 'Melt the haul: up to +{n}'
+  },
+  'wheel': {
+    'title': 'Lucky wheel',
+    'locked': 'Max out rifle damage to open the wheel',
+    'chance': 'Win chance',
+    'gain': 'Next win',
+    'spin': 'Spin',
+    'sure': 'Sure win',
+    'watch': 'Watch a video for a sure win',
+    'won': 'Rifle damage +{n}',
+    'miss': 'Missed: {n} scrap back',
+    'pity': 'A sure win in {n} spins'
+  },
+  'ads': {
+    'blockedTitle': 'Ads blocked',
+    'blockedBody': 'An ad blocker stopped the video, so there is no reward this time.',
+    'ok': 'OK'
   },
   'medal': {
     'ghost': 'Duch',

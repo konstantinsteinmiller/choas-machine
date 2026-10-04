@@ -112,18 +112,32 @@ export default {
   'forge': {
     'tier': 'Nivå {n}',
     'build': 'Bygg',
-    'claim': 'Hämta',
-    'finish': 'Slutför nu',
-    'busy': 'Smedjan är upptagen',
     'top': 'Högsta nivå'
   },
   'smithy': {
     'furnace': 'Ässja: håll bälgen så att värmen stannar i bandet',
-    'anvil': 'Städ: slå när ringen möter märket',
-    'quench': 'Härdning: doppa när det glöder körsbärsrött',
     'pump': 'Pumpa bälgen',
-    'dip': 'Doppa',
     'stars': '{n} av 3 stjärnor'
+  },
+  'melt': {
+    'start': 'Melt the haul: up to +{n}'
+  },
+  'wheel': {
+    'title': 'Lucky wheel',
+    'locked': 'Max out rifle damage to open the wheel',
+    'chance': 'Win chance',
+    'gain': 'Next win',
+    'spin': 'Spin',
+    'sure': 'Sure win',
+    'watch': 'Watch a video for a sure win',
+    'won': 'Rifle damage +{n}',
+    'miss': 'Missed: {n} scrap back',
+    'pity': 'A sure win in {n} spins'
+  },
+  'ads': {
+    'blockedTitle': 'Ads blocked',
+    'blockedBody': 'An ad blocker stopped the video, so there is no reward this time.',
+    'ok': 'OK'
   },
   'medal': {
     'ghost': 'Spöke',

@@ -68,6 +68,8 @@ export interface Payout {
   /** Medals not held at this level before this run. */
   newMedals: MedalId[]
   scrap: number
+  /** The part of `scrap` that is the salvage carried out: the furnace melts it for a bonus (#75). */
+  haul: number
   cores: number
   /** One entry per blueprint, each for a weapon. */
   blueprints: WeaponId[]
@@ -82,11 +84,11 @@ export interface LevelRecord {
 
 /**
  * Tech Scrap for clearing a level, before the bonuses: what a raid that took
- * only the salvage it needed brings home (`salvageNeed` piles at about 45).
+ * only the salvage it needed brings home (`salvageNeed` piles at about 34, #75).
  * Kept for the tests' and the tally's sake; the payout itself counts the
  * salvage actually carried out.
  */
-export const baseScrap = (level: number): number => 90 + 45 * (level - 1)
+export const baseScrap = (level: number): number => 68 + 34 * (level - 1)
 /** The Commander's own scrap, for the raid that also took him down. */
 export const BOSS_SCRAP = 60
 /** Salvage carried home from a run whose result does not say (an old save's tally, a test). */
@@ -102,10 +104,9 @@ export const payout = (r: MissionResult, level: number, held: LevelRecord, missi
   const newMedals = MEDAL_IDS.filter(m => medals[m] && !held.medals[m])
   const firstClear = held.clears === 0
   const earned = MEDAL_IDS.filter(m => medals[m]).length
-  const scrap = Math.round(
-    // The salvage is the haul; a medal is worth a fifth of it on top.
-    salvageOf(r, level) * (1 + 0.2 * earned) + r.kills * 4 + r.headshots * 4 + (r.bossDown ? BOSS_SCRAP : 0) + (firstClear ? baseScrap(level) : 0)
-  )
+  // The salvage is the haul; a medal is worth a fifth of it on top.
+  const haul = Math.round(salvageOf(r, level) * (1 + 0.2 * earned))
+  const scrap = haul + Math.round(r.kills * 4 + r.headshots * 4 + (r.bossDown ? BOSS_SCRAP : 0) + (firstClear ? baseScrap(level) : 0))
   const blueprints: WeaponId[] = [WEAPON_IDS[missions % WEAPON_IDS.length]!]
   if (medals.ghost) blueprints.push(WEAPON_IDS[(missions + 1) % WEAPON_IDS.length]!)
   return {
@@ -113,6 +114,7 @@ export const payout = (r: MissionResult, level: number, held: LevelRecord, missi
     medals,
     newMedals,
     scrap,
+    haul,
     cores: newMedals.length + (firstClear ? 1 : 0),
     blueprints,
     firstClear

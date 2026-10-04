@@ -2,17 +2,18 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import { MEDAL_IDS, WEAPON_IDS } from '@/game/data/ids'
 import {
-  BASE_LOADOUT, TIER_MAX, TRACKS, TRACK_IDS, TRACK_MAX, loadoutOf, skipCost, tierBlueprints,
+  BASE_LOADOUT, TIER_MAX, TRACKS, TRACK_IDS, TRACK_MAX, loadoutOf, tierBlueprints,
   tierScrap, trackCost, trackTotalCost, trackValue
 } from '@/game/data/upgrades'
-import { REFUND, tierWait, trackWait } from '@/game/sim/smithy'
+import { MELT_BONUS } from '@/game/sim/smithy'
+import { MISS_REFUND, PITY, spinCost, wheelBonus, winChance, winGain } from '@/game/data/wheel'
 import {
   DEFEAT_KEEP, THREAT_LEVELS, baseScrap, defeatScrap, medalsOf, payout, scoreOf, swiftPar, type MissionResult
 } from '@/game/sim/rewards'
 import { defaultProfile, profile } from '@/game/state/profile'
 import {
-  bankDefeat, bankMission, buyTrack, canBuyTrack, canForge, currentLoadout, forgeRemaining, forgeSkipCost,
-  levelKey, settleForge, skipForge, smithReady, smithStep, startForge, unlockedLevel, type SmithResult
+  __setHaul, bankDefeat, bankMission, buildTier, buyTrack, canBuyTrack, canForge, canSpin, currentLoadout, haulToMelt,
+  levelKey, meltHaul, spinWheel, unlockedLevel, wheelOpen
 } from '@/game/state/progress'
 
 const tiers1 = (): Record<(typeof WEAPON_IDS)[number], number> => ({ sniper: 1, minigun: 1, rocket: 1 })
@@ -29,16 +30,6 @@ const loudRun = (over: Partial<MissionResult> = {}): MissionResult => ({
 
 const reset = (): void => { Object.assign(profile, defaultProfile()) }
 
-/** Play the smithy's three games at `quality`, waiting out each melt and cool. */
-const smith = (quality = 0.6, t0 = 1_800_000_000_000): SmithResult | null => {
-  let now = t0
-  let r: SmithResult | null = null
-  for (let i = 0; i < 3 && profile.forge; i++) {
-    now += (profile.forge.remaining + 1) * 1000
-    r = smithStep(quality, now)
-  }
-  return r
-}
 
 describe('upgrade tracks', () => {
   it('every track has a station and an icon, and the Armory groups by weapon', () => {
@@ -60,8 +51,8 @@ describe('upgrade tracks', () => {
     expect(trackTotalCost()).toBe([0, 1, 2, 3, 4].reduce((n, l) => n + trackCost(l), 0))
   })
 
-  it('the first level of any track is cheap: the first raid buys something', () => {
-    expect(trackCost(0)).toBe(30)
+  it('the first level of any track is within one raid: the first raid buys something (#75: dearer than before)', () => {
+    expect(trackCost(0)).toBe(60)
   })
 
   it('the first level of servo speed quiets the sprint; the first of the decoy track packs one more', () => {
@@ -224,8 +215,8 @@ describe('the player\'s progress', () => {
     expect(canBuyTrack('armor')).toBe(false)
     expect(buyTrack('armor')).toBe(false)
     profile.scrap = trackTotalCost()
-    // Made at one star: no scrap comes back.
-    for (let l = 0; l < TRACK_MAX; l++) { expect(buyTrack('armor')).toBe(true); smith(0) }
+    // Bought outright (#75): each level is the mech's at once.
+    for (let l = 0; l < TRACK_MAX; l++) { expect(buyTrack('armor')).toBe(true); expect(profile.arsenal.upgrades.armor).toBe(l + 1) }
     expect(profile.scrap).toBe(0)
     expect(profile.arsenal.upgrades.armor).toBe(TRACK_MAX)
     profile.scrap = 99999
@@ -233,121 +224,91 @@ describe('the player\'s progress', () => {
     expect(currentLoadout().armor).toBe(BASE_LOADOUT.armor + 20 * TRACK_MAX)
   })
 
-  describe('the smithy', () => {
-    const T0 = 1_800_000_000_000
+  describe('the Forge, the furnace and the wheel (#75)', () => {
     const stock = (): void => {
       profile.scrap = 5000
       profile.cores = 50
       for (const w of WEAPON_IDS) profile.arsenal.blueprints[w] = 20
     }
 
-    it('a weapon tier needs the blueprints and the scrap; the smithy makes one thing at a time', () => {
+    it('a weapon tier needs the blueprints and the scrap, and is built at once', () => {
       expect(canForge('sniper')).toBe(false)
       stock()
-      expect(startForge('sniper', T0)).toBe(true)
+      expect(buildTier('sniper')).toBe(true)
+      expect(profile.arsenal.tiers.sniper).toBe(2)
       expect(profile.arsenal.blueprints.sniper).toBe(20 - tierBlueprints(2))
       expect(profile.scrap).toBe(5000 - tierScrap(2))
-      expect(profile.forge).toMatchObject({ weapon: 'sniper', tier: 2, step: 'furnace', total: tierWait(2), remaining: 0 })
-      expect(startForge('minigun', T0)).toBe(false)
-      expect(canBuyTrack('armor')).toBe(false)
+      // Nothing waits in a smithy: the next one can go at once.
+      expect(buildTier('minigun')).toBe(true)
+      expect(canBuyTrack('armor')).toBe(true)
     })
 
-    it('an upgrade goes to the smithy too, and is the player\'s once it is through the quench', () => {
-      profile.scrap = 1000
-      expect(buyTrack('sniperZoom', T0)).toBe(true)
-      expect(profile.forge).toMatchObject({ track: 'sniperZoom', tier: 1, step: 'furnace', total: trackWait(1) })
-      expect(profile.arsenal.upgrades.sniperZoom ?? 0).toBe(0)
-      expect(smith(0.9, T0)).toMatchObject({ track: 'sniperZoom', tier: 1, stars: 3 })
-      expect(profile.arsenal.upgrades.sniperZoom).toBe(1)
-      expect(profile.forge).toBeNull()
+    it('the furnace melts the last haul once, for a bonus by its stars', () => {
+      __setHaul(200)
+      expect(haulToMelt()).toBe(Math.round(200 * MELT_BONUS[3]))
+      profile.scrap = 0
+      expect(meltHaul(0.9)).toEqual({ stars: 3, bonus: Math.round(200 * MELT_BONUS[3]) })
+      expect(profile.scrap).toBe(Math.round(200 * MELT_BONUS[3]))
+      expect(meltHaul(0.9)).toBeNull()
+      __setHaul(200)
+      expect(meltHaul(0.6)).toEqual({ stars: 2, bonus: Math.round(200 * MELT_BONUS[2]) })
+      __setHaul(200)
+      expect(meltHaul(0.1)).toEqual({ stars: 1, bonus: 0 })
     })
 
-    it('the furnace is played at once; then the metal melts, then cools, before the next game', () => {
-      stock()
-      startForge('sniper', T0)
-      expect(smithReady(T0)).toBe(true)
-      expect(smithStep(0.8, T0)).toBeNull()
-      expect(profile.forge).toMatchObject({ step: 'anvil', scores: [0.8] })
-      // Melting: the anvil must wait.
-      expect(smithReady(T0 + 5_000)).toBe(false)
-      expect(smithStep(1, T0 + 5_000)).toBeNull()
-      expect(profile.forge!.scores).toEqual([0.8])
-      const melt = T0 + tierWait(2) * 1000
-      expect(smithStep(0.7, melt)).toBeNull()
-      expect(profile.forge).toMatchObject({ step: 'quench' })
-      expect(profile.arsenal.tiers.sniper).toBe(1)
-      const r = smithStep(0.9, melt + tierWait(2) * 1000)
-      expect(r).toMatchObject({ weapon: 'sniper', tier: 2, stars: 3 })
-      expect(profile.arsenal.tiers.sniper).toBe(2)
+    it('a raid leaves its haul for the furnace', () => {
+      const pay = bankMission(ghostRun({ salvage: 120 }), 1)
+      expect(pay.haul).toBeGreaterThan(0)
+      expect(pay.haul).toBeLessThanOrEqual(pay.scrap)
+      expect(haulToMelt()).toBe(Math.round(pay.haul * MELT_BONUS[3]))
     })
 
-    it('the stars refund a share of the scrap', () => {
+    it('the wheel opens only once rifle damage is at its top', () => {
       stock()
-      startForge('rocket', T0)
-      const paid = tierScrap(2)
-      const before = profile.scrap
-      const r = smith(0.9, T0)!
-      expect(r.stars).toBe(3)
-      expect(r.refund).toBe(Math.round(paid * REFUND[3]))
-      expect(profile.scrap).toBe(before + r.refund)
-      startForge('minigun', T0)
-      expect(smith(0.6, T0)!.stars).toBe(2)
-      startForge('sniper', T0)
-      expect(smith(0.1, T0)).toMatchObject({ stars: 1, refund: 0 })
+      expect(wheelOpen()).toBe(false)
+      expect(spinWheel('scrap', 0)).toBeNull()
+      profile.arsenal.upgrades.sniperDamage = TRACK_MAX
+      expect(wheelOpen()).toBe(true)
+      expect(canSpin('scrap')).toBe(true)
     })
 
-    it('the waits go on while the game is closed: the save carries the clock', () => {
+    it('a win adds rifle damage with no ceiling, each a little less; a miss hands part of the stake back', () => {
       stock()
-      startForge('rocket', T0)
-      smithStep(0.5, T0)
-      settleForge(T0 + 5_000)
-      expect(profile.forge!.remaining).toBe(tierWait(2) - 5)
-      expect(profile.forge!.stamp).toBe(T0 + 5_000)
-      expect(forgeRemaining(profile.forge!, T0 + tierWait(2) * 1000)).toBe(0)
+      profile.arsenal.upgrades.sniperDamage = TRACK_MAX
+      const before = currentLoadout().damage.sniper
+      const cost = spinCost(0)
+      const r = spinWheel('scrap', 0)!
+      expect(r).toEqual({ won: true, gain: winGain(0), refund: 0 })
+      expect(profile.scrap).toBe(5000 - cost)
+      expect(currentLoadout().damage.sniper).toBeCloseTo(before * (1 + winGain(0)))
+      const s = profile.scrap
+      const miss = spinWheel('scrap', 0.9999)!
+      expect(miss.won).toBe(false)
+      expect(miss.refund).toBe(Math.round(spinCost(1) * MISS_REFUND))
+      expect(profile.scrap).toBe(s - spinCost(1) + miss.refund)
+      // Each win less likely, each worth less, each dearer; never zero.
+      for (let n = 1; n < 30; n++) {
+        expect(winChance(n, 0)).toBeLessThanOrEqual(winChance(n - 1, 0))
+        expect(winGain(n)).toBeLessThan(winGain(n - 1))
+        expect(spinCost(n)).toBeGreaterThanOrEqual(spinCost(n - 1))
+        expect(winChance(n, 0)).toBeGreaterThanOrEqual(0.08)
+      }
+      expect(wheelBonus(200)).toBeLessThan(0.41)
     })
 
-    it('a clock wound back credits nothing', () => {
+    it('after PITY misses in a row the next spin cannot lose; a core or a video is a sure win', () => {
       stock()
-      startForge('sniper', T0)
-      smithStep(0.5, T0)
-      settleForge(T0 + 5_000)
-      const left = profile.forge!.remaining
-      // Back an hour, then forward again to where it was: no time gained.
-      settleForge(T0 - 3_600_000)
-      expect(profile.forge!.remaining).toBe(left)
-      expect(forgeRemaining(profile.forge!, T0 - 3_600_000 + 4_000)).toBe(left)
-      settleForge(T0 + 5_000)
-      expect(profile.forge!.remaining).toBe(left)
-      expect(smithReady(T0 + 5_000)).toBe(false)
-      // Real time from there on still counts.
-      expect(smithReady(T0 + 5_000 + left * 1000)).toBe(true)
-    })
-
-    it('a Data Core cuts a wait short', () => {
-      expect(skipCost(0)).toBe(0)
-      expect(skipCost(1)).toBe(1)
-      expect(skipCost(999)).toBe(1)
-      stock()
-      profile.arsenal.tiers.minigun = 4
-      startForge('minigun', T0)
-      // Nothing to skip before the furnace.
-      expect(forgeSkipCost(T0)).toBe(0)
-      smithStep(0.5, T0)
-      expect(forgeSkipCost(T0)).toBe(1)
-      profile.cores = 0
-      expect(skipForge(T0)).toBe(false)
-      profile.cores = 1
-      expect(skipForge(T0)).toBe(true)
-      expect(profile.cores).toBe(0)
-      expect(smithReady(T0)).toBe(true)
-      smithStep(0.5, T0)
-      profile.cores = 1
-      skipForge(T0)
-      expect(smithStep(0.5, T0)).toMatchObject({ tier: TIER_MAX })
-      expect(profile.arsenal.tiers.minigun).toBe(TIER_MAX)
-      // The top tier: nothing more to build.
-      stock()
-      expect(canForge('minigun')).toBe(false)
+      profile.arsenal.upgrades.sniperDamage = TRACK_MAX
+      profile.arsenal.wheel = { wins: 20, misses: 0 }
+      profile.scrap = 1e8
+      for (let k = 0; k < PITY; k++) expect(spinWheel('scrap', 0.99999)!.won).toBe(false)
+      expect(winChance(20, PITY)).toBe(1)
+      expect(spinWheel('scrap', 0.99999)!.won).toBe(true)
+      expect(profile.arsenal.wheel.misses).toBe(0)
+      const cores = profile.cores
+      expect(spinWheel('core', 0.99999)!.won).toBe(true)
+      expect(profile.cores).toBe(cores - 1)
+      expect(spinWheel('ad', 0.99999)!.won).toBe(true)
     })
   })
 })
@@ -365,7 +326,6 @@ describe('the economy, played', () => {
         const next = TRACK_IDS.filter(id => canBuyTrack(id)).sort((a, b) => trackCost(profile.arsenal.upgrades[a] ?? 0) - trackCost(profile.arsenal.upgrades[b] ?? 0))[0]
         if (!next) break
         buyTrack(next)
-        smith(0.6)
         bought++
       }
     }
@@ -384,8 +344,9 @@ describe('the economy, played', () => {
       missions++
     }
     expect(TRACK_IDS.reduce((n, id) => n + (profile.arsenal.upgrades[id] ?? 0), 0)).toBe(all)
-    expect(missions).toBeGreaterThan(14)
-    expect(missions).toBeLessThan(70)
+    // #75: a few dozen raids, slower than before the rebalance (it was 14 to 70).
+    expect(missions).toBeGreaterThan(30)
+    expect(missions).toBeLessThan(90)
   })
 
   it('a loud player gets there too, more slowly', () => {
@@ -394,7 +355,7 @@ describe('the economy, played', () => {
       play(1, loudRun)
       missions++
     }
-    expect(missions).toBeLessThan(110)
+    expect(missions).toBeLessThan(120)
   })
 
   it('the blueprints for every top tier arrive within the same stretch', () => {

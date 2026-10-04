@@ -112,18 +112,32 @@ export default {
   'forge': {
     'tier': 'ティア{n}',
     'build': '製造',
-    'claim': '受け取る',
-    'finish': '今すぐ完了',
-    'busy': '鍛造所は使用中',
     'top': '最高ティア'
   },
   'smithy': {
     'furnace': '炉：ふいごを押し続けて熱を帯の中に保つ',
-    'anvil': '金床：リングが印に重なったら打つ',
-    'quench': '焼き入れ：チェリーレッドに光ったら水に入れる',
     'pump': 'ふいごを押す',
-    'dip': '入れる',
     'stars': '星 {n}/3'
+  },
+  'melt': {
+    'start': 'Melt the haul: up to +{n}'
+  },
+  'wheel': {
+    'title': 'Lucky wheel',
+    'locked': 'Max out rifle damage to open the wheel',
+    'chance': 'Win chance',
+    'gain': 'Next win',
+    'spin': 'Spin',
+    'sure': 'Sure win',
+    'watch': 'Watch a video for a sure win',
+    'won': 'Rifle damage +{n}',
+    'miss': 'Missed: {n} scrap back',
+    'pity': 'A sure win in {n} spins'
+  },
+  'ads': {
+    'blockedTitle': 'Ads blocked',
+    'blockedBody': 'An ad blocker stopped the video, so there is no reward this time.',
+    'ok': 'OK'
   },
   'medal': {
     'ghost': 'ゴースト',

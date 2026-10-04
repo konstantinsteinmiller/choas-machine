@@ -112,18 +112,32 @@ export default {
   'forge': {
     'tier': 'Stufe {n}',
     'build': 'Bauen',
-    'claim': 'Abholen',
-    'finish': 'Sofort fertig',
-    'busy': 'Schmiede belegt',
     'top': 'Höchste Stufe'
   },
   'smithy': {
     'furnace': 'Schmelzofen: Blasebalg halten, damit die Hitze im Band bleibt',
-    'anvil': 'Amboss: zuschlagen, wenn der Ring die Markierung trifft',
-    'quench': 'Abschrecken: eintauchen, wenn es kirschrot glüht',
     'pump': 'Blasebalg pumpen',
-    'dip': 'Eintauchen',
     'stars': '{n} von 3 Sternen'
+  },
+  'melt': {
+    'start': 'Melt the haul: up to +{n}'
+  },
+  'wheel': {
+    'title': 'Lucky wheel',
+    'locked': 'Max out rifle damage to open the wheel',
+    'chance': 'Win chance',
+    'gain': 'Next win',
+    'spin': 'Spin',
+    'sure': 'Sure win',
+    'watch': 'Watch a video for a sure win',
+    'won': 'Rifle damage +{n}',
+    'miss': 'Missed: {n} scrap back',
+    'pity': 'A sure win in {n} spins'
+  },
+  'ads': {
+    'blockedTitle': 'Ads blocked',
+    'blockedBody': 'An ad blocker stopped the video, so there is no reward this time.',
+    'ok': 'OK'
   },
   'medal': {
     'ghost': 'Geist',

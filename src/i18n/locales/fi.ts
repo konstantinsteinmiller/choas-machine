@@ -112,18 +112,32 @@ export default {
   'forge': {
     'tier': 'Luokka {n}',
     'build': 'Rakenna',
-    'claim': 'Nouda',
-    'finish': 'Valmis heti',
-    'busy': 'Paja on varattu',
     'top': 'Ylin luokka'
   },
   'smithy': {
     'furnace': 'Ahjo: pidä palkeita pohjassa, jotta kuumuus pysyy alueella',
-    'anvil': 'Alasin: lyö, kun rengas osuu merkkiin',
-    'quench': 'Karkaisu: upota, kun se hehkuu kirsikanpunaisena',
     'pump': 'Pumppaa palkeita',
-    'dip': 'Upota',
     'stars': '{n}/3 tähteä'
+  },
+  'melt': {
+    'start': 'Melt the haul: up to +{n}'
+  },
+  'wheel': {
+    'title': 'Lucky wheel',
+    'locked': 'Max out rifle damage to open the wheel',
+    'chance': 'Win chance',
+    'gain': 'Next win',
+    'spin': 'Spin',
+    'sure': 'Sure win',
+    'watch': 'Watch a video for a sure win',
+    'won': 'Rifle damage +{n}',
+    'miss': 'Missed: {n} scrap back',
+    'pity': 'A sure win in {n} spins'
+  },
+  'ads': {
+    'blockedTitle': 'Ads blocked',
+    'blockedBody': 'An ad blocker stopped the video, so there is no reward this time.',
+    'ok': 'OK'
   },
   'medal': {
     'ghost': 'Haamu',

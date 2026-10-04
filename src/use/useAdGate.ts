@@ -247,6 +247,21 @@ export const canShowInterstitial = (): boolean => {
   return lastInterstitialAt === 0 || now - lastInterstitialAt >= INTERSTITIAL_MIN_GAP_MS
 }
 
+/**
+ * No rewarded offer in a new session's first three minutes: Poki, CrazyGames
+ * and Playgama all ask for an ad-free start (playbook, phase 6); one number
+ * for every build keeps it simple (#75).
+ */
+export const REWARD_GRACE_MS = 180_000
+export const rewardGraceOver = (): boolean => Date.now() - sessionStartedAt >= REWARD_GRACE_MS
+
+/**
+ * May a rewarded video be OFFERED right now: a build with real videos, one
+ * ready, allowance left, and past the start of the session. A build without
+ * videos shows its other price instead (no free grant, no dead button).
+ */
+export const canOfferVideo = (): boolean => isRewardGated && canOfferReward.value && rewardGraceOver()
+
 /** Record that an interstitial was just shown, restarting the 120 s clock. */
 export const markInterstitialShown = (): void => {
   lastInterstitialAt = Date.now()

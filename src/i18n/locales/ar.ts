@@ -112,18 +112,32 @@ export default {
   'forge': {
     'tier': 'الفئة {n}',
     'build': 'بناء',
-    'claim': 'استلام',
-    'finish': 'أنهِ الآن',
-    'busy': 'المصهر مشغول',
     'top': 'أعلى فئة'
   },
   'smithy': {
     'furnace': 'الفرن: اضغط مطولًا على المنفاخ لتبقى الحرارة داخل الشريط',
-    'anvil': 'السندان: اضرب عندما تلتقي الحلقة بالعلامة',
-    'quench': 'التبريد: اغمسه عندما يتوهج باللون الأحمر الكرزي',
     'pump': 'شغّل المنفاخ',
-    'dip': 'اغمس',
     'stars': '{n} من 3 نجوم'
+  },
+  'melt': {
+    'start': 'Melt the haul: up to +{n}'
+  },
+  'wheel': {
+    'title': 'Lucky wheel',
+    'locked': 'Max out rifle damage to open the wheel',
+    'chance': 'Win chance',
+    'gain': 'Next win',
+    'spin': 'Spin',
+    'sure': 'Sure win',
+    'watch': 'Watch a video for a sure win',
+    'won': 'Rifle damage +{n}',
+    'miss': 'Missed: {n} scrap back',
+    'pity': 'A sure win in {n} spins'
+  },
+  'ads': {
+    'blockedTitle': 'Ads blocked',
+    'blockedBody': 'An ad blocker stopped the video, so there is no reward this time.',
+    'ok': 'OK'
   },
   'medal': {
     'ghost': 'شبح',

@@ -13,6 +13,7 @@ import FPerfMeter from '@/components/atoms/FPerfMeter.vue'
 import SaveStatusBanner from '@/components/atoms/SaveStatusBanner.vue'
 import VConsoleHideButton from '@/components/atoms/VConsoleHideButton.vue'
 import GlLostVeil from '@/components/atoms/GlLostVeil.vue'
+import AdsBlockedModal from '@/components/modals/AdsBlockedModal.vue'
 import { useCrazyMuteSync } from '@/use/useCrazyMuteSync'
 import useCheats, { installDebugUnlock } from '@/use/useCheats'
 import { orientation } from '@/use/useUser'
@@ -154,6 +155,7 @@ const VConsoleHide = import.meta.env.VITE_APP_NATIVE === 'true' || import.meta.e
     FPerfMeter(v-if="isDebug" :offset-y="52")
     SaveStatusBanner
     GlLostVeil
+    AdsBlockedModal
     component(v-if="VConsoleHide" :is="VConsoleHide")
     RouterView
 

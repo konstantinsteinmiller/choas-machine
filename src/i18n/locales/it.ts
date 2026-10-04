@@ -112,18 +112,32 @@ export default {
   'forge': {
     'tier': 'Grado {n}',
     'build': 'Costruisci',
-    'claim': 'Ritira',
-    'finish': 'Finisci ora',
-    'busy': 'Fucina occupata',
     'top': 'Grado massimo'
   },
   'smithy': {
     'furnace': 'Fornace: tieni premuto il mantice per tenere il calore nella fascia',
-    'anvil': 'Incudine: colpisci quando l’anello tocca il segno',
-    'quench': 'Tempra: immergi quando brilla rosso ciliegia',
     'pump': 'Aziona il mantice',
-    'dip': 'Immergi',
     'stars': '{n} stelle su 3'
+  },
+  'melt': {
+    'start': 'Melt the haul: up to +{n}'
+  },
+  'wheel': {
+    'title': 'Lucky wheel',
+    'locked': 'Max out rifle damage to open the wheel',
+    'chance': 'Win chance',
+    'gain': 'Next win',
+    'spin': 'Spin',
+    'sure': 'Sure win',
+    'watch': 'Watch a video for a sure win',
+    'won': 'Rifle damage +{n}',
+    'miss': 'Missed: {n} scrap back',
+    'pity': 'A sure win in {n} spins'
+  },
+  'ads': {
+    'blockedTitle': 'Ads blocked',
+    'blockedBody': 'An ad blocker stopped the video, so there is no reward this time.',
+    'ok': 'OK'
   },
   'medal': {
     'ghost': 'Fantasma',

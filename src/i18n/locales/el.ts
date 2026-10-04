@@ -112,18 +112,32 @@ export default {
   'forge': {
     'tier': 'Βαθμίδα {n}',
     'build': 'Κατασκευή',
-    'claim': 'Παραλαβή',
-    'finish': 'Άμεση ολοκλήρωση',
-    'busy': 'Η σφυρηλάτηση είναι απασχολημένη',
     'top': 'Ανώτατη βαθμίδα'
   },
   'smithy': {
     'furnace': 'Καμίνι: κράτα το φυσερό για να μένει η θερμότητα στη ζώνη',
-    'anvil': 'Αμόνι: χτύπα όταν ο δακτύλιος φτάσει στο σημάδι',
-    'quench': 'Βαφή: βύθισέ το όταν λάμπει κόκκινο κερασί',
     'pump': 'Φύσα το φυσερό',
-    'dip': 'Βύθισε',
     'stars': '{n} από 3 αστέρια'
+  },
+  'melt': {
+    'start': 'Melt the haul: up to +{n}'
+  },
+  'wheel': {
+    'title': 'Lucky wheel',
+    'locked': 'Max out rifle damage to open the wheel',
+    'chance': 'Win chance',
+    'gain': 'Next win',
+    'spin': 'Spin',
+    'sure': 'Sure win',
+    'watch': 'Watch a video for a sure win',
+    'won': 'Rifle damage +{n}',
+    'miss': 'Missed: {n} scrap back',
+    'pity': 'A sure win in {n} spins'
+  },
+  'ads': {
+    'blockedTitle': 'Ads blocked',
+    'blockedBody': 'An ad blocker stopped the video, so there is no reward this time.',
+    'ok': 'OK'
   },
   'medal': {
     'ghost': 'Φάντασμα',

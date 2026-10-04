@@ -1,6 +1,6 @@
 import { reactive, toRaw, watch } from 'vue'
-import { SMITH_STEPS, tierWait, trackWait, type SmithStep } from '../sim/smithy'
 import { TIER_MAX, TRACK_IDS, TRACK_MAX } from '../data/upgrades'
+import { freshWheel, type WheelSave } from '../data/wheel'
 import { getState, setStates } from '@/use/useGameState'
 import { saveDataVersion } from '@/use/useSaveStatus'
 import {
@@ -44,32 +44,10 @@ export interface ArsenalSave {
   /** Armory and Chassis Bay track levels, by track id. */
   upgrades: Record<string, number>
   unlocks: UnlockId[]
+  /** The rifle's fortune wheel (#75): wins so far, misses in a row. */
+  wheel: WheelSave
 }
 
-/**
- * The smithy's job (`sim/smithy.ts`): a weapon tier, or an upgrade track's
- * next level, on its way through the furnace, the anvil and the quench.
- */
-export interface ForgeSave {
-  /** The weapon a tier is for (an upgrade's weapon, or the sniper for the chassis). */
-  weapon: WeaponId
-  /** The tier being built; for an upgrade, the level it goes to. */
-  tier: number
-  /** Set when the job is an upgrade track rather than a weapon tier. */
-  track?: string
-  /** The next game to play. */
-  step: SmithStep
-  /** The wait before that game, in seconds (the melt, then the cooling). */
-  total: number
-  /** Seconds still owed, as of `stamp`. */
-  remaining: number
-  /** Wall clock (ms) when `remaining` was last settled. */
-  stamp: number
-  /** 0 … 1 how each game so far went. */
-  scores: number[]
-  /** Tech Scrap paid for it: the stars refund a share. */
-  paid: number
-}
 
 export interface StatsSave {
   kills: number
@@ -88,7 +66,6 @@ export interface Profile {
   missions: number
   arsenal: ArsenalSave
   fortresses: Record<string, FortressSave>
-  forge: ForgeSave | null
   lessons: Record<InputFamily, Record<string, number>>
   seen: string[]
   stats: StatsSave
@@ -106,9 +83,8 @@ export const defaultProfile = (): Profile => ({
   scrap: 0,
   cores: 0,
   missions: 0,
-  arsenal: { blueprints: perWeapon(0), tiers: perWeapon(1), upgrades: {}, unlocks: [] },
+  arsenal: { blueprints: perWeapon(0), tiers: perWeapon(1), upgrades: {}, unlocks: [], wheel: freshWheel() },
   fortresses: {},
-  forge: null,
   lessons: { touch: {}, desk: {} },
   seen: [],
   stats: { kills: 0, headshots: 0, stealthKills: 0, bladeKills: 0, alerts: 0, deaths: 0, playSeconds: 0 },
@@ -144,28 +120,17 @@ const readFortress = (v: unknown): FortressSave => {
   return { clears: int(f.clears, 0), medals, bestScore: int(f.bestScore, 0), bestTime: int(f.bestTime, 0) }
 }
 
-const readForge = (v: unknown): ForgeSave | null => {
+
+/**
+ * A smithy job from a save made before upgrades were bought outright (#75):
+ * whatever was in the fire is the player's, at once.
+ */
+const finishOldForge = (v: unknown, a: ArsenalSave): void => {
   const f = record(v)
-  if (!WEAPON_IDS.includes(f.weapon as WeaponId)) return null
+  if (!WEAPON_IDS.includes(f.weapon as WeaponId)) return
   const track = typeof f.track === 'string' && (TRACK_IDS as readonly string[]).includes(f.track) ? f.track : undefined
-  const tier = track ? int(f.tier, 1, 1, TRACK_MAX) : int(f.tier, 2, 2, TIER_MAX)
-  // A build from before the smithy (an hour-long timer): it goes on to the
-  // quench, with what is left of its wait cut to the smithy's.
-  const step = SMITH_STEPS.includes(f.step as SmithStep) ? (f.step as SmithStep) : 'quench'
-  const longest = track ? trackWait(tier) : tierWait(tier)
-  const total = Math.min(longest, int(f.total, longest, 0))
-  const scores = Array.isArray(f.scores) ? f.scores.filter((s): s is number => typeof s === 'number' && s >= 0 && s <= 1).slice(0, 2) : []
-  return {
-    weapon: f.weapon as WeaponId,
-    tier,
-    ...(track ? { track } : {}),
-    step,
-    total,
-    remaining: int(f.remaining, total, 0, total),
-    stamp: int(f.stamp, 0),
-    scores,
-    paid: int(f.paid, 0)
-  }
+  if (track) a.upgrades[track] = Math.max(a.upgrades[track] ?? 0, int(f.tier, 1, 1, TRACK_MAX))
+  else a.tiers[f.weapon as WeaponId] = Math.max(a.tiers[f.weapon as WeaponId], int(f.tier, 2, 2, TIER_MAX))
 }
 
 // ─── Migrations ──────────────────────────────────────────────────────────────
@@ -204,13 +169,15 @@ export const loadProfile = (): void => {
   d.arsenal.unlocks = Array.isArray(a.unlocks)
     ? UNLOCK_IDS.filter(u => (a.unlocks as unknown[]).includes(u))
     : []
+  const wheel = record(a.wheel)
+  d.arsenal.wheel = { wins: int(wheel.wins, 0), misses: int(wheel.misses, 0, 0, 99) }
+  finishOldForge(raw[FORGE_KEY], d.arsenal)
   profile.arsenal = d.arsenal
 
   const fortresses: Record<string, FortressSave> = {}
   for (const [id, f] of Object.entries(record(raw[FORTRESSES_KEY]))) fortresses[id] = readFortress(f)
   profile.fortresses = fortresses
 
-  profile.forge = readForge(raw[FORGE_KEY])
 
   const lessons = record(raw[LESSONS_KEY])
   profile.lessons = { touch: counts(lessons.touch), desk: counts(lessons.desk) }
@@ -259,7 +226,8 @@ export const saveProfile = (): void => {
     [CORES_KEY]: profile.cores,
     [ARSENAL_KEY]: plain(profile.arsenal),
     [FORTRESSES_KEY]: plain(profile.fortresses),
-    [FORGE_KEY]: profile.forge ? plain(profile.forge) : null,
+    // The smithy's job field is gone (#75); written empty so an old job is not granted twice.
+    [FORGE_KEY]: null,
     [LESSONS_KEY]: plain(profile.lessons),
     [SEEN_KEY]: plain(profile.seen),
     [STATS_KEY]: plain(profile.stats),

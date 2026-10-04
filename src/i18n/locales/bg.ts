@@ -112,18 +112,32 @@ export default {
   'forge': {
     'tier': 'Клас {n}',
     'build': 'Създай',
-    'claim': 'Вземи',
-    'finish': 'Завърши сега',
-    'busy': 'Ковачницата е заета',
     'top': 'Най-висок клас'
   },
   'smithy': {
     'furnace': 'Пещ: задръж духалото, за да остане жарът в ивицата',
-    'anvil': 'Наковалня: удари, когато пръстенът срещне знака',
-    'quench': 'Закаляване: потопи, когато свети вишневочервено',
     'pump': 'Помпай духалото',
-    'dip': 'Потопи',
     'stars': '{n} от 3 звезди'
+  },
+  'melt': {
+    'start': 'Melt the haul: up to +{n}'
+  },
+  'wheel': {
+    'title': 'Lucky wheel',
+    'locked': 'Max out rifle damage to open the wheel',
+    'chance': 'Win chance',
+    'gain': 'Next win',
+    'spin': 'Spin',
+    'sure': 'Sure win',
+    'watch': 'Watch a video for a sure win',
+    'won': 'Rifle damage +{n}',
+    'miss': 'Missed: {n} scrap back',
+    'pity': 'A sure win in {n} spins'
+  },
+  'ads': {
+    'blockedTitle': 'Ads blocked',
+    'blockedBody': 'An ad blocker stopped the video, so there is no reward this time.',
+    'ok': 'OK'
   },
   'medal': {
     'ghost': 'Призрак',

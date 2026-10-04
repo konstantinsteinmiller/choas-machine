@@ -196,7 +196,7 @@ describe('the mission', () => {
 })
 
 describe('the loop, and the save', () => {
-  it('win → tally → base → upgrade → smithy → reload: everything comes back from one key', async () => {
+  it('win → tally → melt → base → upgrade → forge → reload: everything comes back from one key', async () => {
     const g = await open()
     await waitPlaying(g)
     // The Commander (for the bonus), then the salvage the raid needs, pile by
@@ -228,58 +228,40 @@ describe('the loop, and the save', () => {
     expect(await g.page.locator('[data-testid="rewards"] .medal').count()).toBe(3)
     await g.page.waitForSelector('[data-testid="rewards"] .rank-badge', { timeout: 15_000 })
 
+    // The haul into the furnace (#75), with the real key: the bellows on Space.
+    await g.page.waitForSelector('[data-testid="melt-start"]', { timeout: 10_000 })
+    await g.page.click('[data-testid="melt-start"]', { force: true })
+    await g.page.waitForSelector('[data-testid="smith-furnace"]')
+    for (let i = 0; i < 16 && await g.page.locator('[data-testid="smith-furnace"]').count(); i++) {
+      await g.page.keyboard.down('Space'); await g.page.waitForTimeout(260); await g.page.keyboard.up('Space'); await g.page.waitForTimeout(320)
+    }
+    await g.page.waitForSelector('[data-testid="melt-result"]', { timeout: 15_000 })
+    const melted = await snapshot(g)
+    expect(melted.scrap).toBeGreaterThanOrEqual(won.scrap)
+
     await g.page.click('[data-testid="btn-to-base"]', { force: true })
     await g.page.waitForFunction(() => window.__game.flow.screen === 'base' && !window.__game.flow.loading && !window.__game.flow.curtain, null, { timeout: 60_000 })
     await g.page.waitForTimeout(600)
     expect(await g.page.locator('[data-testid="wallet-scrap"]').innerText()).toMatch(/\d/)
 
-    // Buy the first sniper upgrade.
+    // Buy the first sniper upgrade: it is the mech's at once (#75).
     await g.page.click('[data-testid="btn-armory"]', { force: true })
     await g.page.waitForSelector('[data-testid="buy-sniperZoom"]')
     await g.page.waitForTimeout(400)
     await g.page.click('[data-testid="buy-sniperZoom"]', { force: true })
-    await g.page.waitForFunction(() => window.__game.profile.forge?.track === 'sniperZoom')
+    await g.page.waitForFunction(() => (window.__game.profile.arsenal.upgrades.sniperZoom ?? 0) === 1)
     const bought = await snapshot(g)
-    expect(bought.scrap).toBe(won.scrap - FIRST_LEVEL_COST)
-    expect(bought.upgrades.sniperZoom ?? 0).toBe(0)
+    expect(bought.scrap).toBe(melted.scrap - FIRST_LEVEL_COST)
+    expect(bought.upgrades.sniperZoom).toBe(1)
 
-    // It is made in the smithy: the furnace, the anvil, the quench, with the
-    // real keys. The waits between are cut short with Data Cores.
-    await g.page.evaluate(() => { window.__game.profile.cores += 2 })
-    const station = async (name: string): Promise<void> => {
-      await g.page.waitForSelector('[data-testid="smith-start"]', { timeout: 20_000 })
-      await g.page.click('[data-testid="smith-start"]', { force: true })
-      await g.page.waitForSelector(`[data-testid="smith-${name}"]`)
-    }
-    const skipWait = async (): Promise<void> => {
-      await g.page.waitForSelector('[data-testid="forge-skip"]', { timeout: 20_000 })
-      await g.page.click('[data-testid="forge-skip"]', { force: true })
-    }
-    await station('furnace')
-    for (let i = 0; i < 16 && await g.page.locator('[data-testid="smith-furnace"]').count(); i++) {
-      await g.page.keyboard.down('Space'); await g.page.waitForTimeout(260); await g.page.keyboard.up('Space'); await g.page.waitForTimeout(320)
-    }
-    await skipWait()
-    await station('anvil')
-    for (let i = 0; i < 4; i++) { await g.page.waitForTimeout(i === 0 ? 1050 : 950); await g.page.keyboard.press('Space') }
-    await skipWait()
-    await station('quench')
-    await g.page.waitForTimeout(1200)
-    await g.page.keyboard.press('Space')
-    await g.page.waitForSelector('[data-testid="smith-result"]', { timeout: 10_000 })
-    await g.page.click('[data-testid="smith-collect"]', { force: true })
-    const made = await snapshot(g)
-    expect(made.upgrades.sniperZoom).toBe(1)
-    expect(made.forge).toBeNull()
-    expect(made.scrap).toBeGreaterThanOrEqual(bought.scrap)
-
-    // Give the smithy what a weapon tier needs (a later save would have it), and start one.
+    // A weapon tier, built at once at the Forge (a later save would have the blueprints).
     await g.page.evaluate(() => { const p = window.__game.profile; p.scrap += 500; p.arsenal.blueprints.sniper = 3 })
+    // The workshop's third tab (the Forge).
+    await g.page.locator('[data-testid="workshop"] [role="tab"]').nth(2).click({ force: true })
     await g.page.waitForSelector('[data-testid="forge-build-sniper"]')
     await g.page.click('[data-testid="forge-build-sniper"]', { force: true })
-    await g.page.waitForFunction(() => window.__game.profile.forge?.weapon === 'sniper')
+    await g.page.waitForFunction(() => window.__game.profile.arsenal.tiers.sniper === 2)
     const before = await snapshot(g)
-    expect(before.forge).toMatchObject({ weapon: 'sniper', tier: 2, step: 'furnace' })
     expect(before.storageKeys.filter(k => k.startsWith('cm'))).toEqual(['cmachine_state'])
 
     // The save is written with a short debounce: give it that, then reload.
@@ -294,7 +276,7 @@ describe('the loop, and the save', () => {
     expect(after.cores).toBe(before.cores)
     expect(after.upgrades).toEqual(before.upgrades)
     expect(after.blueprints).toEqual(before.blueprints)
-    expect(after.forge).toMatchObject({ weapon: 'sniper', tier: 2, step: 'furnace' })
+    expect(after.tiers.sniper).toBe(2)
     expect(after.level).toBe(2)
     expect(g.errors).toEqual([])
 

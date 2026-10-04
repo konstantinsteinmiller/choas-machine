@@ -112,18 +112,32 @@ export default {
   'forge': {
     'tier': 'Tingkat {n}',
     'build': 'Buat',
-    'claim': 'Ambil',
-    'finish': 'Selesaikan sekarang',
-    'busy': 'Tempa sedang sibuk',
     'top': 'Tingkat tertinggi'
   },
   'smithy': {
     'furnace': 'Tungku: tahan ububan agar panas tetap di pita',
-    'anvil': 'Landasan: pukul saat cincin mengenai tanda',
-    'quench': 'Celup: celupkan saat menyala merah ceri',
     'pump': 'Pompa ububan',
-    'dip': 'Celupkan',
     'stars': '{n} dari 3 bintang'
+  },
+  'melt': {
+    'start': 'Melt the haul: up to +{n}'
+  },
+  'wheel': {
+    'title': 'Lucky wheel',
+    'locked': 'Max out rifle damage to open the wheel',
+    'chance': 'Win chance',
+    'gain': 'Next win',
+    'spin': 'Spin',
+    'sure': 'Sure win',
+    'watch': 'Watch a video for a sure win',
+    'won': 'Rifle damage +{n}',
+    'miss': 'Missed: {n} scrap back',
+    'pity': 'A sure win in {n} spins'
+  },
+  'ads': {
+    'blockedTitle': 'Ads blocked',
+    'blockedBody': 'An ad blocker stopped the video, so there is no reward this time.',
+    'ok': 'OK'
   },
   'medal': {
     'ghost': 'Hantu',

@@ -112,18 +112,32 @@ export default {
   'forge': {
     'tier': 'Nivell {n}',
     'build': 'Construeix',
-    'claim': 'Recull',
-    'finish': 'Acaba ara',
-    'busy': 'Farga ocupada',
     'top': 'Nivell màxim'
   },
   'smithy': {
     'furnace': 'Forn: mantén la manxa perquè la calor quedi a la franja',
-    'anvil': 'Enclusa: colpeja quan l’anell toqui la marca',
-    'quench': 'Tremp: submergeix-lo quan brilli vermell cirera',
     'pump': 'Accionar la manxa',
-    'dip': 'Submergir',
     'stars': '{n} de 3 estrelles'
+  },
+  'melt': {
+    'start': 'Melt the haul: up to +{n}'
+  },
+  'wheel': {
+    'title': 'Lucky wheel',
+    'locked': 'Max out rifle damage to open the wheel',
+    'chance': 'Win chance',
+    'gain': 'Next win',
+    'spin': 'Spin',
+    'sure': 'Sure win',
+    'watch': 'Watch a video for a sure win',
+    'won': 'Rifle damage +{n}',
+    'miss': 'Missed: {n} scrap back',
+    'pity': 'A sure win in {n} spins'
+  },
+  'ads': {
+    'blockedTitle': 'Ads blocked',
+    'blockedBody': 'An ad blocker stopped the video, so there is no reward this time.',
+    'ok': 'OK'
   },
   'medal': {
     'ghost': 'Fantasma',

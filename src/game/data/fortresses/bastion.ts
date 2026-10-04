@@ -44,17 +44,17 @@ import { NO_ANSWERS, type Answers } from '../../sim/adapt'
  */
 export const BASTION_LEVELS = 5
 
-/** The salvage spots: [cx, cz, amount, big?], each a puzzle of its own. */
+/** The salvage spots: [cx, cz, amount, big?], each a puzzle of its own. Round 4 (#75) pays a quarter less a pile. */
 const PILES: ReadonlyArray<readonly [number, number, number, boolean?]> = [
-  [11, 53, 40], // 0 · the teaching corner, on the battery: the guard has his back to it
-  [41, 51, 45], // 1 · in the searchlight's sweep, south-east yard
-  [21, 44, 45], // 2 · beside the pair at their talk, under the battery's lip
-  [9, 24, 45], // 3 · the west lane, between thickets, a sentry above
-  [47, 27, 50], // 4 · by the postern, under the east tower's eye
-  [37, 33, 50], // 5 · the inner ward, by its beacon
-  [21, 17, 50], // 6 · behind the keep, in the ward's shadow
-  [42, 11, 50], // 7 · the tank park
-  [29, 21, 90, true] // 8 · the keep's roof: the boss arena
+  [11, 53, 30], // 0 · the teaching corner, on the battery: the guard has his back to it
+  [41, 51, 34], // 1 · in the searchlight's sweep, south-east yard
+  [21, 44, 34], // 2 · beside the pair at their talk, under the battery's lip
+  [9, 24, 34], // 3 · the west lane, between thickets, a sentry above
+  [47, 27, 38], // 4 · by the postern, under the east tower's eye
+  [37, 33, 38], // 5 · the inner ward, by its beacon
+  [21, 17, 38], // 6 · behind the keep, in the ward's shadow
+  [42, 11, 38], // 7 · the tank park
+  [29, 21, 68, true] // 8 · the keep's roof: the boss arena
 ]
 /** Repair kits (#101): the first three always, one more at III and at V. Ammo crates (#76). Red barrels (#78). */
 const KITS: ReadonlyArray<readonly [number, number]> = [[12, 50], [44, 46], [34, 35], [13, 22], [24, 13]]

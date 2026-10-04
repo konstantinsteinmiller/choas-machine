@@ -112,18 +112,32 @@ export default {
   'forge': {
     'tier': 'Ранг {n}',
     'build': 'Створити',
-    'claim': 'Забрати',
-    'finish': 'Завершити зараз',
-    'busy': 'Кузня зайнята',
     'top': 'Найвищий ранг'
   },
   'smithy': {
     'furnace': 'Горно: тримай міхи, щоб жар лишався в смузі',
-    'anvil': 'Ковадло: бий, коли кільце зійдеться з міткою',
-    'quench': 'Гартування: занур, коли засвітиться вишнево-червоним',
     'pump': 'Качати міхи',
-    'dip': 'Занурити',
     'stars': '{n} з 3 зірок'
+  },
+  'melt': {
+    'start': 'Melt the haul: up to +{n}'
+  },
+  'wheel': {
+    'title': 'Lucky wheel',
+    'locked': 'Max out rifle damage to open the wheel',
+    'chance': 'Win chance',
+    'gain': 'Next win',
+    'spin': 'Spin',
+    'sure': 'Sure win',
+    'watch': 'Watch a video for a sure win',
+    'won': 'Rifle damage +{n}',
+    'miss': 'Missed: {n} scrap back',
+    'pity': 'A sure win in {n} spins'
+  },
+  'ads': {
+    'blockedTitle': 'Ads blocked',
+    'blockedBody': 'An ad blocker stopped the video, so there is no reward this time.',
+    'ok': 'OK'
   },
   'medal': {
     'ghost': 'Привид',

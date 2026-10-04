@@ -112,18 +112,32 @@ export default {
   'forge': {
     'tier': 'Trin {n}',
     'build': 'Byg',
-    'claim': 'Hent',
-    'finish': 'Færdiggør nu',
-    'busy': 'Smedjen er optaget',
     'top': 'Højeste trin'
   },
   'smithy': {
     'furnace': 'Esse: hold blæsebælgen så varmen bliver i båndet',
-    'anvil': 'Ambolt: slå når ringen rammer mærket',
-    'quench': 'Hærdning: dyp den når den gløder kirsebærrød',
     'pump': 'Pump blæsebælgen',
-    'dip': 'Dyp',
     'stars': '{n} af 3 stjerner'
+  },
+  'melt': {
+    'start': 'Melt the haul: up to +{n}'
+  },
+  'wheel': {
+    'title': 'Lucky wheel',
+    'locked': 'Max out rifle damage to open the wheel',
+    'chance': 'Win chance',
+    'gain': 'Next win',
+    'spin': 'Spin',
+    'sure': 'Sure win',
+    'watch': 'Watch a video for a sure win',
+    'won': 'Rifle damage +{n}',
+    'miss': 'Missed: {n} scrap back',
+    'pity': 'A sure win in {n} spins'
+  },
+  'ads': {
+    'blockedTitle': 'Ads blocked',
+    'blockedBody': 'An ad blocker stopped the video, so there is no reward this time.',
+    'ok': 'OK'
   },
   'medal': {
     'ghost': 'Spøgelse',

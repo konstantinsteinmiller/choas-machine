@@ -112,18 +112,32 @@ export default {
   'forge': {
     'tier': 'Treapta {n}',
     'build': 'Construiește',
-    'claim': 'Ridică',
-    'finish': 'Termină acum',
-    'busy': 'Forjă ocupată',
     'top': 'Treapta maximă'
   },
   'smithy': {
     'furnace': 'Cuptor: ține foalele ca să rămână căldura în bandă',
-    'anvil': 'Nicovală: lovește când inelul atinge semnul',
-    'quench': 'Călire: scufundă când strălucește roșu-cireșiu',
     'pump': 'Pompează foalele',
-    'dip': 'Scufundă',
     'stars': '{n} din 3 stele'
+  },
+  'melt': {
+    'start': 'Melt the haul: up to +{n}'
+  },
+  'wheel': {
+    'title': 'Lucky wheel',
+    'locked': 'Max out rifle damage to open the wheel',
+    'chance': 'Win chance',
+    'gain': 'Next win',
+    'spin': 'Spin',
+    'sure': 'Sure win',
+    'watch': 'Watch a video for a sure win',
+    'won': 'Rifle damage +{n}',
+    'miss': 'Missed: {n} scrap back',
+    'pity': 'A sure win in {n} spins'
+  },
+  'ads': {
+    'blockedTitle': 'Ads blocked',
+    'blockedBody': 'An ad blocker stopped the video, so there is no reward this time.',
+    'ok': 'OK'
   },
   'medal': {
     'ghost': 'Fantomă',

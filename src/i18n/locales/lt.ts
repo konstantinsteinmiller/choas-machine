@@ -112,18 +112,32 @@ export default {
   'forge': {
     'tier': '{n} pakopa',
     'build': 'Gaminti',
-    'claim': 'Pasiimti',
-    'finish': 'Baigti dabar',
-    'busy': 'Kalvė užimta',
     'top': 'Aukščiausia pakopa'
   },
   'smithy': {
     'furnace': 'Krosnis: laikyk dumples, kad karštis liktų juostoje',
-    'anvil': 'Priekalas: kirsk, kai žiedas pasiekia žymę',
-    'quench': 'Grūdinimas: panardink, kai švyti vyšnių raudonumu',
     'pump': 'Pumpuoti dumples',
-    'dip': 'Panardinti',
     'stars': '{n} iš 3 žvaigždžių'
+  },
+  'melt': {
+    'start': 'Melt the haul: up to +{n}'
+  },
+  'wheel': {
+    'title': 'Lucky wheel',
+    'locked': 'Max out rifle damage to open the wheel',
+    'chance': 'Win chance',
+    'gain': 'Next win',
+    'spin': 'Spin',
+    'sure': 'Sure win',
+    'watch': 'Watch a video for a sure win',
+    'won': 'Rifle damage +{n}',
+    'miss': 'Missed: {n} scrap back',
+    'pity': 'A sure win in {n} spins'
+  },
+  'ads': {
+    'blockedTitle': 'Ads blocked',
+    'blockedBody': 'An ad blocker stopped the video, so there is no reward this time.',
+    'ok': 'OK'
   },
   'medal': {
     'ghost': 'Vaiduoklis',

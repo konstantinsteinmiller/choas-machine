@@ -1,4 +1,5 @@
 import { WEAPON_IDS, type WeaponId } from './ids'
+import { wheelBonus } from './wheel'
 import type { GameIconName } from '@/components/icons/iconNames'
 
 /**
@@ -49,10 +50,10 @@ export const VERB_TRACKS: readonly TrackId[] = ['speed', 'decoy']
 
 export const TRACK_MAX = 5
 const TRACK_BASE_COST = 60
-const TRACK_COST_GROWTH = 1.6
+const TRACK_COST_GROWTH = 1.75
 
-/** The first level of any track: cheap, so the first raid buys something. */
-export const FIRST_LEVEL_COST = 30
+/** The first level of any track: within one raid's reach, so the first raid buys something. */
+export const FIRST_LEVEL_COST = 60
 
 /** Tech Scrap for the next level of a track that stands at `level`; 0 at the top. */
 export const trackCost = (level: number): number =>
@@ -75,8 +76,6 @@ const TIER_SCRAP: Readonly<Record<number, number>> = { 2: 120, 3: 260, 4: 520, 5
 export const TIER_DAMAGE_STEP = 0.18
 export const tierBlueprints = (tier: number): number => TIER_BLUEPRINTS[tier] ?? 0
 export const tierScrap = (tier: number): number => TIER_SCRAP[tier] ?? 0
-/** Data Cores to cut a smithy wait short: one, whatever is left of it. */
-export const skipCost = (remaining: number): number => (remaining <= 0 ? 0 : 1)
 
 // ─── What a mission plays with ───────────────────────────────────────────────
 
@@ -130,6 +129,8 @@ export const BASE_LOADOUT: Readonly<Loadout> = {
 export interface LoadoutSource {
   tiers: Record<WeaponId, number>
   upgrades: Record<string, number>
+  /** The rifle's fortune wheel (#75): its wins add damage with no ceiling. */
+  wheel?: { wins: number }
 }
 
 const level = (src: LoadoutSource, id: TrackId): number => Math.min(TRACK_MAX, Math.max(0, src.upgrades[id] ?? 0))
@@ -140,7 +141,7 @@ export const loadoutOf = (src: LoadoutSource): Loadout => {
   return {
     scopeFov: BASE_LOADOUT.scopeFov - 1.2 * level(src, 'sniperZoom'),
     damage: {
-      sniper: tier('sniper') * (1 + 0.12 * level(src, 'sniperDamage')),
+      sniper: tier('sniper') * (1 + 0.12 * level(src, 'sniperDamage')) * (1 + wheelBonus(src.wheel?.wins ?? 0)),
       minigun: tier('minigun') * (1 + 0.12 * level(src, 'minigunDamage')),
       rocket: tier('rocket')
     },

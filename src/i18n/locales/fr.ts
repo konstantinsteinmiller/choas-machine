@@ -112,18 +112,32 @@ export default {
   'forge': {
     'tier': 'Rang {n}',
     'build': 'Fabriquer',
-    'claim': 'Récupérer',
-    'finish': 'Finir de suite',
-    'busy': 'Forge occupée',
     'top': 'Rang maximal'
   },
   'smithy': {
     'furnace': 'Fourneau : maintiens le soufflet pour garder la chaleur dans la zone',
-    'anvil': 'Enclume : frappe quand l’anneau touche la marque',
-    'quench': 'Trempe : plonge-le quand il rougeoie cerise',
     'pump': 'Actionner le soufflet',
-    'dip': 'Plonger',
     'stars': '{n} étoiles sur 3'
+  },
+  'melt': {
+    'start': 'Melt the haul: up to +{n}'
+  },
+  'wheel': {
+    'title': 'Lucky wheel',
+    'locked': 'Max out rifle damage to open the wheel',
+    'chance': 'Win chance',
+    'gain': 'Next win',
+    'spin': 'Spin',
+    'sure': 'Sure win',
+    'watch': 'Watch a video for a sure win',
+    'won': 'Rifle damage +{n}',
+    'miss': 'Missed: {n} scrap back',
+    'pity': 'A sure win in {n} spins'
+  },
+  'ads': {
+    'blockedTitle': 'Ads blocked',
+    'blockedBody': 'An ad blocker stopped the video, so there is no reward this time.',
+    'ok': 'OK'
   },
   'medal': {
     'ghost': 'Fantôme',

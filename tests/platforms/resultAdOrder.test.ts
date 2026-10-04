@@ -100,7 +100,7 @@ describe('leaving a result screen', () => {
     expect(built).toEqual(['base'])
   })
 
-  it('there is no rewarded placement anywhere in the game\'s screens', async () => {
+  it('every rewarded video goes through the one list of placements (#75, #97)', async () => {
     const { readdirSync, readFileSync, statSync } = await import('node:fs')
     const { join } = await import('node:path')
     const walk = (dir: string, out: string[] = []): string[] => {
@@ -112,8 +112,14 @@ describe('leaving a result screen', () => {
       return out
     }
     const root = join(__dirname, '..', '..', 'src')
-    const offenders = [...walk(join(root, 'components')), ...walk(join(root, 'views')), ...walk(join(root, 'game'))]
-      .filter(p => /showRewardedAd|claimReward\(/.test(readFileSync(p, 'utf8')))
-    expect(offenders).toEqual([])
+    const files = [...walk(join(root, 'components')), ...walk(join(root, 'views')), ...walk(join(root, 'game'))]
+    // No screen calls the ad layer itself: only `useRewardedOffers` does, with its caps and grace.
+    expect(files.filter(p => /showRewardedAd|claimReward\(/.test(readFileSync(p, 'utf8')))).toEqual([])
+    // And every placement a screen asks for is one the list knows.
+    const { REWARDED_PLACEMENTS } = await import('@/use/useRewardedOffers')
+    const asked = new Set<string>()
+    for (const p of files) for (const m of readFileSync(p, 'utf8').matchAll(/(?:watchFor|canOffer)\('([a-z]+)'/g)) asked.add(m[1]!)
+    expect([...asked].every(a => (REWARDED_PLACEMENTS as readonly string[]).includes(a))).toBe(true)
+    expect(asked.has('wheel')).toBe(true)
   })
 })

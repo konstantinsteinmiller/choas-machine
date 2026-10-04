@@ -112,18 +112,32 @@ export default {
   'forge': {
     'tier': '{n}. pakāpe',
     'build': 'Izgatavot',
-    'claim': 'Paņemt',
-    'finish': 'Pabeigt tagad',
-    'busy': 'Kalve aizņemta',
     'top': 'Augstākā pakāpe'
   },
   'smithy': {
     'furnace': 'Krāsns: turi plēšas, lai karstums paliktu joslā',
-    'anvil': 'Lakta: sit, kad gredzens sasniedz atzīmi',
-    'quench': 'Rūdīšana: iegremdē, kad tas kvēlo ķiršu sarkanumā',
     'pump': 'Darbināt plēšas',
-    'dip': 'Iegremdēt',
     'stars': '{n} no 3 zvaigznēm'
+  },
+  'melt': {
+    'start': 'Melt the haul: up to +{n}'
+  },
+  'wheel': {
+    'title': 'Lucky wheel',
+    'locked': 'Max out rifle damage to open the wheel',
+    'chance': 'Win chance',
+    'gain': 'Next win',
+    'spin': 'Spin',
+    'sure': 'Sure win',
+    'watch': 'Watch a video for a sure win',
+    'won': 'Rifle damage +{n}',
+    'miss': 'Missed: {n} scrap back',
+    'pity': 'A sure win in {n} spins'
+  },
+  'ads': {
+    'blockedTitle': 'Ads blocked',
+    'blockedBody': 'An ad blocker stopped the video, so there is no reward this time.',
+    'ok': 'OK'
   },
   'medal': {
     'ghost': 'Rēgs',

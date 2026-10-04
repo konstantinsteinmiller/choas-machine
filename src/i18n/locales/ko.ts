@@ -112,18 +112,32 @@ export default {
   'forge': {
     'tier': '{n}단계',
     'build': '제작',
-    'claim': '수령',
-    'finish': '즉시 완료',
-    'busy': '제작 중',
     'top': '최고 단계'
   },
   'smithy': {
     'furnace': '용광로: 풀무를 눌러 열기를 띠 안에 유지하세요',
-    'anvil': '모루: 고리가 표시에 닿을 때 치세요',
-    'quench': '담금질: 체리빛 빨강으로 빛날 때 담그세요',
     'pump': '풀무질',
-    'dip': '담그기',
     'stars': '별 {n}/3'
+  },
+  'melt': {
+    'start': 'Melt the haul: up to +{n}'
+  },
+  'wheel': {
+    'title': 'Lucky wheel',
+    'locked': 'Max out rifle damage to open the wheel',
+    'chance': 'Win chance',
+    'gain': 'Next win',
+    'spin': 'Spin',
+    'sure': 'Sure win',
+    'watch': 'Watch a video for a sure win',
+    'won': 'Rifle damage +{n}',
+    'miss': 'Missed: {n} scrap back',
+    'pity': 'A sure win in {n} spins'
+  },
+  'ads': {
+    'blockedTitle': 'Ads blocked',
+    'blockedBody': 'An ad blocker stopped the video, so there is no reward this time.',
+    'ok': 'OK'
   },
   'medal': {
     'ghost': '유령',

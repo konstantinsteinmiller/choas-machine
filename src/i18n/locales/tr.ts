@@ -112,18 +112,32 @@ export default {
   'forge': {
     'tier': 'Kademe {n}',
     'build': 'Üret',
-    'claim': 'Teslim al',
-    'finish': 'Şimdi bitir',
-    'busy': 'Demirhane meşgul',
     'top': 'En üst kademe'
   },
   'smithy': {
     'furnace': 'Ocak: ısıyı bantta tutmak için körüğü basılı tut',
-    'anvil': 'Örs: halka işarete gelince vur',
-    'quench': 'Su verme: kiraz kırmızısı parlayınca daldır',
     'pump': 'Körüğü pompala',
-    'dip': 'Daldır',
     'stars': '3 yıldızdan {n}'
+  },
+  'melt': {
+    'start': 'Melt the haul: up to +{n}'
+  },
+  'wheel': {
+    'title': 'Lucky wheel',
+    'locked': 'Max out rifle damage to open the wheel',
+    'chance': 'Win chance',
+    'gain': 'Next win',
+    'spin': 'Spin',
+    'sure': 'Sure win',
+    'watch': 'Watch a video for a sure win',
+    'won': 'Rifle damage +{n}',
+    'miss': 'Missed: {n} scrap back',
+    'pity': 'A sure win in {n} spins'
+  },
+  'ads': {
+    'blockedTitle': 'Ads blocked',
+    'blockedBody': 'An ad blocker stopped the video, so there is no reward this time.',
+    'ok': 'OK'
   },
   'medal': {
     'ghost': 'Hayalet',

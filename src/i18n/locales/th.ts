@@ -112,18 +112,32 @@ export default {
   'forge': {
     'tier': 'ระดับ {n}',
     'build': 'สร้าง',
-    'claim': 'รับ',
-    'finish': 'เสร็จทันที',
-    'busy': 'โรงหลอมไม่ว่าง',
     'top': 'ระดับสูงสุด'
   },
   'smithy': {
     'furnace': 'เตาหลอม: กดค้างที่สูบลมให้ความร้อนอยู่ในแถบ',
-    'anvil': 'ทั่ง: ตีเมื่อวงแหวนถึงเครื่องหมาย',
-    'quench': 'ชุบแข็ง: จุ่มเมื่อเรืองแสงสีแดงเชอร์รี',
     'pump': 'สูบลม',
-    'dip': 'จุ่ม',
     'stars': '{n} จาก 3 ดาว'
+  },
+  'melt': {
+    'start': 'Melt the haul: up to +{n}'
+  },
+  'wheel': {
+    'title': 'Lucky wheel',
+    'locked': 'Max out rifle damage to open the wheel',
+    'chance': 'Win chance',
+    'gain': 'Next win',
+    'spin': 'Spin',
+    'sure': 'Sure win',
+    'watch': 'Watch a video for a sure win',
+    'won': 'Rifle damage +{n}',
+    'miss': 'Missed: {n} scrap back',
+    'pity': 'A sure win in {n} spins'
+  },
+  'ads': {
+    'blockedTitle': 'Ads blocked',
+    'blockedBody': 'An ad blocker stopped the video, so there is no reward this time.',
+    'ok': 'OK'
   },
   'medal': {
     'ghost': 'ภูตผี',

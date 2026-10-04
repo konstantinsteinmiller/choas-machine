@@ -30,7 +30,9 @@ export const GAME_ICON_NAMES = [
   // The mech and its kit
   'mech', 'sniper', 'minigun', 'rocket', 'blade', 'decoy', 'armor', 'shield', 'bolt', 'heart',
   // In the field
-  'scope', 'eye', 'crouch', 'stand', 'sprint', 'hook', 'box', 'siren', 'warning', 'skull', 'drone', 'fullscreen', 'share'
+  'scope', 'eye', 'crouch', 'stand', 'sprint', 'hook', 'box', 'siren', 'warning', 'skull', 'drone', 'fullscreen', 'share',
+  // A rewarded video is always marked with this (CrazyGames' rule, #75)
+  'video'
 ] as const
 
 export type GameIconName = (typeof GAME_ICON_NAMES)[number]

@@ -112,18 +112,32 @@ export default {
   'forge': {
     'tier': 'Ранг {n}',
     'build': 'Создать',
-    'claim': 'Забрать',
-    'finish': 'Завершить сейчас',
-    'busy': 'Кузница занята',
     'top': 'Высший ранг'
   },
   'smithy': {
     'furnace': 'Горн: держи мехи, чтобы жар оставался в полосе',
-    'anvil': 'Наковальня: бей, когда кольцо сойдётся с меткой',
-    'quench': 'Закалка: окуни, когда засветится вишнёво-красным',
     'pump': 'Качать мехи',
-    'dip': 'Окунуть',
     'stars': '{n} из 3 звёзд'
+  },
+  'melt': {
+    'start': 'Melt the haul: up to +{n}'
+  },
+  'wheel': {
+    'title': 'Lucky wheel',
+    'locked': 'Max out rifle damage to open the wheel',
+    'chance': 'Win chance',
+    'gain': 'Next win',
+    'spin': 'Spin',
+    'sure': 'Sure win',
+    'watch': 'Watch a video for a sure win',
+    'won': 'Rifle damage +{n}',
+    'miss': 'Missed: {n} scrap back',
+    'pity': 'A sure win in {n} spins'
+  },
+  'ads': {
+    'blockedTitle': 'Ads blocked',
+    'blockedBody': 'An ad blocker stopped the video, so there is no reward this time.',
+    'ok': 'OK'
   },
   'medal': {
     'ghost': 'Призрак',

@@ -1,7 +1,7 @@
 <template lang="pug">
   //- The three stations of the Command Base behind one door: the Armory, the
-  //- Chassis Bay and the smithy (the Forge) are tabs of the same workshop. An
-  //- upgrade paid for in the Armory or the Bay goes straight to the smithy.
+  //- Chassis Bay and the Forge are tabs of the same workshop. Whatever is
+  //- bought is the mech's at once (#75); the rifle's wheel opens in the Armory.
   FModal(
     :model-value="open"
     :tabs="tabs"
@@ -12,9 +12,11 @@
     div.workshop
       div.purse
         Wallet
-      UpgradeList(v-if="tab === 'armory'" station="armory" @focus="toSmithy")
-      UpgradeList(v-else-if="tab === 'chassis'" station="chassis" @focus="toSmithy")
-      SmithyPanel(v-else @focus="emit('show', $event)")
+      template(v-if="tab === 'armory'")
+        UpgradeList(station="armory" @focus="shown")
+        RifleWheel(@focus="emit('show', 'sniper')")
+      UpgradeList(v-else-if="tab === 'chassis'" station="chassis" @focus="shown")
+      ForgePanel(v-else @focus="emit('show', $event)")
 </template>
 
 <script setup lang="ts">
@@ -24,7 +26,8 @@ import FModal from '@/components/molecules/FModal.vue'
 import type { TabOption } from '@/components/atoms/FTabs.vue'
 import Wallet from '@/components/base/Wallet.vue'
 import UpgradeList from '@/components/base/UpgradeList.vue'
-import SmithyPanel from '@/components/base/SmithyPanel.vue'
+import ForgePanel from '@/components/base/ForgePanel.vue'
+import RifleWheel from '@/components/base/RifleWheel.vue'
 import { TRACKS, type TrackId } from '@/game/data/upgrades'
 import type { WeaponId } from '@/game/data/ids'
 
@@ -38,11 +41,8 @@ const tab = ref<WorkshopTab>(props.start)
 // Each opening lands on the station whose button was pressed.
 watch(() => props.open, (o) => { if (o) tab.value = props.start })
 
-/** Bought: the mech holds up the weapon it is for, and the smithy opens on it. */
-const toSmithy = (id: TrackId): void => {
-  emit('show', TRACKS[id].weapon ?? 'sniper')
-  tab.value = 'forge'
-}
+/** Bought: the mech holds up the weapon it is for. */
+const shown = (id: TrackId): void => emit('show', TRACKS[id].weapon ?? 'sniper')
 
 const tabs = computed<TabOption[]>(() => [
   { label: t('base.armory'), value: 'armory', icon: 'sniper' },

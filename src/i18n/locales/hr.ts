@@ -112,18 +112,32 @@ export default {
   'forge': {
     'tier': 'Stupanj {n}',
     'build': 'Izradi',
-    'claim': 'Preuzmi',
-    'finish': 'Dovrši odmah',
-    'busy': 'Kovačnica je zauzeta',
     'top': 'Najviši stupanj'
   },
   'smithy': {
     'furnace': 'Peć: drži mijeh da žar ostane u pojasu',
-    'anvil': 'Nakovanj: udari kad prsten dođe na oznaku',
-    'quench': 'Kaljenje: uroni kad zažari trešnja-crveno',
     'pump': 'Pumpaj mijeh',
-    'dip': 'Uroni',
     'stars': '{n} od 3 zvjezdice'
+  },
+  'melt': {
+    'start': 'Melt the haul: up to +{n}'
+  },
+  'wheel': {
+    'title': 'Lucky wheel',
+    'locked': 'Max out rifle damage to open the wheel',
+    'chance': 'Win chance',
+    'gain': 'Next win',
+    'spin': 'Spin',
+    'sure': 'Sure win',
+    'watch': 'Watch a video for a sure win',
+    'won': 'Rifle damage +{n}',
+    'miss': 'Missed: {n} scrap back',
+    'pity': 'A sure win in {n} spins'
+  },
+  'ads': {
+    'blockedTitle': 'Ads blocked',
+    'blockedBody': 'An ad blocker stopped the video, so there is no reward this time.',
+    'ok': 'OK'
   },
   'medal': {
     'ghost': 'Duh',

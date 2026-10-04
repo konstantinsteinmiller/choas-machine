@@ -112,18 +112,32 @@ export default {
   'forge': {
     'tier': 'Tier {n}',
     'build': 'Bouwen',
-    'claim': 'Ophalen',
-    'finish': 'Nu afronden',
-    'busy': 'Smederij bezet',
     'top': 'Hoogste tier'
   },
   'smithy': {
     'furnace': 'Oven: houd de blaasbalg vast om de hitte in de band te houden',
-    'anvil': 'Aambeeld: sla toe als de ring het merkteken raakt',
-    'quench': 'Afschrikken: dompel het onder als het kersenrood gloeit',
     'pump': 'Blaasbalg pompen',
-    'dip': 'Onderdompelen',
     'stars': '{n} van 3 sterren'
+  },
+  'melt': {
+    'start': 'Melt the haul: up to +{n}'
+  },
+  'wheel': {
+    'title': 'Lucky wheel',
+    'locked': 'Max out rifle damage to open the wheel',
+    'chance': 'Win chance',
+    'gain': 'Next win',
+    'spin': 'Spin',
+    'sure': 'Sure win',
+    'watch': 'Watch a video for a sure win',
+    'won': 'Rifle damage +{n}',
+    'miss': 'Missed: {n} scrap back',
+    'pity': 'A sure win in {n} spins'
+  },
+  'ads': {
+    'blockedTitle': 'Ads blocked',
+    'blockedBody': 'An ad blocker stopped the video, so there is no reward this time.',
+    'ok': 'OK'
   },
   'medal': {
     'ghost': 'Spook',

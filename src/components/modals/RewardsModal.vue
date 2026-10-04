@@ -36,6 +36,27 @@
         div.item.bp(v-for="(w, i) in pay.blueprints" :key="i" :title="t('base.blueprints')")
           GameIcon(name="blueprint")
           GameIcon.of(:name="w")
+      //- The haul into the furnace (#75): kept in the band, it melts for a
+      //- bonus. Optional: Continue keeps the haul as it is.
+      div.melt(v-if="meltMax > 0 || melted")
+        FButton(
+          v-if="!melting && !melted"
+          type="warning"
+          size="md"
+          icon="flame"
+          icon-position="left"
+          attention
+          :aria-label="t('melt.start', { n: fmt(meltMax) })"
+          data-testid="melt-start"
+          @click="melting = true"
+        ) {{ t('melt.start', { n: fmt(meltMax) }) }}
+        FurnaceGame(v-else-if="melting" @done="onMelt")
+        div.melted(v-else-if="melted" data-testid="melt-result")
+          div.stars(role="img" :aria-label="t('smithy.stars', { n: melted.stars })")
+            GameIcon(v-for="n in 3" :key="n" :name="n <= melted.stars ? 'star' : 'star-empty'" :class="{ on: n <= melted.stars }")
+          span.bonus(v-if="melted.bonus > 0")
+            GameIcon(name="scrap")
+            | +{{ fmt(melted.bonus) }}
     template(#footer)
       FButton(size="lg" icon="home" data-testid="btn-to-base" @click="toBase") {{ t('rewards.continue') }}
 </template>
@@ -50,7 +71,8 @@ import { MEDAL_ICONS } from '@/components/base/medals'
 import { MEDAL_IDS } from '@/game/data/ids'
 import { flow, leaveResults } from '@/game/flow'
 import { profile } from '@/game/state/profile'
-import { campaignScore, levelKey } from '@/game/state/progress'
+import { campaignScore, haulToMelt, levelKey, meltHaul } from '@/game/state/progress'
+import FurnaceGame from '@/components/base/smithy/FurnaceGame.vue'
 import RankBadge from '@/components/atoms/RankBadge.vue'
 import { sfx } from '@/game/audio/sfx'
 import { haptic } from '@/use/useHaptics'
@@ -112,10 +134,57 @@ watch(open, (o) => {
 }, { immediate: true })
 onUnmounted(clear)
 
+// ── The furnace (#75) ──
+const melting = ref(false)
+const melted = ref<{ stars: 1 | 2 | 3; bonus: number } | null>(null)
+const meltMax = ref(0)
+watch(open, (o) => {
+  if (!o) return
+  melting.value = false
+  melted.value = null
+  meltMax.value = haulToMelt()
+}, { immediate: true })
+const onMelt = (quality: number): void => {
+  melting.value = false
+  const r = meltHaul(quality)
+  if (!r) return
+  melted.value = r
+  scrap.value += r.bonus
+  sfx(r.stars === 3 ? 'forgeDone' : 'buy')
+  haptic('reward')
+}
+
 const toBase = (): void => { void leaveResults('base') }
 </script>
 
 <style scoped lang="sass">
+.melt
+  display: flex
+  flex-direction: column
+  align-items: center
+  gap: 0.4rem
+.melted
+  display: flex
+  align-items: center
+  gap: 0.8rem
+  .stars
+    display: flex
+    gap: 0.15rem
+    color: var(--cm-dim)
+    :deep(svg)
+      width: 1.4rem
+      height: 1.4rem
+    .on
+      color: var(--cm-warn)
+  .bonus
+    display: inline-flex
+    align-items: center
+    gap: 0.25em
+    color: var(--cm-ok)
+    font-variant-numeric: tabular-nums
+    :deep(svg)
+      width: 1.2em
+      height: 1.2em
 .tally
   display: flex
   flex-direction: column

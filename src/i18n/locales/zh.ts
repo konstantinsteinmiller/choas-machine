@@ -112,18 +112,32 @@ export default {
   'forge': {
     'tier': '第 {n} 阶',
     'build': '制造',
-    'claim': '领取',
-    'finish': '立即完成',
-    'busy': '锻造炉占用中',
     'top': '最高阶'
   },
   'smithy': {
     'furnace': '熔炉：按住风箱，让温度保持在区间内',
-    'anvil': '铁砧：圆环与标记重合时敲击',
-    'quench': '淬火：发出樱桃红光时浸入',
     'pump': '拉风箱',
-    'dip': '浸入',
     'stars': '{n}/3 星'
+  },
+  'melt': {
+    'start': 'Melt the haul: up to +{n}'
+  },
+  'wheel': {
+    'title': 'Lucky wheel',
+    'locked': 'Max out rifle damage to open the wheel',
+    'chance': 'Win chance',
+    'gain': 'Next win',
+    'spin': 'Spin',
+    'sure': 'Sure win',
+    'watch': 'Watch a video for a sure win',
+    'won': 'Rifle damage +{n}',
+    'miss': 'Missed: {n} scrap back',
+    'pity': 'A sure win in {n} spins'
+  },
+  'ads': {
+    'blockedTitle': 'Ads blocked',
+    'blockedBody': 'An ad blocker stopped the video, so there is no reward this time.',
+    'ok': 'OK'
   },
   'medal': {
     'ghost': '幽灵',

@@ -39,7 +39,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import FButton from '@/components/atoms/FButton.vue'
 import Wallet from '@/components/base/Wallet.vue'
@@ -52,7 +52,8 @@ import LeaderboardModal from '@/components/organisms/LeaderboardModal.vue'
 import { boardSize, ensureBoard, leaderboardEnabled } from '@/use/useLeaderboard'
 import { app } from '@/game/engine/app'
 import { profile } from '@/game/state/profile'
-import { campaignScore, forgeRemaining, settleForge } from '@/game/state/progress'
+import { campaignScore, canForge } from '@/game/state/progress'
+import { WEAPON_IDS } from '@/game/data/ids'
 import type { WeaponId } from '@/game/data/ids'
 
 const { t } = useI18n()
@@ -81,17 +82,12 @@ const showWeapon = (w: WeaponId): void => {
   if (s) s.weapon = w
 }
 
-// The smithy has a game ready to play: the Forge button says so.
-const now = ref(Date.now())
-let timer = 0
 onMounted(() => {
-  settleForge()
   // One read of the board per session; it never blocks the screen.
   void ensureBoard()
-  timer = window.setInterval(() => { now.value = Date.now() }, 1000)
 })
-onUnmounted(() => window.clearInterval(timer))
-const forgeReady = computed(() => !!profile.forge && forgeRemaining(profile.forge, now.value) <= 0)
+// A weapon tier can be built: the Forge button says so.
+const forgeReady = computed(() => WEAPON_IDS.some(w => canForge(w)))
 </script>
 
 <style scoped lang="sass">
