@@ -44,6 +44,9 @@ export const startGameMusic = (): void => {
   restartTrack?.()
 }
 
+/** The track the game wants now (a story scene puts it back after itself). */
+export const currentMusicTrack = (): TrackId => gameTrack.value
+
 /** Called by the game on mode / sector / boss changes. */
 export const setMusicTrack = (id: TrackId): void => {
   if (gameTrack.value === id) return

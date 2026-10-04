@@ -25,6 +25,13 @@ export default {
     'unmute': 'Zapnout zvuk',
     'skip': 'Přeskočit'
   },
+  'cine': {
+    'intro': 'The drop',
+    'salvage': 'The haul',
+    'fallBastion': 'The Bastion falls',
+    'fallFoundry': 'The Foundry goes cold',
+    'outro': 'Home'
+  },
   'fortress': {
     'bastion': 'Bastion',
     'foundry': 'Foundry',
@@ -88,6 +95,7 @@ export default {
     'locked': 'Nejdřív dokonči úroveň {n}',
     'fortress': 'Fortress',
     'fortressLocked': 'Take the {name} at threat {n} first',
+    'story': 'Story',
     'best': 'Nejlepší skóre',
     'armory': 'Zbrojnice',
     'chassis': 'Hangár podvozku',

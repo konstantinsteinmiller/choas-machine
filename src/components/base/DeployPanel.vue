@@ -59,6 +59,19 @@
     FButton.go(size="xl" icon="play" block attention data-testid="btn-deploy" @click="deploy") {{ t('base.deploy') }}
     //- The training ground, any time.
     FButton.train(type="ghost" size="sm" icon="replay" icon-position="left" data-testid="btn-training" @click="train") {{ t('base.training') }}
+    //- The story's scenes seen so far, to watch again (#100).
+    div.story(v-if="scenes.length" role="group" :aria-label="t('base.story')")
+      span.story-label {{ t('base.story') }}
+      button.scene(
+        v-for="id in scenes"
+        :key="id"
+        type="button"
+        :title="t('cine.' + id)"
+        :aria-label="t('cine.' + id)"
+        :data-testid="'scene-' + id"
+        @click="watch(id)"
+      )
+        GameIcon(name="play")
 </template>
 
 <script setup lang="ts">
@@ -66,7 +79,8 @@ import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import FButton from '@/components/atoms/FButton.vue'
 import GameIcon from '@/components/icons/GameIcon.vue'
-import { flow, startMission, startTraining } from '@/game/flow'
+import { flow, playCinema, startMission, startTraining } from '@/game/flow'
+import { CINEMA_IDS, seenKey, type CinemaId } from '@/game/story/cinemaIds'
 import { profile } from '@/game/state/profile'
 import { fortressOpen, levelKey, unlockedLevel } from '@/game/state/progress'
 import { FORTRESSES, type FortressId, type FortressMeta } from '@/game/data/fortresses/registry'
@@ -108,10 +122,35 @@ const pickFort = (id: FortressId): void => {
   flow.level = unlockedLevel(id)
 }
 const deploy = (): void => { void startMission(flow.level) }
+/** The scenes already seen, in story order. */
+const scenes = computed<CinemaId[]>(() => CINEMA_IDS.filter(id => profile.seen.includes(seenKey(id))))
+const watch = (id: CinemaId): void => { sfx('uiClick'); void playCinema(id) }
 const train = (): void => { void startTraining() }
 </script>
 
 <style scoped lang="sass">
+.story
+  display: flex
+  align-items: center
+  gap: 0.35em
+  flex-wrap: wrap
+.story-label
+  color: var(--cm-dim)
+  font-size: var(--cm-fs-xs, 0.75em)
+.scene
+  width: 2.5rem
+  height: 2.5rem
+  display: flex
+  align-items: center
+  justify-content: center
+  border: var(--cm-edge) solid var(--cm-violet)
+  border-radius: var(--cm-radius-m)
+  background: var(--cm-night)
+  color: var(--cm-lilac)
+  cursor: pointer
+  :deep(svg)
+    width: 1.1em
+    height: 1.1em
 .learned
   display: flex
   flex-direction: column

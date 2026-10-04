@@ -25,6 +25,13 @@ export default {
     'unmute': 'เปิดเสียง',
     'skip': 'ข้าม'
   },
+  'cine': {
+    'intro': 'The drop',
+    'salvage': 'The haul',
+    'fallBastion': 'The Bastion falls',
+    'fallFoundry': 'The Foundry goes cold',
+    'outro': 'Home'
+  },
   'fortress': {
     'bastion': 'Bastion',
     'foundry': 'Foundry',
@@ -88,6 +95,7 @@ export default {
     'locked': 'ผ่านด่าน {n} ก่อน',
     'fortress': 'Fortress',
     'fortressLocked': 'Take the {name} at threat {n} first',
+    'story': 'Story',
     'best': 'คะแนนสูงสุด',
     'armory': 'คลังอาวุธ',
     'chassis': 'ห้องแชสซี',

@@ -25,6 +25,13 @@ export default {
     'unmute': 'Ενεργοποίηση ήχου',
     'skip': 'Παράλειψη'
   },
+  'cine': {
+    'intro': 'The drop',
+    'salvage': 'The haul',
+    'fallBastion': 'The Bastion falls',
+    'fallFoundry': 'The Foundry goes cold',
+    'outro': 'Home'
+  },
   'fortress': {
     'bastion': 'Bastion',
     'foundry': 'Foundry',
@@ -88,6 +95,7 @@ export default {
     'locked': 'Ολοκλήρωσε πρώτα το επίπεδο {n}',
     'fortress': 'Fortress',
     'fortressLocked': 'Take the {name} at threat {n} first',
+    'story': 'Story',
     'best': 'Καλύτερο σκορ',
     'armory': 'Οπλοστάσιο',
     'chassis': 'Θάλαμος πλαισίου',

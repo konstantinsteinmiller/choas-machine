@@ -25,6 +25,13 @@ export default {
     'unmute': 'Bật tiếng',
     'skip': 'Bỏ qua'
   },
+  'cine': {
+    'intro': 'The drop',
+    'salvage': 'The haul',
+    'fallBastion': 'The Bastion falls',
+    'fallFoundry': 'The Foundry goes cold',
+    'outro': 'Home'
+  },
   'fortress': {
     'bastion': 'Bastion',
     'foundry': 'Foundry',
@@ -88,6 +95,7 @@ export default {
     'locked': 'Hãy qua màn {n} trước',
     'fortress': 'Fortress',
     'fortressLocked': 'Take the {name} at threat {n} first',
+    'story': 'Story',
     'best': 'Điểm cao nhất',
     'armory': 'Kho vũ khí',
     'chassis': 'Xưởng khung',

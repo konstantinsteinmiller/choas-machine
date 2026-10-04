@@ -27,8 +27,9 @@ import type { HintView } from '../sim/coach'
  * - `dead`  the mech is down, the defeat screen follows
  * - `done`  the mission is over, the rewards screen is up
  * - `base`  the Mobile Command Base (menus)
+ * - `cinema` a story scene plays over whatever was up (#100); the gameplay bracket is closed
  */
-export type Phase = 'boot' | 'intro' | 'play' | 'outro' | 'dead' | 'done' | 'base'
+export type Phase = 'boot' | 'intro' | 'play' | 'outro' | 'dead' | 'done' | 'base' | 'cinema'
 
 export const hud = reactive({
   phase: 'boot' as Phase,

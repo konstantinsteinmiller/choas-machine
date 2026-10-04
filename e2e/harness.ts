@@ -240,8 +240,14 @@ export const layout = (g: Game, selectors: Record<string, string>, allowed: Arra
   }, [selectors, allowed] as const)
 
 /** A returning player's save: two levels cleared, things to spend, a build in the Forge. */
+/**
+ * The story's scenes and the first raid's scripted opening (#100 #103 #104),
+ * marked seen: the specs drive the game, not watch it.
+ */
+export const STORY_SEEN = ['opening', 'cine:intro', 'cine:salvage', 'cine:fallBastion', 'cine:fallFoundry', 'cine:outro']
+
 /** A new player who has only been through the training ground. */
-export const NEW_AFTER_TRAINING: Record<string, unknown> = { cm_v: 1, cm_seen: ['training'] }
+export const NEW_AFTER_TRAINING: Record<string, unknown> = { cm_v: 1, cm_seen: ['training', ...STORY_SEEN] }
 
 export const RETURNING_SAVE = (language = 'en'): Record<string, unknown> => ({
   cm_v: 1, cm_cleared: 2, cm_medals: 4, cm_missions: 7, cm_scrap: 1234, cm_cores: 6,
@@ -255,7 +261,7 @@ export const RETURNING_SAVE = (language = 'en'): Record<string, unknown> => ({
   },
   cm_forge: null,
   cm_lessons: { touch: {}, desk: {} },
-  cm_seen: ['intro'],
+  cm_seen: ['intro', ...STORY_SEEN],
   cm_stats: { kills: 40, headshots: 22, stealthKills: 30, bladeKills: 6, alerts: 2, deaths: 1, playSeconds: 1500 },
   cm_user_language: language,
   cm_user_language_chosen: true

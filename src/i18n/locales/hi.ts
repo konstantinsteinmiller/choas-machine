@@ -25,6 +25,13 @@ export default {
     'unmute': 'अनम्यूट करें',
     'skip': 'छोड़ें'
   },
+  'cine': {
+    'intro': 'The drop',
+    'salvage': 'The haul',
+    'fallBastion': 'The Bastion falls',
+    'fallFoundry': 'The Foundry goes cold',
+    'outro': 'Home'
+  },
   'fortress': {
     'bastion': 'Bastion',
     'foundry': 'Foundry',
@@ -88,6 +95,7 @@ export default {
     'locked': 'पहले लेवल {n} पूरा करें',
     'fortress': 'Fortress',
     'fortressLocked': 'Take the {name} at threat {n} first',
+    'story': 'Story',
     'best': 'सर्वश्रेष्ठ स्कोर',
     'armory': 'शस्त्रागार',
     'chassis': 'चेसिस बे',

@@ -29,6 +29,13 @@ export default {
     'unmute': 'Unmute',
     'skip': 'Skip'
   },
+  'cine': {
+    'intro': 'The drop',
+    'salvage': 'The haul',
+    'fallBastion': 'The Bastion falls',
+    'fallFoundry': 'The Foundry goes cold',
+    'outro': 'Home'
+  },
   'fortress': {
     'bastion': 'Bastion',
     'foundry': 'Foundry',
@@ -92,6 +99,7 @@ export default {
     'locked': 'Clear level {n} first',
     'fortress': 'Fortress',
     'fortressLocked': 'Take the {name} at threat {n} first',
+    'story': 'Story',
     'best': 'Best score',
     'armory': 'Armory',
     'chassis': 'Chassis Bay',

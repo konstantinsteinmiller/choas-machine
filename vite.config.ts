@@ -360,6 +360,8 @@ export default defineConfig(({ mode, command }) => {
           // The fortress registry loads each level's builder on demand
           // (`import('./bastion')`, one chunk per fortress). Same constraint.
           /fortresses[\\/]registry\.ts$/,
+          // The boot loads the story's scenes on demand (`import('./story/cinema')`). Same constraint.
+          /game[\\/]boot\.ts$/,
           // GameDistributionProvider lazy-loads the heavy
           // `@/utils/gameDistributionPlugin` (~500 LOC) via dynamic
           // import so non-GD builds don't ship the GD SDK code.

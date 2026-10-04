@@ -25,6 +25,13 @@ export default {
     'unmute': 'تشغيل الصوت',
     'skip': 'تخطي'
   },
+  'cine': {
+    'intro': 'The drop',
+    'salvage': 'The haul',
+    'fallBastion': 'The Bastion falls',
+    'fallFoundry': 'The Foundry goes cold',
+    'outro': 'Home'
+  },
   'fortress': {
     'bastion': 'Bastion',
     'foundry': 'Foundry',
@@ -88,6 +95,7 @@ export default {
     'locked': 'أكمل المستوى {n} أولاً',
     'fortress': 'Fortress',
     'fortressLocked': 'Take the {name} at threat {n} first',
+    'story': 'Story',
     'best': 'أفضل نتيجة',
     'armory': 'الترسانة',
     'chassis': 'حظيرة الهيكل',

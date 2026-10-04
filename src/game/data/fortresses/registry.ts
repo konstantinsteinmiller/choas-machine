@@ -35,9 +35,9 @@ export const fortressMeta = (id: FortressId): FortressMeta => FORTRESSES.find(f 
 export const isFortressId = (v: unknown): v is FortressId => typeof v === 'string' && (FORTRESS_IDS as readonly string[]).includes(v)
 
 /** Build a fortress at a threat level (its own chunk, loaded on demand). */
-export const loadFortress = async (id: FortressId, level: number, run: number, answers?: Answers): Promise<Fortress> => {
+export const loadFortress = async (id: FortressId, level: number, run: number, answers?: Answers, opening = false): Promise<Fortress> => {
   switch (id) {
-    case 'bastion': return (await import('./bastion')).buildBastion(level, run, answers)
+    case 'bastion': return (await import('./bastion')).buildBastion(level, run, answers, opening)
     case 'foundry': return (await import('./foundry')).buildFoundry(level, run, answers)
     case 'harbour': return (await import('./harbour')).buildHarbour(level, run, answers)
   }

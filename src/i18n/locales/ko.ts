@@ -25,6 +25,13 @@ export default {
     'unmute': '음소거 해제',
     'skip': '건너뛰기'
   },
+  'cine': {
+    'intro': 'The drop',
+    'salvage': 'The haul',
+    'fallBastion': 'The Bastion falls',
+    'fallFoundry': 'The Foundry goes cold',
+    'outro': 'Home'
+  },
   'fortress': {
     'bastion': 'Bastion',
     'foundry': 'Foundry',
@@ -88,6 +95,7 @@ export default {
     'locked': '먼저 레벨 {n} 클리어',
     'fortress': 'Fortress',
     'fortressLocked': 'Take the {name} at threat {n} first',
+    'story': 'Story',
     'best': '최고 점수',
     'armory': '무기고',
     'chassis': '섀시 베이',

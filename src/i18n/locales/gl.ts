@@ -25,6 +25,13 @@ export default {
     'unmute': 'Activar o son',
     'skip': 'Omitir'
   },
+  'cine': {
+    'intro': 'The drop',
+    'salvage': 'The haul',
+    'fallBastion': 'The Bastion falls',
+    'fallFoundry': 'The Foundry goes cold',
+    'outro': 'Home'
+  },
   'fortress': {
     'bastion': 'Bastion',
     'foundry': 'Foundry',
@@ -88,6 +95,7 @@ export default {
     'locked': 'Supera antes o nivel {n}',
     'fortress': 'Fortress',
     'fortressLocked': 'Take the {name} at threat {n} first',
+    'story': 'Story',
     'best': 'Mellor puntuación',
     'armory': 'Armaría',
     'chassis': 'Taller de chasis',

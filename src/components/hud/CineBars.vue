@@ -6,7 +6,7 @@
       div.bar.top
       div.bar.bottom
       //- Any press on the scene skips; this is the picture of that.
-      div.skip(role="img" :aria-label="t('ui.skip')")
+      div.skip(v-if="hud.phase !== 'cinema'" role="img" :aria-label="t('ui.skip')")
         GameIcon(name="skip-forward")
 </template>
 
@@ -19,7 +19,8 @@ import { flow } from '@/game/flow'
 
 const { t } = useI18n()
 const active = computed(() =>
-  flow.screen === 'mission' && !flow.curtain && !flow.loading && (hud.cine || hud.phase === 'intro' || hud.phase === 'outro')
+  hud.phase === 'cinema' ||
+  (flow.screen === 'mission' && !flow.curtain && !flow.loading && (hud.cine || hud.phase === 'intro' || hud.phase === 'outro'))
 )
 </script>
 

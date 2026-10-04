@@ -99,6 +99,27 @@ class GameApp {
     this.setTimeScale(1)
   }
 
+  /** A mode set aside by `pushMode`, live again on `popMode`. */
+  private under: GameMode | null = null
+
+  /**
+   * Show another mode for a while (a cinematic, #100) WITHOUT disposing the
+   * live one: it waits under, untouched, until `popMode` brings it back.
+   */
+  pushMode(mode: GameMode): void {
+    if (this.under) this.popMode()
+    this.under = this.mode
+    this.mode = null
+    this.setMode(mode)
+  }
+
+  /** Dispose the pushed mode and bring back the one under it. */
+  popMode(): void {
+    const back = this.under
+    this.under = null
+    this.setMode(back)
+  }
+
   /** The simulation's speed: 1 is real time, 0.1 a kill-cam, 0 a freeze. */
   get timeScale(): number {
     return this.scale

@@ -557,7 +557,7 @@ export class Mission implements GameMode {
       stepGarrison(this.garrison, this.fortress.grid, this.target, dt)
       drainEvents(this.garrison)
     } else if (hud.phase === 'play') {
-      this.target.visible = !this.strike?.full
+      this.target.visible = !this.strike?.full && !this.opening
       this.stats.time += dt
       if (this.strike) {
         this.stepStrike(dt)
@@ -569,6 +569,8 @@ export class Mission implements GameMode {
         this.stepLoot(dt)
       } else if (this.sabotaging) {
         this.stepSabotage(dt)
+      } else if (this.opening && this.stepOpening(dt)) {
+        // The opening has the mech (#104).
       } else {
         const dir = stickToWorld(this.cam, i.moveX, i.moveY)
         const wasCrouched = p.crouched
@@ -817,7 +819,7 @@ export class Mission implements GameMode {
   }
 
   private swayNow(): { yaw: number; pitch: number } {
-    if (this.arsenal.current !== 'sniper') return { yaw: 0, pitch: 0 }
+    if (this.arsenal.current !== 'sniper' || this.opening) return { yaw: 0, pitch: 0 }
     const k = this.cam.aim * (this.player.crouched ? SWAY_CROUCH : SWAY)
     const t = this.time
     return { yaw: (Math.sin(t * 1.13) + 0.5 * Math.sin(t * 2.71 + 1)) * k, pitch: (Math.sin(t * 0.87 + 2) + 0.5 * Math.sin(t * 2.2)) * k }
@@ -1335,6 +1337,102 @@ export class Mission implements GameMode {
     const hz = oz + f.z * hit.t
     this.hookAim = findGrappleAimed(this.fortress.grid, { x: p.x, y: p.y, z: p.z }, { x: hx, y: hy, z: hz }, { x: hit.nx, y: hit.ny, z: hit.nz }, this.loadout.hookMax)
     if (this.ropesLeft > 0 && !this.hookAim) this.ropeAim = findRopeShot(this.fortress.grid, p.x, p.y, p.z, hx, hy, hz, hit.ny)
+  }
+
+  /** The first raid's opening (#104): which beat, how long into it, who. */
+  private opening: { stage: 'sneak' | 'stab' | 'aim' | 'fired'; t: number; guard: number; target: number } | null = null
+
+  private startOpening(): void {
+    const p = this.player
+    // The guard in front of the landing: the nearest person.
+    let best = -1
+    let bestD = 30
+    for (const u of this.garrison.units) {
+      if (!isAlive(u) || (u.kind !== 'guard' && u.kind !== 'sentry')) continue
+      const d = Math.hypot(u.x - p.x, u.z - p.z)
+      if (d < bestD && Math.abs(u.y - p.y) < 1.5) { bestD = d; best = u.id }
+    }
+    if (best < 0) { markSeen('opening'); return }
+    this.opening = { stage: 'sneak', t: 0, guard: best, target: -1 }
+  }
+
+  private endOpening(): void {
+    this.opening = null
+    this.input.aimHeld = false
+    markSeen('opening')
+  }
+
+  /**
+   * The opening, one step: it walks the mech up behind the guard, crouched,
+   * and takes it; then the rifle comes up onto the nearest person in sight
+   * and fires. A press after the first second hands the mech to the player.
+   * True while the opening has the mech.
+   */
+  private stepOpening(dt: number): boolean {
+    const o = this.opening!
+    const p = this.player
+    const g = this.fortress.grid
+    o.t += dt
+    if (o.t > 1 && this.input.anyPressed && o.stage !== 'fired') { this.endOpening(); return false }
+    if (o.stage === 'sneak') {
+      const u = this.garrison.units[o.guard]!
+      if (!isAlive(u) || o.t > 10) { o.stage = 'stab'; o.t = 0; return true }
+      const tx = u.x - Math.sin(u.yaw) * 1.5
+      const tz = u.z - Math.cos(u.yaw) * 1.5
+      const d = Math.hypot(tx - p.x, tz - p.z)
+      p.crouched = true
+      const mx = d > 0.2 ? (tx - p.x) / d : 0
+      const mz = d > 0.2 ? (tz - p.z) / d : 0
+      stepPlayer(p, g, { mx, mz, crouch: false, aiming: false, aimYaw: this.cam.yaw }, dt)
+      this.cam.yaw += angleDelta(this.cam.yaw, headingTo(p.x, p.z, u.x, u.z)) * Math.min(1, dt * 3)
+      const offer = findStrike(this.garrison, g, p.x, p.y, p.z, headingTo(p.x, p.z, u.x, u.z), true)
+      if (offer && offer.id === o.guard) {
+        this.startStrike(offer)
+        o.stage = 'stab'
+        o.t = 0
+      }
+      return true
+    }
+    if (o.stage === 'stab') {
+      // The takedown is over (it ran as any other): find the shot.
+      const eye = p.y + 2.25 + (1.4 - 2.25) * p.crouch
+      let best = -1
+      let bestD = 70
+      for (const u of this.garrison.units) {
+        if (!isAlive(u) || u.id === o.guard || (u.kind !== 'guard' && u.kind !== 'sentry')) continue
+        const d = Math.hypot(u.x - p.x, u.z - p.z)
+        if (d < bestD && hasLineOfSight(g, p.x, eye, p.z, u.x, u.y + 1.54, u.z)) { bestD = d; best = u.id }
+      }
+      if (best < 0) { this.endOpening(); return false }
+      o.target = best
+      o.stage = 'aim'
+      o.t = 0
+      if (this.arsenal.current !== 'sniper') this.arsenal.current = 'sniper'
+      return true
+    }
+    if (o.stage === 'aim') {
+      const u = this.garrison.units[o.target]!
+      if (!isAlive(u)) { this.endOpening(); return false }
+      this.input.aimHeld = true
+      const eye = p.y + 2.25 + (1.4 - 2.25) * p.crouch
+      const yaw = headingTo(p.x, p.z, u.x, u.z)
+      const pitch = Math.atan2(u.y + 1.54 - eye, Math.hypot(u.x - p.x, u.z - p.z))
+      const k = Math.min(1, dt * 5)
+      this.cam.yaw += angleDelta(this.cam.yaw, yaw) * k
+      this.cam.pitch += (pitch - this.cam.pitch) * k
+      p.yaw += angleDelta(p.yaw, yaw) * k
+      if (o.t >= 1.4) {
+        this.cam.yaw = yaw
+        this.cam.pitch = pitch
+        this.fireRound()
+        o.stage = 'fired'
+        o.t = 0
+      }
+      return true
+    }
+    // The round is away: a beat, then the mech is the player's.
+    if (o.t >= 1.2) { this.endOpening(); return false }
+    return true
   }
 
   /**
@@ -1979,6 +2077,8 @@ export class Mission implements GameMode {
       markSeen('intro')
       setPhase('play')
       emit('deployed', {})
+      // The first raid's opening (#104): the mech takes the guard in front of it, then a shot.
+      if (this.fortress.opening) this.startOpening()
     } else if (c.kind === 'outro') {
       this.dog.root.visible = false
       setPhase('done')

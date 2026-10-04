@@ -117,11 +117,17 @@ registerModeFactories({
     const training = fortParam === 'training' || (flow.training && !isFortressId(fortParam) && !proving)
     // DEV ONLY: `?fort=foundry` (or any fortress id) raids that fortress.
     if (isFortressId(fortParam)) flow.fortress = fortParam
-    const fortress = training ? buildTrainingGround() : proving ? buildProvingGround() : await loadFortress(flow.fortress, level, profile.missions, answersTo(profile.habits))
+    // The first Bastion raid opens with a scripted takedown and a shot (#104), once.
+    // (Not on a dev preview URL: the probes place the mech themselves.)
+    const preview = import.meta.env.DEV && new URLSearchParams(search).has('preview')
+    const opening = !training && !proving && !preview && !flow.quick && flow.fortress === 'bastion' && level === 1 && !profile.seen.includes('opening')
+    const fortress = training ? buildTrainingGround() : proving ? buildProvingGround() : await loadFortress(flow.fortress, level, profile.missions, answersTo(profile.habits), opening)
     if (view) return FortressView.create(fortress, view, createSlicer(12), onProgress)
     return Mission.create(fortress, input, createSlicer(12), onProgress, level, currentLoadout())
   },
   base: (onProgress) => CommandBase.create(createSlicer(12), onProgress),
+  // The story's scenes load on demand: their code is its own chunk.
+  cinema: async (id) => (await import('./story/cinema')).Cinema.create(id, createSlicer(12)),
   prepare: (mode) => precompile(mode)
 })
 

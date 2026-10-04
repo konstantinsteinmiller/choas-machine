@@ -25,6 +25,13 @@ export default {
     'unmute': 'Ovozni yoqish',
     'skip': 'O‘tkazib yuborish'
   },
+  'cine': {
+    'intro': 'The drop',
+    'salvage': 'The haul',
+    'fallBastion': 'The Bastion falls',
+    'fallFoundry': 'The Foundry goes cold',
+    'outro': 'Home'
+  },
   'fortress': {
     'bastion': 'Bastion',
     'foundry': 'Foundry',
@@ -88,6 +95,7 @@ export default {
     'locked': 'Avval {n}-bosqichni tugating',
     'fortress': 'Fortress',
     'fortressLocked': 'Take the {name} at threat {n} first',
+    'story': 'Story',
     'best': 'Eng yaxshi hisob',
     'armory': 'Qurolxona',
     'chassis': 'Shassi bo\'limi',

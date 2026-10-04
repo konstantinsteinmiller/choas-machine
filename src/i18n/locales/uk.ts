@@ -25,6 +25,13 @@ export default {
     'unmute': 'Увімкнути звук',
     'skip': 'Пропустити'
   },
+  'cine': {
+    'intro': 'The drop',
+    'salvage': 'The haul',
+    'fallBastion': 'The Bastion falls',
+    'fallFoundry': 'The Foundry goes cold',
+    'outro': 'Home'
+  },
   'fortress': {
     'bastion': 'Bastion',
     'foundry': 'Foundry',
@@ -88,6 +95,7 @@ export default {
     'locked': 'Спершу пройдіть рівень {n}',
     'fortress': 'Fortress',
     'fortressLocked': 'Take the {name} at threat {n} first',
+    'story': 'Story',
     'best': 'Найкращий рахунок',
     'armory': 'Зброярня',
     'chassis': 'Відсік шасі',

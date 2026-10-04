@@ -25,6 +25,13 @@ export default {
     'unmute': 'Səsi aç',
     'skip': 'Keç'
   },
+  'cine': {
+    'intro': 'The drop',
+    'salvage': 'The haul',
+    'fallBastion': 'The Bastion falls',
+    'fallFoundry': 'The Foundry goes cold',
+    'outro': 'Home'
+  },
   'fortress': {
     'bastion': 'Bastion',
     'foundry': 'Foundry',
@@ -88,6 +95,7 @@ export default {
     'locked': 'Əvvəlcə {n}-ci səviyyəni bitir',
     'fortress': 'Fortress',
     'fortressLocked': 'Take the {name} at threat {n} first',
+    'story': 'Story',
     'best': 'Ən yaxşı nəticə',
     'armory': 'Silahxana',
     'chassis': 'Şassi bölməsi',

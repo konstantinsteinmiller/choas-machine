@@ -1,0 +1,608 @@
+import {
+  BoxGeometry, CylinderGeometry, Group, Mesh, MeshBasicMaterial, PerspectiveCamera, Quaternion, SphereGeometry, Vector3, type Object3D, type Texture
+} from 'three'
+void (null as unknown as Object3D)
+import { newScene, type GameMode } from '../engine/app'
+import { getRenderer } from '../engine/renderer'
+import { noSlice, type Slice } from '../engine/slicer'
+import { FortressBuilder, type Fortress } from '../world/fortress'
+import { CELL } from '../world/grid'
+import { buildFortressMesh, type FortressMesh } from '../world/fortressMesh'
+import { buildSky, type Sky } from '../world/sky'
+import { themeOf, type ThemeId } from '../data/themes'
+import { buildMech, poseMech, restPose, type MechPose } from '../models/mech'
+import { BOARD_HOVER, buildRobodog, poseRobodog, restDogPose, type DogPose } from '../models/robodog'
+import {
+  buildDrone, buildEnforcer, buildGoliath, buildGuard, poseDrone, poseEnforcer, poseGoliath, poseGuard, restGuardPose
+} from '../models/garrison'
+import { buildDropship, type Dropship } from '../models/dropship'
+import type { Rig } from '../models/kit'
+import { Particles } from '../fx/particles'
+import { makeFlameMaterial, setFlame } from '../fx/flameCone'
+import { sfx } from '../audio/sfx'
+import type { TrackId } from '../audio/songs'
+import { CINEMA_LENGTH, type CinemaId } from './cinemaIds'
+
+/**
+ * ─── The story's scenes (round 4, #100 #103) ─────────────────────────────────
+ *
+ * Wordless scenes played in the engine, each a little stage (a few cells of
+ * fortress in a fortress's own look, under its sky) with the game's own rigs
+ * as the cast and a timeline that moves them and the camera. `story.md` is
+ * the script. A scene runs as a mode pushed over whatever was up
+ * (`app.pushMode`): the mission or the base waits under it, untouched.
+ *
+ * Each timeline is a pure function of the scene's clock, so a skip simply
+ * ends it, and the tests can sample any moment.
+ */
+
+type V3 = readonly [number, number, number]
+type Key = readonly [number, number, number, number]
+
+const smooth = (k: number): number => { const t = Math.min(1, Math.max(0, k)); return t * t * (3 - 2 * t) }
+/** A value at `t` on keys [time, x, y, z], eased between them. */
+export const track = (keys: readonly Key[], t: number, out = new Vector3()): Vector3 => {
+  if (t <= keys[0]![0]) return out.set(keys[0]![1], keys[0]![2], keys[0]![3])
+  for (let i = 1; i < keys.length; i++) {
+    const b = keys[i]!
+    if (t <= b[0]) {
+      const a = keys[i - 1]!
+      const f = smooth((t - a[0]) / Math.max(1e-6, b[0] - a[0]))
+      return out.set(a[1] + (b[1] - a[1]) * f, a[2] + (b[2] - a[2]) * f, a[3] + (b[3] - a[3]) * f)
+    }
+  }
+  const z = keys[keys.length - 1]!
+  return out.set(z[1], z[2], z[3])
+}
+/** 0 … 1 across [a, b]. */
+const span = (t: number, a: number, b: number): number => Math.min(1, Math.max(0, (t - a) / (b - a)))
+const between = (t: number, a: number, b: number): boolean => t >= a && t < b
+
+/** What every scene works with. */
+interface Stage {
+  t: number
+  dt: number
+  cam: PerspectiveCamera
+  mech: Rig
+  mp: MechPose
+  dog: Rig
+  dp: DogPose
+  fx: Particles
+  /** Cast and props each scene adds. */
+  extra: Record<string, Rig | Object3D | Dropship | Mesh>
+  /** Moments that have fired (sounds, bursts): once each. */
+  fired: Set<string>
+  once: (key: string, at: number, f: () => void) => void
+  line: (m: Mesh, a: Vector3, b: Vector3) => void
+  look: (pos: Vector3, at: Vector3, fov?: number) => void
+  place: (o: Object3D, p: Vector3, yaw?: number) => void
+}
+
+interface Script {
+  theme: ThemeId
+  music: TrackId
+  /** The ground: cells laid out with the fortress builder. */
+  stage: (b: FortressBuilder) => void
+  cast: (s: Stage, scene: Group) => void
+  frame: (s: Stage) => void
+}
+
+const tmpA = new Vector3()
+const tmpB = new Vector3()
+const tmpC = new Vector3()
+const UP = new Vector3(0, 1, 0)
+
+// ─── Intro: the ability showcase (about 35 s) ───────────────────────────────
+
+const INTRO: Script = {
+  theme: 'dusk',
+  music: 'hero',
+  stage: (b) => {
+    // West shelf at 0, a cliff up to a plateau (outcrop A), a gap, outcrop B, a perch tower at its east end.
+    b.ground(0, 0, 7, 23, 0)
+    b.fill(8, 0, 17, 23, 10)
+    b.fill(22, 0, 39, 23, 10)
+    b.fill(36, 5, 37, 6, 14).fill(38, 11, 39, 12, 14)
+  },
+  cast: (s, root) => {
+    const guards = [buildGuard(), buildGuard(), buildGuard()]
+    guards.forEach((g, i) => { s.extra[`g${i}`] = g; root.add(g.root) })
+    const drone = buildDrone()
+    const tank = buildGoliath()
+    s.extra.drone = drone
+    s.extra.tank = tank
+    root.add(drone.root, tank.root)
+    const glow = new MeshBasicMaterial({ color: '#5fe9ff', toneMapped: false })
+    for (const k of ['hookLine', 'rope', 'tracer']) {
+      const m = new Mesh(new CylinderGeometry(0.04, 0.04, 1, 6), k === 'tracer' ? new MeshBasicMaterial({ color: '#fff3c9', toneMapped: false }) : glow)
+      m.visible = false
+      s.extra[k] = m
+      root.add(m)
+    }
+    const ball = new Mesh(new SphereGeometry(0.22, 10, 8), new MeshBasicMaterial({ color: '#ff5fb7', toneMapped: false }))
+    const rocket = new Mesh(new SphereGeometry(0.2, 8, 6), new MeshBasicMaterial({ color: '#ffd166', toneMapped: false }))
+    ball.visible = rocket.visible = false
+    s.extra.ball = ball
+    s.extra.rocket = rocket
+    root.add(ball, rocket)
+  },
+  frame: (s) => {
+    const { t, mp, dp } = s
+    const g = (i: number): Rig => s.extra[`g${i}`] as Rig
+    const drone = s.extra.drone as Rig
+    const tank = s.extra.tank as Rig
+    Object.assign(mp, restPose(), { time: t })
+    dp.time = t
+    // The board over the cloud sea, the mech crouched on it.
+    if (t < 5) {
+      const p = track([[0, -70, 5, 6], [3.5, -14, 2.5, 14], [5, 12, 0, 24]], t, tmpA)
+      dp.fold = 1
+      dp.thrust = 1
+      s.place(s.dog.root, tmpB.set(p.x, p.y + BOARD_HOVER, p.z), Math.PI / 2)
+      // The rider stands on the deck: the board's own height (as the drop-in has it).
+      s.place(s.mech.root, tmpC.set(p.x, p.y + BOARD_HOVER, p.z), Math.PI / 2)
+      mp.crouch = 1
+      s.look(tmpB.set(p.x - 6, p.y + 2.4, p.z - 7), tmpC.set(p.x + 3, p.y + 1.2, p.z))
+      s.once('board', 0.2, () => sfx('dropIn'))
+    } else {
+      // The board waits up out of the way, then comes to the perch.
+      const d = track([[5, 12, 3, 24], [8, 30, 22, 14], [30, 72, 22, 24], [32, 77.6, 14 + BOARD_HOVER, 25.4]], t, tmpA)
+      dp.fold = t < 31 ? 1 : 1 - span(t, 31.2, 32.6)
+      dp.thrust = dp.fold
+      s.place(s.dog.root, d, t < 31 ? Math.PI / 2 : Math.PI)
+    }
+    // The hook up the cliff.
+    const hook = s.extra.hookLine as Mesh
+    hook.visible = between(t, 5.2, 8.4)
+    if (between(t, 5, 9)) {
+      const y = 10 * span(t, 5.6, 8.2)
+      const x = t < 8.4 ? 15.2 : 15.2 + 2.3 * span(t, 8.4, 9)
+      s.place(s.mech.root, tmpA.set(x, t < 8.4 ? y : 10, 24), Math.PI / 2)
+      mp.climb = t < 8.4 ? 1 : 0
+      mp.climbPhase = y
+      s.line(hook, tmpB.set(x + 0.4, y + 2, 24), tmpC.set(16.1, 10.05, 24))
+      s.look(tmpB.set(6, 4 + y * 0.5, 36), tmpC.set(15.5, y + 1.5, 24))
+      s.once('hook', 5.2, () => sfx('hookThrow'))
+      s.once('bite', 5.5, () => sfx('hookBite'))
+    }
+    // The rope across the gap.
+    const rope = s.extra.rope as Mesh
+    rope.visible = t >= 9.8 && t < 13.5
+    s.line(rope, tmpA.set(35.4, 10.75, 24), tmpB.set(44.4, 10.75, 24))
+    if (between(t, 9, 13)) {
+      const p = track([[9, 17.5, 10, 24], [9.8, 34.6, 10, 24], [10.2, 34.6, 10, 24], [12.6, 45, 10, 24], [13, 46, 10, 24]], t, tmpA)
+      s.place(s.mech.root, p, Math.PI / 2)
+      mp.speed = between(t, 9, 9.8) || between(t, 10.2, 12.6) ? 0.8 : 0
+      mp.stride = t * 7
+      mp.cable = between(t, 10.2, 12.6) ? 1 : 0
+      mp.aim = between(t, 9.7, 10.1) ? 1 : 0
+      s.look(tmpB.set(p.x + 2, 14, 40), tmpC.set(p.x + 3, 10.5, 24))
+      s.once('rope', 9.8, () => { sfx('hookThrow'); sfx('hookBite') })
+    }
+    // The decoy, the two guards, and the sentry on its tower.
+    s.place(g(0).root, tmpA.set(55, 10, 20), t < 14.4 ? -Math.PI / 2 : -Math.PI / 2 + 1.9 * span(t, 14.4, 15.2))
+    s.place(g(1).root, tmpA.set(57, 10, 27.5), t < 14.4 ? -Math.PI / 2 : -Math.PI / 2 + 1.5 * span(t, 14.4, 15.2))
+    for (const i of [0, 1]) poseGuard(g(i), { ...restGuardPose(), time: t + i, wary: between(t, 14.4, 17) ? 1 : 0 })
+    const ball = s.extra.ball as Mesh
+    ball.visible = t >= 13.4 && t < 17
+    if (ball.visible) {
+      const k = span(t, 13.4, 14.2)
+      s.place(ball, tmpA.set(46 + 14 * k, 11.5 + Math.sin(k * Math.PI) * 4 - 1.3 * k, 24 + 6 * k))
+    }
+    if (between(t, 13, 17)) {
+      const p = track([[13, 46, 10, 24], [15, 46, 10, 24], [17, 50, 10, 24]], t, tmpA)
+      s.place(s.mech.root, p, Math.PI / 2)
+      mp.crouch = 1
+      mp.speed = t > 15 ? 0.5 : 0
+      mp.stride = t * 5
+      s.look(tmpB.set(p.x - 6, 13.5, p.z - 2), tmpC.set(p.x + 8, 11, 24))
+      s.once('decoy', 14.2, () => sfx('decoy'))
+    }
+    // The rifle: a slow zoom, one headshot.
+    const sentryDead = t >= 19.3
+    s.place(g(2).root, tmpA.set(73, 14, 11), -Math.PI * 0.8)
+    poseGuard(g(2), { ...restGuardPose(), time: t, deadT: sentryDead ? t - 19.3 : 0, death: 'back' })
+    const tracer = s.extra.tracer as Mesh
+    tracer.visible = false
+    if (between(t, 17, 21)) {
+      s.place(s.mech.root, tmpA.set(50, 10, 24), Math.atan2(73 - 50, 11 - 24))
+      mp.aim = 1
+      mp.weapon = 'sniper'
+      mp.aimPitch = 0.08
+      mp.recoil = between(t, 19.2, 19.6) ? 1 - span(t, 19.2, 19.6) : 0
+      tracer.visible = between(t, 19.2, 19.35)
+      s.line(tracer, tmpB.set(50.5, 12.2, 23.5), tmpC.set(73, 15.5, 11))
+      const zoom = 50 - 32 * span(t, 17.4, 19)
+      s.look(tmpB.set(49.2, 12.4, 25.6), tmpC.set(73, 15.4, 11), zoom)
+      s.once('shot', 19.2, () => { sfx('sniper'); s.fx.sparks(73, 15.5, 11, '#ffe9a0', 14, 5, 0.25) })
+    }
+    // The mini-gun takes a drone out of the air.
+    const dd = t >= 23.8
+    const dy = dd ? Math.max(10.3, 16 - 18 * (t - 23.8) ** 2) : 16
+    s.place(drone.root, tmpA.set(62, dy, 36), Math.PI)
+    poseDrone(drone, { time: t, spin: t * 40, pitch: 0.1, roll: 0, eyeYaw: 0, eyePitch: 0.5, alarm: 1, deadT: dd ? t - 23.8 : 0, landed: dy <= 10.31 })
+    if (between(t, 21, 25)) {
+      s.place(s.mech.root, tmpA.set(52, 10, 26), Math.atan2(62 - 52, 36 - 26))
+      mp.aim = 1
+      mp.weapon = 'minigun'
+      mp.spin = t * 30
+      mp.aimPitch = 0.28
+      if (between(t, 22, 23.8) && Math.floor(t * 20) !== Math.floor((t - s.dt) * 20)) s.fx.sparks(62 + Math.random() - 0.5, 16, 36, '#ffd27a', 4, 4, 0.18)
+      s.look(tmpB.set(46, 12, 22), tmpC.set(60, 14.5, 34))
+      s.once('spin', 21.6, () => sfx('minigun'))
+      s.once('drone', 23.8, () => { sfx('explode'); s.fx.orbBurst(62, 16, 36, '#ffb061', 0.7) })
+    }
+    // A rocket into the Goliath's flank.
+    s.place(tank.root, tmpA.set(66, 10, 44), -Math.PI / 2)
+    poseGoliath(tank, { time: t, turretYaw: -0.4, barrelPitch: 0.05, recoil: 0, rumble: t > 27 ? 1 - span(t, 27, 30) : 0.5, dead: 0 })
+    const rocket = s.extra.rocket as Mesh
+    rocket.visible = between(t, 26.2, 27)
+    if (rocket.visible) s.place(rocket, tmpA.lerpVectors(tmpB.set(53, 12, 30), tmpC.set(64.5, 11.5, 42), span(t, 26.2, 27)))
+    if (between(t, 25, 30)) {
+      s.place(s.mech.root, tmpA.set(52, 10, 29), Math.atan2(66 - 52, 44 - 29))
+      mp.aim = t < 27 ? 1 : 0
+      mp.weapon = 'rocket'
+      mp.recoil = between(t, 26.2, 26.6) ? 1 : 0
+      s.look(tmpB.set(56, 15, 26), tmpC.set(65, 11, 43))
+      s.once('rocket', 26.2, () => sfx('rocket'))
+      s.once('boom', 27, () => { sfx('explode'); s.fx.orbBurst(64.5, 11.5, 42, '#ff9a3d', 1.4); s.fx.sparks(64.5, 11.5, 42, '#ffd27a', 30, 8, 0.3) })
+      if (t > 27 && Math.floor(t * 8) !== Math.floor((t - s.dt) * 8)) {
+        s.fx.emit({ x: 66, y: 13, z: 44, vx: 0.3, vy: 1.8, vz: 0, color: '#3a3050', size: 1.4, sizeEnd: 3, life: 2.4, drag: 0.4 })
+      }
+    }
+    // The perch: facing the Bastion, the board folding into a dog at its feet.
+    if (t >= 30) {
+      s.place(s.mech.root, tmpA.set(77.6, 14, 23.4), Math.PI / 2)
+      const back = track([[30, 70, 16.5, 21], [35, 66, 20, 30]], t, tmpB)
+      s.look(back, tmpC.set(92, 14, 24))
+    }
+    poseMech(s.mech, mp)
+    poseRobodog(s.dog, dp)
+  }
+}
+
+// ─── Salvage: the haul after a first clear of threat I or II (10 s, #103) ───
+
+const SALVAGE: Script = {
+  theme: 'dusk',
+  music: 'hero',
+  stage: (b) => {
+    b.ground(0, 0, 23, 23, 0)
+    b.deck(6, 6, 17, 17)
+    b.heap(5, 16, 0.4).heap(18, 7, 1.2).heap(17, 18, 2)
+  },
+  cast: (s, root) => {
+    const e1 = buildEnforcer(false)
+    const e2 = buildEnforcer(true)
+    const tank = buildGoliath()
+    s.extra.e1 = e1
+    s.extra.e2 = e2
+    s.extra.tank = tank
+    root.add(e1.root, e2.root, tank.root)
+    for (let i = 0; i < 6; i++) {
+      const c = new Mesh(new BoxGeometry(0.4, 0.3, 0.4), new MeshBasicMaterial({ color: i % 2 ? '#ffd166' : '#b8b0e0' }))
+      c.visible = false
+      s.extra[`c${i}`] = c
+      root.add(c)
+    }
+  },
+  frame: (s) => {
+    const { t, mp, dp } = s
+    Object.assign(mp, restPose(), { time: t })
+    s.place((s.extra.e1 as Rig).root, tmpA.set(16, 0, 20), 0.6)
+    s.place((s.extra.e2 as Rig).root, tmpA.set(27, 0, 15), -1.2)
+    poseEnforcer(s.extra.e1 as Rig, { time: t, stride: 0, speed: 0, power: 0, aimYaw: 0, aimPitch: 0, recoilL: 0, recoilR: 0, deadT: 5 })
+    poseEnforcer(s.extra.e2 as Rig, { time: t, stride: 0, speed: 0, power: 0, aimYaw: 0, aimPitch: 0, recoilL: 0, recoilR: 0, deadT: 5 })
+    s.place((s.extra.tank as Rig).root, tmpA.set(22, 0, 31), 2.4)
+    poseGoliath(s.extra.tank as Rig, { time: t, turretYaw: 0.6, barrelPitch: 0, recoil: 0, rumble: 0, dead: 1 })
+    // The mech strips the walker, then the tank.
+    const p = track([[0, 18, 0, 22], [2.6, 18, 0, 22], [4, 21, 0, 27.5], [10, 21, 0, 27.5]], t, tmpA)
+    s.place(s.mech.root, p, t < 3 ? Math.atan2(16 - 18, 20 - 22) : Math.atan2(22 - 21, 31 - 27.5))
+    mp.loot = between(t, 0.4, 2.6) || between(t, 4.2, 6.4) ? 1 : 0
+    mp.speed = between(t, 2.6, 4) ? 0.6 : 0
+    mp.stride = t * 6
+    if (Math.floor(t * 4) !== Math.floor((t - s.dt) * 4) && mp.loot > 0) s.fx.sparks(p.x, 1, p.z + 1, '#ffb14a', 5, 3, 0.2)
+    // The dog's board hovers by, takes the haul, and lifts off home.
+    const d = track([[0, 13, 1.2, 26], [7.8, 13, 1.2, 26], [10, 4, 22, 60]], t, tmpB)
+    dp.time = t
+    dp.fold = 1
+    dp.thrust = t > 7.8 ? 1 : 0.4
+    s.place(s.dog.root, d, Math.PI)
+    for (let i = 0; i < 6; i++) {
+      const c = s.extra[`c${i}`] as Mesh
+      const a = 5.2 + i * 0.35
+      c.visible = t >= a && t < a + 0.7
+      if (!c.visible) continue
+      const k = span(t, a, a + 0.7)
+      c.position.set(21 + (13 - 21) * k, 1 + Math.sin(k * Math.PI) * 2.4 + 0.2 * k, 27.5 + (26 - 27.5) * k)
+      c.rotation.set(k * 6, k * 4, 0)
+    }
+    s.once('loot', 0.5, () => sfx('loot'))
+    s.once('lift', 7.9, () => sfx('dropIn'))
+    const ang = 0.4 + t * 0.09
+    s.look(tmpA.set(20 + Math.sin(ang) * 15, 6, 26 + Math.cos(ang) * 15), tmpB.set(19, 1, 25))
+    poseMech(s.mech, mp)
+    poseRobodog(s.dog, dp)
+  }
+}
+
+// ─── A fortress falls: the Bastion (the Warden flees) and the Foundry ────────
+
+const FALL_BASTION: Script = {
+  theme: 'dusk',
+  music: 'tension',
+  stage: (b) => { b.fill(4, 4, 23, 19, 8) },
+  cast: (s, root) => {
+    const warden = buildGuard(true, false)
+    const ship = buildDropship()
+    s.extra.warden = warden
+    s.extra.ship = ship
+    root.add(warden.root, ship.group)
+  },
+  frame: (s) => {
+    const { t, mp, dp } = s
+    Object.assign(mp, restPose(), { time: t })
+    const warden = s.extra.warden as Rig
+    const ship = s.extra.ship as Dropship
+    // The Warden runs for the airship moored off the roof's edge, and is gone.
+    const w = track([[0, 22, 8, 22], [4.6, 44, 8, 22]], t, tmpA)
+    warden.root.visible = t < 5
+    s.place(warden.root, w, Math.PI / 2)
+    poseGuard(warden, { ...restGuardPose(), time: t, speed: 1, stride: t * 12, proud: true })
+    const sh = track([[0, 51, 7.4, 22], [5.6, 51, 7.4, 22], [8, 60, 14, 18], [16, 320, 70, -120]], t, tmpB)
+    s.place(ship.group, sh, Math.PI / 2 + (t > 6 ? -0.5 * span(t, 6, 9) : 0))
+    s.once('lift', 5.6, () => sfx('dropIn'))
+    // The mech and the dog watch from the roof.
+    s.place(s.mech.root, tmpC.set(16, 8, 26), Math.PI / 2 - 0.3 * span(t, 6, 14))
+    dp.time = t
+    dp.fold = 0
+    s.place(s.dog.root, tmpC.set(14.6, 8, 27.4), Math.PI / 2)
+    // Far off: the Foundry's furnace smoke on the horizon.
+    if (Math.floor(t * 3) !== Math.floor((t - s.dt) * 3)) {
+      s.fx.emit({ x: 420 + Math.random() * 10, y: 40, z: -260, vx: 1, vy: 6, vz: 0, color: '#4a3a5e', size: 30, sizeEnd: 70, life: 6, drag: 0.1 })
+    }
+    if (t < 7) s.look(tmpA.set(30, 14, 44), tmpB.set(40, 8.5, 22))
+    else s.look(track([[7, 8, 11.5, 31], [16, 6, 10.8, 32]], t, tmpA), tmpB.set(sh.x, sh.y + 1, sh.z), 52 - 14 * span(t, 9, 16))
+    poseMech(s.mech, mp)
+    poseRobodog(s.dog, dp)
+  }
+}
+
+const FALL_FOUNDRY: Script = {
+  theme: 'foundry',
+  music: 'tension',
+  stage: (b) => {
+    b.ground(0, 0, 31, 23, 0)
+    b.fill(0, 0, 31, 1, 12).fill(0, 0, 1, 23, 12)
+    b.deck(4, 6, 27, 18)
+  },
+  cast: (s, root) => {
+    const hull = buildGoliath()
+    const ship = buildDropship()
+    ship.group.scale.setScalar(1.9)
+    s.extra.hull = hull
+    s.extra.ship = ship
+    root.add(hull.root, ship.group)
+    const mat = makeFlameMaterial({ core: '#fff1b0', mid: '#ff8a3d', edge: '#b2203a' })
+    for (let i = 0; i < 3; i++) {
+      const f = new Mesh(new CylinderGeometry(0.4, 1.6, 6, 14, 1, true), i === 0 ? mat : mat.clone())
+      f.position.set(12 + i * 12, 3, 6)
+      s.extra[`f${i}`] = f
+      root.add(f)
+    }
+    const cable = new Mesh(new CylinderGeometry(0.06, 0.06, 1, 6), new MeshBasicMaterial({ color: '#ffd166', toneMapped: false }))
+    s.extra.cable = cable
+    root.add(cable)
+  },
+  frame: (s) => {
+    const { t, mp, dp } = s
+    Object.assign(mp, restPose(), { time: t })
+    // The furnaces go cold, one by one.
+    for (let i = 0; i < 3; i++) {
+      const f = s.extra[`f${i}`] as Mesh
+      const power = 1 - span(t, 1.5 + i * 2, 3 + i * 2)
+      setFlame(f.material as never, power, t)
+      f.visible = power > 0.02
+      if (Math.abs(t - (3 + i * 2)) < s.dt) s.fx.sparks(f.position.x, 1, f.position.z, '#ff9a3d', 18, 4, 0.3)
+    }
+    // The last hull, half cast, is craned onto the cargo ship, which leaves.
+    const hull = s.extra.hull as Rig
+    const sh = track([[0, 48, 6, 26], [12, 48, 6, 26], [16, 160, 2, 60]], t, tmpB)
+    const h = track([[0, 22, 0, 20], [6, 22, 0, 20], [9, 22, 9, 20], [11, 48, 9, 26], [12, 48, 7.6, 26], [16, sh.x, sh.y + 1.6, sh.z]], t, tmpA)
+    s.place(hull.root, h, -Math.PI / 2)
+    poseGoliath(hull, { time: t, turretYaw: 0, barrelPitch: 0, recoil: 0, rumble: 0, dead: 0.35 })
+    const cable = s.extra.cable as Mesh
+    cable.visible = between(t, 6, 12)
+    s.line(cable, tmpC.set(h.x, 20, h.z), new Vector3(h.x, h.y + 3, h.z))
+    s.place((s.extra.ship as Dropship).group, sh, -Math.PI / 2)
+    s.once('crane', 6, () => sfx('hookThrow'))
+    s.place(s.mech.root, tmpC.set(10, 0, 30), Math.PI * 0.6)
+    dp.time = t
+    s.place(s.dog.root, tmpC.set(8.6, 0, 31), Math.PI * 0.6)
+    if (t < 7) s.look(tmpA.set(24, 7, 40), tmpB.set(24, 3, 8))
+    else s.look(tmpA.set(28, 11, 44), tmpB.set(h.x, h.y + 2, h.z))
+    poseMech(s.mech, mp)
+    poseRobodog(s.dog, dp)
+  }
+}
+
+// ─── Outro: the flagship goes down, the mech flies home (about 40 s) ────────
+
+const OUTRO: Script = {
+  theme: 'harbour',
+  music: 'finale',
+  stage: (b) => {
+    b.ground(0, 8, 29, 23, 0)
+    b.deck(0, 8, 29, 9, true)
+  },
+  cast: (s, root) => {
+    const ship = buildDropship()
+    ship.group.scale.setScalar(3.2)
+    const warden = buildGuard(true, true)
+    const pad = new Mesh(new CylinderGeometry(4.2, 4.6, 0.5, 6), new MeshBasicMaterial({ color: '#7a6fc4' }))
+    const rim = new Mesh(new CylinderGeometry(4.3, 4.3, 0.1, 6, 1, true), new MeshBasicMaterial({ color: '#5fe9ff', toneMapped: false }))
+    pad.add(rim)
+    s.extra.ship = ship
+    s.extra.warden = warden
+    s.extra.pad = pad
+    s.extra.rim = rim
+    root.add(ship.group, warden.root, pad)
+  },
+  frame: (s) => {
+    const { t, mp, dp } = s
+    Object.assign(mp, restPose(), { time: t })
+    const ship = s.extra.ship as Dropship
+    const warden = s.extra.warden as Rig
+    // The flagship breaks loose and sinks into the cloud, its Warden aboard.
+    const sp = track([[0, 32, 4, 6], [5, 32, 3.5, 6], [14, 38, -40, -6]], t, tmpA)
+    s.place(ship.group, sp, Math.PI / 2)
+    ship.group.rotation.z = 0.5 * span(t, 5, 14)
+    warden.root.visible = t < 13
+    s.place(warden.root, tmpB.set(sp.x, sp.y + 6.6, sp.z), Math.PI)
+    poseGuard(warden, { ...restGuardPose(), time: t, startle: t > 3 ? 1 - span(t, 3, 4) : 0, proud: true })
+    s.once('creak', 3, () => sfx('explode'))
+    // Scrap rains on the quay.
+    if (between(t, 2, 14) && Math.floor(t * 10) !== Math.floor((t - s.dt) * 10)) {
+      s.fx.emit({ x: 10 + Math.random() * 40, y: 22, z: 20 + Math.random() * 20, vx: 0, vy: -6, vz: 0, color: '#c9c1ee', size: 0.4, sizeEnd: 0.3, life: 3, drag: 0, gravity: 4 } as never)
+    }
+    // The dog unfolds its board; the mech steps on; home.
+    const flight = track([[0, 22, 0, 34], [20, 22, 0, 34], [24, 10, 18, 10], [30, -40, 30, -70], [34, -96, 12.6, -100], [40, -96, 12.6, -100]], t, tmpC)
+    const onBoard = t >= 20
+    dp.time = t
+    dp.fold = t < 14 ? 0 : span(t, 14, 16)
+    dp.thrust = onBoard ? 1 : dp.fold * 0.5
+    s.place(s.dog.root, onBoard ? tmpB.set(flight.x, flight.y + BOARD_HOVER, flight.z) : tmpB.set(20.6, t < 16 ? 0 : BOARD_HOVER, 34), onBoard ? Math.PI * 1.2 : Math.PI / 2)
+    s.place(s.mech.root, onBoard ? tmpA.set(flight.x, flight.y + BOARD_HOVER, flight.z) : tmpA.set(22, 0, 34), onBoard ? Math.PI * 1.2 : -Math.PI / 2)
+    mp.crouch = onBoard && t < 34 ? 1 : 0
+    mp.air = between(t, 19.6, 20.2) ? 1 : 0
+    // The Command Base, lit as they land.
+    const pad = s.extra.pad as Mesh
+    pad.position.set(-96, 12, -100)
+    ;(s.extra.rim as Mesh).visible = t > 34.6
+    s.once('home', 34.6, () => sfx('medal'))
+    if (t < 14) s.look(tmpB.set(12, 6, 44), tmpA.set(sp.x, sp.y + 4, sp.z))
+    else if (t < 20) s.look(tmpB.set(14, 3, 42), tmpA.set(21, 1, 34))
+    else if (t < 36) s.look(tmpB.set(flight.x + 8, flight.y + 4, flight.z + 9), tmpA.set(flight.x, flight.y + 1, flight.z))
+    else s.look(tmpB.set(-84, 18 + (t - 36) * 2, -84), tmpA.set(-130, 26, -150))
+    poseMech(s.mech, mp)
+    poseRobodog(s.dog, dp)
+  }
+}
+
+const SCRIPTS: Readonly<Record<CinemaId, Script>> = {
+  intro: INTRO, salvage: SALVAGE, fallBastion: FALL_BASTION, fallFoundry: FALL_FOUNDRY, outro: OUTRO
+}
+
+/** A story scene as a mode: build it, push it over the scene that is up, await `done`. */
+export class Cinema implements GameMode {
+  readonly scene = newScene()
+  readonly camera = new PerspectiveCamera(50, 1, 0.1, 1400)
+  /** Resolves when the scene ends, or is skipped. */
+  readonly done: Promise<void>
+  private finish!: () => void
+  private over = false
+  private stage!: Stage
+  private script: Script
+  private sky!: Sky
+  private mesh!: FortressMesh
+  private root = new Group()
+  readonly length: number
+
+  private constructor(readonly id: CinemaId) {
+    this.script = SCRIPTS[id]
+    this.length = CINEMA_LENGTH[id]
+    this.done = new Promise((r) => { this.finish = r })
+  }
+
+  /** `particleMap`: the sparks' sprite (the tests pass a plain texture: there is no canvas there). */
+  static async create(id: CinemaId, slice: Slice = noSlice, particleMap?: Texture): Promise<Cinema> {
+    const c = new Cinema(id)
+    const s = c.script
+    const look = themeOf(s.theme)
+    const b = new FortressBuilder(`cinema-${id}`, 40, 24)
+    s.stage(b)
+    // The builder wants a way in and out; a scene has neither.
+    let ix = 0
+    let iz = 0
+    for (let z = 0; z < 24 && !ix; z++) for (let x = 0; x < 40; x++) if (b.heightOf(x, z) > -999) { ix = x; iz = z; break }
+    b.insert(ix, iz, 0).extract(ix, iz)
+    const fort: Fortress = b.build()
+    c.sky = buildSky(c.scene, new Vector3(40, 0, 24), look.sky, { w: 40 * CELL, d: 24 * CELL })
+    c.mesh = await buildFortressMesh(fort, look.mesh, slice)
+    c.scene.add(c.mesh.group, c.root)
+    const mech = buildMech()
+    const dog = buildRobodog()
+    const fx = particleMap ? new Particles(600, particleMap) : new Particles(600)
+    c.root.add(mech.root, dog.root, fx.points)
+    const fired = new Set<string>()
+    const st: Stage = {
+      t: 0, dt: 0, cam: c.camera, mech, mp: restPose(), dog, dp: restDogPose(), fx, extra: {}, fired,
+      once: (key, at, f) => { if (st.t >= at && !fired.has(key)) { fired.add(key); f() } },
+      line: (m, a, bb) => {
+        const len = Math.max(0.01, a.distanceTo(bb))
+        m.position.copy(a).add(bb).multiplyScalar(0.5)
+        m.scale.set(1, len, 1)
+        m.quaternion.copy(new Quaternion().setFromUnitVectors(UP, tmpA.subVectors(bb, a).normalize()))
+      },
+      look: (pos, at, fov = 50) => {
+        c.camera.position.copy(pos)
+        c.camera.lookAt(at)
+        if (Math.abs(c.camera.fov - fov) > 0.01) { c.camera.fov = fov; c.camera.updateProjectionMatrix() }
+      },
+      place: (o, p, yaw) => { o.position.copy(p); if (yaw !== undefined) o.rotation.y = yaw }
+    }
+    c.stage = st
+    s.cast(st, c.root)
+    s.frame(st)
+    return c
+  }
+
+  get music(): TrackId { return this.script.music }
+  get time(): number { return this.stage.t }
+
+  enter(): void { this.frame(0) }
+
+  /** The scene runs on the frame's clock (`render`): nothing to step here. */
+  update(): void {}
+
+  private frame(dt: number): void {
+    const st = this.stage
+    st.dt = dt
+    st.t = Math.min(this.length, st.t + dt)
+    this.script.frame(st)
+    st.fx.update(dt)
+    this.sky.update(this.camera.position, st.t)
+    if (st.t >= this.length) this.end()
+  }
+
+  /** For the tests: run the scene to a moment. */
+  seek(t: number): void {
+    const step = 1 / 30
+    while (this.stage.t < t - 1e-6 && !this.over) this.frame(Math.min(step, t - this.stage.t))
+  }
+
+  /** Jump to the end (the skip button, or Space held). */
+  skip(): void { this.end() }
+
+  private end(): void {
+    if (this.over) return
+    this.over = true
+    this.finish()
+  }
+
+  render(_alpha: number, dt: number): void {
+    if (!this.over) this.frame(Math.min(0.1, dt))
+    const r = getRenderer()
+    r.info.reset()
+    r.render(this.scene, this.camera)
+  }
+
+  dispose(): void {
+    this.mesh.dispose()
+    this.sky.dispose()
+    this.root.traverse((o) => {
+      const m = o as Mesh
+      if (m.geometry) m.geometry.dispose()
+    })
+  }
+}

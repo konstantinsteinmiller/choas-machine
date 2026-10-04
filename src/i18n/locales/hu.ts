@@ -25,6 +25,13 @@ export default {
     'unmute': 'Hang be',
     'skip': 'Kihagyás'
   },
+  'cine': {
+    'intro': 'The drop',
+    'salvage': 'The haul',
+    'fallBastion': 'The Bastion falls',
+    'fallFoundry': 'The Foundry goes cold',
+    'outro': 'Home'
+  },
   'fortress': {
     'bastion': 'Bastion',
     'foundry': 'Foundry',
@@ -88,6 +95,7 @@ export default {
     'locked': 'Előbb teljesítsd a(z) {n}. szintet',
     'fortress': 'Fortress',
     'fortressLocked': 'Take the {name} at threat {n} first',
+    'story': 'Story',
     'best': 'Legjobb pontszám',
     'armory': 'Fegyvertár',
     'chassis': 'Alvázműhely',

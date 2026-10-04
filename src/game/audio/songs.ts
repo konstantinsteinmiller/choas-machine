@@ -20,7 +20,7 @@ import { mulberry32, type Rng } from '../world/rng'
  * mutes. The sequencer (`music.ts`) loops each and cross-fades between them.
  */
 
-export type TrackId = 'base' | 'stealth' | 'chaos'
+export type TrackId = 'base' | 'stealth' | 'chaos' | 'hero' | 'tension' | 'finale'
 export type SongId = TrackId
 
 type Inst =
@@ -1051,6 +1051,94 @@ const stealth = (): Song => {
   }
 }
 
+// ─── The story's cues (round 4, #100) ───────────────────────────────────────
+// Three short cues for the cinematics, mixed soft: leads low-passed near
+// 7 kHz, the 2-5 kHz band left to the effects, under the base theme in level.
+
+interface CueSpec {
+  id: TrackId
+  bpm: number
+  chords: Record<string, [string[], string]>
+  prog: string
+  mel: readonly string[]
+  lead: Inst
+  seed: number
+  /** 0 calm … 1 driving: the drums and the arpeggio's density. */
+  drive: number
+  gain: number
+}
+
+const cue = (c: CueSpec): Song => {
+  const prog = c.prog.split(/\s+/)
+  const bars = prog.length
+  const S = new Score(bars)
+  const rng = mulberry32(c.seed)
+  for (let bar = 0; bar < bars; bar++) {
+    const [tones, rootName] = c.chords[prog[bar]!]!
+    const t = tones.map(note)
+    const root = note(rootName)
+    const lift = bar >= bars / 2 ? 1 : 0
+    for (const m of t) S.add(bar, 0, 'str', m, 16, 0.5 + 0.15 * lift)
+    S.add(bar, 0, 'bass', root, 8, 0.75)
+    S.add(bar, 8, 'bass', root + (c.drive > 0.5 ? 12 : 7), 6, 0.55)
+    // The arpeggio: denser as the cue drives.
+    for (let st = 0; st < 16; st += 2) {
+      if (rng() > 0.35 + c.drive * 0.6) continue
+      S.add(bar, st, 'pluck', t[(st / 2) % 3]! + 12, 2, jitter(rng, 0.34 + 0.1 * lift), 0.3)
+    }
+    // Drums: a taiko pulse for the tension, a kick and snare for the hero, none for the finale.
+    if (c.drive >= 0.8) { S.add(bar, 0, 'kick', 0, 2, 0.8); S.add(bar, 8, 'kick', 0, 2, 0.7); S.add(bar, 4, 'snare', 0, 2, 0.55); S.add(bar, 12, 'snare', 0, 2, 0.6) }
+    else if (c.drive >= 0.4) { S.add(bar, 0, 'taiko', 0, 4, 0.7); if (bar % 2 === 1) S.add(bar, 10, 'taiko', 0, 4, 0.5) }
+    const m = c.mel[bar % c.mel.length]
+    if (m && (bar >= 2 || c.drive < 0.4)) S.line(bar, c.lead, m, 0.5 + 0.12 * lift)
+    if (bar === bars - 1) S.add(bar, 0, 'riser', 0, 16, 0.25)
+    if (bar === 0) S.add(bar, 0, 'crash', 0, 8, 0.35)
+  }
+  return {
+    id: c.id,
+    bpm: c.bpm,
+    bars,
+    loopBar: 0,
+    swing: 0,
+    gain: c.gain,
+    reverb: { seconds: 3, decay: 2.4 },
+    chans: {
+      str: { send: 0.5, lp: 3200 },
+      bass: { lp: 900 },
+      pluck: { send: 0.4, pan: 0.2, lp: 2600 },
+      lead: { send: 0.45, lp: 7000 },
+      brass: { send: 0.4, lp: 7000 },
+      bell: { send: 0.6, pan: -0.2, lp: 7000 },
+      kick: {}, snare: { send: 0.2 }, taiko: { send: 0.3 },
+      crash: { send: 0.4, lp: 7000 }, riser: { send: 0.5 }
+    },
+    steps: S.steps
+  }
+}
+
+const HERO_CH: Record<string, [string[], string]> = {
+  Dm: [['D4', 'F4', 'A4'], 'D2'], Bb: [['D4', 'F4', 'Bb4'], 'Bb1'], F: [['C4', 'F4', 'A4'], 'F2'], C: [['C4', 'E4', 'G4'], 'C2'], A: [['C#4', 'E4', 'A4'], 'A1']
+}
+/** The hero theme: the intro's showcase, 124 BPM, D minor, rising. */
+const hero = (): Song => cue({
+  id: 'hero', bpm: 124, chords: HERO_CH, prog: 'Dm Bb F C Dm Bb F A Dm Bb F C Bb C Dm Dm', lead: 'brass', seed: 911, drive: 0.9, gain: 0.58,
+  mel: ['D5:0:6 F5:6:2 A5:8:8', 'G5:0:4 F5:4:4 D5:8:8', 'C5:0:6 F5:6:2 A5:8:8', 'G5:0:12 E5:12:4']
+})
+/** Tension: a fortress falls, 92 BPM, E minor, a taiko pulse. */
+const tension = (): Song => cue({
+  id: 'tension', bpm: 92,
+  chords: { Em: [['E3', 'G3', 'B3'], 'E1'], C: [['E3', 'G3', 'C4'], 'C2'], Am: [['E3', 'A3', 'C4'], 'A1'], B: [['D#3', 'F#3', 'B3'], 'B1'] },
+  prog: 'Em Em C C Am Am B B Em Em C C Am B Em Em', lead: 'bell', seed: 421, drive: 0.5, gain: 0.7,
+  mel: ['B4:0:8 G4:8:8', '', 'C5:0:8 B4:8:8', '', 'A4:0:12', '', 'D#5:0:8 B4:8:8', '']
+})
+/** The warm finale: the outro, 84 BPM, F major, no drums. */
+const finale = (): Song => cue({
+  id: 'finale', bpm: 84,
+  chords: { F: [['F3', 'A3', 'C4'], 'F1'], C: [['E3', 'G3', 'C4'], 'C2'], Dm: [['D3', 'F3', 'A3'], 'D2'], Bb: [['D3', 'F3', 'Bb3'], 'Bb1'] },
+  prog: 'F C Dm Bb F C Bb C F C Dm Bb F Bb C F', lead: 'lead', seed: 77, drive: 0.2, gain: 0.72,
+  mel: ['A4:0:8 C5:8:8', 'G4:0:12 E4:12:4', 'F4:0:6 A4:6:2 D5:8:8', 'D5:0:8 C5:8:8']
+})
+
 // ─── Registry ───────────────────────────────────────────────────────────────
 
 const cache = new Map<SongId, Song>()
@@ -1059,7 +1147,8 @@ const cache = new Map<SongId, Song>()
 export const getSong = (id: SongId): Song => {
   const hit = cache.get(id)
   if (hit) return hit
-  const s = id === 'base' ? drift() : id === 'chaos' ? boss() : stealth()
+  const s = id === 'base' ? drift() : id === 'chaos' ? boss()
+    : id === 'hero' ? hero() : id === 'tension' ? tension() : id === 'finale' ? finale() : stealth()
   cache.set(id, s)
   return s
 }

@@ -25,6 +25,13 @@ export default {
     'unmute': 'Slå på lyd',
     'skip': 'Hopp over'
   },
+  'cine': {
+    'intro': 'The drop',
+    'salvage': 'The haul',
+    'fallBastion': 'The Bastion falls',
+    'fallFoundry': 'The Foundry goes cold',
+    'outro': 'Home'
+  },
   'fortress': {
     'bastion': 'Bastion',
     'foundry': 'Foundry',
@@ -88,6 +95,7 @@ export default {
     'locked': 'Fullfør nivå {n} først',
     'fortress': 'Fortress',
     'fortressLocked': 'Take the {name} at threat {n} first',
+    'story': 'Story',
     'best': 'Beste poengsum',
     'armory': 'Våpenlager',
     'chassis': 'Chassisrom',

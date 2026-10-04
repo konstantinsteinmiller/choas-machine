@@ -6,7 +6,8 @@
     div.hud-layer
       MissionHud(v-if="flow.screen === 'mission' && (hud.phase === 'play' || hud.phase === 'dead')" v-show="!hud.cine" @pause="openPause")
       CineBars
-      BaseHud(v-if="flow.screen === 'base'")
+      CinemaSkip
+      BaseHud(v-if="flow.screen === 'base' && hud.phase !== 'cinema'")
     //- After a pause or an ad the mouse is free, and a browser only captures
     //- it again on a click: the run waits under this veil for one.
     button.relock(
@@ -33,6 +34,7 @@ import { input, inputClock } from '@/game/engine/inputState'
 import { loadKeyboardLayout } from '@/game/engine/keyLabels'
 import { actionForCode } from '@/game/engine/keyBindings'
 import { adoptBootMode } from '@/game/boot'
+import CinemaSkip from '@/components/hud/CinemaSkip.vue'
 import { flow } from '@/game/flow'
 import { hud } from '@/game/state/hud'
 import { emit as busEmit } from '@/game/bus'

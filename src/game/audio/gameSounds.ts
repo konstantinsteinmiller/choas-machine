@@ -145,6 +145,8 @@ export const installGameSounds = (): void => {
 
   // The music follows the place: stealth on the way in, synthwave at home.
   watch(() => [flow.screen, hud.phase] as const, ([screen, phase]) => {
+    // A story scene brings its own cue and puts the music back after itself.
+    if (phase === 'cinema') return
     if (screen === 'base') setMusicTrack('base')
     else if (screen === 'mission' && phase === 'intro') {
       setMusicTrack('stealth')

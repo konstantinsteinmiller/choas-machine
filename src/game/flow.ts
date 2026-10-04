@@ -1,8 +1,11 @@
 import { reactive } from 'vue'
 import { app, type GameMode } from './engine/app'
-import { setPhase } from './state/hud'
-import { isFreshProfile, profile, saveProfile } from './state/profile'
-import { bankDefeat, bankMission, campaignScore, fortressOpen, highestCleared, unlockedLevel } from './state/progress'
+import { hud, setPhase } from './state/hud'
+import { isFreshProfile, markSeen, profile, saveProfile } from './state/profile'
+import { bankDefeat, bankMission, campaignScore, fortressOpen, highestCleared, levelKey, unlockedLevel } from './state/progress'
+import { cinemaAfterClear, seenKey, type CinemaId } from './story/cinemaIds'
+import { currentMusicTrack, setMusicTrack } from '@/use/useSound'
+import type { TrackId } from './audio/songs'
 import { reportRun } from '@/use/useLeaderboard'
 import { showMidgameAd } from '@/use/useAds'
 import { canShowInterstitial, markInterstitialShown } from '@/use/useAdGate'
@@ -51,7 +54,9 @@ export const flow = reactive({
   /** The next mission resumes from `checkpoint`. */
   resume: false,
   /** The mission being built (or played) is the training ground. */
-  training: false
+  training: false,
+  /** The story scene playing over everything (#100), or null. */
+  cinema: null as CinemaId | null
 })
 
 export interface Checkpoint {
@@ -66,9 +71,14 @@ export interface Checkpoint {
 
 type Progress = (p01: number) => void
 type ModeFactory = (onProgress: Progress) => Promise<GameMode>
+/** A story scene, as the flow sees it. */
+export type CinemaMode = GameMode & { done: Promise<void>; skip(): void; music: TrackId }
+
 interface Factories {
   mission: ModeFactory
   base: ModeFactory
+  /** A story scene (#100), built quickly, pushed over whatever is up. */
+  cinema?: (id: CinemaId) => Promise<CinemaMode>
   /** Warm a freshly built mode (shader compile) before it is shown. */
   prepare?: (mode: GameMode) => Promise<void>
 }
@@ -143,13 +153,44 @@ export const startTraining = async (): Promise<void> => {
   await swap('mission', factories.mission, 'intro')
 }
 
-/** The training ground is done (or skipped): straight on into the first raid. */
+/** The scene playing, while it plays. */
+let playing: CinemaMode | null = null
+
+/**
+ * Play a story scene over whatever is up (the mission, the base): pushed as a
+ * mode, the phase `cinema` (the HUD steps aside, the gameplay bracket closes),
+ * its own music; then everything as it was. Marks it seen.
+ */
+export const playCinema = async (id: CinemaId): Promise<void> => {
+  if (!factories?.cinema || playing) return
+  const mode = await factories.cinema(id)
+  const phase = hud.phase
+  const track = currentMusicTrack()
+  playing = mode
+  flow.cinema = id
+  app.pushMode(mode)
+  setPhase('cinema')
+  setMusicTrack(mode.music)
+  await mode.done
+  playing = null
+  flow.cinema = null
+  app.popMode()
+  setPhase(phase)
+  setMusicTrack(track)
+  markSeen(seenKey(id))
+}
+
+/** The skip button, or Space held. */
+export const skipCinema = (): void => { playing?.skip() }
+
+/** The training ground is done (or skipped): the intro, the first time (#100), then straight on into the first raid. */
 export const finishTraining = async (): Promise<void> => {
   if (!profile.seen.includes('training')) {
     profile.seen.push('training')
     saveProfile()
   }
   flow.training = false
+  if (!profile.seen.includes(seenKey('intro'))) await playCinema('intro')
   await startMission(1)
 }
 
@@ -161,8 +202,12 @@ export const goBase = async (): Promise<void> => {
 /** The mech is away: bank the run and show what it paid. */
 export const finishMission = (run: MissionResult): void => {
   flow.run = { ...run }
+  const first = (profile.fortresses[levelKey(flow.level, flow.fortress)]?.clears ?? 0) === 0
   flow.result = bankMission(run, flow.level, flow.fortress)
-  flow.modal = 'rewards'
+  // A first clear may earn a story scene (#103, #100), before the rewards.
+  const scene = cinemaAfterClear(flow.fortress, flow.level, first)
+  if (scene && !profile.seen.includes(seenKey(scene))) void playCinema(scene).then(() => { flow.modal = 'rewards' })
+  else flow.modal = 'rewards'
   // The board is a decoration on a game that works without it: the rewards
   // screen is already up before the request leaves, and nothing waits on it.
   void reportRun(campaignScore(), highestCleared(), { force: true })
