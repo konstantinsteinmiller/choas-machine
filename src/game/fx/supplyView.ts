@@ -1,6 +1,6 @@
-import { DynamicDrawUsage, Group, InstancedMesh, Matrix4, Quaternion, Vector3, type BufferGeometry, type Material } from 'three'
+import { DynamicDrawUsage, Group, InstancedMesh, Matrix4, Mesh, Quaternion, Vector3, type BufferGeometry, type Material } from 'three'
 import { buildAmmoCrate, buildAmmoPouch, buildFuelBarrel, buildRepairKit } from '../models/supplies'
-import { glowVC, toonVCInstanced } from '../models/toon'
+import { glowVC, toonVC, toonVCInstanced } from '../models/toon'
 import type { Supply, SupplyKind } from '../sim/supplies'
 import type { Barrel } from '../sim/barrels'
 
@@ -37,9 +37,23 @@ const _p = new Vector3()
 const _s = new Vector3()
 const UP = new Vector3(0, 1, 0)
 
+/** How long a picked-up supply takes to fly into its bar on the HUD (#111). */
+export const FLY_S = 0.65
+
+interface Flight {
+  supply: Supply
+  g: Group
+  t: number
+  from: Vector3
+}
+
 export class SupplyView {
   readonly group = new Group()
   private kinds: Record<SupplyKind | 'barrel', Kind>
+  /** Picked up, on their way into the HUD (#111). */
+  private flights: Flight[] = []
+  private flyLit = toonVC()
+  private flyGlow = glowVC()
 
   constructor(supplies: readonly Supply[], barrels: readonly Barrel[]) {
     const count = (k: SupplyKind): number => supplies.filter(s => s.kind === k).length
@@ -89,7 +103,45 @@ export class SupplyView {
     }
   }
 
+  /**
+   * A supply just picked up flies to its bar on the HUD (#111): up off the
+   * floor in an arc, toward `to` (a point in front of the camera over the
+   * bar), shrinking until it is gone inside it.
+   */
+  fly(s: Supply): void {
+    const k = this.kinds[s.kind]
+    const g = new Group()
+    g.add(new Mesh(k.lit.geometry, this.flyLit), new Mesh(k.glow.geometry, this.flyGlow))
+    g.position.set(s.x, s.y, s.z)
+    this.group.add(g)
+    this.flights.push({ supply: s, g, t: 0, from: new Vector3(s.x, s.y + 0.2, s.z) })
+  }
+
+  /** Move the flights on; `to` says where each kind's bar is in the world. Returns those that arrived. */
+  stepFlights(dt: number, to: (s: Supply) => Vector3): Supply[] {
+    const done: Supply[] = []
+    for (let i = this.flights.length - 1; i >= 0; i--) {
+      const f = this.flights[i]!
+      f.t += dt
+      const k = Math.min(1, f.t / FLY_S)
+      const e = k * k * (3 - 2 * k)
+      const end = to(f.supply)
+      f.g.position.lerpVectors(f.from, end, e)
+      f.g.position.y += Math.sin(k * Math.PI) * 0.9
+      f.g.rotation.y = k * 6
+      f.g.scale.setScalar(Math.max(0.02, 1 - 0.92 * e))
+      if (k >= 1) {
+        this.group.remove(f.g)
+        this.flights.splice(i, 1)
+        done.push(f.supply)
+      }
+    }
+    return done
+  }
+
   dispose(): void {
+    this.flyLit.dispose()
+    this.flyGlow.dispose()
     for (const k of Object.values(this.kinds)) {
       for (const g of k.geos) g.dispose()
       k.lit.dispose()

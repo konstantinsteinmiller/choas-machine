@@ -104,3 +104,24 @@ describe('exploding barrels (#78)', () => {
     expect(CELL).toBe(2)
   })
 })
+
+describe('a supply picked up flies into its bar (#111)', () => {
+  it('it leaves the floor, shrinks on its way, and arrives once', async () => {
+    const { SupplyView, FLY_S } = await import('@/game/fx/supplyView')
+    const { Vector3 } = await import('three')
+    const s = { kind: 'crate' as const, x: 2, y: 0, z: 2, taken: true }
+    const v = new SupplyView([s], [])
+    const before = v.group.children.length
+    v.fly(s)
+    expect(v.group.children.length).toBe(before + 1)
+    const to = new Vector3(0, 5, 0)
+    expect(v.stepFlights(FLY_S * 0.5, () => to)).toEqual([])
+    const flying = v.group.children[v.group.children.length - 1]!
+    expect(flying.position.y).toBeGreaterThan(0.5)
+    expect(flying.scale.x).toBeLessThan(1)
+    expect(v.stepFlights(FLY_S, () => to)).toEqual([s])
+    expect(v.group.children.length).toBe(before)
+    expect(v.stepFlights(FLY_S, () => to)).toEqual([])
+    v.dispose()
+  })
+})

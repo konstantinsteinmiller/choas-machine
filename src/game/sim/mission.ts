@@ -310,6 +310,7 @@ export class Mission implements GameMode {
   private flameMat = makeFlameMaterial({ core: '#fff4c2', mid: '#ff9a3d', edge: '#c8202f' })
   private lasers: Array<{ id: number; mesh: Mesh }> = []
   private muzzleTmp = new Vector3()
+  private flyTo = new Vector3()
   /** 0 the mech … 1 folded into its disguise (#111). */
   private morph = 0
   /** The board's way in to the perch (#105). */
@@ -2364,6 +2365,12 @@ export class Mission implements GameMode {
         const lesson = TRAINING_ROOMS[e.room]!.lesson
         if (lesson === 'rope') this.ropesLeft = Math.max(this.ropesLeft, this.loadout.ropes)
         if (lesson === 'burn') this.fuelLeft = Math.max(this.fuelLeft, this.loadout.fuel)
+        // The supply room (#111): everything is spent (the strip blinks dry), so the crate's refill shows.
+        if (lesson === 'supply') {
+          this.arsenal.sniperMag = 0
+          this.arsenal.sniperReserve = 0
+          this.arsenal.minigunBelt = 0
+        }
       }
     }
     // The demo's control: its glyph pulses while the ghost does it.
@@ -2544,12 +2551,35 @@ export class Mission implements GameMode {
     const p = this.player
     const s = supplyUnderfoot(this.supplies, p.x, p.y, p.z, this.arsenal, this.armor, this.loadout.rockets)
     if (!s) return
-    take(s, this.arsenal, this.armor, this.loadout.rockets)
+    // It is the mech's at once (nobody else takes it); what is in it lands
+    // when it has flown into its bar on the HUD (#111).
+    s.taken = true
     this.suppliesTaken++
-    if (s.kind === 'crate') this.fuelLeft = Math.min(this.loadout.fuel, this.fuelLeft + 2)
-    vital.armor = this.armor.hp / this.armor.max
+    this.supplyView.fly(s)
     this.fx.particles.sparks(s.x, s.y + 0.5, s.z, s.kind === 'kit' ? '#5dff9a' : '#ffd23f', 12, 3, 0.25)
     emit('pickup', { kind: s.kind })
+  }
+
+  /** A supply has flown into its bar: what is in it is the mech's now (#111). */
+  private landSupply(s: Supply): void {
+    take(s, this.arsenal, this.armor, this.loadout.rockets)
+    if (s.kind === 'crate') this.fuelLeft = Math.min(this.loadout.fuel, this.fuelLeft + 2)
+    vital.armor = this.armor.hp / this.armor.max
+    emit('supplyIn', { kind: s.kind })
+  }
+
+  /** A point a little in front of the camera that sits over a HUD element on screen (#111), or in front of the mech. */
+  private hudPoint(selector: string, out: Vector3): Vector3 {
+    const el = typeof document !== 'undefined' ? document.querySelector(selector) : null
+    const r = el?.getBoundingClientRect()
+    const cam = this.camera
+    if (!r || r.width === 0) return out.set(this.player.x, this.player.y + 1.4, this.player.z)
+    const w = window.innerWidth || 1
+    const h = window.innerHeight || 1
+    const nx = ((r.left + r.width / 2) / w) * 2 - 1
+    const ny = -(((r.top + r.height / 2) / h) * 2 - 1)
+    out.set(nx, ny, 0.5).unproject(cam).sub(cam.position).normalize().multiplyScalar(1.4).add(cam.position)
+    return out
   }
 
   /** A barrel lit by a round, a blast or a neighbour goes up (#78). */
@@ -2988,6 +3018,7 @@ export class Mission implements GameMode {
     this.stepTag(dt)
     this.stepDrag()
     this.supplyView.update(this.supplies, this.barrels, this.time)
+    for (const s of this.supplyView.stepFlights(dt, (s) => this.hudPoint(s.kind === 'kit' ? '[data-testid="armor"]' : '[data-testid="ammo"]', this.flyTo))) this.landSupply(s)
     for (let k = 0; k < this.beaconViews.length; k++) {
       const b = this.garrison.beacons[k]!
       poseBeacon(this.beaconViews[k]!, b.state, b.lit, this.time)

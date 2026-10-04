@@ -1,7 +1,7 @@
 <template lang="pug">
   //- What is left in the weapon in hand: rounds as pips, or the minigun's
   //- heat as a bar.
-  div.ammo-strip(:class="[`w-${hud.weapon}`, { reloading: hud.reloading, hot: hud.overheated, dry: hud.dry }]" data-testid="ammo")
+  div.ammo-strip(:class="[weaponClass, { reloading: hud.reloading, hot: hud.overheated, dry: hud.dry, loss: flash === 'loss', gain: flash === 'gain' }]" data-testid="ammo")
     GameIcon.glyph(:name="hud.weapon")
     div.load(v-if="hud.weapon !== 'minigun'")
       div.pips(role="meter" :aria-label="t('hud.ammo')" aria-valuemin="0" :aria-valuemax="capacity" :aria-valuenow="hud.ammo")
@@ -13,10 +13,12 @@
       div.heat-fill(ref="heat")
     //- What is carried besides (#76): the rifle's reserve, the mini-gun's belt.
     span.reserve(v-if="hud.reserve >= 0" :aria-label="t('hud.reserve', { n: hud.reserve })") {{ hud.reserve }}
+    //- What a supply brought (#111): it rises out of the bar and fades.
+    span.plus(v-if="plus > 0" :key="plusKey" aria-hidden="true") +{{ plus }}
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref } from 'vue'
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import GameIcon from '@/components/icons/GameIcon.vue'
 import { addHudTicker, gun, hud } from '@/game/state/hud'
@@ -29,6 +31,28 @@ const reload = ref<HTMLElement | null>(null)
 /** For the screen reader only: the bar itself is written by the ticker. */
 const heatNow = ref(0)
 let off: (() => void) | null = null
+const weaponClass = computed(() => 'w-' + hud.weapon)
+
+// Feedback (#111): a red flash for every round gone, a green one (and the
+// count) for every round a supply brings. A weapon swap shows nothing.
+const flash = ref<'' | 'loss' | 'gain'>('')
+const plus = ref(0)
+const plusKey = ref(0)
+let flashTimer: ReturnType<typeof setTimeout> | null = null
+const total = (): number => Math.max(0, hud.ammo) + Math.max(0, hud.reserve)
+let lastTotal = total()
+let lastWeapon = hud.weapon
+watch(() => [hud.ammo, hud.reserve, hud.weapon] as const, () => {
+  const now = total()
+  if (hud.weapon !== lastWeapon) { lastWeapon = hud.weapon; lastTotal = now; return }
+  const d = now - lastTotal
+  lastTotal = now
+  if (d === 0) return
+  flash.value = d > 0 ? 'gain' : 'loss'
+  if (d > 0) { plus.value = d; plusKey.value++ }
+  if (flashTimer) clearTimeout(flashTimer)
+  flashTimer = setTimeout(() => { flash.value = ''; plus.value = 0 }, d > 0 ? 900 : 220)
+})
 
 onMounted(() => {
   let last = -1
@@ -51,7 +75,7 @@ onMounted(() => {
     if (Math.abs(v * 100 - heatNow.value) >= 10) heatNow.value = Math.round(v * 100)
   })
 })
-onUnmounted(() => off?.())
+onUnmounted(() => { off?.(); if (flashTimer) clearTimeout(flashTimer) })
 </script>
 
 <style scoped lang="sass">
@@ -77,11 +101,47 @@ onUnmounted(() => off?.())
   &.hot
     border-color: var(--cm-danger)
     color: var(--cm-danger)
+  position: relative
+  transition: box-shadow 0.15s, border-color 0.15s
+  // A round gone: a red flash. Rounds in: a green glow, a moment longer.
+  &.loss
+    border-color: var(--cm-danger)
+    box-shadow: var(--cm-sticker), 0 0 0.9rem rgba(255, 64, 96, 0.85)
+  &.gain
+    border-color: #5dff9a
+    box-shadow: var(--cm-sticker), 0 0 1.2rem rgba(93, 255, 154, 0.9)
+    animation: ammo-gain 0.9s ease-out
   // Nothing left to fire: the strip blinks red until something is picked up.
   &.dry
     border-color: var(--cm-danger)
     color: var(--cm-danger)
     animation: ammo-dry 0.8s steps(2) infinite
+.plus
+  position: absolute
+  right: 0.4rem
+  bottom: 100%
+  color: #5dff9a
+  font-size: var(--cm-fs-s)
+  font-weight: bold
+  text-shadow: 0 0 0.4rem rgba(93, 255, 154, 0.9)
+  pointer-events: none
+  animation: ammo-plus 0.9s ease-out forwards
+@keyframes ammo-plus
+  from
+    transform: translateY(0.4rem)
+    opacity: 0
+  20%
+    opacity: 1
+  to
+    transform: translateY(-0.8rem)
+    opacity: 0
+@keyframes ammo-gain
+  0%
+    filter: brightness(1)
+  25%
+    filter: brightness(1.6)
+  100%
+    filter: brightness(1)
 .reserve
   font-size: var(--cm-fs-s)
   font-variant-numeric: tabular-nums
