@@ -1,12 +1,13 @@
-// R23b (#57, #58): the training ground. Ten rooms, one lesson each, a demo
-// that plays twice and again on request, gates that open on a lesson done.
+// R23b (#57, #58): the training ground. A room per lesson, a hologram demo
+// that loops until the lesson is done and plays from the start on request
+// (R42, #87), gates that open on a lesson done.
 
 import { describe, expect, it } from 'vitest'
 import {
   HOOK_WALL_H, LESSON_IDS, ROOM_WALL_H, TRAINING_ROOMS, buildTrainingGround, roomCell
 } from '@/game/data/fortresses/training'
 import {
-  DEMOS, DEMO_PLAYS, demoFrame, demoLength, doorOf, entryOf, lessonDone, makeTraining, replayDemo, roomAt, stepTraining,
+  DEMOS, demoFrame, demoLength, doorOf, entryOf, lessonDone, makeTraining, replayDemo, roomAt, stepTraining,
   type TrainingContext
 } from '@/game/sim/training'
 import { CELL, cellHeight, cellMid, findHoles, findPath, heightAt } from '@/game/world/grid'
@@ -14,7 +15,8 @@ import { GRAPPLE_MAX } from '@/game/sim/grapple'
 import { validateFortress } from '@/game/world/validate'
 
 const ctx = (x: number, z: number, more: Partial<TrainingContext> = {}): TrainingContext => ({
-  x, y: 0, z, bladeKills: 0, sniperKills: 0, rockets: 0, overheats: 0, zooms: 0, sabotaged: 0, piles: 0, ...more
+  x, y: 0, z, bladeKills: 0, sniperKills: 0, rockets: 0, overheats: 0, zooms: 0, sabotaged: 0, piles: 0,
+  supplies: 0, stocked: false, burns: 0, ropes: 0, ...more
 })
 
 describe('the layout', () => {
@@ -34,7 +36,13 @@ describe('the layout', () => {
   it('every room but the hook room and the last has a doorway on; the hook room\'s wall is one hook high', () => {
     for (let i = 0; i < TRAINING_ROOMS.length - 1; i++) {
       const r = TRAINING_ROOMS[i]!
-      if (r.lesson === 'hook') {
+      if (r.lesson === 'jump') {
+        // The jump is the way through: there is no way on foot.
+        const a = entryOf(i)
+        const d = doorOf(i)!
+        const c = (v: number): number => Math.floor(v / CELL)
+        expect(findPath(f.grid, c(a.x), c(a.z), c(d.x) + 1, c(d.z)).length).toBe(0)
+      } else if (r.lesson === 'hook') {
         expect(r.door).toBeNull()
         const [cx, cz] = [r.x1 + 1, r.z0 + 6]
         expect(cellHeight(f.grid, cx, cz)).toBe(HOOK_WALL_H)
@@ -58,12 +66,12 @@ describe('the layout', () => {
     expect(f.salvage).toHaveLength(1)
     expect(roomAt(f.salvage[0]!.x)).toBe(LESSON_IDS.indexOf('salvage'))
     expect(roomAt(f.beacons[0]!.x)).toBe(LESSON_IDS.indexOf('beacon'))
-    for (const p of f.posts) expect(LESSON_IDS[roomAt(p.x)]).toMatch(/cover|weapons|blade|decoy|box/)
+    for (const p of f.posts) expect(LESSON_IDS[roomAt(p.x)]).toMatch(/cover|weapons|blade|burn|decoy|box/)
   })
 })
 
 describe('the lessons', () => {
-  it('a room is entered once; its demo plays twice by itself, then not again until asked', () => {
+  it('a room is entered once; its hologram loops until the lesson is done, and plays from the start on request', () => {
     const t = makeTraining()
     const e = entryOf(0)
     const ev = stepTraining(t, ctx(e.x, e.z), 1 / 30)
@@ -76,7 +84,9 @@ describe('the lessons', () => {
       if (on && !was) plays++
       was = on
     }
-    expect(plays).toBe(DEMO_PLAYS)
+    // 30 s in a room whose demo is ~6 s: it went round again and again.
+    expect(plays).toBeGreaterThanOrEqual(3)
+    stepTraining(t, ctx(e.x, e.z), 1)
     expect(replayDemo(t)).toBe(true)
     expect(t.demoT).toBe(0)
   })
@@ -104,6 +114,54 @@ describe('the lessons', () => {
     expect(lessonDone(i, ctx(next.x, next.z), ctx(0, 0))).toBe(true)
     const here = entryOf(i)
     expect(lessonDone(i, ctx(here.x, here.z), ctx(0, 0))).toBe(false)
+  })
+
+  it('the round-4 rooms: a supply taken (or nothing wanted), a body burnt, a rope shot', () => {
+    const s = LESSON_IDS.indexOf('supply')
+    const d = doorOf(s)!
+    expect(lessonDone(s, ctx(0, 0, { supplies: 1 }), ctx(0, 0))).toBe(true)
+    expect(lessonDone(s, ctx(d.x - CELL, d.z), ctx(0, 0))).toBe(false)
+    expect(lessonDone(s, ctx(d.x - CELL, d.z, { stocked: true }), ctx(0, 0))).toBe(true)
+    expect(lessonDone(LESSON_IDS.indexOf('burn'), ctx(0, 0, { burns: 1 }), ctx(0, 0))).toBe(true)
+    expect(lessonDone(LESSON_IDS.indexOf('burn'), ctx(0, 0, { bladeKills: 1 }), ctx(0, 0))).toBe(false)
+    expect(lessonDone(LESSON_IDS.indexOf('rope'), ctx(0, 0, { ropes: 1 }), ctx(0, 0))).toBe(true)
+  })
+
+  it('the jump room gap is a jump wide; the rope room platform is in reach of a rope from the tower', async () => {
+    const { findRopeShot } = await import('@/game/sim/ropes')
+    const f = buildTrainingGround()
+    const r = LESSON_IDS.indexOf('rope')
+    const [tx, tz] = roomCell(r, 3, 7)
+    const [px, pz] = roomCell(r, 8, 7)
+    const shot = findRopeShot(f.grid, cellMid(tx), cellHeight(f.grid, tx, tz), cellMid(tz), cellMid(px), cellHeight(f.grid, px, pz), cellMid(pz), 1)
+    expect(shot).not.toBeNull()
+    const j = LESSON_IDS.indexOf('jump')
+    const [ax, az] = roomCell(j, 4, 7)
+    const [gx, gz] = roomCell(j, 5, 7)
+    const [bx, bz] = roomCell(j, 6, 7)
+    expect(cellHeight(f.grid, ax, az)).toBe(cellHeight(f.grid, bx, bz))
+    expect(cellHeight(f.grid, ax, az) - cellHeight(f.grid, gx, gz)).toBeGreaterThan(2)
+  })
+
+  it('the jump room can be crossed: a run and a jump from the first deck lands on the second; a walk falls in the pit', async () => {
+    const { makePlayer, stepPlayer } = await import('@/game/sim/player')
+    const f = buildTrainingGround()
+    const j = LESSON_IDS.indexOf('jump')
+    const [sx, sz] = roomCell(j, 2, 7)
+    const [ex] = roomCell(j, 4, 7)
+    const edge = (ex + 1) * CELL
+    for (const jump of [true, false]) {
+      const p = makePlayer(cellMid(sx), cellHeight(f.grid, sx, sz), cellMid(sz), Math.PI / 2)
+      let jumped = false
+      for (let k = 0; k < 240; k++) {
+        const go = jump && !jumped && p.x > edge - 0.5
+        if (go) jumped = true
+        stepPlayer(p, f.grid, { mx: 1, mz: 0, crouch: false, aiming: false, aimYaw: 0, sprint: false, jump: go }, 1 / 60)
+        if (p.mode === 'ground' && p.x > edge + CELL + 0.6) break
+      }
+      if (jump) expect(p.y).toBeCloseTo(cellHeight(f.grid, sx, sz), 1)
+      else expect(p.y).toBeLessThan(0.5)
+    }
   })
 
   it('what was done before the room was entered does not count', () => {
@@ -156,8 +214,9 @@ describe('seen in a training room (#67)', () => {
     const f = buildTrainingGround()
     const gar = makeGarrison(f, 1)
     // A sentry of an earlier room fighting the mech, now in a later room.
-    const other = gar.units.find(u => roomAt(u.homeX) === 1)!
-    const later = roomAt(gar.units.find(u => roomAt(u.homeX) >= 2)!.homeX)
+    const first = roomAt(gar.units[0]!.homeX)
+    const other = gar.units.find(u => roomAt(u.homeX) === first)!
+    const later = roomAt(gar.units.find(u => roomAt(u.homeX) > first)!.homeX)
     expect(other).toBeTruthy()
     other.state = 'combat'
     other.x = other.homeX - 2

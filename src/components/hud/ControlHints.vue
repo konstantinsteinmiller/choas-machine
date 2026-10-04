@@ -24,6 +24,12 @@
           KeyCap(v-else-if="h.id === 'sabotage'" action="act")
           KeyCap(v-else-if="h.id === 'grapple'" action="grapple")
           KeyCap(v-else-if="h.id === 'loot'" action="act")
+          KeyCap(v-else-if="h.id === 'jump'" action="jump")
+          KeyCap(v-else-if="h.id === 'rope'" action="rope")
+          KeyCap(v-else-if="h.id === 'burn'" action="burn")
+          //- A supply is picked up by walking over it: the stick, and the crate.
+          template(v-else-if="h.id === 'supply'")
+            KeyCap(action="forward")
           //- Where to go: the marker itself, small, with the mech walking to it.
           div.mini-pin(v-else-if="h.id === 'goal'")
             GameIcon(name="scrap")
@@ -67,20 +73,22 @@ const { t } = useI18n()
 /** What each control is FOR, as a picture beside its key. */
 const ICONS: Readonly<Record<HintId, GameIconName>> = {
   move: 'mech', look: 'eye', scope: 'scope', fire: 'sniper', crouch: 'crouch', blade: 'blade',
-  climb: 'up', cable: 'up', decoy: 'decoy', weapon: 'minigun', sprint: 'sprint', grapple: 'hook', loot: 'scrap', goal: 'mech', hide: 'box', sabotage: 'siren'
+  climb: 'up', cable: 'up', decoy: 'decoy', weapon: 'minigun', sprint: 'sprint', grapple: 'hook', loot: 'scrap', goal: 'mech', hide: 'box', sabotage: 'siren',
+  jump: 'up', rope: 'rope', burn: 'flame', supply: 'bolt'
 }
 /** Touch: where on the screen a gesture's finger is drawn. */
 const SPOTS: Readonly<Partial<Record<HintId, 'stick' | 'right'>>> = {
-  move: 'stick', climb: 'stick', cable: 'stick', look: 'right', scope: 'right', fire: 'right'
+  move: 'stick', climb: 'stick', cable: 'stick', look: 'right', scope: 'right', fire: 'right', supply: 'stick'
 }
 const FINGER: Readonly<Partial<Record<HintId, 'drag' | 'swipe' | 'hold' | 'release' | 'push'>>> = {
-  move: 'drag', climb: 'push', cable: 'push', look: 'swipe', scope: 'hold', fire: 'release'
+  move: 'drag', climb: 'push', cable: 'push', look: 'swipe', scope: 'hold', fire: 'release', supply: 'push'
 }
 /** The sentence a screen reader gets: the glyphs themselves carry no words. */
 const LABELS: Readonly<Record<HintId, string>> = {
   move: 'options.actions.forward', look: 'hint.look', scope: 'hint.scope', fire: 'hint.fire',
   crouch: 'hud.crouch', blade: 'hud.strike', climb: 'hint.climb', cable: 'hint.climb', decoy: 'hud.decoy', weapon: 'hud.weapons',
-  sprint: 'hud.sprint', grapple: 'hud.grapple', loot: 'hud.loot', goal: 'hud.objective.salvage', hide: 'hud.hide', sabotage: 'hud.sabotage'
+  sprint: 'hud.sprint', grapple: 'hud.grapple', loot: 'hud.loot', goal: 'hud.objective.salvage', hide: 'hud.hide', sabotage: 'hud.sabotage',
+  jump: 'hud.jump', rope: 'hud.rope', burn: 'hud.burn', supply: 'hud.ammo'
 }
 const label = (id: HintId): string => t(LABELS[id])
 

@@ -1,8 +1,15 @@
-import { AdditiveBlending, BoxGeometry, DoubleSide, Group, Mesh, MeshBasicMaterial, type Scene } from 'three'
+import {
+  AdditiveBlending, BoxGeometry, CircleGeometry, ConeGeometry, CylinderGeometry, DoubleSide, Group, Mesh, MeshBasicMaterial,
+  Quaternion, RingGeometry, Vector3, type Object3D, type Scene, type ShaderMaterial
+} from 'three'
 import { CELL, CellKind, cellMid, heightAt, VOID, type Grid } from '../world/grid'
 import type { Fortress } from '../world/fortress'
-import { ROOM_WALL_H, TRAINING_ROOMS } from '../data/fortresses/training'
+import { ROOM_WALL_H, ROPE_DECK_H, ROPE_TOWER_H, TRAINING_ROOMS } from '../data/fortresses/training'
 import { buildMech, poseMech, restPose, type MechPose } from '../models/mech'
+import { buildGuard, poseGuard, restGuardPose } from '../models/garrison'
+import { buildDisguise, disposeDisguise } from '../models/disguises'
+import { FREE_DISGUISE } from '../models/disguiseIds'
+import { makeHologramMaterial, setHologram } from '../fx/hologram'
 import type { Rig } from '../models/kit'
 import type { Garrison } from './garrison'
 import {
@@ -14,8 +21,12 @@ import type { HintId } from './coach'
 /**
  * ─── The training ground, on screen ──────────────────────────────────────────
  *
- * Draws what `training.ts` decides: the ghost that shows each lesson, and the
- * light gates in the doorways that open once a lesson is done. The gates
+ * Draws what `training.ts` decides: the hologram that shows each lesson (#87)
+ * over a projector disc by the way in, with the props its lesson needs (a
+ * rope, a body to burn, the disguise), looping until the lesson is done and
+ * then dissolving; and the light gates in the doorways that open once a
+ * lesson is done. The hologram is light, not a body: additive, scanlined, no
+ * depth, nothing to shoot (playtest 2: the old ghost looked like a target). The gates
  * stand in the grid too (a column of wall the height of the room's), raised
  * after the fortress mesh is built, so the floor under them is drawn and
  * nothing walks or sees through them until they open.
@@ -30,8 +41,22 @@ export class TrainingDirector {
   readonly state: Training = makeTraining()
   readonly group = new Group()
   private ghost: Rig
-  private ghostMat: MeshBasicMaterial
+  private holo: ShaderMaterial = makeHologramMaterial()
   private ghostPose: MechPose = restPose()
+  /** The lesson's props, in the same light. */
+  private body: Rig
+  private bodyPose = { ...restGuardPose(), deadT: 3, death: 'front' as const }
+  private disguise: Group
+  private rope: Mesh
+  private flame: Mesh
+  /** A projector disc by each room's way in. */
+  private discs: Mesh[] = []
+  private discMat = new MeshBasicMaterial({ color: GATE_COLOR, transparent: true, opacity: 0.5, blending: AdditiveBlending, depthWrite: false, toneMapped: false, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 })
+  private discGeo = new RingGeometry(0.55, 0.85, 32)
+  private discCoreGeo = new CircleGeometry(0.45, 24)
+  /** The last frame shown, held while the hologram dissolves after its lesson is done. */
+  private fade = 0
+  private fadeRoom = -1
   private gates: Array<Mesh | null> = []
   private gateMat = new MeshBasicMaterial({ color: GATE_COLOR, transparent: true, opacity: 0.32, blending: AdditiveBlending, depthWrite: false, side: DoubleSide, toneMapped: false })
   private barMat = new MeshBasicMaterial({ color: GATE_COLOR, transparent: true, opacity: 0.85, blending: AdditiveBlending, depthWrite: false, toneMapped: false })
@@ -42,11 +67,40 @@ export class TrainingDirector {
 
   constructor(scene: Scene, private fortress: Fortress, private gar: Garrison) {
     this.ghost = buildMech()
-    this.ghostMat = new MeshBasicMaterial({ color: '#8ff4ff', transparent: true, opacity: 0.45, blending: AdditiveBlending, depthWrite: false, toneMapped: false })
-    this.ghost.mesh.material = this.ghostMat
+    this.ghost.mesh.material = this.holo
     if (this.ghost.outline) this.ghost.outline.visible = false
     this.ghost.root.visible = false
     this.group.add(this.ghost.root)
+    this.body = buildGuard()
+    this.body.mesh.material = this.holo
+    if (this.body.outline) this.body.outline.visible = false
+    this.body.root.visible = false
+    this.group.add(this.body.root)
+    this.disguise = buildDisguise(FREE_DISGUISE)
+    this.disguise.traverse((o: Object3D) => { if ((o as Mesh).isMesh) (o as Mesh).material = this.holo })
+    this.disguise.visible = false
+    this.group.add(this.disguise)
+    this.rope = new Mesh(new CylinderGeometry(0.05, 0.05, 1, 6), this.holo)
+    this.rope.visible = false
+    this.group.add(this.rope)
+    const fg = new ConeGeometry(0.55, 1, 10, 1, true)
+    fg.translate(0, -0.5, 0)
+    this.flame = new Mesh(fg, this.holo)
+    this.flame.visible = false
+    this.group.add(this.flame)
+    TRAINING_ROOMS.forEach((r, i) => {
+      // The disc stands where the hologram starts, by the way in.
+      const e = entryOf(i)
+      const disc = new Mesh(this.discGeo, this.discMat)
+      disc.add(new Mesh(this.discCoreGeo, this.discMat))
+      disc.rotation.x = -Math.PI / 2
+      const h = heightAt(fortress.grid, e.x, e.z)
+      disc.position.set(e.x, (h === VOID ? 0 : h) + 0.04, e.z)
+      disc.renderOrder = 2
+      this.group.add(disc)
+      this.discs.push(disc)
+      void r
+    })
     const span = CELL * 2
     this.gateGeo = new BoxGeometry(0.12, 4.2, span)
     this.gateGeo.translate(0, 2.1, 0)
@@ -143,16 +197,28 @@ export class TrainingDirector {
     place(e.x, e.z, Math.PI / 2)
   }
 
-  /** Pose the ghost for this frame. */
+  /** Pose the hologram for this frame. */
   update(dt: number, time: number): void {
     const t = this.state
-    const on = t.demoT >= 0 && t.room >= 0
+    // A projector disc glows while its room's lesson is still to do.
+    this.discs.forEach((d, i) => { d.visible = !t.done[i] })
+    this.discMat.opacity = 0.4 + 0.15 * Math.sin(time * 5)
+    // Done: the figure dissolves where it stood.
+    if (t.room >= 0 && t.done[t.room] && this.fadeRoom === t.room) this.fade = Math.max(0, this.fade - dt * 1.4)
+    const playing = t.demoT >= 0 && t.room >= 0
+    if (playing) { this.fade = Math.min(1, this.fade + dt * 4); this.fadeRoom = t.room }
+    const on = (playing || this.fade > 0.01) && this.fadeRoom >= 0
     this.ghost.root.visible = on
-    if (!on) return
+    setHologram(this.holo, time, this.fade)
+    if (!on) {
+      this.body.root.visible = this.disguise.visible = this.rope.visible = this.flame.visible = false
+      return
+    }
+    if (!playing) return
     const f = demoFrame(t.room, t.demoT)
     const floor = heightAt(this.fortress.grid, f.x, f.z)
     const base = floor === VOID ? 0 : floor
-    // A hook demo climbs a wall: the ghost rises above the floor it starts on.
+    // A climb or a jump: the hologram rises above the floor it starts on.
     const y = Math.max(base, f.y > 0 ? f.y : base)
     this.ghost.root.position.set(f.x, y, f.z)
     this.ghost.root.rotation.y = f.yaw
@@ -170,13 +236,59 @@ export class TrainingDirector {
     s.blade = f.stab > 0.01 ? 1 : 0
     s.boxed = f.boxed
     s.loot = f.loot
-    s.climb = f.y > 0.3 && f.y < 5.8 ? 1 : 0
+    s.climb = f.climb
     s.climbPhase = f.y
+    s.air = f.air
+    s.cable = f.cable
     poseMech(this.ghost, s)
-    // It breathes, so it reads as a show and not a second mech.
-    this.ghostMat.opacity = 0.32 + 0.1 * Math.sin(time * 4)
+    // The disguise: the toaster stands where the mech was (#97).
+    const boxed = f.boxed > 0.5
+    this.disguise.visible = boxed
+    if (boxed) {
+      this.ghost.root.visible = false
+      this.disguise.position.set(f.x, y, f.z)
+      this.disguise.rotation.y = f.yaw
+    }
+    this.props(t.room, f, y, time)
     this.gateMat.opacity = 0.26 + 0.08 * Math.sin(time * 3)
-    void dt
+  }
+
+  /** The lesson's props: the rope it shoots, the body it burns and the flame. */
+  private props(room: number, f: ReturnType<typeof demoFrame>, y: number, time: number): void {
+    const r = TRAINING_ROOMS[room]!
+    const toX = (v: number): number => (r.x0 + v - 1) * CELL + CELL / 2
+    const toZ = (v: number): number => (r.z0 + v - 1) * CELL + CELL / 2
+    // The rope: tower edge to the platform, once shot.
+    this.rope.visible = f.rope > 0.5
+    if (this.rope.visible) {
+      const a = new Vector3(toX(3.5), ROPE_TOWER_H + 0.75, toZ(7))
+      const b = new Vector3(toX(8.5), ROPE_DECK_H + 0.75, toZ(7))
+      this.rope.position.copy(a).add(b).multiplyScalar(0.5)
+      this.rope.scale.set(1, a.distanceTo(b), 1)
+      this.rope.quaternion.copy(new Quaternion().setFromUnitVectors(new Vector3(0, 1, 0), b.sub(a).normalize()))
+    }
+    // The body: down where the guard stood, until the flame takes it.
+    this.body.root.visible = f.body > 0.02
+    if (this.body.root.visible) {
+      this.body.root.position.set(toX(6), 0, toZ(10))
+      this.body.root.rotation.y = 0
+      this.body.root.scale.setScalar(Math.max(0.05, f.body))
+      this.bodyPose.time = time
+      poseGuard(this.body, this.bodyPose)
+    }
+    // The flame: from the mech's hand to the body.
+    this.flame.visible = f.burn > 0.5
+    if (this.flame.visible) {
+      const hx = f.x + Math.sin(f.yaw) * 0.8
+      const hz = f.z + Math.cos(f.yaw) * 0.8
+      const tgt = new Vector3(toX(6), 0.35, toZ(10))
+      const from = new Vector3(hx, y + 1.25, hz)
+      const len = Math.max(0.5, from.distanceTo(tgt))
+      this.flame.position.copy(from)
+      this.flame.scale.set(1 + 0.15 * Math.sin(time * 30), len, 1 + 0.15 * Math.cos(time * 27))
+      // The cone's tip is its local origin; it opens along −y toward the body.
+      this.flame.quaternion.copy(new Quaternion().setFromUnitVectors(new Vector3(0, -1, 0), tgt.sub(from).normalize()))
+    }
   }
 
   dispose(): void {
@@ -184,7 +296,17 @@ export class TrainingDirector {
     this.ghost.outline?.geometry.dispose()
     this.ghost.material.dispose()
     this.ghost.glowMaterial.dispose()
-    this.ghostMat.dispose()
+    this.holo.dispose()
+    this.body.mesh.geometry.dispose()
+    this.body.outline?.geometry.dispose()
+    this.body.material.dispose()
+    this.body.glowMaterial.dispose()
+    disposeDisguise(this.disguise)
+    this.rope.geometry.dispose()
+    this.flame.geometry.dispose()
+    this.discMat.dispose()
+    this.discGeo.dispose()
+    this.discCoreGeo.dispose()
     this.gateMat.dispose()
     this.barMat.dispose()
     this.gateGeo.dispose()

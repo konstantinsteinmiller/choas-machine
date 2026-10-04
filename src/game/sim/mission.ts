@@ -57,7 +57,7 @@ import {
 } from './cine'
 import { buildRobodog, poseRobodog, restDogPose, type DogPose } from '../models/robodog'
 import { buildDisguise, disposeDisguise } from '../models/disguises'
-import { supplyUnderfoot, take, type Supply } from './supplies'
+import { supplyUnderfoot, take, wants, type Supply } from './supplies'
 import { findRopeShot, type RopeShot } from './ropes'
 import { makeFlameMaterial, setFlame } from '../fx/flameCone'
 import { themeOf } from '../data/themes'
@@ -1447,6 +1447,7 @@ export class Mission implements GameMode {
     this.scene.add(r)
     this.residues.push(r)
     this.fx.particles.sparks(u.x, u.y + 0.3, u.z, human ? '#6f6488' : '#ffb061', 16, 3, 0.3)
+    this.burnsDone++
     this.endBurn()
     emit('burn', { beat: 'done' })
   }
@@ -1466,6 +1467,7 @@ export class Mission implements GameMode {
     const g = this.fortress.grid
     g.cables.push(r.cable)
     this.ropesLeft--
+    this.ropesShot++
     this.ropeAim = null
     const len = Math.hypot(r.bx - r.ax, r.by - r.ay, r.bz - r.az)
     const mesh = new Mesh(this.ropeGeo, this.ropeMat)
@@ -2130,6 +2132,10 @@ export class Mission implements GameMode {
   private wasHot = false
   private zooms = 0
   private sabotaged = 0
+  /** Supplies picked up, bodies burnt, ropes shot (the round-4 lessons). */
+  private suppliesTaken = 0
+  private burnsDone = 0
+  private ropesShot = 0
   /** The scope's zoom: an index into SCOPE_ZOOMS. */
   private scopeZoom = 0
 
@@ -2151,12 +2157,20 @@ export class Mission implements GameMode {
     const p = this.player
     const ev = tr.step({
       x: p.x, y: p.y, z: p.z, bladeKills: this.stats.bladeKills, sniperKills: this.sniperKills, rockets: this.rocketsFired,
-      overheats: this.overheats, zooms: this.zooms, sabotaged: this.sabotaged, piles: this.stats.piles
+      overheats: this.overheats, zooms: this.zooms, sabotaged: this.sabotaged, piles: this.stats.piles,
+      supplies: this.suppliesTaken, burns: this.burnsDone, ropes: this.ropesShot,
+      stocked: this.supplies.every(s => s.taken || !wants(s, this.arsenal, this.armor, this.loadout.rockets))
     }, dt)
     for (const e of ev) {
       if (e.type === 'done') {
         haptic('reward')
         emit('lessonDone', { room: e.room })
+      }
+      // The rope and flame rooms hand out what their lesson needs, whatever was spent before.
+      if (e.type === 'enter') {
+        const lesson = TRAINING_ROOMS[e.room]!.lesson
+        if (lesson === 'rope') this.ropesLeft = Math.max(this.ropesLeft, this.loadout.ropes)
+        if (lesson === 'burn') this.fuelLeft = Math.max(this.fuelLeft, this.loadout.fuel)
       }
     }
     // The demo's control: its glyph pulses while the ghost does it.
@@ -2192,7 +2206,8 @@ export class Mission implements GameMode {
     const done = s.done.filter(Boolean).length
     if (hud.training.done !== done) hud.training.done = done
     hud.training.total = s.done.length
-    const replay = room >= 0 && !s.done[room] && s.demoT < 0 && s.gap <= 0
+    // The hologram loops by itself; the button plays it again from the start.
+    const replay = room >= 0 && !s.done[room]
     if (hud.training.replay !== replay) hud.training.replay = replay
     const why = lesson === 'salvage' && !s.done[room]
     if (hud.training.scrapWhy !== why) hud.training.scrapWhy = why
@@ -2337,6 +2352,7 @@ export class Mission implements GameMode {
     const s = supplyUnderfoot(this.supplies, p.x, p.y, p.z, this.arsenal, this.armor, this.loadout.rockets)
     if (!s) return
     take(s, this.arsenal, this.armor, this.loadout.rockets)
+    this.suppliesTaken++
     if (s.kind === 'crate') this.fuelLeft = Math.min(this.loadout.fuel, this.fuelLeft + 2)
     vital.armor = this.armor.hp / this.armor.max
     this.fx.particles.sparks(s.x, s.y + 0.5, s.z, s.kind === 'kit' ? '#5dff9a' : '#ffd23f', 12, 3, 0.25)

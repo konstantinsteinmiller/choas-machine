@@ -8,10 +8,11 @@ import { isAlive, type Garrison } from './garrison'
  * ─── The training ground's lessons (#57, #58) ────────────────────────────────
  *
  * Pure logic: which room the mech is in, whether its lesson is done, and
- * where the demo ghost is. Show, don't tell: each room opens with a ghost of
- * the mech doing the lesson, twice, while the matching control glyph pulses;
- * a button plays it again until the lesson is done. A lesson done opens the
- * gate to the next room. The mission (`trainingDirector.ts`) draws it.
+ * where the demo hologram is. Show, don't tell: in each room a hologram of
+ * the mech does the lesson over and over (#87), while the matching control
+ * glyph pulses, until the lesson is done; a button plays it from the start.
+ * A lesson done opens the gate to the next room. The mission
+ * (`trainingDirector.ts`) draws it.
  */
 
 /** One moment of a demo, in the room's own cells (1, 1 its first cell inside). */
@@ -29,6 +30,14 @@ export interface DemoKey {
   stab?: number
   boxed?: number
   loot?: number
+  /** On a ladder, in the air, on a cable (0 … 1). */
+  climb?: number
+  air?: number
+  cable?: number
+  /** Props the lesson needs: the rope it shoots, the body it burns (shown 0 … 1), the flame. */
+  rope?: number
+  body?: number
+  burn?: number
   /** The control this moment shows: its glyph pulses. */
   hint?: HintId
 }
@@ -39,6 +48,13 @@ export const DEMOS: Readonly<Record<LessonId, readonly DemoKey[]>> = {
     { t: 0, x: 2, z: 7, hint: 'move' }, { t: 2.2, x: 5, z: 4 }, { t: 3.4, x: 5, z: 4, face: [9, 9], hint: 'look' },
     { t: 4.8, x: 9, z: 7 }, { t: 5.8, x: 10.4, z: 7 }
   ],
+  // Up the ladder, a run and a jump over the gap, down to the way out.
+  jump: [
+    { t: 0, x: 1.5, z: 7, y: 0 }, { t: 0.5, x: 1.6, z: 7, hint: 'climb', climb: 0 }, { t: 0.6, climb: 1 },
+    { t: 1.8, x: 2.4, z: 7, y: 2.5, climb: 1 }, { t: 2, climb: 0 }, { t: 2.9, x: 4.3, z: 7, y: 2.5, hint: 'jump' },
+    { t: 3.2, x: 5, z: 7, y: 3.6, air: 1 }, { t: 3.5, x: 5.8, z: 7, y: 2.5, air: 0 }, { t: 4.5, x: 8.4, z: 7, y: 2.5 },
+    { t: 4.9, x: 9.3, z: 7, y: 0, air: 1 }, { t: 5.1, air: 0 }, { t: 5.9, x: 10.4, z: 7, y: 0 }
+  ],
   cover: [
     { t: 0, x: 1.5, z: 7, crouch: 0, hint: 'crouch' }, { t: 0.8, x: 1.5, z: 7, crouch: 1 },
     { t: 5.6, x: 9.4, z: 7.3, crouch: 1 }, { t: 6.6, x: 10.4, z: 7, crouch: 1 }
@@ -48,10 +64,19 @@ export const DEMOS: Readonly<Record<LessonId, readonly DemoKey[]>> = {
     { t: 2.6, aim: 0, weapon: 'rocket', face: [8.5, 11], hint: 'weapon' }, { t: 3.2, aim: 1, hint: 'fire' }, { t: 4.4, aim: 1 },
     { t: 5.2, aim: 0, weapon: 'minigun', face: [9, 6], hint: 'weapon' }, { t: 5.8, aim: 1, hint: 'fire' }, { t: 8, aim: 1 }
   ],
+  // Over the crate: it is the mech's.
+  supply: [{ t: 0, x: 1.5, z: 7, hint: 'supply' }, { t: 2.4, x: 5, z: 7 }, { t: 2.8, x: 5, z: 7 }, { t: 4.6, x: 10.4, z: 7 }],
   blade: [
     { t: 0, x: 1.5, z: 7, crouch: 0, hint: 'crouch' }, { t: 0.6, crouch: 1 }, { t: 4.4, x: 7, z: 7, crouch: 1 },
     { t: 4.7, stab: 0, hint: 'blade' }, { t: 5.3, stab: 1 }, { t: 6.1, stab: 0 },
     { t: 8.4, x: 3.6, z: 11, crouch: 1, face: [5, 11] }, { t: 8.7, stab: 0, hint: 'blade' }, { t: 9.3, stab: 1 }, { t: 10.1, stab: 0 }
+  ],
+  // From behind, the blade; then the flame, until nothing is left (#99).
+  burn: [
+    { t: 0, x: 1.5, z: 7, crouch: 0, body: 0, burn: 0 }, { t: 0.6, crouch: 1, hint: 'crouch' }, { t: 3.8, x: 6, z: 8.6, crouch: 1, face: [6, 10] },
+    { t: 4.1, stab: 0, hint: 'blade' }, { t: 4.7, stab: 1 }, { t: 5.3, stab: 0, crouch: 0, body: 1 },
+    { t: 5.9, burn: 0, hint: 'burn' }, { t: 6.1, burn: 1 }, { t: 8, burn: 1, body: 0 }, { t: 8.2, burn: 0 },
+    { t: 9.8, x: 10.4, z: 7 }
   ],
   decoy: [
     { t: 0, x: 1.5, z: 7 }, { t: 1, x: 2.2, z: 7, face: [7, 2], hint: 'decoy' }, { t: 2.6, x: 2.2, z: 7, face: [7, 2] },
@@ -62,8 +87,16 @@ export const DEMOS: Readonly<Record<LessonId, readonly DemoKey[]>> = {
     { t: 4.2, x: 5, z: 7, boxed: 1 }, { t: 6.6, x: 10.4, z: 7, boxed: 1 }
   ],
   hook: [
-    { t: 0, x: 1.5, z: 7 }, { t: 3.2, x: 9.6, z: 7, y: 0 }, { t: 3.6, hint: 'grapple', y: 0 },
-    { t: 4.6, x: 10.4, z: 7, y: 6 }, { t: 5.2, x: 11, z: 7, y: 6 }, { t: 5.8, x: 11.8, z: 7, y: 0 }
+    { t: 0, x: 1.5, z: 7 }, { t: 3.2, x: 9.6, z: 7, y: 0, climb: 0 }, { t: 3.6, hint: 'grapple', y: 0, climb: 1 },
+    { t: 4.6, x: 10.4, z: 7, y: 6, climb: 1 }, { t: 5.2, x: 11, z: 7, y: 6, climb: 0 }, { t: 5.8, x: 11.8, z: 7, y: 0 }
+  ],
+  // Up the tower, a rope to the platform, along it, and down.
+  rope: [
+    { t: 0, x: 1.5, z: 7, y: 0, rope: 0 }, { t: 1.4, x: 1.5, z: 4, y: 0, climb: 0 }, { t: 1.6, climb: 1, hint: 'climb' },
+    { t: 3.2, x: 2.4, z: 4, y: 4, climb: 1 }, { t: 3.4, climb: 0 }, { t: 4.6, x: 3.4, z: 7, y: 4, face: [8.5, 7] },
+    { t: 5, hint: 'rope', rope: 0 }, { t: 5.3, rope: 1 }, { t: 5.8, x: 3.4, z: 7, y: 4, cable: 1 },
+    { t: 8.6, x: 8.4, z: 7, y: 2, cable: 1 }, { t: 8.8, cable: 0 }, { t: 9.3, x: 9.6, z: 7, y: 0, air: 1 }, { t: 9.5, air: 0 },
+    { t: 10.2, x: 10.4, z: 7, y: 0 }
   ],
   beacon: [{ t: 0, x: 1.5, z: 7 }, { t: 3, x: 5.4, z: 8.3, hint: 'sabotage' }, { t: 5, x: 5.4, z: 8.3, face: [6, 9] }],
   salvage: [
@@ -72,8 +105,7 @@ export const DEMOS: Readonly<Record<LessonId, readonly DemoKey[]>> = {
   extract: [{ t: 0, x: 1.5, z: 7, hint: 'goal' }, { t: 3.5, x: 6, z: 7 }]
 }
 
-/** Times each demo plays by itself when its room is entered; the pause between. */
-export const DEMO_PLAYS = 2
+/** A demo loops until its lesson is done (#87), with this pause between plays. */
 export const DEMO_GAP_S = 0.9
 /** A glyph pulses this long after its moment in a demo. */
 export const HINT_HOLD_S = 1.6
@@ -90,6 +122,12 @@ export interface TrainingContext {
   zooms: number
   sabotaged: number
   piles: number
+  /** Supplies picked up; and whether the mech has room for nothing more (so the supply room cannot shut it in). */
+  supplies: number
+  stocked: boolean
+  /** Bodies and wrecks burnt (#99); ropes shot (#94). */
+  burns: number
+  ropes: number
 }
 
 export interface Training {
@@ -137,7 +175,10 @@ export const lessonDone = (i: number, c: TrainingContext, b: TrainingContext): b
     return !!d && Math.abs(c.x - d.x) < CELL * 1.6 && Math.abs(c.z - d.z) < CELL * 1.6
   }
   switch (r.lesson) {
-    case 'move': case 'cover': case 'decoy': case 'box': return atDoor()
+    case 'move': case 'jump': case 'cover': case 'decoy': case 'box': return atDoor()
+    case 'supply': return c.supplies > b.supplies || (atDoor() && c.stocked)
+    case 'burn': return c.burns > b.burns
+    case 'rope': return c.ropes > b.ropes
     case 'weapons': return c.sniperKills > b.sniperKills && c.rockets - b.rockets >= 2 && c.overheats > b.overheats && c.zooms > b.zooms
     // From behind, and close in from the side: two.
     case 'blade': return c.bladeKills - b.bladeKills >= 2
@@ -148,9 +189,9 @@ export const lessonDone = (i: number, c: TrainingContext, b: TrainingContext): b
   }
 }
 
-const startDemo = (t: Training, plays: number): void => {
+const startDemo = (t: Training): void => {
   t.demoT = 0
-  t.demoLeft = plays - 1
+  t.demoLeft = 0
   t.gap = 0
 }
 
@@ -197,10 +238,10 @@ export const rewindRoom = (gar: Garrison, room: number): void => {
   gar.runner = -1
 }
 
-/** Play the room's demo once more (the button). Not once the lesson is done. */
+/** Play the room's demo from the start (the button). Not once the lesson is done. */
 export const replayDemo = (t: Training): boolean => {
-  if (t.room < 0 || t.done[t.room] || t.demoT >= 0) return false
-  startDemo(t, 1)
+  if (t.room < 0 || t.done[t.room]) return false
+  startDemo(t)
   return true
 }
 
@@ -215,7 +256,7 @@ export const stepTraining = (t: Training, c: TrainingContext, dt: number): Train
     t.room = here
     t.base = { ...c }
     out.push({ type: 'enter', room: here })
-    if (!t.done[here]) startDemo(t, DEMO_PLAYS)
+    if (!t.done[here]) startDemo(t)
     else t.demoT = -1
   }
   if (t.room >= 0 && !t.done[t.room] && t.base && lessonDone(t.room, c, t.base)) {
@@ -224,13 +265,11 @@ export const stepTraining = (t: Training, c: TrainingContext, dt: number): Train
     t.demoLeft = 0
     out.push({ type: 'done', room: t.room })
   }
-  // The demo: play, pause, play again.
+  // The demo: play, pause, play again, until the lesson is done.
   if (t.demoT >= 0) {
     const lesson = TRAINING_ROOMS[t.room]!.lesson
     t.demoT += dt
-    if (t.demoT > demoLength(lesson)) {
-      if (t.demoLeft > 0) { t.demoLeft--; t.demoT = -1; t.gap = DEMO_GAP_S } else t.demoT = -1
-    }
+    if (t.demoT > demoLength(lesson)) { t.demoT = -1; t.gap = DEMO_GAP_S }
   } else if (t.gap > 0) {
     t.gap -= dt
     if (t.gap <= 0) t.demoT = 0
@@ -251,6 +290,12 @@ export interface DemoFrame {
   stab: number
   boxed: number
   loot: number
+  climb: number
+  air: number
+  cable: number
+  rope: number
+  body: number
+  burn: number
   /** The control whose glyph should pulse now, if any. */
   hint: HintId | null
 }
@@ -260,7 +305,8 @@ export const demoFrame = (i: number, time: number): DemoFrame => {
   const keys = DEMOS[r.lesson]
   // Fill every key from the one before.
   let prev: Required<Omit<DemoKey, 'hint' | 'face'>> & { face: readonly [number, number] | null } = {
-    t: 0, x: 1.5, z: 7, y: 0, crouch: 0, aim: 0, weapon: 'sniper', stab: 0, boxed: 0, loot: 0, face: null
+    t: 0, x: 1.5, z: 7, y: 0, crouch: 0, aim: 0, weapon: 'sniper', stab: 0, boxed: 0, loot: 0,
+    climb: 0, air: 0, cable: 0, rope: 0, body: 0, burn: 0, face: null
   }
   const full = keys.map((k) => {
     prev = { ...prev, ...k, face: k.face ?? (k.x !== undefined || k.z !== undefined ? null : prev.face) } as typeof prev
@@ -289,6 +335,8 @@ export const demoFrame = (i: number, time: number): DemoFrame => {
     x: toX(lx), y: lerp(a.y, b.y), z: toZ(lz), yaw,
     speed: moving ? Math.min(1, Math.hypot(dx, dz) / span / 3) : 0,
     crouch: lerp(a.crouch, b.crouch), aim: lerp(a.aim, b.aim), weapon: a.weapon,
-    stab: lerp(a.stab, b.stab), boxed: lerp(a.boxed, b.boxed), loot: lerp(a.loot, b.loot), hint
+    stab: lerp(a.stab, b.stab), boxed: lerp(a.boxed, b.boxed), loot: lerp(a.loot, b.loot),
+    climb: lerp(a.climb, b.climb), air: lerp(a.air, b.air), cable: lerp(a.cable, b.cable),
+    rope: lerp(a.rope, b.rope), body: lerp(a.body, b.body), burn: lerp(a.burn, b.burn), hint
   }
 }

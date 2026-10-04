@@ -27,11 +27,16 @@ import FHudButton from '@/components/atoms/FHudButton.vue'
 import { hud } from '@/game/state/hud'
 import { emit } from '@/game/bus'
 import type { GameIconName } from '@/components/icons/iconNames'
+import { LESSON_IDS, type LessonId } from '@/game/data/fortresses/training'
 
 const { t } = useI18n()
 
-/** One glyph per room, in the order they are crossed (`LESSON_IDS`). */
-const ICONS: readonly GameIconName[] = ['mech', 'crouch', 'sniper', 'blade', 'decoy', 'box', 'hook', 'siren', 'scrap', 'play']
+/** One glyph per lesson; the pips run in the order the rooms are crossed. */
+const GLYPH: Readonly<Record<LessonId, GameIconName>> = {
+  move: 'mech', jump: 'up', cover: 'crouch', weapons: 'sniper', supply: 'bolt', blade: 'blade', burn: 'flame',
+  decoy: 'decoy', box: 'box', hook: 'hook', rope: 'rope', beacon: 'siren', salvage: 'scrap', extract: 'play'
+}
+const ICONS: readonly GameIconName[] = LESSON_IDS.map(id => GLYPH[id])
 
 const replay = (): void => emit('trainingReplay', {})
 </script>

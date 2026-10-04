@@ -24,7 +24,8 @@ import type { InputFamily } from '../data/ids'
  */
 
 export const HINT_IDS = [
-  'move', 'look', 'scope', 'fire', 'crouch', 'blade', 'climb', 'cable', 'decoy', 'weapon', 'sprint', 'grapple', 'loot', 'goal', 'hide', 'sabotage'
+  'move', 'look', 'scope', 'fire', 'crouch', 'blade', 'climb', 'cable', 'decoy', 'weapon', 'sprint', 'grapple', 'loot', 'goal', 'hide', 'sabotage',
+  'jump', 'rope', 'burn', 'supply'
 ] as const
 export type HintId = (typeof HINT_IDS)[number]
 
@@ -58,7 +59,12 @@ export const HINTS: Readonly<Record<HintId, HintDef>> = {
   // Where to go: the marker pulses until the first pile is reached.
   goal: { goal: 1, priority: 6 },
   // A long way to go and nobody about: the legs can run.
-  sprint: { goal: 2, priority: 4 }
+  sprint: { goal: 2, priority: 4 },
+  // Round 4: taught by the training holograms (#87); in a raid by their prompts.
+  jump: { goal: 1, priority: 6 },
+  rope: { goal: 1, priority: 8 },
+  burn: { goal: 1, priority: 8 },
+  supply: { goal: 1, priority: 6 }
 }
 
 /** At most this many glyphs at once: more than two is more than a new player takes in. */
@@ -225,7 +231,12 @@ export const stepCoach = (c: Coach, ctx: CoachContext, dt: number): HintView[] |
     sprint: quiet && ctx.far && !ctx.guardNear && hintDone(c, 'move'),
     // Taught once crouching is, when a guard is half-way to sure.
     hide: quiet && !ctx.boxed && ctx.threat > 0.3 && hintDone(c, 'crouch'),
-    sabotage: ctx.sabotage
+    sabotage: ctx.sabotage,
+    // Shown by the training holograms only; in a raid the world prompts ask for these.
+    jump: false,
+    rope: false,
+    burn: false,
+    supply: false
   }
 
   const shown: HintId[] = []
