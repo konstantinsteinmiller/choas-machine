@@ -6,17 +6,18 @@ import { newScene, type GameMode } from '../engine/app'
 import { getRenderer } from '../engine/renderer'
 import { noSlice, type Slice } from '../engine/slicer'
 import { FortressBuilder, type Fortress } from '../world/fortress'
-import { CELL } from '../world/grid'
+import { CELL, VOID, heightAt } from '../world/grid'
 import { buildFortressMesh, type FortressMesh } from '../world/fortressMesh'
 import { buildSky, type Sky } from '../world/sky'
 import { themeOf, type ThemeId } from '../data/themes'
 import { MUZZLE_TIP, buildMech, poseMech, restPose, type MechPose } from '../models/mech'
-import { BOARD_HOVER, DOG_STAND, buildRobodog, poseRobodog, restDogPose, type DogPose } from '../models/robodog'
+import { BOARD_HOVER, buildRobodog, poseRobodog, restDogPose, type DogPose } from '../models/robodog'
 import { CombatFx } from '../fx/combatFx'
 import { SalvageView } from '../world/salvageView'
 import type { Rocket } from '../sim/rockets'
 import type { Decoy } from '../sim/melee'
 import { angleDelta } from '../sim/player'
+import { AIR_TOTAL_S, airAt, pinBlade, pitchedFeet, planAir } from '../sim/airStrike'
 import type { WeaponId } from '../data/ids'
 import {
   buildDrone, buildEnforcer, buildGoliath, buildGuard, buildRoomba, buildSearchlight, poseDrone, poseEnforcer, poseGoliath, poseGuard, poseRoomba, poseSearchlight, restGuardPose
@@ -88,6 +89,15 @@ const round = (t: number, a: V3, b: V3, period: number, out: Vector3, off = 0): 
 /** 0 … 1 across [a, b]. */
 const span = (t: number, a: number, b: number): number => Math.min(1, Math.max(0, (t - a) / (b - a)))
 const between = (t: number, a: number, b: number): boolean => t >= a && t < b
+/** The intro's dive kill runs this much slower than the game's (it has no kill-cam slow time). */
+const INTRO_DIVE_SLOW = 1.3
+/** The body's outermost points, by bone: the dive's roll keeps them over the floor (as `sim/mission.ts`). */
+const BODY_EXTREMES: ReadonlyArray<readonly [string, number, number, number]> = [
+  ['head', 0, 0.45, 0], ['chest', 0, 0.25, -0.25], ['hips', 0, -0.1, -0.25],
+  ['foreL', 0, -0.45, 0], ['foreR', 0, -0.45, 0],
+  ['shinL', 0, 0, 0.1], ['shinR', 0, 0, 0.1], ['footL', 0, -0.1, 0.2], ['footR', 0, -0.1, 0.2],
+  ['blade', 0, -0.91, 0]
+]
 
 /** What every scene works with. */
 interface Stage {
@@ -110,6 +120,8 @@ interface Stage {
   decoys: Decoy[]
   /** The nose of the mech's weapon, as posed last frame (where its rounds leave from). */
   muzzle: (w: WeaponId, out: Vector3) => Vector3
+  /** The floor under (x, z), or −Infinity over nothing. */
+  floor: (x: number, z: number) => number
   extra: Record<string, Rig | Object3D | Dropship | Mesh | Vector3>
   /** Moments that have fired (sounds, bursts): once each. */
   fired: Set<string>
@@ -215,8 +227,16 @@ const INTRO: Script = {
     s.once('alarm', ALARM + 0.3, () => sfx('shout'))
 
     // ── The board, the hook, the walk to the edge ──
+    // The board's underside never meets the ground: it flies its line, or this
+    // far over whatever is under it, whichever is higher.
+    const clearOf = (p: Vector3, gap: number): Vector3 => {
+      let hi = -Infinity
+      for (const [ox, oz] of [[0, 0], [1.1, 0], [-1.1, 0], [0, 1.1], [0, -1.1]] as const) hi = Math.max(hi, s.floor(p.x + ox, p.z + oz))
+      if (hi > -Infinity) p.y = Math.max(p.y, hi + gap)
+      return p
+    }
     if (t < 5) {
-      const p = track([[0, -70, 5, 6], [3.5, -14, 2.5, 14], [5, 12, 0, 24]], t, tmpA)
+      const p = clearOf(track([[0, -70, 5, 6], [3.5, -14, 2.5, 14], [5, 12, 0, 24]], t, tmpA), 0.45)
       dp.fold = 1
       dp.thrust = 1
       s.place(s.dog.root, tmpB.set(p.x, p.y + BOARD_HOVER, p.z), Math.PI / 2)
@@ -225,12 +245,13 @@ const INTRO: Script = {
       s.look(tmpB.set(p.x - 6, p.y + 2.4, p.z - 7), tmpC.set(p.x + 3, p.y + 1.2, p.z))
       s.once('board', 0.2, () => sfx('dropIn'))
     } else {
-      // Straight up past the cliff's top first, then across, then on to the perch.
-      const d = track([[5, 12, 3, 24], [6.4, 12, 15, 24], [8, 30, 22, 14], [35.5, 72, 22, 24], [37.5, 77.6, 14 + BOARD_HOVER, 25.4]], t, tmpA)
-      dp.fold = t < 36.5 ? 1 : 1 - span(t, 36.7, 38.1)
-      dp.thrust = dp.fold
-      d.y += (DOG_STAND - BOARD_HOVER) * (1 - dp.fold)
-      s.place(s.dog.root, d, t < 36.5 ? Math.PI / 2 : Math.PI)
+      // Its job done, it lifts off the moment the mech is off it and flies
+      // away over the sea (#136): it never sets down anywhere in the scene.
+      const d = clearOf(track([[5, 12, 0.45, 24], [6.2, 11, 6, 22], [8.5, 0, 20, 4], [13, -60, 42, -60]], t, tmpA), 0.45)
+      dp.fold = 1
+      dp.thrust = 1
+      s.place(s.dog.root, d.setY(d.y + BOARD_HOVER), Math.atan2(-60 - 12, -60 - 24))
+      s.dog.root.visible = t < 13
     }
     const hook = s.extra.hookLine as Mesh
     hook.visible = between(t, 5.2, 8.4)
@@ -313,30 +334,41 @@ const INTRO: Script = {
         deadT: dead ? t - 15.05 : 0, death: 'front'
       })
     }
-    // The leap off the rope, the blade, the roll onto its feet (the game's rope assassination).
-    if (between(t, 14.2, 15.6)) {
-      const from: V3 = [48.6, 10, 24]
-      const head = 4 + 1.72 + 0.1
-      if (t < 14.7) {
-        const k = span(t, 14.2, 14.7)
-        s.place(s.mech.root, tmpA.set(from[0] + (G1_STOP[0] - from[0]) * k, from[1] + (head - from[1]) * k * k + Math.sin(k * Math.PI) * 0.8, from[2] + (G1_STOP[2] - from[2]) * k), Math.atan2(G1_STOP[0] - from[0], G1_STOP[2] - from[2]))
-        mp.air = 1
-        mp.stab = 0.3 + 0.6 * k
-        mp.crouch = 0.2
-      } else if (t < 15.05) {
-        const k = span(t, 14.7, 15.05)
-        s.place(s.mech.root, tmpA.set(G1_STOP[0], head - 0.9 * k, G1_STOP[2]), Math.atan2(G1_STOP[0] - from[0], G1_STOP[2] - from[2]))
-        mp.air = 1
-        mp.stab = 1
-        mp.crouch = 0.6
-      } else {
-        const k = smooth(span(t, 15.05, 15.6))
-        const a = k * Math.PI * 2
-        s.place(s.mech.root, tmpA.set(G1_STOP[0] + 1.6 * k, 4 + (head - 0.9 - 4) * (1 - Math.min(1, k * 1.4)) + 0.9 - 0.9 * Math.cos(a), G1_STOP[2] + 1.4 * k), Math.atan2(1.6, 1.4))
-        s.mech.root.rotation.x = a
-        mp.crouch = 1
-      }
+    // Off the rope: the game's own dive kill (`sim/airStrike.ts`), a little
+    // slower for the camera. Head first, the blade through the head, over the
+    // falling body, a roll onto its feet that never goes through the floor.
+    if (between(t, 14.2, 14.2 + AIR_TOTAL_S * INTRO_DIVE_SLOW)) {
+      const plan = planAir({ x: 48.6, y: 10, z: 24 }, { x: G1_STOP[0], y: 4, z: G1_STOP[2] }, 4 + 1.72 - 0.12, (x, z) => { const h = s.floor(x, z); return h === -Infinity ? null : h })
+      const b = airAt(plan, (t - 14.2) / INTRO_DIVE_SLOW)
+      const feet = pitchedFeet(b.x, b.y, b.z, plan.yaw, b.pitch, b.pivot)
+      s.place(s.mech.root, tmpA.set(feet.x, feet.y, feet.z), plan.yaw)
+      s.mech.root.rotation.order = 'YXZ'
+      s.mech.root.rotation.x = b.pitch
+      mp.air = b.phase === 'dive' || b.phase === 'pass' ? 1 : 0
+      mp.stab = 0
+      mp.draw = b.draw
+      mp.plunge = Math.max(0.001, b.plunge)
+      mp.crouch = b.crouch
       mp.blade = 1
+      // Posed now (the frame poses again at its end) to put the blade on the
+      // head at the blow and the lowest point of the body on the floor.
+      poseMech(s.mech, mp)
+      s.mech.root.updateMatrixWorld(true)
+      if (b.pin > 0) {
+        const tip = s.mech.bones.blade!.localToWorld(tmpB.set(0, -0.91, 0))
+        const off = pinBlade(tip, plan.head, b.pin)
+        s.mech.root.position.add(tmpC.set(off.x, off.y, off.z))
+      }
+      if (b.phase !== 'dive') {
+        s.mech.root.updateMatrixWorld(true)
+        const floor = s.floor(s.mech.root.position.x, s.mech.root.position.z)
+        let low = Infinity
+        for (const [bone, ox, oy, oz] of BODY_EXTREMES) {
+          const bb = s.mech.bones[bone]
+          if (bb) low = Math.min(low, bb.localToWorld(tmpB.set(ox, oy, oz)).y)
+        }
+        if (floor > -Infinity && low < floor + 0.03) s.mech.root.position.y += floor + 0.03 - low
+      }
       s.look(tmpB.set(55.5, 7, 32), tmpC.set(50, 5, 25.4), 46)
       s.once('stab', 14.85, () => { sfx('blade'); s.fx.sparks(G1_STOP[0], 5.4, G1_STOP[2], '#ff5fb7', 10, 3, 0.25) })
     }
@@ -412,6 +444,9 @@ const INTRO: Script = {
       s.once('drone', DRONE_DOWN, () => { sfx('explode'); s.fx.orbBurst(66, 16, 34, '#ffb061', 0.7) })
     }
 
+    // On the alarm the defenders aim at the mech where it IS (#136): they see
+    // it, and their fire follows it when it moves on, never a spot it has left.
+    const tgt = s.mech.root.position
     // ── The guard on the walls: his round; on the alarm, at the mech ──
     {
       const at = round(Math.min(t, ALARM), [64, 10, 8], [77, 10, 8], 9, tmpA, 3)
@@ -421,12 +456,12 @@ const INTRO: Script = {
         const k = span(t, ALARM + 0.6, ALARM + 2.4)
         const fx = tmpA.x
         tmpA.set(fx + (68 - fx) * smooth(k), 10, 8 + 6 * smooth(k))
-        yaw = Math.atan2(MECH_GUN[0] - tmpA.x, MECH_GUN[2] - tmpA.z)
+        yaw = Math.atan2(tgt.x - tmpA.x, tgt.z - tmpA.z)
         walking = k > 0 && k < 1
       }
       s.place(g(0).root, tmpA, yaw)
       poseGuard(g(0), { ...restGuardPose(), time: t, speed: walking ? (alarmed ? 0.9 : 0.45) : 0, stride: t * (alarmed ? 6 : 4.2), aim: alarmed && t > ALARM + 2.4 ? 1 : 0, startle: between(t, ALARM, ALARM + 0.4) ? 1 : 0, recoil: tick(0.6, ALARM + 2.6, 34) ? 1 : 0, lookYaw: !alarmed && !walking ? Math.sin(t * 1.1) * 0.5 : 0 })
-      if (tick(0.6, ALARM + 2.6, 34)) shoot(tmpA.x + Math.sin(yaw) * 0.6, 11.4, tmpA.z + Math.cos(yaw) * 0.6, MECH_GUN[0] + (Math.random() - 0.5) * 2, 10.2, MECH_GUN[2] + (Math.random() - 0.5) * 2, 'sniper')
+      if (tick(0.6, ALARM + 2.6, 34)) shoot(tmpA.x + Math.sin(yaw) * 0.6, 11.4, tmpA.z + Math.cos(yaw) * 0.6, tgt.x + (Math.random() - 0.5) * 0.7, tgt.y + 1.25 + (Math.random() - 0.5) * 0.5, tgt.z + (Math.random() - 0.5) * 0.7, 'sniper')
     }
     // ── The Peashooter: its patrol; on the alarm, rolling in, firing ──
     {
@@ -437,18 +472,18 @@ const INTRO: Script = {
         const k = span(t, ALARM + 0.5, ALARM + 3)
         const fx = tmpA.x
         tmpA.set(fx + (72 - fx) * k, 10, 3.5 + 10 * k)
-        yaw = Math.atan2(MECH_GUN[0] - tmpA.x, MECH_GUN[2] - tmpA.z)
+        yaw = Math.atan2(tgt.x - tmpA.x, tgt.z - tmpA.z)
         speed = k > 0 && k < 1 ? 1 : 0
       }
       s.place(roomba.root, tmpA, yaw)
       poseRoomba(roomba, { time: t, alarm: alarmed ? 1 : 0, recoil: tick(0.35, ALARM + 3, 34) ? 1 : 0, aimYaw: 0, speed })
-      if (tick(0.35, ALARM + 3, 34)) shoot(tmpA.x + Math.sin(yaw) * 0.6, 10.7, tmpA.z + Math.cos(yaw) * 0.6, MECH_GUN[0] + (Math.random() - 0.5) * 2.5, 10.3, MECH_GUN[2] + (Math.random() - 0.5) * 2.5, 'minigun')
+      if (tick(0.35, ALARM + 3, 34)) shoot(tmpA.x + Math.sin(yaw) * 0.6, 10.7, tmpA.z + Math.cos(yaw) * 0.6, tgt.x + (Math.random() - 0.5) * 0.7, tgt.y + 1.25 + (Math.random() - 0.5) * 0.5, tgt.z + (Math.random() - 0.5) * 0.7, 'minigun')
     }
     // ── The Enforcer: marching the far wall; on the alarm, its twin guns ──
     {
       const at = round(Math.min(t, ALARM), [64, 10, 38], [78, 10, 38], 12, tmpA, 4)
       const walking = at.walking && !alarmed
-      const turn = alarmed ? angleDelta(at.yaw, Math.atan2(MECH_GUN[0] - tmpA.x, MECH_GUN[2] - tmpA.z)) * smooth(span(t, ALARM + 0.4, ALARM + 1.6)) : 0
+      const turn = alarmed ? angleDelta(at.yaw, Math.atan2(tgt.x - tmpA.x, tgt.z - tmpA.z)) * smooth(span(t, ALARM + 0.4, ALARM + 1.6)) : 0
       s.place(enforcer.root, tmpA, at.yaw)
       const firing = between(t, ALARM + 1.8, 34)
       const side = Math.floor(t * 8) % 2
@@ -457,13 +492,13 @@ const INTRO: Script = {
         const y = at.yaw + turn
         const ox = side === 0 ? Math.cos(y) * 0.9 : -Math.cos(y) * 0.9
         const oz = side === 0 ? -Math.sin(y) * 0.9 : Math.sin(y) * 0.9
-        shoot(tmpA.x + ox + Math.sin(y) * 1.2, 12.3, tmpA.z + oz + Math.cos(y) * 1.2, MECH_GUN[0] + (Math.random() - 0.5) * 3, 10.2, MECH_GUN[2] + (Math.random() - 0.5) * 3, 'minigun')
+        shoot(tmpA.x + ox + Math.sin(y) * 1.2, 12.3, tmpA.z + oz + Math.cos(y) * 1.2, tgt.x + (Math.random() - 0.5) * 0.7, tgt.y + 1.25 + (Math.random() - 0.5) * 0.5, tgt.z + (Math.random() - 0.5) * 0.7, 'minigun')
       }
       s.once('enforcer', ALARM + 1.8, () => sfx('minigun'))
     }
     // ── The searchlight on the walls' corner, sweeping the yard ──
     {
-      s.place(lamp.root, tmpA.set(79, 10, 4), Math.PI * 1.25 + (alarmed ? angleDelta(Math.PI * 1.25, Math.atan2(MECH_GUN[0] - 79, MECH_GUN[2] - 4)) : Math.sin(t * 0.5) * 0.6))
+      s.place(lamp.root, tmpA.set(79, 10, 4), Math.PI * 1.25 + (alarmed ? angleDelta(Math.PI * 1.25, Math.atan2(tgt.x - 79, tgt.z - 4)) : Math.sin(t * 0.5) * 0.6))
       poseSearchlight(lamp, { time: t, yaw: 0, pitch: 0.35, alarm: alarmed ? 1 : 0 })
     }
     // ── The Goliath: creeping on its round, turret sweeping; on the alarm, its cannon ──
@@ -471,7 +506,7 @@ const INTRO: Script = {
     const roll = smooth(span(t, 18, 25))
     const tankX = 74 - 4 * roll
     s.place(tank.root, tmpA.set(tankX, 10, 44), -Math.PI / 2)
-    const toMech = angleDelta(-Math.PI / 2, Math.atan2(MECH_GUN[0] - tankX, MECH_GUN[2] - 44))
+    const toMech = angleDelta(-Math.PI / 2, Math.atan2(tgt.x - tankX, tgt.z - 44))
     const turret = t < ALARM ? Math.sin(t * 0.45) * 0.5 : toMech * smooth(span(t, ALARM, ALARM + 2.2))
     const cannon = between(t, 27.2, 27.7) ? 1 - span(t, 27.2, 27.7) : 0
     poseGoliath(tank, { time: t, turretYaw: turret, barrelPitch: 0.05, recoil: cannon, rumble: t >= TANK_DOWN ? 0 : roll > 0 && roll < 1 ? 1 : 0.5, dead: t >= TANK_DOWN ? Math.min(1, (t - TANK_DOWN) * 2) : 0 })
@@ -486,7 +521,7 @@ const INTRO: Script = {
     s.once('shell', 27.55, () => { sfx('explode'); if (s.cfx) s.cfx.explosion(61.5, 10.4, 22.5, 10) })
     // ── The Warden, beside his tank, pointing his men at the mech ──
     {
-      s.place(g(3).root, tmpA.set(77.5, 10, 41), alarmed ? Math.atan2(MECH_GUN[0] - 77.5, MECH_GUN[2] - 41) : -Math.PI / 2)
+      s.place(g(3).root, tmpA.set(77.5, 10, 41), alarmed ? Math.atan2(tgt.x - 77.5, tgt.z - 41) : -Math.PI / 2)
       poseGuard(g(3), { ...restGuardPose(), time: t + 2, aim: alarmed ? 1 : 0, lookYaw: alarmed ? 0 : Math.sin(t * 0.6) * 0.5 })
     }
     // ── The hound running the yard, stopping to sniff ──
@@ -877,6 +912,7 @@ export class Cinema implements GameMode {
     const fired = new Set<string>()
     const st: Stage = {
       t: 0, dt: 0, cam: c.camera, mech, mp: restPose(), dog, dp: restDogPose(), fx, cfx, rockets: [], decoys: [], extra: {}, fired,
+      floor: (x, z) => { const h = heightAt(fort.grid, x, z); return h === VOID ? -Infinity : h },
       muzzle: (w, out) => {
         const [bone, x, y, z] = MUZZLE_TIP[w]
         const b = mech.bones[bone]

@@ -96,16 +96,31 @@ describe('threat I arrives on a platform to practise on (the jam build)', () => 
 })
 
 describe('the intro: nothing flies through the stage (#125)', () => {
-  it('the robo dog\'s board is above the floor and the cliff at every moment it is in the air', async () => {
+  it('the board under the robo dog is clear of the floor and the cliff at every moment it is in the scene', async () => {
     const { Cinema } = await import('@/game/story/cinema')
     const { heightAt: h } = await import('@/game/world/grid')
     const s = await Cinema.create('intro', undefined, new Texture())
-    for (let t = 0.5; t < 30; t += 0.1) {
+    const dog = (s as unknown as { stage: { dog: { root: { visible: boolean } } } }).stage.dog.root
+    for (let t = 0.5; t < 42; t += 0.1) {
       s.seek(t)
+      if (!dog.visible) continue
       const d = s.dogAt
       const floor = h(s.grid, d.x, d.z)
-      if (floor > -100) expect(d.y, `t ${t.toFixed(1)} at ${d.x.toFixed(1)},${d.z.toFixed(1)}`).toBeGreaterThanOrEqual(floor - 0.05)
+      if (floor > -100) expect(d.y, `t ${t.toFixed(1)} at ${d.x.toFixed(1)},${d.z.toFixed(1)}`).toBeGreaterThanOrEqual(floor + 0.3)
     }
+    s.dispose()
+  }, 30000)
+
+  it('#136: once the mech is off it, the board flies away and never sets down in the scene', async () => {
+    const { Cinema } = await import('@/game/story/cinema')
+    const s = await Cinema.create('intro', undefined, new Texture())
+    const dog = (s as unknown as { stage: { dog: { root: { visible: boolean } } } }).stage.dog.root
+    s.seek(8)
+    expect(s.dogAt.y).toBeGreaterThan(10)
+    s.seek(20)
+    expect(dog.visible).toBe(false)
+    s.seek(40)
+    expect(dog.visible).toBe(false)
     s.dispose()
   }, 30000)
 })
