@@ -343,7 +343,12 @@ export class Mission implements GameMode {
   private burnChange: Change | null = null
   private fuelLeft = 0
   private flame!: Mesh
-  private flameMat = makeFlameMaterial({ core: '#fff4c2', mid: '#ff9a3d', edge: '#c8202f' })
+  // Orange-red at the edge, not crimson: added onto the violet dusk a crimson edge turns pink.
+  private flameMat = makeFlameMaterial({ core: '#fff0b0', mid: '#ff8a26', edge: '#e2401a' })
+  private flameGlowMat = makeFlameMaterial({ core: '#fff0b0', mid: '#ff7a1e', edge: '#d8380f' }, false, true)
+  /** The burn's jet: from the hand (as posed) to the body. */
+  private burnFrom = new Vector3()
+  private burnTo = new Vector3()
   private lasers: Array<{ id: number; mesh: Mesh }> = []
   private muzzleTmp = new Vector3()
   /** Aiming a decoy (#115), and what shows where it will land. */
@@ -477,7 +482,12 @@ export class Mission implements GameMode {
     m.scene.add(m.hideBox)
     m.supplyView = new SupplyView(m.supplies, m.barrels)
     m.scene.add(m.supplyView.group)
-    m.flame = new Mesh(new CylinderGeometry(0.85, 0.08, 1, 14, 1, true), m.flameMat)
+    m.flame = new Mesh(new CylinderGeometry(0.85, 0.08, 1, 18, 1, true), m.flameMat)
+    // Its warm halo: a wider soft cone riding with it.
+    const glow = new Mesh(m.flame.geometry, m.flameGlowMat)
+    glow.scale.set(1.9, 1.04, 1.9)
+    glow.renderOrder = 3
+    m.flame.add(glow)
     m.flame.visible = false
     m.flame.renderOrder = 4
     m.scene.add(m.flame)
@@ -1639,6 +1649,8 @@ export class Mission implements GameMode {
     p.speed01 = 0
     p.yaw = headingTo(p.x, p.z, u.x, u.z)
     this.burning = { id, t: 0, seen: 0 }
+    this.burnFrom.set(p.x + Math.sin(p.yaw) * 0.8, p.y + 1.4, p.z + Math.cos(p.yaw) * 0.8)
+    this.burnTo.set(u.x, u.y + 0.35, u.z)
     this.burnOffer = -1
     // The fire glows: while it burns it is a thing out of place for whoever sees it.
     noteChange(this.garrison, u.x, u.y, u.z, 'fire')
@@ -1646,6 +1658,20 @@ export class Mission implements GameMode {
     this.fuelLeft--
     this.flame.visible = true
     emit('burn', { beat: 'start' })
+  }
+
+  /** The burn's jet, from the posed hand (the weapon is put away) to the body (#99). */
+  private placeFlame(): void {
+    this.rig.root.updateMatrixWorld(true)
+    const hand = this.rig.bones.foreR!.localToWorld(this.burnFrom.set(0, -0.52, 0.04))
+    const t = this.burnTo
+    const d = this.muzzleTmp.set(t.x - hand.x, t.y - hand.y, t.z - hand.z)
+    const len = Math.max(0.5, d.length())
+    this.flame.position.set((hand.x + t.x) / 2, (hand.y + t.y) / 2, (hand.z + t.z) / 2)
+    this.flame.scale.set(1, len, 1)
+    this.flame.quaternion.setFromUnitVectors(UP, d.normalize())
+    setFlame(this.flameMat, 0.92, this.time)
+    setFlame(this.flameGlowMat, 0.92, this.time)
   }
 
   /**
@@ -1666,18 +1692,14 @@ export class Mission implements GameMode {
       return
     }
     b.t += dt
-    // The jet: from the mech's hand to the body.
-    const hx = p.x + Math.sin(p.yaw) * 0.8
-    const hz = p.z + Math.cos(p.yaw) * 0.8
-    const hy = p.y + 1.25
-    const tx = u.x
-    const ty = u.y + 0.35
-    const tz = u.z
-    const len = Math.max(0.5, Math.hypot(tx - hx, ty - hy, tz - hz))
-    this.flame.position.set((hx + tx) / 2, (hy + ty) / 2, (hz + tz) / 2)
-    this.flame.scale.set(1, len, 1)
-    this.flame.quaternion.setFromUnitVectors(UP, new Vector3(tx - hx, ty - hy, tz - hz).normalize())
-    setFlame(this.flameMat, 0.9, this.time)
+    // The jet runs from the mech's own hand (placed with the pose, `place`) to the body.
+    this.burnTo.set(u.x, u.y + 0.35, u.z)
+    const hx = this.burnFrom.x
+    const hy = this.burnFrom.y
+    const hz = this.burnFrom.z
+    const tx = this.burnTo.x
+    const ty = this.burnTo.y
+    const tz = this.burnTo.z
     if (Math.floor(b.t / 0.06) !== Math.floor((b.t - dt) / 0.06)) {
       // Flames licking up off the body, and the jet's own sparks.
       for (let k = 0; k < 3; k++) {
@@ -3375,6 +3397,14 @@ export class Mission implements GameMode {
     s.aim = striking || this.armor.down ? 0 : this.cam.aim
     s.aimPitch = this.cam.pitch
     s.weapon = a.current
+    // The flamethrower: the weapon put away, the arm out and down at the body,
+    // the jet from the hand (never through a gun barrel).
+    s.stow = this.burning ? 1 : 0
+    if (this.burning) {
+      s.aim = 1
+      const bt = this.burnTo
+      s.aimPitch = Math.atan2(bt.y - (p.y + 1.9), Math.max(0.6, Math.hypot(bt.x - p.x, bt.z - p.z)))
+    }
     s.recoil = a.recoil
     s.spin = a.spin
     s.reload = reloadProgress(a)
@@ -3411,6 +3441,7 @@ export class Mission implements GameMode {
     // Surfing the board: knees bent, weight low.
     if (this.riding) s.crouch = Math.max(s.crouch, 0.35)
     poseMech(this.rig, s)
+    if (this.burning) this.placeFlame()
     // The dive kill: the body pitched round its hips (the lean, then head
     // over heels), and at the blow the blade's tip held on the guard's head.
     this.rig.root.rotation.order = 'YXZ'
@@ -3616,6 +3647,7 @@ export class Mission implements GameMode {
     this.laserMat.dispose()
     this.flame.geometry.dispose()
     this.flameMat.dispose()
+    this.flameGlowMat.dispose()
     this.ashGeo.dispose()
     this.ashMat.dispose()
     this.slagMat.dispose()
