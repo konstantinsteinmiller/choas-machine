@@ -1,8 +1,8 @@
+import { defineAsyncComponent, ref, type Component } from 'vue'
 import { registerCheat } from '@/use/useCheats'
-import { getState, setState } from '@/use/useGameState'
-import { SCRAP_KEY } from '@/keys'
 import { app } from './engine/app'
 import { flow, startTraining } from './flow'
+import { profile, saveProfile } from './state/profile'
 
 /**
  * Dev cheats. They only fire when cheats are enabled: `localStorage.cheat =
@@ -11,9 +11,18 @@ import { flow, startTraining } from './flow'
  * App shell must never import the sim. All sit on ctrl+shift+alt, which no
  * game control uses.
  */
+/** The cheat panel is open (ctrl+shift+alt+P). */
+export const cheatPanelOpen = ref(false)
+/** The panel itself, loaded the first time it opens; the game scene mounts it. */
+export const CheatPanel: Component | null = defineAsyncComponent(() => import('./CheatPanel.vue'))
+
 export const registerGameCheats = (): void => {
+  // The cheat panel: Tech Scrap, every level open, god mode, the scenes again.
+  // On the dev server it opens without cheats switched on.
+  registerCheat('ctrl+shift+alt+p', 'Cheat panel', () => { cheatPanelOpen.value = !cheatPanelOpen.value }, { always: true })
   registerCheat('ctrl+shift+alt+b', '+1000 Tech Scrap', () => {
-    setState(SCRAP_KEY, (Number(getState(SCRAP_KEY, 0)) || 0) + 1000)
+    profile.scrap += 1000
+    saveProfile()
   })
   // The cross-browser smoke test (`scripts/xbrowser.mjs`) ends a mission with this.
   registerCheat('ctrl+shift+alt+o', 'Objective done: extract now', () => {

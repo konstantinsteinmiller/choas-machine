@@ -14,11 +14,15 @@ import { safeGetBool } from '@/utils/safeStorage'
 const isCheat = ref<boolean>(safeGetBool('cheat'))
 
 type CheatFn = () => void
-const cheats = new Map<string, { fn: CheatFn; label: string }>()
+const cheats = new Map<string, { fn: CheatFn; label: string; always: boolean }>()
 
-/** Register a cheat under a shortcut like `ctrl+shift+alt+k`. Last one wins. */
-export const registerCheat = (shortcut: string, label: string, fn: CheatFn): void => {
-  cheats.set(shortcut.toLowerCase(), { fn, label })
+/**
+ * Register a cheat under a shortcut like `ctrl+shift+alt+k`. Last one wins.
+ * `always`: on the dev server it works without cheats switched on (the cheat
+ * panel); a built bundle still wants them on.
+ */
+export const registerCheat = (shortcut: string, label: string, fn: CheatFn, opts: { always?: boolean } = {}): void => {
+  cheats.set(shortcut.toLowerCase(), { fn, label, always: !!opts.always })
 }
 
 let debugUnlockInstalled = false
@@ -84,9 +88,9 @@ const buildShortcut = (e: KeyboardEvent): string => {
 const useCheats = () => {
   // Always listening; a key does nothing unless cheats are on (they can be switched on by typing, #116).
   const handleKeyDown = (e: KeyboardEvent) => {
-    if (!isCheat.value) return
     const entry = cheats.get(buildShortcut(e))
     if (!entry) return
+    if (!isCheat.value && !(entry.always && import.meta.env.DEV)) return
     e.preventDefault()
     entry.fn()
     console.warn(`[CHEAT] ${entry.label}`)

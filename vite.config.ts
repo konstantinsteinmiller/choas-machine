@@ -362,6 +362,8 @@ export default defineConfig(({ mode, command }) => {
           /fortresses[\\/]registry\.ts$/,
           // The boot loads the story's scenes on demand (`import('./story/cinema')`). Same constraint.
           /game[\\/]boot\.ts$/,
+          // The dev cheat panel loads on first open (`import('./CheatPanel.vue')`). Same constraint.
+          /game[\\/]cheats\.ts$/,
           // GameDistributionProvider lazy-loads the heavy
           // `@/utils/gameDistributionPlugin` (~500 LOC) via dynamic
           // import so non-GD builds don't ship the GD SDK code.

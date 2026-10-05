@@ -28,6 +28,7 @@
     PauseModal(@resume="onResume")
     DefeatModal
     RewardsModal
+    component(v-if="CheatPanel && cheatPanelOpen" :is="CheatPanel" v-model="cheatPanelOpen")
 </template>
 
 <script setup lang="ts">
@@ -51,7 +52,7 @@ import { isGameplayLive, syncGameplayLifecycle } from '@/use/useGameplayLifecycl
 import { startGameMusic } from '@/use/useSound'
 import { toggleGameMute } from '@/use/useGameMute'
 import { armNavigationGuard, disarmNavigationGuard } from '@/use/useBrowserGuard'
-import { registerGameCheats } from '@/game/cheats'
+import { CheatPanel, cheatPanelOpen, registerGameCheats } from '@/game/cheats'
 import GameIcon from '@/components/icons/GameIcon.vue'
 import BaseHud from '@/components/base/BaseHud.vue'
 import MissionHud from '@/components/hud/MissionHud.vue'

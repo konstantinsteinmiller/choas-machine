@@ -13,7 +13,7 @@
 
 import { ref } from 'vue'
 
-export const registerCheat = (_shortcut: string, _label: string, _fn: () => void): void => {}
+export const registerCheat = (_shortcut: string, _label: string, _fn: () => void, _opts: { always?: boolean } = {}): void => {}
 
 export const installDebugUnlock = (): void => {}
 
