@@ -1587,7 +1587,8 @@ export class Mission implements GameMode {
     const hy = oy + f.y * hit.t
     const hz = oz + f.z * hit.t
     this.hookAim = findGrappleAimed(this.fortress.grid, { x: p.x, y: p.y, z: p.z }, { x: hx, y: hy, z: hz }, { x: hit.nx, y: hit.ny, z: hit.nz }, this.loadout.hookMax)
-    if (this.ropesLeft > 0 && !this.hookAim) this.ropeAim = findRopeShot(this.fortress.grid, p.x, p.y, p.z, hx, hy, hz, hit.ny)
+    // The rope is its own key: offered whether or not the hook could take this wall too.
+    if (this.ropesLeft > 0) this.ropeAim = findRopeShot(this.fortress.grid, p.x, p.y, p.z, hx, hy, hz, hit.ny, hit.nx, hit.nz)
   }
 
   /**

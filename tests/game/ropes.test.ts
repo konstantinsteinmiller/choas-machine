@@ -23,3 +23,25 @@ describe('a rope runs from edge to edge', () => {
     expect(cableY(4, 2, s, 1)).toBe(2)
   })
 })
+
+describe('a rope up to another platform (jam build)', () => {
+  it('from a raised edge to a higher platform edge within 10 m, aimed at its top or just under its lip; not farther, not from the ground', async () => {
+    const { findRopeShot, ROPE_UP_RANGE } = await import('@/game/sim/ropes')
+    const { FortressBuilder: FB } = await import('@/game/world/fortress')
+    const b = new FB('t', 30, 10)
+    b.ground(0, 0, 29, 9).insert(1, 1).extract(28, 8)
+    b.fill(2, 3, 4, 6, 4).fill(8, 3, 9, 6, 7).fill(20, 3, 21, 6, 7)
+    const g = b.build().grid
+    // On the 4 m block's east edge (x 9.5), the 7 m block's top at x 16-20.
+    const top = findRopeShot(g, 9.5, 4, 9, 16.5, 7, 9, 1)
+    expect(top).not.toBeNull()
+    expect(top!.by).toBe(7)
+    // Its face (x = 16, facing -x), half a metre under the lip.
+    expect(findRopeShot(g, 9.5, 4, 9, 16, 6.5, 9, 0, -1, 0)).not.toBeNull()
+    // Too far up the line: the block at x 40 is over 10 m away.
+    expect(findRopeShot(g, 9.5, 4, 9, 40.5, 7, 9, 1)).toBeNull()
+    expect(ROPE_UP_RANGE).toBe(10)
+    // From the ground: no edge to stand on.
+    expect(findRopeShot(g, 13, 0, 9, 16.5, 7, 9, 1)).toBeNull()
+  })
+})
