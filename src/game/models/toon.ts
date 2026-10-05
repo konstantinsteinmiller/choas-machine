@@ -1,6 +1,6 @@
 import {
   Color, DataTexture, RedFormat, NearestFilter, MeshToonMaterial, MeshBasicMaterial,
-  ShaderMaterial, BackSide, UniformsLib, UniformsUtils, type Material, type Texture
+  ShaderMaterial, BackSide, DoubleSide, UniformsLib, UniformsUtils, type Material, type Texture
 } from 'three'
 import { ISLANDS_SHARED } from '@/use/perfVariants'
 
@@ -75,20 +75,26 @@ export const toonVCInstanced = (): MeshToonMaterial => {
   return vcToonInstanced
 }
 
+let levelPlain: MeshToonMaterial | null = null
 /**
  * The fortress's lit material: vertex colours times the level's detail
  * atlas where there is a document to bake one in, plain vertex colours where
- * there is not (the unit tests build levels in Node).
+ * there is not (the unit tests build levels in Node). Drawn from both sides:
+ * the level is simple geometry, and a face seen from behind (from inside a
+ * wall, or under a ledge) must never show as a hole in the world.
  */
-export const levelMaterial = (atlas: () => Texture): MeshToonMaterial =>
-  typeof document === 'undefined' ? toonVC() : toonVCMap(atlas())
+export const levelMaterial = (atlas: () => Texture): MeshToonMaterial => {
+  if (typeof document !== 'undefined') return toonVCMap(atlas())
+  levelPlain ??= new MeshToonMaterial({ vertexColors: true, gradientMap: toonRamp(), side: DoubleSide })
+  return levelPlain
+}
 
 const vcMapCache = new Map<Texture, MeshToonMaterial>()
-/** Vertex-coloured toon material with a detail texture (floors, walls). */
+/** Vertex-coloured toon material with a detail texture (the level's floors and walls), drawn from both sides. */
 export const toonVCMap = (map: Texture): MeshToonMaterial => {
   const hit = vcMapCache.get(map)
   if (hit) return hit
-  const m = new MeshToonMaterial({ vertexColors: true, gradientMap: toonRamp(), map })
+  const m = new MeshToonMaterial({ vertexColors: true, gradientMap: toonRamp(), map, side: DoubleSide })
   vcMapCache.set(map, m)
   return m
 }

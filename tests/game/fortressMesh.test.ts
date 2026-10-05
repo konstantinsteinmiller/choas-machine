@@ -9,7 +9,7 @@ import { buildDecor } from '@/game/world/decor'
 import { FortressBuilder } from '@/game/world/fortress'
 import { CELL } from '@/game/world/grid'
 import { buildProvingGround } from '@/game/data/fortresses/proving'
-import { toonVC, glowVC } from '@/game/models/toon'
+import { toonVC, glowVC, levelMaterial } from '@/game/models/toon'
 
 const tris = (m: Mesh): number => m.geometry.index!.count / 3
 
@@ -35,8 +35,9 @@ describe('the fortress mesh', () => {
     const mesh = await buildFortressMesh(buildProvingGround())
     const mats = new Set(mesh.group.children.map(c => (c as Mesh).material))
     // In Node there is no canvas to bake the detail atlas in, so the lit
-    // material is the plain vertex-colour one (`levelMaterial`).
-    expect(mats).toEqual(new Set([toonVC(), glowVC()]))
+    // material is the plain vertex-colour one (`levelMaterial`), its own
+    // instance because the level is drawn from both sides.
+    expect(mats).toEqual(new Set([levelMaterial(() => { throw new Error('no atlas in Node') }), glowVC()]))
   })
 
   it('carries position, normal and colour for every vertex, with no NaN', async () => {

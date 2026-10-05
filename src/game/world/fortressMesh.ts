@@ -85,7 +85,12 @@ export const SCRAPYARD: Theme = {
 /** The name the rest of the game has always used for the default look. */
 export const SYNTHWAVE = SCRAPYARD
 
-/** The island's edge: a sheer lip, then rock tapering in under the island. */
+/**
+ * The island's edge: a sheer lip, then rock tapering in under the island.
+ * Both hang from the island's lowest floor, the same for every cell, so a
+ * wall or a tower standing on the edge runs its face all the way down and
+ * the skirts of neighbouring cells meet.
+ */
 /** A cell in a pool of shadow is drawn this much darker. */
 const SHADOW_DARK = 0.62
 const LIP_DEPTH = 2.6
@@ -275,11 +280,34 @@ export const shownHeight = (g: Grid, cx: number, cz: number): number => {
   return b === VOID ? h : b
 }
 
+/** The lowest floor anywhere on the island: the lip and the skirt hang from it. */
+export const islandFloor = (g: Grid): number => {
+  let lo = Infinity
+  for (let cz = 0; cz < g.d; cz++) for (let cx = 0; cx < g.w; cx++) {
+    const h = shownHeight(g, cx, cz)
+    if (h !== VOID && h < lo) lo = h
+  }
+  return lo === Infinity ? 0 : lo
+}
+
+/** Where the sheer lip under the island's edge ends and the skirt begins. */
+export const lipBottom = (g: Grid): number => islandFloor(g) - LIP_DEPTH
+
 /** Lit and glowing quads of one chunk. */
-const buildChunk = (g: Grid, pal: Palette, c0x: number, c0z: number, midX: number, midZ: number): { lit: Quads; glow: Quads } => {
+const buildChunk = (g: Grid, pal: Palette, c0x: number, c0z: number, midX: number, midZ: number, base: number): { lit: Quads; glow: Quads } => {
   const lit = new Quads()
   const glow = new Quads()
   const isVoid = (cx: number, cz: number): boolean => cellHeight(g, cx, cz) === VOID
+  const yl = base - LIP_DEPTH
+  const ySkirt = base - SKIRT_DEPTH
+  const skirtMid = pal.cliffTop.clone().lerp(pal.cliffFoot, 0.45)
+  /** Rock tapering in under the island from the foot of an edge's lip. */
+  const skirt = (ax: number, az: number, bx: number, bz: number, s: { dx: number; dz: number }): void => {
+    const tuck = (x: number, z: number): [number, number] => [x + (midX - x) * SKIRT_TUCK, z + (midZ - z) * SKIRT_TUCK]
+    const [tax, taz] = tuck(ax, az)
+    const [tbx, tbz] = tuck(bx, bz)
+    lit.add([ax, yl, az, tax, ySkirt, taz, tbx, ySkirt, tbz, bx, yl, bz], [s.dx, -0.5, s.dz], skirtMid, pal.cliffFoot, pal.cliffFoot, skirtMid)
+  }
 
   for (let cz = c0z; cz < Math.min(g.d, c0z + CHUNK); cz++) {
     for (let cx = c0x; cx < Math.min(g.w, c0x + CHUNK); cx++) {
@@ -297,12 +325,13 @@ const buildChunk = (g: Grid, pal: Palette, c0x: number, c0z: number, midX: numbe
         for (let si = 0; si < SIDES.length; si++) {
           const s = SIDES[si]!
           const nh = shownHeight(g, cx + s.dx, cz + s.dz)
-          const floor = nh === VOID ? gy - LIP_DEPTH : nh
+          const floor = nh === VOID ? yl : nh
           if (floor >= gy - 1e-6) continue
           const ax = cx * CELL + s.a[0] * CELL
           const az = cz * CELL + s.a[1] * CELL
           const bx = cx * CELL + s.b[0] * CELL
           const bz = cz * CELL + s.b[1] * CELL
+          if (nh === VOID) skirt(ax, az, bx, bz, s)
           let y = gy
           let k = 0
           while (y > floor + 1e-6) {
@@ -376,17 +405,13 @@ const buildChunk = (g: Grid, pal: Palette, c0x: number, c0z: number, midX: numbe
         if (nh === VOID && !structure) {
           // The island's edge. A sheer lip first, so the island has a
           // thickness from every camera height; under it the rock tapers in.
-          const tuck = (x: number, z: number): [number, number] => [x + (midX - x) * SKIRT_TUCK, z + (midZ - z) * SKIRT_TUCK]
-          const [tax, taz] = tuck(ax, az)
-          const [tbx, tbz] = tuck(bx, bz)
-          const yl = h - LIP_DEPTH
-          const yb = h - SKIRT_DEPTH
-          const mid = pal.cliffTop.clone().lerp(pal.cliffFoot, 0.45)
-          lit.add([ax, h, az, ax, yl, az, bx, yl, bz, bx, h, bz], [s.dx, 0, s.dz], pal.cliffTop, mid, mid, pal.cliffTop)
-          lit.add([ax, yl, az, tax, yb, taz, tbx, yb, tbz, bx, yl, bz], [s.dx, -0.5, s.dz], mid, pal.cliffFoot, pal.cliffFoot, mid)
+          lit.add([ax, h, az, ax, yl, az, bx, yl, bz, bx, h, bz], [s.dx, 0, s.dz], pal.cliffTop, skirtMid, skirtMid, pal.cliffTop)
+          skirt(ax, az, bx, bz, s)
           continue
         }
-        const floor = nh === VOID ? h - LIP_DEPTH : nh
+        // A structure on the island's edge: its face runs down the lip, the skirt under it.
+        if (nh === VOID) skirt(ax, az, bx, bz, s)
+        const floor = nh === VOID ? yl : nh
         if (floor >= h - 1e-6) continue
         if (!structure) {
           // A step in the ground itself: rock.
@@ -632,10 +657,11 @@ export const buildFortressMesh = async (
   const cols = Math.ceil(g.w / CHUNK)
   const rows = Math.ceil(g.d / CHUNK)
   const litMaterial = levelMaterial(levelAtlas)
+  const base = islandFloor(g)
 
   for (let r = 0; r < rows; r++) {
     for (let c = 0; c < cols; c++) {
-      const { lit, glow } = buildChunk(g, pal, c * CHUNK, r * CHUNK, midX, midZ)
+      const { lit, glow } = buildChunk(g, pal, c * CHUNK, r * CHUNK, midX, midZ, base)
       if (!lit.empty) {
         const geo = lit.geometry()
         const m = new Mesh(geo, litMaterial)
