@@ -86,7 +86,7 @@
         :icon="hud.sabotage === 'generator' || hud.sabotage === 'servo' ? 'bolt' : 'siren'"
         tone="danger"
         :attention="hud.sabotaging === 0"
-        :aria-label="t(hud.sabotage === 'generator' ? 'hud.cutPower' : hud.sabotage === 'servo' ? 'hud.jamServo' : 'hud.sabotage')"
+        :aria-label="t(hud.sabotage === 'generator' ? 'hud.cutPower' : hud.sabotage === 'servo' ? 'hud.jamServo' : hud.sabotage === 'alarm' ? 'hud.silence' : 'hud.sabotage')"
         :hotkey="kb('act')"
         data-testid="btn-sabotage"
         @click="input.actQueued = true"

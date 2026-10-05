@@ -91,7 +91,7 @@ export const hud = reactive({
   /** Under the hide box. */
   boxed: false,
   /** Something within reach to sabotage ('' none): a beacon, the Warden's generator, the Foreman's servo; and 0 … 1 of doing it. */
-  sabotage: '' as '' | 'beacon' | 'generator' | 'servo',
+  sabotage: '' as '' | 'beacon' | 'alarm' | 'generator' | 'servo',
   sabotaging: 0,
   /** The base's alarm: 0 quiet, 1 a guard runs for a beacon, 2 lighting it (`alarmLit` 0 … 1), 3 lit. */
   alarm: 0,
@@ -129,7 +129,7 @@ export const hud = reactive({
 export const waypoint = { on: false, x: 0.5, y: 0.5, behind: false, dist: 0 }
 
 /** What a key does where the mech stands, as the in-world prompt names it (#83). */
-export type PromptKind = '' | 'salvage' | 'strike' | 'assassinate' | 'sabotage' | 'cutPower' | 'jam' | 'grab' | 'drop' | 'hook' | 'rope' | 'burn'
+export type PromptKind = '' | 'salvage' | 'strike' | 'assassinate' | 'sabotage' | 'silence' | 'cutPower' | 'jam' | 'grab' | 'drop' | 'hook' | 'rope' | 'burn'
 
 /** Where the in-world prompt sits: 0 … 1 of the view, and on screen at all. */
 export const prompt = { on: false, x: 0.5, y: 0.5, far: false }

@@ -71,7 +71,7 @@ onUnmounted(() => off?.())
   // The kind as a prefixed class: a bare `strike` would also match the HUD's own chip rules.
   &.k-salvage
     --plate-edge: var(--cm-warn)
-  &.k-sabotage, &.k-cutPower, &.k-jam
+  &.k-sabotage, &.k-silence, &.k-cutPower, &.k-jam
     --plate-edge: var(--cm-danger)
   &.k-strike
     --plate-edge: var(--cm-pink)

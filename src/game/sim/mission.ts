@@ -9,6 +9,7 @@ import { consumeEdges, type Input } from '../engine/input'
 import { input as sharedInput, inputClock } from '../engine/inputState'
 import { emit, on } from '../bus'
 import { gun, hud, mirror, runHudTickers, setPhase, threats, vital, waypoint, MAX_THREATS, callouts, MAX_CALLOUTS, prompt, bars, MAX_BARS, uplinks, MAX_UPLINKS, quipPop, type PromptKind } from '../state/hud'
+import { god } from '../state/god'
 import { QUIP_SHOW_S, makeQuips, pickQuip } from './quips'
 import { PathChevrons } from '../fx/pathChevrons'
 import type { QuipId } from '../audio/voiceCatalog'
@@ -803,7 +804,8 @@ export class Mission implements GameMode {
     mirror('loot', !this.looting && !!this.lootOffer && hud.phase === 'play')
     mirror('boxed', this.player.boxed)
     const rig = this.rigOffer >= 0 ? this.garrison.rigs[this.rigOffer]!.kind : ''
-    mirror('sabotage', this.sabotaging || hud.phase !== 'play' ? '' : this.beaconOffer >= 0 ? 'beacon' : rig)
+    const ringing = this.beaconOffer >= 0 && this.garrison.beacons[this.beaconOffer]!.state === 'lit'
+    mirror('sabotage', this.sabotaging || hud.phase !== 'play' ? '' : this.beaconOffer >= 0 ? (ringing ? 'alarm' : 'beacon') : rig)
     mirror('sabotaging', this.sabotaging ? Math.min(1, this.sabotaging.t / SABOTAGE_S) : 0)
     {
       const gar = this.garrison
@@ -1374,16 +1376,19 @@ export class Mission implements GameMode {
 
   // ─── The alarm beacons ─────────────────────────────────────────────────────
 
-  /** The nearest working beacon within reach, if nobody can see the mech; −1 otherwise. */
+  /**
+   * The nearest beacon within reach to put out of action: a working one if
+   * nobody can see the mech, a ringing one (#134) whoever is looking; −1 if none.
+   */
   private beaconInReach(): number {
     const p = this.player
     const gar = this.garrison
-    if (gar.units.some(u => u.sees)) return -1
+    const seen = gar.units.some(u => u.sees)
     let best = -1
     let bestD = SABOTAGE_REACH
     for (let k = 0; k < gar.beacons.length; k++) {
       const b = gar.beacons[k]!
-      if (b.state !== 'ready' || Math.abs(b.y - p.y) > 1) continue
+      if (!(b.state === 'lit' || (b.state === 'ready' && !seen)) || Math.abs(b.y - p.y) > 1) continue
       const d = Math.hypot(b.x - p.x, b.z - p.z)
       if (d < bestD) { bestD = d; best = k }
     }
@@ -2098,6 +2103,8 @@ export class Mission implements GameMode {
     // nothing lands on it until it is over.
     if (this.strike?.full || this.killcamOn()) return
     if (hud.phase !== 'play') return
+    // The cheat panel's god mode: nothing lands.
+    if (god.on) return
     const p = this.player
     const down = hurtArmor(this.armor, amount)
     vital.armor = this.armor.hp / this.armor.max
@@ -2382,7 +2389,7 @@ export class Mission implements GameMode {
     if (show && !this.looting && !this.sabotaging && !this.grapple && !this.burning) {
       const o = this.offer && !this.strike ? gar.units[this.offer.id] : undefined
       if (o) at(this.offer!.kind === 'air' ? 'assassinate' : 'strike', o.x, o.y + SPECS[o.kind].height + 0.35, o.z)
-      else if (this.beaconOffer >= 0) { const b = gar.beacons[this.beaconOffer]!; at('sabotage', b.x, b.y + 2.6, b.z) }
+      else if (this.beaconOffer >= 0) { const b = gar.beacons[this.beaconOffer]!; at(b.state === 'lit' ? 'silence' : 'sabotage', b.x, b.y + 2.6, b.z) }
       else if (this.rigOffer >= 0) { const r = gar.rigs[this.rigOffer]!; at(r.kind === 'generator' ? 'cutPower' : 'jam', r.x, r.y + 2.2, r.z) }
       else if (this.lootOffer) at('salvage', this.lootOffer.x, this.lootOffer.y + 1.0, this.lootOffer.z)
       else if (this.dragId >= 0) { const u = gar.units[this.dragId]!; at('drop', u.x, u.y + 0.9, u.z) }

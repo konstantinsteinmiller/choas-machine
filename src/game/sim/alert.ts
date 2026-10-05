@@ -3,8 +3,9 @@
  *
  * One meter for the whole base (GDD 2.2). It rises when the mech is seen, a
  * body is found, a shot misses within earshot, or a drone reports in; it
- * drains while the base is calm. When it fills, the base goes on full alert
- * and stays there: the mission has turned from infiltration into a fight.
+ * drains while the base is calm. When it fills, the base goes on full alert:
+ * the mission has turned from infiltration into a fight, until the garrison
+ * loses the mech or its ringing beacons are silenced and it stands down (#134).
  *
  * Pure. The HUD shows it as five segments.
  */
@@ -33,7 +34,7 @@ const DRAIN_PER_S = 4
 
 export interface Alert {
   level: number
-  /** Full alert: reached once, never left. */
+  /** Full alert, until the garrison stands down (`garrison.ts`, #134). */
   chaos: boolean
   /** Seconds since the meter last rose. */
   quiet: number

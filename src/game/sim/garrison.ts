@@ -357,6 +357,14 @@ export interface Garrison {
   beacons: Beacon[]
   runner: number
   runnerWait: number
+  /**
+   * After a stand-down (#134): the base thinks the intruder is gone. While
+   * this runs down, nobody runs to light a beacon unless somebody is fighting
+   * the mech again.
+   */
+  calmT: number
+  /** When the base last went to full alert: the cool-down counts from it or the last sighting, whichever is later. */
+  chaosAt: number
   /** Things out of place a guard on its round will notice: a pile stripped, a light out. */
   changes: Change[]
   /** The mech's trail for the hounds' noses: where it walked, and when. */
@@ -626,17 +634,20 @@ export interface Beacon {
 }
 
 /**
- * Losing them (round 3, after Odyssey): guards that lost sight go to the last
- * known position the base shares, spread round it and search it for this
- * long, walking a new point every SEARCH_HOP_S, then go back to their rounds
- * warier (wider and further sight). With nobody fighting and nobody having
- * seen the mech for CHAOS_COOL_S, a full alert stands down: lit beacons burn
- * out and the meter falls back to ALERT_AFTER of full.
+ * Losing them (round 3, after Odyssey; #134): guards that lost sight go to the
+ * last known position the base shares, spread round it and search it for
+ * this long, walking a new point every SEARCH_HOP_S, then go back to their
+ * rounds warier (wider and further sight). With nobody having seen the mech
+ * for CHAOS_COOL_S (and nothing it did heard: a kill, a shot, a blast keeps
+ * the hunt hot), or with every ringing beacon silenced, a full alert stands
+ * down: lit beacons go out, the meter falls back to ALERT_AFTER of full, and
+ * the fighters search the last known position, cautious, for SEARCH_HOT_S
+ * before they go back to their rounds. Nobody is told where the mech is now.
  */
 export const SEARCH_HOT_S = 30
 const SEARCH_HOP_S = 6
 const SEARCH_SPREAD = 7
-export const CHAOS_COOL_S = 60
+export const CHAOS_COOL_S = 20
 /**
  * A machine that is sure of the mech uplinks to the base (#73): a ring fills
  * over it for UPLINK_S while it keeps the mech in view (it drains, twice as
@@ -826,7 +837,7 @@ export const makeGarrison = (f: Fortress, level = 2): Garrison => {
     ...(f.generators ?? []).map(gn => ({ kind: 'generator' as const, ...gn, unit: -1, cut: false })),
     ...units.filter(u => u.boss === 'foreman').map(u => ({ kind: 'servo' as const, x: u.x, y: u.y, z: u.z, unit: u.id, cut: false }))
   ]
-  return { units, alert: makeAlert(), time: 0, events: [], rng: mulberry32(hashSeed(f.id)), wave: 0, chaosT: 0, lures: [], threat, noiseSeq: 0, beacons, runner: -1, runnerWait: 0, lkp: { x: 0, y: 0, z: 0, t: -1e9 }, shotSpot: { x: 0, z: 0, n: 0, t: -1e9 }, bodiesFound: 0, heightened: false, shooters: new Set(), tokenT: 0, leader: -1, changes: [], scent: [], scentT: 0, unreachable: new Set(), drill: false, rigs, boxCheck: !!f.answers?.boxCheck }
+  return { units, alert: makeAlert(), time: 0, events: [], rng: mulberry32(hashSeed(f.id)), wave: 0, chaosT: 0, lures: [], threat, noiseSeq: 0, beacons, runner: -1, runnerWait: 0, calmT: 0, chaosAt: -1e9, lkp: { x: 0, y: 0, z: 0, t: -1e9 }, shotSpot: { x: 0, z: 0, n: 0, t: -1e9 }, bodiesFound: 0, heightened: false, shooters: new Set(), tokenT: 0, leader: -1, changes: [], scent: [], scentT: 0, unreachable: new Set(), drill: false, rigs, boxCheck: !!f.answers?.boxCheck }
 }
 
 // ─── Getting about ───────────────────────────────────────────────────────────
@@ -975,6 +986,7 @@ const checkIns = (gar: Garrison): void => {
 /** The base goes to full alert: every defender still standing comes for the mech. */
 const goChaos = (gar: Garrison, target: Target): void => {
   if (gar.drill) return
+  gar.chaosAt = gar.time
   gar.events.push({ type: 'chaos' })
   // What the base knows: where the mech was last seen (or the noise), not
   // where it is now (#86). With nothing on record, where the noise was.
@@ -1317,14 +1329,18 @@ export const shotPassed = (
   const ly = hy - oy
   const lz = hz - oz
   const len2 = lx * lx + ly * ly + lz * lz || 1
+  let fighters = false
   for (const u of gar.units) {
-    if (u.id === hit || !isAlive(u) || u.state === 'dormant' || u.state === 'combat' || u.gripped || u.kind === 'goliath') continue
+    if (u.id === hit || !isAlive(u) || u.state === 'dormant' || u.gripped) continue
     const eyeY = u.y + SPECS[u.kind].eye
     const k = Math.max(0, Math.min(1, ((u.x - ox) * lx + (eyeY - oy) * ly + (u.z - oz) * lz) / len2))
     const line = Math.hypot(ox + lx * k - u.x, oy + ly * k - eyeY, oz + lz * k - u.z)
     const impact = Math.hypot(hx - u.x, hz - u.z)
     const heard = Math.hypot(ox - u.x, oz - u.z) <= earshot
     if (line > NEAR_MISS_M && impact > impactM && !heard) continue
+    // A fighter that notices it keeps the hunt hot (#134); nothing distracts it.
+    if (u.state === 'combat') { fighters = true; continue }
+    if (u.kind === 'goliath') continue
     u.focusT = Math.max(u.focusT, FOCUS_S)
     u.detect = Math.max(u.detect, SUSPECT_AT + 0.05)
     u.lured = false
@@ -1349,19 +1365,69 @@ export const shotPassed = (
     gar.lkp.z = from.z
     gar.lkp.t = gar.time
     if (cause) raise(gar, cause, target)
-  }
+  } else if (fighters) stirHunt(gar, from.x, from.z, from.y)
   return n
 }
 
-/** The mech put a beacon out of action. True if it was one that could still be lit. */
+/**
+ * The full alert stands down (#89, #134): the base thinks the intruder is
+ * gone. Lit beacons go out, the meter falls back to ALERT_AFTER of full, no
+ * more waves come. Every fighter searches round the last known position,
+ * cautious, for SEARCH_HOT_S, then goes back to its round warier; seeing the
+ * mech again starts it all over. The base stays on edge for the raid.
+ */
+const standDown = (gar: Garrison): void => {
+  gar.alert.chaos = false
+  gar.alert.level = ALERT_MAX * ALERT_AFTER
+  gar.alert.quiet = 0
+  for (const b of gar.beacons) if (b.state === 'lit') { b.state = 'ready'; b.lit = 0 }
+  for (const o of gar.units) {
+    if (!isAlive(o) || o.state !== 'combat') continue
+    o.detect = Math.min(o.detect, SUSPECT_AT * 0.5)
+    o.uplinkT = 0
+    o.path = []
+    o.hop = 0
+    o.lured = false
+    o.wary = true
+    if (gar.lkp.t > -1e8) { o.seenX = gar.lkp.x; o.seenZ = gar.lkp.z }
+    enter(o, 'search')
+  }
+  if (gar.runner >= 0) stopRunner(gar)
+  gar.runnerWait = 0
+  gar.calmT = SEARCH_HOT_S
+  gar.leader = -1
+  gar.heightened = true
+  gar.events.push({ type: 'standDown' })
+}
+
+/**
+ * The mech put a beacon out of action (#134: a ringing one too, which it
+ * silences). True if it did anything. With the last ringing beacon silenced
+ * the full alert stands down.
+ */
 export const sabotageBeacon = (gar: Garrison, i: number): boolean => {
   const b = gar.beacons[i]
-  if (!b || b.state === 'lit' || b.state === 'sabotaged') return false
+  if (!b || b.state === 'sabotaged') return false
+  const ringing = b.state === 'lit'
   const running = gar.runner >= 0 && gar.units[gar.runner]?.runner === i
   b.state = 'sabotaged'
   b.lit = 0
   if (running) { stopRunner(gar); gar.runnerWait = 0 }
+  if (ringing && gar.alert.chaos && !gar.beacons.some(o => o.state === 'lit')) standDown(gar)
   return true
+}
+
+/**
+ * The base hears something of the mech during a full alert (#134): a kill,
+ * a shot, a blast. The hunt stays hot and goes there; it is not told where
+ * the mech is, only where the noise was.
+ */
+const stirHunt = (gar: Garrison, x: number, z: number, y = gar.lkp.y): void => {
+  if (!gar.alert.chaos || gar.drill) return
+  gar.lkp.x = x
+  gar.lkp.y = y
+  gar.lkp.z = z
+  gar.lkp.t = gar.time
 }
 
 const suspect = (gar: Garrison, u: Unit, x: number, z: number, lured: boolean): void => {
@@ -1789,33 +1855,17 @@ export const stepGarrison = (gar: Garrison, g: Grid, target: Target, dt: number)
     gar.events.push({ type: 'standDown' })
   }
   // A full alert that has gone cold stands down, whatever is still alive
-  // (#89): the machines go back to their rounds too, the waves stop, and the
-  // base stays on edge for the rest of the raid.
-  if (gar.alert.chaos && gar.time - gar.lkp.t > CHAOS_COOL_S && !gar.units.some(o => o.state === 'combat' && isAlive(o) && o.sees)) {
-    gar.alert.chaos = false
-    gar.alert.level = ALERT_MAX * ALERT_AFTER
-    gar.alert.quiet = 0
-    for (const b of gar.beacons) if (b.state === 'lit') { b.state = 'ready'; b.lit = 0 }
-    for (const o of gar.units) {
-      if (!isAlive(o) || o.state !== 'combat') continue
-      o.detect = Math.min(o.detect, SUSPECT_AT * 0.5)
-      o.uplinkT = 0
-      o.path = []
-      o.wary = true
-      enter(o, 'patrol')
-    }
-    if (gar.runner >= 0) stopRunner(gar)
-    gar.leader = -1
-    gar.heightened = true
-    gar.events.push({ type: 'standDown' })
-  }
+  // (#89, #134): nobody has seen or heard the mech for CHAOS_COOL_S.
+  if (gar.alert.chaos && gar.time - Math.max(gar.lkp.t, gar.chaosAt) > CHAOS_COOL_S && !gar.units.some(o => o.state === 'combat' && isAlive(o) && o.sees)) standDown(gar)
+  if (gar.calmT > 0) gar.calmT -= dt
   // The attention budget (#92): who may fire, re-dealt twice a second.
   if ((gar.tokenT -= dt) <= 0) {
     gar.tokenT = TOKEN_EVERY_S
     dealTokens(gar, target)
   }
   if (gar.runnerWait > 0) gar.runnerWait -= dt
-  if (gar.beacons.length > 0 && gar.runner < 0 && gar.runnerWait <= 0 && gar.units.some(o => isAlive(o) && (o.state === 'combat' || (o.state !== 'patrol' && o.fought)) && !isLight(o))) sendRunner(gar, g)
+  // A search after a fight sends a runner too, but not while the base thinks the intruder gone (#134).
+  if (gar.beacons.length > 0 && gar.runner < 0 && gar.runnerWait <= 0 && gar.units.some(o => isAlive(o) && (o.state === 'combat' || (gar.calmT <= 0 && o.state !== 'patrol' && o.fought)) && !isLight(o))) sendRunner(gar, g)
   const seen: Seen = { x: target.x, feetY: target.y, z: target.z, height: target.height }
   // The mech's trail, for the hounds.
   if (target.visible && (gar.scentT -= dt) <= 0) {
@@ -2197,6 +2247,8 @@ export const killUnit = (gar: Garrison, id: number, fromX: number, fromZ: number
   u.checkAt = gar.time + CHECKIN_S + u.seed * CHECKIN_JITTER_S
   u.checked = u.kind === 'searchlight'
   gar.events.push({ type: 'kill', id, death: u.death })
+  // In a full alert a man down is called in at once: the hunt goes there.
+  stirHunt(gar, u.x, u.z, u.y)
   // A light that goes out is noticed: whoever is near wonders why.
   if (u.kind === 'searchlight') wonderAt(gar, u.x, u.z, 14)
 }
@@ -2258,12 +2310,16 @@ export const damageUnit = (gar: Garrison, id: number, amount: number, fromX: num
 export const noiseAt = (gar: Garrison, target: Target, x: number, z: number, radius: number, cause: AlertCause): boolean => {
   let heard = false
   for (const u of gar.units) {
-    if (!isAlive(u) || u.state === 'dormant' || u.state === 'combat') continue
+    if (!isAlive(u) || u.state === 'dormant') continue
     if (Math.hypot(u.x - x, u.z - z) > radius) continue
+    // A fighter that hears it sends the hunt there (#134).
+    if (u.state === 'combat') { stirHunt(gar, x, z); continue }
     heard = true
     u.detect = Math.max(u.detect, SUSPECT_AT + 0.05)
     suspect(gar, u, x, z, false)
   }
+  // In a full alert whoever hears it sends the hunt there (#134).
+  if (heard) stirHunt(gar, x, z)
   if (!heard && cause !== 'loud') return false
   const was = gar.alert.chaos
   raise(gar, cause, target)
