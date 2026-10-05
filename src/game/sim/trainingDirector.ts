@@ -6,7 +6,8 @@ import { demoPop } from '../state/hud'
 import { CELL, CellKind, cellMid, heightAt, VOID, type Grid } from '../world/grid'
 import type { Fortress } from '../world/fortress'
 import { HOOK_WALL_H, ROOM_WALL_H, ROPE_DECK_H, ROPE_TOWER_H, TRAINING_ROOMS } from '../data/fortresses/training'
-import { TD_FREE, takedownPose, victimPose, type TakedownPose, type VictimPose } from './takedown'
+import { VARIANTS } from './backstab'
+import { poseBackstabGuard, poseBackstabMech } from './backstabStage'
 import { buildMech, poseMech, restPose, type MechPose } from '../models/mech'
 import { buildGuard, poseGuard, restGuardPose } from '../models/garrison'
 import { buildDisguise, disposeDisguise } from '../models/disguises'
@@ -15,7 +16,7 @@ import { makeHologramMaterial, setHologram } from '../fx/hologram'
 import type { Rig } from '../models/kit'
 import type { Garrison } from './garrison'
 import {
-  demoFrame, victimFrame, doorOf, entryOf, makeTraining, replayDemo, rewindRoom, roomAt, stepTraining,
+  DEMO_BACKSTAB, demoFrame, victimFrame, doorOf, entryOf, makeTraining, replayDemo, rewindRoom, roomAt, stepTraining,
   type Training, type TrainingContext, type TrainingEvent
 } from './training'
 import type { HintId } from './coach'
@@ -62,8 +63,7 @@ export class TrainingDirector {
   private popV = new Vector3()
   /** The blade room's hologram guard, taken from behind on every loop (#110). */
   private victim: Rig
-  private tdPose: TakedownPose = { grab: 0, draw: 0, plunge: 0, blade: 0 }
-  private vPose: VictimPose = { gripped: 0, impaled: 0, limp: 0 }
+  private victimPose = restGuardPose()
   /** The weapons room's targets, in the same light: they fall to the demo's rounds (#109). */
   private targets: Array<{ rig: Rig; at: readonly [number, number]; yaw: number; dies: number; death: 'back' | 'front' | 'thrown' }> = []
   /** A projector disc by each room's way in. */
@@ -280,7 +280,7 @@ export class TrainingDirector {
     // A climb or a jump: the hologram rises above the floor it starts on.
     const y = Math.max(base, f.y > 0 ? f.y : base)
     this.ghost.root.position.set(f.x, y, f.z)
-    this.ghost.root.rotation.y = f.yaw
+    this.ghost.root.rotation.set(0, f.yaw, 0)
     const s = this.ghostPose
     const moved = Math.hypot(f.x - this.lastX, f.z - this.lastZ)
     this.lastX = f.x
@@ -300,17 +300,14 @@ export class TrainingDirector {
     s.air = f.air
     s.cable = f.cable
     s.grab = s.draw = s.plunge = 0
-    // The takedown (#110): the mech's half as the mission plays it.
-    if (f.td >= 0) {
-      const td = takedownPose(f.td, this.tdPose)
-      s.stab = 0
-      s.grab = td.grab
-      s.draw = td.draw
-      s.plunge = td.plunge
-      s.blade = td.blade
-      s.crouch = 0
-    }
-    poseMech(this.ghost, s)
+    s.stow = 0
+    // The backstab (#110): the mech's half as the mission plays it, on the
+    // hologram guard where it stands.
+    const vf = f.td >= 0 && f.td < VARIANTS[DEMO_BACKSTAB].end ? victimFrame(t.room, t.demoT) : null
+    if (vf) {
+      s.speed = 0
+      poseBackstabMech(this.ghost, s, DEMO_BACKSTAB, f.td, vf.x, 0, vf.z, vf.yaw)
+    } else poseMech(this.ghost, s)
     // The disguise: the toaster stands where the mech was (#97).
     const boxed = f.boxed > 0.5
     this.disguise.visible = boxed
@@ -369,22 +366,21 @@ export class TrainingDirector {
     const toZ = (v: number): number => (r.z0 + v - 1) * CELL + CELL / 2
     const dt = this.state.demoT
     // The lesson's hologram guard (#110, #115): it stands (or walks over to the
-    // decoy and stares at it, puzzled) until the takedown seizes it, runs it
-    // through, and lets it down.
+    // decoy and stares at it, puzzled) until the backstab seizes it, runs it
+    // through, and lets it fall.
     const vf = victimFrame(room, dt)
     this.victim.root.visible = !!vf
     if (vf) {
       this.victim.root.position.set(vf.x, 0, vf.z)
-      this.victim.root.rotation.y = vf.yaw
-      const v = f.td >= 0 ? victimPose(f.td, this.vPose) : null
-      const down = f.td >= TD_FREE
-      const puzzled = r.lesson === 'decoy' && !v && vf.speed === 0 && dt > 4
-      poseGuard(this.victim, {
-        ...restGuardPose(), time, speed: vf.speed, stride: time * 4.5,
-        wary: puzzled ? 1 : 0, caution: puzzled ? 1 : 0, lookYaw: puzzled ? Math.sin(time * 1.7) * 0.35 : 0,
-        gripped: down ? 0 : v?.gripped ?? 0, impaled: down ? 0 : v?.impaled ?? 0, limp: down ? 0 : v?.limp ?? 0,
-        deadT: down ? Math.max(1e-3, f.td - TD_FREE) : 0, death: 'front'
-      })
+      const g = Object.assign(this.victimPose, restGuardPose())
+      const puzzled = r.lesson === 'decoy' && f.td < 0 && vf.speed === 0 && dt > 4
+      g.time = time
+      g.speed = vf.speed
+      g.stride = time * 4.5
+      g.wary = g.caution = puzzled ? 1 : 0
+      g.lookYaw = puzzled ? Math.sin(time * 1.7) * 0.35 : 0
+      this.victim.root.rotation.y = f.td >= 0 ? poseBackstabGuard(g, DEMO_BACKSTAB, f.td, vf.yaw) : vf.yaw
+      poseGuard(this.victim, g)
     }
     for (const tg of this.targets) {
       tg.rig.root.visible = r.lesson === 'weapons'

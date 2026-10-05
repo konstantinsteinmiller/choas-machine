@@ -9,6 +9,7 @@ import { castShot, makeShotHit } from './sim/hitscan'
 import { isLight } from './sim/garrison'
 import type { Mission } from './sim/mission'
 import { setSfxTap, type SfxName } from './audio/sfx'
+import { MECH_EYE, MECH_EYE_CROUCH } from './models/mech'
 
 /**
  * ─── The preview seam ────────────────────────────────────────────────────────
@@ -245,7 +246,7 @@ const install = (): void => {
       const m = mission()
       if (!m) return -1
       const p = m.player
-      const eye = p.y + 2.25 + (1.4 - 2.25) * p.crouch
+      const eye = p.y + MECH_EYE + (MECH_EYE_CROUCH - MECH_EYE) * p.crouch
       let best = -1
       let bestD = 70
       for (const u of m.garrison.units) {
@@ -298,7 +299,7 @@ const install = (): void => {
       const u = m?.garrison.units[id]
       if (!m || !u) return
       const p = m.player
-      const eye = p.y + 2.25 + (1.4 - 2.25) * p.crouch
+      const eye = p.y + MECH_EYE + (MECH_EYE_CROUCH - MECH_EYE) * p.crouch
       const dx = u.x - p.x
       const dz = u.z - p.z
       turnTo(Math.atan2(dx, dz), Math.atan2(u.y + 1.54 - eye, Math.hypot(dx, dz)), ms, id)
@@ -326,7 +327,7 @@ const install = (): void => {
           if (kind === CellKind.Cover || kind === CellKind.Block) continue
           const y = heightAt(g, x, z)
           if (y <= VOID + 1) continue
-          const eye = y + (crouched ? 1.4 : 2.25)
+          const eye = y + (crouched ? MECH_EYE_CROUCH : MECH_EYE)
           // The round leaves the BARREL, at the mech's right shoulder, and the
           // target is walking: both lines must be clear to where its head is
           // now and to where it will be in a second or two.
@@ -386,6 +387,8 @@ const install = (): void => {
 
     /** The next kill gets the kill-cam, whatever the dice say. */
     forceKillcam: (): void => { const m = mission(); if (m) m.forceKillcam = true },
+    /** The next backstab plays this variant (`sim/backstab.ts`), not a random one. */
+    backstab: (variant: 'neck' | 'kneel' | 'throat'): void => { const m = mission(); if (m) m.nextBackstab = variant },
     /** Leave the mech this share of its armor (a fail clip's short fuse). */
     fragile: (share: number): void => { const m = mission(); if (m) m.armor.hp = Math.max(1, m.armor.max * share) },
 

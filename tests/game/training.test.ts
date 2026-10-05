@@ -115,7 +115,9 @@ describe('the lessons', () => {
   })
 
   it('the decoy lesson throws a decoy that lands where the guard will look; every press pops its key; the blade goes in (#114)', async () => {
-    const { TAKEDOWN } = await import('@/game/sim/takedown')
+    const { VARIANTS } = await import('@/game/sim/backstab')
+    const { DEMO_BACKSTAB } = await import('@/game/sim/training')
+    const k0 = VARIANTS[DEMO_BACKSTAB].keys[0]!
     const i = LESSON_IDS.indexOf('decoy')
     const k = DEMOS.decoy.find(d => d.decoy)!
     expect(demoFrame(i, k.t - 0.1).decoy).toBeNull()
@@ -125,14 +127,14 @@ describe('the lessons', () => {
     const [cx, cz] = roomCell(i, k.decoy![0], k.decoy![1])
     expect(f.decoy!.x).toBeCloseTo(cellMid(cx))
     expect(f.decoy!.z).toBeCloseTo(cellMid(cz))
-    // The takedown starts at the real one's reach behind the hologram guard.
+    // The takedown starts where the backstab's first key puts the mech behind the hologram guard.
     const b = LESSON_IDS.indexOf('blade')
     const td = DEMOS.blade.find(d => d.takedown)!
     const at = demoFrame(b, td.t)
     const r = TRAINING_ROOMS[b]!
     const vx = (r.x0 + BLADE_VICTIM[0] - 1) * CELL + CELL / 2
     const vz = (r.z0 + BLADE_VICTIM[1] - 1) * CELL + CELL / 2
-    expect(Math.hypot(at.x - vx, at.z - vz)).toBeCloseTo(TAKEDOWN.reach, 1)
+    expect(Math.hypot(at.x - vx, at.z - vz)).toBeCloseTo(Math.hypot(k0.mx, k0.mz), 1)
   })
 
   it('the weapons room also opens once every defender in it is down, however they fell (#109)', () => {
@@ -271,7 +273,9 @@ describe('seen in a training room (#67)', () => {
 describe('the decoy lesson plays the whole trick (#115)', () => {
   it('the hologram guard walks to the decoy and stares at it; the mech comes up behind it and the takedown lines up', async () => {
     const { victimFrame } = await import('@/game/sim/training')
-    const { TAKEDOWN } = await import('@/game/sim/takedown')
+    const { VARIANTS } = await import('@/game/sim/backstab')
+    const { DEMO_BACKSTAB } = await import('@/game/sim/training')
+    const k0 = VARIANTS[DEMO_BACKSTAB].keys[0]!
     const i = LESSON_IDS.indexOf('decoy')
     const start = victimFrame(i, 0)!
     const there = victimFrame(i, 6)!
@@ -280,12 +284,37 @@ describe('the decoy lesson plays the whole trick (#115)', () => {
     const td = DEMOS.decoy.find(k => k.takedown)!
     const g = demoFrame(i, td.t)
     const v = victimFrame(i, td.t)!
-    expect(Math.hypot(g.x - v.x, g.z - v.z)).toBeCloseTo(TAKEDOWN.reach, 1)
+    expect(Math.hypot(g.x - v.x, g.z - v.z)).toBeCloseTo(Math.hypot(k0.mx, k0.mz), 1)
     // From behind: the mech is on the far side from where the guard looks.
     const lookX = Math.sin(v.yaw)
     const lookZ = Math.cos(v.yaw)
     expect((g.x - v.x) * lookX + (g.z - v.z) * lookZ).toBeLessThan(0)
   })
+})
+
+describe("the demo's backstab lines up with the ghost's path (#110)", () => {
+  for (const lesson of ['blade', 'decoy'] as const) {
+    it(`${lesson}: the ghost walks up to where the variant starts the mech, facing as it does, and walks off from where it ends`, async () => {
+      const { victimFrame, DEMO_BACKSTAB } = await import('@/game/sim/training')
+      const { VARIANTS, guardToWorld } = await import('@/game/sim/backstab')
+      const v = VARIANTS[DEMO_BACKSTAB]
+      const i = LESSON_IDS.indexOf(lesson)
+      const td = DEMOS[lesson].find(k => k.takedown)!
+      const g = victimFrame(i, td.t)!
+      for (const [t, key] of [[td.t, v.keys[0]!], [td.t + v.end, v.keys[v.keys.length - 1]!]] as const) {
+        const f = demoFrame(i, t)
+        const [x, , z] = guardToWorld(g.x, 0, g.z, g.yaw, key.mx, 0, key.mz)
+        expect(Math.hypot(f.x - x, f.z - z)).toBeLessThan(0.02)
+      }
+      const f = demoFrame(i, td.t)
+      const d = f.yaw - (g.yaw + v.keys[0]!.myaw)
+      expect(Math.abs(Math.atan2(Math.sin(d), Math.cos(d)))).toBeLessThan(0.02)
+      // The takedown runs the variant's length, and the guard has not moved meanwhile.
+      expect(demoFrame(i, td.t + v.end - 0.01).td).toBeGreaterThan(0)
+      const after = victimFrame(i, td.t + v.end)!
+      expect(Math.hypot(after.x - g.x, after.z - g.z)).toBeLessThan(1e-6)
+    })
+  }
 })
 
 describe('a lesson that can no longer be done is set up again', () => {

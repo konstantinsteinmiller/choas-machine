@@ -92,3 +92,31 @@ export const poseRagdoll = (rig: Rig, p: ArrayLike<number>, q: ArrayLike<number>
   const hips = rig.bones.hips
   if (hips) hips.position.set(_p[0]!, _p[1]!, _p[2]!)
 }
+
+/** Each joint (`J` order) as a bone and a point in its frame (the bone origins the template was read off). */
+const JOINT_AT: ReadonlyArray<readonly [Bone, number, number, number]> = [
+  ['hips', 0, 0, 0], ['chest', 0, 0, 0], ['head', 0, 0, 0], ['head', 0, 0.38, 0.02],
+  ['armL', 0, 0, 0], ['foreL', 0, 0, 0], ['foreL', 0, -0.25, 0.03],
+  ['armR', 0, 0, 0], ['foreR', 0, 0, 0], ['foreR', 0, -0.25, 0.03],
+  ['legL', 0, 0, 0], ['shinL', 0, 0, 0], ['footL', 0, 0, 0],
+  ['legR', 0, 0, 0], ['shinR', 0, 0, 0], ['footR', 0, 0, 0]
+]
+const _j = new Vector3()
+
+/**
+ * The other way: where a posed guard's joints are in the world, for a ragdoll
+ * that starts from the pose (`ragdollFrom`): a guard let go on its knees falls
+ * from its knees, not from standing.
+ */
+export const guardJoints = (rig: Rig, out = new Float32Array(JOINTS * 3)): Float32Array => {
+  rig.root.updateMatrixWorld(true)
+  JOINT_AT.forEach(([b, x, y, z], i) => {
+    const bone = rig.bones[b]
+    if (bone) bone.localToWorld(_j.set(x, y, z))
+    else _j.set(rig.root.position.x + TEMPLATE[i]![0], rig.root.position.y + TEMPLATE[i]![1], rig.root.position.z + TEMPLATE[i]![2])
+    out[i * 3] = _j.x
+    out[i * 3 + 1] = _j.y
+    out[i * 3 + 2] = _j.z
+  })
+  return out
+}

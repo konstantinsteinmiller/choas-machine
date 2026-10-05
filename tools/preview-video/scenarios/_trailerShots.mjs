@@ -68,9 +68,11 @@ export const SHOTS = {
       await ctx.evaluate(() => { window.__t.calm(); window.__preview.ride(-1, [3.4, 1.5, 1.4], [0, 1.0, 2.2], 50) })
     },
     async play(ctx) {
-      await ctx.evaluate(() => window.__preview.move(0, 0.55))
+      // `?bs=neck|kneel|throat` picks the backstab's variant (a check of one); otherwise the dice do.
+      await ctx.evaluate(() => { const v = new URLSearchParams(location.search).get('bs'); if (v) window.__preview.backstab(v); window.__preview.move(0, 0.55) })
       await ctx.stepUntil(() => window.__game.hud.strike === 'backstab', { timeoutMs: 3500 })
-      await ctx.evaluate(() => { window.__preview.move(0, 0); window.__preview.unpin(); window.__preview.act() })
+      // The kill is filmed by the game's own kill-cam (`backstabCam`): the director's camera lets go.
+      await ctx.evaluate(() => { window.__preview.move(0, 0); window.__preview.unpin(); window.__preview.act(); window.__preview.shot(null) })
     }
   }),
 
@@ -121,7 +123,8 @@ export const SHOTS = {
     },
     async play(ctx) {
       await ctx.wait(700)
-      await ctx.evaluate(() => { window.__preview.unpin(); window.__preview.act() })
+      // Off the rope the game's own kill-cam (`airCam`) films it: the director's camera lets go.
+      await ctx.evaluate(() => { window.__preview.unpin(); window.__preview.act(); window.__preview.shot(null) })
     }
   }),
 
@@ -262,28 +265,35 @@ export const SHOTS = {
     }
   }),
 
-  // ── The minigun: they come running, the belt runs out on them ──
+  // ── The minigun: the Goliath and its escort in front of it, the belt runs out on them ──
+  // Over the mech's shoulder down the line of fire: the tank rolls in behind
+  // the guards, the stream drops two or three of them (ragdolls), the tank
+  // takes the rest.
   minigun: shot('minigun', {
     level: 4,
     async stage(ctx) {
       await ctx.evaluate(() => {
         const t = window.__t
-        t.pin(t.unit('enforcer', 0), 74, 17, 60, 12)
-        t.pin(t.unit('guard', 0), 71, 9, 60, 12)
-        t.pin(t.unit('guard', 1), 72, 20, 60, 12)
-        t.pin(t.unit('guard', 2), 75, 12.5, 60, 12)
-        t.mech(60, 12, 72, 14)
+        t.pin(t.unit('goliath', 0), 77, 13, 60, 12)
+        t.pin(t.unit('enforcer', 0), 72.5, 16.5, 60, 12)
+        t.pin(t.unit('guard', 0), 66.5, 10.8, 60, 12)
+        t.pin(t.unit('guard', 1), 67.8, 13.8, 60, 12)
+        t.pin(t.unit('guard', 2), 69, 9.4, 60, 12)
+        t.mech(60, 12, 72, 12)
         t.weapon('minigun')
       })
       await ctx.wait(500)
-      await alarm(ctx, ['enforcer', 0], ['guard', 0], ['guard', 1], ['guard', 2])
+      await alarm(ctx, ['goliath', 0], ['enforcer', 0], ['guard', 0], ['guard', 1], ['guard', 2])
       await ctx.evaluate(() => { window.__preview.aim(true); window.__preview.aimAt(window.__t.unit('guard', 0).id, 1) })
       await ctx.wait(400)
-      await ctx.evaluate(() => { const t = window.__t, g = t.ground(60, 12); t.cam(67.5, g + 2.0, 3.8, 64.5, g + 1.3, 13, 60) })
+      await ctx.evaluate(() => { const t = window.__t, g = t.ground(60, 12); t.cam(56.6, g + 2.0, 15.6, 68.5, g + 1.4, 12.2, 56) })
     },
     async play(ctx, t) {
+      // Let go: the guards come on, the machines fight from where they stand.
       await ctx.evaluate(() => window.__preview.unpin())
-      await hose(ctx, t, 6000)
+      await hose(ctx, t, 6200)
+      const down = await ctx.evaluate(() => ['guard'].flatMap(k => window.__game.app.mode.garrison.units.filter(u => u.kind === k && u.state === 'dead')).length)
+      ctx.log.info(`minigun: ${down} guards down`)
     }
   }),
 

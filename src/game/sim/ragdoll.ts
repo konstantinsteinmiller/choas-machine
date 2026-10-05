@@ -89,6 +89,21 @@ export interface Ragdoll {
 }
 
 /** A person standing at x, y, z (feet), facing `yaw`, becomes a ragdoll. */
+/**
+ * A ragdoll that starts from where a body's joints ARE (16 points, `J`
+ * order), not from standing: a guard let go on its knees falls from its
+ * knees. The sticks keep the template's lengths, so the body is the same one.
+ */
+export const ragdollFrom = (points: ArrayLike<number>): Ragdoll => {
+  const p = new Float32Array(JOINTS * 3)
+  for (let i = 0; i < JOINTS * 3; i++) p[i] = points[i]!
+  const t = new Float32Array(JOINTS * 3)
+  TEMPLATE.forEach(([tx, ty, tz], i) => { t[i * 3] = tx; t[i * 3 + 1] = ty; t[i * 3 + 2] = tz })
+  const len = new Float32Array(STICKS.length)
+  STICKS.forEach(([a, b], k) => { len[k] = dist(t, a, b) })
+  return { p, q: p.slice(), len, asleep: false, still: 0, awake: 0, pin: null }
+}
+
 export const makeRagdoll = (x: number, y: number, z: number, yaw: number): Ragdoll => {
   const p = new Float32Array(JOINTS * 3)
   const c = Math.cos(yaw)

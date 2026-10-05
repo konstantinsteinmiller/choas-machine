@@ -3,6 +3,21 @@ import { RigBuilder, cap, dome, ell, pose, nudge, rbox, rcone, rcyl, sph, stripU
 import { PAL } from './palette'
 
 /**
+ * Where a defender's rounds leave its weapon: the bone, and the muzzle in that
+ * bone's frame (read off the parts below). The mission draws the flash and
+ * the tracer from here, so a round never starts anywhere but the barrel.
+ * The Enforcer fires its two arm guns in turn.
+ */
+export const MUZZLE = {
+  rifle: ['rifle', 0, -0.72, 0],
+  marksman: ['rifle', 0, -1.17, 0],
+  roomba: ['turret', 0, 0.02, 0.56],
+  enforcerL: ['gunL', 0, 0, 1.17],
+  enforcerR: ['gunR', 0, 0, 1.17],
+  goliath: ['barrel', 0, 0, 3.22]
+} as const satisfies Record<string, readonly [string, number, number, number]>
+
+/**
  * ─── The garrison ────────────────────────────────────────────────────────────
  *
  * Everything that defends a fortress: human guards and their Commander, the
@@ -144,6 +159,8 @@ export interface GuardPose {
   gripped: number
   impaled: number
   limp: number
+  /** 0 … 1 driven down onto its knees (a backstab, `sim/backstab.ts`). */
+  kneel: number
   /** Seconds since it died; 0 while alive. */
   deadT: number
   /** How it goes down. */
@@ -160,7 +177,7 @@ export interface GuardPose {
 export type HumanDeath = 'back' | 'front' | 'spin' | 'thrown'
 
 export const restGuardPose = (): GuardPose => ({
-  time: 0, stride: 0, speed: 0, aim: 0, wary: 0, caution: 0, startle: 0, recoil: 0, lookYaw: 0, seed: 0.5, proud: false, gripped: 0, impaled: 0, limp: 0, deadT: 0, death: 'back'
+  time: 0, stride: 0, speed: 0, aim: 0, wary: 0, caution: 0, startle: 0, recoil: 0, lookYaw: 0, seed: 0.5, proud: false, gripped: 0, impaled: 0, limp: 0, kneel: 0, deadT: 0, death: 'back'
 })
 
 const sat = (v: number): number => (v < 0 ? 0 : v > 1 ? 1 : v)
@@ -363,7 +380,9 @@ const poseGuardAlive = (rig: Rig, s: GuardPose): void => {
 
   // ── Legs ──
   const hipPitch = (0.05 + 0.12 * run) * walk + 0.12 * s.caution
-  const stance = (0.22 * s.caution + 0.28 * s.aim) * (1 - s.gripped) + 0.3 * gone
+  const stance = ((0.22 * s.caution + 0.28 * s.aim) * (1 - s.gripped) + 0.3 * gone) * (1 - s.kneel)
+  // On its knees: the thighs upright, the shins back along the floor.
+  const kneel = s.kneel
   let reach = 0
   for (const [tag, sign] of [['L', 1], ['R', -1]] as const) {
     const ph = s.stride + (sign > 0 ? 0 : Math.PI)
@@ -374,15 +393,20 @@ const poseGuardAlive = (rig: Rig, s: GuardPose): void => {
       - stance
       // Standing: the leg without the weight is a little bent.
       - 0.1 * Math.max(0, -shift * sign)
+      - (0.08 + 0.06 * sign) * kneel
     const knee = (0.14 + up * (0.95 + 0.5 * run) + Math.max(0, sw) * 0.12) * walk
       + stance * 2
       + 0.22 * Math.max(0, -shift * sign)
+      + 1.62 * kneel
     // Heel first (toes up as the leg reaches), toe last (heel up as it leaves).
     const roll = (Math.max(0, sw) * 0.3 * (1 - up) - Math.max(0, -sw) * 0.45 * up) * walk
     pose(rig, `leg${tag}`, thigh, 0, sign * (0.07 + 0.06 * s.aim) * alive + 0.04 * shift)
     pose(rig, `shin${tag}`, knee, 0, 0)
-    pose(rig, `foot${tag}`, -(thigh + knee) - roll, 0, 0)
-    reach = Math.max(reach, G_THIGH * Math.cos(hipPitch + thigh) + G_SHIN * Math.cos(hipPitch + thigh + knee))
+    // Kneeling, the foot lies flat behind the shin, its top on the floor.
+    pose(rig, `foot${tag}`, (-(thigh + knee) - roll) * (1 - kneel) + 1.4 * kneel, 0, 0)
+    // The lowest of knee and ankle stands on the floor (kneeling, the knee; the knee cap's thickness under it).
+    const kneeDown = G_THIGH * Math.cos(hipPitch + thigh)
+    reach = Math.max(reach, kneeDown - 0.06 * kneel, kneeDown + G_SHIN * Math.cos(hipPitch + thigh + knee))
   }
 
   // ── Pelvis and spine ──

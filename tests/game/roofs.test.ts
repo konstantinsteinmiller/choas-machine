@@ -12,6 +12,7 @@ import {
 import { validateFortress } from '@/game/world/validate'
 import { buildFortressMesh } from '@/game/world/fortressMesh'
 import { makePlayer, stepPlayer, type Wish } from '@/game/sim/player'
+import { MECH_HEIGHT } from '@/game/models/mech'
 import { buildBastion } from '@/game/data/fortresses/bastion'
 import { buildTrainingGround } from '@/game/data/fortresses/training'
 import { buildProvingGround } from '@/game/data/fortresses/proving'
@@ -81,7 +82,7 @@ describe('the roof layer (#96)', () => {
     let top = 0
     for (let k = 0; k < 90; k++) { stepPlayer(p, g, wish(), 1 / 60); top = Math.max(top, p.y) }
     expect(top).toBeGreaterThan(0.3)
-    expect(top + 2.5).toBeLessThanOrEqual(3 + 1e-6)
+    expect(top + MECH_HEIGHT).toBeLessThanOrEqual(3 + 1e-6)
     expect(p.mode).toBe('ground')
   })
 

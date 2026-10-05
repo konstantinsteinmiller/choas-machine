@@ -1,4 +1,4 @@
-import { BoxGeometry, CylinderGeometry } from 'three'
+import { BoxGeometry, CylinderGeometry, Quaternion, Vector3 } from 'three'
 import { RigBuilder, cap, ell, pose, nudge, rbox, rcyl, scaleBone, sph, stripUv, type Rig } from './kit'
 import { PAL } from './palette'
 import type { WeaponId } from '../data/ids'
@@ -28,13 +28,126 @@ export const MUZZLE_TIP: Readonly<Record<WeaponId, readonly [string, number, num
  * the arm, and whatever it holds, along +z.
  */
 
+/**
+ * The mech is built at its design size and drawn at this share of it: a
+ * little taller than a guard, not a head and a half (the blade meets a
+ * guard's neck at a believable angle). Every size below is the drawn one.
+ */
+export const MECH_SCALE = 0.8
 /** Standing eye height, crouched eye height, and the body's radius (m). */
-export const MECH_EYE = 2.25
-export const MECH_EYE_CROUCH = 1.4
-export const MECH_RADIUS = 0.42
-export const MECH_HEIGHT = 2.5
+// Standing, the eye sits just under the helmet's top: it still clears a cover block (1.8 m).
+export const MECH_EYE = 1.95
+export const MECH_EYE_CROUCH = 1.4 * MECH_SCALE
+export const MECH_RADIUS = 0.42 * MECH_SCALE
+export const MECH_HEIGHT = 2.5 * MECH_SCALE
 /** Top of the helmet when crouched: what must stay under a cover block. */
-export const MECH_HEIGHT_CROUCH = 1.65
+export const MECH_HEIGHT_CROUCH = 1.65 * MECH_SCALE
+
+const _down = new Vector3(0, -1, 0)
+const _qa = new Quaternion()
+const _qb = new Quaternion()
+const _qi = new Quaternion()
+const _qc = new Quaternion()
+const _qe = new Quaternion()
+const _va = new Vector3()
+const _vb = new Vector3()
+const _vs = new Vector3()
+
+/** The blade's tip, shoulder frame, with the elbow bent `phi` (rad, negative: forward). */
+const tipAt = (e: Vector3, b: Vector3, phi: number, out: Vector3): Vector3 =>
+  out.set(e.x + b.x, e.y + b.y * Math.cos(phi) - b.z * Math.sin(phi), e.z + b.y * Math.sin(phi) + b.z * Math.cos(phi))
+
+/** The most the elbow bends for a thrust (rad). */
+const ELBOW_MAX = 2.3
+
+/**
+ * Aim the blade arm along the world direction `dir` (unit), blended in by
+ * `w`: the shoulder turns so the line from the shoulder to the blade's tip
+ * points that way. With `reach` (m, world) the elbow bends so the tip is that
+ * far from the shoulder (a two-bone reach, the elbow down and back); without
+ * it the arm is straight. Called after `poseMech` and after the rig is
+ * placed; a kill's choreography uses it to cock the arm and to drive the
+ * blade at a mark (`sim/backstab.ts`, `sim/airStrike.ts`, `sim/killPose.ts`).
+ */
+export const aimBladeArm = (rig: Rig, dir: Vector3, w: number, reach?: number): void => {
+  const blade = rig.bones.blade
+  if (!blade) return
+  aimArm(rig, 'R', dir, w, reach, _tipR.set(blade.position.x, blade.position.y + BLADE_TIP_LOCAL, blade.position.z))
+}
+
+/** The free hand's palm in its forearm's frame (design size). */
+const HAND_LOCAL = new Vector3(0, -0.45, 0.02)
+const _tipR = new Vector3()
+const _vd = new Vector3()
+
+/**
+ * The free (left) hand onto a point in the world, blended in by `w`: the
+ * shoulder turns and the elbow bends so the palm is there (`aimArm`). A
+ * kill's choreography uses it to clamp the hand over a guard's mouth or on
+ * its shoulder.
+ */
+export const reachFreeHand = (rig: Rig, at: { x: number; y: number; z: number }, w: number): void => {
+  const sh = rig.bones.shoulderL
+  if (!sh || w <= 0) return
+  rig.root.updateMatrixWorld(true)
+  sh.getWorldPosition(_vs)
+  _vb.set(at.x - _vs.x, at.y - _vs.y, at.z - _vs.z)
+  const reach = _vb.length()
+  if (reach < 1e-4) return
+  aimArm(rig, 'L', _vd.copy(_vb).multiplyScalar(1 / reach), w, reach, HAND_LOCAL)
+}
+
+/**
+ * An arm along the world direction `dir` (unit), blended in by `w`: the
+ * shoulder turns so the line from it to `tip` (a point in the forearm's frame:
+ * the blade's point, the palm) points that way, and with `reach` (m, world)
+ * the elbow bends so the tip is that far from the shoulder.
+ */
+const aimArm = (rig: Rig, side: 'L' | 'R', dir: Vector3, w: number, reach: number | undefined, tip: Vector3): void => {
+  const sh = rig.bones[`shoulder${side}`]
+  const fore = rig.bones[`fore${side}`]
+  if (!sh || !fore || !sh.parent || w <= 0) return
+  rig.root.updateMatrixWorld(true)
+  // The elbow: bisect for the bend that gives the reach.
+  let phi = 0
+  const tx = tip.x
+  const ty = tip.y
+  const tz = tip.z
+  if (reach !== undefined) {
+    const e = _va.copy(fore.position)
+    const b = _vb.set(tx, ty, tz)
+    const want = reach / sh.getWorldScale(_vs).x
+    let lo = -ELBOW_MAX
+    let hi = 0
+    if (tipAt(e, b, hi, _vs).length() <= want) phi = 0
+    else if (tipAt(e, b, lo, _vs).length() >= want) phi = lo
+    else {
+      for (let i = 0; i < 22; i++) {
+        const mid = (lo + hi) / 2
+        if (tipAt(e, b, mid, _vs).length() > want) hi = mid
+        else lo = mid
+      }
+      phi = (lo + hi) / 2
+    }
+  }
+  // The line to the tip in the shoulder's frame, turned onto its own "down"
+  // about its x (so the bend stays in the arm's plane), then down onto `dir`.
+  _qe.identity()
+  if (phi !== 0) {
+    tipAt(_va.copy(fore.position), _vb.set(tx, ty, tz), phi, _vs)
+    _vs.x = 0
+    _qe.setFromUnitVectors(_vs.normalize(), _down)
+  }
+  sh.parent.getWorldQuaternion(_qa)
+  _qb.setFromUnitVectors(_down, dir)
+  _qa.invert().multiply(_qb).multiply(_qe)
+  sh.quaternion.slerp(_qa, Math.min(1, w))
+  _qc.setFromAxisAngle(_vs.set(1, 0, 0), phi)
+  fore.quaternion.slerp(_qc, Math.min(1, w))
+}
+
+/** The blade's tip in its bone's frame (an 0.82 m blade centred 0.5 m out, design size). */
+export const BLADE_TIP_LOCAL = -0.91
 
 /** x of the mech's own right (it faces +z, so its right is -x). */
 const RIGHT = -1
@@ -120,7 +233,9 @@ export const buildMech = (): Rig => {
     b.part(`foot${tag}`, rbox(0.27, 0.16, 0.46, 0.45, 8, 6), PAL.mechSuitDeep, { p: [0, 0.0, 0.07] })
   })
 
-  return b.build({ outline: 0.022, height: MECH_HEIGHT })
+  const rig = b.build({ outline: 0.022 / MECH_SCALE, height: MECH_HEIGHT })
+  rig.root.scale.setScalar(MECH_SCALE)
+  return rig
 }
 
 /** Everything the simulation says about the mech's body this frame. */
@@ -226,11 +341,12 @@ export const legLowest = (a1: number, a2: number, a3: number): number => {
   return Math.min(thigh, shin, pad, foot)
 }
 /**
- * The takedown's arm angles (`sim/takedown.ts` has the timing). Worked out
- * from the rig: the blade arm's shoulder is 0.52 m to the right and 1.91 m
- * up, the target's middle is `TAKEDOWN.reach` ahead on the mech's centre line
- * and 1.05 m up, so the straight arm points down, forward and inward. A test
- * checks that the blade really passes through the target and out of its front.
+ * The first takedown's arm angles (the `draw`/`plunge` channels; the
+ * backstab, `sim/backstab.ts`, now aims the blade arm with `placeKillBody`
+ * and leaves them at 0). Worked out from the rig: the blade arm's shoulder is
+ * 0.52 m to the right and 1.91 m up, the target's middle 0.72 m ahead on the
+ * mech's centre line and 1.05 m up, so the straight arm points down, forward
+ * and inward.
  */
 const PLUNGE_PITCH = -0.69
 const PLUNGE_ROLL = 0.43
@@ -334,8 +450,8 @@ export const poseMech = (rig: Rig, s: MechPose): void => {
   // Out wide on a cable, and see-sawing against the sway.
   const seesaw = Math.sin(s.time * 2.3) * 0.22 + Math.sin(s.stride) * 0.12
   // In a takedown the free hand goes over the target's far shoulder: up,
-  // forward and across (`GRAB_*` point the arm at it from where the mech
-  // stands, `TAKEDOWN.reach` behind).
+  // forward and across (`GRAB_*` point the arm at it from 0.72 m straight
+  // behind, where the first takedown stood).
   pose(
     rig, 'shoulderL',
     lerp(

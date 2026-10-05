@@ -207,6 +207,11 @@ export interface Unit {
   gripped: boolean
   /** Dead, and held up for this long before its fall may begin (the blade). */
   hold: number
+  /**
+   * In the mech's hands (a backstab, a drop from a rope): how it is held,
+   * written by the mission each step for the view to pose. Null otherwise.
+   */
+  held: { grip: number; arch: number; limp: number; kneel: number } | null
   /** How it went down: the view plays this, and a wreck in pieces lies where it burst. */
   death: DeathKind
   /** The way the blow pushed it (a unit vector on the ground). */
@@ -819,7 +824,7 @@ export const makeGarrison = (f: Fortress, level = 2): Garrison => {
       yaw: p.facing, pyaw: p.facing, look: 0,
       state: p.reserve ? 'reserve' : mech ? 'dormant' : 'patrol', t: 0, detect: 0, sees: false, seenX: p.x, seenZ: p.z, lured: false,
       route: p.route, wp: p.route.length > 1 ? 1 : 0, wait: p.route[0]?.wait ?? 0,
-      path: [], pathI: 0, repath: 0, bodyT: 0, seenFor: 0, unseenFor: 9, shouted: false, runner: -1, wary: false, hop: 0, fought: false, checkAt: Infinity, checked: false, hp: Math.round(SPECS[p.kind].hp * threat.hp * (p.boss === 'foreman' ? FOREMAN_HP : 1)), maxHp: Math.round(SPECS[p.kind].hp * threat.hp * (p.boss === 'foreman' ? FOREMAN_HP : 1)), boss: p.boss ?? null, shield: !!p.shield, deadT: 0, fallDir: 1, huh: HUH_S, noise: 0, gripped: false, hold: 0, death: 'back', hitX: 0, hitZ: 0, found: false,
+      path: [], pathI: 0, repath: 0, bodyT: 0, seenFor: 0, unseenFor: 9, shouted: false, runner: -1, wary: false, hop: 0, fought: false, checkAt: Infinity, checked: false, hp: Math.round(SPECS[p.kind].hp * threat.hp * (p.boss === 'foreman' ? FOREMAN_HP : 1)), maxHp: Math.round(SPECS[p.kind].hp * threat.hp * (p.boss === 'foreman' ? FOREMAN_HP : 1)), boss: p.boss ?? null, shield: !!p.shield, deadT: 0, fallDir: 1, huh: HUH_S, noise: 0, gripped: false, hold: 0, held: null, death: 'back', hitX: 0, hitZ: 0, found: false,
       stride: 0, speed01: 0, homeX: p.x, homeZ: p.z, homeYaw: p.facing, altitude: p.altitude,
       spotX: spot.x, spotZ: spot.z,
       seed: (id * 2.399) % (Math.PI * 2),

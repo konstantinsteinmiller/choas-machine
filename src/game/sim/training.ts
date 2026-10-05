@@ -3,7 +3,7 @@ import { TRAINING_ROOMS, type LessonId } from '../data/fortresses/training'
 import type { WeaponId } from '../data/ids'
 import type { HintId } from './coach'
 import { isAlive, type Garrison } from './garrison'
-import { TAKEDOWN, TD_END } from './takedown'
+import { VARIANTS, guardToWorld, type BackstabVariant } from './backstab'
 
 /**
  * ─── The training ground's lessons (#57, #58) ────────────────────────────────
@@ -49,18 +49,32 @@ export interface DemoKey {
   hint?: HintId
 }
 
-/** The blade room's hologram guard, in the room's own cells (its back to the way in), and how far behind it the takedown starts. */
+/** The blade room's hologram guard, in the room's own cells (its back to the way in), and what it looks at. */
 export const BLADE_VICTIM: readonly [number, number] = [7, 3.5]
-/** The takedown starts as far behind as the real one (#114: the blade goes in). */
-const TD_REACH_CELLS = TAKEDOWN.reach / CELL
+const BLADE_LOOK: readonly [number, number] = [9, 3.5]
 
-/** Where to stand to take a guard at `v` facing toward `face` from behind (room cells). */
-const behind = (v: readonly [number, number], face: readonly [number, number]): [number, number] => {
-  const dx = face[0] - v[0]
-  const dz = face[1] - v[1]
-  const l = Math.hypot(dx, dz) || 1
-  return [v[0] - (dx / l) * TD_REACH_CELLS, v[1] - (dz / l) * TD_REACH_CELLS]
+/**
+ * The demo's backstab (#110): always the one variant, so the ghost's path
+ * walks up to exactly where it starts and walks off from where it ends.
+ */
+export const DEMO_BACKSTAB: BackstabVariant = 'neck'
+const TD_END = VARIANTS[DEMO_BACKSTAB].end
+
+/**
+ * Where the mech stands, and a point it faces, at the first key (`at: 0`) or
+ * the last (`at: 1`) of the demo's backstab on a guard at `v` facing toward
+ * `face` (room cells): the variant's own place behind it (#114: the blade goes in).
+ */
+const behind = (v: readonly [number, number], face: readonly [number, number], at: 0 | 1 = 0): { x: number; z: number; face: [number, number] } => {
+  const keys = VARIANTS[DEMO_BACKSTAB].keys
+  const k = at === 0 ? keys[0]! : keys[keys.length - 1]!
+  const yaw = Math.atan2(face[0] - v[0], face[1] - v[1])
+  const [x, , z] = guardToWorld(v[0], 0, v[1], yaw, k.mx / CELL, 0, k.mz / CELL)
+  const my = yaw + k.myaw
+  return { x, z, face: [x + Math.sin(my), z + Math.cos(my)] }
 }
+const BLADE_BEHIND = behind(BLADE_VICTIM, BLADE_LOOK)
+const BLADE_AFTER = behind(BLADE_VICTIM, BLADE_LOOK, 1)
 
 /**
  * The decoy room's hologram guard (#115): it turns to the decoy, walks over,
@@ -69,11 +83,12 @@ const behind = (v: readonly [number, number], face: readonly [number, number]): 
 const DECOY_AT: readonly [number, number] = [7, 3]
 const DECOY_GUARD: readonly [number, number] = [7.6, 3.9]
 const DECOY_BEHIND = behind(DECOY_GUARD, DECOY_AT)
+const DECOY_AFTER = behind(DECOY_GUARD, DECOY_AT, 1)
 
 /** A hologram guard a lesson's takedown is played on: where it stands (room cells), facing what; missing values carry over. */
 export interface VictimKey { t: number; x?: number; z?: number; face?: readonly [number, number] }
 export const VICTIMS: Readonly<Partial<Record<LessonId, readonly VictimKey[]>>> = {
-  blade: [{ t: 0, x: 7, z: 3.5, face: [9, 3.5] }],
+  blade: [{ t: 0, x: BLADE_VICTIM[0], z: BLADE_VICTIM[1], face: BLADE_LOOK }],
   decoy: [
     { t: 0, x: 9, z: 7, face: [1, 7] }, { t: 1.6, x: 9, z: 7, face: DECOY_AT },
     { t: 4.2, x: DECOY_GUARD[0], z: DECOY_GUARD[1], face: DECOY_AT }
@@ -107,9 +122,9 @@ export const DEMOS: Readonly<Record<LessonId, readonly DemoKey[]>> = {
   // Crouched, from behind, up to the hologram guard: the takedown, all of it (#110).
   blade: [
     { t: 0, x: 1.5, z: 7, crouch: 0, hint: 'crouch' }, { t: 0.6, crouch: 1 },
-    { t: 4, x: BLADE_VICTIM[0] - TD_REACH_CELLS, z: BLADE_VICTIM[1], crouch: 1, face: [BLADE_VICTIM[0], BLADE_VICTIM[1]] },
+    { t: 4, x: BLADE_BEHIND.x, z: BLADE_BEHIND.z, crouch: 1, face: BLADE_BEHIND.face },
     { t: 4.3, hint: 'blade', takedown: true, crouch: 0 },
-    { t: 4.3 + TD_END, x: BLADE_VICTIM[0] - TD_REACH_CELLS, z: BLADE_VICTIM[1] },
+    { t: 4.3 + TD_END, x: BLADE_AFTER.x, z: BLADE_AFTER.z },
     { t: 5.6 + TD_END, x: 6, z: 7 }
   ],
   // The guard here is already down (#113: one takedown lesson is enough):
@@ -124,9 +139,9 @@ export const DEMOS: Readonly<Record<LessonId, readonly DemoKey[]>> = {
   decoy: [
     { t: 0, x: 1.5, z: 7 }, { t: 0.8, x: 2.2, z: 7, face: DECOY_AT, hint: 'decoy', decoy: DECOY_AT }, { t: 1.8, x: 2.2, z: 7, face: DECOY_AT },
     { t: 2.3, crouch: 1, hint: 'crouch' }, { t: 3.6, x: 2.2, z: 10.5, crouch: 1 }, { t: 5.2, x: 5.5, z: 10.5, crouch: 1 },
-    { t: 7, x: DECOY_BEHIND[0], z: DECOY_BEHIND[1], crouch: 1, face: DECOY_GUARD },
+    { t: 7, x: DECOY_BEHIND.x, z: DECOY_BEHIND.z, crouch: 1, face: DECOY_BEHIND.face },
     { t: 7.2, hint: 'blade', takedown: true, crouch: 0 },
-    { t: 7.2 + TD_END, x: DECOY_BEHIND[0], z: DECOY_BEHIND[1] },
+    { t: 7.2 + TD_END, x: DECOY_AFTER.x, z: DECOY_AFTER.z },
     { t: 8.8 + TD_END, x: 10.4, z: 7 }
   ],
   box: [

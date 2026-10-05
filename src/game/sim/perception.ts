@@ -58,7 +58,7 @@ export const exposure = (g: Grid, v: Viewer, t: Seen): number => {
     if (cos < Math.cos(v.halfAngle)) return 0
   }
   let seen = 0
-  if (hasLineOfSight(g, v.x, v.y, v.z, t.x, t.feetY + t.height * 0.92, t.z)) seen += 0.5
+  if (hasLineOfSight(g, v.x, v.y, v.z, t.x, t.feetY + t.height * 0.97, t.z)) seen += 0.5
   if (hasLineOfSight(g, v.x, v.y, v.z, t.x, t.feetY + t.height * 0.5, t.z)) seen += 0.5
   return seen
 }

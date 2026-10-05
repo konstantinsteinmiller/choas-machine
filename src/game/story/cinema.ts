@@ -11,16 +11,17 @@ import { buildFortressMesh, type FortressMesh } from '../world/fortressMesh'
 import { buildSky, type Sky } from '../world/sky'
 import { themeOf, type ThemeId } from '../data/themes'
 import { MUZZLE_TIP, buildMech, poseMech, restPose, type MechPose } from '../models/mech'
-import { BOARD_HOVER, buildRobodog, poseRobodog, restDogPose, type DogPose } from '../models/robodog'
+import { BOARD_HOVER, HOUND_SCALE, STRIDE_PER_UNIT, buildRobodog, poseRobodog, restDogPose, type DogPose } from '../models/robodog'
 import { CombatFx } from '../fx/combatFx'
 import { SalvageView } from '../world/salvageView'
 import type { Rocket } from '../sim/rockets'
 import type { Decoy } from '../sim/melee'
 import { angleDelta } from '../sim/player'
-import { AIR_TOTAL_S, airAt, pinBlade, pitchedFeet, planAir } from '../sim/airStrike'
+import { airAt, airCam, airMark, planAir } from '../sim/airStrike'
+import { bodySink, placeKillBody } from '../sim/killPose'
 import type { WeaponId } from '../data/ids'
 import {
-  buildDrone, buildEnforcer, buildGoliath, buildGuard, buildRoomba, buildSearchlight, poseDrone, poseEnforcer, poseGoliath, poseGuard, poseRoomba, poseSearchlight, restGuardPose
+  MUZZLE, buildDrone, buildEnforcer, buildGoliath, buildGuard, buildRoomba, buildSearchlight, poseDrone, poseEnforcer, poseGoliath, poseGuard, poseRoomba, poseSearchlight, restGuardPose
 } from '../models/garrison'
 import { buildDropship, type Dropship } from '../models/dropship'
 import type { Rig } from '../models/kit'
@@ -86,18 +87,22 @@ const round = (t: number, a: V3, b: V3, period: number, out: Vector3, off = 0): 
   return { yaw, walking }
 }
 
+/** How far a `round` has walked by `t` (m), there and back counted: what its feet have covered. */
+const roundDist = (t: number, a: V3, b: V3, period: number, off = 0): number => {
+  const u = (t + off) / period
+  const ph = u - Math.floor(u)
+  const leg = ph < 0.4 ? smooth(ph / 0.4) : ph < 0.5 ? 1 : ph < 0.9 ? 1 + smooth((ph - 0.5) / 0.4) : 2
+  return Math.hypot(b[0] - a[0], b[1] - a[1], b[2] - a[2]) * (2 * Math.floor(u) + leg)
+}
+
 /** 0 … 1 across [a, b]. */
 const span = (t: number, a: number, b: number): number => Math.min(1, Math.max(0, (t - a) / (b - a)))
 const between = (t: number, a: number, b: number): boolean => t >= a && t < b
-/** The intro's dive kill runs this much slower than the game's (it has no kill-cam slow time). */
+/** The intro's kill from the rope runs this much slower than the game's (it has no kill-cam slow time). */
 const INTRO_DIVE_SLOW = 1.3
-/** The body's outermost points, by bone: the dive's roll keeps them over the floor (as `sim/mission.ts`). */
-const BODY_EXTREMES: ReadonlyArray<readonly [string, number, number, number]> = [
-  ['head', 0, 0.45, 0], ['chest', 0, 0.25, -0.25], ['hips', 0, -0.1, -0.25],
-  ['foreL', 0, -0.45, 0], ['foreR', 0, -0.45, 0],
-  ['shinL', 0, 0, 0.1], ['shinR', 0, 0, 0.1], ['footL', 0, -0.1, 0.2], ['footR', 0, -0.1, 0.2],
-  ['blade', 0, -0.91, 0]
-]
+/** When it leaves the rope (s into the intro). */
+const DIVE_AT = 14.2
+const tmpCam = { x: 0, y: 0, z: 0, tx: 0, ty: 0, tz: 0, fov: 0 }
 
 /** What every scene works with. */
 interface Stage {
@@ -143,6 +148,7 @@ interface Script {
 const tmpA = new Vector3()
 const tmpB = new Vector3()
 const tmpC = new Vector3()
+const tmpD = new Vector3()
 const UP = new Vector3(0, 1, 0)
 
 // ─── Intro: the ability showcase (about 35 s) ───────────────────────────────
@@ -211,6 +217,8 @@ const INTRO: Script = {
     Object.assign(mp, restPose(), { time: t })
     dp.time = t
     s.mech.root.rotation.x = 0
+    /** What has to happen to the mech after the frame's pose (a blade kill's arm and pin). */
+    let finish: (() => void) | null = null
     /** A round from (fx, fy, fz) to (tx, ty, tz) with the game's own flash, tracer and bite. */
     const shoot = (fx: number, fy: number, fz: number, tx: number, ty: number, tz: number, w: WeaponId): void => {
       if (!s.cfx) return
@@ -219,6 +227,14 @@ const INTRO: Script = {
       s.cfx.tracer(fx, fy, fz, tx, ty, tz, w)
       s.cfx.impact(tx, ty, tz, -d.x, -d.y, -d.z, false, w)
     }
+    /** Where a rig's weapon muzzle is, as posed this frame (`models/garrison.ts`'s table). */
+    const nose = (rig: Rig, m: readonly [string, number, number, number]): Vector3 => {
+      rig.root.updateMatrixWorld(true)
+      const b = rig.bones[m[0]]
+      return b ? b.localToWorld(tmpD.set(m[1], m[2], m[3])) : tmpD.copy(rig.root.position).setY(rig.root.position.y + 1.4)
+    }
+    /** A round from a muzzle (the defenders' rounds leave their own barrels, #138 follow-up). */
+    const shootFrom = (n: Vector3, tx: number, ty: number, tz: number, w: WeaponId): void => shoot(n.x, n.y, n.z, tx, ty, tz, w)
     /** True once every `every` seconds (on the frame that crosses it). */
     const tick = (every: number, from: number, to: number): boolean => between(t, from, to) && Math.floor(t / every) !== Math.floor((t - s.dt) / every)
     // The base hears the mini-gun (#131): from then on it is after the mech, as in the game.
@@ -311,6 +327,16 @@ const INTRO: Script = {
 
     // ── The yard's guard: his round, the decoy, the drop from the rope ──
     const G1_STOP: V3 = [50, 4, 25.2]
+    // The game's own assassination from above (`sim/airStrike.ts`), onto him
+    // as he stands looking at the decoy, a little slower for the camera.
+    const plan = planAir(
+      { x: 48.6, y: 10, z: 24 }, { x: G1_STOP[0], y: 4, z: G1_STOP[2] }, 4 + 1.72 - 0.12,
+      (x, z) => { const h = s.floor(x, z); return h === -Infinity ? null : h },
+      Math.atan2(DECOY[0] - G1_STOP[0], DECOY[2] - G1_STOP[2])
+    )
+    const diveT = (t - DIVE_AT) / INTRO_DIVE_SLOW
+    const HIT = DIVE_AT + plan.hitAt * INTRO_DIVE_SLOW
+    const LET_GO = DIVE_AT + plan.releaseAt * INTRO_DIVE_SLOW
     {
       const at = round(Math.min(t, 11), [46, 4, 18], [56, 4, 18], 7, tmpA, 1.5)
       let yaw = at.yaw
@@ -323,54 +349,41 @@ const INTRO: Script = {
         yaw = k < 1 ? Math.atan2(G1_STOP[0] - fx, G1_STOP[2] - fz) : Math.atan2(DECOY[0] - G1_STOP[0], DECOY[2] - G1_STOP[2])
         walking = k > 0 && k < 1
       }
-      // Taken: gripped from above at 14.7, the blade in its head at 14.85, down at 15.
-      const gripped = between(t, 14.65, 15.05) ? 1 : 0
-      const dead = t >= 15.05
+      // Taken: the blade in at the blow, the knees giving under the mech, then down.
+      const held = between(t, HIT, LET_GO)
+      const dead = t >= LET_GO
       s.place(g(1).root, tmpA, yaw)
       poseGuard(g(1), {
         ...restGuardPose(), time: t + 1, speed: walking ? 0.45 : 0, stride: t * 4.2,
-        wary: t >= 11 ? 1 : 0, lookYaw: t >= 13.2 && !dead ? Math.sin(t * 1.6) * 0.3 : 0,
-        gripped, impaled: between(t, 14.85, 15.05) ? 1 : 0, limp: between(t, 14.9, 15.05) ? 1 : 0,
-        deadT: dead ? t - 15.05 : 0, death: 'front'
+        wary: t >= 11 ? 1 : 0, lookYaw: t >= 13.2 && t < HIT ? Math.sin(t * 1.6) * 0.3 : 0,
+        gripped: held ? 1 : 0, impaled: held ? 1 : 0, kneel: held ? airAt(plan, diveT).guardKneel : 0,
+        deadT: dead ? t - LET_GO : 0, death: 'front'
       })
     }
-    // Off the rope: the game's own dive kill (`sim/airStrike.ts`), a little
-    // slower for the camera. Head first, the blade through the head, over the
-    // falling body, a roll onto its feet that never goes through the floor.
-    if (between(t, 14.2, 14.2 + AIR_TOTAL_S * INTRO_DIVE_SLOW)) {
-      const plan = planAir({ x: 48.6, y: 10, z: 24 }, { x: G1_STOP[0], y: 4, z: G1_STOP[2] }, 4 + 1.72 - 0.12, (x, z) => { const h = s.floor(x, z); return h === -Infinity ? null : h })
-      const b = airAt(plan, (t - 14.2) / INTRO_DIVE_SLOW)
-      const feet = pitchedFeet(b.x, b.y, b.z, plan.yaw, b.pitch, b.pivot)
-      s.place(s.mech.root, tmpA.set(feet.x, feet.y, feet.z), plan.yaw)
-      s.mech.root.rotation.order = 'YXZ'
-      s.mech.root.rotation.x = b.pitch
-      mp.air = b.phase === 'dive' || b.phase === 'pass' ? 1 : 0
+    // Off the rope: one motion from the push off to the blow to kneeling on
+    // the body, filmed with the game's own kill-cam (`airCam`).
+    if (between(t, DIVE_AT, DIVE_AT + plan.total * INTRO_DIVE_SLOW)) {
+      const b = airAt(plan, diveT)
+      s.place(s.mech.root, tmpA.set(b.x, b.y, b.z), plan.yaw)
+      mp.air = b.air
       mp.stab = 0
-      mp.draw = b.draw
-      mp.plunge = Math.max(0.001, b.plunge)
       mp.crouch = b.crouch
-      mp.blade = 1
-      // Posed now (the frame poses again at its end) to put the blade on the
-      // head at the blow and the lowest point of the body on the floor.
-      poseMech(s.mech, mp)
-      s.mech.root.updateMatrixWorld(true)
-      if (b.pin > 0) {
-        const tip = s.mech.bones.blade!.localToWorld(tmpB.set(0, -0.91, 0))
-        const off = pinBlade(tip, plan.head, b.pin)
-        s.mech.root.position.add(tmpC.set(off.x, off.y, off.z))
-      }
-      if (b.phase !== 'dive') {
-        s.mech.root.updateMatrixWorld(true)
-        const floor = s.floor(s.mech.root.position.x, s.mech.root.position.z)
-        let low = Infinity
-        for (const [bone, ox, oy, oz] of BODY_EXTREMES) {
-          const bb = s.mech.bones[bone]
-          if (bb) low = Math.min(low, bb.localToWorld(tmpB.set(ox, oy, oz)).y)
+      mp.blade = b.blade
+      mp.stow = 1
+      // After the frame's pose: the lean, the blade arm, the tip held in the
+      // mark at the blow, and the kneeling body kept over the floor.
+      finish = () => {
+        placeKillBody(s.mech, b, plan.yaw, b, airMark(plan, b))
+        if (b.phase !== 'crouch' && b.phase !== 'flight') {
+          const floor = s.floor(s.mech.root.position.x, s.mech.root.position.z)
+          if (floor > -Infinity) s.mech.root.position.y += bodySink(s.mech, floor)
         }
-        if (floor > -Infinity && low < floor + 0.03) s.mech.root.position.y += floor + 0.03 - low
       }
-      s.look(tmpB.set(55.5, 7, 32), tmpC.set(50, 5, 25.4), 46)
-      s.once('stab', 14.85, () => { sfx('blade'); s.fx.sparks(G1_STOP[0], 5.4, G1_STOP[2], '#ff5fb7', 10, 3, 0.25) })
+      const cam = airCam(tmpCam, plan, diveT, b, 62)
+      s.look(tmpB.set(cam.x, cam.y, cam.z), tmpC.set(cam.tx, cam.ty, cam.tz), cam.fov)
+      s.once('draw', DIVE_AT + 0.05, () => sfx('bladeOut'))
+      s.once('stab', HIT, () => { sfx('stab'); s.fx.sparks(plan.mark.x, plan.mark.y, plan.mark.z, '#ff5fb7', 10, 3, 0.25) })
+      s.once('pull', DIVE_AT + (plan.total - 1.0) * INTRO_DIVE_SLOW, () => sfx('bladePull'))
     }
 
     // ── Out of the yard: to the ladder, up onto the wall ──
@@ -461,7 +474,7 @@ const INTRO: Script = {
       }
       s.place(g(0).root, tmpA, yaw)
       poseGuard(g(0), { ...restGuardPose(), time: t, speed: walking ? (alarmed ? 0.9 : 0.45) : 0, stride: t * (alarmed ? 6 : 4.2), aim: alarmed && t > ALARM + 2.4 ? 1 : 0, startle: between(t, ALARM, ALARM + 0.4) ? 1 : 0, recoil: tick(0.6, ALARM + 2.6, 34) ? 1 : 0, lookYaw: !alarmed && !walking ? Math.sin(t * 1.1) * 0.5 : 0 })
-      if (tick(0.6, ALARM + 2.6, 34)) shoot(tmpA.x + Math.sin(yaw) * 0.6, 11.4, tmpA.z + Math.cos(yaw) * 0.6, tgt.x + (Math.random() - 0.5) * 0.7, tgt.y + 1.25 + (Math.random() - 0.5) * 0.5, tgt.z + (Math.random() - 0.5) * 0.7, 'sniper')
+      if (tick(0.6, ALARM + 2.6, 34)) shootFrom(nose(g(0), MUZZLE.rifle), tgt.x + (Math.random() - 0.5) * 0.7, tgt.y + 1.25 + (Math.random() - 0.5) * 0.5, tgt.z + (Math.random() - 0.5) * 0.7, 'sniper')
     }
     // ── The Peashooter: its patrol; on the alarm, rolling in, firing ──
     {
@@ -477,7 +490,7 @@ const INTRO: Script = {
       }
       s.place(roomba.root, tmpA, yaw)
       poseRoomba(roomba, { time: t, alarm: alarmed ? 1 : 0, recoil: tick(0.35, ALARM + 3, 34) ? 1 : 0, aimYaw: 0, speed })
-      if (tick(0.35, ALARM + 3, 34)) shoot(tmpA.x + Math.sin(yaw) * 0.6, 10.7, tmpA.z + Math.cos(yaw) * 0.6, tgt.x + (Math.random() - 0.5) * 0.7, tgt.y + 1.25 + (Math.random() - 0.5) * 0.5, tgt.z + (Math.random() - 0.5) * 0.7, 'minigun')
+      if (tick(0.35, ALARM + 3, 34)) shootFrom(nose(roomba, MUZZLE.roomba), tgt.x + (Math.random() - 0.5) * 0.7, tgt.y + 1.25 + (Math.random() - 0.5) * 0.5, tgt.z + (Math.random() - 0.5) * 0.7, 'minigun')
     }
     // ── The Enforcer: marching the far wall; on the alarm, its twin guns ──
     {
@@ -492,7 +505,7 @@ const INTRO: Script = {
         const y = at.yaw + turn
         const ox = side === 0 ? Math.cos(y) * 0.9 : -Math.cos(y) * 0.9
         const oz = side === 0 ? -Math.sin(y) * 0.9 : Math.sin(y) * 0.9
-        shoot(tmpA.x + ox + Math.sin(y) * 1.2, 12.3, tmpA.z + oz + Math.cos(y) * 1.2, tgt.x + (Math.random() - 0.5) * 0.7, tgt.y + 1.25 + (Math.random() - 0.5) * 0.5, tgt.z + (Math.random() - 0.5) * 0.7, 'minigun')
+        shootFrom(nose(enforcer, side === 0 ? MUZZLE.enforcerL : MUZZLE.enforcerR), tgt.x + (Math.random() - 0.5) * 0.7, tgt.y + 1.25 + (Math.random() - 0.5) * 0.5, tgt.z + (Math.random() - 0.5) * 0.7, 'minigun')
       }
       s.once('enforcer', ALARM + 1.8, () => sfx('minigun'))
     }
@@ -528,7 +541,8 @@ const INTRO: Script = {
     {
       const at = round(t, [46, 4, 33], [58, 4, 33], 5, tmpA, 0)
       s.place(hound.root, tmpA, at.yaw)
-      poseRobodog(hound, { time: t, stride: t * 9, run: at.walking ? 1 : 0, fold: 0, thrust: 0 })
+      // The paws keep pace with the ground (a hound's rig is drawn at HOUND_SCALE).
+      poseRobodog(hound, { time: t, stride: roundDist(t, [46, 4, 33], [58, 4, 33], 5) * STRIDE_PER_UNIT / HOUND_SCALE, run: at.walking ? 1 : 0, fold: 0, thrust: 0 })
     }
 
     // ── The rocket into the Goliath ──
@@ -587,6 +601,7 @@ const INTRO: Script = {
       s.look(back, tmpC.set(92, 14, 24))
     }
     poseMech(s.mech, mp)
+    finish?.()
     poseRobodog(s.dog, dp)
   }
 }

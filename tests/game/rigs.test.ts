@@ -3,7 +3,7 @@
 
 import { describe, expect, it } from 'vitest'
 import { Vector3 } from 'three'
-import { buildMech, poseMech, restPose, MECH_HEIGHT, MECH_HEIGHT_CROUCH, MECH_EYE, MECH_EYE_CROUCH } from '@/game/models/mech'
+import { buildMech, poseMech, restPose, MECH_HEIGHT, MECH_HEIGHT_CROUCH, MECH_EYE, MECH_EYE_CROUCH, MECH_SCALE } from '@/game/models/mech'
 import { COVER_H } from '@/game/world/fortress'
 import {
   buildGuard, poseGuard, restGuardPose, buildDrone, poseDrone, buildEnforcer, poseEnforcer, buildGoliath, poseGoliath,
@@ -92,11 +92,12 @@ describe('the mech', () => {
     const top = (): number => {
       rig.root.updateMatrixWorld(true)
       rig.bones.head!.getWorldPosition(head)
-      // The helmet reaches 0.42 above the head bone when upright.
-      return head.y + 0.42
+      // The helmet reaches 0.42 (drawn at MECH_SCALE) above the head bone when upright.
+      return head.y + 0.42 * MECH_SCALE
     }
     poseMech(rig, restPose())
-    expect(top()).toBeGreaterThan(COVER_H + 0.5)
+    // The mech is drawn at MECH_SCALE: its helmet shows over cover, its eyes clear it.
+    expect(top()).toBeGreaterThan(COVER_H + 0.15)
     expect(MECH_EYE).toBeGreaterThan(COVER_H)
     poseMech(rig, { ...restPose(), crouch: 1 })
     expect(top()).toBeLessThan(MECH_HEIGHT_CROUCH)

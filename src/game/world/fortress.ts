@@ -15,8 +15,9 @@ import { addBox, addRoof, findHoles, CELL, cellHeight, CellKind, cellKind, cellM
  * world metres.
  */
 
-/** Heights the kit builds with, in metres. The mech stands 2.5 tall and
- *  crouches to 1.65, so cover hides it crouched and a wall hides it standing. */
+/** Heights the kit builds with, in metres. The mech stands 2.0 tall (eyes at
+ *  1.95) and crouches to 1.32, so cover hides it crouched, it sees over cover
+ *  standing, and a wall hides it standing. */
 export const COVER_H = 1.8
 /** How long a chatting pair talks before one walks its round. */
 export const CHAT_S = 9

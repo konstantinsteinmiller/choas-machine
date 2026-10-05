@@ -10,12 +10,14 @@ import {
   buildGuard, poseGuard, restGuardPose, buildDrone, poseDrone, buildEnforcer, poseEnforcer, buildGoliath, poseGoliath, buildRoomba, poseRoomba
 } from '../models/garrison'
 import type { WeaponId } from '../data/ids'
-import { TAKEDOWN, TD_FREE, takedownPose, victimPose } from '../sim/takedown'
+import { BACKSTAB_VARIANTS, VARIANTS, type BackstabVariant } from '../sim/backstab'
+import { poseBackstabGuard, poseBackstabMech } from '../sim/backstabStage'
 
 /**
  * DEV ONLY (`?bench=models`): every rig on a pad, animated, for art iteration.
  *   m=mech|guard|commander|drone|enforcer|goliath|all   which rig(s)
- *   m=takedown                                          the blade from behind, both bodies (t from the lunge's end)
+ *   m=takedown                                          the backstab, both bodies, looping (t from the close-in)
+ *   v=neck|kneel|throat                                 which backstab (m=takedown)
  *   pose=idle|walk|run|wary|search|startle|crouch|aim|stab|climb|cable|air|dormant
  *        die|die-front|die-spin|die-thrown (with t=<seconds since>)|dead
  *   seed=0..1                                           a guard's own gait and fidgets
@@ -33,7 +35,8 @@ export class ModelBench implements GameMode {
   private entries: Entry[] = []
   private t = 0
   private frozen: number | null
-  private pairAt = 0
+  /** The backstab's two place themselves (`m=takedown`). */
+  private paired = false
   private centre = new Vector3()
   private az: number
   private el: number
@@ -81,26 +84,23 @@ export class ModelBench implements GameMode {
       }, 2.4)
     }
     if (which === 'takedown') {
-      // The blade from behind, both bodies, on the takedown's own clock:
-      // `t` is seconds from the end of the lunge.
+      // The backstab, both bodies, on the variant's own clock (`t` is seconds
+      // from the mech closing in), looping once the body has fallen. The guard
+      // stands at the middle facing +z; the mech is placed by the kill itself.
+      const v = (BACKSTAB_VARIANTS as readonly string[]).includes(q.get('v') ?? '') ? q.get('v') as BackstabVariant : 'neck'
+      const loop = VARIANTS[v].release + 1.6
       const mech = buildMech()
       const guard = buildGuard(false)
-      const td = { grab: 0, draw: 0, plunge: 0, blade: 0 }
-      const vp = { gripped: 0, impaled: 0, limp: 0 }
       add(mech, 0, (t) => {
-        takedownPose(t, td)
-        poseMech(mech, { ...restPose(), time: t, grab: td.grab, draw: td.draw, plunge: td.plunge, blade: td.blade })
+        poseBackstabMech(mech, { ...restPose(), time: t, weapon }, v, t % loop, 0, 0, 0, 0)
       })
       add(guard, 0, (t) => {
-        victimPose(t, vp)
-        const falling = t >= TD_FREE
-        poseGuard(guard, {
-          ...restGuardPose(), time: t, seed: 0.7,
-          gripped: falling ? 1 : vp.gripped, impaled: falling ? 1 : vp.impaled, limp: falling ? 1 : vp.limp,
-          deadT: falling ? Math.max(1e-3, t - TD_FREE) : 0, death: 'front'
-        })
+        const g = { ...restGuardPose(), time: t, seed: 0.7 }
+        guard.root.position.set(0, 0, 0)
+        guard.root.rotation.y = poseBackstabGuard(g, v, t % loop, 0)
+        poseGuard(guard, g)
       })
-      this.pairAt = TAKEDOWN.reach
+      this.paired = true
     }
     for (const commander of [false, true]) {
       if (all || which === (commander ? 'commander' : 'guard')) {
@@ -175,11 +175,8 @@ export class ModelBench implements GameMode {
       x += widths[i]!
       e.rig.root.position.set(e.x, e.y, 0)
     })
-    if (this.pairAt > 0) {
-      // The takedown's two: the mech at the middle, its target a reach ahead.
-      this.entries[0]!.rig.root.position.set(0, 0, 0)
-      this.entries[1]!.rig.root.position.set(0, 0, this.pairAt)
-    }
+    // The backstab's two: the guard at the middle, the mech where the kill puts it.
+    if (this.paired) for (const e of this.entries) e.update(this.frozen ?? 0)
     const pad = new Mesh(new CircleGeometry(Math.max(4, total * 0.7), 40), toon('#9a8be0'))
     pad.rotation.x = -Math.PI / 2
     this.scene.add(pad)
