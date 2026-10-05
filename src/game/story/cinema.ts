@@ -13,6 +13,7 @@ import { themeOf, type ThemeId } from '../data/themes'
 import { MUZZLE_TIP, buildMech, poseMech, restPose, type MechPose } from '../models/mech'
 import { BOARD_HOVER, DOG_STAND, buildRobodog, poseRobodog, restDogPose, type DogPose } from '../models/robodog'
 import { CombatFx } from '../fx/combatFx'
+import { SalvageView } from '../world/salvageView'
 import type { Rocket } from '../sim/rockets'
 import type { WeaponId } from '../data/ids'
 import {
@@ -330,6 +331,11 @@ const INTRO: Script = {
 
 // ─── Salvage: the haul after a first clear of threat I or II (10 s, #103) ───
 
+/** The salvage scene's two piles (metres): by the walker, by the tank. */
+const SALVAGE_PILES: ReadonlyArray<{ x: number; z: number }> = [{ x: 16.9, z: 21.1 }, { x: 21.4, z: 29.2 }]
+/** Bars and plates thrown onto the board, half from each pile. */
+const SALVAGE_BITS = 12
+
 const SALVAGE: Script = {
   theme: 'dusk',
   music: 'hero',
@@ -346,8 +352,16 @@ const SALVAGE: Script = {
     s.extra.e2 = e2
     s.extra.tank = tank
     root.add(e1.root, e2.root, tank.root)
-    for (let i = 0; i < 6; i++) {
-      const c = new Mesh(new BoxGeometry(0.4, 0.3, 0.4), new MeshBasicMaterial({ color: i % 2 ? '#ffd166' : '#b8b0e0' }))
+    // The game's own salvage piles (jam build: the scene shows the salvaging):
+    // one by the walker, one by the tank, stripped as the mech works them.
+    const piles = new SalvageView(SALVAGE_PILES.map((p, id) => ({ ...p, id, y: 0, amount: 30, big: false, taken: false })))
+    s.extra.piles = piles.group
+    s.extra.pileView = piles as unknown as Object3D
+    root.add(piles.group)
+    // What comes off them: alloy bars and plates, arcing onto the dog's board.
+    for (let i = 0; i < SALVAGE_BITS; i++) {
+      const glow = i % 3 !== 2
+      const c = new Mesh(new BoxGeometry(glow ? 0.38 : 0.5, glow ? 0.13 : 0.08, glow ? 0.18 : 0.42), new MeshBasicMaterial({ color: glow ? '#ffb14a' : '#b8b0e0', toneMapped: !glow }))
       c.visible = false
       s.extra[`c${i}`] = c
       root.add(c)
@@ -362,32 +376,54 @@ const SALVAGE: Script = {
     poseEnforcer(s.extra.e2 as Rig, { time: t, stride: 0, speed: 0, power: 0, aimYaw: 0, aimPitch: 0, recoilL: 0, recoilR: 0, deadT: 5 })
     s.place((s.extra.tank as Rig).root, tmpA.set(22, 0, 31), 2.4)
     poseGoliath(s.extra.tank as Rig, { time: t, turretYaw: 0.6, barrelPitch: 0, recoil: 0, rumble: 0, dead: 1 })
-    // The mech strips the walker, then the tank.
+    // The mech strips the walker's pile, then the tank's: down on a knee,
+    // both hands in the scrap, the pile shrinking, the bars flying out.
     const p = track([[0, 18, 0, 22], [2.6, 18, 0, 22], [4, 21, 0, 27.5], [10, 21, 0, 27.5]], t, tmpA)
-    s.place(s.mech.root, p, t < 3 ? Math.atan2(16 - 18, 20 - 22) : Math.atan2(22 - 21, 31 - 27.5))
+    const target = t < 3 ? SALVAGE_PILES[0]! : SALVAGE_PILES[1]!
+    s.place(s.mech.root, p, Math.atan2(target.x - p.x, target.z - p.z))
     mp.loot = between(t, 0.4, 2.6) || between(t, 4.2, 6.4) ? 1 : 0
+    mp.crouch = mp.loot
     mp.speed = between(t, 2.6, 4) ? 0.6 : 0
     mp.stride = t * 6
-    if (Math.floor(t * 4) !== Math.floor((t - s.dt) * 4) && mp.loot > 0) s.fx.sparks(p.x, 1, p.z + 1, '#ffb14a', 5, 3, 0.2)
+    const view = s.extra.pileView as unknown as SalvageView
+    view.strip(0, span(t, 0.4, 2.6))
+    view.strip(1, span(t, 4.2, 6.4))
+    view.update(s.dt, t)
+    if (Math.floor(t * 6) !== Math.floor((t - s.dt) * 6) && mp.loot > 0) {
+      s.fx.sparks(target.x, 0.7, target.z, '#ffb14a', 7, 3.4, 0.22)
+      s.fx.sparks(target.x, 0.5, target.z, '#5fe9ff', 3, 2.4, 0.16)
+    }
+    s.once('loot1', 0.5, () => sfx('loot'))
+    s.once('loot2', 4.3, () => sfx('loot'))
     // The dog's board hovers by, takes the haul, and lifts off home.
     const d = track([[0, 13, 1.2, 26], [7.8, 13, 1.2, 26], [10, 4, 22, 60]], t, tmpB)
     dp.time = t
     dp.fold = 1
     dp.thrust = t > 7.8 ? 1 : 0.4
     s.place(s.dog.root, d, Math.PI)
-    for (let i = 0; i < 6; i++) {
+    // Each bar off the pile being worked, over in an arc onto the board.
+    for (let i = 0; i < SALVAGE_BITS; i++) {
       const c = s.extra[`c${i}`] as Mesh
-      const a = 5.2 + i * 0.35
-      c.visible = t >= a && t < a + 0.7
+      const first = i < SALVAGE_BITS / 2
+      const from = SALVAGE_PILES[first ? 0 : 1]!
+      const a = (first ? 0.6 : 4.4) + (i % (SALVAGE_BITS / 2)) * 0.36
+      c.visible = t >= a && t < a + 0.75
       if (!c.visible) continue
-      const k = span(t, a, a + 0.7)
-      c.position.set(21 + (13 - 21) * k, 1 + Math.sin(k * Math.PI) * 2.4 + 0.2 * k, 27.5 + (26 - 27.5) * k)
-      c.rotation.set(k * 6, k * 4, 0)
+      const k = span(t, a, a + 0.75)
+      c.position.set(from.x + (13 - from.x) * k, 0.6 + Math.sin(k * Math.PI) * 3 + 0.6 * k, from.z + (26 - from.z) * k)
+      c.rotation.set(k * 7, k * 5, 0)
+      if (k > 0.97 && !s.fired.has(`bit${i}`)) { s.fired.add(`bit${i}`); sfx('shard') }
     }
-    s.once('loot', 0.5, () => sfx('loot'))
     s.once('lift', 7.9, () => sfx('dropIn'))
-    const ang = 0.4 + t * 0.09
-    s.look(tmpA.set(20 + Math.sin(ang) * 15, 6, 26 + Math.cos(ang) * 15), tmpB.set(19, 1, 25))
+    // Close on the pile being worked, square to the line from its wreck to the
+    // mech (so neither wreck stands in the way), turning a little; wide once
+    // the board lifts off with the haul.
+    const focus = t < 3.3 ? SALVAGE_PILES[0]! : SALVAGE_PILES[1]!
+    const wide = smooth(span(t, 7.2, 8.6))
+    const ang = (t < 3.3 ? 2.36 + (t - 1.5) * 0.08 : -2.5 + (t - 5.3) * 0.08)
+    const r = 6.2 + wide * 10
+    tmpB.set(focus.x + (16 - focus.x) * wide, 0.8 + wide * 2, focus.z + (26 - focus.z) * wide)
+    s.look(tmpA.set(tmpB.x + Math.sin(ang) * r, 3 + wide * 5, tmpB.z + Math.cos(ang) * r), tmpB, 46)
     poseMech(s.mech, mp)
     poseRobodog(s.dog, dp)
   }

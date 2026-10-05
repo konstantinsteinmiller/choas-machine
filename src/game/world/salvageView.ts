@@ -41,6 +41,8 @@ const pileParts = (): { lit: BufferGeometry[]; glow: BufferGeometry[] } => ({
 
 interface PileView {
   group: Group
+  /** Being stripped bit by bit (`strip`): the breath stops. */
+  stripping?: boolean
   /** Seconds since it was stripped; −1 while it lies there. */
   gone: number
   scale: number
@@ -75,6 +77,18 @@ export class SalvageView {
     }
   }
 
+  /**
+   * Stripped bit by bit (the salvage scene): `k` 0 … 1 of the way, the pile
+   * shrinking as its parts come off; at 1 it sinks and is gone.
+   */
+  strip(id: number, k: number): void {
+    const v = this.views[id]
+    if (!v || v.gone >= 0) return
+    if (k >= 1) { this.take(id); return }
+    v.group.scale.setScalar(v.scale * (1 - 0.55 * Math.max(0, k)))
+    v.stripping = k > 0
+  }
+
   /** The pile was stripped: it sinks and is gone. */
   take(id: number): void {
     const v = this.views[id]
@@ -85,6 +99,7 @@ export class SalvageView {
     for (let i = 0; i < this.views.length; i++) {
       const v = this.views[i]!
       if (v.gone < 0) {
+        if (v.stripping) continue
         // A slow breath, so a pile catches the eye from a distance.
         v.group.scale.setScalar(v.scale * (1 + Math.sin(time * 2.2 + i) * 0.025))
         continue
