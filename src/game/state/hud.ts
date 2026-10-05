@@ -132,7 +132,7 @@ export const waypoint = { on: false, x: 0.5, y: 0.5, behind: false, dist: 0 }
 export type PromptKind = '' | 'salvage' | 'strike' | 'assassinate' | 'sabotage' | 'cutPower' | 'jam' | 'grab' | 'drop' | 'hook' | 'rope' | 'burn'
 
 /** Where the in-world prompt sits: 0 … 1 of the view, and on screen at all. */
-export const prompt = { on: false, x: 0.5, y: 0.5 }
+export const prompt = { on: false, x: 0.5, y: 0.5, far: false }
 
 /**
  * The training hologram's button press (#114): which control, where over its

@@ -10,6 +10,7 @@ import { input as sharedInput, inputClock } from '../engine/inputState'
 import { emit, on } from '../bus'
 import { gun, hud, mirror, runHudTickers, setPhase, threats, vital, waypoint, MAX_THREATS, callouts, MAX_CALLOUTS, prompt, bars, MAX_BARS, uplinks, MAX_UPLINKS, quipPop, type PromptKind } from '../state/hud'
 import { QUIP_SHOW_S, makeQuips, pickQuip } from './quips'
+import { PathChevrons } from '../fx/pathChevrons'
 import type { QuipId } from '../audio/voiceCatalog'
 import { CELL, VOID, cableSpan, ceilingAt, heightAt, raycast, hasLineOfSight, toCell, inGrid, cellKind, cellHeight, CellKind, shadeAt, Shade } from '../world/grid'
 import type { Fortress } from '../world/fortress'
@@ -113,6 +114,8 @@ const CINE_ARM_OUT = 1.5
 const CINE_EXIT_S = 0.6
 /** The drop-in looks past the mech into the base this far, at most (#119). */
 const INTRO_LOOK_PAST_M = 8
+/** A salvage pile's billboard shows from this far (m), in sight (jam build). */
+const SALVAGE_SEE_M = 9
 /** The next practice decoy, in the training ground. */
 const TRAINING_DECOY_COOL_S = 3
 /** An aimed decoy lands this near (looking down) to this far (looking level or up) (#115). */
@@ -334,6 +337,9 @@ export class Mission implements GameMode {
   private decoyAiming = false
   private aimRing!: Mesh
   private aimArc!: Line
+  /** The way out on the ground once nobody is left (jam build), re-laid every half second. */
+  private chevrons = new PathChevrons()
+  private chevronT = 0
   private flyTo = new Vector3()
   /** 0 the mech … 1 folded into its disguise (#111). */
   private morph = 0
@@ -471,6 +477,7 @@ export class Mission implements GameMode {
     m.aimArc.visible = false
     m.aimArc.frustumCulled = false
     m.scene.add(m.aimRing, m.aimArc)
+    m.scene.add(m.chevrons.mesh)
     // A marksman's laser sight (#90): a red line that draws on the mech before the round.
     for (const u of m.garrison.units) {
       if (u.role !== 'marksman') continue
@@ -747,6 +754,7 @@ export class Mission implements GameMode {
       this.stepGarrison(dt)
       this.stepTraining(dt)
       this.watchQuips(dt)
+      this.stepChevrons(dt)
       stepArmor(this.armor, dt)
       this.stepSupplies()
       this.stepBarrels(dt)
@@ -1764,6 +1772,30 @@ export class Mission implements GameMode {
     return y === VOID ? null : { x, y, z }
   }
 
+  /**
+   * Nobody left (searchlights are no one): gold chevrons on the floor lead to
+   * the way out, or first to the nearest pile still needed to open it.
+   */
+  private stepChevrons(dt: number): void {
+    if ((this.chevronT -= dt) > 0) return
+    this.chevronT = 0.5
+    const clear = !this.training && !this.garrison.units.some(u => isAlive(u) && u.kind !== 'searchlight')
+    if (!clear || this.objective === 'done') { this.chevrons.hide(); return }
+    const p = this.player
+    let tx = this.fortress.extract.x
+    let tz = this.fortress.extract.z
+    if (this.objective === 'salvage') {
+      let best = Infinity
+      for (const q of this.piles) {
+        if (q.taken) continue
+        const d = Math.hypot(q.x - p.x, q.z - p.z)
+        if (d < best) { best = d; tx = q.x; tz = q.z }
+      }
+    }
+    if (Math.hypot(tx - p.x, tz - p.z) < 2.5) { this.chevrons.hide(); return }
+    this.chevrons.route(this.fortress.grid, p.x, p.z, tx, tz)
+  }
+
   /** The aimed decoy's preview (#115): a ring on the ground where it lands, and the arc it flies. */
   private drawDecoyAim(): void {
     const on = this.decoyAiming && hud.phase === 'play'
@@ -2360,6 +2392,19 @@ export class Mission implements GameMode {
       else if (this.hookSpot) at('hook', this.hookSpot.edge.x, this.hookSpot.edge.y + 0.5, this.hookSpot.edge.z)
       else if (this.hookAim) at('hook', this.hookAim.edge.x, this.hookAim.edge.y + 0.5, this.hookAim.edge.z)
       else if (this.ropeAim) at('rope', this.ropeAim.bx, this.ropeAim.by + 0.8, this.ropeAim.bz)
+    }
+    // A pile in sight, not yet in reach (jam build): its billboard shows from afar, dimmed, to find it by.
+    prompt.far = false
+    if (show && kind === '' && !this.looting && !this.grapple && !this.burning && !this.strike) {
+      const p = this.player
+      let best: (typeof this.piles)[number] | null = null
+      let bestD = SALVAGE_SEE_M
+      for (const q of this.piles) {
+        if (q.taken) continue
+        const d = Math.hypot(q.x - p.x, q.z - p.z)
+        if (d < bestD && Math.abs(q.y - p.y) < 3 && hasLineOfSight(this.fortress.grid, p.x, p.y + 1.6, p.z, q.x, q.y + 0.8, q.z)) { best = q; bestD = d }
+      }
+      if (best) { at('salvage', best.x, best.y + 1.0, best.z); prompt.far = true }
     }
     mirror('prompt', kind)
     // The hook and the rope are two keys: when both can take this wall, both are offered.
@@ -3462,6 +3507,7 @@ export class Mission implements GameMode {
     this.writePrompt(playing && !scripted)
     this.drawLasers()
     this.drawDecoyAim()
+    this.chevrons.update(this.time)
     this.writeUplinks(playing && !scripted)
     this.writeBars(playing && !scripted)
     this.writeWaypoint(x, z, playing && !scripted)
@@ -3531,6 +3577,7 @@ export class Mission implements GameMode {
     this.supplyView.dispose()
     this.ropeGeo.dispose()
     this.ropeMat.dispose()
+    this.chevrons.dispose()
     this.aimRing.geometry.dispose()
     ;(this.aimRing.material as MeshBasicMaterial).dispose()
     this.aimArc.geometry.dispose()

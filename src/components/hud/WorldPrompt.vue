@@ -34,6 +34,7 @@ onMounted(() => {
       e.style.opacity = shown ? '1' : '0'
     }
     if (!shown) return
+    e.classList.toggle('far', prompt.far)
     e.style.left = `${(prompt.x * 100).toFixed(2)}%`
     e.style.top = `${(prompt.y * 100).toFixed(2)}%`
   })
@@ -52,6 +53,11 @@ onUnmounted(() => off?.())
   translate: -50% -100%
   transition: opacity 160ms ease-out
   pointer-events: none
+// Seen, not yet in reach: dimmed, and the key not lit.
+.world-prompt.far
+  filter: saturate(0.6) brightness(0.85)
+  .chip
+    opacity: 0.75
 .chip
   display: flex
   align-items: center
