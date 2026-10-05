@@ -58,6 +58,31 @@ export const track = (keys: readonly Key[], t: number, out = new Vector3()): Vec
   const z = keys[keys.length - 1]!
   return out.set(z[1], z[2], z[3])
 }
+/** How fast a track is moving at `t` (m/s), for the legs' pace. */
+const pace = (keys: readonly Key[], t: number): number => {
+  const a = track(keys, t - 0.05, new Vector3())
+  const b = track(keys, t + 0.05, new Vector3())
+  return a.distanceTo(b) / 0.1
+}
+
+/**
+ * A round between two points (#129): walk there, stand and look about, walk
+ * back, stand, `period` seconds the lot, `off` shifting where in it `t` is.
+ * Writes the position; returns the heading and whether it walks.
+ */
+const round = (t: number, a: V3, b: V3, period: number, out: Vector3, off = 0): { yaw: number; walking: boolean } => {
+  const ph = ((((t + off) / period) % 1) + 1) % 1
+  const there = Math.atan2(b[0] - a[0], b[2] - a[2])
+  const back = Math.atan2(a[0] - b[0], a[2] - b[2])
+  let k = 0
+  let yaw = there
+  let walking = false
+  if (ph < 0.4) { k = ph / 0.4; walking = true } else if (ph < 0.5) { k = 1 } else if (ph < 0.9) { k = 1 - (ph - 0.5) / 0.4; yaw = back; walking = true } else { k = 0; yaw = back }
+  const e = smooth(k)
+  out.set(a[0] + (b[0] - a[0]) * e, a[1] + (b[1] - a[1]) * e, a[2] + (b[2] - a[2]) * e)
+  return { yaw, walking }
+}
+
 /** 0 … 1 across [a, b]. */
 const span = (t: number, a: number, b: number): number => Math.min(1, Math.max(0, (t - a) / (b - a)))
 const between = (t: number, a: number, b: number): boolean => t >= a && t < b
@@ -125,8 +150,8 @@ const INTRO: Script = {
     s.extra.tank = tank
     root.add(drone.root, tank.root)
     const glow = new MeshBasicMaterial({ color: '#5fe9ff', toneMapped: false })
-    for (const k of ['hookLine', 'rope']) {
-      const m = new Mesh(new CylinderGeometry(0.04, 0.04, 1, 6), glow)
+    for (const k of ['hookLine', 'rope', 'postA', 'postB']) {
+      const m = new Mesh(new CylinderGeometry(k.startsWith('post') ? 0.08 : 0.04, k.startsWith('post') ? 0.08 : 0.04, 1, 6), glow)
       m.visible = false
       s.extra[k] = m
       root.add(m)
@@ -158,7 +183,8 @@ const INTRO: Script = {
       s.once('board', 0.2, () => sfx('dropIn'))
     } else {
       // The board waits up out of the way, then comes to the perch.
-      const d = track([[5, 12, 3, 24], [8, 30, 22, 14], [30, 72, 22, 24], [32, 77.6, 14 + BOARD_HOVER, 25.4]], t, tmpA)
+      // Straight up past the cliff's top first, then across (#125: it flew through the cliff).
+      const d = track([[5, 12, 3, 24], [6.4, 12, 15, 24], [8, 30, 22, 14], [30, 72, 22, 24], [32, 77.6, 14 + BOARD_HOVER, 25.4]], t, tmpA)
       dp.fold = t < 31 ? 1 : 1 - span(t, 31.2, 32.6)
       dp.thrust = dp.fold
       // Unfolding on the perch, it rises onto its legs: feet on the deck, not in it (#117).
@@ -180,23 +206,45 @@ const INTRO: Script = {
       s.once('bite', 5.5, () => sfx('hookBite'))
     }
     // The rope across the gap.
+    // From the edge of the cliff top (x 36) to the edge of the outcrop (x 44),
+    // at foot height, a post at each end (#125: it floated, past both edges).
     const rope = s.extra.rope as Mesh
     rope.visible = t >= 9.8 && t < 13.5
-    s.line(rope, tmpA.set(35.4, 10.75, 24), tmpB.set(44.4, 10.75, 24))
+    s.line(rope, tmpA.set(36, 10.06, 24), tmpB.set(44, 10.06, 24))
+    for (const [k, x] of [['postA', 36], ['postB', 44]] as const) {
+      const post = s.extra[k] as Mesh
+      post.visible = rope.visible
+      s.line(post, tmpA.set(x, 10, 24), tmpB.set(x, 10.5, 24))
+    }
     if (between(t, 9, 13)) {
-      const p = track([[9, 17.5, 10, 24], [9.8, 34.6, 10, 24], [10.2, 34.6, 10, 24], [12.6, 45, 10, 24], [13, 46, 10, 24]], t, tmpA)
+      const keys: Key[] = [[9, 17.5, 10, 24], [9.6, 35.2, 10, 24], [10.2, 35.6, 10, 24], [12.4, 44.4, 10, 24], [13, 46, 10, 24]]
+      const p = track(keys, t, tmpA)
       s.place(s.mech.root, p, Math.PI / 2)
-      mp.speed = between(t, 9, 9.8) || between(t, 10.2, 12.6) ? 0.8 : 0
+      mp.speed = Math.min(1, pace(keys, t) / 5)
       mp.stride = t * 7
-      mp.cable = between(t, 10.2, 12.6) ? 1 : 0
+      mp.cable = between(t, 10.3, 12.4) ? 1 : 0
       mp.aim = between(t, 9.7, 10.1) ? 1 : 0
       s.look(tmpB.set(p.x + 2, 14, 40), tmpC.set(p.x + 3, 10.5, 24))
       s.once('rope', 9.8, () => { sfx('hookThrow'); sfx('hookBite') })
     }
     // The decoy, the two guards, and the sentry on its tower.
-    s.place(g(0).root, tmpA.set(55, 10, 20), t < 14.4 ? -Math.PI / 2 : -Math.PI / 2 + 1.9 * span(t, 14.4, 15.2))
-    s.place(g(1).root, tmpA.set(57, 10, 27.5), t < 14.4 ? -Math.PI / 2 : -Math.PI / 2 + 1.5 * span(t, 14.4, 15.2))
-    for (const i of [0, 1]) poseGuard(g(i), { ...restGuardPose(), time: t + i, wary: between(t, 14.4, 17) ? 1 : 0 })
+    // Each on its round (#129), until the decoy lands: they turn, walk over
+    // and stand looking at it, puzzled.
+    const LURE: V3 = [60, 10, 30]
+    for (const [i, a, b, period, stop] of [[0, [55, 10, 16], [55, 10, 22.5], 7, [58.6, 10, 28.3]], [1, [57, 10, 27.5], [61.5, 10, 25.5], 6, [61.6, 10, 31.2]]] as const) {
+      const at = round(Math.min(t, 14.4), a, b, period, tmpA, i * 2.2)
+      let yaw = at.yaw
+      let walking = at.walking && t < 14.4
+      if (t >= 14.4) {
+        const k = span(t, 14.8, 16.8)
+        const from = tmpB.copy(tmpA)
+        tmpA.set(from.x + (stop[0] - from.x) * smooth(k), 10, from.z + (stop[2] - from.z) * smooth(k))
+        yaw = Math.atan2(LURE[0] - tmpA.x, LURE[2] - tmpA.z)
+        walking = k > 0 && k < 1
+      }
+      s.place(g(i).root, tmpA, yaw)
+      poseGuard(g(i), { ...restGuardPose(), time: t + i, speed: walking ? 0.45 : 0, stride: t * 4.2 + i, wary: t >= 14.4 ? 1 : 0, lookYaw: t < 14.4 && !walking ? Math.sin(t * 1.3 + i) * 0.5 : t >= 16.8 ? Math.sin(t * 1.7 + i) * 0.3 : 0 })
+    }
     const ball = s.extra.ball as Mesh
     ball.visible = t >= 13.4 && t < 17
     if (ball.visible) {
@@ -214,16 +262,25 @@ const INTRO: Script = {
     }
     // The rifle: a slow zoom, one headshot.
     const sentryDead = t >= 19.3
-    s.place(g(2).root, tmpA.set(73, 14, 11), -Math.PI * 0.8)
-    poseGuard(g(2), { ...restGuardPose(), time: t, deadT: sentryDead ? t - 19.3 : 0, death: 'back' })
+    // Pacing his tower top (#129), back at its corner by the time the rifle is on him.
+    const sw = t < 16.6 ? round(t, [73, 14, 11], [75.2, 14, 12.8], 8, tmpA, -9.4) : { yaw: -Math.PI * 0.8, walking: false }
+    if (t >= 16.6) tmpA.set(73, 14, 11)
+    s.place(g(2).root, tmpA, t < 16.6 ? sw.yaw : -Math.PI * 0.8)
+    poseGuard(g(2), { ...restGuardPose(), time: t, speed: sw.walking ? 0.4 : 0, stride: t * 4, lookYaw: sentryDead || sw.walking ? 0 : Math.sin(t * 0.7) * 0.6, deadT: sentryDead ? t - 19.3 : 0, death: 'back' })
     if (between(t, 17, 21)) {
-      s.place(s.mech.root, tmpA.set(50, 10, 24), Math.atan2(73 - 50, 11 - 24))
-      mp.aim = 1
+      const keys: Key[] = [[17, 50, 10, 24], [19.9, 50, 10, 24], [21, 52, 10, 26]]
+      const p = track(keys, t, tmpA)
+      s.place(s.mech.root, p, t < 19.9 ? Math.atan2(73 - 50, 11 - 24) : Math.atan2(2, 2))
+      mp.speed = Math.min(1, pace(keys, t) / 4)
+      mp.stride = t * 6
+      mp.aim = t < 19.9 ? 1 : 0
       mp.weapon = 'sniper'
       mp.aimPitch = 0.08
       mp.recoil = between(t, 19.2, 19.6) ? 1 - span(t, 19.2, 19.6) : 0
       const zoom = 50 - 32 * span(t, 17.4, 19)
-      s.look(tmpB.set(49.2, 12.4, 25.6), tmpC.set(73, 15.4, 11), zoom)
+      // Over the shoulder while scoped; once it walks on, the next shot's view (it walks into it, not through the lens).
+      if (t < 19.9) s.look(tmpB.set(49.2, 12.4, 25.6), tmpC.set(73, 15.4, 11), zoom)
+      else s.look(tmpB.set(46, 12, 22), tmpC.set(60, 14.5, 34))
       // The round leaves the barrel with the game's own flash and trail (#117).
       s.once('shot', 19.2, () => {
         sfx('sniper')
@@ -237,13 +294,21 @@ const INTRO: Script = {
       })
     }
     // The mini-gun takes a drone out of the air.
+    // On its patrol loop until the mini-gun comes up (#129), then holding where the stream finds it.
     const dd = t >= 23.8
-    const dy = dd ? Math.max(10.3, 16 - 18 * (t - 23.8) ** 2) : 16
-    s.place(drone.root, tmpA.set(62, dy, 36), Math.PI)
-    poseDrone(drone, { time: t, spin: t * 40, pitch: 0.1, roll: 0, eyeYaw: 0, eyePitch: 0.5, alarm: 1, deadT: dd ? t - 23.8 : 0, landed: dy <= 10.31 })
+    const da = Math.min(0, t - 21) * 0.55
+    const dx0 = 62 + Math.sin(da) * 5
+    const dz0 = 36 + (1 - Math.cos(da)) * 4
+    const dy = dd ? Math.max(10.3, 16 - 18 * (t - 23.8) ** 2) : 16 + Math.sin(t * 1.9) * 0.15
+    s.place(drone.root, tmpA.set(dx0, dy, dz0), t < 21 ? Math.PI + da * 0.8 : Math.PI)
+    poseDrone(drone, { time: t, spin: t * 40, pitch: t < 21 ? 0.18 : 0.1, roll: t < 21 ? 0.12 : 0, eyeYaw: 0, eyePitch: 0.5, alarm: t >= 21.5 ? 1 : 0, deadT: dd ? t - 23.8 : 0, landed: dy <= 10.31 })
     if (between(t, 21, 25)) {
-      s.place(s.mech.root, tmpA.set(52, 10, 26), Math.atan2(62 - 52, 36 - 26))
-      mp.aim = 1
+      const keys: Key[] = [[21, 52, 10, 26], [24.2, 52, 10, 26], [25, 52, 10, 29]]
+      const p = track(keys, t, tmpA)
+      s.place(s.mech.root, p, t < 24.2 ? Math.atan2(62 - 52, 36 - 26) : 0)
+      mp.speed = Math.min(1, pace(keys, t) / 4)
+      mp.stride = t * 6
+      mp.aim = t < 24.1 ? 1 : 0
       mp.weapon = 'minigun'
       mp.spin = t * 30
       mp.aimPitch = 0.28
@@ -274,8 +339,11 @@ const INTRO: Script = {
       s.once('drone', 23.8, () => { sfx('explode'); s.fx.orbBurst(62, 16, 36, '#ffb061', 0.7) })
     }
     // A rocket into the Goliath's flank.
-    s.place(tank.root, tmpA.set(66, 10, 44), -Math.PI / 2)
-    poseGoliath(tank, { time: t, turretYaw: -0.4, barrelPitch: 0.05, recoil: 0, rumble: t > 27 ? 1 - span(t, 27, 30) : 0.5, dead: 0 })
+    // Rolling up on its patrol (#129), its turret sweeping, until the rocket.
+    const roll = smooth(span(t, 18, 25))
+    s.place(tank.root, tmpA.set(70 - 4 * roll, 10, 44), -Math.PI / 2)
+    const rolling = roll > 0 && roll < 1
+    poseGoliath(tank, { time: t, turretYaw: t < 26 ? -0.4 + Math.sin(t * 0.45) * 0.35 : -0.4, barrelPitch: 0.05, recoil: 0, rumble: t > 27 ? 1 - span(t, 27, 30) : rolling ? 1 : 0.5, dead: 0 })
     // The game's own rocket (#117): out of the tube, a hot core and a trail
     // that swells into smoke, and the game's blast where it lands.
     const rocket = s.extra.rocket as Mesh
@@ -295,7 +363,12 @@ const INTRO: Script = {
       } else s.rockets.length = 0
     }
     if (between(t, 25, 30)) {
-      s.place(s.mech.root, tmpA.set(52, 10, 29), Math.atan2(66 - 52, 44 - 29))
+      // The rocket away, it runs on east toward the perch (#129).
+      const keys: Key[] = [[25, 52, 10, 29], [27.6, 52, 10, 29], [30, 63, 10, 26]]
+      const p = track(keys, t, tmpA)
+      s.place(s.mech.root, p, t < 27.6 ? Math.atan2(66 - 52, 44 - 29) : Math.atan2(11, -3))
+      mp.speed = Math.min(1, pace(keys, t) / 5)
+      mp.stride = t * 8
       mp.aim = t < 27 ? 1 : 0
       mp.weapon = 'rocket'
       mp.recoil = between(t, 26.2, 26.6) ? 1 : 0
@@ -606,6 +679,10 @@ export class Cinema implements GameMode {
   private over = false
   private stage!: Stage
   private cfx: CombatFx | null = null
+  /** The stage's cells (for the tests: nothing flies through them). */
+  grid!: Fortress['grid']
+  /** Where the robo dog is (for the tests). */
+  get dogAt(): Vector3 { return this.stage.dog.root.position }
   private script: Script
   private sky!: Sky
   private mesh!: FortressMesh
@@ -631,6 +708,7 @@ export class Cinema implements GameMode {
     for (let z = 0; z < 24 && !ix; z++) for (let x = 0; x < 40; x++) if (b.heightOf(x, z) > -999) { ix = x; iz = z; break }
     b.insert(ix, iz, 0).extract(ix, iz)
     const fort: Fortress = b.build()
+    c.grid = fort.grid
     c.sky = buildSky(c.scene, new Vector3(40, 0, 24), look.sky, { w: 40 * CELL, d: 24 * CELL })
     c.mesh = await buildFortressMesh(fort, look.mesh, slice)
     c.scene.add(c.mesh.group, c.root)

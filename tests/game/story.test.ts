@@ -94,3 +94,18 @@ describe('threat I arrives on a platform to practise on (the jam build)', () => 
     expect((f as unknown as { opening?: boolean }).opening).toBeUndefined()
   })
 })
+
+describe('the intro: nothing flies through the stage (#125)', () => {
+  it('the robo dog\'s board is above the floor and the cliff at every moment it is in the air', async () => {
+    const { Cinema } = await import('@/game/story/cinema')
+    const { heightAt: h } = await import('@/game/world/grid')
+    const s = await Cinema.create('intro', undefined, new Texture())
+    for (let t = 0.5; t < 30; t += 0.1) {
+      s.seek(t)
+      const d = s.dogAt
+      const floor = h(s.grid, d.x, d.z)
+      if (floor > -100) expect(d.y, `t ${t.toFixed(1)} at ${d.x.toFixed(1)},${d.z.toFixed(1)}`).toBeGreaterThanOrEqual(floor - 0.05)
+    }
+    s.dispose()
+  }, 30000)
+})
