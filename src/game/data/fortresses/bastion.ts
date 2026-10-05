@@ -300,15 +300,17 @@ export const buildBastion = (level = 1, run = 0, answers: Answers = NO_ANSWERS):
   }
 
   // The new defenders (#72 #90).
+  // A shield at the main gate from the first raid on: rounds from in front
+  // stop on it, so the inner ward cannot be cleared from the perch alone.
+  b.shieldGuard(route([[29, 35, 3], [30, 35, 3]]), 0)
   if (level >= 2) {
     // A Peashooter under the arcade; a grenadier down the east lane.
     b.roomba(route([[21, 35, 2], [40, 35, 2]]), Math.PI / 2)
     b.grenadier(route([[50, 22, 3], [50, 34, 3]]))
   }
   if (level >= 3) {
-    // A Buckshot in the yard shed; a shield at the main gate; a marksman on the watchtower.
+    // A Buckshot in the yard shed; a marksman on the watchtower.
     b.roomba(route([[32, 48, 2], [34, 52, 2]]), 0, true)
-    b.shieldGuard(route([[29, 35, 3], [30, 35, 3]]), 0)
     b.marksman(...at(38, 48), -Math.PI * 0.3)
   }
   if (level >= 4) {

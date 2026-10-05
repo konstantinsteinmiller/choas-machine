@@ -116,8 +116,10 @@ describe('more to use (#78 #94 #76)', () => {
 
 describe('the new defenders by level (#72 #90)', () => {
   const kinds = (level: number) => buildBastion(level).posts
-  it('none at I; a Roomba and a grenadier from II; the Buckshot, a shield and a marksman from III', () => {
-    expect(kinds(1).some(p => p.kind === 'roomba' || p.role === 'grenadier' || p.role === 'marksman' || (p.shield && !p.boss))).toBe(false)
+  it('a shield at the gate from I (the first raid is not cleared from the perch); a Roomba and a grenadier from II; the Buckshot and a marksman from III', () => {
+    const one = kinds(1)
+    expect(one.filter(p => p.kind === 'guard' && p.shield && !p.boss)).toHaveLength(1)
+    expect(one.some(p => p.kind === 'roomba' || p.role === 'grenadier' || p.role === 'marksman')).toBe(false)
     const two = kinds(2)
     expect(two.some(p => p.kind === 'roomba' && !p.gun)).toBe(true)
     expect(two.some(p => p.role === 'grenadier')).toBe(true)
