@@ -80,6 +80,18 @@ export default {
       },
       scenarios: { success: 'success-30s', fail: 'fail-30s' }
     },
+    // The cinematic trailer's raw shots (`pnpm cinematic-trailer`, #X1): each
+    // shot is its own scenario (`scenarios/trailer-*.mjs`), recorded with
+    // handles at 1080p; `trailer/build.mjs` cuts, cards, scores and mixes them.
+    trailer: {
+      // Only with `--formats trailer` (the build names it): never in a plain run.
+      explicit: true,
+      durationMs: 7_000,
+      quality: ['lossless'],
+      orientations: {
+        landscape: { width: 1920, height: 1080, dpr: 2, isMobile: false, hasTouch: false }
+      }
+    },
     // Poki's animated thumbnail: square, 4-6 s, 50 fps or higher, muted.
     poki: {
       durationMs: 5_000,

@@ -81,3 +81,39 @@ clip's. A balance change can move either past the end of the clip.
   `pnpm preview:video --formats 30s --scenarios success --orientations landscape --fps 15 --landscape 640x360 --dpr 1 --quality balanced --keep-frames`
 - Run a full render through the worker budget:
   `node "$HOME/.claude/skills/worker-budget/budget.mjs" run -- node tools/preview-video/record.mjs`
+
+## The cinematic trailer (#X1)
+
+```bash
+pnpm cinematic-trailer                 # record every shot at 1080p, cut, score, mix (~1 h)
+pnpm cinematic-trailer --draft         # 960x540 at 15 fps: a few minutes, for the edit
+pnpm cinematic-trailer --skip-record   # re-cut, re-card, re-mix from the shots already recorded
+pnpm cinematic-trailer --shots a,b     # re-record only these shots, then cut
+```
+
+Out: `preview-videos/trailer/chaos-machine-cinematic-trailer.mp4`, about a
+minute, 1920x1080 at 30 fps, H.264 High 4:2:0 with AAC stereo at YouTube's
+loudness (−14 LUFS). `-draft` beside it for a draft.
+
+- **The shots** are one scenario each (`scenarios/trailer-<id>.mjs`, the
+  library in `scenarios/_trailerShots.mjs`, the shared staging in
+  `_trailer.mjs`), recorded in the `trailer` format: 7 s takes with handles,
+  their own page, fortress and threat level. That format is `explicit`: a
+  plain `pnpm preview:video` never records it.
+- **The edit** is `trailer/edit.mjs`: which part of each take, in what order,
+  the title cards, CM-07's lines and the score, all as data.
+- **The sound is the game's.** Every shot logs the sounds the game played in
+  it on the take's own clock (`window.__preview.sfxLog`); `trailer/audio.ts`
+  replays them through the game's own synthesizers and mixer on an
+  OfflineAudioContext (`engine.forceAudioContext`), with CM-07's recorded
+  lines (the music ducks under them, as in play) and the game's own songs
+  (`tension` → `chaos` at the alarm → `hero` for the finale).
+- **The enemies play themselves.** A shot chooses where the mech stands, where
+  the director's camera is (`shot`, `dolly`, `ride`) and what the hands do;
+  the curious "?", the alarmed "!", the walk to a noise or a decoy, the run on
+  the alarm are the garrison's own. Pins hold a defender only until the take
+  starts (a posted guard is the exception, and lets go at the blade). God mode
+  keeps a take from ending early; the Warden's health is shortened so one
+  round shows his kill-cam.
+- **Review without a player:** a contact sheet per shot,
+  `ffmpeg -i <take>.mp4 -vf "select='not(mod(n\,13))',scale=360:-1,tile=8x1" -frames:v 1 sheet.png`.

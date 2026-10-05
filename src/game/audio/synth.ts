@@ -1,5 +1,5 @@
 import { registerOneShotSource } from '@/use/useAssets'
-import { audio, canPlay, noise, pulse, midiHz, duckMusic } from './engine'
+import { audio, audioForced, canPlay, noise, pulse, midiHz, duckMusic } from './engine'
 import { setSfxPlayer, type SfxName } from './sfx'
 import { SFX_FILES } from '../assets/overrides'
 
@@ -564,7 +564,7 @@ export const playVoice = (url: string, pan: number, gain: number): boolean => {
   if (!buf) { if (!voiceBuffers.has(url)) prefetchVoices([url]); return false }
   if (!canPlay()) return false
   const a = audio()
-  if (!a || a.ctx.state !== 'running') return false
+  if (!a || (a.ctx.state !== 'running' && !audioForced())) return false
   const dest = out(pan)
   if (!dest) return false
   const src = a.ctx.createBufferSource()
@@ -595,7 +595,7 @@ const playFile = (buf: AudioBuffer, pan: number, gain: number): void => {
 const play = (name: SfxName, pan: number, gain: number, muffle = 0): void => {
   if (!canPlay()) return
   const a = audio()
-  if (!a || a.ctx.state !== 'running') return
+  if (!a || (a.ctx.state !== 'running' && !audioForced())) return
   const gap = GAP[name] ?? 0.02
   const now = a.ctx.currentTime
   const last = lastAt.get(name) ?? -1

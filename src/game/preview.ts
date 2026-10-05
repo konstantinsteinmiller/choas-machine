@@ -8,6 +8,7 @@ import { textureReference } from './world/textures'
 import { castShot, makeShotHit } from './sim/hitscan'
 import { isLight } from './sim/garrison'
 import type { Mission } from './sim/mission'
+import { setSfxTap, type SfxName } from './audio/sfx'
 
 /**
  * ─── The preview seam ────────────────────────────────────────────────────────
@@ -47,7 +48,18 @@ const clearShot = (m: Mission, ax: number, ay: number, az: number, bx: number, b
 const NO_UNITS: Mission['garrison']['units'] = []
 
 /** A director's camera: where it stands and what it looks at (cover plates). */
-let shot: { px: number; py: number; pz: number; lx: number; ly: number; lz: number; fov: number } | null = null
+type Shot = { px: number; py: number; pz: number; lx: number; ly: number; lz: number; fov: number }
+let shot: Shot | null = null
+/** The director's camera on the move (the trailer): from one shot to another over `dur` s, eased. */
+let dolly: { a: Shot; b: Shot; t: number; dur: number } | null = null
+/**
+ * The director's camera riding along with the mech or a defender (the
+ * trailer): placed at an offset from it, looking at an offset from it, every
+ * frame. Offsets are in the subject's own frame (x right, z ahead).
+ */
+let ride: { id: number; off: [number, number, number]; look: [number, number, number]; fov: number } | null = null
+/** Every sound the game played since the log was cleared, on the page's clock (the trailer's audio). */
+const sfxLog: Array<{ t: number; name: SfxName; pan: number; gain: number; muffle: number }> = []
 /** Defenders held where a plate wants them. */
 const pins = new Map<number, { x: number; z: number; yaw: number }>()
 
@@ -57,9 +69,29 @@ let move: { fromYaw: number; fromPitch: number; toYaw: number; toPitch: number; 
 const install = (): void => {
   // Runs after the mission has placed its own camera and before the frame is
   // drawn, so a director's camera simply replaces it.
-  addHudTicker(() => {
+  setSfxTap((name, pan, gain, muffle) => { sfxLog.push({ t: performance.now(), name, pan, gain, muffle }) })
+  addHudTicker((dt) => {
     const m = mission()
     if (!m) return
+    if (dolly) {
+      dolly.t = Math.min(dolly.dur, dolly.t + dt)
+      const k = dolly.dur > 0 ? dolly.t / dolly.dur : 1
+      const e = k * k * (3 - 2 * k)
+      const { a, b } = dolly
+      shot = { px: a.px + (b.px - a.px) * e, py: a.py + (b.py - a.py) * e, pz: a.pz + (b.pz - a.pz) * e, lx: a.lx + (b.lx - a.lx) * e, ly: a.ly + (b.ly - a.ly) * e, lz: a.lz + (b.lz - a.lz) * e, fov: a.fov + (b.fov - a.fov) * e }
+    }
+    if (ride) {
+      const s = ride.id < 0 ? { x: m.player.x, y: m.player.y, z: m.player.z, yaw: m.player.yaw } : m.garrison.units[ride.id]
+      if (s) {
+        const sn = Math.sin(s.yaw)
+        const cs = Math.cos(s.yaw)
+        // Ahead is (sin, cos); right, seen from behind, is (−cos, sin).
+        const at = (o: [number, number, number]): [number, number, number] => [s.x - cs * o[0] + sn * o[2], s.y + o[1], s.z + sn * o[0] + cs * o[2]]
+        const [px, py, pz] = at(ride.off)
+        const [lx, ly, lz] = at(ride.look)
+        shot = { px, py, pz, lx, ly, lz, fov: ride.fov }
+      }
+    }
     for (const [id, p] of pins) {
       const u = m.garrison.units[id]
       if (!u) continue
@@ -83,7 +115,7 @@ const install = (): void => {
       // the camera, which sits off the mech's shoulder.
       const u = m.garrison.units[move.track]
       if (u) {
-        const c = m.camera.position
+        const c = m.aimEye
         const dx = u.x - c.x
         const dz = u.z - c.z
         move.toYaw = Math.atan2(dx, dz)
@@ -212,14 +244,21 @@ const install = (): void => {
       const m = mission()
       const u = m?.garrison.units[id]
       if (!m || !u) return 'no unit'
-      const c = m.camera.position
+      const c = m.aimEye
       const cp = Math.cos(m.cam.pitch)
       const h = castShot(m.fortress.grid, m.garrison.units, c.x, c.y, c.z, Math.sin(m.cam.yaw) * cp, Math.sin(m.cam.pitch), Math.cos(m.cam.yaw) * cp, 200, makeShotHit())
       const r = (v: number): string => v.toFixed(1)
       return `mech ${r(m.player.x)},${r(m.player.y)},${r(m.player.z)} cam ${r(c.x)},${r(c.y)},${r(c.z)} pitch ${m.cam.pitch.toFixed(3)} · ${u.kind} ${r(u.x)},${r(u.y)},${r(u.z)} ${u.state} · reticle on ${h.kind}${h.kind === 'unit' ? ` #${h.unit} ${h.zone}` : ''} at ${r(h.x)},${r(h.y)},${r(h.z)} · weapon ${hud.weapon} scoped ${hud.scoped}`
     },
     /** A director's camera (null gives the game's own back). */
-    shot: (s: typeof shot): void => { shot = s },
+    shot: (s: typeof shot): void => { shot = s; dolly = null; ride = null },
+    /** The director's camera moving from `a` to `b` over `ms` (eased). */
+    dolly: (a: Shot, b: Shot, ms: number): void => { ride = null; shot = a; dolly = { a, b, t: 0, dur: ms / 1000 } },
+    /** The director's camera riding with the mech (id −1) or a defender, offsets in its own frame. */
+    ride: (id: number, off: [number, number, number], look: [number, number, number], fov = 55): void => { dolly = null; ride = { id, off, look, fov } },
+    /** The sounds played since the log was last cleared, on the page's clock. */
+    sfxLog: () => sfxLog.slice(),
+    clearSfx: (): void => { sfxLog.length = 0 },
     /** Hold a defender somewhere, facing `yaw`, until `unpin`. */
     pin: (id: number, x: number, z: number, yaw: number): void => { pins.set(id, { x, z, yaw }) },
     unpin: (): void => pins.clear(),
@@ -314,6 +353,15 @@ const install = (): void => {
     weapon: (n: 1 | 2 | 3): void => { input.weaponQueued = n },
     move: (x: number, y: number): void => { input.moveX = x; input.moveY = y },
     crouch: (): void => { input.crouchQueued = true },
+    /** Any other queued press (the trailer): 'grappleQueued', 'ropeQueued', 'burnQueued', 'jumpQueued' … */
+    press: (key: string): void => { (input as unknown as Record<string, boolean>)[key] = true },
+    /** Turn the camera onto a point in the world over `ms` (a barrel, a spot on a wall). */
+    aimPoint: (x: number, y: number, z: number, ms: number): void => {
+      const m = mission()
+      if (!m) return
+      const c = m.aimEye
+      turnTo(Math.atan2(x - c.x, z - c.z), Math.atan2(y - c.y, Math.hypot(x - c.x, z - c.z)), ms)
+    },
 
     /** The next kill gets the kill-cam, whatever the dice say. */
     forceKillcam: (): void => { const m = mission(); if (m) m.forceKillcam = true },

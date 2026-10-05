@@ -32,6 +32,23 @@ let duckUntil = 0
 let noiseBuf: AudioBuffer | null = null
 const pulseWaves = new Map<number, PeriodicWave>()
 let watching = false
+/** Dev tooling: the graph is built on this context instead (the trailer's offline mix). */
+let forced: BaseAudioContext | null = null
+
+/**
+ * Dev tooling: build the whole graph (buses, ducking, limiter) on `c`, an
+ * OfflineAudioContext, and play everything there, unlocked and unmuted. The
+ * cinematic trailer renders its soundtrack through the game's own mixer this
+ * way (`tools/preview-video/trailer/`).
+ */
+export const forceAudioContext = (c: BaseAudioContext): void => {
+  forced = c
+  ctx = null
+  master = sfxBus = musicBus = voiceBus = duck = null
+  duckUntil = 0
+  noiseBuf = null
+  pulseWaves.clear()
+}
 
 export const SFX_BASE = 0.32
 export const MUSIC_BASE = 0.2
@@ -82,9 +99,10 @@ export const whenAudio = (fn: () => void): void => {
 }
 
 export const audio = (): AudioGraph | null => {
-  if (held) return null
-  if (ctx && sfxBus && musicBus && voiceBus) return audioUnlocked() ? { ctx, sfx: sfxBus, music: musicBus, voice: voiceBus } : null
-  const c = getAudioContext()
+  if (held && !forced) return null
+  if (ctx && sfxBus && musicBus && voiceBus) return forced || audioUnlocked() ? { ctx, sfx: sfxBus, music: musicBus, voice: voiceBus } : null
+  // An OfflineAudioContext offers everything the graph uses.
+  const c = (forced as AudioContext | null) ?? getAudioContext()
   if (!c) return null
   ctx = c
   master = c.createDynamicsCompressor()
@@ -112,12 +130,12 @@ export const audio = (): AudioGraph | null => {
   duck = c.createGain()
   musicBus.connect(duck).connect(master)
   applyVolumes()
-  if (!watching) {
+  if (!watching && !forced) {
     watching = true
     const { userSoundVolume, userMusicVolume } = useUser()
     watch([userSoundVolume, userMusicVolume, isMobileAudioMuted, isPlatformAudioMuted], applyVolumes)
   }
-  return audioUnlocked() ? { ctx: c, sfx: sfxBus, music: musicBus, voice: voiceBus } : null
+  return forced || audioUnlocked() ? { ctx: c, sfx: sfxBus, music: musicBus, voice: voiceBus } : null
 }
 
 /**
@@ -146,7 +164,7 @@ export const duckMusic = (seconds: number): void => {
 const applyVolumes = (): void => {
   if (!ctx || !sfxBus || !musicBus) return
   const { userSoundVolume, userMusicVolume } = useUser()
-  const muted = isMobileAudioMuted.value || isPlatformAudioMuted.value
+  const muted = !forced && (isMobileAudioMuted.value || isPlatformAudioMuted.value)
   const t = ctx.currentTime
   sfxBus.gain.setTargetAtTime(muted ? 0 : SFX_BASE * (userSoundVolume.value ?? 0.7), t, 0.02)
   voiceBus?.gain.setTargetAtTime(muted ? 0 : SFX_BASE * VOICE_BASE * (userSoundVolume.value ?? 0.7), t, 0.02)
@@ -184,7 +202,10 @@ export const pulse = (duty: number): PeriodicWave | null => {
   return w
 }
 
+/** The graph runs on a forced (offline) context: it plays whatever its state reads. */
+export const audioForced = (): boolean => !!forced
+
 export const canPlay = (): boolean =>
-  !isAudioSuspended() && !isMobileAudioMuted.value && !isPlatformAudioMuted.value
+  !!forced || (!isAudioSuspended() && !isMobileAudioMuted.value && !isPlatformAudioMuted.value)
 
 export const midiHz = (m: number): number => 440 * Math.pow(2, (m - 69) / 12)

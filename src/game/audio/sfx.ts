@@ -35,6 +35,15 @@ let player: Player | null = null
 
 export const setSfxPlayer = (p: Player | null): void => { player = p }
 
+let tap: Player | null = null
+/**
+ * Dev tooling: hear every sound that plays, as it plays (the cinematic
+ * trailer logs them on the recording's clock, `game/preview.ts`).
+ */
+export const setSfxTap = (t: Player | null): void => { tap = t }
+/** Dev tooling: voice a sound now, past the gaps (the trailer's offline mix replays its log). */
+export const playSfxNow = (name: SfxName, pan = 0, gain = 1, muffle = 0): void => { player?.(name, pan, gain, muffle) }
+
 /**
  * The sounds that can fire many times a second, and the least time between
  * two of the same. Each play builds a handful of audio nodes; a minigun burst
@@ -58,7 +67,7 @@ const lastAt = new Map<SfxName, number>()
 export const resetSfxGaps = (): void => lastAt.clear()
 
 export const sfx = (name: SfxName, pan = 0, gain = 1, muffle = 0): void => {
-  if (!player) return
+  if (!player && !tap) return
   const gap = SFX_UNLIMITED ? undefined : SFX_MIN_GAP_MS[name]
   if (gap !== undefined) {
     const now = performance.now()
@@ -66,5 +75,8 @@ export const sfx = (name: SfxName, pan = 0, gain = 1, muffle = 0): void => {
     if (last !== undefined && now - last < gap) return
     lastAt.set(name, now)
   }
-  player(name, Math.max(-1, Math.min(1, pan)), gain, Math.max(0, Math.min(1, muffle)))
+  const p = Math.max(-1, Math.min(1, pan))
+  const m = Math.max(0, Math.min(1, muffle))
+  tap?.(name, p, gain, m)
+  player?.(name, p, gain, m)
 }

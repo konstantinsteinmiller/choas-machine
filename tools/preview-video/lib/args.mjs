@@ -215,7 +215,8 @@ export function parseArgs(argv, config) {
   }
 
   // ── which formats ──
-  let selected = formats
+  // A format marked `explicit` (the trailer's raw shots) is recorded only when named.
+  let selected = formats.filter((f) => !f.explicit)
   if (flags.formats !== undefined) {
     const want = list(flags.formats)
     const ids = formats.map((f) => f.id)
