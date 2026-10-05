@@ -216,6 +216,12 @@ export default {
     'extract': 'CM-07 on poistunut rakennuksesta!',
     'loot': 'Ooh, kiiltävää!'
   },
+  // The missions' names on the deploy cards (jam build: one fortress per threat level).
+  'mission': {
+    '1': 'Bastioni',
+    '2': 'Merilinnake',
+    '3': 'Teräslinna'
+  },
   'training': {
     'replay': 'Näytä uudelleen',
     'progress': 'Harjoitus: {n}/{total} oppituntia tehty',

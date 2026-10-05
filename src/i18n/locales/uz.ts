@@ -216,6 +216,12 @@ export default {
     'extract': 'CM-07 binoni tark etdi!',
     'loot': 'Voy, yaltiroq!'
   },
+  // The missions' names on the deploy cards (jam build: one fortress per threat level).
+  'mission': {
+    '1': 'Bastion',
+    '2': 'Dengiz qal\'asi',
+    '3': 'Po\'lat qal\'a'
+  },
   'training': {
     'replay': 'Yana ko\'rsatish',
     'progress': 'Mashq: {total} darsdan {n} tasi tugadi',

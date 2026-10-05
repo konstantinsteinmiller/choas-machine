@@ -168,27 +168,41 @@ const styleVars = computed(() => {
     //- The depth plate behind the body: the button reads as a pressable key.
     span.f-button__shadow(aria-hidden="true")
     span.f-button__body
-      //- A soft band of light across the top half.
-      span.f-button__shine(aria-hidden="true")
+      //- The plate's ornaments: an inset frame with corner brackets and rivets,
+      //- and a lit status strip down its leading edge.
+      span.f-button__frame(aria-hidden="true")
+      span.f-button__strip(aria-hidden="true")
       //- Glyph-only. A separate `v-if` rather than a `v-else` on the label, so
       //- an icon-only button that was passed no icon still renders its slot
       //- instead of an empty box.
-      GameIcon.f-button__glyph.is-solo(v-if="iconOnly && icon" :name="icon")
+      span.f-button__socket.is-solo(v-if="iconOnly && icon")
+        GameIcon.f-button__glyph.is-solo(:name="icon")
       template(v-else)
-        GameIcon.f-button__glyph(v-if="icon && iconPosition === 'left'" :name="icon")
+        span.f-button__socket(v-if="icon && iconPosition === 'left'")
+          GameIcon.f-button__glyph(:name="icon")
         span.f-button__text
           slot {{ label }}
-        GameIcon.f-button__glyph(v-if="icon && iconPosition === 'right'" :name="icon")
+        span.f-button__socket(v-if="icon && iconPosition === 'right'")
+          GameIcon.f-button__glyph(:name="icon")
 </template>
 
 <style scoped lang="sass">
+// ─── The plated key (jam build) ─────────────────────────────────────────────
+// Machined, not candy: a chamfered metal plate (two corners cut, the mech's
+// own panel line) with a neon edge that follows the cut, an inset frame with
+// corner brackets and rivets, a lit status strip down its leading edge, the
+// glyph in a hex socket, and a cold sweep of light. Every colour comes from
+// the tone variables each `is-<type>` sets.
 .f-button
   // The colour family; each `is-<type>` below swaps these.
-  --fbtn-from: var(--cm-pink-hi)
-  --fbtn-to: var(--cm-pink)
+  --fbtn-tone: var(--cm-pink)
+  --fbtn-tone-hi: var(--cm-pink-hi)
   --fbtn-shadow: var(--cm-pink-deep)
-  --fbtn-edge: #ffd3ee
   --fbtn-glow: var(--cm-glow-pink)
+  // How much of the tone the plate itself carries (the CTA burns brightest).
+  --fbtn-fill: 46%
+  // The cut corners.
+  --fbtn-cut: 0.62em
   position: relative
   display: inline-flex
   align-items: center
@@ -212,12 +226,15 @@ const styleVars = computed(() => {
     width: 100%
 
   &:hover:not(.is-disabled)
-    filter: brightness(1.1)
+    filter: brightness(1.14) saturate(1.1)
+
+    .f-button__body::after
+      animation-duration: 1.4s
 
   // Pressed: the body sinks onto its plate. A translate, not a scale: the
   // layout box and the hit target stay exactly where they are.
   &:active:not(.is-disabled) .f-button__body
-    transform: translateY(0.18em)
+    transform: translateY(0.16em)
 
   &:focus-visible .f-button__body
     outline: var(--cm-edge) solid var(--cm-text)
@@ -229,9 +246,6 @@ const styleVars = computed(() => {
     cursor: not-allowed
 
   // Glyph-only: a square button, not a pill with a lonely icon adrift in it.
-  // The width floor becomes the height floor, so the control is as tall as it
-  // is wide at every size and emphasis - and dropping the caption cannot
-  // collapse it, because the caption was never what held it open.
   &.is-icon-only
     min-width: var(--fbtn-min-h)
 
@@ -239,130 +253,146 @@ const styleVars = computed(() => {
       min-width: var(--fbtn-min-h)
       padding-inline: var(--fbtn-py)
 
+.is-primary
+  --fbtn-fill: 72%
+
 .is-secondary
-  --fbtn-from: var(--cm-cyan-hi)
-  --fbtn-to: var(--cm-cyan)
+  --fbtn-tone: var(--cm-cyan)
+  --fbtn-tone-hi: var(--cm-cyan-hi)
   --fbtn-shadow: var(--cm-cyan-deep)
-  --fbtn-edge: #e3fbff
   --fbtn-glow: var(--cm-glow-cyan)
+  --fbtn-fill: 30%
 
 .is-success
-  --fbtn-from: #a6ffd9
-  --fbtn-to: var(--cm-ok)
+  --fbtn-tone: var(--cm-ok)
+  --fbtn-tone-hi: #a6ffd9
   --fbtn-shadow: var(--cm-ok-deep)
-  --fbtn-edge: #e2fff3
   --fbtn-glow: 0 0 0.75em rgba(77, 255, 176, 0.45)
 
 .is-warning
-  --fbtn-from: #ffe98f
-  --fbtn-to: var(--cm-warn)
+  --fbtn-tone: var(--cm-warn)
+  --fbtn-tone-hi: #ffe98f
   --fbtn-shadow: var(--cm-warn-deep)
-  --fbtn-edge: #fff6cf
   --fbtn-glow: 0 0 0.75em rgba(255, 210, 63, 0.45)
 
 .is-danger
-  --fbtn-from: #ff96ab
-  --fbtn-to: var(--cm-danger)
+  --fbtn-tone: var(--cm-danger)
+  --fbtn-tone-hi: #ff96ab
   --fbtn-shadow: var(--cm-danger-deep)
-  --fbtn-edge: #ffd9e0
   --fbtn-glow: 0 0 0.75em rgba(255, 85, 118, 0.45)
 
-// The quiet one: a glass body with a cyan rim, for "back" and "close".
+// The quiet one: smoked glass with a cyan edge, for "back" and "close".
 .is-ghost
-  --fbtn-from: var(--cm-panel-hi)
-  --fbtn-to: var(--cm-panel)
+  --fbtn-tone: var(--cm-cyan)
+  --fbtn-tone-hi: var(--cm-cyan-hi)
   --fbtn-shadow: var(--cm-ink)
-  --fbtn-edge: var(--cm-cyan)
   --fbtn-glow: none
+  --fbtn-fill: 6%
 
+// The plate under the key: the same cut, darker, a little lower.
 .f-button__shadow
   position: absolute
   inset: 0
   font-size: var(--fbtn-font)
-  transform: translateY(0.26em)
-  border-radius: var(--fbtn-radius)
-  background-color: var(--fbtn-shadow)
-  // The ink outline wraps the plate too, so key and plate read as one toy.
-  box-shadow: 0 0 0 var(--cm-outline) var(--cm-ink), 0 0.12em 0 var(--cm-outline) rgba(10, 5, 24, 0.6)
+  transform: translateY(0.24em)
+  background: color-mix(in srgb, var(--fbtn-shadow) 70%, var(--cm-ink))
+  clip-path: polygon(var(--fbtn-cut) 0, 100% 0, 100% calc(100% - var(--fbtn-cut)), calc(100% - var(--fbtn-cut)) 100%, 0 100%, 0 var(--fbtn-cut))
 
+// The body is the neon edge; its ::before is the plate, cut the same, inset
+// by the edge's width, so the edge runs round the chamfers too.
 .f-button__body
   position: relative
   display: flex
   align-items: center
   justify-content: center
-  gap: 0.4em
-  // The body owns the type scale so the glyph can size itself in `em` off it -
-  // one metric for label and icon, which is what keeps them optically matched
-  // at every size and emphasis.
+  gap: 0.45em
+  // The body owns the type scale so the glyph can size itself in `em` off it.
   font-size: var(--fbtn-font)
   width: 100%
   min-height: var(--fbtn-min-h)
-  padding: var(--fbtn-py) var(--fbtn-px)
-  border: var(--cm-edge) solid var(--fbtn-edge)
-  border-radius: var(--fbtn-radius)
-  background-image: linear-gradient(to bottom, var(--fbtn-from), var(--fbtn-to) 70%, color-mix(in srgb, var(--fbtn-to) 82%, var(--fbtn-shadow)))
-  box-shadow: var(--fbtn-glow), 0 0 0 var(--cm-outline) var(--cm-ink), inset 0 -0.14em 0 rgba(0, 0, 0, 0.14)
-  overflow: hidden
+  padding: var(--fbtn-py) calc(var(--fbtn-px) + 0.35em)
+  background: linear-gradient(135deg, var(--fbtn-tone-hi), var(--fbtn-tone) 45%, var(--fbtn-shadow))
+  clip-path: polygon(var(--fbtn-cut) 0, 100% 0, 100% calc(100% - var(--fbtn-cut)), calc(100% - var(--fbtn-cut)) 100%, 0 100%, 0 var(--fbtn-cut))
+  filter: drop-shadow(var(--fbtn-glow))
   transition: transform 90ms ease-out
 
-// A glossy crown: a rounded highlight inset from the edges, and one small
-// sparkle at its left end. It is what makes the key look like candy.
-.f-button__shine
-  position: absolute
-  inset-inline: 7%
-  top: 7%
-  height: 40%
-  border-radius: var(--cm-radius-pill)
-  background-image: linear-gradient(to bottom, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0.06))
-  pointer-events: none
+  &::before
+    content: ''
+    position: absolute
+    inset: var(--cm-edge)
+    // Brushed metal tinted with the tone, fine machining lines across it.
+    background: repeating-linear-gradient(115deg, rgba(255, 255, 255, 0.035) 0 0.08em, rgba(255, 255, 255, 0) 0.08em 0.3em), linear-gradient(180deg, color-mix(in srgb, var(--fbtn-tone) var(--fbtn-fill), #241552) 0%, color-mix(in srgb, var(--fbtn-tone) calc(var(--fbtn-fill) * 0.55), #140a2e) 58%, color-mix(in srgb, var(--fbtn-shadow) 40%, #0e0722) 100%)
+    clip-path: polygon(calc(var(--fbtn-cut) - 0.06em) 0, 100% 0, 100% calc(100% - var(--fbtn-cut) + 0.06em), calc(100% - var(--fbtn-cut) + 0.06em) 100%, 0 100%, 0 calc(var(--fbtn-cut) - 0.06em))
+    pointer-events: none
 
+  // A cold scan line sweeps across now and then; faster under the pointer.
   &::after
     content: ''
     position: absolute
-    left: 4%
-    top: 22%
-    width: 0.32em
-    height: 0.32em
-    border-radius: 50%
-    background: #fff
-    opacity: 0.85
+    top: -20%
+    bottom: -20%
+    left: 0
+    width: 18%
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0), color-mix(in srgb, var(--fbtn-tone-hi) 55%, transparent), rgba(255, 255, 255, 0))
+    rotate: 16deg
+    translate: -220% 0
+    animation: fbtn-sheen 5.2s ease-in-out infinite
+    pointer-events: none
+    mix-blend-mode: screen
 
-// The one action a screen is for catches the light now and then: a band of
-// light sweeps across it, then it rests.
-.is-primary .f-button__body::after, .attention-bounce .f-button__body::after
-  content: ''
+// The inset frame: a hairline a step in from the edge, its corners marked by
+// brackets, two rivets on its flanks.
+.f-button__frame
   position: absolute
-  top: -20%
-  bottom: -20%
-  left: 0
-  width: 28%
-  background: linear-gradient(90deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.45), rgba(255, 255, 255, 0))
-  rotate: 18deg
-  translate: -160% 0
-  animation: fbtn-sheen 4.2s ease-in-out infinite
+  inset: calc(var(--cm-edge) + 0.22em)
+  border: 1px solid color-mix(in srgb, var(--fbtn-tone-hi) 34%, transparent)
+  clip-path: polygon(calc(var(--fbtn-cut) - 0.3em) 0, 100% 0, 100% calc(100% - var(--fbtn-cut) + 0.3em), calc(100% - var(--fbtn-cut) + 0.3em) 100%, 0 100%, 0 calc(var(--fbtn-cut) - 0.3em))
+  // Corner brackets (top right, bottom left) and rivets (left and right middle).
+  background: linear-gradient(var(--fbtn-tone-hi), var(--fbtn-tone-hi)) right 0 top 0 / 0.7em 2px no-repeat, linear-gradient(var(--fbtn-tone-hi), var(--fbtn-tone-hi)) right 0 top 0 / 2px 0.7em no-repeat, linear-gradient(var(--fbtn-tone-hi), var(--fbtn-tone-hi)) left 0 bottom 0 / 0.7em 2px no-repeat, linear-gradient(var(--fbtn-tone-hi), var(--fbtn-tone-hi)) left 0 bottom 0 / 2px 0.7em no-repeat, radial-gradient(circle, color-mix(in srgb, var(--fbtn-tone-hi) 80%, white) 0 0.07em, rgba(0, 0, 0, 0.5) 0.08em 0.11em, transparent 0.12em) right 0.25em center / 0.3em 0.3em no-repeat, radial-gradient(circle, color-mix(in srgb, var(--fbtn-tone-hi) 80%, white) 0 0.07em, rgba(0, 0, 0, 0.5) 0.08em 0.11em, transparent 0.12em) left 0.42em center / 0.3em 0.3em no-repeat
+  opacity: 0.85
   pointer-events: none
 
+// The status strip down the leading edge: lit segments, the tone at full.
+.f-button__strip
+  position: absolute
+  left: calc(var(--cm-edge) + 0.42em)
+  top: calc(var(--fbtn-cut) + 0.1em)
+  bottom: 0.42em
+  width: 0.16em
+  background: repeating-linear-gradient(180deg, var(--fbtn-tone-hi) 0 0.32em, transparent 0.32em 0.46em)
+  box-shadow: 0 0 0.4em var(--fbtn-tone)
+  opacity: 0.9
+  pointer-events: none
+
+// The glyph sits in a hex socket of the tone, a ring of light round it.
+.f-button__socket
+  position: relative
+  display: grid
+  place-items: center
+  flex: 0 0 auto
+  width: 1.65em
+  height: 1.5em
+  clip-path: polygon(25% 0, 75% 0, 100% 50%, 75% 100%, 25% 100%, 0 50%)
+  background: radial-gradient(circle at 50% 40%, color-mix(in srgb, var(--fbtn-tone-hi) 55%, transparent), color-mix(in srgb, var(--fbtn-shadow) 70%, #0e0722) 72%)
+
+  &.is-solo
+    width: 2em
+    height: 1.8em
+
 // Nested rather than written flat, and that is load-bearing: `GameIcon`'s own
-// scoped rule is `.game-icon[data-v-…]` — one class plus one attribute, exactly
-// the same specificity a flat `.f-button__glyph[data-v-…]` would have. On a tie
-// the winner is whichever stylesheet the bundler happened to emit last.
-// Nesting adds the ancestor class and settles it.
+// scoped rule has exactly the same specificity a flat rule would; nesting
+// adds the ancestor class and settles it.
 .f-button__body .f-button__glyph
   position: relative
   flex: 0 0 auto
-  // Sized in `em` off the body's font size, so one metric drives the label and
-  // the glyph together at every size and emphasis factor.
-  width: 1.25em
-  height: 1.25em
+  width: 1.05em
+  height: 1.05em
   color: var(--cm-text)
-  // The same dark offset the captions wear, so a glyph button and a text
-  // button read as the same material.
-  filter: drop-shadow(0.06em 0.08em 0 var(--cm-ink))
+  filter: drop-shadow(0 0 0.18em var(--fbtn-tone)) drop-shadow(0.05em 0.06em 0 var(--cm-ink))
 
-  // Alone in the button it IS the control, not an ornament beside a word.
   &.is-solo
-    width: 1.6em
-    height: 1.6em
+    width: 1.3em
+    height: 1.3em
 
 .f-button__text
   position: relative
@@ -370,7 +400,7 @@ const styleVars = computed(() => {
   min-width: 0
   color: var(--cm-text)
   text-transform: uppercase
-  letter-spacing: 0.03em
+  letter-spacing: 0.08em
   font-size: var(--fbtn-font)
   line-height: 1.12
   text-align: center
@@ -378,7 +408,7 @@ const styleVars = computed(() => {
   // two to three times the English width.
   overflow-wrap: anywhere
   text-wrap: balance
-  text-shadow: var(--cm-text-outline)
+  text-shadow: 0 0 0.45em color-mix(in srgb, var(--fbtn-tone) 70%, transparent), var(--cm-text-outline)
 
 .attention-bounce
   animation: fbtn-bounce 0.6s infinite alternate
@@ -387,18 +417,18 @@ const styleVars = computed(() => {
   from
     translate: 0 0
   to
-    translate: 0 -0.3em
+    translate: 0 -0.22em
 
 @keyframes fbtn-sheen
-  0%, 62%
-    translate: -160% 0
-  86%, 100%
-    translate: 520% 0
+  0%, 64%
+    translate: -220% 0
+  88%, 100%
+    translate: 620% 0
 
 @media (prefers-reduced-motion: reduce)
   .attention-bounce
     animation: none
-  .is-primary .f-button__body::after, .attention-bounce .f-button__body::after
+  .f-button__body::after
     animation: none
     display: none
 </style>

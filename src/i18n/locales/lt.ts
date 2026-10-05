@@ -216,6 +216,12 @@ export default {
     'extract': 'CM-07 paliko pastatą!',
     'loot': 'Oho, blizga!'
   },
+  // The missions' names on the deploy cards (jam build: one fortress per threat level).
+  'mission': {
+    '1': 'Bastionas',
+    '2': 'Jūrų fortas',
+    '3': 'Plieno pilis'
+  },
   'training': {
     'replay': 'Parodyk dar kartą',
     'progress': 'Treniruotė: baigta {n} iš {total} pamokų',

@@ -216,6 +216,12 @@ export default {
     'extract': 'CM-07 ha lasciato l\'edificio!',
     'loot': 'Ooh, luccica!'
   },
+  // The missions' names on the deploy cards (jam build: one fortress per threat level).
+  'mission': {
+    '1': 'Il Bastione',
+    '2': 'Forte del mare',
+    '3': 'Mastio d\'acciaio'
+  },
   'training': {
     'replay': 'Mostramelo di nuovo',
     'progress': 'Addestramento: {n} lezioni su {total} completate',

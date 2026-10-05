@@ -216,6 +216,12 @@ export default {
     'extract': 'Το CM-07 αποχώρησε από το κτίριο!',
     'loot': 'Ωω, γυαλιστερό!'
   },
+  // The missions' names on the deploy cards (jam build: one fortress per threat level).
+  'mission': {
+    '1': 'Ο Προμαχώνας',
+    '2': 'Θαλάσσιο Φρούριο',
+    '3': 'Ατσάλινος Πύργος'
+  },
   'training': {
     'replay': 'Δείξε ξανά',
     'progress': 'Εκπαίδευση: {n} από {total} μαθήματα',

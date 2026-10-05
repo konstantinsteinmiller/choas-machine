@@ -216,6 +216,12 @@ export default {
     'extract': 'CM-07 已離場！',
     'loot': '哇，亮晶晶！'
   },
+  // The missions' names on the deploy cards (jam build: one fortress per threat level).
+  'mission': {
+    '1': '堡壘',
+    '2': '海上要塞',
+    '3': '鋼鐵城堡'
+  },
   'training': {
     'replay': '再示範一次',
     'progress': '訓練：已完成 {n}/{total} 課',

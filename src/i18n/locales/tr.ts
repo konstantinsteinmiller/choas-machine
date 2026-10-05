@@ -216,6 +216,12 @@ export default {
     'extract': 'CM-07 binayı terk etti!',
     'loot': 'Oo, parlak şey!'
   },
+  // The missions' names on the deploy cards (jam build: one fortress per threat level).
+  'mission': {
+    '1': 'Burç',
+    '2': 'Deniz Kalesi',
+    '3': 'Çelik Hisar'
+  },
   'training': {
     'replay': 'Tekrar göster',
     'progress': 'Eğitim: {total} dersten {n} tanesi bitti',

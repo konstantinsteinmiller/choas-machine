@@ -2,6 +2,7 @@
   //- The way back into the fortress: pick a threat level, see what has been
   //- won there, and go.
   section.deploy
+    TechFrame(tone="cyan")
     //- Which fortress (#93): shown once there is a choice (a second fortress is open).
     template(v-if="openForts > 1")
       h2.label {{ t('base.fortress') }}
@@ -21,6 +22,9 @@
           GameIcon.lock(v-if="!fortressOpen(f.id)" name="lock")
           span.fort-name {{ t('fortress.' + f.id) }}
     h2.label {{ t('base.threat') }}
+    //- The missions as cards (jam build): the fortress in silhouette, its
+    //- numeral, its name, what has been won there; locked until the one before
+    //- has fallen.
     div.levels(role="radiogroup" :aria-label="t('base.threat')")
       button.level(
         v-for="n in THREAT_LEVELS"
@@ -28,14 +32,21 @@
         type="button"
         role="radio"
         :aria-checked="n === flow.level"
-        :aria-label="n > open ? t('base.locked', { n: n - 1 }) : `${t('base.threat')} ${n}`"
+        :aria-label="n > open ? t('base.locked', { n: n - 1 }) : `${t('base.threat')} ${n}: ${missionName(n)}`"
         :disabled="n > open"
         :class="{ on: n === flow.level, locked: n > open, cleared: clears(n) > 0 }"
         :data-testid="`level-${n}`"
         @click="pick(n)"
       )
-        GameIcon.lock(v-if="n > open" name="lock")
-        span.numeral(v-else) {{ NUMERALS[n - 1] }}
+        span.art
+          MissionArt(:n="n")
+        span.numeral {{ NUMERALS[n - 1] }}
+        GameIcon.done(v-if="clears(n) > 0" name="check")
+        span.name {{ missionName(n) }}
+        span.stars
+          span.star(v-for="m in MEDAL_IDS" :key="m" :class="{ won: medalWon(n, m) }")
+        span.veil(v-if="n > open")
+          GameIcon.lock(name="lock")
     div.record
       div.medals
         span.medal(
@@ -77,6 +88,8 @@
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import FButton from '@/components/atoms/FButton.vue'
+import TechFrame from '@/components/atoms/TechFrame.vue'
+import MissionArt from '@/components/base/MissionArt.vue'
 import GameIcon from '@/components/icons/GameIcon.vue'
 import { flow, playCinema, startMission, startTraining } from '@/game/flow'
 import { CINEMA_IDS, seenKey, type CinemaId } from '@/game/story/cinemaIds'
@@ -102,6 +115,9 @@ const answers = computed<AnswerId[]>(() => { const a = answersTo(profile.habits)
 const ANSWER_ICONS: Readonly<Record<AnswerId, GameIconName>> = { helmets: 'shield', boxCheck: 'box', perchLight: 'eye' }
 const clears = (n: number): number => profile.fortresses[levelKey(n, flow.fortress)]?.clears ?? 0
 const record = computed(() => profile.fortresses[levelKey(flow.level, flow.fortress)])
+/** A mission's name: the Bastion's three are their own fortresses; elsewhere the fortress's name. */
+const missionName = (n: number): string => (flow.fortress === 'bastion' ? t(`mission.${n}`) : `${t('fortress.' + flow.fortress)} ${NUMERALS[n - 1]}`)
+const medalWon = (n: number, m: (typeof MEDAL_IDS)[number]): boolean => !!profile.fortresses[levelKey(n, flow.fortress)]?.medals[m]
 const fmt = (n: number): string => formatAmount(n, locale.value)
 
 const pick = (n: number): void => {
@@ -175,15 +191,22 @@ const train = (): void => { void startTraining() }
     height: 1.1em
     flex: none
 .deploy
+  position: relative
   display: flex
   flex-direction: column
   gap: clamp(0.35rem, 1.6vmin, 0.7rem)
-  padding: clamp(0.5rem, 2.2vmin, 1rem)
+  // Room inside the border for the ornaments.
+  padding: clamp(0.8rem, 3vmin, 1.3rem) clamp(0.85rem, 3.2vmin, 1.4rem)
   box-sizing: border-box
   border: var(--cm-rim-w) solid transparent
-  border-radius: var(--cm-radius-l)
-  background: var(--cm-surface) padding-box, var(--cm-rim) border-box
-  box-shadow: var(--cm-sticker), var(--cm-glow-cyan), var(--cm-inner-glow)
+  // Machined: two corners cut, like the buttons and the mech's own panels.
+  --cut: clamp(0.8rem, 3vmin, 1.4rem)
+  clip-path: polygon(var(--cut) 0, 100% 0, 100% calc(100% - var(--cut)), calc(100% - var(--cut)) 100%, 0 100%, 0 var(--cut))
+  background: repeating-linear-gradient(115deg, rgba(255, 255, 255, 0.025) 0 0.1em, transparent 0.1em 0.4em) padding-box, var(--cm-surface) padding-box, var(--cm-rim) border-box
+  box-shadow: var(--cm-inner-glow)
+  > :not(.tech-frame)
+    position: relative
+    z-index: 1
 .label
   margin: 0
   color: var(--cm-dim)
@@ -221,45 +244,151 @@ const train = (): void => { void startTraining() }
     height: 1em
 .levels
   display: flex
-  gap: clamp(0.25rem, 1.2vmin, 0.5rem)
+  gap: clamp(0.3rem, 1.4vmin, 0.6rem)
+// A mission card: the picture over a name plate, a numeral badge in its cut
+// corner, the medals as three pips, a lock veil while it is closed.
 .level
-  // Five across a 320 px phone, each still a legal touch target.
+  --edge: var(--cm-violet)
+  --cut: clamp(0.5rem, 2vmin, 0.8rem)
+  position: relative
   flex: 1 1 0
-  min-width: 2.5rem
+  min-width: 0
   min-height: 2.5rem
-  height: clamp(2.5rem, 9vmin, 3.2rem)
-  padding: 0
+  aspect-ratio: 0.82
+  max-height: clamp(5.6rem, 26vmin, 9.5rem)
+  padding: var(--cm-edge)
   display: flex
-  align-items: center
-  justify-content: center
+  flex-direction: column
   box-sizing: border-box
-  border: var(--cm-edge) solid var(--cm-violet)
-  border-radius: var(--cm-radius-m)
-  background: var(--cm-night)
+  border: 0
+  background: linear-gradient(160deg, color-mix(in srgb, var(--edge) 90%, white), var(--edge) 40%, color-mix(in srgb, var(--edge) 50%, var(--cm-ink)))
+  clip-path: polygon(var(--cut) 0, 100% 0, 100% calc(100% - var(--cut)), calc(100% - var(--cut)) 100%, 0 100%, 0 var(--cut))
   color: var(--cm-lilac)
   font: inherit
-  font-size: var(--cm-fs-m)
   cursor: pointer
   touch-action: manipulation
   -webkit-tap-highlight-color: transparent
-  transition: background-color 110ms ease-out, border-color 110ms ease-out
+  transition: translate 140ms ease-out, filter 140ms ease-out
+  &:hover:not(.locked)
+    filter: brightness(1.12)
   &.cleared
-    border-color: var(--cm-ok)
-    color: var(--cm-ok)
+    --edge: var(--cm-ok)
+  // The chosen one: pink, lifted, a scan line running down its picture.
   &.on
-    background: var(--cm-pink)
-    border-color: var(--cm-pink-hi)
-    color: var(--cm-ink)
-    box-shadow: var(--cm-glow-pink)
+    --edge: var(--cm-pink)
+    translate: 0 -0.18rem
+    filter: drop-shadow(0 0 0.5rem rgba(255, 79, 182, 0.65))
+    .art::after
+      animation: card-scan 2.2s linear infinite
   &.locked
-    opacity: 0.5
     cursor: not-allowed
   &:focus-visible
     outline: var(--cm-edge) solid var(--cm-text)
     outline-offset: 0.12em
-.lock
-  width: 46%
-  height: 46%
+.art
+  position: relative
+  flex: 1 1 auto
+  min-height: 0
+  overflow: hidden
+  clip-path: polygon(calc(var(--cut) - 0.1rem) 0, 100% 0, 100% 100%, 0 100%, 0 calc(var(--cut) - 0.1rem))
+  background: var(--cm-night)
+  :deep(svg)
+    position: absolute
+    inset: 0
+    width: 100%
+    height: 100%
+    object-fit: cover
+  &::after
+    content: ''
+    position: absolute
+    left: 0
+    right: 0
+    top: -30%
+    height: 30%
+    background: linear-gradient(180deg, transparent, rgba(77, 232, 255, 0.35), transparent)
+    pointer-events: none
+.numeral
+  position: absolute
+  top: 0
+  right: 0
+  min-width: 1.7em
+  padding: 0.05em 0.35em 0.1em 0.55em
+  clip-path: polygon(0.35em 0, 100% 0, 100% 100%, 0 100%)
+  background: var(--edge)
+  color: var(--cm-ink)
+  font-size: var(--cm-fs-s)
+  line-height: 1.2
+  text-align: center
+.done
+  position: absolute
+  top: 0.2em
+  left: 0.35em
+  width: 1.1em
+  height: 1.1em
+  color: var(--cm-ok)
+  filter: drop-shadow(0 0 0.2rem var(--cm-ok))
+.name
+  display: block
+  padding: 0.25em 0.3em 0.1em
+  background: linear-gradient(180deg, #241552, #150c2b)
+  color: var(--cm-text)
+  font-size: var(--cm-fs-xs)
+  line-height: 1.1
+  text-transform: uppercase
+  letter-spacing: 0.04em
+  text-align: center
+  overflow-wrap: anywhere
+  text-wrap: balance
+.stars
+  display: flex
+  justify-content: center
+  gap: 0.25em
+  padding: 0.12em 0 calc(0.25em + var(--cut) * 0.3)
+  background: #150c2b
+.star
+  width: 0.42em
+  height: 0.42em
+  rotate: 45deg
+  background: rgba(178, 164, 220, 0.25)
+  font-size: var(--cm-fs-m)
+  &.won
+    background: var(--cm-warn)
+    box-shadow: 0 0 0.3em var(--cm-warn)
+.veil
+  position: absolute
+  inset: var(--cm-edge)
+  display: grid
+  place-items: center
+  background: repeating-linear-gradient(135deg, rgba(21, 12, 43, 0.78) 0 0.5em, rgba(21, 12, 43, 0.62) 0.5em 1em)
+  color: var(--cm-lilac)
+  .lock
+    width: 34%
+    height: auto
+    aspect-ratio: 1
+    filter: drop-shadow(0 0 0.3rem rgba(154, 120, 255, 0.8))
+@keyframes card-scan
+  from
+    top: -30%
+  to
+    top: 100%
+@media (prefers-reduced-motion: reduce)
+  .level.on .art::after
+    animation: none
+// A short screen (a phone on its side): the cards and the record lose height first.
+@media (max-height: 480px)
+  .deploy
+    gap: 0.3rem
+    padding-block: 0.6rem
+  .label
+    display: none
+  .level
+    aspect-ratio: auto
+    height: clamp(3.9rem, 22vh, 5.4rem)
+  // The cards carry the medals already: the record keeps only the best score.
+  .record
+    min-height: 0
+  .medals
+    display: none
 .record
   display: flex
   align-items: center

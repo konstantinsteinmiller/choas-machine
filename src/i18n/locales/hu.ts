@@ -216,6 +216,12 @@ export default {
     'extract': 'CM-07 elhagyta az épületet!',
     'loot': 'Ó, csillogó!'
   },
+  // The missions' names on the deploy cards (jam build: one fortress per threat level).
+  'mission': {
+    '1': 'A Bástya',
+    '2': 'Tengeri erőd',
+    '3': 'Acélvár'
+  },
   'training': {
     'replay': 'Mutasd újra',
     'progress': 'Gyakorlás: {total} leckéből {n} kész',

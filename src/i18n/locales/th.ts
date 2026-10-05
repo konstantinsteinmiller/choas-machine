@@ -216,6 +216,12 @@ export default {
     'extract': 'CM-07 ออกจากตึกไปแล้ว!',
     'loot': 'โอ้ แวววาว!'
   },
+  // The missions' names on the deploy cards (jam build: one fortress per threat level).
+  'mission': {
+    '1': 'ป้อมปราการ',
+    '2': 'ป้อมทะเล',
+    '3': 'หอคอยเหล็กกล้า'
+  },
   'training': {
     'replay': 'ดูอีกครั้ง',
     'progress': 'ฝึกซ้อม: เสร็จ {n} จาก {total} บทเรียน',

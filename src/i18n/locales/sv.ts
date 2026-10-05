@@ -216,6 +216,12 @@ export default {
     'extract': 'CM-07 har lämnat byggnaden!',
     'loot': 'Åh, glittrigt!'
   },
+  // The missions' names on the deploy cards (jam build: one fortress per threat level).
+  'mission': {
+    '1': 'Bastionen',
+    '2': 'Sjöfortet',
+    '3': 'Stålborgen'
+  },
   'training': {
     'replay': 'Visa igen',
     'progress': 'Träning: {n} av {total} lektioner klara',

@@ -216,6 +216,12 @@ export default {
     'extract': 'CM-07 telah meninggalkan gedung!',
     'loot': 'Wah, berkilau!'
   },
+  // The missions' names on the deploy cards (jam build: one fortress per threat level).
+  'mission': {
+    '1': 'Benteng',
+    '2': 'Benteng Laut',
+    '3': 'Menara Baja'
+  },
   'training': {
     'replay': 'Tunjukkan lagi',
     'progress': 'Latihan: {n} dari {total} pelajaran selesai',

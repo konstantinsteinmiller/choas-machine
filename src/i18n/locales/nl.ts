@@ -216,6 +216,12 @@ export default {
     'extract': 'CM-07 heeft het gebouw verlaten!',
     'loot': 'Ooh, glimmend!'
   },
+  // The missions' names on the deploy cards (jam build: one fortress per threat level).
+  'mission': {
+    '1': 'Het Bastion',
+    '2': 'Zeefort',
+    '3': 'Stalen Burcht'
+  },
   'training': {
     'replay': 'Nog eens laten zien',
     'progress': 'Training: {n} van {total} lessen klaar',

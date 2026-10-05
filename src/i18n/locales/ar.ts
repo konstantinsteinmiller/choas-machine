@@ -216,6 +216,12 @@ export default {
     'extract': 'CM-07 غادر المبنى!',
     'loot': 'أوه، لامع!'
   },
+  // The missions' names on the deploy cards (jam build: one fortress per threat level).
+  'mission': {
+    '1': 'الحصن',
+    '2': 'قلعة البحر',
+    '3': 'القلعة الفولاذية'
+  },
   'training': {
     'replay': 'أرني مجددًا',
     'progress': 'التدريب: {n} من {total} دروس مكتملة',

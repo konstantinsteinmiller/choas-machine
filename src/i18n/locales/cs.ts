@@ -216,6 +216,12 @@ export default {
     'extract': 'CM-07 opustil budovu!',
     'loot': 'Óó, lesklé!'
   },
+  // The missions' names on the deploy cards (jam build: one fortress per threat level).
+  'mission': {
+    '1': 'Bašta',
+    '2': 'Mořská pevnost',
+    '3': 'Ocelový hrad'
+  },
   'training': {
     'replay': 'Ukaž znovu',
     'progress': 'Výcvik: hotovo {n} z {total} lekcí',

@@ -216,6 +216,12 @@ export default {
     'extract': 'CM-07 इमारत से निकल चुका है!',
     'loot': 'वाह, चमकीला!'
   },
+  // The missions' names on the deploy cards (jam build: one fortress per threat level).
+  'mission': {
+    '1': 'बुर्ज',
+    '2': 'समुद्री किला',
+    '3': 'इस्पात का गढ़'
+  },
   'training': {
     'replay': 'फिर से दिखाएँ',
     'progress': 'प्रशिक्षण: {total} में से {n} पाठ पूरे',

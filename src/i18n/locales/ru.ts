@@ -216,6 +216,12 @@ export default {
     'extract': 'CM-07 покинул здание!',
     'loot': 'О, блестяшка!'
   },
+  // The missions' names on the deploy cards (jam build: one fortress per threat level).
+  'mission': {
+    '1': 'Бастион',
+    '2': 'Морской форт',
+    '3': 'Стальная цитадель'
+  },
   'training': {
     'replay': 'Покажи ещё раз',
     'progress': 'Тренировка: пройдено уроков {n} из {total}',

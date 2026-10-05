@@ -216,6 +216,12 @@ export default {
     'extract': 'CM-07 ir pametis ēku!',
     'loot': 'Ō, spīdīgs!'
   },
+  // The missions' names on the deploy cards (jam build: one fortress per threat level).
+  'mission': {
+    '1': 'Bastions',
+    '2': 'Jūras forts',
+    '3': 'Tērauda pils'
+  },
   'training': {
     'replay': 'Parādi vēlreiz',
     'progress': 'Treniņš: pabeigtas {n} no {total} nodarbībām',

@@ -216,6 +216,12 @@ export default {
     'extract': 'CM-07 forlasis la konstruaĵon!',
     'loot': 'Ho, brilaĵo!'
   },
+  // The missions' names on the deploy cards (jam build: one fortress per threat level).
+  'mission': {
+    '1': 'La Bastiono',
+    '2': 'Mara Fortikaĵo',
+    '3': 'Ŝtala Turo'
+  },
   'training': {
     'replay': 'Montru denove',
     'progress': 'Trejnado: {n} el {total} lecionoj faritaj',

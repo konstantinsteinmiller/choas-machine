@@ -20,14 +20,15 @@
 
     div.panel
       nav.stations(:aria-label="t('gameName')")
-        FButton(type="secondary" size="sm" icon="sniper" icon-position="left" data-testid="btn-armory" @click="openShop('armory')") {{ t('base.armory') }}
-        FButton(type="secondary" size="sm" icon="mech" icon-position="left" data-testid="btn-chassis" @click="openShop('chassis')") {{ t('base.chassis') }}
+        FButton(type="secondary" size="sm" icon="sniper" icon-position="left" :aria-label="t('base.armory')" data-testid="btn-armory" @click="openShop('armory')") {{ t('base.armory') }}
+        FButton(type="secondary" size="sm" icon="mech" icon-position="left" :aria-label="t('base.chassis')" data-testid="btn-chassis" @click="openShop('chassis')") {{ t('base.chassis') }}
         FButton(
           :type="forgeReady ? 'success' : 'secondary'"
           size="sm"
           icon="forge"
           icon-position="left"
           :attention="forgeReady"
+          :aria-label="t('base.forge')"
           data-testid="btn-forge"
           @click="openShop('forge')"
         ) {{ t('base.forge') }}
@@ -148,6 +149,14 @@ const forgeReady = computed(() => WEAPON_IDS.some(w => canForge(w)))
   gap: var(--gap)
   overflow-y: auto
   scrollbar-width: none
+  // The scroll box clipped the buttons' depth plates and glows at its edges
+  // (it read as cut off): room for them inside it.
+  padding: 0.35rem 0.35rem 0.45rem
+  box-sizing: border-box
+  // A short screen (a phone on its side): the panel starts below the purse
+  // (wallet and rank), never under it.
+  @media (max-height: 480px) and (orientation: landscape)
+    max-height: calc(100% - var(--cm-safe-bottom) - var(--cm-safe-top) - clamp(4rem, 18vmin, 5rem))
   // Portrait: a sheet along the bottom, the mech above it. It starts right
   // of the system corner (mute over settings), which keeps the bottom-left.
   @media (orientation: portrait)
@@ -162,4 +171,12 @@ const forgeReady = computed(() => WEAPON_IDS.some(w => canForge(w)))
   // rather than shrinking the captions.
   > *
     flex: 1 1 auto
+  // A short screen (a phone on its side): the three stations as glyphs in one
+  // row (each keeps its name for a screen reader), so the deploy panel fits.
+  @media (max-height: 480px)
+    flex-wrap: nowrap
+    > *
+      min-width: 0
+    :deep(.f-button__text)
+      display: none
 </style>

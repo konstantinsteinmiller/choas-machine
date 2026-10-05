@@ -216,6 +216,12 @@ export default {
     'extract': 'CM-07, 건물을 떠났습니다!',
     'loot': '오, 반짝반짝!'
   },
+  // The missions' names on the deploy cards (jam build: one fortress per threat level).
+  'mission': {
+    '1': '요새',
+    '2': '바다 요새',
+    '3': '강철 성채'
+  },
   'training': {
     'replay': '다시 보기',
     'progress': '훈련: {total}개 중 {n}개 완료',

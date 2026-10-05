@@ -216,6 +216,12 @@ export default {
     'extract': 'CM-07 ғимараттан шықты!',
     'loot': 'Ой, жылтыр!'
   },
+  // The missions' names on the deploy cards (jam build: one fortress per threat level).
+  'mission': {
+    '1': 'Бастион',
+    '2': 'Теңіз форты',
+    '3': 'Болат қамал'
+  },
   'training': {
     'replay': 'Қайта көрсету',
     'progress': 'Жаттығу: {total} сабақтың {n} өтті',

@@ -216,6 +216,12 @@ export default {
     'extract': 'CM-07 a părăsit clădirea!',
     'loot': 'Uau, strălucește!'
   },
+  // The missions' names on the deploy cards (jam build: one fortress per threat level).
+  'mission': {
+    '1': 'Bastionul',
+    '2': 'Fortul Mării',
+    '3': 'Donjonul de oțel'
+  },
   'training': {
     'replay': 'Arată-mi din nou',
     'progress': 'Antrenament: {n} din {total} lecții terminate',

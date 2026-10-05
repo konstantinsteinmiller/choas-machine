@@ -216,6 +216,12 @@ export default {
     'extract': 'CM-07 ha abandonat l\'edifici!',
     'loot': 'Uau, que brillant!'
   },
+  // The missions' names on the deploy cards (jam build: one fortress per threat level).
+  'mission': {
+    '1': 'El Bastió',
+    '2': 'Fort marí',
+    '3': 'Torre d\'acer'
+  },
   'training': {
     'replay': 'Torna-m\'ho a ensenyar',
     'progress': 'Entrenament: {n} de {total} lliçons fetes',

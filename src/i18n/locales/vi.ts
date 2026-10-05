@@ -216,6 +216,12 @@ export default {
     'extract': 'CM-07 đã rời khỏi tòa nhà!',
     'loot': 'Ôi, lấp lánh quá!'
   },
+  // The missions' names on the deploy cards (jam build: one fortress per threat level).
+  'mission': {
+    '1': 'Pháo Đài',
+    '2': 'Pháo Đài Biển',
+    '3': 'Thành Thép'
+  },
   'training': {
     'replay': 'Xem lại',
     'progress': 'Huấn luyện: xong {n}/{total} bài',

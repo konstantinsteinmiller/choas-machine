@@ -216,6 +216,12 @@ export default {
     'extract': 'CM-07 напусна сградата!',
     'loot': 'Ооо, лъскаво!'
   },
+  // The missions' names on the deploy cards (jam build: one fortress per threat level).
+  'mission': {
+    '1': 'Бастионът',
+    '2': 'Морската крепост',
+    '3': 'Стоманената кула'
+  },
   'training': {
     'replay': 'Покажи пак',
     'progress': 'Тренировка: {n} от {total} урока завършени',
