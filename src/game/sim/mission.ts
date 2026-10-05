@@ -106,6 +106,19 @@ const MUZZLE_REACH: Readonly<Record<WeaponId, number>> = { sniper: 1.75, minigun
 const AIR_SLOW = 0.45
 /** The blade's tip in its bone's frame (`models/mech.ts`: an 0.82 m blade centred 0.5 m out). */
 const BLADE_TIP_Y = -0.91
+/**
+ * The outermost points of the mech's body, by bone (the head's crown, the
+ * hands, the knees, the toes, the blade's tip): the dive kill's roll keeps
+ * every one of them above the floor.
+ */
+const ROLL_EXTREMES: ReadonlyArray<readonly [string, number, number, number]> = [
+  ['head', 0, 0.45, 0], ['chest', 0, 0.25, -0.25], ['hips', 0, -0.1, -0.25],
+  ['foreL', 0, -0.45, 0], ['foreR', 0, -0.45, 0],
+  ['shinL', 0, 0, 0.1], ['shinR', 0, 0, 0.1], ['footL', 0, -0.1, 0.2], ['footR', 0, -0.1, 0.2],
+  ['blade', 0, BLADE_TIP_Y, 0]
+]
+/** How far over the floor the lowest of them stays (m). */
+const ROLL_CLEAR = 0.03
 const AIR_CAM_OUT_S = 0.4
 /** A scripted camera pulled in by a wall holds there this long, then eases out at this share of its length a second (#119). */
 const CINE_ARM_HOLD_S = 0.5
@@ -3410,6 +3423,22 @@ export class Mission implements GameMode {
         const tip = this.rig.bones.blade!.localToWorld(this.muzzleTmp.set(0, BLADE_TIP_Y, 0))
         const off = pinBlade(tip, striking.air.head, airBeat.pin)
         this.rig.root.position.set(at.x + off.x, at.y + off.y, at.z + off.z)
+      }
+      // Over the body and in the roll the turning body must never go through
+      // the floor: lift it by however far its lowest point would sink.
+      if (airBeat.phase !== 'dive') {
+        this.rig.root.updateMatrixWorld(true)
+        const floor = heightAt(this.fortress.grid, this.rig.root.position.x, this.rig.root.position.z)
+        if (floor !== VOID) {
+          let low = Infinity
+          for (const [bone, ox, oy, oz] of ROLL_EXTREMES) {
+            const b = this.rig.bones[bone]
+            if (!b) continue
+            low = Math.min(low, b.localToWorld(this.muzzleTmp.set(ox, oy, oz)).y)
+          }
+          const sink = floor + ROLL_CLEAR - low
+          if (sink > 0) this.rig.root.position.y += sink
+        }
       }
     }
 
