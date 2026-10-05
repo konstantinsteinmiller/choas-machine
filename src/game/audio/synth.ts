@@ -2,6 +2,7 @@ import { registerOneShotSource } from '@/use/useAssets'
 import { audio, audioForced, canPlay, noise, pulse, midiHz, duckMusic } from './engine'
 import { setSfxPlayer, type SfxName } from './sfx'
 import { SFX_FILES } from '../assets/overrides'
+import { FOLEY, minigunSpin, type FoleyName } from './foley'
 
 /**
  * ─── Synthesised SFX ─────────────────────────────────────────────────────────
@@ -15,6 +16,10 @@ import { SFX_FILES } from '../assets/overrides'
  * The palette follows the GDD's two phases: the stealth sounds are soft and
  * short (a silenced rifle is a thump and a click, not a crack), the loud ones
  * are wide and noisy.
+ *
+ * The weapons are the exception to "a few voices": a gunshot is too dense for
+ * that, so they are rendered sample by sample once (`foley.ts`) and played
+ * like recordings, one buffer source per sound.
  *
  * Every source is registered with `registerOneShotSource`, so an ad or a
  * platform mute hard-stops in-flight sounds (the suspend gate alone would only
@@ -142,7 +147,9 @@ const arp = (notes: number[], step: number, wave: Wave, vol: number, len = step 
 // Voice limiting: the same sound can only retrigger every `gap` seconds.
 const lastAt = new Map<string, number>()
 const GAP: Partial<Record<SfxName, number>> = {
-  minigun: 0.045, hit: 0.04, tink: 0.05, enemyShot: 0.07, explode: 0.08, uiClick: 0.03, step: 0.16,
+  // The minigun's 15 rounds a second are already spaced by `SFX_MIN_GAP_MS`;
+  // this only catches a double trigger (the audio clock moves in steps).
+  minigun: 0.035, hit: 0.04, tink: 0.05, enemyShot: 0.07, explode: 0.08, uiClick: 0.03, step: 0.16,
   // A volley whizzes once, and the hurt is one sound however many rounds land.
   whizz: 0.4, hurt: 0.14, ricochet: 0.12,
   // Several guards noticing at once are one sting.
@@ -154,7 +161,7 @@ const GAP: Partial<Record<SfxName, number>> = {
  * and level (±10 %) each time, so a fight is not one sample on repeat.
  */
 const VARY: ReadonlySet<SfxName> = new Set<SfxName>([
-  'minigun', 'hit', 'tink', 'explode', 'enemyShot', 'step', 'ricochet', 'sniper', 'kill'
+  'minigun', 'hit', 'tink', 'explode', 'enemyShot', 'step', 'ricochet', 'sniper', 'kill', 'impactBody', 'impactMetal'
 ])
 
 /** The big stings: the music steps back under them (seconds). */
@@ -172,7 +179,7 @@ const CAP = 24
 const CAP_WINDOW = 0.25
 const recent: number[] = []
 const NEVER_DROP: ReadonlySet<SfxName> = new Set<SfxName>([
-  'hurt', 'down', 'alarm', 'spotted', 'sniper', 'rocket', 'blade', 'denied', 'uiClick', 'uiOpen', 'uiClose', 'uiConfirm',
+  'hurt', 'down', 'alarm', 'spotted', 'sniper', 'rocket', 'blade', 'stab', 'bladePull', 'impactBody', 'impactMetal', 'denied', 'uiClick', 'uiOpen', 'uiClose', 'uiConfirm',
   'objective', 'extract', 'killcam', 'medal', 'telegraph'
 ])
 
@@ -182,6 +189,66 @@ const MUFFLED_HZ = 850
 /** The low-pass cutoff for a muffle of 0..1, on an exponential (pitch) scale. */
 export const muffleHz = (muffle: number): number =>
   OPEN_HZ * Math.pow(MUFFLED_HZ / OPEN_HZ, Math.max(0, Math.min(1, muffle)))
+
+// ─── The rendered sounds (`foley.ts`) ────────────────────────────────────────
+// Each variant is rendered once, on first use, at the context's own rate,
+// and kept: a round of the minigun is then one buffer source and a gain.
+
+const foleyBuffers = new Map<string, AudioBuffer>()
+const lastVariant = new Map<FoleyName, number>()
+
+const foleyBuffer = (name: FoleyName | 'spin', v: number): AudioBuffer | null => {
+  const a = audio()
+  if (!a) return null
+  const sr = a.ctx.sampleRate
+  const key = `${name}:${v}:${sr}`
+  let buf = foleyBuffers.get(key)
+  if (!buf) {
+    const data = name === 'spin' ? minigunSpin(sr) : FOLEY[name].bake(sr, v)
+    buf = a.ctx.createBuffer(1, data.length, sr)
+    buf.getChannelData(0).set(data)
+    foleyBuffers.set(key, buf)
+  }
+  return buf
+}
+
+let warmed = false
+/**
+ * Render every variant ahead, one per idle moment: the first rocket of a
+ * mission should not wait for its explosion to render (tens of ms on a
+ * desktop, the most of any). Started during the drop-in (`gameSounds.ts`),
+ * like the music's halls, or by the first sound heard, whichever comes
+ * first; a sound asked for before its turn is rendered on the spot.
+ */
+export const warmFoley = (): void => {
+  if (warmed || !audio()) return
+  warmed = true
+  const todo: Array<[FoleyName | 'spin', number]> = [['spin', 0]]
+  for (const name of Object.keys(FOLEY) as FoleyName[]) {
+    for (let v = 0; v < FOLEY[name].variants; v++) todo.push([name, v])
+  }
+  const idle = (fn: () => void): void => {
+    if (typeof requestIdleCallback === 'function') requestIdleCallback(fn, { timeout: 1000 })
+    else setTimeout(fn, 16)
+  }
+  const next = (): void => {
+    const job = todo.shift()
+    if (!job) return
+    try { foleyBuffer(job[0], job[1]) } catch { /* rendered on demand instead */ }
+    idle(next)
+  }
+  idle(next)
+}
+
+/** Play one of a rendered sound's variants (never the same one twice running). */
+const foley = (name: FoleyName) => (pan: number, g: number): void => {
+  const n = FOLEY[name].variants
+  const prev = lastVariant.get(name) ?? -1
+  const v = n < 2 ? 0 : (prev + 1 + Math.floor(Math.random() * (n - 1))) % n
+  lastVariant.set(name, v)
+  const buf = foleyBuffer(name, v)
+  if (buf) playBuffer(buf, pan, g)
+}
 
 const RECIPES: Record<SfxName, (pan: number, g: number) => void> = {
   // ── The mech ──
@@ -211,17 +278,9 @@ const RECIPES: Record<SfxName, (pan: number, g: number) => void> = {
     arp([64, 60, 55, 48], 0.16, 'p25', 0.12 * g, 0.2, 0.15)
   },
 
-  // ── The sniper: a thump, a click, and the air the round parts ──
-  sniper: (p, g) => {
-    tone({ wave: 'sine', f0: 170, f1: 52, dur: 0.14, vol: 0.34 * g, pan: p })
-    burst({ dur: 0.09, vol: 0.2 * g, type: 'lowpass', f0: 1500, f1: 300, pan: p })
-    burst({ dur: 0.22, vol: 0.07 * g, type: 'bandpass', f0: 5200, f1: 1400, q: 3, at: 0.02, pan: p })
-  },
-  bolt: (_p, g) => {
-    tone({ wave: 'p12', f0: 1500, dur: 0.025, vol: 0.09 * g, at: 0.22 })
-    tone({ wave: 'p12', f0: 900, dur: 0.03, vol: 0.1 * g, at: 0.36 })
-    burst({ dur: 0.05, vol: 0.06 * g, type: 'highpass', f0: 3000, at: 0.22 })
-  },
+  // ── The sniper: suppressed but heavy, then the bolt worked (rendered, `foley.ts`) ──
+  sniper: foley('sniper'),
+  bolt: foley('bolt'),
   reload: (_p, g) => {
     tone({ wave: 'p25', f0: 520, f1: 300, dur: 0.07, vol: 0.1 * g })
     burst({ dur: 0.08, vol: 0.08 * g, type: 'bandpass', f0: 1800, q: 2, at: 0.12 })
@@ -231,24 +290,14 @@ const RECIPES: Record<SfxName, (pan: number, g: number) => void> = {
   scopeOut: (_p, g) => tone({ wave: 'sine', f0: 1100, f1: 420, dur: 0.12, vol: 0.06 * g }),
   dry: (_p, g) => tone({ wave: 'p12', f0: 1300, dur: 0.03, vol: 0.09 * g }),
 
-  // ── The loud weapons ──
-  minigun: (p, g) => {
-    tone({ wave: 'p25', f0: 210, f1: 90, dur: 0.05, vol: 0.18 * g, pan: p })
-    burst({ dur: 0.06, vol: 0.2 * g, type: 'bandpass', f0: 2400, f1: 900, q: 0.9, pan: p })
-  },
+  // ── The loud weapons (the rounds, the launch and the blast rendered, `foley.ts`) ──
+  minigun: foley('minigun'),
   overheat: (_p, g) => {
     burst({ dur: 0.7, vol: 0.14 * g, type: 'highpass', f0: 2500, f1: 7000 })
     tone({ wave: 'saw', f0: 700, f1: 160, dur: 0.5, vol: 0.07 * g })
   },
-  rocket: (p, g) => {
-    burst({ dur: 0.55, vol: 0.26 * g, type: 'bandpass', f0: 500, f1: 3200, q: 0.8, pan: p })
-    tone({ wave: 'saw', f0: 90, f1: 260, dur: 0.4, vol: 0.14 * g, pan: p })
-  },
-  explode: (p, g) => {
-    tone({ wave: 'sine', f0: 110, f1: 28, dur: 0.7, vol: 0.42 * g, pan: p })
-    burst({ dur: 0.75, vol: 0.34 * g, type: 'lowpass', f0: 3800, f1: 110, pan: p })
-    burst({ dur: 0.2, vol: 0.2 * g, type: 'highpass', f0: 1800, pan: p })
-  },
+  rocket: foley('rocket'),
+  explode: foley('explode'),
   weapon: (_p, g) => {
     tone({ wave: 'p12', f0: 700, dur: 0.03, vol: 0.1 * g })
     tone({ wave: 'p25', f0: 380, f1: 520, dur: 0.07, vol: 0.1 * g, at: 0.06 })
@@ -287,30 +336,27 @@ const RECIPES: Record<SfxName, (pan: number, g: number) => void> = {
     burst({ dur: 0.14, vol: 0.07 * g, type: 'bandpass', f0: 3000, f1: 800, q: 1.2 })
   },
 
-  // ── The blade: energy, drawn and through ──
+  // ── The blade: drawn (an energy hum), a quick strike, driven in, pulled out ──
   bladeOut: (_p, g) => tone({ wave: 'saw', f0: 500, f1: 1500, dur: 0.14, vol: 0.06 * g, vib: 30, vibRate: 40 }),
-  blade: (p, g) => {
-    burst({ dur: 0.16, vol: 0.2 * g, type: 'bandpass', f0: 4200, f1: 700, q: 1.6, pan: p })
-    tone({ wave: 'saw', f0: 1700, f1: 300, dur: 0.16, vol: 0.11 * g, vib: 60, vibRate: 55, pan: p })
-    tone({ wave: 'sine', f0: 130, f1: 60, dur: 0.14, vol: 0.2 * g, at: 0.07, pan: p })
-  },
+  blade: foley('blade'),
+  stab: foley('stab'),
+  bladePull: foley('bladePull'),
   decoy: (_p, g) => {
     arp([79, 86, 91], 0.05, 'p12', 0.1 * g, 0.12)
     tone({ wave: 'sine', f0: 600, f1: 1800, dur: 0.35, vol: 0.05 * g, vib: 40, vibRate: 9 })
   },
   decoyOut: (_p, g) => arp([86, 79, 72], 0.05, 'p12', 0.07 * g, 0.08),
 
-  // ── What a round does ──
-  hit: (p, g) => {
-    tone({ wave: 'p50', f0: 320, f1: 140, dur: 0.06, vol: 0.14 * g, pan: p })
-    burst({ dur: 0.05, vol: 0.12 * g, type: 'bandpass', f0: 1900, q: 1.5, pan: p })
-  },
+  // ── What a round does: flesh or metal, by what it struck (`gameSounds.ts`) ──
+  hit: foley('hit'),
+  impactBody: foley('impactBody'),
+  impactMetal: foley('impactMetal'),
   // The one the player is waiting for: a bright two-note ping.
   headshot: (p, g) => {
     arp([88, 100], 0.045, 'p12', 0.17 * g, 0.14, 0, p)
     tone({ wave: 'sine', f0: 180, f1: 70, dur: 0.12, vol: 0.2 * g, pan: p })
   },
-  tink: (p, g) => tone({ wave: 'p12', f0: 2600, f1: 1900, dur: 0.05, vol: 0.09 * g, pan: p }),
+  tink: foley('tink'),
   ricochet: (p, g) => tone({ wave: 'sine', f0: 2400, f1: 900, dur: 0.22, vol: 0.07 * g, vib: 80, vibRate: 30, pan: p }),
   kill: (p, g) => {
     tone({ wave: 'tri', f0: 380, f1: 120, dur: 0.18, vol: 0.14 * g, pan: p })
@@ -577,7 +623,9 @@ export const playVoice = (url: string, pan: number, gain: number): boolean => {
   return true
 }
 
-const playFile = (buf: AudioBuffer, pan: number, gain: number): void => {
+/** A sample on the sfx bus (through `out`, so the muffle, the pan and every
+ *  mute gate hold), tuned by the recipe's pitch. */
+const playBuffer = (buf: AudioBuffer, pan: number, gain: number): void => {
   const a = audio()
   if (!a) return
   const dest = out(pan)
@@ -586,11 +634,13 @@ const playFile = (buf: AudioBuffer, pan: number, gain: number): void => {
   src.buffer = buf
   src.playbackRate.value = pitch
   const g = a.ctx.createGain()
-  g.gain.value = FILE_GAIN * gain
+  g.gain.value = gain
   src.connect(g).connect(dest)
   src.start()
   registerOneShotSource(src)
 }
+
+const playFile = (buf: AudioBuffer, pan: number, gain: number): void => playBuffer(buf, pan, FILE_GAIN * gain)
 
 const play = (name: SfxName, pan: number, gain: number, muffle = 0): void => {
   if (!canPlay()) return
@@ -604,6 +654,7 @@ const play = (name: SfxName, pan: number, gain: number, muffle = 0): void => {
   if (recent.length >= CAP && !NEVER_DROP.has(name)) return
   recent.push(now)
   lastAt.set(name, now)
+  warmFoley()
   const vary = VARY.has(name)
   const g = Math.max(0.05, Math.min(1.4, gain * (TRIM[name] ?? 1) * (vary ? 0.9 + Math.random() * 0.2 : 1)))
   pitch = vary ? 0.96 + Math.random() * 0.08 : 1
@@ -639,13 +690,17 @@ export const installSynth = (): void => {
 
 // ─── The minigun's motor ─────────────────────────────────────────────────────
 // One persistent voice, re-pitched every frame by how fast the barrels turn:
-// the whine that comes up before the first round and winds down after the
-// last. Never a new oscillator per frame.
+// the motor's whir and whine and the six barrels' rattle (`foley.minigunSpin`)
+// as one seamless loop, played faster as the gun spools up, so the whole
+// mechanism speeds up and rises together, and slower as it winds down after
+// the last round. Never a new source per frame.
 
-let humOsc: OscillatorNode | null = null
-let humGain: GainNode | null = null
-let humNoise: AudioBufferSourceNode | null = null
-let humNoiseGain: GainNode | null = null
+/** The spin loop's playback rate standing still and at speed: a 52 Hz motor
+ *  and 12 clicks a second, up to 208 Hz and 50. */
+const SPIN_RATE_IDLE = 0.25
+const SPIN_RATE_FULL = 1
+
+let hum: { src: AudioBufferSourceNode; lp: BiquadFilterNode; gain: GainNode } | null = null
 
 /** `spool01` 0 still … 1 at speed; null (or 0) stops it. */
 export const minigunHum = (spool01: number | null): void => {
@@ -653,47 +708,34 @@ export const minigunHum = (spool01: number | null): void => {
   if (!a) return
   const t = a.ctx.currentTime
   if (spool01 === null || spool01 <= 0.01 || !canPlay()) {
-    if (humGain) {
-      humGain.gain.setTargetAtTime(0, t, 0.03)
-      humNoiseGain?.gain.setTargetAtTime(0, t, 0.03)
-      const o = humOsc
-      const n = humNoise
-      setTimeout(() => { try { o?.stop(); n?.stop() } catch { /* stopped */ } }, 160)
+    if (hum) {
+      hum.gain.gain.setTargetAtTime(0, t, 0.03)
+      const src = hum.src
+      setTimeout(() => { try { src.stop() } catch { /* stopped */ } }, 160)
     }
-    humOsc = null
-    humGain = null
-    humNoise = null
-    humNoiseGain = null
+    hum = null
     return
   }
-  if (!humOsc) {
-    humOsc = a.ctx.createOscillator()
-    humOsc.type = 'sawtooth'
-    humGain = a.ctx.createGain()
-    humGain.gain.value = 0
+  if (!hum) {
+    const buf = foleyBuffer('spin', 0)
+    if (!buf) return
+    const src = a.ctx.createBufferSource()
+    src.buffer = buf
+    src.loop = true
+    src.playbackRate.value = SPIN_RATE_IDLE
+    // The faster it turns, the brighter: a slow spin is a low hum.
     const lp = a.ctx.createBiquadFilter()
     lp.type = 'lowpass'
-    lp.frequency.value = 1400
-    humOsc.connect(lp).connect(humGain).connect(a.sfx)
-    humOsc.start(t)
-    registerOneShotSource(humOsc)
-    const buf = noise()
-    if (buf) {
-      humNoise = a.ctx.createBufferSource()
-      humNoise.buffer = buf
-      humNoise.loop = true
-      const bp = a.ctx.createBiquadFilter()
-      bp.type = 'bandpass'
-      bp.frequency.value = 900
-      bp.Q.value = 0.8
-      humNoiseGain = a.ctx.createGain()
-      humNoiseGain.gain.value = 0
-      humNoise.connect(bp).connect(humNoiseGain).connect(a.sfx)
-      humNoise.start(t)
-      registerOneShotSource(humNoise)
-    }
+    lp.frequency.value = 700
+    lp.Q.value = 0.6
+    const gain = a.ctx.createGain()
+    gain.gain.value = 0
+    src.connect(lp).connect(gain).connect(a.sfx)
+    src.start(t, Math.random() * buf.duration)
+    registerOneShotSource(src)
+    hum = { src, lp, gain }
   }
-  humOsc.frequency.setTargetAtTime(60 + spool01 * 190, t, 0.04)
-  humGain!.gain.setTargetAtTime(0.02 + spool01 * 0.035, t, 0.04)
-  humNoiseGain?.gain.setTargetAtTime(spool01 * 0.03, t, 0.05)
+  hum.src.playbackRate.setTargetAtTime(SPIN_RATE_IDLE + (SPIN_RATE_FULL - SPIN_RATE_IDLE) * spool01, t, 0.04)
+  hum.lp.frequency.setTargetAtTime(700 + spool01 * 5300, t, 0.04)
+  hum.gain.gain.setTargetAtTime(0.012 + spool01 * 0.055, t, 0.04)
 }

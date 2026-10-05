@@ -14,14 +14,14 @@ export type SfxName =
   | 'sniper' | 'bolt' | 'reload' | 'reloadDone' | 'scopeIn' | 'scopeOut' | 'dry'
   // The minigun and the launcher
   | 'minigun' | 'overheat' | 'rocket' | 'explode' | 'weapon'
-  // The blade and the decoy
-  | 'blade' | 'bladeOut' | 'decoy' | 'decoyOut'
+  // The blade and the decoy: a quick strike, the blade drawn, driven into a body and pulled out
+  | 'blade' | 'bladeOut' | 'stab' | 'bladePull' | 'decoy' | 'decoyOut'
   // The grappling hook: thrown, biting into the wall top, reeling, recalled
   | 'hookThrow' | 'hookBite' | 'hookReel' | 'hookRecall'
   // Salvage: rummaging in a pile, and the pile stripped
   | 'loot' | 'lootDone'
-  // What a round does
-  | 'hit' | 'headshot' | 'tink' | 'ricochet' | 'kill' | 'wreck'
+  // What a round does: the minigun's hits on flesh and plate, the rifle's on a body and on a machine
+  | 'hit' | 'headshot' | 'tink' | 'impactBody' | 'impactMetal' | 'ricochet' | 'kill' | 'wreck'
   // The base
   | 'suspicious' | 'spotted' | 'body' | 'alertUp' | 'alertDown' | 'alarm' | 'uplink' | 'enemyShot' | 'whizz' | 'wake'
   | 'telegraph' | 'shell' | 'wave'
@@ -50,9 +50,14 @@ export const playSfxNow = (name: SfxName, pan = 0, gain = 1, muffle = 0): void =
  * with every round and every hit voiced was 5 % of a throttled CPU in node
  * construction alone (PERF-LEDGER.md, entry 3), and past about fifteen a
  * second the ear hears a buzz either way.
+ *
+ * The minigun's gap sits under its 15 rounds a second (66.7 ms) by most of a
+ * frame: the rounds are emitted on the simulation's steps, which land on the
+ * real clock a frame early or late, and a gap of a full period dropped every
+ * round that came a little early, a hole in the roar.
  */
 export const SFX_MIN_GAP_MS: Partial<Record<SfxName, number>> = {
-  minigun: 66,
+  minigun: 45,
   hit: 50,
   tink: 50,
   ricochet: 60,

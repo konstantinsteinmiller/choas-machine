@@ -5,10 +5,13 @@ import { on } from '../bus'
 import { addHudTicker, gun, hud, vital } from '../state/hud'
 import { flow } from '../flow'
 import { sfx } from './sfx'
-import { minigunHum } from './synth'
+import { minigunHum, warmFoley } from './synth'
 import { setMusicTrack } from '@/use/useSound'
 import { playJingle, warmMusic } from './music'
 import { whenAudio } from './engine'
+import { app } from '../engine/app'
+import { camKind } from '../sim/killcam'
+import type { PostKind } from '../world/fortress'
 
 /**
  * ─── What the game sounds like ───────────────────────────────────────────────
@@ -27,8 +30,23 @@ import { whenAudio } from './engine'
 const byDistance = (dist: number, near = 12, far = 70): number =>
   dist <= near ? 1 : Math.max(0.3, 1 - (0.7 * (dist - near)) / (far - near))
 
+/**
+ * Is unit `id` of the running mission flesh? The people of the garrison are;
+ * everything built (drones, roombas, enforcers, the Goliath, searchlights,
+ * hounds) is metal. Read at the event, while the unit is still in the
+ * garrison; an id the mission does not know (no mission running) counts as
+ * flesh, the sound a hit always had.
+ */
+export const isFlesh = (id: number): boolean => {
+  const m = app.mode as unknown as { garrison?: { units: ArrayLike<{ kind: PostKind } | undefined> } } | null
+  const kind = m?.garrison?.units[id]?.kind
+  return kind === undefined || camKind(kind) === 'human'
+}
+
 /** Into the drop-in (3.4 to 5 s long) when the loud song's hall is built. */
 const WARM_IN_INTRO_MS = 1200
+/** ...and when the weapons' sounds start rendering, clear of the hall. */
+const WARM_FOLEY_IN_INTRO_MS = 2400
 
 let installed = false
 
@@ -65,9 +83,26 @@ export const installGameSounds = (): void => {
   on('strike', ({ kind }) => { if (kind === 'strike' || !killCamsEnabled.value) sfx('blade') })
   on('salvage', ({ beat }) => { if (beat !== 'stop') sfx(beat === 'taken' ? 'lootDone' : 'loot') })
   on('grapple', ({ beat }) => sfx(beat === 'throw' ? 'hookThrow' : beat === 'bite' ? 'hookBite' : beat === 'recall' ? 'hookRecall' : 'land'))
-  on('takedown', ({ beat }) => sfx(beat === 'stab' ? 'blade' : 'bladeOut', 0, beat === 'pull' ? 0.7 : 1))
+  // The backstab, the drop and the dive from a rope: the blade goes into a
+  // body and comes out of it. A walking machine taken from a rope is steel
+  // through plate instead.
+  on('takedown', ({ beat, id }) => {
+    const flesh = isFlesh(id)
+    if (beat === 'stab') {
+      if (flesh) sfx('stab')
+      else { sfx('blade'); sfx('impactMetal', 0, 0.8) }
+    } else if (beat === 'pull') sfx(flesh ? 'bladePull' : 'bladeOut', 0, flesh ? 1 : 0.7)
+    else sfx('bladeOut')
+  })
   on('decoy', () => sfx('decoy'))
-  on('hit', ({ zone }) => sfx(zone === 'armor' ? 'tink' : 'hit'))
+  // Where a round lands: a body or a machine's shell. The rifle's heavy round
+  // has its own pair; the minigun's are the short ones. Armour plate is metal
+  // whoever wears it.
+  on('hit', ({ id, weapon, zone }) => {
+    const metal = zone === 'armor' || !isFlesh(id)
+    if (weapon === 'sniper') sfx(metal ? 'impactMetal' : 'impactBody')
+    else sfx(metal ? 'tink' : 'hit')
+  })
   on('blast', () => sfx('explode'))
   on('kill', ({ kind, by, head, dist }) => {
     const g = byDistance(dist)
@@ -100,7 +135,9 @@ export const installGameSounds = (): void => {
   })
   on('incoming', ({ hit }) => {
     sfx('enemyShot', 0, 0.8)
-    if (!hit) sfx('whizz')
+    // A round that lands rings off the mech's own plate.
+    if (hit) sfx('tink', 0, 0.8)
+    else sfx('whizz')
   })
   on('wake', () => sfx('wake'))
   on('wave', () => sfx('wave'))
@@ -157,6 +194,8 @@ export const installGameSounds = (): void => {
       // watches, not under the veil (it would hold the load) and not at the
       // alarm (a freeze as the fight starts): PERF-LEDGER.md entry 6.
       whenAudio(() => setTimeout(() => { if (flow.screen === 'mission') warmMusic(['chaos']) }, WARM_IN_INTRO_MS))
+      // The rendered weapon sounds (`foley.ts`), one per idle moment from here.
+      whenAudio(() => setTimeout(() => { if (flow.screen === 'mission') warmFoley() }, WARM_FOLEY_IN_INTRO_MS))
     }
   }, { immediate: true })
 
