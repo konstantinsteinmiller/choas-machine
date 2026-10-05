@@ -1,6 +1,8 @@
 import { FortressBuilder, pileWorth, TOWER_H, type Fortress } from '../../world/fortress'
 import { mulberry32 } from '../../world/rng'
 import { NO_ANSWERS, type Answers } from '../../sim/adapt'
+import { buildSeaFort } from './seaFort'
+import { buildSteelKeep } from './steelKeep'
 
 /**
  * ─── Bastion ─────────────────────────────────────────────────────────────────
@@ -78,6 +80,11 @@ const BREACH_H = 1.6
 const ALWAYS = [0, 8]
 
 export const buildBastion = (level = 1, run = 0, answers: Answers = NO_ANSWERS): Fortress => {
+  // The jam build: threat II and III are their own fortresses on the Bastion's
+  // campaign slot (a sea fort, a concentric steel castle), so each mission
+  // plays differently. The layout below is threat I's.
+  if (level === 2) return buildSeaFort(run, answers)
+  if (level === 3) return buildSteelKeep(run, answers)
   const rng = mulberry32(0xba5 + run * 7919)
   // Built in the old 60 × 64 frame, then grown (#88).
   const b = new FortressBuilder('bastion', 60, 64).island(2).look('dusk')

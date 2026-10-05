@@ -61,7 +61,7 @@ describe('the rings', () => {
 
   it('the cable from the perch lands on a railed ledge with a ladder down', () => {
     // From threat II the board lands on the perch itself (threat I lands on the platform beside it).
-    const p = buildBastion(2)
+    const p = buildBastion(4)
     const c = f.grid.cables.find(k => Math.hypot(cellMid(k.ax) - p.insert.x, cellMid(k.az) - p.insert.z) < CELL * 2)
     expect(c).toBeDefined()
     expect(f.decor.some(d => d.kind === 'rail' && Math.hypot(d.x - cellMid(c!.bx), d.z - cellMid(c!.bz)) < CELL * 2)).toBe(true)
@@ -98,7 +98,8 @@ describe('a raid is not the same twice', () => {
         const f = buildBastion(level, run)
         expect(f.salvage.length).toBeGreaterThan(Math.min(9, 2 + level) - 1)
         expect(f.salvage.some(p => p.big)).toBe(true)
-        expect(f.salvage.some(p => Math.floor(p.x / CELL) === 11 + P && Math.floor(p.z / CELL) === 53 + P)).toBe(true)
+        // The teaching pile is threat I's layout (II and III are their own fortresses).
+        if (level !== 2 && level !== 3) expect(f.salvage.some(p => Math.floor(p.x / CELL) === 11 + P && Math.floor(p.z / CELL) === 53 + P)).toBe(true)
       }
     }
   })

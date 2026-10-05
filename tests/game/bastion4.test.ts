@@ -74,8 +74,12 @@ describe('roofs from threat II (#96)', () => {
   }
   it('none at I; roofs with skylights from II', () => {
     expect(roofed(1)).toBe(0)
-    expect(roofed(2)).toBeGreaterThan(60)
-    const g = buildBastion(2).grid
+    // II and III (their own fortresses) each roof a building, a skylight in it.
+    expect(roofed(2)).toBeGreaterThan(20)
+    expect(roofed(3)).toBeGreaterThan(20)
+    // The old layout's arcade (threat IV still builds it).
+    expect(roofed(4)).toBeGreaterThan(60)
+    const g = buildBastion(4).grid
     // A skylight: an open cell with roof on both sides of it.
     const [hx, hz] = [33 + P, 35 + P]
     expect(roofAt(g, hx, hz)).toBe(VOID)

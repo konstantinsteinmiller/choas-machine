@@ -58,7 +58,8 @@ describe('box checkers', () => {
 
 describe('the perch light', () => {
   it('a searchlight on the battery sweeps the perch, and its light reaches it', () => {
-    const f = buildBastion(2, 0, { helmets: false, boxCheck: false, perchLight: true })
+    // The perch is threat I's layout, which threat IV still builds (II and III are their own fortresses).
+    const f = buildBastion(4, 0, { helmets: false, boxCheck: false, perchLight: true })
     const gar = makeGarrison(f, 1)
     const lights = gar.units.filter(u => u.kind === 'searchlight')
     const near = lights.find(u => u.route.some(w => Math.hypot(w.x - f.insert.x, w.z - f.insert.z) < 4))
@@ -67,6 +68,6 @@ describe('the perch light', () => {
     expect(c).toBeDefined()
     const top = heightAt(f.grid, f.insert.x, f.insert.z)
     expect(hasLineOfSight(f.grid, near!.x, near!.y, near!.z, f.insert.x, top + 1, f.insert.z)).toBe(true)
-    expect(buildBastion(2).posts.filter(p => p.kind === 'searchlight').length).toBe(lights.length - 1)
+    expect(buildBastion(4).posts.filter(p => p.kind === 'searchlight').length).toBe(lights.length - 1)
   })
 })
