@@ -1,8 +1,8 @@
 import {
-  BufferAttribute, BufferGeometry, CanvasTexture, Color, CylinderGeometry, DoubleSide, DynamicDrawUsage,
+  Box3, BufferAttribute, BufferGeometry, CanvasTexture, Color, CylinderGeometry, DoubleSide, DynamicDrawUsage,
   Group, Line, LineBasicMaterial, Mesh, MeshBasicMaterial, Sprite, SpriteMaterial, SRGBColorSpace, type Scene
 } from 'three'
-import { VOID, hasLineOfSight, heightAt, raycast, type Grid } from '../world/grid'
+import { CELL, VOID, cellHeight, floorAt, hasLineOfSight, heightAt, inGrid, raycast, surfaceAt, toCell, type Grid } from '../world/grid'
 import { PAL } from '../models/palette'
 import { Wreckage } from '../fx/wreckage'
 import type { PostKind } from '../world/fortress'
@@ -15,6 +15,7 @@ import { makeBlobShadow } from '../fx/markers'
 import { poseRagdoll } from '../models/ragdollPose'
 import { DOG_STAND, HOUND_SCALE, buildRobodog, poseRobodog, restDogPose, type DogPose } from '../models/robodog'
 import { angleDelta } from './player'
+import { STEP } from '../engine/clock'
 import { SPECS, SPOT_RADIUS, SUSPECT_AT, spotCentre, viewerOf, type Garrison, type Unit , isLight } from './garrison'
 
 /**
@@ -29,16 +30,34 @@ import { SPECS, SPOT_RADIUS, SUSPECT_AT, spotCentre, viewerOf, type Garrison, ty
  * few units per frame.
  */
 
-/** A cone is a polar grid draped on the ground: this many slices and rings. */
-const CONE_SEGS = 12
-const CONE_RINGS = 6
-const CONE_VERTS = CONE_SEGS * CONE_RINGS * 6
+/**
+ * A cone is cast as this many slices: a ray along each edge finds the
+ * stretches of ground the eye sees along it (`sightSpans`), and each slice is
+ * filled between its two rays, stretch to stretch, so the edge runs from one
+ * ray's hit to the next along the face of whatever stopped them.
+ */
+const CONE_SEGS = 48
+/** Quads one cone may use; its stretches get rings about CONE_STEP apart (wider when that is too many). */
+const CONE_QUADS = CONE_SEGS * 12
+const CONE_VERTS = CONE_QUADS * 6
+const CONE_STEP = 2.5
 /** A point on the ground counts as watched if the eye sees this far above it:
  *  under the top of cover, so the lee of a cover block is drawn dark. */
 const CONE_PROBE_Y = 0.9
+/** Ground that steps by more than this is a new stretch: the cone lies flat on each level. */
+const CONE_STEP_Y = 0.3
 /** Neighbouring grid points further apart in height than this are a cliff:
- *  nothing is drawn across it. */
+ *  nothing is drawn across it (the lights' pools). */
 const CONE_CLIFF = 1.2
+/** Numbers per strip in the scratch list (see `strip`). */
+const STRIP = 9
+/** Casting a cone (its rays) is the dear part: this many a frame, the most out of date first.
+ *  In between, each cone is carried and turned with its unit every frame (`placeCone`). */
+const CONE_CASTS = 3
+/** The cone leads its unit by this much of its motion, so it never trails the body (s). */
+const CONE_LEAD_S = 0.05
+/** Marks over a unit start this far above the top of its model (m). */
+const MARK_GAP = 0.18
 /** A light's pool: a polar grid draped on the ground and clipped by whatever
  *  stands between it and the lamp or the middle of the pool (#69). */
 const POOL_SEGS = 20
@@ -52,6 +71,215 @@ const WARY = new Color('#ffe14d')
 /** Noticing, not yet looking: white (Odyssey's first band). */
 const NOTICE = new Color('#ffffff')
 const HOT = new Color('#ff3b5c')
+
+/** A stretch of ground an eye sees along one ray: from `t0` to `t1` metres out, standing at `y` where it starts. */
+export interface Span {
+  t0: number; t1: number; y: number
+  /** All of it on the one floor height `y`. */
+  flat: boolean
+}
+
+// Scratch for `sightSpans`: the boxes met so far, as rectangles in the ray's
+// vertical plane (ta, tb along it; y0, y1 high), and which boxes are in.
+const _rects: number[] = []
+let _boxSeen = new Int32Array(0)
+let _boxStamp = 0
+// The eye, the probe point's height, and what stands before the current cell.
+let _eye = 0
+let _probe = 0
+let _horizon = -Infinity
+let _cellT0 = 0
+let _cellTop = VOID
+
+/**
+ * Does the eye see the probe point `t` metres out along the ray? The very
+ * test `raycast` makes, solved in the ray's vertical plane: every cell
+ * crossed before is a column (its top is a slope the line must clear: the
+ * horizon), the probe's own cell must not be entered under its top, and no
+ * box (a roof, a mast, a lamp post) may stand across the line.
+ */
+const seesAt = (t: number): boolean => {
+  if (t < 1e-3) return true
+  const s = (_probe - _eye) / t
+  if (s < _horizon) return false
+  if (_cellTop !== VOID && _eye + s * _cellT0 < _cellTop - 1e-9) return false
+  // `hasLineOfSight` stops a hair short of the target.
+  const end = t - 0.02
+  for (let k = 0; k < _rects.length; k += 4) {
+    const lo = _rects[k]!
+    const hi = Math.min(_rects[k + 1]!, end)
+    if (lo > hi) continue
+    const v0 = _eye + s * lo
+    const v1 = _eye + s * hi
+    if (Math.max(v0, v1) >= _rects[k + 2]! && Math.min(v0, v1) <= _rects[k + 3]!) return false
+  }
+  return true
+}
+
+/**
+ * The stretches of ground an eye at `eyeY` over (ox, oz) sees along the unit
+ * direction (dx, dz), out to `range`: a point counts as seen when the eye
+ * sees `probe` metres above the floor there, by the same line of sight the
+ * defenders use (`hasLineOfSight`), and the floor is below the eye (nobody
+ * sees the top of a wall taller than they are). A stretch ends exactly where the next
+ * one is hidden (a wall's face, the lee of cover, a lamp post's shadow) and
+ * where the floor steps by more than CONE_STEP_Y; it starts again where
+ * ground shows past it. The floor is the one a body at `feetY` would see:
+ * the roof it stands on, or the floor under a roof over it. Writes into
+ * `out` (reusing its objects) and returns how many.
+ */
+export const sightSpans = (
+  g: Grid, ox: number, oz: number, feetY: number, eyeY: number,
+  dx: number, dz: number, range: number, probe: number, out: Span[]
+): number => {
+  let n = 0
+  let cx = toCell(ox)
+  let cz = toCell(oz)
+  const stepX = dx > 0 ? 1 : -1
+  const stepZ = dz > 0 ? 1 : -1
+  const invX = dx !== 0 ? 1 / Math.abs(dx) : Infinity
+  const invZ = dz !== 0 ? 1 / Math.abs(dz) : Infinity
+  let tMaxX = dx !== 0 ? ((dx > 0 ? (cx + 1) * CELL - ox : ox - cx * CELL)) * invX : Infinity
+  let tMaxZ = dz !== 0 ? ((dz > 0 ? (cz + 1) * CELL - oz : oz - cz * CELL)) * invZ : Infinity
+  const tDeltaX = CELL * invX
+  const tDeltaZ = CELL * invZ
+  if (_boxSeen.length < g.boxes.length) _boxSeen = new Int32Array(g.boxes.length * 2)
+  _boxStamp++
+  _rects.length = 0
+  _eye = eyeY
+  _horizon = -Infinity
+  let t0 = 0
+  // The open stretch's end and the floor it last stood on.
+  let open = false
+  let lastY = 0
+  const close = (t: number): void => {
+    if (open) out[n - 1]!.t1 = t
+    open = false
+  }
+  const begin = (t: number, y: number): void => {
+    if (open && Math.abs(y - lastY) <= CONE_STEP_Y && t - out[n - 1]!.t1 < 1e-6) {
+      if (y !== lastY) out[n - 1]!.flat = false
+      lastY = y
+      return
+    }
+    close(t)
+    const sp = out[n] ?? (out[n] = { t0: 0, t1: 0, y: 0, flat: true })
+    sp.t0 = t
+    sp.t1 = t
+    sp.y = y
+    sp.flat = true
+    n++
+    open = true
+    lastY = y
+  }
+  for (;;) {
+    const exit = Math.min(tMaxX, tMaxZ)
+    const t1 = Math.min(exit, range)
+    const inside = inGrid(g, cx, cz)
+    // Boxes reaching into this cell: their cut through the ray's plane.
+    const props = inside && g.boxes.length > 0 ? g.boxAt.get(cz * g.w + cx) : undefined
+    if (props) {
+      for (const bi of props) {
+        if (_boxSeen[bi] === _boxStamp) continue
+        _boxSeen[bi] = _boxStamp
+        const b = g.boxes[bi]!
+        let ta = 0
+        let tb = Infinity
+        if (Math.abs(dx) < 1e-12) { if (ox < b.x0 || ox > b.x1) continue } else {
+          const a0 = (b.x0 - ox) / dx
+          const a1 = (b.x1 - ox) / dx
+          ta = Math.max(ta, Math.min(a0, a1))
+          tb = Math.min(tb, Math.max(a0, a1))
+        }
+        if (Math.abs(dz) < 1e-12) { if (oz < b.z0 || oz > b.z1) continue } else {
+          const a0 = (b.z0 - oz) / dz
+          const a1 = (b.z1 - oz) / dz
+          ta = Math.max(ta, Math.min(a0, a1))
+          tb = Math.min(tb, Math.max(a0, a1))
+        }
+        if (ta <= tb) _rects.push(ta, tb, b.y0, b.y1)
+      }
+    }
+    const top = inside ? cellHeight(g, cx, cz) : VOID
+    const floor = inside ? surfaceAt(g, cx, cz, feetY) : VOID
+    // A floor at or over the eye (a wall's top) shows the eye no ground: the cone stops at its face.
+    if (floor === VOID || floor >= eyeY) close(t0)
+    else if (t1 > t0) {
+      _probe = floor + probe
+      _cellT0 = t0
+      _cellTop = top
+      // Sample the cell's stretch of the ray, and pin each change down. The
+      // columns' tests can only change once inside a cell (the line to the
+      // probe turns one way as it moves out): its two ends say it all. A box
+      // can hide a band in the middle, so with boxes about it is sampled.
+      const lo = t0 + 0.005
+      const hi = t1 >= range ? t1 : t1 - 0.005
+      // (A box wholly over both the eye and the probe, a roof overhead, can hide nothing.)
+      let boxed = false
+      const over = Math.max(eyeY, _probe)
+      for (let k = 0; k < _rects.length && !boxed; k += 4) boxed = _rects[k]! <= t1 && _rects[k + 2]! <= over
+      const steps = boxed ? Math.max(1, Math.ceil((hi - lo) / 0.5)) : 1
+      let prevT = lo
+      let prev = seesAt(lo)
+      if (prev) begin(t0, floor)
+      else close(t0)
+      for (let k = 1; k <= steps; k++) {
+        const t = k === steps ? hi : lo + ((hi - lo) * k) / steps
+        const now = seesAt(t)
+        if (now !== prev) {
+          let a = prevT
+          let b = t
+          for (let it = 0; it < 9; it++) {
+            const m = (a + b) * 0.5
+            if (seesAt(m) === prev) a = m
+            else b = m
+          }
+          const edge = (a + b) * 0.5
+          if (now) begin(edge, floor)
+          else close(edge)
+        }
+        prev = now
+        prevT = t
+      }
+      if (prev) out[n - 1]!.t1 = t1
+    }
+    // This cell now stands between the eye and everything further out.
+    if (top !== VOID) _horizon = Math.max(_horizon, top <= eyeY ? (top - eyeY) / exit : t0 > 0 ? (top - eyeY) / t0 : Infinity)
+    if (t1 >= range || _horizon === Infinity) break
+    if (tMaxX < tMaxZ) {
+      cx += stepX
+      tMaxX += tDeltaX
+    } else {
+      cz += stepZ
+      tMaxZ += tDeltaZ
+    }
+    t0 = exit
+    if ((cx < 0 && stepX < 0) || (cx >= g.w && stepX > 0) || (cz < 0 && stepZ < 0) || (cz >= g.d && stepZ > 0)) break
+  }
+  return n
+}
+
+const _box = new Box3()
+
+/**
+ * How high the top of a unit's model stands over its feet, as it is drawn
+ * (the hound is scaled down and lifted onto its legs; a guard's helmet
+ * counts): the marks over a unit sit above this, never in its face.
+ */
+export const modelTop = (rig: Rig, kind: PostKind): number => {
+  const root = rig.root
+  const hound = kind === 'hound'
+  if (hound) poseRobodog(rig, restDogPose())
+  else if (kind === 'guard' || kind === 'sentry' || kind === 'commander') poseGuard(rig, restGuardPose())
+  root.position.set(0, hound ? DOG_STAND * HOUND_SCALE : 0, 0)
+  root.rotation.set(0, 0, 0)
+  root.scale.setScalar(hound ? HOUND_SCALE : 1)
+  root.updateMatrixWorld(true)
+  _box.setFromObject(root)
+  root.position.set(0, 0, 0)
+  root.scale.setScalar(1)
+  return _box.isEmpty() ? SPECS[kind].height : _box.max.y
+}
 
 interface UnitView {
   rig: Rig
@@ -94,6 +322,20 @@ interface UnitView {
   /** A drone that fell whole has hit the ground (and shed a few parts). */
   landed: boolean
   roomba: RoombaPose | null
+  /** The top of its model over its feet, as drawn: its marks sit over that. */
+  top: number
+  /** The cone as last cast: from where and facing where, on which frame, in which state and colour, and how many of its vertices it uses. */
+  clipX: number
+  clipZ: number
+  clipYaw: number
+  clipFrame: number
+  clipState: string
+  clipTint: Color | null
+  used: number
+  /** Where the cone was last laid (NaN: lay it again). */
+  laidX: number
+  laidZ: number
+  laidYaw: number
 }
 
 /** The "?" and the "!", drawn as shapes: no font, so no wait for one. */
@@ -193,12 +435,21 @@ export class GarrisonView {
   private views: UnitView[] = []
   private cones: Mesh
   private conePos: Float32Array
+  /** Each cone as last cast, around its unit: x and z from where it stood, y as drawn. */
+  private coneLocal: Float32Array
   private coneCol: Float32Array
+  private conePosAttr: BufferAttribute
+  private coneColAttr: BufferAttribute
   private coneCount = 0
-  private cursor = 0
+  /** Scratch: the cones cast this frame, and how out of date each was. */
+  private castPick = new Int32Array(CONE_CASTS)
+  private castScore = new Float64Array(CONE_CASTS)
   private flashColor = new Color()
-  /** Scratch for one cone's grid points: x, y, z, alpha. */
-  private gx = new Float32Array((CONE_SEGS + 1) * (CONE_RINGS + 1) * 4)
+  /** Scratch for one cone: the stretches seen along each of its rays, and how many. */
+  private rays: Span[][] = Array.from({ length: CONE_SEGS + 1 }, () => [])
+  private rayN = new Int32Array(CONE_SEGS + 1)
+  /** Scratch: the strips one cone is filled with, STRIP numbers each (see `strip`). */
+  private strips: number[] = []
   private textures: CanvasTexture[]
   private frame = 0
   /** The helmet the base issues after too many headshots: a steel dome and a brow plate. */
@@ -233,6 +484,8 @@ export class GarrisonView {
       if (human || isLight(u) || u.kind === 'hound' || u.kind === 'roomba') {
         mark = new Sprite(new SpriteMaterial({ map: q, transparent: true, depthTest: false, depthWrite: false, toneMapped: false }))
         mark.renderOrder = 30
+        // Anchored at its foot, which sits over the top of the model (see `update`).
+        mark.center.set(0.5, 0)
         mark.visible = false
       }
       let spot: Mesh | null = null
@@ -268,7 +521,9 @@ export class GarrisonView {
         dog: u.kind === 'hound' ? restDogPose() : null,
         roomba: u.kind === 'roomba' ? { time: 0, alarm: 0, recoil: 0, aimYaw: 0, speed: 0 } : null,
         aim: 0, wary: 0, caution: 0, grip: 0, spin: 0, lastYaw: u.yaw, bank: 0, pop: 0, lastState: u.state, flash: 0, wrecked: false, landed: false,
-        tag: null, route: null
+        tag: null, route: null, top: 0,
+        clipX: u.x, clipZ: u.z, clipYaw: u.yaw, clipFrame: 0, clipState: u.state, clipTint: null, used: 0,
+        laidX: NaN, laidZ: NaN, laidYaw: NaN
       }
       this.views.push(v)
       this.group.add(rig.root, shadow)
@@ -279,6 +534,7 @@ export class GarrisonView {
         cap.name = 'helmet'
         rig.bones.head.add(cap)
       }
+      v.top = modelTop(rig, u.kind)
       if (spot) this.group.add(spot)
       if (beam) this.group.add(beam)
     }
@@ -286,10 +542,11 @@ export class GarrisonView {
     // The cones: a fan of triangles per guard, in one buffer.
     const n = Math.max(1, this.coneCount) * CONE_VERTS
     this.conePos = new Float32Array(n * 3)
+    this.coneLocal = new Float32Array(n * 3)
     this.coneCol = new Float32Array(n * 4)
     const geo = new BufferGeometry()
-    const pos = new BufferAttribute(this.conePos, 3)
-    const col = new BufferAttribute(this.coneCol, 4)
+    const pos = this.conePosAttr = new BufferAttribute(this.conePos, 3)
+    const col = this.coneColAttr = new BufferAttribute(this.coneCol, 4)
     pos.setUsage(DynamicDrawUsage)
     col.setUsage(DynamicDrawUsage)
     geo.setAttribute('position', pos)
@@ -338,6 +595,12 @@ export class GarrisonView {
   }
 
   /** Light a defender up for a moment (a hit, the x-ray of a kill-cam). */
+  /** A defender's rig as drawn (its bones were posed last frame), for the muzzle of its weapon. */
+  rigOf(id: number): Rig | null {
+    const v = this.views[id]
+    return v && !v.wrecked ? v.rig : null
+  }
+
   /** A unit stood up again (the training ground): its rig whole and showing again. */
   restore(id: number): void {
     const v = this.views[id]
@@ -362,7 +625,11 @@ export class GarrisonView {
 
   /**
    * Rewrite one guard's cone: where it looks and as far as it sees, lying on
-   * the ground, dark wherever a wall or cover is in the way.
+   * the ground. Each ray runs to the face of whatever hides the ground from
+   * the guard's eye and starts again where ground shows past it; each slice
+   * is filled stretch to stretch between its two rays, so the cone fills
+   * everything the guard sees right up to the edge of the next wall, crate or
+   * post, and the lee behind it stays dark.
    */
   private writeCone(i: number): void {
     const u = this.gar.units[i]!
@@ -370,70 +637,229 @@ export class GarrisonView {
     if (v.cone < 0) return
     const base = v.cone * CONE_VERTS
     const p = this.conePos
+    const L = this.coneLocal
     const c = this.coneCol
-    if (u.state === 'dead' || u.state === 'combat' || u.state === 'reserve') {
-      // Nothing to read once it is down, or once it is shooting at you.
-      for (let k = 0; k < CONE_VERTS; k++) c[(base + k) * 4 + 3] = 0
-      return
-    }
-    const spec = SPECS[u.kind]
-    // As wide and as far as it sees right now: wary, chatting, focused (#69).
-    const view = viewerOf(u, this.gar.heightened)
-    const g = this.grid
-    const yaw = u.yaw + u.look
-    const tint = u.state === 'patrol' && u.detect < SUSPECT_AT * 0.5 ? CALM : WARY
-    const eyeY = u.y + spec.eye
-    const W = CONE_SEGS + 1
-    const H = CONE_RINGS + 1
-    // The grid's points: position and how strongly each is lit.
-    for (let s = 0; s < W; s++) {
-      const a = yaw - view.halfAngle + (2 * view.halfAngle * s) / CONE_SEGS
-      const dx = Math.sin(a)
-      const dz = Math.cos(a)
-      // Each slice of the cone runs as far as the first wall taller than the
-      // eye along it, and its rings are spread over that much: the cone
-      // reaches the wall, with no ragged cut-outs short of it.
-      const wall = raycast(g, u.x, eyeY - 0.2, u.z, dx, 0, dz, view.range)
-      const reach = wall.hit ? Math.max(0.4, wall.t - 0.06) : view.range
-      for (let r = 0; r < H; r++) {
-        const k = (r / CONE_RINGS) * (reach / view.range)
-        const o = (s * H + r) * 4
-        const x = u.x + dx * view.range * k
-        const z = u.z + dz * view.range * k
-        const floor = r === 0 ? u.y : heightAt(g, x, z)
-        const y = floor === VOID ? u.y : floor
-        this.gx[o] = x
-        this.gx[o + 1] = y + 0.07
-        this.gx[o + 2] = z
-        const lit = floor !== VOID && (r === 0 || hasLineOfSight(g, u.x, eyeY, u.z, x, y + CONE_PROBE_Y, z))
-        // Strong near the guard, fading out toward the edge of its sight.
-        this.gx[o + 3] = lit ? 0.4 * (1 - k) * (1 - k) + 0.08 : 0
-      }
-    }
     let w = base
-    const put = (o: number, alpha: number): void => {
-      p[w * 3] = this.gx[o]!
-      p[w * 3 + 1] = this.gx[o + 1]!
-      p[w * 3 + 2] = this.gx[o + 2]!
-      c[w * 4] = tint.r
-      c[w * 4 + 1] = tint.g
-      c[w * 4 + 2] = tint.b
-      c[w * 4 + 3] = alpha
-      w++
-    }
-    for (let s = 0; s < CONE_SEGS; s++) {
-      for (let r = 0; r < CONE_RINGS; r++) {
-        const a = (s * H + r) * 4
-        const b = (s * H + r + 1) * 4
-        const d = ((s + 1) * H + r) * 4
-        const e = ((s + 1) * H + r + 1) * 4
-        const ys = [this.gx[a + 1]!, this.gx[b + 1]!, this.gx[d + 1]!, this.gx[e + 1]!]
-        const flat = Math.max(...ys) - Math.min(...ys) < CONE_CLIFF
-        const k = flat ? 1 : 0
-        put(a, this.gx[a + 3]! * k); put(b, this.gx[b + 3]! * k); put(e, this.gx[e + 3]! * k)
-        put(a, this.gx[a + 3]! * k); put(e, this.gx[e + 3]! * k); put(d, this.gx[d + 3]! * k)
+    // Cast from where the simulation has it; `placeCone` carries the shape along with the drawn body.
+    v.clipX = u.x
+    v.clipZ = u.z
+    v.clipYaw = u.yaw + u.look
+    v.clipFrame = this.frame
+    v.clipState = u.state
+    if (u.state !== 'dead' && u.state !== 'combat' && u.state !== 'reserve') {
+      const spec = SPECS[u.kind]
+      // As wide and as far as it sees right now: wary, chatting, focused (#69).
+      const view = viewerOf(u, this.gar.heightened)
+      const g = this.grid
+      const yaw = u.yaw + u.look
+      const tint = this.coneTint(u)
+      v.clipTint = tint
+      const eyeY = u.y + spec.eye
+      const range = view.range
+      const angle = (s: number): number => yaw - view.halfAngle + (2 * view.halfAngle * s) / CONE_SEGS
+      for (let s = 0; s <= CONE_SEGS; s++) {
+        const a = angle(s)
+        this.rayN[s] = sightSpans(g, u.x, u.z, u.y, eyeY, Math.sin(a), Math.cos(a), range, CONE_PROBE_Y, this.rays[s]!)
+      }
+      const st = this.strips
+      st.length = 0
+      for (let s = 0; s < CONE_SEGS; s++) this.pairSlice(angle(s), s, angle(s + 1), s + 1)
+      // Rings about CONE_STEP apart, wider when the cone would want more quads than it has.
+      const count = Math.min(st.length / STRIP, CONE_QUADS)
+      let step = CONE_STEP
+      for (let tries = 0; tries < 24; tries++) {
+        let quads = 0
+        for (let k = 0; k < count; k++) {
+          const o = k * STRIP
+          quads += Math.max(1, Math.ceil(Math.max(st[o + 2]! - st[o + 1]!, st[o + 6]! - st[o + 5]!) / step))
+        }
+        if (quads <= CONE_QUADS) break
+        step *= 1.25
+      }
+      let quads = 0
+      const put = (x: number, y: number, z: number, t: number): void => {
+        L[w * 3] = x - u.x
+        L[w * 3 + 1] = y + 0.07
+        L[w * 3 + 2] = z - u.z
+        c[w * 4] = tint.r
+        c[w * 4 + 1] = tint.g
+        c[w * 4 + 2] = tint.b
+        // Strong near the guard, fading out toward the edge of its sight.
+        const k = Math.min(1, t / range)
+        c[w * 4 + 3] = 0.4 * (1 - k) * (1 - k) + 0.08
+        w++
+      }
+      for (let k = 0; k < count; k++) {
+        const o = k * STRIP
+        const thA = st[o]!, a0 = st[o + 1]!, a1 = st[o + 2]!, yA = st[o + 3]!
+        const thB = st[o + 4]!, b0 = st[o + 5]!, b1 = st[o + 6]!, yB = st[o + 7]!
+        const flags = st[o + 8]!
+        const half = (flags & 1) !== 0
+        const flatA = (flags & 2) !== 0
+        const flatB = (flags & 4) !== 0
+        const sA = Math.sin(thA), cA = Math.cos(thA), sB = Math.sin(thB), cB = Math.cos(thB)
+        const n = Math.min(CONE_QUADS - quads, Math.max(1, Math.ceil(Math.max(a1 - a0, b1 - b0) / step)))
+        if (n <= 0) break
+        quads += n
+        let pax = 0, pay = 0, paz = 0, pat = 0, pbx = 0, pby = 0, pbz = 0, pbt = 0
+        for (let r = 0; r <= n; r++) {
+          const ta = a0 + ((a1 - a0) * r) / n
+          const tb = b0 + ((b1 - b0) * r) / n
+          const ax = u.x + sA * ta, az = u.z + cA * ta
+          const ay = flatA ? yA : this.floorOn(ax, az, u.y, sA, cA, ta, a0, a1, yA)
+          const bx = u.x + sB * tb, bz = u.z + cB * tb
+          // A half slice (only one ray sees it) lies at its ray's height.
+          const by = half ? ay : flatB ? yB : this.floorOn(bx, bz, u.y, sB, cB, tb, b0, b1, yB)
+          if (r > 0) {
+            put(pax, pay, paz, pat); put(ax, ay, az, ta); put(bx, by, bz, tb)
+            put(pax, pay, paz, pat); put(bx, by, bz, tb); put(pbx, pby, pbz, pbt)
+          }
+          pax = ax; pay = ay; paz = az; pat = ta
+          pbx = bx; pby = by; pbz = bz; pbt = tb
+        }
       }
     }
+    v.used = w - base
+    // The quads it does not need: folded to a point, and clear.
+    for (; w < base + CONE_VERTS; w++) {
+      p[w * 3] = u.x
+      p[w * 3 + 1] = u.y
+      p[w * 3 + 2] = u.z
+      c[w * 4 + 3] = 0
+    }
+    this.conePosAttr.addUpdateRange(base * 3, CONE_VERTS * 3)
+    this.coneColAttr.addUpdateRange(base * 4, CONE_VERTS * 4)
+    v.laidX = NaN
+    this.placeCone(v, u.x, u.z, v.clipYaw)
+  }
+
+  /** The cone's colour: calm while it walks its round unbothered, yellow once something is up. */
+  private coneTint(u: Unit): Color {
+    return u.state === 'patrol' && u.detect < SUSPECT_AT * 0.5 ? CALM : WARY
+  }
+
+  /**
+   * Lay a cone where its unit is drawn this frame, at (x, z) facing `yaw`:
+   * the shape last cast, carried and turned with the body, so it never
+   * trails behind it between two casts.
+   */
+  private placeCone(v: UnitView, x: number, z: number, yaw: number): void {
+    if (v.cone < 0 || v.used === 0) return
+    // Standing still: it lies where it was laid.
+    if (x === v.laidX && z === v.laidZ && yaw === v.laidYaw) return
+    v.laidX = x
+    v.laidZ = z
+    v.laidYaw = yaw
+    const base = v.cone * CONE_VERTS
+    const p = this.conePos
+    const L = this.coneLocal
+    const d = yaw - v.clipYaw
+    const s = Math.sin(d)
+    const c = Math.cos(d)
+    for (let k = base; k < base + v.used; k++) {
+      const lx = L[k * 3]!
+      const lz = L[k * 3 + 2]!
+      p[k * 3] = x + lx * c + lz * s
+      p[k * 3 + 1] = L[k * 3 + 1]!
+      p[k * 3 + 2] = z - lx * s + lz * c
+    }
+    this.conePosAttr.addUpdateRange(base * 3, v.used * 3)
+  }
+
+  /**
+   * The floor under a point `t` along a ray of a stretch from `t0` to `t1`
+   * that started at height `y`, looked up a little inside the stretch so a
+   * point on its end (a wall's foot) never takes the next cell's height.
+   */
+  private floorOn(x: number, z: number, feetY: number, sx: number, sz: number, t: number, t0: number, t1: number, y: number): number {
+    const lo = t0 + 0.03
+    const hi = t1 - 0.03
+    const tc = lo < hi ? Math.min(hi, Math.max(lo, t)) : (t0 + t1) * 0.5
+    const f = floorAt(this.grid, x + sx * (tc - t), z + sz * (tc - t), feetY)
+    return f === VOID ? y : f
+  }
+
+  /**
+   * Fill one slice, between the rays `ra` (at angle `thA`) and `rb`: each
+   * stretch on one is paired with the stretch on the other at the same level
+   * that overlaps it, so the edge between them runs from hit to hit along
+   * the face that stopped them. Where one ray sees past something (a post's
+   * shadow) that the other does not, the other's stretch is split in the
+   * middle of the gap, and the shadow tapers between them. A stretch with no
+   * partner fills half the slice, out to the bisector.
+   */
+  private pairSlice(thA: number, ra: number, thB: number, rb: number): void {
+    const A = this.rays[ra]!
+    const B = this.rays[rb]!
+    const nA = this.rayN[ra]!
+    const nB = this.rayN[rb]!
+    const thM = (thA + thB) * 0.5
+    let i = 0
+    let j = 0
+    let aS = nA > 0 ? A[0]!.t0 : 0
+    let bS = nB > 0 ? B[0]!.t0 : 0
+    // The next stretch on `L` after `from` at the level `y`.
+    const next = (L: Span[], from: number, nL: number, y: number): Span | null => {
+      for (let k = from; k < nL; k++) if (Math.abs(L[k]!.y - y) <= CONE_STEP_Y) return L[k]!
+      return null
+    }
+    while (i < nA && j < nB) {
+      const a = A[i]!
+      const b = B[j]!
+      const level = Math.abs(a.y - b.y) <= CONE_STEP_Y
+      const overlap = Math.min(a.t1, b.t1) > Math.max(aS, bS)
+      if (!level || !overlap) {
+        if (a.t1 <= b.t1) {
+          this.strip(thA, aS, a.t1, a, thM, aS, a.t1, a, 1)
+          if (++i < nA) aS = A[i]!.t0
+        } else {
+          this.strip(thB, bS, b.t1, b, thM, bS, b.t1, b, 1)
+          if (++j < nB) bS = B[j]!.t0
+        }
+        continue
+      }
+      if (a.t1 > b.t1) {
+        const nb = next(B, j + 1, nB, a.y)
+        if (nb && nb.t0 < a.t1) {
+          const m = Math.min(a.t1 - 0.01, Math.max(aS + 0.01, (b.t1 + nb.t0) * 0.5))
+          this.strip(thA, aS, m, a, thB, bS, b.t1, b, 0)
+          aS = m
+          if (++j < nB) bS = B[j]!.t0
+          continue
+        }
+      } else if (b.t1 > a.t1) {
+        const na = next(A, i + 1, nA, b.y)
+        if (na && na.t0 < b.t1) {
+          const m = Math.min(b.t1 - 0.01, Math.max(bS + 0.01, (a.t1 + na.t0) * 0.5))
+          this.strip(thA, aS, a.t1, a, thB, bS, m, b, 0)
+          bS = m
+          if (++i < nA) aS = A[i]!.t0
+          continue
+        }
+      }
+      this.strip(thA, aS, a.t1, a, thB, bS, b.t1, b, 0)
+      if (++i < nA) aS = A[i]!.t0
+      if (++j < nB) bS = B[j]!.t0
+    }
+    for (; i < nA; i++) {
+      this.strip(thA, aS, A[i]!.t1, A[i]!, thM, aS, A[i]!.t1, A[i]!, 1)
+      if (i + 1 < nA) aS = A[i + 1]!.t0
+    }
+    for (; j < nB; j++) {
+      this.strip(thB, bS, B[j]!.t1, B[j]!, thM, bS, B[j]!.t1, B[j]!, 1)
+      if (j + 1 < nB) bS = B[j + 1]!.t0
+    }
+  }
+
+  /**
+   * One strip of a slice: from `a0` to `a1` along the ray at `thA` (part of
+   * the stretch `sa`), to `b0` … `b1` along `thB` (of `sb`); `half` when the
+   * second side is the bisector. Its last number packs `half` and whether
+   * each side lies flat (no floor to look up under it).
+   */
+  private strip(thA: number, a0: number, a1: number, sa: Span, thB: number, b0: number, b1: number, sb: Span, half: number): void {
+    if (a1 - a0 < 1e-3 && b1 - b0 < 1e-3) return
+    this.strips.push(thA, a0, a1, sa.y, thB, b0, b1, sb.y, half | (sa.flat ? 2 : 0) | (sb.flat ? 4 : 0))
   }
 
   /**
@@ -503,12 +929,29 @@ export class GarrisonView {
   update(alpha: number, dt: number, time: number, camX: number, camY: number, camZ: number): void {
     const units = this.gar.units
     this.frame++
-    // A few cones per frame is plenty: a guard turns slowly.
-    const budget = Math.min(units.length, 3)
-    for (let k = 0; k < budget; k++) {
-      this.cursor = (this.cursor + 1) % units.length
-      this.writeCone(this.cursor)
+    // A few casts per frame, the cones furthest out of date first (moved,
+    // turned, changed state, or simply old); every cone is carried with its
+    // unit below, every frame.
+    const pick = this.castPick
+    const best = this.castScore
+    pick.fill(-1)
+    best.fill(-Infinity)
+    for (let i = 0; i < units.length; i++) {
+      const v = this.views[i]!
+      if (v.cone < 0) continue
+      const u = units[i]!
+      const changed = u.state !== v.clipState || (v.used > 0 && this.coneTint(u) !== v.clipTint)
+      const score = changed ? 1e6 : Math.hypot(u.x - v.clipX, u.z - v.clipZ) * 2
+        + Math.abs(angleDelta(v.clipYaw, u.yaw + u.look)) * 8 + (this.frame - v.clipFrame) * 0.05
+      for (let k = 0; k < CONE_CASTS; k++) {
+        if (score <= best[k]!) continue
+        for (let m = CONE_CASTS - 1; m > k; m--) { best[m] = best[m - 1]!; pick[m] = pick[m - 1]! }
+        best[k] = score
+        pick[k] = i
+        break
+      }
     }
+    for (let k = 0; k < CONE_CASTS; k++) if (pick[k]! >= 0) this.writeCone(pick[k]!)
     this.cones.geometry.attributes.position!.needsUpdate = true
     this.cones.geometry.attributes.color!.needsUpdate = true
     const ease = Math.min(1, dt * 8)
@@ -538,6 +981,16 @@ export class GarrisonView {
       const yaw = u.pyaw + angleDelta(u.pyaw, u.yaw) * alpha
       v.rig.root.position.set(x, y, z)
       v.rig.root.rotation.y = yaw
+      if (v.cone >= 0) {
+        // The cone goes with the body as drawn, a touch ahead of its motion (a teleport is not motion).
+        const lead = CONE_LEAD_S / STEP
+        let lx = (u.x - u.px) * lead
+        let lz = (u.z - u.pz) * lead
+        const far = Math.hypot(lx, lz)
+        if (far > 0.4) { lx = 0; lz = 0 }
+        const turn = Math.max(-0.3, Math.min(0.3, angleDelta(u.pyaw, u.yaw) * lead))
+        this.placeCone(v, x + lx, z + lz, yaw + turn + u.look)
+      }
       const hot = u.state === 'combat'
       const wary = u.state === 'suspicious' || u.state === 'search'
       // At a disguise (#111): puzzled while it stares, the gun up as it backs off to test it.
@@ -581,6 +1034,20 @@ export class GarrisonView {
         s.impaled = dead ? Math.min(1, u.deadT / 0.07) : 0
         s.limp = dead ? Math.min(1, Math.max(0, (u.deadT - 0.25) / Math.max(0.2, u.hold - 0.3))) : 0
         if (dead && u.hold <= 0) { s.gripped = 0; s.impaled = 0; s.limp = 0 }
+        s.kneel = 0
+        // In the mech's hands (a backstab, a drop from a rope): posed as the kill's choreography holds it.
+        if (u.held) {
+          // Seized, it has no thought for its gun.
+          s.aim = 0
+          s.caution = 0
+          s.wary = 0
+          s.startle = 0
+          s.recoil = 0
+          s.gripped = u.held.grip
+          s.impaled = u.held.arch
+          s.limp = u.held.limp
+          s.kneel = u.held.kneel
+        }
         s.deadT = dead && !held ? Math.max(1e-3, u.deadT - u.hold) : 0
         s.death = u.death === 'front' || u.death === 'spin' || u.death === 'thrown' ? u.death : 'back'
         // Fallen and let go: the ragdoll has the body now (#64).
@@ -705,7 +1172,9 @@ export class GarrisonView {
         }
       }
 
-      // The mark over its head.
+      // The mark over its head: its foot sits above the top of the model, so
+      // growing with distance or popping it rises and never covers the face.
+      let over = y + v.top + MARK_GAP
       if (v.mark) {
         const m = v.mark.material as SpriteMaterial
         const show = !dead && (hot || wary || puzzled || testing || u.detect > 0.06)
@@ -715,11 +1184,11 @@ export class GarrisonView {
           m.map = this.textures[4]!
           m.color.copy(NOTICE)
           m.opacity = 0.85
-          const top = SPECS[u.kind].height + 0.45
-          v.mark.position.set(x, y + top, z)
+          v.mark.position.set(x, over, z)
           const d = Math.hypot(camX - x, camY - y, camZ - z)
           const size = Math.min(Math.max(0.3, d * 0.04), 2.4)
           v.mark.scale.set(size, size, 1)
+          over += size * 0.9
         }
         if (show) {
           const bang = hot
@@ -727,14 +1196,14 @@ export class GarrisonView {
           m.map = this.textures[running ? 2 : bang ? 1 : 0]!
           m.color.copy(bang ? HOT : wary || testing ? WARY : NOTICE)
           m.opacity = bang || wary || puzzled || testing ? 1 : Math.min(1, 0.3 + 0.7 * (u.detect / SUSPECT_AT))
-          const top = isLight(u) ? 0.8 : SPECS[u.kind].height + 0.55
-          v.mark.position.set(x, y + top, z)
+          v.mark.position.set(x, over, z)
           // Keep it readable from sniping range: grow with distance.
           const d = Math.hypot(camX - x, camY - y, camZ - z)
           // Puzzled: the "?" rocks from side to side.
           const size = Math.min(Math.max(0.34, d * 0.055), 4) * (1 + v.pop * 0.6) * (bang || wary || puzzled || testing ? 1 : 0.55 + 0.45 * Math.min(1, u.detect / SUSPECT_AT))
           v.mark.scale.set(size, size, 1)
           m.rotation = puzzled ? Math.sin(time * 4) * 0.35 : 0
+          over += size * 0.9
         }
       }
 
@@ -742,8 +1211,8 @@ export class GarrisonView {
       if (u.tagged && !v.tag) this.addTag(i)
       if (v.tag) {
         v.tag.visible = !dead
-        const top = isLight(u) ? 1.3 : SPECS[u.kind].height + 1.15
-        v.tag.position.set(x, y + top, z)
+        // Over the mark when there is one.
+        v.tag.position.set(x, over, z)
         const d = Math.hypot(camX - x, camY - y, camZ - z)
         const size = Math.min(Math.max(0.3, d * 0.04), 3) * (0.9 + 0.1 * Math.sin(time * 4 + i))
         v.tag.scale.set(size, size, 1)
@@ -758,6 +1227,7 @@ export class GarrisonView {
     const v = this.views[i]!
     const tag = new Sprite(new SpriteMaterial({ map: this.textures[3]!, color: TAG.clone(), transparent: true, depthTest: false, depthWrite: false, toneMapped: false }))
     tag.renderOrder = 31
+    tag.center.set(0.5, 0)
     v.tag = tag
     this.group.add(tag)
     const pts = u.route.length > 1 ? u.route : []
