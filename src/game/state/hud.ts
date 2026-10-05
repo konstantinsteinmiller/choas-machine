@@ -115,6 +115,8 @@ export const hud = reactive({
   drag: '' as '' | 'grab' | 'drop',
   /** What the in-world prompt offers right now (#83), '' for nothing. */
   prompt: '' as PromptKind,
+  /** A second key on offer at the same spot (the rope beside the hook). */
+  prompt2: '' as PromptKind,
   /** The control lessons on screen (replaced only when they change). */
   hints: [] as HintView[]
 })

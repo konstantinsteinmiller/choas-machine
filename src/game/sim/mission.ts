@@ -2362,6 +2362,8 @@ export class Mission implements GameMode {
       else if (this.ropeAim) at('rope', this.ropeAim.bx, this.ropeAim.by + 0.8, this.ropeAim.bz)
     }
     mirror('prompt', kind)
+    // The hook and the rope are two keys: when both can take this wall, both are offered.
+    mirror('prompt2', kind === 'hook' && this.ropeAim ? 'rope' : '')
     prompt.on = kind !== '' && !hud.scoped
     if (!prompt.on) return
     this.camera.updateMatrixWorld()

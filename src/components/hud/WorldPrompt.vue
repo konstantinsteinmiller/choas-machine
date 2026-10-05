@@ -2,13 +2,14 @@
   //- What a key does right here (#83): over the pile, the body, the beacon,
   //- the wall top. Pinned by a HUD ticker as the camera moves; the key is the
   //- player's own binding, lettered as on their keyboard.
-  div.world-prompt(ref="el" :class="`k-${hud.prompt}`" aria-hidden="true")
-    KeyCap.key(v-if="hud.device === 'mouse' && hud.prompt" :action="keyFor(hud.prompt)")
-    span.label(v-if="hud.prompt") {{ t(`prompt.${hud.prompt}`) }}
+  div.world-prompt(ref="el" aria-hidden="true")
+    div.chip(v-for="k in kinds" :key="k" :class="`k-${k}`")
+      KeyCap.key(v-if="hud.device === 'mouse'" :action="keyFor(k)")
+      span.label {{ t(`prompt.${k}`) }}
 </template>
 
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref } from 'vue'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import KeyCap from '@/components/hud/hints/KeyCap.vue'
 import { addHudTicker, hud, prompt, type PromptKind } from '@/game/state/hud'
@@ -19,6 +20,8 @@ const { t } = useI18n()
 const keyFor = (kind: PromptKind): Action =>
   kind === 'hook' ? 'grapple' : kind === 'rope' ? 'rope' : kind === 'grab' || kind === 'drop' ? 'drag' : 'act'
 const el = ref<HTMLElement | null>(null)
+/** What is on offer here: one key, or two (the hook and the rope). */
+const kinds = computed<PromptKind[]>(() => [hud.prompt, hud.prompt2].filter((k): k is PromptKind => !!k))
 let off: (() => void) | null = null
 
 onMounted(() => {
@@ -42,11 +45,17 @@ onUnmounted(() => off?.())
 .world-prompt
   position: absolute
   display: flex
+  flex-direction: column
   align-items: center
-  gap: 0.35em
+  gap: 0.3em
   opacity: 0
   translate: -50% -100%
   transition: opacity 160ms ease-out
+  pointer-events: none
+.chip
+  display: flex
+  align-items: center
+  gap: 0.35em
   padding: 0.2em 0.6em 0.2em 0.25em
   border: var(--cm-edge) solid var(--cm-cyan)
   border-radius: 999px
@@ -55,7 +64,6 @@ onUnmounted(() => off?.())
   color: var(--cm-text)
   font-size: var(--cm-fs-s)
   white-space: nowrap
-  pointer-events: none
   // The kind as a prefixed class: a bare `strike` would also match the HUD's own chip rules.
   &.k-salvage
     border-color: var(--cm-warn)
