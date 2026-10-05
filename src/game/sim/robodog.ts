@@ -13,7 +13,7 @@
  * mech, lies down into a board, the mech steps on, and the board climbs away
  * with it.
  */
-import { BOARD_HOVER, DOG_STAND } from '../models/robodog'
+import { BOARD_HOVER, DOG_STAND, STRIDE_PER_UNIT } from '../models/robodog'
 import { DROP_LANDED } from './cine'
 import { hasLineOfSight, type Grid } from '../world/grid'
 
@@ -192,7 +192,8 @@ export const outroFrame = (
   dog.yaw = run < 1 && reachIn > 0.05 ? Math.atan2(px + lx * 1.7 - ax + 1e-6, pz + lz * 1.7 - az + 1e-6) : yaw
   dog.fold = fold
   dog.run = k < DOG_ARRIVE ? (1 - smooth((k - DOG_ARRIVE * 0.75) / (DOG_ARRIVE * 0.25))) * (drop > 0.3 ? 0 : 1) : 0
-  dog.stride = k * 46
+  // Its paws keep pace with the ground it covers (a full-size dog: the rig's units are metres).
+  dog.stride = (1 - far) * Math.hypot(ox, oz) * STRIDE_PER_UNIT
   dog.thrust = k < DOG_ARRIVE ? 0.7 : k < RIDER_ON ? 0.35 : 1
   dog.visible = climb < 0.995
   // The mech waits, hops onto the deck as it slides under, and rides it out.
