@@ -46,6 +46,7 @@ import { castShot, makeShotHit, HEAD_Y } from './hitscan'
 import { blast, shotDamage } from './damage'
 import { SNIPER_MAG, SPREAD, ammoOf, isDry, makeArsenal, reloadProgress, reserveOf, stepArsenal, type Arsenal, type Trigger } from './weapons'
 import { decoySpot, findRopeStrike, findStrike, stepDecoys, type Decoy, type Strike, type StrikeKind } from './melee'
+import { AIR_TOTAL_S, airAt, pinBlade, pitchedFeet, planAir, type AirBeat, type AirPlan } from './airStrike'
 import { fireRocket, stepRockets, type Rocket } from './rockets'
 import { blastRagdoll, nearRay, push, wake as wakeRagdoll } from './ragdoll'
 import { MARKSMAN_AIM_S, stepFire } from './chaos'
@@ -102,12 +103,10 @@ const RIFLE_EARSHOT_M = 4
 /** From the shoulder point `aimLine` traces from out to each weapon's muzzle (m). */
 const MUZZLE_REACH: Readonly<Record<WeaponId, number>> = { sniper: 1.75, minigun: 1.45, rocket: 1.3 }
 /** The rope assassination (jam build): the leap, riding the body down, the roll (sim seconds), its slow time, its camera (real seconds), how far the roll goes. */
-const AIR_LEAP_S = 0.5
-const AIR_RIDE_S = 0.32
-const AIR_ROLL_S = 0.5
 const AIR_SLOW = 0.45
+/** The blade's tip in its bone's frame (`models/mech.ts`: an 0.82 m blade centred 0.5 m out). */
+const BLADE_TIP_Y = -0.91
 const AIR_CAM_OUT_S = 0.4
-const AIR_ROLL_M = 2
 /** A scripted camera pulled in by a wall holds there this long, then eases out at this share of its length a second (#119). */
 const CINE_ARM_HOLD_S = 0.5
 const CINE_ARM_OUT = 1.5
@@ -140,8 +139,8 @@ const SWAY_CROUCH = 0.0008
 interface StrikeRun {
   id: number
   kind: StrikeKind
-  /** The assassination's roll, 0 … 1 (jam build). */
-  roll?: number
+  /** The assassination's dive (`sim/airStrike.ts`). */
+  air?: AirPlan
   t: number
   dur: number
   fx: number
@@ -925,8 +924,8 @@ export class Mission implements GameMode {
     let fx = Math.sin(yaw) * c
     let fy = Math.sin(pitch)
     let fz = Math.cos(yaw) * c
-    // What the reticle is on: a ray from the camera, starting past the mech.
-    const cp = this.camera.position
+    // What the reticle is on: a ray from the player's camera, starting past the mech.
+    const cp = this.aimEye
     const eyeY = p.y + eyeHeight(p)
     const skip = Math.max(0, (p.x - cp.x) * fx + (eyeY - cp.y) * fy + (p.z - cp.z) * fz)
     const h = castShot(this.fortress.grid, this.garrison.units, cp.x + fx * skip, cp.y + fy * skip, cp.z + fz * skip, fx, fy, fz, SHOT_RANGE, this.hit)
@@ -1160,24 +1159,21 @@ export class Mission implements GameMode {
   }
 
   /**
-   * From a rope onto the target (jam build): a leap that comes down on its
-   * shoulders, the blade into its head, a moment riding it down, and a roll
-   * forward off it onto the mech's feet. Always with its kill-cam: slow time,
-   * the camera turning round the target.
+   * From a rope onto the target: the dive kill (`sim/airStrike.ts`). Head
+   * first, the blade driven down through the guard's head, over the falling
+   * body and a roll onto the mech's feet beyond it. Always with its kill-cam:
+   * slow time, the camera turning round the target.
    */
   private startAssassination(s: Strike): void {
     const p = this.player
     const u = this.garrison.units[s.id]!
-    const yaw = headingTo(p.x, p.z, u.x, u.z)
-    // The roll ends a body's length past the target, on the floor there (or by it, against a wall).
-    let lx = u.x + Math.sin(yaw) * AIR_ROLL_M
-    let lz = u.z + Math.cos(yaw) * AIR_ROLL_M
-    const lh = heightAt(this.fortress.grid, lx, lz)
-    if (lh === VOID || Math.abs(lh - u.y) > 0.6) { lx = u.x + Math.sin(yaw) * 0.9; lz = u.z + Math.cos(yaw) * 0.9 }
+    const g = this.fortress.grid
+    const head = u.y + SPECS[u.kind].height - 0.12
+    const air = planAir({ x: p.x, y: p.y, z: p.z }, { x: u.x, y: u.y, z: u.z }, head, (x, z) => { const h = heightAt(g, x, z); return h === VOID ? null : h })
     this.strike = {
-      id: s.id, kind: 'air', t: 0, dur: AIR_LEAP_S,
-      fx: p.x, fy: p.y, fz: p.z, tx: lx, ty: u.y, tz: lz, yaw, landed: false,
-      full: false, drawn: false, pulled: false
+      id: s.id, kind: 'air', t: 0, dur: AIR_TOTAL_S,
+      fx: p.x, fy: p.y, fz: p.z, tx: air.end.x, ty: air.end.y, tz: air.end.z, yaw: air.yaw, landed: false,
+      full: false, drawn: false, pulled: false, air
     }
     p.cable = null
     p.mode = 'air'
@@ -1189,7 +1185,7 @@ export class Mission implements GameMode {
     this.learn('blade')
     app.setTimeScale(AIR_SLOW)
     // The camera holds until the mech is on its feet, then blends out (see the end of the roll).
-    this.cine = { kind: 'orbit', t: 0, dur: 999, id: s.id, yaw: yaw + Math.PI * 0.55, final: false, wide: true }
+    this.cine = { kind: 'orbit', t: 0, dur: 999, id: s.id, yaw: air.yaw + Math.PI * 0.55, final: false, wide: true }
     mirror('cine', true)
     emit('killcam', { kind: 'orbit', final: false })
     emit('strike', { kind: 'air', id: s.id })
@@ -1199,69 +1195,48 @@ export class Mission implements GameMode {
   private stepAssassination(s: StrikeRun, dt: number): void {
     const p = this.player
     const u = this.garrison.units[s.id]!
-    const head = u.y + SPECS[u.kind].height + 0.15
-    const t = s.t
-    if (t < AIR_LEAP_S) {
-      // The leap: out and up a little off the rope, down onto its shoulders.
-      const k = t / AIR_LEAP_S
-      p.x = s.fx + (u.x - s.fx) * k
-      p.z = s.fz + (u.z - s.fz) * k
-      p.y = s.fy + (head - s.fy) * k * k + Math.sin(k * Math.PI) * 0.8
-      p.mode = 'air'
-    } else if (t < AIR_LEAP_S + AIR_RIDE_S) {
-      // The blade in: the head. It rides the body down a moment.
-      if (!s.landed) {
-        s.landed = true
-        this.killBy = 'blade'
-        this.killHead = true
-        // The blow comes from behind it (the way the mech came): it pitches forward, away.
-        killUnit(this.garrison, s.id, u.x - Math.sin(s.yaw), u.z - Math.cos(s.yaw), 'blade')
-        // Let go at once: it folds under the mech and falls forward.
-        u.gripped = false
-        u.hold = 0
-        u.fallDir = 1
-        u.death = 'front'
-        this.stats.bladeKills++
-        haptic('blade')
-        this.shake = Math.max(this.shake, 0.6)
-        this.garrisonView.flash(s.id, PAL.mechBlade, 0.5)
-        this.fx.stabThrough(u.x, head - 0.25, u.z, s.yaw)
-        this.fx.slash(u.x, head - 0.4, u.z, s.yaw)
-        emit('takedown', { beat: 'stab', id: s.id })
-        this.say('takedown')
-        this.flushGarrison()
-      }
-      const k = (t - AIR_LEAP_S) / AIR_RIDE_S
-      p.x = u.x
-      p.z = u.z
-      p.y = head - 0.9 * k
-      p.mode = 'air'
-    } else if (t < AIR_LEAP_S + AIR_RIDE_S + AIR_ROLL_S) {
-      // The roll: forward off it, head over heels, onto the floor beyond.
-      const k = (t - AIR_LEAP_S - AIR_RIDE_S) / AIR_ROLL_S
-      const e = k * k * (3 - 2 * k)
-      const sy = head - 0.9
-      p.x = u.x + (s.tx - u.x) * e
-      p.z = u.z + (s.tz - u.z) * e
-      p.y = sy + (s.ty - sy) * Math.min(1, k * 1.4) + Math.sin(k * Math.PI) * 0.35
-      p.mode = 'air'
-      s.roll = e
-    } else {
-      p.x = s.tx
-      p.z = s.tz
-      p.y = s.ty
+    const air = s.air!
+    const beat = airAt(air, s.t)
+    if (beat.phase !== 'dive' && !s.landed) {
+      // The blow: the blade through the head. It pitches forward, away from the mech.
+      s.landed = true
+      this.killBy = 'blade'
+      this.killHead = true
+      killUnit(this.garrison, s.id, u.x - Math.sin(s.yaw), u.z - Math.cos(s.yaw), 'blade')
+      u.gripped = false
+      u.hold = 0
+      u.fallDir = 1
+      u.death = 'front'
+      this.stats.bladeKills++
+      haptic('blade')
+      this.shake = Math.max(this.shake, 0.6)
+      this.garrisonView.flash(s.id, PAL.mechBlade, 0.5)
+      this.fx.stabThrough(air.head.x, air.head.y, air.head.z, s.yaw)
+      this.fx.slash(air.head.x, air.head.y - 0.15, air.head.z, s.yaw)
+      emit('takedown', { beat: 'stab', id: s.id })
+      this.say('takedown')
+      this.flushGarrison()
+    }
+    if (beat.phase === 'roll' && s.drawn === false) {
+      // Touch-down: the slow time ends with the blow, the roll is at speed.
+      s.drawn = true
+      emit('land', { drop: 0.9 })
+      app.setTimeScale(1)
+    }
+    p.x = beat.x
+    p.y = beat.y
+    p.z = beat.z
+    if (beat.phase === 'done') {
       p.vy = 0
       p.airFrom = p.y
       p.mode = 'ground'
       p.crouched = true
-      s.roll = 0
-      emit('land', { drop: 1.2 })
       app.setTimeScale(1)
       this.strike = null
       // Its camera blends back into the follow camera from here.
       const c = this.cine
       if (c?.kind === 'orbit' && c.wide) c.dur = c.t + AIR_CAM_OUT_S
-    }
+    } else p.mode = 'air'
     p.yaw += angleDelta(p.yaw, s.yaw) * Math.min(1, dt * 20)
   }
 
@@ -1587,7 +1562,7 @@ export class Mission implements GameMode {
     if (p.mode !== 'ground' || this.strike || this.grapple || this.weaponUp()) return
     if (ceilingAt(this.fortress.grid, p.x, p.z, p.y) < Infinity) return
     const f = camForward(this.cam)
-    const cp = this.camera.position
+    const cp = this.aimEye
     // From the camera, starting past the mech, as the reticle does.
     const eyeY = p.y + eyeHeight(p)
     const skip = Math.max(0, (p.x - cp.x) * f.x + (eyeY - cp.y) * f.y + (p.z - cp.z) * f.z)
@@ -2595,6 +2570,13 @@ export class Mission implements GameMode {
   private introShot: { dist: number; turn: number } | null = null
   /** The camera as last shown. */
   private lastView: CinePose = makeCinePose()
+  /**
+   * Where the player's own camera is: the follow camera behind the shoulder,
+   * whatever the screen shows (a kill-cam, a scripted shot, the trailer's
+   * director). The reticle's ray starts here, so a round leaves the weapon
+   * along the line the player aims down, never along a director's view.
+   */
+  readonly aimEye = new Vector3()
   private exitT = Infinity
   /** The way out found when the outro starts (#118). */
   private outroWay = { yaw: 0, turn: 0, reachIn: 1, reachOut: 1 }
@@ -2767,7 +2749,7 @@ export class Mission implements GameMode {
       const fx = Math.sin(cam.yaw) * c
       const fy = Math.sin(cam.pitch)
       const fz = Math.cos(cam.yaw) * c
-      const cp = this.camera.position
+      const cp = this.aimEye
       const h = castShot(this.fortress.grid, this.garrison.units, cp.x, cp.y, cp.z, fx, fy, fz, SHOT_RANGE, this.tagHit)
       if (h.unit >= 0) {
         const u = this.garrison.units[h.unit]!
@@ -3305,6 +3287,7 @@ export class Mission implements GameMode {
     this.cam.yaw += sway.yaw + jx
     this.cam.pitch += sway.pitch + kick + jy
     const follow = placeCam(this.cam, g, x, y, z, eyeHeight(p), a.current, this.baseFov, this.loadout.scopeFov / SCOPE_ZOOMS[this.scopeZoom]!, dt)
+    this.aimEye.set(follow.x, follow.y, follow.z)
     this.cam.yaw -= sway.yaw + jx
     this.cam.pitch -= sway.pitch + kick + jy
 
@@ -3360,6 +3343,7 @@ export class Mission implements GameMode {
     // the mech fades out of its own way.
     this.fadeMech(scripted ? 0 : follow.fade)
     const striking = this.strike
+    let airBeat: AirBeat | null = null
     this.bladeOut += (((striking || this.offer) ? 1 : 0) - this.bladeOut) * Math.min(1, dt * 14)
     const s = this.pose
     s.time = this.time
@@ -3391,13 +3375,18 @@ export class Mission implements GameMode {
       // Hidden until it springs: that is the moment.
       s.blade = td.blade
       s.crouch = 0
-    } else if (striking?.kind === 'air') {
-      // The assassination: blade high on the way down, driven in, then tucked for the roll.
-      const t = striking.t
-      s.stab = t < AIR_LEAP_S ? 0.3 + 0.6 * (t / AIR_LEAP_S) : t < AIR_LEAP_S + AIR_RIDE_S ? 1 : 0
-      s.blade = t < AIR_LEAP_S + AIR_RIDE_S ? 1 : this.bladeOut
-      s.crouch = t >= AIR_LEAP_S + AIR_RIDE_S ? 1 : t < AIR_LEAP_S ? 0.2 : 0.6
-      s.grab = s.draw = s.plunge = 0
+    } else if (striking?.kind === 'air' && striking.air) {
+      // The dive kill: the blade arm cocked over the shoulder, driven down
+      // through the head, then tucked for the roll.
+      airBeat = airAt(striking.air, striking.t)
+      s.stab = 0
+      s.grab = 0
+      s.draw = airBeat.draw
+      // Never quite 0: the weapon stays stowed for the whole move (the pose
+      // hides it while the blade arm is in a takedown).
+      s.plunge = Math.max(0.001, airBeat.plunge)
+      s.blade = airBeat.phase === 'roll' ? this.bladeOut : 1
+      s.crouch = airBeat.crouch
     } else {
       s.stab = striking ? Math.min(1, (striking.t / striking.dur) * 0.9 + 0.05) : 0
       s.grab = s.draw = s.plunge = 0
@@ -3409,14 +3398,19 @@ export class Mission implements GameMode {
     // Surfing the board: knees bent, weight low.
     if (this.riding) s.crouch = Math.max(s.crouch, 0.35)
     poseMech(this.rig, s)
-    // Head over heels round the hips (the assassination's roll).
-    const roll = striking?.kind === 'air' ? striking.roll ?? 0 : 0
+    // The dive kill: the body pitched round its hips (the lean, then head
+    // over heels), and at the blow the blade's tip held on the guard's head.
     this.rig.root.rotation.order = 'YXZ'
-    this.rig.root.rotation.x = roll * Math.PI * 2
-    if (roll > 0) {
-      const a = roll * Math.PI * 2
-      const yz = -0.9 * Math.sin(a)
-      this.rig.root.position.set(x + Math.sin(yaw) * yz, y + 0.9 - 0.9 * Math.cos(a), z + Math.cos(yaw) * yz)
+    this.rig.root.rotation.x = airBeat ? airBeat.pitch : 0
+    if (airBeat && striking?.air) {
+      const at = pitchedFeet(x, y, z, yaw, airBeat.pitch, airBeat.pivot)
+      this.rig.root.position.set(at.x, at.y, at.z)
+      if (airBeat.pin > 0) {
+        this.rig.root.updateMatrixWorld(true)
+        const tip = this.rig.bones.blade!.localToWorld(this.muzzleTmp.set(0, BLADE_TIP_Y, 0))
+        const off = pinBlade(tip, striking.air.head, airBeat.pin)
+        this.rig.root.position.set(at.x + off.x, at.y + off.y, at.z + off.z)
+      }
     }
 
     // A drone with a hole in its shell trails smoke; an overheated Goliath steams from its vents.
