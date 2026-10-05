@@ -78,7 +78,7 @@ const replay = (): void => emit('trainingReplay', {})
   &.here
     color: #5fe9ff
     opacity: 1
-    box-shadow: 0 0 0 2px rgba(95, 233, 255, 0.8)
+    +tech-hex(rgba(95, 233, 255, 0.85), transparent, 2px)
 .replay
   pointer-events: auto
 .why

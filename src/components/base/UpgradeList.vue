@@ -89,17 +89,16 @@ const buy = (id: TrackId): void => {
   padding: clamp(0.35rem, 1.5vmin, 0.6rem) clamp(0.45rem, 2vmin, 0.8rem)
   &.maxed
     --plate-edge: rgba(77, 255, 176, 0.6)
-// The glyph is a round sticker: a lit bubble with an ink rim.
+// The glyph in a hex socket, like the weapons'.
 .icon
   box-sizing: border-box
   width: clamp(2rem, 8vmin, 2.9rem)
   height: clamp(2rem, 8vmin, 2.9rem)
   padding: 0.38em
-  background: radial-gradient(circle at 35% 30%, rgba(168, 245, 255, 0.35), rgba(77, 232, 255, 0.12) 55%, rgba(21, 12, 43, 0.6))
-  box-shadow: 0 0 0 var(--cm-outline) var(--cm-ink), inset 0 0 0 var(--cm-edge) rgba(77, 232, 255, 0.7)
+  // A hex socket (the icon's own box) with its rim on all six sides; the padding keeps the glyph well inside it.
+  +tech-hex(rgba(77, 232, 255, 0.85), radial-gradient(circle at 50% 40%, rgba(168, 245, 255, 0.3), rgba(77, 232, 255, 0.1) 55%, rgba(21, 12, 43, 0.75)))
+  padding: 0.5em 0.48em
   color: var(--cm-cyan-hi)
-  filter: drop-shadow(0 0.08em 0 rgba(10, 5, 24, 0.7))
-  clip-path: polygon(25% 0, 75% 0, 100% 50%, 75% 100%, 25% 100%, 0 50%)
 .body
   min-width: 0
   display: flex

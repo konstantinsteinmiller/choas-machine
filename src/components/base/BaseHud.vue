@@ -133,9 +133,6 @@ const forgeReady = computed(() => WEAPON_IDS.some(w => canForge(w)))
   display: flex
   align-items: center
   gap: var(--gap)
-  // On the open sky the badge needs a ground of its own to be read.
-  :deep(.rank-badge)
-    background: var(--cm-glass)
 
 // Landscape: a column down the right, the mech to its left.
 .panel

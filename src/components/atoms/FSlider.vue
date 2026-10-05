@@ -97,11 +97,9 @@ const updateValue = (event: Event): void => {
   width: var(--fsl-thumb)
   height: var(--fsl-thumb)
   box-sizing: border-box
-  border: var(--cm-edge) solid var(--cm-text)
-  background: radial-gradient(circle at 35% 30%, var(--cm-cyan-hi), var(--cm-cyan) 60%, var(--cm-cyan-deep))
-  box-shadow: var(--cm-glow-cyan)
+  // A hex nut: a bright rim round all six sides, a machined face, a lit core.
+  +tech-hex(var(--cm-text), (radial-gradient(circle at 50% 50%, var(--cm-cyan-hi) 0 14%, transparent 15%), linear-gradient(180deg, var(--cm-cyan-hi), var(--cm-cyan) 45%, var(--cm-cyan-deep))), calc(var(--cm-edge) * 1.25))
   pointer-events: none
-  clip-path: polygon(25% 0, 75% 0, 100% 50%, 75% 100%, 25% 100%, 0 50%)
 
 .f-slider__input
   position: absolute

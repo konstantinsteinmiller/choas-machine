@@ -148,10 +148,7 @@ onUnmounted(() => {
   align-items: center
   justify-content: center
   box-sizing: border-box
-  border: var(--cm-edge) solid currentColor
-  background: var(--cm-glass)
-  box-shadow: 0 0 0.6rem currentColor
-  clip-path: polygon(25% 0, 75% 0, 100% 50%, 75% 100%, 25% 100%, 0 50%)
+  +tech-hex(currentColor, var(--cm-glass))
   :deep(svg)
     width: 58%
     height: 58%
