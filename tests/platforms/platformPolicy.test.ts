@@ -74,7 +74,8 @@ describe('dev tooling is aliased out of the Poki release', () => {
     expect(cfg).toMatch(/const isPokiBuild = env\.VITE_APP_POKI === 'true'/)
     // (Playgama joined the clean releases, and the QA-twin flag was generalised
     // to VITE_QA_TOOLS with the Poki-era name kept — see playgamaCleanBuild.test.ts.)
-    expect(cfg).toMatch(/resolvePlatformPolicy\(\{\s*isPoki: isPokiBuild,\s*isPlaygama: isPlaygamaBuild,\s*qaTools: env\.VITE_POKI_QA_TOOLS === 'true' \|\| env\.VITE_QA_TOOLS === 'true'\s*\}\)/)
+    // (The itch.io jam upload is a clean release too.)
+    expect(cfg).toMatch(/resolvePlatformPolicy\(\{\s*isPoki: isPokiBuild,\s*isPlaygama: isPlaygamaBuild,\s*isItch: env\.VITE_APP_ITCH === 'true',\s*qaTools: env\.VITE_POKI_QA_TOOLS === 'true' \|\| env\.VITE_QA_TOOLS === 'true'\s*\}\)/)
     // …and its aliases are spread into resolve.alias, ahead of '@'.
     const spread = cfg.indexOf('devToolAliases(platformPolicy)')
     const catchAll = cfg.indexOf("'@': fileURLToPath(new URL('./src', import.meta.url))")
@@ -95,5 +96,12 @@ describe('dev tooling is aliased out of the Poki release', () => {
       const real = `src/${id.slice(2)}.ts`
       expect(exportsOf(stub), `${stub} vs ${real}`).toEqual(exportsOf(real))
     }
+  })
+})
+
+describe('the itch.io jam upload (jam build)', () => {
+  it('ships no dev tooling: no cheat to skip a room, no debug toggle', () => {
+    expect(resolvePlatformPolicy({ isPoki: false, isItch: true }).devTools).toBe(false)
+    expect(resolvePlatformPolicy({ isPoki: false }).devTools).toBe(true)
   })
 })

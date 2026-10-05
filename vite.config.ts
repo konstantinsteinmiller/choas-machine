@@ -529,6 +529,7 @@ export default defineConfig(({ mode, command }) => {
   const platformPolicy = resolvePlatformPolicy({
     isPoki: isPokiBuild,
     isPlaygama: isPlaygamaBuild,
+    isItch: env.VITE_APP_ITCH === 'true',
     qaTools: env.VITE_POKI_QA_TOOLS === 'true' || env.VITE_QA_TOOLS === 'true'
   })
   // PLAYGAMA / YOUTUBE PLAYABLES: same exception again, and the reason is the

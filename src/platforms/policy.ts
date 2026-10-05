@@ -22,6 +22,8 @@ export interface PolicyInput {
    * bundle — the Playgama plugin path and nothing else, no dev tooling either.
    */
   isPlaygama?: boolean
+  /** The itch.io jam upload: players must not be able to switch on the room-skipping cheats either. */
+  isItch?: boolean
   /**
    * The QA-twin opt-in: `VITE_QA_TOOLS=true` (or the Poki-era name
    * `VITE_POKI_QA_TOOLS=true`, still honoured). Builds a twin of a clean
@@ -57,9 +59,9 @@ export interface PlatformPolicy {
   devTools: boolean
 }
 
-export const resolvePlatformPolicy = ({ isPoki, isPlaygama = false, qaTools = false }: PolicyInput): PlatformPolicy => ({
+export const resolvePlatformPolicy = ({ isPoki, isPlaygama = false, isItch = false, qaTools = false }: PolicyInput): PlatformPolicy => ({
   freeOptionFirst: isPoki,
-  devTools: !(isPoki || isPlaygama) || qaTools
+  devTools: !(isPoki || isPlaygama || isItch) || qaTools
 })
 
 /**
