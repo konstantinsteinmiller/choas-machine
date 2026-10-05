@@ -58,6 +58,12 @@ let dolly: { a: Shot; b: Shot; t: number; dur: number } | null = null
  * frame. Offsets are in the subject's own frame (x right, z ahead).
  */
 let ride: { id: number; off: [number, number, number]; look: [number, number, number]; fov: number } | null = null
+/**
+ * The director's camera flying with the robo dog's board in the drop-in (the
+ * trailer): beside and behind it, looking past it at the fortress, placed
+ * every frame so it never steps behind the board.
+ */
+let board: { side: number; back: number; up: number; fov: number } | null = null
 /** Every sound the game played since the log was cleared, on the page's clock (the trailer's audio). */
 const sfxLog: Array<{ t: number; name: SfxName; pan: number; gain: number; muffle: number }> = []
 /** Defenders held where a plate wants them. */
@@ -79,6 +85,19 @@ const install = (): void => {
       const e = k * k * (3 - 2 * k)
       const { a, b } = dolly
       shot = { px: a.px + (b.px - a.px) * e, py: a.py + (b.py - a.py) * e, pz: a.pz + (b.pz - a.pz) * e, lx: a.lx + (b.lx - a.lx) * e, ly: a.ly + (b.ly - a.ly) * e, lz: a.lz + (b.lz - a.lz) * e, fov: a.fov + (b.fov - a.fov) * e }
+    }
+    if (board) {
+      const mm = m as unknown as { dog?: { root: { position: { x: number; y: number; z: number } } }; centre?: { x: number; z: number } }
+      const d = mm.dog?.root.position
+      const c = mm.centre
+      if (d && c) {
+        const dx = d.x - c.x
+        const dz = d.z - c.z
+        const l = Math.hypot(dx, dz) || 1
+        const sx = -dz / l
+        const sz = dx / l
+        shot = { px: d.x + (dx / l) * board.back + sx * board.side, py: d.y + board.up, pz: d.z + (dz / l) * board.back + sz * board.side, lx: d.x - (dx / l) * 8, ly: d.y - 3, lz: d.z - (dz / l) * 8, fov: board.fov }
+      }
     }
     if (ride) {
       const s = ride.id < 0 ? { x: m.player.x, y: m.player.y, z: m.player.z, yaw: m.player.yaw } : m.garrison.units[ride.id]
@@ -251,11 +270,13 @@ const install = (): void => {
       return `mech ${r(m.player.x)},${r(m.player.y)},${r(m.player.z)} cam ${r(c.x)},${r(c.y)},${r(c.z)} pitch ${m.cam.pitch.toFixed(3)} · ${u.kind} ${r(u.x)},${r(u.y)},${r(u.z)} ${u.state} · reticle on ${h.kind}${h.kind === 'unit' ? ` #${h.unit} ${h.zone}` : ''} at ${r(h.x)},${r(h.y)},${r(h.z)} · weapon ${hud.weapon} scoped ${hud.scoped}`
     },
     /** A director's camera (null gives the game's own back). */
-    shot: (s: typeof shot): void => { shot = s; dolly = null; ride = null },
+    shot: (s: typeof shot): void => { shot = s; dolly = null; ride = null; board = null },
+    /** The director's camera flying with the drop-in's board, every frame. */
+    followBoard: (side: number, back: number, up: number, fov = 60): void => { dolly = null; ride = null; board = { side, back, up, fov } },
     /** The director's camera moving from `a` to `b` over `ms` (eased). */
-    dolly: (a: Shot, b: Shot, ms: number): void => { ride = null; shot = a; dolly = { a, b, t: 0, dur: ms / 1000 } },
+    dolly: (a: Shot, b: Shot, ms: number): void => { ride = null; board = null; shot = a; dolly = { a, b, t: 0, dur: ms / 1000 } },
     /** The director's camera riding with the mech (id −1) or a defender, offsets in its own frame. */
-    ride: (id: number, off: [number, number, number], look: [number, number, number], fov = 55): void => { dolly = null; ride = { id, off, look, fov } },
+    ride: (id: number, off: [number, number, number], look: [number, number, number], fov = 55): void => { dolly = null; board = null; ride = { id, off, look, fov } },
     /** The sounds played since the log was last cleared, on the page's clock. */
     sfxLog: () => sfxLog.slice(),
     clearSfx: (): void => { sfxLog.length = 0 },

@@ -67,8 +67,8 @@ export const EDIT = {
     { cut: 'decoy', at: 1.1, line: 'decoy', whisper: true },
     { cut: 'snipe', at: 3.0, line: 'headshot' },
     { cut: 'minigun', at: 1.7, line: 'multiKill' },
-    // "6, 7!" right after the rocket lands among the squad (it lands 1.47 s into its take).
-    { cut: 'rocket', at: 1.45, line: 'alarm' },
+    // "6, 7!" once the rocket has thrown the squad (it lands 1.03 s into its take, 0.73 s into the cut).
+    { cut: 'rocket', at: 1.15, line: 'alarm' },
     { cut: 'flamer', at: 0.9, line: 'burnHuman' },
     { cut: 'loot', at: 0.6, line: 'loot' },
     { cut: 'extract', at: 1.0, line: 'extract' }

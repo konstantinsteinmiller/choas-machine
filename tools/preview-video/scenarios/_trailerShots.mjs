@@ -16,19 +16,6 @@ import { shot } from './_trailer.mjs'
 
 const f = (ctx) => 1000 / ctx.fps
 
-/** Hold the camera on the robo dog's board during the drop-in. */
-const followBoard = async (ctx, ms, side, back, up) => {
-  for (let t = 0; t < ms; t += 2 * f(ctx)) {
-    await ctx.evaluate(([s, b, u]) => {
-      const m = window.__game.app.mode, d = m.dog.root.position, c = m.centre
-      const dx = d.x - c.x, dz = d.z - c.z, l = Math.hypot(dx, dz) || 1
-      const sx = -dz / l, sz = dx / l
-      window.__preview.shot({ px: d.x + dx / l * b + sx * s, py: d.y + u, pz: d.z + dz / l * b + sz * s, lx: d.x - dx / l * 8, ly: d.y - 3, lz: d.z - dz / l * 8, fov: 60 })
-    }, [side, back, up])
-    await ctx.wait(2 * f(ctx))
-  }
-}
-
 /** Put defenders on alert, as if they had seen the mech where it stands. */
 const alarm = (ctx, ...units) => ctx.evaluate(async (list) => {
   const { alarmUnit } = await import('/src/game/sim/garrison.ts')
@@ -52,9 +39,8 @@ export const SHOTS = {
     fort: 'bastion', level: 1, intro: true,
     async stage(ctx) {
       await ctx.waitFor(() => { const c = window.__game.app.mode.cine; return c && c.kind === 'intro' && c.t / c.dur > 0.03 }, null, { timeout: 90_000 })
-    },
-    async play(ctx) {
-      await followBoard(ctx, 6800, 5, 9, 4.5)
+      // Placed by the game's own frame, every frame: no step behind the board.
+      await ctx.evaluate(() => window.__preview.followBoard(5, 9, 4.5, 60))
     }
   }),
 
@@ -344,37 +330,39 @@ export const SHOTS = {
   }),
 
   // ── The rocket: off the shoulder, across the yard, into a squad of guards ──
+  // Four guards in a huddle (a squad being briefed); the round goes into the
+  // floor in their middle and the blast throws all four.
   rocket: shot('rocket', {
     level: 4,
     async stage(ctx) {
       await ctx.evaluate(() => {
         const t = window.__t
-        t.pin(t.unit('guard', 0), 79, 14, 62, 12)
-        t.pin(t.unit('guard', 1), 80.5, 16.2, 62, 12)
-        t.pin(t.unit('guard', 2), 81.5, 13.2, 62, 12)
-        t.pin(t.unit('guard', 3), 78.4, 17, 62, 12)
-        t.mech(62, 12, 80, 15)
+        const c = [80, 15]
+        const ring = [[1.1, 0], [-1.1, 0], [0, 1.1], [0, -1.1]]
+        for (let k = 0; k < 4; k++) { const [ox, oz] = ring[k]; t.pin(t.unit('guard', k), c[0] + ox, c[1] + oz, c[0], c[1]) }
+        t.mech(62, 12, c[0], c[1])
         t.weapon('rocket')
+        window.__squad = [0, 1, 2, 3].map(k => t.unit('guard', k).id)
       })
       await ctx.wait(500)
       await ctx.evaluate(() => { window.__preview.aim(true) })
       await ctx.wait(800)
       await ctx.evaluate(() => {
         const t = window.__t
-        window.__preview.aimPoint(80, t.ground(80, 15) + 0.9, 15, 1)
+        window.__preview.aimPoint(80, t.ground(80, 15) + 0.05, 15, 1)
         t.calm()
         window.__preview.ride(-1, [-2.4, 1.5, -3.2], [0.8, 1.4, 12], 52)
       })
     },
     async play(ctx) {
-      // They walk on toward the mech; the round goes into the middle of them.
-      await ctx.evaluate(() => window.__preview.unpin())
       await ctx.wait(600)
-      await ctx.evaluate(() => { const t = window.__t; window.__preview.aimPoint(80, t.ground(80, 15) + 0.9, 15, 1) })
+      await ctx.evaluate(() => { const t = window.__t; window.__preview.aimPoint(80, t.ground(80, 15) + 0.05, 15, 1) })
       await ctx.wait(60)
       await ctx.evaluate(() => window.__t.m.fireRound())
       await ctx.stepUntil(() => window.__game.app.mode.rockets.length === 0, { timeoutMs: 3000 })
-      ctx.log.info(`rocket landed at ${(ctx.frame() / ctx.fps).toFixed(2)} s`)
+      await ctx.evaluate(() => window.__preview.unpin())
+      const dead = await ctx.evaluate(() => window.__squad.filter(i => window.__game.app.mode.garrison.units[i].state === 'dead').length)
+      ctx.log.info(`rocket landed at ${(ctx.frame() / ctx.fps).toFixed(2)} s, ${dead} of 4 down`)
     }
   }),
 
