@@ -321,7 +321,7 @@ export default () => {
       try {
         if (typeof document === 'undefined' || !('fonts' in document)) return
         await Promise.race([
-          document.fonts.load('400 1em "AngryBirds"'),
+          document.fonts.load('700 1em "Chakra Petch"'),
           new Promise((resolve) => setTimeout(resolve, 1500))
         ])
       } catch { /* a missing font is a fallback face, never a blocker */ }

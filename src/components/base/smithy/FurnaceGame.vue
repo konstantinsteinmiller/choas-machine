@@ -87,16 +87,16 @@ useGameLoop((dt) => {
 </script>
 
 <style scoped lang="sass">
+@use '@/assets/css/tech' as *
 .furnace
   display: grid
   grid-template-columns: auto minmax(0, 1fr) auto
   align-items: center
   gap: clamp(0.6rem, 3vmin, 1.4rem)
   padding: clamp(0.5rem, 2vmin, 0.9rem)
-  border-radius: var(--cm-radius-m)
-  background: radial-gradient(ellipse at 50% 90%, rgba(255, 120, 40, 0.18), rgba(21, 12, 43, 0.6) 70%)
   user-select: none
   touch-action: none
+  +tech-plate(var(--cm-warn), var(--cm-surface), 0.55rem)
 // The lesson: a finger on the control, until the game has been played well once.
 .teach
   position: absolute
@@ -113,10 +113,9 @@ useGameLoop((dt) => {
   position: relative
   width: clamp(0.9rem, 3.4vmin, 1.4rem)
   height: clamp(7rem, 34vmin, 12rem)
-  border-radius: 999px
-  background: linear-gradient(0deg, #3a2a6e, #ff5a3c 70%, #fff3c4)
   box-shadow: inset 0 0 0 var(--cm-edge) rgba(255, 255, 255, 0.35)
   overflow: hidden
+  +tech-track(var(--cm-warn))
 .band
   position: absolute
   left: 0

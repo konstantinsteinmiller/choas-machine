@@ -43,6 +43,7 @@ onUnmounted(() => off?.())
 </script>
 
 <style scoped lang="sass">
+@use '@/assets/css/tech' as *
 .armor-bar
   display: flex
   align-items: center
@@ -50,11 +51,8 @@ onUnmounted(() => off?.())
   min-height: clamp(1.5rem, 5.5vmin, 2rem)
   padding: clamp(0.18rem, 0.8vmin, 0.3rem) clamp(0.45rem, 1.8vmin, 0.7rem)
   box-sizing: border-box
-  border: var(--cm-rim-w) solid rgba(154, 120, 255, 0.85)
-  border-radius: 999px
-  background: var(--cm-gloss), var(--cm-surface-soft)
-  box-shadow: var(--cm-sticker)
   color: var(--cm-lilac)
+  +tech-plate(var(--cm-violet), tech-fill(var(--cm-violet), 14%), 0.6rem)
   &.low
     border-color: var(--cm-danger)
     color: var(--cm-danger)
@@ -66,16 +64,14 @@ onUnmounted(() => off?.())
 .track
   width: clamp(4.2rem, 20vmin, 7.5rem)
   height: clamp(0.4rem, 1.7vmin, 0.62rem)
-  border-radius: 999px
   overflow: hidden
-  background: rgba(246, 241, 255, 0.18)
 .fill
   width: 100%
   height: 100%
-  border-radius: inherit
   background: linear-gradient(90deg, var(--cm-violet), var(--cm-cyan))
   transform-origin: left center
   transition: transform 120ms ease-out
+  +tech-fillbar()
   .low &
     background: var(--cm-danger)
 

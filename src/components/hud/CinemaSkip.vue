@@ -63,6 +63,7 @@ onUnmounted(stop)
 </script>
 
 <style scoped lang="sass">
+@use '@/assets/css/tech' as *
 .cinema-skip
   position: absolute
   right: max(1rem, env(safe-area-inset-right))
@@ -75,20 +76,18 @@ onUnmounted(stop)
   gap: 0.4em
   min-height: 2.75rem
   padding: 0.35em 0.9em 0.35em 0.6em
-  border: var(--cm-edge, 2px) solid var(--cm-cyan, #5fe9ff)
-  border-radius: 999px
-  background: rgba(10, 5, 24, 0.7)
   color: #fff
   font: inherit
   font-size: var(--cm-fs-s, 0.9rem)
   cursor: pointer
+  +tech-plate(var(--cm-cyan), tech-fill(var(--cm-cyan), 12%), 0.45rem)
   :deep(svg)
     width: 1.2em
     height: 1.2em
 .ring
   position: absolute
   inset: -4px
-  border-radius: 999px
+  +tech-cut(0.6rem)
   background: conic-gradient(var(--cm-cyan, #5fe9ff) var(--fill), transparent 0)
   mask: radial-gradient(farthest-side, transparent calc(100% - 4px), #000 calc(100% - 3px))
   pointer-events: none

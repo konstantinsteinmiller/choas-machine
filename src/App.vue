@@ -171,6 +171,14 @@ const VConsoleHide = import.meta.env.VITE_APP_NATIVE === 'true' || import.meta.e
 <style lang="sass">
 *
   font-family: var(--font-ui)
+
+// The tech face: its medium for text, its bold for what is pressed or read as a heading.
+body
+  font-weight: 500
+button, h1, h2, h3, .f-button__text, .f-modal__title, .label
+  font-weight: 700
+
+*
   user-select: none
   outline: none
   // Standard

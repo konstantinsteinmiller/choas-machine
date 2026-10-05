@@ -57,7 +57,7 @@ onUnmounted(() => off?.())
   transition: opacity 140ms ease-out
   max-width: min(14rem, 40vw)
   padding: 0.3em 0.7em
-  border-radius: 0.8em
+  border-radius: 0.15em
   background: #fff6e0
   color: #2a1640
   font-family: var(--font-display, inherit)

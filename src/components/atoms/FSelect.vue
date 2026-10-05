@@ -139,6 +139,7 @@ onUnmounted(close)
 </template>
 
 <style scoped lang="sass">
+@use '@/assets/css/tech' as *
 .f-select
   display: flex
   flex-direction: column
@@ -163,17 +164,15 @@ onUnmounted(close)
   // The touch floor, in every layout.
   min-height: 2.75rem
   padding: clamp(0.35rem, 1.6vmin, 0.7rem) clamp(0.6rem, 2.6vmin, 1.1rem)
-  border: var(--cm-edge) solid var(--cm-cyan)
-  border-radius: var(--cm-radius-m)
-  background: var(--cm-panel)
   color: var(--cm-text)
   font-size: inherit
   cursor: pointer
   -webkit-tap-highlight-color: transparent
   transition: background-color 120ms ease-out, box-shadow 120ms ease-out
+  +tech-plate(var(--cm-cyan), tech-fill(var(--cm-cyan), 10%), 0.45rem)
 
   &:hover, &.is-open
-    background: var(--cm-panel-hi)
+    --plate-fill: #{tech-fill(var(--cm-cyan), 24%)}
     box-shadow: var(--cm-glow-cyan)
 
   &:focus-visible
@@ -211,25 +210,22 @@ onUnmounted(close)
   overflow-y: auto
   overscroll-behavior: contain
   touch-action: pan-y
-  border: var(--cm-edge) solid var(--cm-cyan)
-  border-radius: var(--cm-radius-m)
-  background: var(--cm-night)
-  box-shadow: var(--cm-glow-cyan), 0 0.6em 1.6em rgba(0, 0, 0, 0.55)
   color: var(--cm-text)
   font-size: var(--cm-fs-m)
   scrollbar-width: thin
   scrollbar-color: var(--cm-cyan) transparent
+  +tech-plate(var(--cm-cyan), var(--cm-surface), 0.45rem)
 
 .f-select__option
   display: flex
   align-items: center
   min-height: 2.5rem
   padding: 0.3em 0.7em
-  border-radius: var(--cm-radius-s)
   cursor: pointer
   text-transform: uppercase
   letter-spacing: 0.03em
   overflow-wrap: anywhere
+  +tech-cut(0.3rem)
 
   &:hover
     background: rgba(77, 232, 255, 0.16)

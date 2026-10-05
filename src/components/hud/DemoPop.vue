@@ -57,6 +57,7 @@ onUnmounted(() => off?.())
 </script>
 
 <style scoped lang="sass">
+@use '@/assets/css/tech' as *
 .demo-pop
   position: absolute
   translate: -50% -100%
@@ -70,12 +71,9 @@ onUnmounted(() => off?.())
   min-width: 2.2rem
   min-height: 2.2rem
   padding: 0.25rem
-  border: var(--cm-edge, 2px) solid var(--cm-cyan, #5fe9ff)
-  border-radius: 0.7rem
-  background: rgba(10, 5, 24, 0.55)
-  box-shadow: 0 0 0.8rem rgba(95, 233, 255, 0.6)
   color: var(--cm-cyan, #5fe9ff)
   animation: demo-pop 1.6s ease-out forwards
+  +tech-plate(var(--cm-cyan), linear-gradient(180deg, rgba(43, 27, 92, 0.75), rgba(10, 5, 24, 0.65)), 0.45rem, var(--cm-edge))
 .mouse
   width: 1.3rem
   height: 1.8rem

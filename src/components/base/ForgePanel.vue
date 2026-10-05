@@ -57,6 +57,7 @@ const build = (w: WeaponId): void => {
 </script>
 
 <style scoped lang="sass">
+@use '@/assets/css/tech' as *
 .weapons
   list-style: none
   margin: 0
@@ -70,19 +71,15 @@ const build = (w: WeaponId): void => {
   align-items: center
   gap: clamp(0.4rem, 2vmin, 0.9rem)
   padding: clamp(0.35rem, 1.5vmin, 0.6rem) clamp(0.45rem, 2vmin, 0.8rem)
-  border-radius: var(--cm-radius-m)
-  border: var(--cm-edge) solid rgba(154, 120, 255, 0.6)
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0) 50%), rgba(21, 12, 43, 0.55)
-  box-shadow: 0 calc(var(--cm-outline) * 1.6) 0 rgba(10, 5, 24, 0.55)
 .w-icon
   box-sizing: border-box
   width: clamp(2rem, 8vmin, 2.9rem)
   height: clamp(2rem, 8vmin, 2.9rem)
   padding: 0.38em
-  border-radius: 50%
   background: radial-gradient(circle at 35% 30%, rgba(168, 245, 255, 0.35), rgba(77, 232, 255, 0.12) 55%, rgba(21, 12, 43, 0.6))
   box-shadow: 0 0 0 var(--cm-outline) var(--cm-ink), inset 0 0 0 var(--cm-edge) rgba(77, 232, 255, 0.7)
   color: var(--cm-cyan-hi)
+  clip-path: polygon(25% 0, 75% 0, 100% 50%, 75% 100%, 25% 100%, 0 50%)
 .w-name
   color: var(--cm-text)
   font-size: var(--cm-fs-s)
@@ -99,8 +96,8 @@ const build = (w: WeaponId): void => {
 .tier
   width: clamp(0.7rem, 3vmin, 1.1rem)
   height: clamp(0.28rem, 1.1vmin, 0.4rem)
-  border-radius: 999px
   background: rgba(246, 241, 255, 0.18)
+  +tech-cut(0.2rem)
   &.on
     background: var(--cm-pink)
     box-shadow: 0 0 0.3rem rgba(255, 79, 182, 0.8)

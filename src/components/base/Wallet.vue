@@ -20,6 +20,7 @@ const fmt = (n: number): string => formatAmount(n, locale.value)
 </script>
 
 <style scoped lang="sass">
+@use '@/assets/css/tech' as *
 .wallet
   display: flex
   flex-wrap: wrap
@@ -32,13 +33,11 @@ const fmt = (n: number): string => formatAmount(n, locale.value)
   min-height: clamp(1.7rem, 6.4vmin, 2.4rem)
   padding: 0 clamp(0.5rem, 2vmin, 0.85rem) 0 clamp(0.35rem, 1.4vmin, 0.55rem)
   box-sizing: border-box
-  border: var(--cm-rim-w) solid var(--cm-warn)
-  border-radius: 999px
-  background: var(--cm-gloss), var(--cm-surface)
-  box-shadow: var(--cm-sticker)
   color: var(--cm-warn)
+  +tech-plate(var(--pill-tone, var(--cm-warn)), tech-fill(var(--pill-tone, var(--cm-warn)), 14%), 0.55rem)
   &.cores
-    border-color: var(--cm-cyan)
+    --plate-edge: var(--cm-cyan)
+    --plate-fill: #{tech-fill(var(--cm-cyan), 14%)}
     color: var(--cm-cyan)
 .glyph
   flex: none

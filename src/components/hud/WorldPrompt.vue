@@ -43,6 +43,7 @@ onUnmounted(() => off?.())
 </script>
 
 <style scoped lang="sass">
+@use '@/assets/css/tech' as *
 .world-prompt
   position: absolute
   display: flex
@@ -63,20 +64,17 @@ onUnmounted(() => off?.())
   align-items: center
   gap: 0.35em
   padding: 0.2em 0.6em 0.2em 0.25em
-  border: var(--cm-edge) solid var(--cm-cyan)
-  border-radius: 999px
-  background: var(--cm-gloss), var(--cm-surface-soft)
-  box-shadow: var(--cm-sticker)
+  +tech-plate(var(--cm-cyan), tech-fill(var(--cm-cyan), 12%), 0.45rem, var(--cm-edge))
   color: var(--cm-text)
   font-size: var(--cm-fs-s)
   white-space: nowrap
   // The kind as a prefixed class: a bare `strike` would also match the HUD's own chip rules.
   &.k-salvage
-    border-color: var(--cm-warn)
+    --plate-edge: var(--cm-warn)
   &.k-sabotage, &.k-cutPower, &.k-jam
-    border-color: var(--cm-danger)
+    --plate-edge: var(--cm-danger)
   &.k-strike
-    border-color: var(--cm-pink)
+    --plate-edge: var(--cm-pink)
 .key
   min-width: 1.6rem
   height: 1.6rem

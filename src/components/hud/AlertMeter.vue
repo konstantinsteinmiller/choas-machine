@@ -25,6 +25,7 @@ const { t } = useI18n()
 </script>
 
 <style scoped lang="sass">
+@use '@/assets/css/tech' as *
 .eye.dim
   opacity: 0.55
 .eye.shut
@@ -42,12 +43,9 @@ const { t } = useI18n()
   min-height: clamp(1.6rem, 6vmin, 2.2rem)
   padding: clamp(0.2rem, 0.9vmin, 0.35rem) clamp(0.45rem, 1.8vmin, 0.7rem)
   box-sizing: border-box
-  border: var(--cm-rim-w) solid rgba(77, 232, 255, 0.7)
-  border-radius: var(--cm-radius-pill, 999px)
-  background: var(--cm-gloss), var(--cm-surface-soft)
-  box-shadow: var(--cm-sticker)
   color: var(--cm-cyan)
   transition: border-color 200ms ease-out, color 200ms ease-out, opacity 300ms ease-out
+  +tech-plate(var(--cm-cyan), tech-fill(var(--cm-cyan), 12%), 0.6rem)
   &.quiet
     opacity: 0.72
   &.watched
@@ -70,9 +68,9 @@ const { t } = useI18n()
   width: var(--seg-w)
   height: var(--seg-h)
   box-sizing: border-box
-  border-radius: 0.2rem
   background: rgba(246, 241, 255, 0.16)
   transition: background-color 160ms ease-out, box-shadow 160ms ease-out
+  +tech-cut(0.18rem)
   &.lit
     background: var(--cm-cyan)
     box-shadow: 0 0 0.4rem rgba(77, 232, 255, 0.8)

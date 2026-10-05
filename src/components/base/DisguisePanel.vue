@@ -108,14 +108,12 @@ const videoOffer = computed(() => { void clock.value; void offerTick.value; retu
 </script>
 
 <style scoped lang="sass">
+@use '@/assets/css/tech' as *
 .disguises
   display: flex
   flex-direction: column
   gap: clamp(0.35rem, 1.5vmin, 0.6rem)
   padding: clamp(0.45rem, 2vmin, 0.8rem)
-  border-radius: var(--cm-radius-m)
-  border: var(--cm-edge) solid rgba(154, 120, 255, 0.6)
-  background: rgba(21, 12, 43, 0.5)
 .head
   display: flex
   align-items: center
@@ -142,14 +140,11 @@ const videoOffer = computed(() => { void clock.value; void offerTick.value; retu
   gap: 0.35rem
   min-width: 0
   padding: 0.45rem
-  border-radius: var(--cm-radius-s)
-  border: var(--cm-edge) solid rgba(246, 241, 255, 0.15)
-  background: rgba(255, 255, 255, 0.04)
   &.owned
-    border-color: rgba(77, 232, 255, 0.45)
+    --plate-edge: rgba(77, 232, 255, 0.6)
   &.worn
-    border-color: var(--cm-ok)
-    background: rgba(111, 224, 173, 0.1)
+    --plate-edge: var(--cm-ok)
+    --plate-fill: #{tech-fill(var(--cm-ok), 16%)}
   &.looking
     box-shadow: 0 0 0 var(--cm-edge) var(--cm-cyan)
 .thumb

@@ -374,6 +374,7 @@ onUnmounted(() => window.clearTimeout(closeTimer))
 </script>
 
 <style scoped lang="sass">
+@use '@/assets/css/tech' as *
 .mission-hud
   --gap: clamp(0.4rem, 1.8vmin, 0.8rem)
   position: absolute
@@ -387,14 +388,11 @@ onUnmounted(() => window.clearTimeout(closeTimer))
   gap: 0.3em
   margin-top: 0.35em
   padding: 0.2em 0.7em
-  border-radius: 999px
-  background: var(--cm-gloss), var(--cm-surface-soft)
-  border: var(--cm-rim-w) solid rgba(255, 177, 74, 0.85)
-  box-shadow: var(--cm-sticker)
   color: #ffd27a
   font-size: var(--cm-fs-s)
   text-shadow: var(--cm-text-outline)
   pointer-events: none
+  +tech-plate(var(--cm-warn), tech-fill(var(--cm-warn), 12%), 0.55rem)
   :deep(svg)
     width: 1.15em
     height: 1.15em
@@ -410,13 +408,10 @@ onUnmounted(() => window.clearTimeout(closeTimer))
   width: clamp(5rem, 22vmin, 8rem)
   margin-top: 0.35em
   padding: 0.25em 0.6em
-  border: var(--cm-rim-w) solid var(--cm-danger)
-  border-radius: 999px
-  background: var(--cm-gloss), var(--cm-surface-soft)
-  box-shadow: var(--cm-sticker)
   color: var(--cm-danger)
   overflow: hidden
   pointer-events: none
+  +tech-plate(var(--cm-danger), tech-fill(var(--cm-danger), 22%), 0.55rem)
   :deep(svg)
     position: relative
     z-index: 1
@@ -489,12 +484,9 @@ onUnmounted(() => window.clearTimeout(closeTimer))
   gap: 0.35em
   margin-top: 0.35em
   padding: 0.25em 0.6em
-  border: var(--cm-rim-w) solid var(--cm-danger)
-  border-radius: 999px
-  background: var(--cm-gloss), var(--cm-surface-soft)
-  box-shadow: var(--cm-sticker), 0 0 0.8rem rgba(255, 85, 118, 0.45)
   color: var(--cm-danger)
   pointer-events: none
+  +tech-plate(var(--cm-danger), tech-fill(var(--cm-danger), 14%), 0.55rem)
   :deep(svg)
     width: 1.2em
     height: 1.2em
@@ -506,8 +498,8 @@ onUnmounted(() => window.clearTimeout(closeTimer))
 .plate
   width: clamp(0.6rem, 2.2vmin, 0.9rem)
   height: clamp(0.4rem, 1.4vmin, 0.6rem)
-  border-radius: 0.15rem
   background: rgba(246, 241, 255, 0.15)
+  +tech-cut(0.15rem)
   &.on
     background: linear-gradient(180deg, #ff96ab, var(--cm-danger))
     box-shadow: 0 0 0.3rem rgba(255, 85, 118, 0.7)

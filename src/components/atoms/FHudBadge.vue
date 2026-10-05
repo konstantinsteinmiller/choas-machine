@@ -16,6 +16,7 @@ withDefaults(defineProps<Props>(), { tone: 'pink' })
 </template>
 
 <style scoped lang="sass">
+@use '@/assets/css/tech' as *
 .f-hud-badge
   display: inline-flex
   align-items: center
@@ -24,13 +25,12 @@ withDefaults(defineProps<Props>(), { tone: 'pink' })
   min-width: clamp(1rem, 4vmin, 1.3rem)
   min-height: clamp(1rem, 4vmin, 1.3rem)
   padding-inline: 0.35em
-  border: var(--cm-edge) solid var(--cm-ink)
-  border-radius: 999px
   color: var(--cm-ink)
   line-height: 1
   font-size: clamp(0.6rem, 2.4vmin, 0.78rem)
   font-variant-numeric: tabular-nums
   white-space: nowrap
+  +tech-plate(var(--fhbd-tone, var(--cm-cyan)), linear-gradient(180deg, #2b1b5c, #150c2b), 0.3rem, var(--cm-edge), false)
 
   // Both element types, deliberately: every glyph in the set is an inline
   // <svg>, but a painted icon is an <img>, and an svg-only rule would let it
@@ -43,11 +43,15 @@ withDefaults(defineProps<Props>(), { tone: 'pink' })
     object-fit: contain
 
 .tone-pink
-  background-color: var(--cm-pink-hi)
+  --plate-fill: linear-gradient(180deg, var(--cm-pink-hi), color-mix(in srgb, var(--cm-pink-hi) 72%, #150c2b))
+  --plate-edge: color-mix(in srgb, var(--cm-pink-hi) 55%, white)
 .tone-cyan
-  background-color: var(--cm-cyan)
+  --plate-fill: linear-gradient(180deg, var(--cm-cyan), color-mix(in srgb, var(--cm-cyan) 72%, #150c2b))
+  --plate-edge: color-mix(in srgb, var(--cm-cyan) 55%, white)
 .tone-warn
-  background-color: var(--cm-warn)
+  --plate-fill: linear-gradient(180deg, var(--cm-warn), color-mix(in srgb, var(--cm-warn) 72%, #150c2b))
+  --plate-edge: color-mix(in srgb, var(--cm-warn) 55%, white)
 .tone-ok
-  background-color: var(--cm-ok)
+  --plate-fill: linear-gradient(180deg, var(--cm-ok), color-mix(in srgb, var(--cm-ok) 72%, #150c2b))
+  --plate-edge: color-mix(in srgb, var(--cm-ok) 55%, white)
 </style>

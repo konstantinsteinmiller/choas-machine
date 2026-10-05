@@ -158,6 +158,7 @@ const toBase = (): void => { void leaveResults('base') }
 </script>
 
 <style scoped lang="sass">
+@use '@/assets/css/tech' as *
 .melt
   display: flex
   flex-direction: column
@@ -262,12 +263,10 @@ const toBase = (): void => { void leaveResults('base') }
   gap: 0.3em
   min-height: clamp(1.8rem, 7vmin, 2.5rem)
   padding: 0 clamp(0.5rem, 2vmin, 0.9rem)
-  border: var(--cm-edge) solid var(--cm-warn)
-  border-radius: 999px
-  background: rgba(21, 12, 43, 0.6)
   color: var(--cm-warn)
   font-size: var(--cm-fs-m)
   font-variant-numeric: tabular-nums
+  +tech-plate(var(--cm-warn), tech-fill(var(--cm-warn), 12%), 0.5rem)
   span
     color: var(--cm-text)
   :deep(svg)

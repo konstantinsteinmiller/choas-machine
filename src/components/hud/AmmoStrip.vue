@@ -79,6 +79,7 @@ onUnmounted(() => { off?.(); if (flashTimer) clearTimeout(flashTimer) })
 </script>
 
 <style scoped lang="sass">
+@use '@/assets/css/tech' as *
 .ammo-strip
   --pip: clamp(0.5rem, 2.2vmin, 0.8rem)
   display: flex
@@ -87,10 +88,6 @@ onUnmounted(() => { off?.(); if (flashTimer) clearTimeout(flashTimer) })
   min-height: clamp(1.5rem, 5.5vmin, 2rem)
   padding: clamp(0.18rem, 0.8vmin, 0.3rem) clamp(0.45rem, 1.8vmin, 0.7rem)
   box-sizing: border-box
-  border: var(--cm-rim-w) solid rgba(77, 232, 255, 0.7)
-  border-radius: 999px
-  background: var(--cm-gloss), var(--cm-surface-soft)
-  box-shadow: var(--cm-sticker)
   color: var(--cm-cyan)
   &.w-minigun
     border-color: rgba(255, 210, 63, 0.6)
@@ -103,6 +100,7 @@ onUnmounted(() => { off?.(); if (flashTimer) clearTimeout(flashTimer) })
     color: var(--cm-danger)
   position: relative
   transition: box-shadow 0.15s, border-color 0.15s
+  +tech-plate(var(--cm-cyan), tech-fill(var(--cm-cyan), 12%), 0.6rem)
   // A round gone: a red flash. Rounds in: a green glow, a moment longer.
   &.loss
     border-color: var(--cm-danger)
@@ -160,23 +158,21 @@ onUnmounted(() => { off?.(); if (flashTimer) clearTimeout(flashTimer) })
   gap: clamp(0.12rem, 0.5vmin, 0.2rem)
 .reload
   height: clamp(0.18rem, 0.7vmin, 0.28rem)
-  border-radius: 999px
   overflow: hidden
-  background: rgba(246, 241, 255, 0.18)
 .reload-fill
   width: 100%
   height: 100%
-  border-radius: inherit
   background: currentColor
   box-shadow: 0 0 0.3rem currentColor
   transform: scaleX(0)
   transform-origin: left center
+  +tech-fillbar()
 .pip
   flex: none
   width: calc(var(--pip) * 0.5)
   height: var(--pip)
-  border-radius: 0.14rem
   background: rgba(246, 241, 255, 0.18)
+  +tech-cut(0.12rem)
   &.full
     background: currentColor
     box-shadow: 0 0 0.3rem currentColor
@@ -189,16 +185,14 @@ onUnmounted(() => { off?.(); if (flashTimer) clearTimeout(flashTimer) })
 .heat
   width: clamp(3.4rem, 15vmin, 5.6rem)
   height: calc(var(--pip) * 0.8)
-  border-radius: 999px
   overflow: hidden
-  background: rgba(246, 241, 255, 0.18)
 .heat-fill
   width: 100%
   height: 100%
-  border-radius: inherit
   background: linear-gradient(90deg, var(--cm-warn), #ff8a3d 60%, var(--cm-danger))
   transform: scaleX(0)
   transform-origin: left center
+  +tech-fillbar()
 
 @keyframes ammo-load
   50%

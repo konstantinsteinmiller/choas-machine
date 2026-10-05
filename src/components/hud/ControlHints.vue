@@ -124,6 +124,7 @@ onUnmounted(() => { for (const id of Object.values(timers)) window.clearTimeout(
 </script>
 
 <style scoped lang="sass">
+@use '@/assets/css/tech' as *
 // The objective marker in miniature, for the lesson that says "go there".
 .mini-pin
   display: grid
@@ -169,11 +170,8 @@ onUnmounted(() => { for (const id of Object.values(timers)) window.clearTimeout(
   gap: clamp(0.3rem, 1.4vmin, 0.6rem)
   position: relative
   padding: clamp(0.3rem, 1.3vmin, 0.55rem) clamp(0.45rem, 1.8vmin, 0.8rem) clamp(0.55rem, 2.2vmin, 0.9rem)
-  border: var(--cm-rim-w) solid rgba(77, 232, 255, 0.6)
-  border-radius: var(--cm-radius-m)
-  background: var(--cm-gloss), var(--cm-surface-soft)
-  box-shadow: var(--cm-sticker)
   transition: border-color 160ms ease-out, background-color 160ms ease-out
+  +tech-plate(var(--cm-cyan), tech-fill(var(--cm-cyan), 12%), 0.55rem)
   &.flash
     border-color: var(--cm-ok)
     background: rgba(77, 255, 176, 0.25)
@@ -205,8 +203,8 @@ onUnmounted(() => { for (const id of Object.values(timers)) window.clearTimeout(
 .pip
   width: clamp(0.5rem, 2vmin, 0.8rem)
   height: clamp(0.16rem, 0.6vmin, 0.24rem)
-  border-radius: 999px
   background: rgba(246, 241, 255, 0.25)
+  +tech-cut(0.1rem)
   &.on
     background: var(--cm-ok)
 

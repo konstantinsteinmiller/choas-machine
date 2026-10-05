@@ -115,6 +115,7 @@ onUnmounted(() => {
 </template>
 
 <style scoped lang="sass">
+@use '@/assets/css/tech' as *
 .f-modal
   position: fixed
   inset: 0
@@ -139,12 +140,9 @@ onUnmounted(() => {
   max-height: 100%
   // A thick rim that runs cyan to pink round the corner, over an ink ground,
   // with the panel's lit surface inside it.
-  border: var(--cm-rim-w) solid transparent
-  border-radius: var(--cm-radius-l)
-  background: radial-gradient(circle at 1px 1px, rgba(203, 188, 255, 0.07) 1px, transparent 1.4px) 0 0 / 1.1rem 1.1rem padding-box, var(--cm-surface) padding-box, var(--cm-rim) border-box
-  box-shadow: var(--cm-sticker), 0 0 1.6em rgba(77, 232, 255, 0.28), var(--cm-inner-glow)
   color: var(--cm-text)
   overflow: hidden
+  +tech-plate(var(--cm-cyan), var(--cm-surface), clamp(0.9rem, 3vmin, 1.5rem))
 
   // Scan lines over the whole panel, under the content.
   &::before
@@ -162,7 +160,6 @@ onUnmounted(() => {
     content: ''
     position: absolute
     inset: clamp(0.25rem, 1vmin, 0.45rem)
-    border-radius: calc(var(--cm-radius-l) * 0.6)
     background: linear-gradient(var(--cm-cyan-hi), var(--cm-cyan-hi)) top left / var(--b) var(--t) no-repeat, linear-gradient(var(--cm-cyan-hi), var(--cm-cyan-hi)) top left / var(--t) var(--b) no-repeat, linear-gradient(var(--cm-pink-hi), var(--cm-pink-hi)) top right / var(--b) var(--t) no-repeat, linear-gradient(var(--cm-pink-hi), var(--cm-pink-hi)) top right / var(--t) var(--b) no-repeat, linear-gradient(var(--cm-cyan-hi), var(--cm-cyan-hi)) bottom left / var(--b) var(--t) no-repeat, linear-gradient(var(--cm-cyan-hi), var(--cm-cyan-hi)) bottom left / var(--t) var(--b) no-repeat, linear-gradient(var(--cm-pink-hi), var(--cm-pink-hi)) bottom right / var(--b) var(--t) no-repeat, linear-gradient(var(--cm-pink-hi), var(--cm-pink-hi)) bottom right / var(--t) var(--b) no-repeat
     opacity: 0.7
     pointer-events: none
@@ -204,11 +201,11 @@ onUnmounted(() => {
     width: 0.5em
     height: 0.5em
     margin-right: 0.45em
-    border-radius: 50%
+    clip-path: polygon(25% 0, 75% 0, 100% 50%, 75% 100%, 25% 100%, 0 50%)
     vertical-align: 0.12em
     background: radial-gradient(circle at 35% 35%, #fff, var(--cm-cyan) 45%, var(--cm-cyan-deep))
     box-shadow: 0 0 0 0.08em var(--cm-ink), 0 0 0.5em var(--cm-cyan)
-  font-weight: 400
+  font-weight: 700
   line-height: 1.15
   text-transform: uppercase
   letter-spacing: 0.05em
@@ -226,15 +223,12 @@ onUnmounted(() => {
   min-width: 2.5rem
   min-height: 2.5rem
   padding: 0
-  border: var(--cm-edge) solid var(--cm-pink-hi)
-  border-radius: var(--cm-radius-m)
-  background: var(--cm-gloss), linear-gradient(180deg, var(--cm-pink-hi), var(--cm-pink) 60%, var(--cm-pink-deep))
-  box-shadow: var(--cm-sticker)
   color: var(--cm-text)
   filter: drop-shadow(0 0 0.4em rgba(255, 79, 182, 0.45))
   cursor: pointer
   -webkit-tap-highlight-color: transparent
   transition: filter 90ms ease-out
+  +tech-plate(var(--cm-pink), tech-fill(var(--cm-pink), 20%), 0.5rem)
 
   &:hover
     filter: brightness(1.12)

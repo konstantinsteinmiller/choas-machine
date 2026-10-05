@@ -147,17 +147,15 @@ const videoOffer = computed(() => { void clock.value; void offerTick.value; retu
 </script>
 
 <style scoped lang="sass">
+@use '@/assets/css/tech' as *
 .wheel-card
   display: flex
   flex-direction: column
   gap: clamp(0.35rem, 1.5vmin, 0.6rem)
   padding: clamp(0.45rem, 2vmin, 0.8rem)
-  border-radius: var(--cm-radius-m)
-  border: var(--cm-edge) solid var(--cm-warn)
-  background: linear-gradient(180deg, rgba(255, 233, 143, 0.1), rgba(21, 12, 43, 0.55))
   &.locked
-    border-color: rgba(154, 120, 255, 0.5)
-    background: rgba(21, 12, 43, 0.45)
+    --plate-edge: rgba(154, 120, 255, 0.5)
+    --plate-fill: linear-gradient(rgba(21, 12, 43, 0.6), rgba(21, 12, 43, 0.6))
 .head
   display: flex
   align-items: center
@@ -231,7 +229,7 @@ const videoOffer = computed(() => { void clock.value; void offerTick.value; retu
   .p
     width: 1.2rem
     height: 0.35rem
-    border-radius: 999px
+    +tech-cut(0.1rem)
     background: rgba(246, 241, 255, 0.18)
     &.on
       background: var(--cm-warn)

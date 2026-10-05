@@ -142,10 +142,11 @@ describe('the kit is coloured from the tokens', () => {
     for (const hex of ['#ffcd00', '#f7a000', '#0f1a30', '#1a2b4b', '#141a33']) expect(src.includes(hex), hex).toBe(false)
   })
 
-  it('the only bundled font is AngryBirds', () => {
+  it('the bundled faces are the tech ones, Chakra Petch and Exo 2, shipped as files', () => {
     const fonts = read('src/assets/css/fonts.sass')
-    expect(fonts.split('@font-face').length - 1).toBe(1)
-    expect(fonts).toContain("font-family: 'AngryBirds'")
+    const families = new Set([...fonts.matchAll(/font-family: '([^']+)'/g)].map(m => m[1]))
+    expect([...families].sort()).toEqual(['Chakra Petch', 'Exo 2'])
+    expect(fonts.includes('fonts.googleapis') || fonts.includes('fonts.gstatic')).toBe(false)
     expect(read('package.json').includes('@fontsource')).toBe(false)
     expect(read('src/App.vue')).toContain('font-family: var(--font-ui)')
   })

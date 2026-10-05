@@ -42,6 +42,7 @@ const replay = (): void => emit('trainingReplay', {})
 </script>
 
 <style scoped lang="sass">
+@use '@/assets/css/tech' as *
 .training-hud
   // Hung under the top-centre column, out of its flow: the meter and the
   // haul keep their own width however wide this row is.
@@ -60,16 +61,14 @@ const replay = (): void => emit('trainingReplay', {})
   display: flex
   gap: clamp(0.15rem, 0.8vmin, 0.35rem)
   padding: 0.25em 0.5em
-  border-radius: 999px
-  background: rgba(21, 12, 43, 0.55)
 .pip
   display: grid
   place-items: center
   width: clamp(0.85rem, 3.4vmin, 1.6rem)
   height: clamp(0.85rem, 3.4vmin, 1.6rem)
-  border-radius: 50%
   color: var(--cm-dim)
   opacity: 0.55
+  clip-path: polygon(25% 0, 75% 0, 100% 50%, 75% 100%, 25% 100%, 0 50%)
   :deep(svg)
     width: 70%
     height: 70%
@@ -86,10 +85,9 @@ const replay = (): void => emit('trainingReplay', {})
   max-width: min(26rem, 80vw)
   margin: 0
   padding: 0.35em 0.8em
-  border-radius: 0.6em
-  background: rgba(21, 12, 43, 0.7)
   color: #ffd27a
   font-size: var(--cm-fs-s)
   text-align: center
   text-shadow: var(--cm-text-outline)
+  +tech-plate(var(--cm-violet), tech-fill(var(--cm-violet), 14%), 0.5rem)
 </style>

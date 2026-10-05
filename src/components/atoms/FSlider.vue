@@ -49,6 +49,7 @@ const updateValue = (event: Event): void => {
 </template>
 
 <style scoped lang="sass">
+@use '@/assets/css/tech' as *
 .f-slider
   // The thumb size drives the row height, the track inset and the thumb's
   // travel, so all three stay in step at any viewport.
@@ -79,10 +80,8 @@ const updateValue = (event: Event): void => {
   top: 50%
   height: calc(var(--fsl-thumb) * 0.42)
   translate: 0 -50%
-  border: var(--cm-edge) solid var(--cm-cyan-deep)
-  border-radius: 999px
-  background: var(--cm-ink)
   overflow: hidden
+  +tech-track(var(--cm-violet))
 
 .f-slider__fill
   display: block
@@ -99,10 +98,10 @@ const updateValue = (event: Event): void => {
   height: var(--fsl-thumb)
   box-sizing: border-box
   border: var(--cm-edge) solid var(--cm-text)
-  border-radius: 50%
   background: radial-gradient(circle at 35% 30%, var(--cm-cyan-hi), var(--cm-cyan) 60%, var(--cm-cyan-deep))
   box-shadow: var(--cm-glow-cyan)
   pointer-events: none
+  clip-path: polygon(25% 0, 75% 0, 100% 50%, 75% 100%, 25% 100%, 0 50%)
 
 .f-slider__input
   position: absolute

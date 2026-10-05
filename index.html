@@ -115,17 +115,17 @@
           width: 76%;
           height: clamp(12px, 2.6vmin, 18px);
           border: 2px solid #4de8ff;
-          border-radius: 999px;
           background: #150c2b;
           box-shadow: 0 0 12px rgba(77, 232, 255, 0.45);
           box-sizing: border-box;
           transform: skewX(-12deg);
+          clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px);
       }
 
       .s-track, .s-lit {
           position: absolute;
           inset: 1px;
-          border-radius: 999px;
+          clip-path: polygon(5px 0, 100% 0, 100% calc(100% - 5px), calc(100% - 5px) 100%, 0 100%, 0 5px);
       }
       .s-track { background: linear-gradient(#2b1b5c, #150c2b); }
       .s-lit { overflow: hidden; }

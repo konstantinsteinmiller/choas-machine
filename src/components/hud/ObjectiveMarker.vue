@@ -103,6 +103,7 @@ onUnmounted(() => {
 </script>
 
 <style scoped lang="sass">
+@use '@/assets/css/tech' as *
 .objective
   --size: clamp(1.6rem, 6.4vmin, 2.4rem)
   position: absolute
@@ -148,9 +149,9 @@ onUnmounted(() => {
   justify-content: center
   box-sizing: border-box
   border: var(--cm-edge) solid currentColor
-  border-radius: 50%
   background: var(--cm-glass)
   box-shadow: 0 0 0.6rem currentColor
+  clip-path: polygon(25% 0, 75% 0, 100% 50%, 75% 100%, 25% 100%, 0 50%)
   :deep(svg)
     width: 58%
     height: 58%

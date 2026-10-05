@@ -145,6 +145,7 @@ const train = (): void => { void startTraining() }
 </script>
 
 <style scoped lang="sass">
+@use '@/assets/css/tech' as *
 .extras
   display: flex
   flex-wrap: wrap
@@ -162,11 +163,9 @@ const train = (): void => { void startTraining() }
   display: flex
   align-items: center
   justify-content: center
-  border: var(--cm-edge) solid var(--cm-violet)
-  border-radius: var(--cm-radius-m)
-  background: var(--cm-night)
   color: var(--cm-lilac)
   cursor: pointer
+  +tech-plate(var(--cm-violet), tech-fill(var(--cm-violet), 12%), 0.4rem, var(--cm-edge), false)
   :deep(svg)
     width: 1.1em
     height: 1.1em
@@ -175,9 +174,8 @@ const train = (): void => { void startTraining() }
   flex-direction: column
   gap: 0.25em
   padding: 0.4em 0.6em
-  border-radius: 0.6em
-  background: rgba(255, 64, 96, 0.12)
   font-size: var(--cm-fs-xs, 0.75em)
+  +tech-plate(var(--cm-danger), tech-fill(var(--cm-danger), 10%), 0.4rem, var(--cm-edge))
 .learned-label
   color: #ff8aa0
   text-transform: uppercase
@@ -225,15 +223,13 @@ const train = (): void => { void startTraining() }
   justify-content: center
   gap: 0.35em
   box-sizing: border-box
-  border: var(--cm-edge) solid var(--cm-violet)
-  border-radius: var(--cm-radius-m)
-  background: var(--cm-night)
   color: var(--cm-lilac)
   font: inherit
   font-size: var(--cm-fs-s)
   cursor: pointer
+  +tech-plate(var(--cm-violet), tech-fill(var(--cm-violet), 10%), 0.45rem, var(--cm-edge))
   &.on
-    border-color: var(--cm-cyan)
+    --plate-edge: var(--cm-cyan)
     color: var(--cm-white, #fff)
     box-shadow: var(--cm-glow-cyan)
   &.locked

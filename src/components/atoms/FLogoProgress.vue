@@ -220,6 +220,7 @@ const onBackdropGone = (): void => {
 </script>
 
 <style scoped lang="sass">
+@use '@/assets/css/tech' as *
 .no-os-ui
   caret-color: transparent
   user-select: none
@@ -288,16 +289,17 @@ const onBackdropGone = (): void => {
   position: relative
   width: 76%
   height: clamp(12px, 2.6vmin, 18px)
-  border: 2px solid #4de8ff
-  border-radius: 999px
-  background: #150c2b
   box-shadow: 0 0 12px rgba(77, 232, 255, 0.45)
+  border: 2px solid #4de8ff
+  background: #150c2b
   box-sizing: border-box
   transform: skewX(-12deg)
+  // Machined: two corners cut (the static splash in index.html draws the same).
+  clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px)
 .track, .lit
   position: absolute
   inset: 1px
-  border-radius: 999px
+  clip-path: polygon(5px 0, 100% 0, 100% calc(100% - 5px), calc(100% - 5px) 100%, 0 100%, 0 5px)
 .track
   background: linear-gradient(#2b1b5c, #150c2b)
 .lit

@@ -1,0 +1,53 @@
+// ─── The tech plate (jam build) ─────────────────────────────────────────────
+//
+// The game's one UI material, matching the mech: a machined plate with two
+// corners cut (top left, bottom right), a neon edge that runs round the cuts
+// too, corner brackets on the two square corners, faint machining lines, the
+// fill. Pure backgrounds and a clip-path: no pseudo-elements, so a component
+// keeps its own ::before / ::after.
+//
+// States recolour a plate by setting --plate-edge / --plate-fill.
+//
+// A clip-path clips box-shadows: a plate glows from the inside (inset
+// shadows) and carries no outer drop shadow.
+//
+//   @use '@/assets/css/tech' as *
+//   .thing
+//     +tech-plate(var(--cm-cyan))
+
+/** Two corners cut. */
+=tech-cut($c: 0.5rem)
+  clip-path: polygon(#{$c} 0, 100% 0, 100% calc(100% - #{$c}), calc(100% - #{$c}) 100%, 0 100%, 0 #{$c})
+
+/** The fill under a plate: the tone mixed into the deep panel, lit from above. */
+@function tech-fill($tone, $amount: 18%)
+  @return linear-gradient(180deg, color-mix(in srgb, #{$tone} #{$amount}, #3a2775) 0%, color-mix(in srgb, #{$tone} calc(#{$amount} * 0.6), #1f1246) 62%, color-mix(in srgb, #{$tone} calc(#{$amount} * 0.4), #150c2b) 100%)
+
+/**
+ * A plated surface. `$edge` the neon edge, `$fill` the body (a gradient),
+ * `$c` the cut, `$bw` the edge's width, `$deco` false for a plate too small
+ * for brackets (a badge, a keycap).
+ */
+=tech-plate($edge, $fill: tech-fill($edge), $c: 0.5rem, $bw: var(--cm-rim-w), $deco: true)
+  --plate-edge: #{$edge}
+  --plate-fill: #{$fill}
+  +tech-cut($c)
+  border: $bw solid var(--plate-edge)
+  border-radius: 0
+  @if $deco
+    background: linear-gradient(135deg, transparent calc(50% - 2px), var(--plate-edge) calc(50% - 2px), var(--plate-edge) calc(50% + 1.5px), transparent calc(50% + 1.5px)) left top / #{$c} #{$c} no-repeat border-box, linear-gradient(135deg, transparent calc(50% - 1.5px), var(--plate-edge) calc(50% - 1.5px), var(--plate-edge) calc(50% + 2px), transparent calc(50% + 2px)) right bottom / #{$c} #{$c} no-repeat border-box, linear-gradient(var(--plate-edge), var(--plate-edge)) right 0.22em top 0.22em / 0.55em 2px no-repeat padding-box, linear-gradient(var(--plate-edge), var(--plate-edge)) right 0.22em top 0.22em / 2px 0.55em no-repeat padding-box, linear-gradient(var(--plate-edge), var(--plate-edge)) left 0.22em bottom 0.22em / 0.55em 2px no-repeat padding-box, linear-gradient(var(--plate-edge), var(--plate-edge)) left 0.22em bottom 0.22em / 2px 0.55em no-repeat padding-box, repeating-linear-gradient(115deg, rgba(255, 255, 255, 0.035) 0 0.08em, rgba(255, 255, 255, 0) 0.08em 0.3em) padding-box, var(--plate-fill) padding-box
+  @else
+    background: linear-gradient(135deg, transparent calc(50% - 2px), var(--plate-edge) calc(50% - 2px), var(--plate-edge) calc(50% + 1.5px), transparent calc(50% + 1.5px)) left top / #{$c} #{$c} no-repeat border-box, linear-gradient(135deg, transparent calc(50% - 1.5px), var(--plate-edge) calc(50% - 1.5px), var(--plate-edge) calc(50% + 2px), transparent calc(50% + 2px)) right bottom / #{$c} #{$c} no-repeat border-box, var(--plate-fill) padding-box
+  box-shadow: inset 0 0 0.9em color-mix(in srgb, var(--plate-edge) 22%, transparent), inset 0 0.12em 0 rgba(255, 255, 255, 0.12)
+
+/** A bar's track (health, ammo, alert): cut corners, ruler ticks along it. */
+=tech-track($edge, $c: 0.35rem)
+  +tech-cut($c)
+  border: var(--cm-edge) solid $edge
+  border-radius: 0
+  background: repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.06) 0 1px, transparent 1px 0.6rem) padding-box, linear-gradient(180deg, #150c2b, #241552) padding-box
+
+/** A bar's fill: the same cut, a lit stripe through it. */
+=tech-fillbar($c: 0.25rem)
+  +tech-cut($c)
+  border-radius: 0

@@ -218,6 +218,7 @@ onUnmounted(stopCapture)
 </template>
 
 <style lang="sass" scoped>
+@use '@/assets/css/tech' as *
 .options-grid
   display: grid
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr))
@@ -271,8 +272,6 @@ onUnmounted(stopCapture)
   gap: 0.5rem
   min-height: 2.5rem
   padding: 0.2rem 0.5rem
-  border-radius: var(--cm-radius-s)
-  background: rgba(255, 255, 255, 0.06)
 
 .bind-name
   min-width: 0
@@ -286,13 +285,11 @@ onUnmounted(stopCapture)
   min-width: 2.6em
   min-height: 2em
   padding: 0 0.5em
-  border: var(--cm-edge) solid var(--cm-cyan)
-  border-radius: var(--cm-radius-s)
-  background: var(--cm-ink)
   color: var(--cm-cyan-hi)
   font-family: var(--font-ui)
   font-size: var(--cm-fs-s)
   cursor: pointer
+  +tech-plate(var(--cm-cyan), linear-gradient(180deg, #4a3590, #2a1a5e), 0.32rem, var(--cm-edge), false)
 
   &:focus-visible
     outline: var(--cm-edge) solid var(--cm-text)

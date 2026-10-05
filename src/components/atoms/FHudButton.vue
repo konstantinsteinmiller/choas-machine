@@ -97,6 +97,7 @@ const keyText = computed(() => {
 </template>
 
 <style scoped lang="sass">
+@use '@/assets/css/tech' as *
 .f-hud-button
   --fhb-tone: var(--cm-cyan)
   --fhb-tone-hi: var(--cm-cyan-hi)
@@ -122,8 +123,7 @@ const keyText = computed(() => {
   -webkit-tap-highlight-color: transparent
 
   &:hover:not(.is-disabled) .f-hud-button__body
-    background: var(--cm-gloss), var(--cm-panel-hi)
-    box-shadow: var(--cm-sticker), var(--fhb-glow)
+    filter: brightness(1.18)
 
   &:active:not(.is-disabled) .f-hud-button__body
     translate: 0 0.12rem
@@ -146,12 +146,9 @@ const keyText = computed(() => {
   width: 100%
   height: 100%
   box-sizing: border-box
-  border: var(--cm-rim-w) solid var(--fhb-tone)
-  border-radius: var(--cm-radius-m)
-  background: var(--cm-gloss), var(--cm-surface-soft)
-  box-shadow: var(--cm-sticker), inset 0 0 0.8em color-mix(in srgb, var(--fhb-tone) 22%, transparent)
   color: var(--fhb-tone-hi)
   transition: background-color 110ms ease-out, box-shadow 110ms ease-out
+  +tech-plate(var(--fhb-tone), tech-fill(var(--fhb-tone)), 0.55rem)
 
   // The glyph fills a consistent fraction of the chip regardless of chip size,
   // so a row of mixed icons reads as one set.
@@ -169,7 +166,7 @@ const keyText = computed(() => {
 
 // Switched on: the chip fills with its tone and the glyph goes dark on it.
 .is-active .f-hud-button__body
-  background: var(--cm-gloss), linear-gradient(180deg, var(--fhb-tone-hi), var(--fhb-tone))
+  --plate-fill: linear-gradient(180deg, var(--fhb-tone-hi), var(--fhb-tone) 70%, color-mix(in srgb, var(--fhb-tone) 60%, var(--cm-ink)))
   color: var(--cm-ink)
   box-shadow: var(--cm-sticker), var(--fhb-glow)
 
@@ -211,17 +208,14 @@ const keyText = computed(() => {
   display: flex
   align-items: center
   justify-content: center
-  border: var(--cm-edge) solid var(--cm-cyan)
   border-bottom-width: calc(var(--cm-edge) * 2)
-  border-radius: 0.3rem
-  background: linear-gradient(180deg, #4a3590, #2a1a5e)
-  box-shadow: 0 0 0 var(--cm-outline) var(--cm-ink)
   color: var(--cm-text)
   font-size: 0.68rem
   line-height: 1
   text-transform: uppercase
   white-space: nowrap
   pointer-events: none
+  +tech-plate(var(--cm-cyan), linear-gradient(180deg, #4a3590, #2a1a5e), 0.28rem, var(--cm-edge), false)
   &.wide
     font-size: 0.55rem
 
@@ -252,9 +246,9 @@ const keyText = computed(() => {
 .is-attention .f-hud-button__body::after
   content: ''
   position: absolute
-  inset: calc(var(--cm-edge) * -2)
-  border: var(--cm-edge) solid var(--fhb-tone-hi)
-  border-radius: inherit
+  // Inside the plate (its clip would cut anything outside it).
+  inset: 0
+  border: calc(var(--cm-edge) * 1.5) solid var(--fhb-tone-hi)
   opacity: 0
   animation: fhb-pulse 1.6s ease-in-out infinite
 

@@ -55,7 +55,8 @@ onUnmounted(() => off?.())
   max-width: min(16rem, 46vw)
   padding: 0.35em 0.8em
   border: var(--cm-edge, 2px) solid var(--cm-cyan, #5fe9ff)
-  border-radius: 0.9em
+  // Squared, machined corners; the tail stays (a clip-path would cut it off).
+  border-radius: 0.15em
   background: #fff6e0
   color: #2a1640
   font-family: var(--font-display, inherit)

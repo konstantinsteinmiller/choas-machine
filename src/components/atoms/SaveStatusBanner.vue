@@ -95,6 +95,7 @@ watch(hasBonusToShow, (on) => {
 </template>
 
 <style scoped lang="sass">
+@use '@/assets/css/tech' as *
 .save-banner
   position: fixed
   right: var(--cm-safe-right)
@@ -112,14 +113,12 @@ watch(hasBonusToShow, (on) => {
   gap: 0.6em
   max-width: min(100%, 26rem)
   padding: 0.5em 0.7em
-  border: var(--cm-edge) solid var(--sb-tone)
-  border-radius: var(--cm-radius-m)
-  background: var(--cm-glass)
   color: var(--cm-text)
   font-family: var(--font-ui)
   font-size: var(--cm-fs-s)
   text-align: start
   pointer-events: auto
+  +tech-plate(var(--cm-warn), var(--cm-surface), 0.55rem)
 
   &.is-warn
     --sb-tone: var(--cm-warn)
@@ -156,13 +155,11 @@ button.save-banner__card
   flex: 0 0 auto
   min-height: 2.5rem
   padding: 0 0.8em
-  border: var(--cm-edge) solid var(--cm-warn)
-  border-radius: var(--cm-radius-s)
-  background: var(--cm-warn)
   color: var(--cm-ink)
   font-family: var(--font-ui)
   font-size: var(--cm-fs-s)
   cursor: pointer
+  +tech-plate(var(--cm-cyan), tech-fill(var(--cm-cyan), 18%), 0.35rem, var(--cm-edge), false)
 
   &:disabled
     opacity: 0.5

@@ -41,6 +41,7 @@ const selectTab = (value: string | number): void => {
 </template>
 
 <style scoped lang="sass">
+@use '@/assets/css/tech' as *
 .f-tabs
   display: flex
   align-items: stretch
@@ -50,14 +51,12 @@ const selectTab = (value: string | number): void => {
   // A trough the tabs sit in, sunk into the title plate.
   width: fit-content
   padding: clamp(0.15rem, 0.7vmin, 0.3rem)
-  border-radius: calc(var(--cm-radius-m) + 0.2rem)
-  background: rgba(10, 5, 24, 0.55)
-  box-shadow: inset 0 0.12em 0.3em rgba(0, 0, 0, 0.5), 0 0.08em 0 rgba(255, 255, 255, 0.08)
   overflow-x: auto
   overflow-y: hidden
   scrollbar-width: none
   // A tab scrolled half out of view snaps back in.
   scroll-snap-type: x proximity
+  +tech-plate(var(--cm-violet), linear-gradient(180deg, #1f1246, #150c2b), 0.55rem)
 
   &::-webkit-scrollbar
     display: none
@@ -73,7 +72,6 @@ const selectTab = (value: string | number): void => {
   min-height: 2.5rem
   padding: clamp(0.25rem, 1.2vmin, 0.5rem) clamp(0.6rem, 2.8vmin, 1.2rem)
   border: var(--cm-edge) solid transparent
-  border-radius: var(--cm-radius-m)
   background: transparent
   color: var(--cm-dim)
   font-size: var(--cm-fs-s)
@@ -81,6 +79,7 @@ const selectTab = (value: string | number): void => {
   scroll-snap-align: center
   transition: background-color 140ms ease-out, color 140ms ease-out, border-color 140ms ease-out
   -webkit-tap-highlight-color: transparent
+  +tech-cut(0.4rem)
 
   &:hover
     color: var(--cm-text)

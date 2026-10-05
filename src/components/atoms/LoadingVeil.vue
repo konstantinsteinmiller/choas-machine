@@ -12,6 +12,7 @@ import { flow } from '@/game/flow'
 </script>
 
 <style scoped lang="sass">
+@use '@/assets/css/tech' as *
 .loading-veil
   position: absolute
   inset: 0
@@ -28,12 +29,10 @@ import { flow } from '@/game/flow'
   width: clamp(9rem, 46vmin, 20rem)
   height: clamp(0.75rem, 2.6vmin, 1.1rem)
   box-sizing: border-box
-  border: var(--cm-edge) solid var(--cm-cyan)
-  border-radius: 999px
   overflow: hidden
-  background: var(--cm-ink)
   box-shadow: var(--cm-glow-cyan)
   transform: skewX(-12deg)
+  +tech-track(var(--cm-cyan))
 .fill
   width: 100%
   height: 100%

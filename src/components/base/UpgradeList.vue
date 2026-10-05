@@ -70,6 +70,7 @@ const buy = (id: TrackId): void => {
 </script>
 
 <style scoped lang="sass">
+@use '@/assets/css/tech' as *
 .verb
   color: var(--cm-warn, #ffd27a)
   font-size: var(--cm-fs-xs, 0.75em)
@@ -86,23 +87,19 @@ const buy = (id: TrackId): void => {
   align-items: center
   gap: clamp(0.4rem, 2vmin, 0.9rem)
   padding: clamp(0.35rem, 1.5vmin, 0.6rem) clamp(0.45rem, 2vmin, 0.8rem)
-  border: var(--cm-edge) solid rgba(154, 120, 255, 0.6)
-  border-radius: var(--cm-radius-m)
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0) 50%), rgba(21, 12, 43, 0.55)
-  box-shadow: 0 calc(var(--cm-outline) * 1.6) 0 rgba(10, 5, 24, 0.55)
   &.maxed
-    border-color: rgba(77, 255, 176, 0.5)
+    --plate-edge: rgba(77, 255, 176, 0.6)
 // The glyph is a round sticker: a lit bubble with an ink rim.
 .icon
   box-sizing: border-box
   width: clamp(2rem, 8vmin, 2.9rem)
   height: clamp(2rem, 8vmin, 2.9rem)
   padding: 0.38em
-  border-radius: 50%
   background: radial-gradient(circle at 35% 30%, rgba(168, 245, 255, 0.35), rgba(77, 232, 255, 0.12) 55%, rgba(21, 12, 43, 0.6))
   box-shadow: 0 0 0 var(--cm-outline) var(--cm-ink), inset 0 0 0 var(--cm-edge) rgba(77, 232, 255, 0.7)
   color: var(--cm-cyan-hi)
   filter: drop-shadow(0 0.08em 0 rgba(10, 5, 24, 0.7))
+  clip-path: polygon(25% 0, 75% 0, 100% 50%, 75% 100%, 25% 100%, 0 50%)
 .body
   min-width: 0
   display: flex
@@ -120,8 +117,8 @@ const buy = (id: TrackId): void => {
 .pip
   width: clamp(0.7rem, 3vmin, 1.1rem)
   height: clamp(0.28rem, 1.1vmin, 0.4rem)
-  border-radius: 999px
   background: rgba(246, 241, 255, 0.18)
+  +tech-cut(0.12rem)
   &.on
     background: var(--cm-cyan)
     box-shadow: 0 0 0.3rem rgba(77, 232, 255, 0.8)

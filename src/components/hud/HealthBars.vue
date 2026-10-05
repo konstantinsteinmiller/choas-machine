@@ -61,6 +61,7 @@ onUnmounted(() => off?.())
 </script>
 
 <style scoped lang="sass">
+@use '@/assets/css/tech' as *
 .bars-layer
   position: absolute
   inset: 0
@@ -80,10 +81,10 @@ onUnmounted(() => off?.())
   opacity: 0
   transition: opacity 160ms ease-out
   border: calc(0.08rem * var(--s)) solid #0f0a24
-  border-radius: calc(0.18rem * var(--s))
   // Brushed steel, a highlight along the top edge.
   background: linear-gradient(180deg, #8e8aa8 0%, #5d5878 45%, #3b3654 100%)
   box-shadow: inset 0 calc(0.06rem * var(--s)) 0 rgba(255, 255, 255, 0.35), 0 calc(0.08rem * var(--s)) 0 rgba(10, 5, 24, 0.55)
+  +tech-cut(calc(0.22rem * var(--s)))
   &.machine
     background: linear-gradient(180deg, #a59b7c 0%, #6f6449 45%, #45391f 100%)
 .bolt
@@ -97,9 +98,9 @@ onUnmounted(() => off?.())
   flex: 1
   height: 100%
   overflow: hidden
-  border-radius: calc(0.08rem * var(--s))
   background: #160f30
   box-shadow: inset 0 calc(0.05rem * var(--s)) calc(0.08rem * var(--s)) rgba(0, 0, 0, 0.7)
+  +tech-cut(calc(0.12rem * var(--s)))
 .fill
   position: absolute
   inset: 0

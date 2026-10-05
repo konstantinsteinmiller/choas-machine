@@ -110,6 +110,7 @@ const ariaLabel = computed(() =>
 </template>
 
 <style scoped lang="sass">
+@use '@/assets/css/tech' as *
 // Deliberately the same pill the rest of the HUD wears — dark plate, hairline
 // black rule, glyph then number — so the placing reads as one of the game's own
 // numbers rather than a widget bolted on. Gold, and a gold rule, because it is
@@ -120,11 +121,8 @@ const ariaLabel = computed(() =>
   align-items: baseline
   gap: 0.3em
   padding: clamp(0.15rem, 0.9vmin, 0.3rem) clamp(0.4rem, 2vmin, 0.7rem)
-  border: var(--cm-rim-w) solid rgba(255, 217, 60, 0.7)
-  border-radius: 999px
-  background: var(--cm-gloss), var(--cm-surface-soft)
-  box-shadow: var(--cm-sticker)
   color: #ffd93c
+  +tech-plate(var(--cm-warn), tech-fill(var(--cm-warn), 12%), 0.55rem)
 
 .rank-badge__icon
   // `align-self` rather than `align-items: center` on the row: the numbers set

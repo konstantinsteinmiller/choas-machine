@@ -220,6 +220,7 @@ watch(model, (open) => {
 </template>
 
 <style scoped lang="sass">
+@use '@/assets/css/tech' as *
 // One grid template, shared by the header and every row, so the columns line up
 // without a table and without a fixed width anywhere. The name column is the
 // only flexible one — the three numbers are as wide as their content and no
@@ -270,7 +271,7 @@ $cols-portal: clamp(1.6rem, 8vw, 2.4rem) minmax(0, 1fr) clamp(2rem, 9vw, 3rem)
   gap: clamp(0.3rem, 2vw, 0.6rem)
   padding: clamp(0.22rem, 1.2vw, 0.42rem) clamp(0.3rem, 1.6vw, 0.6rem)
   border: 2px solid transparent
-  border-radius: clamp(0.35rem, 1.8vw, 0.6rem)
+  +tech-cut(0.35rem)
   background-color: rgba(0, 0, 0, 0.22)
 
   // Zebra striping rather than a border per row: 100 rows of border is a wall.
@@ -345,9 +346,6 @@ $cols-portal: clamp(1.6rem, 8vw, 2.4rem) minmax(0, 1fr) clamp(2rem, 9vw, 3rem)
   gap: 0.15rem 0.4rem
   margin-top: clamp(0.2rem, 1.2vw, 0.45rem)
   padding: clamp(0.3rem, 1.6vw, 0.55rem) clamp(0.4rem, 2vw, 0.8rem)
-  border: 2px solid #ffcd00
-  border-radius: clamp(0.35rem, 1.8vw, 0.6rem)
-  background-color: rgba(0, 0, 0, 0.3)
 
 .board__footer-rank
   color: #ffd93c

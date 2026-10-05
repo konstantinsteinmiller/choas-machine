@@ -14,6 +14,7 @@ const label = computed(() => keyLabel(props.code ?? (props.action ? primaryCode(
 </script>
 
 <style scoped lang="sass">
+@use '@/assets/css/tech' as *
 .key-cap
   display: inline-flex
   align-items: center
@@ -22,16 +23,13 @@ const label = computed(() => keyLabel(props.code ?? (props.action ? primaryCode(
   min-width: clamp(1.7rem, 6.4vmin, 2.5rem)
   height: clamp(1.7rem, 6.4vmin, 2.5rem)
   padding: 0 0.35em
-  border: var(--cm-edge) solid var(--cm-cyan)
   border-bottom-width: calc(var(--cm-edge) * 2.6)
-  border-radius: var(--cm-radius-s)
-  background: var(--cm-gloss), linear-gradient(180deg, #4a3590, #2a1a5e)
-  box-shadow: 0 0 0 var(--cm-outline) var(--cm-ink)
   color: var(--cm-text)
   font-size: var(--cm-fs-m)
   line-height: 1
   text-transform: uppercase
   white-space: nowrap
+  +tech-plate(var(--cm-cyan), linear-gradient(180deg, #4a3590, #2a1a5e), 0.32rem, var(--cm-edge), false)
   &.wide
     font-size: var(--cm-fs-xs)
 </style>
