@@ -131,3 +131,22 @@ describe('the rope assassination (jam build)', () => {
     expect(findRopeStrike(gar, f.grid, near!.x + 1, near!.y + 0.5, near!.z, 0)).toBeNull()
   })
 })
+
+describe('nobody walks through anybody (#131)', () => {
+  it('two guards on head-on rounds pass each other, never closer than their bodies allow', async () => {
+    const { stepGarrison, SPECS } = await import('@/game/sim/garrison')
+    const b = new FortressBuilder('t', 40, 20)
+    b.ground(0, 0, 39, 19).insert(1, 1).extract(38, 18)
+    b.guard([[5, 10], [30, 10]], 0).guard([[30, 10], [5, 10]], 0)
+    const f = b.build()
+    const gar = makeGarrison(f, 1)
+    const target = { x: 2, y: 0, z: 2, visible: false } as Parameters<typeof stepGarrison>[2]
+    const [a, c] = gar.units
+    let closest = Infinity
+    for (let i = 0; i < 60 * 40; i++) {
+      stepGarrison(gar, f.grid, target, 1 / 60)
+      closest = Math.min(closest, Math.hypot(a!.x - c!.x, a!.z - c!.z))
+    }
+    expect(closest).toBeGreaterThan(SPECS.guard.radius * 2 - 0.05)
+  })
+})

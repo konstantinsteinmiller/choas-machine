@@ -2087,6 +2087,57 @@ export const stepGarrison = (gar: Garrison, g: Grid, target: Target, dt: number)
   // two guards is not twice as bad, it is two witnesses to silence.
   if (watched && pressAlert(gar.alert, ENGAGED_PER_S * dt, alertCap(gar))) goChaos(gar, target)
   stepAlert(gar.alert, dt, calm)
+  separate(gar, g)
+}
+
+/** Bodies keep this much air between them (m), on top of their radii. */
+const SEPARATE_GAP = 0.12
+
+/**
+ * Nobody walks through anybody (#131): two walking units closer than their
+ * radii allow are pushed apart, half each (all of it onto the one that can
+ * move when the other is a boss or a Goliath), never into a wall or off a
+ * ledge. Lights, drones, the dead and whoever is in the mech's grip are left alone.
+ */
+export const separate = (gar: Garrison, g: Grid): void => {
+  const us = gar.units
+  for (let i = 0; i < us.length; i++) {
+    const a = us[i]!
+    if (!walker(a)) continue
+    for (let j = i + 1; j < us.length; j++) {
+      const b = us[j]!
+      if (!walker(b) || Math.abs(a.y - b.y) > 1.2) continue
+      const dx = b.x - a.x
+      const dz = b.z - a.z
+      const min = SPECS[a.kind].radius + SPECS[b.kind].radius + SEPARATE_GAP
+      const d2 = dx * dx + dz * dz
+      if (d2 >= min * min) continue
+      const d = Math.sqrt(d2)
+      // Exactly on top of each other: part along a fixed direction of their own.
+      const nx = d > 1e-4 ? dx / d : Math.cos(a.id * 2.39)
+      const nz = d > 1e-4 ? dz / d : Math.sin(a.id * 2.39)
+      const push = min - d
+      const heavyA = a.kind === 'goliath' || !!a.boss
+      const heavyB = b.kind === 'goliath' || !!b.boss
+      const sa = heavyA && !heavyB ? 0 : heavyB && !heavyA ? 1 : 0.5
+      nudge(a, g, -nx * push * sa, -nz * push * sa)
+      nudge(b, g, nx * push * (1 - sa), nz * push * (1 - sa))
+    }
+  }
+}
+
+const walker = (u: Unit): boolean =>
+  isAlive(u) && !isLight(u) && !u.gripped && u.state !== 'dormant' && !u.hidden
+
+/** Move a unit a little, only onto floor it could step to. */
+const nudge = (u: Unit, g: Grid, dx: number, dz: number): void => {
+  if (dx === 0 && dz === 0) return
+  const nx = u.x + dx
+  const nz = u.z + dz
+  const floor = heightAt(g, nx, nz)
+  if (floor === VOID || !canStep(u.y, floor)) return
+  u.x = nx
+  u.z = nz
 }
 
 /** Take the queued events (the queue is emptied). */
