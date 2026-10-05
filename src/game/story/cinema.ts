@@ -15,9 +15,11 @@ import { BOARD_HOVER, DOG_STAND, buildRobodog, poseRobodog, restDogPose, type Do
 import { CombatFx } from '../fx/combatFx'
 import { SalvageView } from '../world/salvageView'
 import type { Rocket } from '../sim/rockets'
+import type { Decoy } from '../sim/melee'
+import { angleDelta } from '../sim/player'
 import type { WeaponId } from '../data/ids'
 import {
-  buildDrone, buildEnforcer, buildGoliath, buildGuard, poseDrone, poseEnforcer, poseGoliath, poseGuard, restGuardPose
+  buildDrone, buildEnforcer, buildGoliath, buildGuard, buildRoomba, buildSearchlight, poseDrone, poseEnforcer, poseGoliath, poseGuard, poseRoomba, poseSearchlight, restGuardPose
 } from '../models/garrison'
 import { buildDropship, type Dropship } from '../models/dropship'
 import type { Rig } from '../models/kit'
@@ -104,6 +106,8 @@ interface Stage {
   cfx: CombatFx | null
   /** Rockets in flight, drawn as the game draws them. */
   rockets: Rocket[]
+  /** Decoys standing, drawn as the game's own holograms (#131). */
+  decoys: Decoy[]
   /** The nose of the mech's weapon, as posed last frame (where its rounds leave from). */
   muzzle: (w: WeaponId, out: Vector3) => Vector3
   extra: Record<string, Rig | Object3D | Dropship | Mesh | Vector3>
@@ -135,20 +139,39 @@ const INTRO: Script = {
   theme: 'dusk',
   music: 'hero',
   stage: (b) => {
-    // West shelf at 0, a cliff up to a plateau (outcrop A), a gap, outcrop B, a perch tower at its east end.
+    // West shelf at 0, a cliff up to a plateau (outcrop A), a gap, then a
+    // piece of the Bastion (#131): its walls 10 m, a sunken yard 6 m below
+    // them nearest the gap, a ladder out of the yard, the sentry's tower and
+    // the perch tower at its east end.
     b.ground(0, 0, 7, 23, 0)
     b.fill(8, 0, 17, 23, 10)
     b.fill(22, 0, 39, 23, 10)
+    b.ground(22, 6, 29, 17, 4)
+    b.ladder(29, 11, 'e')
     b.fill(36, 5, 37, 6, 14).fill(38, 11, 39, 12, 14)
+    // The yard: crates, a barrel and a heap to look like the base.
+    b.cover(23, 15, 1).cover(27, 7, 1).cover(24, 7, 2)
+    b.solid('barrel', 28, 15, 1.0, 0.4)
+    b.heap(26, 14, 1.2)
+    b.prop('lamp', 22, 11, -Math.PI / 2)
   },
   cast: (s, root) => {
-    const guards = [buildGuard(), buildGuard(), buildGuard()]
+    // g0 on the walls, g1 in the yard (the decoy's), g2 the sentry, g3 the Warden.
+    const guards = [buildGuard(), buildGuard(), buildGuard(), buildGuard(true)]
     guards.forEach((g, i) => { s.extra[`g${i}`] = g; root.add(g.root) })
     const drone = buildDrone()
     const tank = buildGoliath()
+    const enforcer = buildEnforcer()
+    const hound = buildRobodog(true)
+    const roomba = buildRoomba()
+    const lamp = buildSearchlight()
     s.extra.drone = drone
     s.extra.tank = tank
-    root.add(drone.root, tank.root)
+    s.extra.enforcer = enforcer
+    s.extra.hound = hound
+    s.extra.roomba = roomba
+    s.extra.lamp = lamp
+    root.add(drone.root, tank.root, enforcer.root, hound.root, roomba.root, lamp.root)
     const glow = new MeshBasicMaterial({ color: '#5fe9ff', toneMapped: false })
     for (const k of ['hookLine', 'rope', 'postA', 'postB']) {
       const m = new Mesh(new CylinderGeometry(k.startsWith('post') ? 0.08 : 0.04, k.startsWith('post') ? 0.08 : 0.04, 1, 6), glow)
@@ -156,7 +179,8 @@ const INTRO: Script = {
       s.extra[k] = m
       root.add(m)
     }
-    const ball = new Mesh(new SphereGeometry(0.22, 10, 8), new MeshBasicMaterial({ color: '#ff5fb7', toneMapped: false }))
+    // The decoy in flight: the game's emitter orb (it stands up as the game's hologram).
+    const ball = new Mesh(new SphereGeometry(0.18, 10, 8), new MeshBasicMaterial({ color: '#5fe9ff', toneMapped: false }))
     const rocket = new Mesh(new SphereGeometry(0.2, 8, 6), new MeshBasicMaterial({ color: '#ffd166', toneMapped: false }))
     ball.visible = rocket.visible = false
     s.extra.ball = ball
@@ -168,30 +192,46 @@ const INTRO: Script = {
     const g = (i: number): Rig => s.extra[`g${i}`] as Rig
     const drone = s.extra.drone as Rig
     const tank = s.extra.tank as Rig
+    const enforcer = s.extra.enforcer as Rig
+    const hound = s.extra.hound as Rig
+    const roomba = s.extra.roomba as Rig
+    const lamp = s.extra.lamp as Rig
     Object.assign(mp, restPose(), { time: t })
     dp.time = t
-    // The board over the cloud sea, the mech crouched on it.
+    s.mech.root.rotation.x = 0
+    /** A round from (fx, fy, fz) to (tx, ty, tz) with the game's own flash, tracer and bite. */
+    const shoot = (fx: number, fy: number, fz: number, tx: number, ty: number, tz: number, w: WeaponId): void => {
+      if (!s.cfx) return
+      const d = tmpC.set(tx - fx, ty - fy, tz - fz).normalize()
+      s.cfx.muzzle(fx, fy, fz, d.x, d.y, d.z, w)
+      s.cfx.tracer(fx, fy, fz, tx, ty, tz, w)
+      s.cfx.impact(tx, ty, tz, -d.x, -d.y, -d.z, false, w)
+    }
+    /** True once every `every` seconds (on the frame that crosses it). */
+    const tick = (every: number, from: number, to: number): boolean => between(t, from, to) && Math.floor(t / every) !== Math.floor((t - s.dt) / every)
+    // The base hears the mini-gun (#131): from then on it is after the mech, as in the game.
+    const ALARM = 24.2
+    const alarmed = t >= ALARM
+    s.once('alarm', ALARM + 0.3, () => sfx('shout'))
+
+    // ── The board, the hook, the walk to the edge ──
     if (t < 5) {
       const p = track([[0, -70, 5, 6], [3.5, -14, 2.5, 14], [5, 12, 0, 24]], t, tmpA)
       dp.fold = 1
       dp.thrust = 1
       s.place(s.dog.root, tmpB.set(p.x, p.y + BOARD_HOVER, p.z), Math.PI / 2)
-      // The rider stands on the deck: the board's own height (as the drop-in has it).
       s.place(s.mech.root, tmpC.set(p.x, p.y + BOARD_HOVER, p.z), Math.PI / 2)
       mp.crouch = 1
       s.look(tmpB.set(p.x - 6, p.y + 2.4, p.z - 7), tmpC.set(p.x + 3, p.y + 1.2, p.z))
       s.once('board', 0.2, () => sfx('dropIn'))
     } else {
-      // The board waits up out of the way, then comes to the perch.
-      // Straight up past the cliff's top first, then across (#125: it flew through the cliff).
-      const d = track([[5, 12, 3, 24], [6.4, 12, 15, 24], [8, 30, 22, 14], [30, 72, 22, 24], [32, 77.6, 14 + BOARD_HOVER, 25.4]], t, tmpA)
-      dp.fold = t < 31 ? 1 : 1 - span(t, 31.2, 32.6)
+      // Straight up past the cliff's top first, then across, then on to the perch.
+      const d = track([[5, 12, 3, 24], [6.4, 12, 15, 24], [8, 30, 22, 14], [35.5, 72, 22, 24], [37.5, 77.6, 14 + BOARD_HOVER, 25.4]], t, tmpA)
+      dp.fold = t < 36.5 ? 1 : 1 - span(t, 36.7, 38.1)
       dp.thrust = dp.fold
-      // Unfolding on the perch, it rises onto its legs: feet on the deck, not in it (#117).
       d.y += (DOG_STAND - BOARD_HOVER) * (1 - dp.fold)
-      s.place(s.dog.root, d, t < 31 ? Math.PI / 2 : Math.PI)
+      s.place(s.dog.root, d, t < 36.5 ? Math.PI / 2 : Math.PI)
     }
-    // The hook up the cliff.
     const hook = s.extra.hookLine as Mesh
     hook.visible = between(t, 5.2, 8.4)
     if (between(t, 5, 9)) {
@@ -205,196 +245,310 @@ const INTRO: Script = {
       s.once('hook', 5.2, () => sfx('hookThrow'))
       s.once('bite', 5.5, () => sfx('hookBite'))
     }
-    // The rope across the gap.
-    // From the edge of the cliff top (x 36) to the edge of the outcrop (x 44),
-    // at foot height, a post at each end (#125: it floated, past both edges).
+
+    // ── The decoy into the yard, the rope across above it ──
+    const DECOY: V3 = [50, 4, 27.4]
+    if (between(t, 9, 11.4)) {
+      const keys: Key[] = [[9, 17.5, 10, 24], [10, 34.8, 10, 24]]
+      const p = track(keys, t, tmpA)
+      s.place(s.mech.root, p, t < 10 ? Math.PI / 2 : Math.atan2(DECOY[0] - 34.8, DECOY[2] - 24))
+      mp.speed = Math.min(1, pace(keys, t) / 5)
+      mp.stride = t * 7
+      mp.aim = between(t, 10.9, 11.4) ? 1 : 0
+      s.look(tmpB.set(30.5, 14, 19), tmpC.set(48, 5.5, 27))
+      s.once('decoy', 10.2, () => sfx('decoy'))
+    }
+    const ball = s.extra.ball as Mesh
+    ball.visible = between(t, 10.2, 10.9)
+    if (ball.visible) {
+      const k = span(t, 10.2, 10.9)
+      s.place(ball, tmpA.set(35.4 + (DECOY[0] - 35.4) * k, 12 + (DECOY[1] - 12) * k + Math.sin(k * Math.PI) * 3.5, 24 + (DECOY[2] - 24) * k))
+    }
+    // The game's own hologram, waving where it landed, until the guard is down.
+    if (between(t, 10.9, 16)) {
+      const dc = s.decoys[0] ?? (s.decoys[0] = { x: DECOY[0], y: DECOY[1], z: DECOY[2], yaw: Math.PI * 1.2, t: 0, life: 6, pulse: 0 })
+      dc.t = t - 10.9
+    } else s.decoys.length = 0
     const rope = s.extra.rope as Mesh
-    rope.visible = t >= 9.8 && t < 13.5
-    s.line(rope, tmpA.set(36, 10.06, 24), tmpB.set(44, 10.06, 24))
-    for (const [k, x] of [['postA', 36], ['postB', 44]] as const) {
+    rope.visible = t >= 11.2 && t < 16
+    s.line(rope, tmpA.set(36, 10.06, 24), tmpB.set(60, 10.06, 24))
+    for (const [k, x] of [['postA', 36], ['postB', 60]] as const) {
       const post = s.extra[k] as Mesh
       post.visible = rope.visible
       s.line(post, tmpA.set(x, 10, 24), tmpB.set(x, 10.5, 24))
     }
-    if (between(t, 9, 13)) {
-      const keys: Key[] = [[9, 17.5, 10, 24], [9.6, 35.2, 10, 24], [10.2, 35.6, 10, 24], [12.4, 44.4, 10, 24], [13, 46, 10, 24]]
+    s.once('rope', 11.2, () => { sfx('hookThrow'); sfx('hookBite') })
+    if (between(t, 11.4, 14.2)) {
+      const keys: Key[] = [[11.4, 34.8, 10, 24], [11.8, 36, 10, 24], [14.2, 48.6, 10, 24]]
       const p = track(keys, t, tmpA)
       s.place(s.mech.root, p, Math.PI / 2)
       mp.speed = Math.min(1, pace(keys, t) / 5)
-      mp.stride = t * 7
-      mp.cable = between(t, 10.3, 12.4) ? 1 : 0
-      mp.aim = between(t, 9.7, 10.1) ? 1 : 0
-      s.look(tmpB.set(p.x + 2, 14, 40), tmpC.set(p.x + 3, 10.5, 24))
-      s.once('rope', 9.8, () => { sfx('hookThrow'); sfx('hookBite') })
+      mp.stride = t * 6
+      mp.cable = t > 11.8 ? 1 : 0
+      s.look(tmpB.set(p.x - 3, 12.5, 40), tmpC.set(p.x + 3, 7, 25))
     }
-    // The decoy, the two guards, and the sentry on its tower.
-    // Each on its round (#129), until the decoy lands: they turn, walk over
-    // and stand looking at it, puzzled.
-    const LURE: V3 = [60, 10, 30]
-    for (const [i, a, b, period, stop] of [[0, [55, 10, 16], [55, 10, 22.5], 7, [58.6, 10, 28.3]], [1, [57, 10, 27.5], [61.5, 10, 25.5], 6, [61.6, 10, 31.2]]] as const) {
-      const at = round(Math.min(t, 14.4), a, b, period, tmpA, i * 2.2)
+
+    // ── The yard's guard: his round, the decoy, the drop from the rope ──
+    const G1_STOP: V3 = [50, 4, 25.2]
+    {
+      const at = round(Math.min(t, 11), [46, 4, 18], [56, 4, 18], 7, tmpA, 1.5)
       let yaw = at.yaw
-      let walking = at.walking && t < 14.4
-      if (t >= 14.4) {
-        const k = span(t, 14.8, 16.8)
-        const from = tmpB.copy(tmpA)
-        tmpA.set(from.x + (stop[0] - from.x) * smooth(k), 10, from.z + (stop[2] - from.z) * smooth(k))
-        yaw = Math.atan2(LURE[0] - tmpA.x, LURE[2] - tmpA.z)
+      let walking = at.walking && t < 11
+      if (t >= 11) {
+        const k = span(t, 11.3, 13.2)
+        const fx = tmpA.x
+        const fz = tmpA.z
+        tmpA.set(fx + (G1_STOP[0] - fx) * smooth(k), 4, fz + (G1_STOP[2] - fz) * smooth(k))
+        yaw = k < 1 ? Math.atan2(G1_STOP[0] - fx, G1_STOP[2] - fz) : Math.atan2(DECOY[0] - G1_STOP[0], DECOY[2] - G1_STOP[2])
         walking = k > 0 && k < 1
       }
-      s.place(g(i).root, tmpA, yaw)
-      poseGuard(g(i), { ...restGuardPose(), time: t + i, speed: walking ? 0.45 : 0, stride: t * 4.2 + i, wary: t >= 14.4 ? 1 : 0, lookYaw: t < 14.4 && !walking ? Math.sin(t * 1.3 + i) * 0.5 : t >= 16.8 ? Math.sin(t * 1.7 + i) * 0.3 : 0 })
-    }
-    const ball = s.extra.ball as Mesh
-    ball.visible = t >= 13.4 && t < 17
-    if (ball.visible) {
-      const k = span(t, 13.4, 14.2)
-      s.place(ball, tmpA.set(46 + 14 * k, 11.5 + Math.sin(k * Math.PI) * 4 - 1.3 * k, 24 + 6 * k))
-    }
-    if (between(t, 13, 17)) {
-      const p = track([[13, 46, 10, 24], [15, 46, 10, 24], [17, 50, 10, 24]], t, tmpA)
-      s.place(s.mech.root, p, Math.PI / 2)
-      mp.crouch = 1
-      mp.speed = t > 15 ? 0.5 : 0
-      mp.stride = t * 5
-      s.look(tmpB.set(p.x - 6, 13.5, p.z - 2), tmpC.set(p.x + 8, 11, 24))
-      s.once('decoy', 14.2, () => sfx('decoy'))
-    }
-    // The rifle: a slow zoom, one headshot.
-    const sentryDead = t >= 19.3
-    // Pacing his tower top (#129), back at its corner by the time the rifle is on him.
-    const sw = t < 16.6 ? round(t, [73, 14, 11], [75.2, 14, 12.8], 8, tmpA, -9.4) : { yaw: -Math.PI * 0.8, walking: false }
-    if (t >= 16.6) tmpA.set(73, 14, 11)
-    s.place(g(2).root, tmpA, t < 16.6 ? sw.yaw : -Math.PI * 0.8)
-    poseGuard(g(2), { ...restGuardPose(), time: t, speed: sw.walking ? 0.4 : 0, stride: t * 4, lookYaw: sentryDead || sw.walking ? 0 : Math.sin(t * 0.7) * 0.6, deadT: sentryDead ? t - 19.3 : 0, death: 'back' })
-    if (between(t, 17, 21)) {
-      const keys: Key[] = [[17, 50, 10, 24], [19.9, 50, 10, 24], [21, 52, 10, 26]]
-      const p = track(keys, t, tmpA)
-      s.place(s.mech.root, p, t < 19.9 ? Math.atan2(73 - 50, 11 - 24) : Math.atan2(2, 2))
-      mp.speed = Math.min(1, pace(keys, t) / 4)
-      mp.stride = t * 6
-      mp.aim = t < 19.9 ? 1 : 0
-      mp.weapon = 'sniper'
-      mp.aimPitch = 0.08
-      mp.recoil = between(t, 19.2, 19.6) ? 1 - span(t, 19.2, 19.6) : 0
-      const zoom = 50 - 32 * span(t, 17.4, 19)
-      // Over the shoulder while scoped; once it walks on, the next shot's view (it walks into it, not through the lens).
-      if (t < 19.9) s.look(tmpB.set(49.2, 12.4, 25.6), tmpC.set(73, 15.4, 11), zoom)
-      else s.look(tmpB.set(46, 12, 22), tmpC.set(60, 14.5, 34))
-      // The round leaves the barrel with the game's own flash and trail (#117).
-      s.once('shot', 19.2, () => {
-        sfx('sniper')
-        const n = s.muzzle('sniper', tmpB)
-        if (s.cfx) {
-          const d = tmpC.set(73 - n.x, 15.5 - n.y, 11 - n.z).normalize()
-          s.cfx.muzzle(n.x, n.y, n.z, d.x, d.y, d.z, 'sniper')
-          s.cfx.tracer(n.x, n.y, n.z, 73, 15.5, 11, 'sniper')
-          s.cfx.impact(73, 15.5, 11, -d.x, -d.y, -d.z, true, 'sniper')
-        } else s.fx.sparks(73, 15.5, 11, '#ffe9a0', 14, 5, 0.25)
+      // Taken: gripped from above at 14.7, the blade in its head at 14.85, down at 15.
+      const gripped = between(t, 14.65, 15.05) ? 1 : 0
+      const dead = t >= 15.05
+      s.place(g(1).root, tmpA, yaw)
+      poseGuard(g(1), {
+        ...restGuardPose(), time: t + 1, speed: walking ? 0.45 : 0, stride: t * 4.2,
+        wary: t >= 11 ? 1 : 0, lookYaw: t >= 13.2 && !dead ? Math.sin(t * 1.6) * 0.3 : 0,
+        gripped, impaled: between(t, 14.85, 15.05) ? 1 : 0, limp: between(t, 14.9, 15.05) ? 1 : 0,
+        deadT: dead ? t - 15.05 : 0, death: 'front'
       })
     }
-    // The mini-gun takes a drone out of the air.
-    // On its patrol loop until the mini-gun comes up (#129), then holding where the stream finds it.
-    const dd = t >= 23.8
-    const da = Math.min(0, t - 21) * 0.55
-    const dx0 = 62 + Math.sin(da) * 5
-    const dz0 = 36 + (1 - Math.cos(da)) * 4
-    const dy = dd ? Math.max(10.3, 16 - 18 * (t - 23.8) ** 2) : 16 + Math.sin(t * 1.9) * 0.15
-    s.place(drone.root, tmpA.set(dx0, dy, dz0), t < 21 ? Math.PI + da * 0.8 : Math.PI)
-    poseDrone(drone, { time: t, spin: t * 40, pitch: t < 21 ? 0.18 : 0.1, roll: t < 21 ? 0.12 : 0, eyeYaw: 0, eyePitch: 0.5, alarm: t >= 21.5 ? 1 : 0, deadT: dd ? t - 23.8 : 0, landed: dy <= 10.31 })
-    if (between(t, 21, 25)) {
-      const keys: Key[] = [[21, 52, 10, 26], [24.2, 52, 10, 26], [25, 52, 10, 29]]
+    // The leap off the rope, the blade, the roll onto its feet (the game's rope assassination).
+    if (between(t, 14.2, 15.6)) {
+      const from: V3 = [48.6, 10, 24]
+      const head = 4 + 1.72 + 0.1
+      if (t < 14.7) {
+        const k = span(t, 14.2, 14.7)
+        s.place(s.mech.root, tmpA.set(from[0] + (G1_STOP[0] - from[0]) * k, from[1] + (head - from[1]) * k * k + Math.sin(k * Math.PI) * 0.8, from[2] + (G1_STOP[2] - from[2]) * k), Math.atan2(G1_STOP[0] - from[0], G1_STOP[2] - from[2]))
+        mp.air = 1
+        mp.stab = 0.3 + 0.6 * k
+        mp.crouch = 0.2
+      } else if (t < 15.05) {
+        const k = span(t, 14.7, 15.05)
+        s.place(s.mech.root, tmpA.set(G1_STOP[0], head - 0.9 * k, G1_STOP[2]), Math.atan2(G1_STOP[0] - from[0], G1_STOP[2] - from[2]))
+        mp.air = 1
+        mp.stab = 1
+        mp.crouch = 0.6
+      } else {
+        const k = smooth(span(t, 15.05, 15.6))
+        const a = k * Math.PI * 2
+        s.place(s.mech.root, tmpA.set(G1_STOP[0] + 1.6 * k, 4 + (head - 0.9 - 4) * (1 - Math.min(1, k * 1.4)) + 0.9 - 0.9 * Math.cos(a), G1_STOP[2] + 1.4 * k), Math.atan2(1.6, 1.4))
+        s.mech.root.rotation.x = a
+        mp.crouch = 1
+      }
+      mp.blade = 1
+      s.look(tmpB.set(55.5, 7, 32), tmpC.set(50, 5, 25.4), 46)
+      s.once('stab', 14.85, () => { sfx('blade'); s.fx.sparks(G1_STOP[0], 5.4, G1_STOP[2], '#ff5fb7', 10, 3, 0.25) })
+    }
+
+    // ── Out of the yard: to the ladder, up onto the wall ──
+    if (between(t, 15.6, 19.3)) {
+      const keys: Key[] = [[15.6, 51.6, 4, 26.6], [17.4, 58.6, 4, 23], [17.6, 58.6, 4, 23], [19.1, 58.6, 10, 23], [19.3, 61, 10, 23]]
       const p = track(keys, t, tmpA)
-      s.place(s.mech.root, p, t < 24.2 ? Math.atan2(62 - 52, 36 - 26) : 0)
+      const climbing = between(t, 17.6, 19.1)
+      s.place(s.mech.root, p, climbing || t > 19.1 ? Math.PI / 2 : Math.atan2(58.6 - 51.6, 23 - 26.6))
+      mp.climb = climbing ? 1 : 0
+      mp.climbPhase = p.y
+      mp.speed = climbing ? 0 : Math.min(1, pace(keys, t) / 4)
+      mp.stride = t * 6
+      s.look(tmpB.set(51, 9, 33), tmpC.set(57.5, 6.5, 23))
+    }
+
+    // ── The sentry on his tower, the rifle ──
+    const SENTRY_DOWN = 21.9
+    const sentryDead = t >= SENTRY_DOWN
+    const sw = t < 19.8 ? round(t, [73, 14, 11], [75.2, 14, 12.8], 8, tmpA, -5.8) : { yaw: -Math.PI * 0.8, walking: false }
+    if (t >= 19.8) tmpA.set(73, 14, 11)
+    s.place(g(2).root, tmpA, t < 19.8 ? sw.yaw : -Math.PI * 0.8)
+    poseGuard(g(2), { ...restGuardPose(), time: t, speed: sw.walking ? 0.4 : 0, stride: t * 4, lookYaw: sentryDead || sw.walking ? 0 : Math.sin(t * 0.7) * 0.6, deadT: sentryDead ? t - SENTRY_DOWN : 0, death: 'back' })
+    if (between(t, 19.3, 23)) {
+      const keys: Key[] = [[19.3, 61, 10, 23], [19.8, 62.5, 10, 22.5], [22.4, 62.5, 10, 22.5], [23, 64, 10, 26]]
+      const p = track(keys, t, tmpA)
+      const scoped = between(t, 19.9, 22.4)
+      s.place(s.mech.root, p, scoped ? Math.atan2(73 - 62.5, 11 - 22.5) : Math.atan2(1.5, 3.5))
       mp.speed = Math.min(1, pace(keys, t) / 4)
       mp.stride = t * 6
-      mp.aim = t < 24.1 ? 1 : 0
+      mp.aim = scoped ? 1 : 0
+      mp.weapon = 'sniper'
+      mp.aimPitch = 0.12
+      mp.recoil = between(t, SENTRY_DOWN - 0.1, SENTRY_DOWN + 0.3) ? 1 - span(t, SENTRY_DOWN - 0.1, SENTRY_DOWN + 0.3) : 0
+      if (t < 22.4) s.look(tmpB.set(61.4, 12.6, 24.2), tmpC.set(73, 15.4, 11), 50 - 32 * span(t, 20, 21.5))
+      else s.look(tmpB.set(57, 13, 19), tmpC.set(67, 13, 33))
+      s.once('shot', SENTRY_DOWN - 0.1, () => {
+        sfx('sniper')
+        const n = s.muzzle('sniper', tmpB)
+        if (s.cfx) shoot(n.x, n.y, n.z, 73, 15.5, 11, 'sniper')
+        else s.fx.sparks(73, 15.5, 11, '#ffe9a0', 14, 5, 0.25)
+      })
+    }
+
+    // ── The drone and the mini-gun; the base hears it ──
+    const DRONE_DOWN = 25.8
+    const dd = t >= DRONE_DOWN
+    const da = Math.min(0, t - 23.4) * 0.55
+    const dx0 = 66 + Math.sin(da) * 5
+    const dz0 = 34 + (1 - Math.cos(da)) * 3
+    const dy = dd ? Math.max(10.3, 16 - 18 * (t - DRONE_DOWN) ** 2) : 16 + Math.sin(t * 1.9) * 0.15
+    s.place(drone.root, tmpA.set(dx0, dy, dz0), t < 23.4 ? Math.PI + da * 0.8 : Math.PI)
+    poseDrone(drone, { time: t, spin: t * 40, pitch: t < 23.4 ? 0.18 : 0.1, roll: t < 23.4 ? 0.12 : 0, eyeYaw: 0, eyePitch: 0.5, alarm: t >= 23.4 ? 1 : 0, deadT: dd ? t - DRONE_DOWN : 0, landed: dy <= 10.31 })
+    const MECH_GUN: V3 = [64, 10, 26]
+    if (between(t, 23, 28)) {
+      s.place(s.mech.root, tmpA.set(MECH_GUN[0], 10, MECH_GUN[2]), t < 26.2 ? Math.atan2(66 - 64, 34 - 26) : Math.atan2(6, 12))
+      mp.aim = 1
       mp.weapon = 'minigun'
       mp.spin = t * 30
-      mp.aimPitch = 0.28
-      // Each round: the flash at the spinning barrels, its tracer, and where it bites (#117).
-      if (between(t, 22, 23.8) && Math.floor(t * 20) !== Math.floor((t - s.dt) * 20)) {
-        const hx = 62 + (Math.random() - 0.5) * 0.8
+      mp.aimPitch = 0.4
+      if (tick(0.05, 23.8, DRONE_DOWN)) {
+        const hx = 66 + (Math.random() - 0.5) * 0.8
         const hy = 16 + (Math.random() - 0.5) * 0.5
-        const hz = 36 + (Math.random() - 0.5) * 0.8
-        if (s.cfx) {
-          const n = s.muzzle('minigun', tmpB)
-          const d = tmpC.set(hx - n.x, hy - n.y, hz - n.z).normalize()
-          s.cfx.muzzle(n.x, n.y, n.z, d.x, d.y, d.z, 'minigun')
-          s.cfx.tracer(n.x, n.y, n.z, hx, hy, hz, 'minigun')
-          // From the intro's distance a single hot dot is lost: each round also
-          // draws a short streak flying the line, so the stream reads.
-          const len = Math.hypot(hx - n.x, hy - n.y, hz - n.z)
-          for (let q = 0; q < 6; q++) {
-            s.cfx.particles.emit({
-              x: n.x + d.x * (1 + q * 0.5), y: n.y + d.y * (1 + q * 0.5), z: n.z + d.z * (1 + q * 0.5),
-              vx: d.x * 90, vy: d.y * 90, vz: d.z * 90, color: q === 0 ? '#ffffff' : '#ffd27a', size: 0.22 - q * 0.025, sizeEnd: 0.08, life: Math.max(0.05, (len - 1 - q * 0.5) / 90)
-            })
-          }
-          s.cfx.impact(hx, hy, hz, -d.x, -d.y, -d.z, false, 'minigun')
-        } else s.fx.sparks(hx, hy, hz, '#ffd27a', 4, 4, 0.18)
+        const hz = 34 + (Math.random() - 0.5) * 0.8
+        const n = s.muzzle('minigun', tmpB)
+        shoot(n.x, n.y, n.z, hx, hy, hz, 'minigun')
       }
-      s.look(tmpB.set(46, 12, 22), tmpC.set(60, 14.5, 34))
-      s.once('spin', 21.6, () => sfx('minigun'))
-      s.once('drone', 23.8, () => { sfx('explode'); s.fx.orbBurst(62, 16, 36, '#ffb061', 0.7) })
+      // Once the base is after it, the camera turns round to what is coming.
+      if (t < 26.2) s.look(tmpB.set(57, 13, 19), tmpC.set(67, 13, 33))
+      else s.look(tmpB.set(58, 13.5, 17), tmpC.set(70, 10.5, 37))
+      s.once('spin', 23.6, () => sfx('minigun'))
+      s.once('drone', DRONE_DOWN, () => { sfx('explode'); s.fx.orbBurst(66, 16, 34, '#ffb061', 0.7) })
     }
-    // A rocket into the Goliath's flank.
-    // Rolling up on its patrol (#129), its turret sweeping, until the rocket.
+
+    // ── The guard on the walls: his round; on the alarm, at the mech ──
+    {
+      const at = round(Math.min(t, ALARM), [64, 10, 8], [77, 10, 8], 9, tmpA, 3)
+      let yaw = at.yaw
+      let walking = at.walking && !alarmed
+      if (alarmed) {
+        const k = span(t, ALARM + 0.6, ALARM + 2.4)
+        const fx = tmpA.x
+        tmpA.set(fx + (68 - fx) * smooth(k), 10, 8 + 6 * smooth(k))
+        yaw = Math.atan2(MECH_GUN[0] - tmpA.x, MECH_GUN[2] - tmpA.z)
+        walking = k > 0 && k < 1
+      }
+      s.place(g(0).root, tmpA, yaw)
+      poseGuard(g(0), { ...restGuardPose(), time: t, speed: walking ? (alarmed ? 0.9 : 0.45) : 0, stride: t * (alarmed ? 6 : 4.2), aim: alarmed && t > ALARM + 2.4 ? 1 : 0, startle: between(t, ALARM, ALARM + 0.4) ? 1 : 0, recoil: tick(0.6, ALARM + 2.6, 34) ? 1 : 0, lookYaw: !alarmed && !walking ? Math.sin(t * 1.1) * 0.5 : 0 })
+      if (tick(0.6, ALARM + 2.6, 34)) shoot(tmpA.x + Math.sin(yaw) * 0.6, 11.4, tmpA.z + Math.cos(yaw) * 0.6, MECH_GUN[0] + (Math.random() - 0.5) * 2, 10.2, MECH_GUN[2] + (Math.random() - 0.5) * 2, 'sniper')
+    }
+    // ── The Peashooter: its patrol; on the alarm, rolling in, firing ──
+    {
+      const at = round(Math.min(t, ALARM), [64, 10, 3.5], [78, 10, 3.5], 10, tmpA, 0)
+      let yaw = at.yaw
+      let speed = at.walking && !alarmed ? 0.6 : 0
+      if (alarmed) {
+        const k = span(t, ALARM + 0.5, ALARM + 3)
+        const fx = tmpA.x
+        tmpA.set(fx + (72 - fx) * k, 10, 3.5 + 10 * k)
+        yaw = Math.atan2(MECH_GUN[0] - tmpA.x, MECH_GUN[2] - tmpA.z)
+        speed = k > 0 && k < 1 ? 1 : 0
+      }
+      s.place(roomba.root, tmpA, yaw)
+      poseRoomba(roomba, { time: t, alarm: alarmed ? 1 : 0, recoil: tick(0.35, ALARM + 3, 34) ? 1 : 0, aimYaw: 0, speed })
+      if (tick(0.35, ALARM + 3, 34)) shoot(tmpA.x + Math.sin(yaw) * 0.6, 10.7, tmpA.z + Math.cos(yaw) * 0.6, MECH_GUN[0] + (Math.random() - 0.5) * 2.5, 10.3, MECH_GUN[2] + (Math.random() - 0.5) * 2.5, 'minigun')
+    }
+    // ── The Enforcer: marching the far wall; on the alarm, its twin guns ──
+    {
+      const at = round(Math.min(t, ALARM), [64, 10, 38], [78, 10, 38], 12, tmpA, 4)
+      const walking = at.walking && !alarmed
+      const turn = alarmed ? angleDelta(at.yaw, Math.atan2(MECH_GUN[0] - tmpA.x, MECH_GUN[2] - tmpA.z)) * smooth(span(t, ALARM + 0.4, ALARM + 1.6)) : 0
+      s.place(enforcer.root, tmpA, at.yaw)
+      const firing = between(t, ALARM + 1.8, 34)
+      const side = Math.floor(t * 8) % 2
+      poseEnforcer(enforcer, { time: t, stride: t * 2.4, speed: walking ? 0.5 : 0, power: 1, aimYaw: turn, aimPitch: -0.12, recoilL: firing && side === 0 ? 1 : 0, recoilR: firing && side === 1 ? 1 : 0, deadT: 0 })
+      if (firing && tick(0.125, ALARM + 1.8, 34)) {
+        const y = at.yaw + turn
+        const ox = side === 0 ? Math.cos(y) * 0.9 : -Math.cos(y) * 0.9
+        const oz = side === 0 ? -Math.sin(y) * 0.9 : Math.sin(y) * 0.9
+        shoot(tmpA.x + ox + Math.sin(y) * 1.2, 12.3, tmpA.z + oz + Math.cos(y) * 1.2, MECH_GUN[0] + (Math.random() - 0.5) * 3, 10.2, MECH_GUN[2] + (Math.random() - 0.5) * 3, 'minigun')
+      }
+      s.once('enforcer', ALARM + 1.8, () => sfx('minigun'))
+    }
+    // ── The searchlight on the walls' corner, sweeping the yard ──
+    {
+      s.place(lamp.root, tmpA.set(79, 10, 4), Math.PI * 1.25 + (alarmed ? angleDelta(Math.PI * 1.25, Math.atan2(MECH_GUN[0] - 79, MECH_GUN[2] - 4)) : Math.sin(t * 0.5) * 0.6))
+      poseSearchlight(lamp, { time: t, yaw: 0, pitch: 0.35, alarm: alarmed ? 1 : 0 })
+    }
+    // ── The Goliath: creeping on its round, turret sweeping; on the alarm, its cannon ──
+    const TANK_DOWN = 30
     const roll = smooth(span(t, 18, 25))
-    s.place(tank.root, tmpA.set(70 - 4 * roll, 10, 44), -Math.PI / 2)
-    const rolling = roll > 0 && roll < 1
-    poseGoliath(tank, { time: t, turretYaw: t < 26 ? -0.4 + Math.sin(t * 0.45) * 0.35 : -0.4, barrelPitch: 0.05, recoil: 0, rumble: t > 27 ? 1 - span(t, 27, 30) : rolling ? 1 : 0.5, dead: 0 })
-    // The game's own rocket (#117): out of the tube, a hot core and a trail
-    // that swells into smoke, and the game's blast where it lands.
+    const tankX = 74 - 4 * roll
+    s.place(tank.root, tmpA.set(tankX, 10, 44), -Math.PI / 2)
+    const toMech = angleDelta(-Math.PI / 2, Math.atan2(MECH_GUN[0] - tankX, MECH_GUN[2] - 44))
+    const turret = t < ALARM ? Math.sin(t * 0.45) * 0.5 : toMech * smooth(span(t, ALARM, ALARM + 2.2))
+    const cannon = between(t, 27.2, 27.7) ? 1 - span(t, 27.2, 27.7) : 0
+    poseGoliath(tank, { time: t, turretYaw: turret, barrelPitch: 0.05, recoil: cannon, rumble: t >= TANK_DOWN ? 0 : roll > 0 && roll < 1 ? 1 : 0.5, dead: t >= TANK_DOWN ? Math.min(1, (t - TANK_DOWN) * 2) : 0 })
+    s.once('cannon', 27.2, () => {
+      sfx('rocket')
+      if (s.cfx) {
+        // The shell misses: it lands behind the mech.
+        s.cfx.muzzle(tankX - 2.6, 12.4, 41.8, -0.2, 0, -1, 'rocket')
+        s.cfx.tracer(tankX - 2.6, 12.4, 41.8, 61.5, 10.4, 22.5, 'rocket')
+      }
+    })
+    s.once('shell', 27.55, () => { sfx('explode'); if (s.cfx) s.cfx.explosion(61.5, 10.4, 22.5, 10) })
+    // ── The Warden, beside his tank, pointing his men at the mech ──
+    {
+      s.place(g(3).root, tmpA.set(77.5, 10, 41), alarmed ? Math.atan2(MECH_GUN[0] - 77.5, MECH_GUN[2] - 41) : -Math.PI / 2)
+      poseGuard(g(3), { ...restGuardPose(), time: t + 2, aim: alarmed ? 1 : 0, lookYaw: alarmed ? 0 : Math.sin(t * 0.6) * 0.5 })
+    }
+    // ── The hound running the yard, stopping to sniff ──
+    {
+      const at = round(t, [46, 4, 33], [58, 4, 33], 5, tmpA, 0)
+      s.place(hound.root, tmpA, at.yaw)
+      poseRobodog(hound, { time: t, stride: t * 9, run: at.walking ? 1 : 0, fold: 0, thrust: 0 })
+    }
+
+    // ── The rocket into the Goliath ──
     const rocket = s.extra.rocket as Mesh
-    rocket.visible = !s.cfx && between(t, 26.2, 27)
-    if (rocket.visible) s.place(rocket, tmpA.lerpVectors(tmpB.set(53, 12, 30), tmpC.set(64.5, 11.5, 42), span(t, 26.2, 27)))
+    rocket.visible = !s.cfx && between(t, 29.2, 30)
+    if (rocket.visible) s.place(rocket, tmpA.lerpVectors(tmpB.set(64.5, 12, 29), tmpC.set(tankX - 1.5, 11.5, 43), span(t, 29.2, 30)))
     if (s.cfx) {
       const from = s.extra.rocketFrom as Vector3 | undefined
-      if (between(t, 26.2, 27) && from) {
+      if (between(t, 29.2, TANK_DOWN) && from) {
         const r = s.rockets[0] ?? (s.rockets[0] = { x: from.x, y: from.y, z: from.z, px: from.x, py: from.y, pz: from.z, dx: 0, dy: 0, dz: 1, t: 0 })
+        const tx = tankX - 1.5
         r.px = r.x; r.py = r.y; r.pz = r.z
-        const k = span(t, 26.2, 27)
-        r.x = from.x + (64.5 - from.x) * k
+        const k = span(t, 29.2, TANK_DOWN)
+        r.x = from.x + (tx - from.x) * k
         r.y = from.y + (11.5 - from.y) * k
-        r.z = from.z + (42 - from.z) * k
-        const len = Math.hypot(64.5 - from.x, 11.5 - from.y, 42 - from.z) || 1
-        r.dx = (64.5 - from.x) / len; r.dy = (11.5 - from.y) / len; r.dz = (42 - from.z) / len
+        r.z = from.z + (43 - from.z) * k
+        const len = Math.hypot(tx - from.x, 11.5 - from.y, 43 - from.z) || 1
+        r.dx = (tx - from.x) / len; r.dy = (11.5 - from.y) / len; r.dz = (43 - from.z) / len
       } else s.rockets.length = 0
     }
-    if (between(t, 25, 30)) {
-      // The rocket away, it runs on east toward the perch (#129).
-      const keys: Key[] = [[25, 52, 10, 29], [27.6, 52, 10, 29], [30, 63, 10, 26]]
+    if (between(t, 28, 35.5)) {
+      const keys: Key[] = [[28, 64, 10, 26], [28.6, 64, 10, 29], [31.2, 64, 10, 29], [35.5, 75, 10, 20]]
       const p = track(keys, t, tmpA)
-      s.place(s.mech.root, p, t < 27.6 ? Math.atan2(66 - 52, 44 - 29) : Math.atan2(11, -3))
+      const aiming = between(t, 28.6, 30.2)
+      s.place(s.mech.root, p, aiming ? Math.atan2(tankX - 64, 44 - 29) : t < 28.6 ? 0 : Math.atan2(11, -9))
       mp.speed = Math.min(1, pace(keys, t) / 5)
       mp.stride = t * 8
-      mp.aim = t < 27 ? 1 : 0
+      mp.aim = aiming ? 1 : 0
       mp.weapon = 'rocket'
-      mp.recoil = between(t, 26.2, 26.6) ? 1 : 0
-      s.look(tmpB.set(56, 15, 26), tmpC.set(65, 11, 43))
-      s.once('rocket', 26.2, () => {
+      mp.recoil = between(t, 29.2, 29.6) ? 1 : 0
+      if (t < 31.2) s.look(tmpB.set(57.5, 15, 24), tmpC.set(70, 11, 43))
+      else s.look(tmpB.set(p.x - 7, 14, p.z + 8), tmpC.set(p.x + 2, 11, p.z))
+      s.once('rocket', 29.2, () => {
         sfx('rocket')
         const n = s.muzzle('rocket', new Vector3())
         s.extra.rocketFrom = n
         if (s.cfx) {
-          const d = tmpC.set(64.5 - n.x, 11.5 - n.y, 42 - n.z).normalize()
+          const d = tmpC.set(tankX - 1.5 - n.x, 11.5 - n.y, 43 - n.z).normalize()
           s.cfx.muzzle(n.x, n.y, n.z, d.x, d.y, d.z, 'rocket')
         }
       })
-      s.once('boom', 27, () => {
+      s.once('boom', TANK_DOWN, () => {
         sfx('explode')
-        if (s.cfx) s.cfx.explosion(64.5, 11.5, 42, 10)
-        else { s.fx.orbBurst(64.5, 11.5, 42, '#ff9a3d', 1.4); s.fx.sparks(64.5, 11.5, 42, '#ffd27a', 30, 8, 0.3) }
+        if (s.cfx) s.cfx.explosion(tankX - 1.5, 11.5, 43, 10)
+        else { s.fx.orbBurst(tankX - 1.5, 11.5, 43, '#ff9a3d', 1.4); s.fx.sparks(tankX - 1.5, 11.5, 43, '#ffd27a', 30, 8, 0.3) }
       })
-      if (t > 27 && Math.floor(t * 8) !== Math.floor((t - s.dt) * 8)) {
-        s.fx.emit({ x: 66, y: 13, z: 44, vx: 0.3, vy: 1.8, vz: 0, color: '#3a3050', size: 1.4, sizeEnd: 3, life: 2.4, drag: 0.4 })
+      if (t > TANK_DOWN && Math.floor(t * 8) !== Math.floor((t - s.dt) * 8)) {
+        s.fx.emit({ x: tankX, y: 13, z: 44, vx: 0.3, vy: 1.8, vz: 0, color: '#3a3050', size: 1.4, sizeEnd: 3, life: 2.4, drag: 0.4 })
       }
     }
-    // The perch: facing the Bastion, the board folding into a dog at its feet.
-    if (t >= 30) {
+
+    // ── The perch: facing the Bastion, the board folding into a dog at its feet ──
+    if (t >= 35.5) {
       s.place(s.mech.root, tmpA.set(77.6, 14, 23.4), Math.PI / 2)
-      const back = track([[30, 70, 16.5, 21], [35, 66, 20, 30]], t, tmpB)
+      const back = track([[35.5, 70, 16.5, 21], [40.5, 66, 20, 30]], t, tmpB)
       s.look(back, tmpC.set(92, 14, 24))
     }
     poseMech(s.mech, mp)
@@ -722,7 +876,7 @@ export class Cinema implements GameMode {
     c.cfx = cfx
     const fired = new Set<string>()
     const st: Stage = {
-      t: 0, dt: 0, cam: c.camera, mech, mp: restPose(), dog, dp: restDogPose(), fx, cfx, rockets: [], extra: {}, fired,
+      t: 0, dt: 0, cam: c.camera, mech, mp: restPose(), dog, dp: restDogPose(), fx, cfx, rockets: [], decoys: [], extra: {}, fired,
       muzzle: (w, out) => {
         const [bone, x, y, z] = MUZZLE_TIP[w]
         const b = mech.bones[bone]
@@ -764,7 +918,7 @@ export class Cinema implements GameMode {
     st.t = Math.min(this.length, st.t + dt)
     this.script.frame(st)
     st.fx.update(dt)
-    st.cfx?.update(dt, 1, st.rockets, [], getRenderer().domElement.height || 720, this.camera.fov)
+    st.cfx?.update(dt, 1, st.rockets, st.decoys, getRenderer().domElement.height || 720, this.camera.fov)
     this.sky.update(this.camera.position, st.t)
     if (st.t >= this.length) this.end()
   }

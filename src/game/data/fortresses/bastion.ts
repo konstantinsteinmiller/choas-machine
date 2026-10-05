@@ -240,7 +240,7 @@ export const buildBastion = (level = 1, run = 0, answers: Answers = NO_ANSWERS):
   b.prop('lamp', 27, 39, 0).prop('lamp', 32, 39, 0).prop('lamp', 45, 34, -Math.PI / 2).prop('lamp', 12, 34, Math.PI / 2)
   b.prop('lamp', 27, 9, Math.PI).prop('lamp', 32, 9, Math.PI)
   b.prop('antenna', 30, 23).prop('antenna', 53, 55).prop('flag', 7, 8).prop('flag', 53, 8).prop('flag', 19, 54)
-  b.solid('stack', 21, 31, 1.4).solid('stack', 40, 21, 1.4)
+  b.solid('stack', 21, 31, 1.4).solid('stack', 40, 24, 1.4)
 
   // ── What the base learned last time (R26) ──
   // Rifle kills from the perch: a light on the battery's corner sweeps it.
@@ -255,7 +255,8 @@ export const buildBastion = (level = 1, run = 0, answers: Answers = NO_ANSWERS):
   // battery and the south yard are 20-30 m off, inside a mini-gun's or a
   // rocket's earshot, out of a silenced rifle's.
   if (level === 1) {
-    b.ground(1, 56, 10, 62)
+    // (East of the perch tower, never over it: its cable starts on its top.)
+    b.ground(4, 56, 10, 62)
     b.insert(4, 61, Math.PI * 0.78)
     b.cover(7, 59, 1)
     b.guard([[9, 57]], Math.PI * 0.75)

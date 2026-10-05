@@ -6,7 +6,7 @@ export const CINEMA_IDS = ['intro', 'salvage', 'fallBastion', 'fallFoundry', 'ou
 export type CinemaId = (typeof CINEMA_IDS)[number]
 
 export const CINEMA_LENGTH: Readonly<Record<CinemaId, number>> = {
-  intro: 35, salvage: 10, fallBastion: 16, fallFoundry: 16, outro: 40
+  intro: 42, salvage: 10, fallBastion: 16, fallFoundry: 16, outro: 40
 }
 
 /** Space held this long skips a scene (a press alone does not: Space is the jump). */

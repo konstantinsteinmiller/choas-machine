@@ -23,9 +23,9 @@ describe('which scene a first clear earns', () => {
     expect(cinemaAfterClear('bastion', 1, false)).toBeNull()
   })
 
-  it('lengths as written: the intro about 35 s, the haul 10 s, the falls 12 to 20 s, the outro about 40 s', () => {
+  it('lengths as written: the intro about 42 s (#131: every enemy type, the yard and the rope assassination), the haul 10 s, the falls 12 to 20 s, the outro about 40 s', () => {
     expect(CINEMA_LENGTH.intro).toBeGreaterThanOrEqual(30)
-    expect(CINEMA_LENGTH.intro).toBeLessThanOrEqual(40)
+    expect(CINEMA_LENGTH.intro).toBeLessThanOrEqual(45)
     expect(CINEMA_LENGTH.salvage).toBe(10)
     for (const id of ['fallBastion', 'fallFoundry'] as const) {
       expect(CINEMA_LENGTH[id]).toBeGreaterThanOrEqual(12)

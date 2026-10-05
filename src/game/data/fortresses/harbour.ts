@@ -41,7 +41,7 @@ const PILES: ReadonlyArray<readonly [number, number, number, boolean?]> = [
 const ALWAYS = [0, 8]
 const KITS: ReadonlyArray<readonly [number, number]> = [[10, 40], [28, 38], [42, 20], [54, 40], [16, 24]]
 const CRATES: ReadonlyArray<readonly [number, number]> = [[5, 40], [40, 35], [57, 4]]
-const BARRELS: ReadonlyArray<readonly [number, number]> = [[24, 24], [60, 27], [21, 38], [33, 42], [8, 16], [52, 6]]
+const BARRELS: ReadonlyArray<readonly [number, number]> = [[24, 24], [60, 27], [21, 38], [33, 42], [5, 14], [52, 6]]
 
 export const buildHarbour = (level = 1, run = 0, answers: Answers = NO_ANSWERS): Fortress => {
   const rng = mulberry32(0x4a7 + run * 7919)

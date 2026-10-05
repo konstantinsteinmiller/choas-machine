@@ -48,7 +48,7 @@ Every scene can be skipped from its first frame (a skip button, or Space held
 for half a second), plays once, and can be replayed from the Command Base.
 The gameplay bracket pauses while a scene plays.
 
-### Intro (about 35 s; once, after the training ground, before the first Bastion raid)
+### Intro (about 42 s; once, after the training ground, before the first Bastion raid)
 
 An ability showcase, the music's hero theme under it:
 
