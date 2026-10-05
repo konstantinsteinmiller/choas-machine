@@ -140,13 +140,15 @@ const videoOffer = computed(() => { void clock.value; void offerTick.value; retu
   gap: 0.35rem
   min-width: 0
   padding: 0.45rem
+  +tech-plate(rgba(154, 120, 255, 0.6), tech-fill(var(--cm-violet), 10%), 0.5rem, var(--cm-edge))
   &.owned
     --plate-edge: rgba(77, 232, 255, 0.6)
   &.worn
     --plate-edge: var(--cm-ok)
     --plate-fill: #{tech-fill(var(--cm-ok), 16%)}
+  // The one tried on: the edge lights cyan (an outer ring would be cut off by the plate's clip).
   &.looking
-    box-shadow: 0 0 0 var(--cm-edge) var(--cm-cyan)
+    --plate-edge: var(--cm-cyan)
 .thumb
   width: clamp(3.4rem, 12vmin, 5rem)
   height: clamp(3.4rem, 12vmin, 5rem)

@@ -54,7 +54,7 @@ onUnmounted(() => off?.())
   color: var(--cm-lilac)
   +tech-plate(var(--cm-violet), tech-fill(var(--cm-violet), 14%), 0.6rem)
   &.low
-    border-color: var(--cm-danger)
+    --plate-edge: var(--cm-danger)
     color: var(--cm-danger)
     animation: armor-low 0.5s ease-in-out infinite alternate
 .glyph

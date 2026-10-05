@@ -87,6 +87,7 @@ const buy = (id: TrackId): void => {
   align-items: center
   gap: clamp(0.4rem, 2vmin, 0.9rem)
   padding: clamp(0.35rem, 1.5vmin, 0.6rem) clamp(0.45rem, 2vmin, 0.8rem)
+  +tech-plate(rgba(154, 120, 255, 0.6), tech-fill(var(--cm-violet), 10%), 0.5rem, var(--cm-edge))
   &.maxed
     --plate-edge: rgba(77, 255, 176, 0.6)
 // The glyph in a hex socket, like the weapons'.

@@ -173,8 +173,8 @@ onUnmounted(() => { for (const id of Object.values(timers)) window.clearTimeout(
   transition: border-color 160ms ease-out, background-color 160ms ease-out
   +tech-plate(var(--cm-cyan), tech-fill(var(--cm-cyan), 12%), 0.55rem)
   &.flash
-    border-color: var(--cm-ok)
-    background: rgba(77, 255, 176, 0.25)
+    --plate-edge: var(--cm-ok)
+    --plate-fill: linear-gradient(rgba(77, 255, 176, 0.25), rgba(77, 255, 176, 0.25))
 .glyph
   display: flex
   align-items: center

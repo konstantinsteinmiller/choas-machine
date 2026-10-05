@@ -153,6 +153,7 @@ const videoOffer = computed(() => { void clock.value; void offerTick.value; retu
   flex-direction: column
   gap: clamp(0.35rem, 1.5vmin, 0.6rem)
   padding: clamp(0.45rem, 2vmin, 0.8rem)
+  +tech-plate(rgba(154, 120, 255, 0.6), tech-fill(var(--cm-violet), 10%), 0.5rem, var(--cm-edge))
   &.locked
     --plate-edge: rgba(154, 120, 255, 0.5)
     --plate-fill: linear-gradient(rgba(21, 12, 43, 0.6), rgba(21, 12, 43, 0.6))

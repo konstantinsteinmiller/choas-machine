@@ -169,3 +169,50 @@ describe('the system corner', () => {
     expect(tpl).toContain('OptionsModal(')
   })
 })
+
+describe('a cut corner keeps its edge', () => {
+  // A clip-path cuts a border off square at the corner: the edge along each
+  // cut is a background layer (`tech-cut-strokes`), so it must be drawn by the
+  // mixins, and a state must never wipe it or leave it in the old colour.
+  const tech = read('src/assets/css/_tech.sass')
+  const mixin = (name: string): string => {
+    const a = tech.indexOf(`=${name}(`)
+    const b = tech.indexOf('\n=', a + 1)
+    return tech.slice(a, b < 0 ? undefined : b)
+  }
+
+  it.each(['tech-plate', 'tech-track'])('%s draws the edge down both cuts', (name) => {
+    expect(mixin(name)).toContain('tech-cut-strokes(')
+  })
+
+  it('a state of a plate recolours it through --plate-edge / --plate-fill, never border-color or background', () => {
+    const offenders: string[] = []
+    for (const rel of components) {
+      const lines = styleLines(read(rel))
+      const indent = (l: string): number => l.length - l.trimStart().length
+      lines.forEach((l, i) => {
+        if (!l.trim().startsWith('+tech-plate(')) return
+        const k = indent(l)
+        // The rule that owns the plate: the nearest line above, one level out.
+        let start = i
+        while (start > 0 && !(lines[start]!.trim() !== '' && indent(lines[start]!) === k - 2)) start--
+        let state = ''
+        for (let j = start + 1; j < lines.length; j++) {
+          const m = lines[j]!
+          if (m.trim() === '') continue
+          if (indent(m) <= k - 2) break
+          if (indent(m) === k) state = /^&[.:](?!:)/.test(m.trim()) ? m.trim() : ''
+          else if (state && indent(m) === k + 2 && /^(border-color|background|background-image):/.test(m.trim())) offenders.push(`${rel} ${state} ${m.trim()}`)
+        }
+      })
+    }
+    expect(offenders).toEqual([])
+  })
+
+  it.each([
+    ['src/components/atoms/FSlider.vue', '.f-slider__fill'],
+    ['src/components/atoms/LoadingVeil.vue', '.lit']
+  ])('%s cuts the fill inside its track clear of the track\'s cut edge', (rel, selector) => {
+    expect(block(styleLines(read(rel)), selector).some(l => l.startsWith('+tech-track-fill('))).toBe(true)
+  })
+})

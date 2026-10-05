@@ -249,6 +249,8 @@ const keyText = computed(() => {
   // Inside the plate (its clip would cut anything outside it).
   inset: 0
   border: calc(var(--cm-edge) * 1.5) solid var(--fhb-tone-hi)
+  // The ring follows the plate round its cuts.
+  background: tech-cut-strokes(var(--fhb-tone-hi), 0.55rem, calc(var(--cm-edge) * 1.5))
   opacity: 0
   animation: fhb-pulse 1.6s ease-in-out infinite
 

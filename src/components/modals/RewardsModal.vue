@@ -273,10 +273,10 @@ const toBase = (): void => { void leaveResults('base') }
     width: 1.3em
     height: 1.3em
   &.cores
-    border-color: var(--cm-cyan)
+    --plate-edge: var(--cm-cyan)
     color: var(--cm-cyan)
   &.bp
-    border-color: var(--cm-pink)
+    --plate-edge: var(--cm-pink)
     color: var(--cm-pink-hi)
     .of
       color: var(--cm-text)

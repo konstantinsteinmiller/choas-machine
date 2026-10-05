@@ -89,6 +89,8 @@ const updateValue = (event: Event): void => {
   // The fill ends under the thumb's centre at every value.
   width: calc(var(--fsl-thumb) / 2 + (100% - var(--fsl-thumb)) * var(--fsl-fill))
   background-image: linear-gradient(to right, var(--cm-pink), var(--cm-cyan))
+  // Clear of the track's cut strokes.
+  +tech-track-fill()
 
 .f-slider__thumb
   position: absolute

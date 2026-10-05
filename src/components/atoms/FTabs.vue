@@ -70,7 +70,7 @@ const selectTab = (value: string | number): void => {
   // Floors so a tab can never render as an invisible sliver.
   min-width: 2.75rem
   min-height: 2.5rem
-  padding: clamp(0.25rem, 1.2vmin, 0.5rem) clamp(0.6rem, 2.8vmin, 1.2rem)
+  padding: clamp(0.25rem, 1.2vmin, 0.5rem) clamp(0.55rem, 1.8vmin, 0.9rem)
   border: var(--cm-edge) solid transparent
   background: transparent
   color: var(--cm-dim)
@@ -93,7 +93,7 @@ const selectTab = (value: string | number): void => {
   // scrolling row could clip, and no neighbour moves when it changes.
   &.is-active
     border-color: var(--cm-cyan-hi)
-    background: var(--cm-gloss), linear-gradient(180deg, var(--cm-cyan-hi), var(--cm-cyan) 70%, #2bb8d8)
+    background: tech-cut-strokes(var(--cm-cyan-hi), 0.4rem), var(--cm-gloss), linear-gradient(180deg, var(--cm-cyan-hi), var(--cm-cyan) 70%, #2bb8d8)
     color: var(--cm-ink)
     box-shadow: 0 0 0 var(--cm-outline) var(--cm-ink), 0 0 0.7em rgba(77, 232, 255, 0.45)
 

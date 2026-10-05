@@ -296,7 +296,7 @@ onUnmounted(stopCapture)
     outline-offset: 0.15em
 
   &.waiting
-    border-color: var(--cm-pink)
+    --plate-edge: var(--cm-pink)
     color: var(--cm-pink-hi)
     animation: key-wait 0.9s ease-in-out infinite
 

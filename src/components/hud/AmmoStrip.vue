@@ -90,28 +90,28 @@ onUnmounted(() => { off?.(); if (flashTimer) clearTimeout(flashTimer) })
   box-sizing: border-box
   color: var(--cm-cyan)
   &.w-minigun
-    border-color: rgba(255, 210, 63, 0.6)
+    --plate-edge: rgba(255, 210, 63, 0.6)
     color: var(--cm-warn)
   &.w-rocket
-    border-color: rgba(255, 138, 61, 0.7)
+    --plate-edge: rgba(255, 138, 61, 0.7)
     color: #ff8a3d
   &.hot
-    border-color: var(--cm-danger)
+    --plate-edge: var(--cm-danger)
     color: var(--cm-danger)
   position: relative
   transition: box-shadow 0.15s, border-color 0.15s
   +tech-plate(var(--cm-cyan), tech-fill(var(--cm-cyan), 12%), 0.6rem)
   // A round gone: a red flash. Rounds in: a green glow, a moment longer.
   &.loss
-    border-color: var(--cm-danger)
+    --plate-edge: var(--cm-danger)
     box-shadow: var(--cm-sticker), 0 0 0.9rem rgba(255, 64, 96, 0.85)
   &.gain
-    border-color: #5dff9a
+    --plate-edge: #5dff9a
     box-shadow: var(--cm-sticker), 0 0 1.2rem rgba(93, 255, 154, 0.9)
     animation: ammo-gain 0.9s ease-out
   // Nothing left to fire: the strip blinks red until something is picked up.
   &.dry
-    border-color: var(--cm-danger)
+    --plate-edge: var(--cm-danger)
     color: var(--cm-danger)
     animation: ammo-dry 0.8s steps(2) infinite
 .plus

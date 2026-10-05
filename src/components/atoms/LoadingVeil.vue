@@ -4,7 +4,8 @@
   Transition(name="veil")
     div.loading-veil(v-if="flow.loading")
       div.bar(role="progressbar" aria-valuemin="0" aria-valuemax="100" :aria-valuenow="Math.round(flow.loadProgress * 100)")
-        div.fill(:style="{ transform: `scaleX(${Math.max(0.04, flow.loadProgress).toFixed(3)})` }")
+        div.lit
+          div.fill(:style="{ transform: `scaleX(${Math.max(0.04, flow.loadProgress).toFixed(3)})` }")
 </template>
 
 <script setup lang="ts">
@@ -33,6 +34,11 @@ import { flow } from '@/game/flow'
   box-shadow: var(--cm-glow-cyan)
   transform: skewX(-12deg)
   +tech-track(var(--cm-cyan))
+// The fill scales, so the cut that clears the track's strokes is on a still
+// box round it (a scaled cut would squash).
+.lit
+  height: 100%
+  +tech-track-fill()
 .fill
   width: 100%
   height: 100%

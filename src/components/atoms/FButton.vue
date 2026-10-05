@@ -187,6 +187,7 @@ const styleVars = computed(() => {
 </template>
 
 <style scoped lang="sass">
+@use '@/assets/css/tech' as *
 // ─── The plated key (jam build) ─────────────────────────────────────────────
 // Machined, not candy: a chamfered metal plate (two corners cut, the mech's
 // own panel line) with a neon edge that follows the cut, an inset frame with
@@ -347,8 +348,9 @@ const styleVars = computed(() => {
   inset: calc(var(--cm-edge) + 0.22em)
   border: 1px solid color-mix(in srgb, var(--fbtn-tone-hi) 34%, transparent)
   clip-path: polygon(calc(var(--fbtn-cut) - 0.3em) 0, 100% 0, 100% calc(100% - var(--fbtn-cut) + 0.3em), calc(100% - var(--fbtn-cut) + 0.3em) 100%, 0 100%, 0 calc(var(--fbtn-cut) - 0.3em))
-  // Corner brackets (top right, bottom left) and rivets (left and right middle).
-  background: linear-gradient(var(--fbtn-tone-hi), var(--fbtn-tone-hi)) right 0 top 0 / 0.7em 2px no-repeat, linear-gradient(var(--fbtn-tone-hi), var(--fbtn-tone-hi)) right 0 top 0 / 2px 0.7em no-repeat, linear-gradient(var(--fbtn-tone-hi), var(--fbtn-tone-hi)) left 0 bottom 0 / 0.7em 2px no-repeat, linear-gradient(var(--fbtn-tone-hi), var(--fbtn-tone-hi)) left 0 bottom 0 / 2px 0.7em no-repeat, radial-gradient(circle, color-mix(in srgb, var(--fbtn-tone-hi) 80%, white) 0 0.07em, rgba(0, 0, 0, 0.5) 0.08em 0.11em, transparent 0.12em) right 0.25em center / 0.3em 0.3em no-repeat, radial-gradient(circle, color-mix(in srgb, var(--fbtn-tone-hi) 80%, white) 0 0.07em, rgba(0, 0, 0, 0.5) 0.08em 0.11em, transparent 0.12em) left 0.42em center / 0.3em 0.3em no-repeat
+  // The hairline along its cuts, corner brackets (top right, bottom left) and
+  // rivets (left and right middle).
+  background: tech-cut-strokes(color-mix(in srgb, var(--fbtn-tone-hi) 34%, transparent), calc(var(--fbtn-cut) - 0.3em), 1px), linear-gradient(var(--fbtn-tone-hi), var(--fbtn-tone-hi)) right 0 top 0 / 0.7em 2px no-repeat, linear-gradient(var(--fbtn-tone-hi), var(--fbtn-tone-hi)) right 0 top 0 / 2px 0.7em no-repeat, linear-gradient(var(--fbtn-tone-hi), var(--fbtn-tone-hi)) left 0 bottom 0 / 0.7em 2px no-repeat, linear-gradient(var(--fbtn-tone-hi), var(--fbtn-tone-hi)) left 0 bottom 0 / 2px 0.7em no-repeat, radial-gradient(circle, color-mix(in srgb, var(--fbtn-tone-hi) 80%, white) 0 0.07em, rgba(0, 0, 0, 0.5) 0.08em 0.11em, transparent 0.12em) right 0.25em center / 0.3em 0.3em no-repeat, radial-gradient(circle, color-mix(in srgb, var(--fbtn-tone-hi) 80%, white) 0 0.07em, rgba(0, 0, 0, 0.5) 0.08em 0.11em, transparent 0.12em) left 0.42em center / 0.3em 0.3em no-repeat
   opacity: 0.85
   pointer-events: none
 

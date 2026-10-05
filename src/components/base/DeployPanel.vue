@@ -200,7 +200,8 @@ const train = (): void => { void startTraining() }
   // Machined: two corners cut, like the buttons and the mech's own panels.
   --cut: clamp(0.8rem, 3vmin, 1.4rem)
   clip-path: polygon(var(--cut) 0, 100% 0, 100% calc(100% - var(--cut)), calc(100% - var(--cut)) 100%, 0 100%, 0 var(--cut))
-  background: repeating-linear-gradient(115deg, rgba(255, 255, 255, 0.025) 0 0.1em, transparent 0.1em 0.4em) padding-box, var(--cm-surface) padding-box, var(--cm-rim) border-box
+  // The rim runs cyan to pink, and so do its two cut edges.
+  background: tech-cut-strokes(var(--cm-cyan-hi), var(--cut), var(--cm-rim-w), var(--cm-pink)), repeating-linear-gradient(115deg, rgba(255, 255, 255, 0.025) 0 0.1em, transparent 0.1em 0.4em) padding-box, var(--cm-surface) padding-box, var(--cm-rim) border-box
   box-shadow: var(--cm-inner-glow)
   > :not(.tech-frame)
     position: relative
@@ -278,6 +279,14 @@ const train = (): void => { void startTraining() }
       animation: card-scan 2.2s linear infinite
   &.locked
     cursor: not-allowed
+  // The edge along both cuts, over the picture and the medal strip: the strip
+  // runs into the bottom-right corner and would hide the card's colour there.
+  &::after
+    content: ''
+    position: absolute
+    inset: 0
+    background: tech-cut-strokes(color-mix(in srgb, var(--edge) 90%, white), var(--cut), var(--cm-edge), color-mix(in srgb, var(--edge) 50%, var(--cm-ink)))
+    pointer-events: none
   &:focus-visible
     outline: var(--cm-edge) solid var(--cm-text)
     outline-offset: 0.12em

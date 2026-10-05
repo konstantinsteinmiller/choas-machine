@@ -397,7 +397,7 @@ onUnmounted(() => window.clearTimeout(closeTimer))
     width: 1.15em
     height: 1.15em
   &.done
-    border-color: var(--cm-ok)
+    --plate-edge: var(--cm-ok)
     color: var(--cm-ok)
 
 .alarm
@@ -420,7 +420,7 @@ onUnmounted(() => window.clearTimeout(closeTimer))
   &.s1 :deep(svg)
     animation: siren-blink 0.5s steps(2) infinite
   &.s3
-    background: var(--cm-danger)
+    --plate-fill: linear-gradient(var(--cm-danger), var(--cm-danger))
     color: #fff
 .alarm-fill
   position: absolute
@@ -429,6 +429,8 @@ onUnmounted(() => window.clearTimeout(closeTimer))
   bottom: 0
   background: rgba(255, 85, 118, 0.45)
   transition: width 120ms linear
+  // Clear of the plate's cut strokes.
+  +tech-inner-cut(0.55rem, var(--cm-rim-w))
 @keyframes siren-blink
   50%
     opacity: 0.25

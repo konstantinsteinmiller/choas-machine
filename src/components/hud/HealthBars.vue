@@ -82,11 +82,11 @@ onUnmounted(() => off?.())
   transition: opacity 160ms ease-out
   border: calc(0.08rem * var(--s)) solid #0f0a24
   // Brushed steel, a highlight along the top edge.
-  background: linear-gradient(180deg, #8e8aa8 0%, #5d5878 45%, #3b3654 100%)
+  background: tech-cut-strokes(#0f0a24, calc(0.22rem * var(--s)), calc(0.08rem * var(--s))), linear-gradient(180deg, #8e8aa8 0%, #5d5878 45%, #3b3654 100%)
   box-shadow: inset 0 calc(0.06rem * var(--s)) 0 rgba(255, 255, 255, 0.35), 0 calc(0.08rem * var(--s)) 0 rgba(10, 5, 24, 0.55)
   +tech-cut(calc(0.22rem * var(--s)))
   &.machine
-    background: linear-gradient(180deg, #a59b7c 0%, #6f6449 45%, #45391f 100%)
+    background: tech-cut-strokes(#0f0a24, calc(0.22rem * var(--s)), calc(0.08rem * var(--s))), linear-gradient(180deg, #a59b7c 0%, #6f6449 45%, #45391f 100%)
 .bolt
   flex: none
   width: calc(0.22rem * var(--s))

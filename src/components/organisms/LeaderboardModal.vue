@@ -281,7 +281,7 @@ $cols-portal: clamp(1.6rem, 8vw, 2.4rem) minmax(0, 1fr) clamp(2rem, 9vw, 3rem)
   // The row the player came here to find.
   &.is-you
     border-color: #ffcd00
-    background-image: linear-gradient(to bottom, #3a4a24, #2a3a18)
+    background-image: tech-cut-strokes(#ffcd00, 0.35rem, 2px), linear-gradient(to bottom, #3a4a24, #2a3a18)
     background-color: transparent
 
 .board-row__rank

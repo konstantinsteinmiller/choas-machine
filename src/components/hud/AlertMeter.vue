@@ -49,11 +49,11 @@ const { t } = useI18n()
   &.quiet
     opacity: 0.72
   &.watched
-    border-color: var(--cm-warn)
+    --plate-edge: var(--cm-warn)
     color: var(--cm-warn)
     animation: alert-throb 0.5s ease-in-out infinite alternate
   &.chaos
-    border-color: var(--cm-danger)
+    --plate-edge: var(--cm-danger)
     color: var(--cm-danger)
     box-shadow: var(--cm-sticker), 0 0 0.9rem rgba(255, 59, 92, 0.6)
 .eye
