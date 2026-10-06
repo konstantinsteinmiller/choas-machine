@@ -1,8 +1,7 @@
-import { CylinderGeometry, Group, Mesh, type BufferGeometry } from 'three'
-import { dome, ell, lathe, merge, paintBy, rbox, rcone, rcyl, sph, stripUv, torus, xform, type V3 } from './kit'
-import { glowVC, outlineMat, toonVC } from './toon'
+import { CylinderGeometry, type BufferGeometry, type Group } from 'three'
+import { dome, ell, lathe, paintBy, rbox, rcone, rcyl, sph, stripUv, torus, xform, type V3 } from './kit'
 import { PAL } from './palette'
-import { at, chamferRing, loft, newParts, type Parts } from './propKit'
+import { assembleBatch, at, chamferRing, loft, newParts, type Parts } from './propKit'
 
 /**
  * The stealth dropship that delivers the mech and takes it out again (GDD 6).
@@ -189,25 +188,8 @@ export const dropshipParts = (): Parts => {
   return p
 }
 
+/** The ship in two draw calls: its hull and lights in one mesh, its outline in the other. The materials are shared; only the geometry is ours. */
 export const buildDropship = (): Dropship => {
-  const p = dropshipParts()
-  const group = new Group()
-  group.name = 'dropship'
-  const litGeo = merge([...p.lit, ...p.fine])
-  const inkGeo = merge(p.lit)
-  const glowGeo = merge(p.glow)
-  // The materials are the scene's shared ones: only the geometry is ours.
-  const body = new Mesh(litGeo, toonVC())
-  const line = new Mesh(inkGeo, outlineMat(0.05))
-  line.renderOrder = -1
-  group.add(body, line, new Mesh(glowGeo, glowVC()))
-  for (const g of [...p.lit, ...p.fine, ...p.glow]) g.dispose()
-  return {
-    group,
-    dispose: () => {
-      litGeo.dispose()
-      inkGeo.dispose()
-      glowGeo.dispose()
-    }
-  }
+  const prop = assembleBatch('dropship', [{ parts: dropshipParts(), outline: 0.05 }])
+  return { group: prop.group, dispose: prop.dispose }
 }

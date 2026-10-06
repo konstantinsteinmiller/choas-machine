@@ -58,6 +58,30 @@ export const toonVC = (): MeshToonMaterial => {
   return vcToon
 }
 
+let vcToonGlow: MeshToonMaterial | null = null
+/**
+ * The same look, with glowing parts in the same mesh: a vertex whose `aGlow`
+ * is 1 is drawn in its own colour, unlit (as `glowVC` draws it; the renderer
+ * does no tone mapping, so it matches exactly). A static set's lit and
+ * glowing parts are then ONE draw call (`propKit.assembleBatch`).
+ */
+export const toonGlowVC = (): MeshToonMaterial => {
+  if (vcToonGlow) return vcToonGlow
+  const m = new MeshToonMaterial({ vertexColors: true, gradientMap: toonRamp() })
+  m.onBeforeCompile = (s) => {
+    s.vertexShader = `attribute float aGlow;
+varying float vGlow;
+${s.vertexShader.replace('#include <color_vertex>', `#include <color_vertex>
+  vGlow = aGlow;`)}`
+    s.fragmentShader = `varying float vGlow;
+${s.fragmentShader.replace('#include <opaque_fragment>', `outgoingLight = mix(outgoingLight, diffuseColor.rgb, vGlow);
+  #include <opaque_fragment>`)}`
+  }
+  m.customProgramCacheKey = () => 'toon-glow'
+  vcToonGlow = m
+  return m
+}
+
 let vcToonInstanced: MeshToonMaterial | null = null
 /**
  * The same look for an InstancedMesh, as a material of its own.

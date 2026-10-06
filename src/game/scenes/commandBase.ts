@@ -6,7 +6,6 @@ import { newScene, type GameMode } from '../engine/app'
 import { noSlice, type Slice } from '../engine/slicer'
 import { sceneQuality } from '../engine/quality'
 import { merge, sph, type Rig, type V3 } from '../models/kit'
-import { glowVC, outlineMat, toonVC } from '../models/toon'
 import { buildMech, poseMech, restPose, type MechPose } from '../models/mech'
 import { buildDropship, type Dropship } from '../models/dropship'
 import { makeBlobShadow } from '../fx/markers'
@@ -15,7 +14,7 @@ import { runHudTickers } from '../state/hud'
 import { profile } from '../state/profile'
 import type { WeaponId } from '../data/ids'
 import { buildDisguise, disposeDisguise, type DisguiseId } from '../models/disguises'
-import { addParts, assembleParts, newParts, type Prop } from '../models/propKit'
+import { addParts, assembleBatch, assembleParts, newParts, type Prop } from '../models/propKit'
 import { PAD_TOP, STATIONS, deckLampParts, deckParts } from '../models/baseDeck'
 import { FURNACE_STACK_TOP, furnaceCoreParts, furnaceParts } from '../models/forgeFurnace'
 import {
@@ -85,6 +84,7 @@ export class CommandBase implements GameMode {
   private shelfGroup = new Group()
   private shelfHoloMat!: ShaderMaterial
   private shelfGeos: BufferGeometry[] = []
+  private shelfProp: Prop | null = null
   private shelfKey = ''
   private shelfCheck = 0
   private flyby!: Flyby
@@ -122,9 +122,12 @@ export class CommandBase implements GameMode {
     addParts(statics, furnaceParts(), furnace.p, furnace.r)
     addParts(statics, labParts(), lab.p, lab.r)
     addParts(statics, shelfParts(), shelf.p, shelf.r)
+    const isl = islandParts(sceneQuality() === 'low')
     onProgress(0.35)
     await slice()
-    b.addProp(assembleParts('base-set', statics, 0.03))
+    // Nothing of it moves: the deck, the stations' bodies and the far islands
+    // are ONE mesh (lights included) and one outline: two draw calls.
+    b.addProp(assembleBatch('base-set', [{ parts: statics, outline: 0.03 }, { parts: isl.parts, outline: 0.25 }]))
     onProgress(0.45)
     await slice()
 
@@ -166,12 +169,9 @@ export class CommandBase implements GameMode {
     onProgress(0.6)
     await slice()
 
-    // ── Beacons: the deck's landing lights and the islands' masts blink together ──
+    // ── Beacons: the deck's landing lights and the islands' masts blink together, in one mesh ──
     b.lampMat = b.own(new MeshBasicMaterial({ vertexColors: true, toneMapped: false }))
-    b.addProp(assembleParts('deck-lamps', deckLampParts(), 0, b.lampMat))
-    const isl = islandParts(sceneQuality() === 'low')
-    b.addProp(assembleParts('islands', isl.parts, 0.25))
-    b.addProp(assembleParts('island-lamps', isl.lamps, 0, b.lampMat))
+    b.addProp(assembleParts('lamps', addParts(deckLampParts(), isl.lamps), 0, b.lampMat))
     onProgress(0.7)
     await slice()
 
@@ -218,17 +218,12 @@ export class CommandBase implements GameMode {
     const c = shelfContents(owned)
     const rims = shelfRimParts(owned)
     const glows = [...c.glow, ...rims.glow]
-    if (c.lit.length) {
-      const lit = merge(c.lit)
-      const line = new Mesh(lit, outlineMat(0.012))
-      line.renderOrder = -1
-      this.shelfGroup.add(new Mesh(lit, toonVC()), line)
-      this.shelfGeos.push(lit)
-    }
-    if (glows.length) {
-      const g = merge(glows)
-      this.shelfGroup.add(new Mesh(g, glowVC()))
-      this.shelfGeos.push(g)
+    // What stands on the shelf, lit and glowing, in two draw calls (rebuilt only when it changes).
+    this.shelfProp?.dispose()
+    this.shelfProp = null
+    if (c.lit.length || glows.length) {
+      this.shelfProp = assembleBatch('shelf-contents', [{ parts: { lit: c.lit, fine: [], glow: glows }, outline: 0.012 }])
+      this.shelfGroup.add(this.shelfProp.group)
     }
     if (c.holo.length) {
       const g = merge(c.holo)
@@ -341,6 +336,7 @@ export class CommandBase implements GameMode {
     this.sky.dispose()
     this.ship.dispose()
     for (const p of this.props) p.dispose()
+    this.shelfProp?.dispose()
     for (const g of [...this.geos, ...this.shelfGeos]) g.dispose()
     for (const m of this.mats) m.dispose()
     this.embers.dispose()

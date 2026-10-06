@@ -1,6 +1,6 @@
 import { BufferGeometry, CylinderGeometry, Float32BufferAttribute, Group, Matrix4, Mesh, Quaternion, Vector3, type Material } from 'three'
 import { lathe, merge, paint, rbox, stripUv, xform, type V3 } from './kit'
-import { glowVC, outlineMat, toonVC } from './toon'
+import { glowVC, outlineMat, toonGlowVC, toonVC } from './toon'
 
 /**
  * ─── Static props, kept as parts until they are merged ───────────────────────
@@ -72,6 +72,58 @@ export const assembleParts = (name: string, parts: Parts, outline = 0.03, glowMa
     group.add(new Mesh(g, glowMat))
   }
   disposeParts(parts)
+  return { group, dispose: () => { for (const g of geos) g.dispose() } }
+}
+
+/** Only what a batched mesh draws with, indexed, and flagged lit (0) or glowing (1). */
+const batchable = (g: BufferGeometry, glow: number): BufferGeometry => {
+  for (const k of Object.keys(g.attributes)) if (k !== 'position' && k !== 'normal' && k !== 'color') g.deleteAttribute(k)
+  if (!g.attributes.normal) g.computeVertexNormals()
+  const n = g.attributes.position!.count
+  if (!g.index) g.setIndex(Array.from({ length: n }, (_, i) => i))
+  g.setAttribute('aGlow', new Float32BufferAttribute(new Float32Array(n).fill(glow), 1))
+  return g
+}
+
+/** A part pushed out along its normals by `w`: exactly what the outline shader does, baked, so outlines of any width share a mesh. */
+const inflate = (g: BufferGeometry, w: number): BufferGeometry => {
+  const o = g.clone()
+  const p = o.attributes.position!
+  const nrm = o.attributes.normal!
+  for (let i = 0; i < p.count; i++) p.setXYZ(i, p.getX(i) + nrm.getX(i) * w, p.getY(i) + nrm.getY(i) * w, p.getZ(i) + nrm.getZ(i) * w)
+  return o
+}
+
+/**
+ * Several part lists, each with its own outline width, as TWO draw calls
+ * however many there are: every lit, fine and glowing part in one mesh
+ * (`toonGlowVC`: the glowing ones unlit), and every outline, baked to its
+ * own width, in one more. For what never moves (the base's whole set).
+ */
+export const assembleBatch = (name: string, sets: ReadonlyArray<{ parts: Parts; outline: number }>): Prop => {
+  const group = new Group()
+  group.name = name
+  const solid: BufferGeometry[] = []
+  const ink: BufferGeometry[] = []
+  for (const { parts, outline } of sets) {
+    for (const g of [...parts.lit, ...parts.fine]) solid.push(batchable(g, 0))
+    for (const g of parts.glow) solid.push(batchable(g, 1))
+    if (outline > 0) for (const g of parts.lit) ink.push(inflate(g, outline))
+  }
+  const geos: BufferGeometry[] = []
+  if (solid.length) {
+    const body = merge(solid)
+    geos.push(body)
+    group.add(new Mesh(body, toonGlowVC()))
+  }
+  if (ink.length) {
+    const lines = merge(ink)
+    geos.push(lines)
+    const line = new Mesh(lines, outlineMat(0))
+    line.renderOrder = -1
+    group.add(line)
+  }
+  for (const g of [...solid, ...ink]) g.dispose()
   return { group, dispose: () => { for (const g of geos) g.dispose() } }
 }
 
