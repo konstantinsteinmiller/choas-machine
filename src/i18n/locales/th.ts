@@ -35,7 +35,8 @@ export default {
   'fortress': {
     'bastion': 'ปราการ',
     'foundry': 'โรงหลอม',
-    'harbour': 'ท่าเรือ'
+    'harbour': 'ท่าเรือ',
+    'spire': 'หอคอย'
   },
   'hud': {
     'alert': 'ระดับการเตือนภัย',

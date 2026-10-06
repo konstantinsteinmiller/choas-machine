@@ -35,7 +35,8 @@ export default {
   'fortress': {
     'bastion': 'المعقل',
     'foundry': 'المسبك',
-    'harbour': 'الميناء'
+    'harbour': 'الميناء',
+    'spire': 'البرج'
   },
   'hud': {
     'alert': 'مستوى الإنذار',

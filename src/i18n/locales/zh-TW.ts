@@ -35,7 +35,8 @@ export default {
   'fortress': {
     'bastion': '堡壘',
     'foundry': '鑄造廠',
-    'harbour': '港口'
+    'harbour': '港口',
+    'spire': '尖塔'
   },
   'hud': {
     'alert': '警戒等級',

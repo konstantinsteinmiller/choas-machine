@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest'
 import { buildBastion } from '@/game/data/fortresses/bastion'
 import { buildFoundry } from '@/game/data/fortresses/foundry'
 import { buildHarbour } from '@/game/data/fortresses/harbour'
+import { buildSpire } from '@/game/data/fortresses/spire'
 import { buildTrainingGround } from '@/game/data/fortresses/training'
 import { findDeparture, makeDogFrame, makeRiderFrame, outroFrame, DOG_ARRIVE, RIDER_ON } from '@/game/sim/robodog'
 import { hasLineOfSight, heightAt, type Grid } from '@/game/world/grid'
@@ -10,7 +11,8 @@ import type { Fortress } from '@/game/world/fortress'
 
 const FORTS: Array<[string, () => Fortress]> = [
   ...[1, 2, 3].map(l => [`the Bastion at threat ${l}`, () => buildBastion(l)] as [string, () => Fortress]),
-  ['the Foundry', () => buildFoundry(1)], ['the Harbour', () => buildHarbour(1)], ['the training ground', buildTrainingGround]
+  ['the Foundry', () => buildFoundry(1)], ['the Harbour', () => buildHarbour(1)], ['the training ground', buildTrainingGround],
+  ...[1, 2, 3].map(l => [`the Spire at threat ${l}`, () => buildSpire(l)] as [string, () => Fortress])
 ]
 
 /** The highest floor or wall along a straight line (sampled every 0.5 m). */

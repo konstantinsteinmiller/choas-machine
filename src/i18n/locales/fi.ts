@@ -35,7 +35,8 @@ export default {
   'fortress': {
     'bastion': 'Bastioni',
     'foundry': 'Valimo',
-    'harbour': 'Satama'
+    'harbour': 'Satama',
+    'spire': 'Torni'
   },
   'hud': {
     'alert': 'Hälytystaso',

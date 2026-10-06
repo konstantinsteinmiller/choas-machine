@@ -35,7 +35,8 @@ export default {
   'fortress': {
     'bastion': 'Thành Trì',
     'foundry': 'Lò Đúc',
-    'harbour': 'Hải Cảng'
+    'harbour': 'Hải Cảng',
+    'spire': 'Ngọn tháp'
   },
   'hud': {
     'alert': 'Mức báo động',

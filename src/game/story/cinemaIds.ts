@@ -18,14 +18,15 @@ export const seenKey = (id: CinemaId): string => `cine:${id}`
 /**
  * Which scene a banked extraction earns, if any: the haul after the first
  * clear of Bastion I and II (#103), the fall of the Bastion and the Foundry
- * at their first clear of threat III, the outro at the Harbour's first clear
- * of threat V.
+ * at their first clear of threat III, the outro at the Spire's first clear
+ * of threat III (round 5, #144: it used to wait on a Harbour threat V that
+ * no longer exists).
  */
 export const cinemaAfterClear = (fort: string, level: number, firstClear: boolean): CinemaId | null => {
   if (!firstClear) return null
   if (fort === 'bastion' && level <= 2) return 'salvage'
   if (fort === 'bastion' && level === 3) return 'fallBastion'
   if (fort === 'foundry' && level === 3) return 'fallFoundry'
-  if (fort === 'harbour' && level === 5) return 'outro'
+  if (fort === 'spire' && level === 3) return 'outro'
   return null
 }

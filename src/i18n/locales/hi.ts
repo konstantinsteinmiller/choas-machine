@@ -35,7 +35,8 @@ export default {
   'fortress': {
     'bastion': 'गढ़',
     'foundry': 'भट्टी घर',
-    'harbour': 'बंदरगाह'
+    'harbour': 'बंदरगाह',
+    'spire': 'शिखर'
   },
   'hud': {
     'alert': 'अलर्ट स्तर',

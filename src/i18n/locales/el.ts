@@ -35,7 +35,8 @@ export default {
   'fortress': {
     'bastion': 'Προπύργιο',
     'foundry': 'Χυτήριο',
-    'harbour': 'Λιμάνι'
+    'harbour': 'Λιμάνι',
+    'spire': 'Πύργος'
   },
   'hud': {
     'alert': 'Επίπεδο συναγερμού',

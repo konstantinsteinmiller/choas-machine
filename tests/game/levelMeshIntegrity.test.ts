@@ -18,6 +18,7 @@ import type { Fortress } from '@/game/world/fortress'
 import { buildBastion, BASTION_LEVELS } from '@/game/data/fortresses/bastion'
 import { buildFoundry, FOUNDRY_LEVELS } from '@/game/data/fortresses/foundry'
 import { buildHarbour, HARBOUR_LEVELS } from '@/game/data/fortresses/harbour'
+import { buildSpire, SPIRE_LEVELS } from '@/game/data/fortresses/spire'
 import { buildTrainingGround } from '@/game/data/fortresses/training'
 import { buildProvingGround } from '@/game/data/fortresses/proving'
 import { Cinema } from '@/game/story/cinema'
@@ -166,7 +167,8 @@ describe('every level mesh is closed', () => {
     ['proving ground', fortressCase(buildProvingGround)],
     ...Array.from({ length: BASTION_LEVELS }, (_, i) => i + 1).flatMap(l => runs.map(r => [`Bastion ${l}, run ${r}`, fortressCase(() => buildBastion(l, r))] as [string, () => Promise<string[]>])),
     ...Array.from({ length: FOUNDRY_LEVELS }, (_, i) => i + 1).flatMap(l => runs.map(r => [`Foundry ${l}, run ${r}`, fortressCase(() => buildFoundry(l, r))] as [string, () => Promise<string[]>])),
-    ...Array.from({ length: HARBOUR_LEVELS }, (_, i) => i + 1).flatMap(l => runs.map(r => [`Harbour ${l}, run ${r}`, fortressCase(() => buildHarbour(l, r))] as [string, () => Promise<string[]>]))
+    ...Array.from({ length: HARBOUR_LEVELS }, (_, i) => i + 1).flatMap(l => runs.map(r => [`Harbour ${l}, run ${r}`, fortressCase(() => buildHarbour(l, r))] as [string, () => Promise<string[]>])),
+    ...Array.from({ length: SPIRE_LEVELS }, (_, i) => i + 1).flatMap(l => runs.map(r => [`Spire ${l}, run ${r}`, fortressCase(() => buildSpire(l, r))] as [string, () => Promise<string[]>]))
   ]
   for (const [name, check] of cases) {
     it(name, async () => {

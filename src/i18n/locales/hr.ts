@@ -35,7 +35,8 @@ export default {
   'fortress': {
     'bastion': 'Bedem',
     'foundry': 'Ljevaonica',
-    'harbour': 'Luka'
+    'harbour': 'Luka',
+    'spire': 'Toranj'
   },
   'hud': {
     'alert': 'Razina uzbune',

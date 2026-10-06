@@ -17,7 +17,7 @@ import { poseRagdoll } from '../models/ragdollPose'
 import { DOG_STAND, HOUND_SCALE, buildRobodog, poseRobodog, restDogPose, type DogPose } from '../models/robodog'
 import { angleDelta } from './player'
 import { STEP } from '../engine/clock'
-import { SPECS, SPOT_RADIUS, SUSPECT_AT, spotCentre, viewerOf, shieldUp, type Garrison, type Unit , isLight } from './garrison'
+import { SPECS, SUSPECT_AT, spotCentre, spotRadius, viewerOf, shieldUp, type Garrison, type Unit , isLight } from './garrison'
 
 /**
  * ─── The garrison, drawn ─────────────────────────────────────────────────────
@@ -896,7 +896,7 @@ export class GarrisonView {
    * point and the middle of the pool (the same test the simulation uses for
    * being lit, so what is drawn lit IS lit, #69).
    */
-  private writePool(v: UnitView, lx: number, ly: number, lz: number, cx: number, cz: number): void {
+  private writePool(v: UnitView, lx: number, ly: number, lz: number, cx: number, cz: number, radius: number): void {
     const g = this.grid
     const gp = v.pool!
     const mid = heightAt(g, cx, cz)
@@ -909,8 +909,8 @@ export class GarrisonView {
       for (let r = 0; r < H; r++) {
         const k = r / POOL_RINGS
         const o = (s * H + r) * 4
-        const x = cx + dx * SPOT_RADIUS * k
-        const z = cz + dz * SPOT_RADIUS * k
+        const x = cx + dx * radius * k
+        const z = cz + dz * radius * k
         const floor = r === 0 ? midY : heightAt(g, x, z)
         const y = floor === VOID ? midY : floor
         gp[o] = x
@@ -1188,7 +1188,7 @@ export class GarrisonView {
           const gy = g === VOID ? 0 : g
           // Lights move: every other frame is plenty for the clipped pool.
           if ((this.frame + u.id) % 2 === 0 || !v.spot.userData.drawn) {
-            this.writePool(v, x, y - 0.2, z, cx, cz)
+            this.writePool(v, x, y - 0.2, z, cx, cz, spotRadius(u))
             v.spot.userData.drawn = true
           }
           const tint = hot ? HOT : u.detect > 0.05 || wary ? WARY : CALM
@@ -1204,7 +1204,7 @@ export class GarrisonView {
           const block = len > 0.5 ? raycast(this.grid, x, y - 0.1, z, dx / len, dy / len, dz / len, len - 0.3) : null
           const cut = block?.hit ? block.t / len : 1
           len *= cut
-          v.beam.scale.set(SPOT_RADIUS * cut, len, SPOT_RADIUS * cut)
+          v.beam.scale.set(spotRadius(u) * cut, len, spotRadius(u) * cut)
           v.beam.rotation.set(0, 0, 0)
           // Tip the cylinder's −y axis along the beam.
           v.beam.rotation.order = 'YXZ'

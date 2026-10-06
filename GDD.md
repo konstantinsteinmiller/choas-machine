@@ -65,7 +65,7 @@ A visual hub menu (rendered in the pink/cyan UI) where the player upgrades their
 *   **The base learns:** The last raid's habits are answered in the next (helmets after many headshots, box checkers after much use of the hide box, a searchlight on the perch after snipes from it), and the threat card says so.
 *   **The Forge:** Upgrades are bought outright (round 4); after a raid the furnace melts the haul for a bonus, and the rifle's lucky wheel adds damage once the rifle track is maxed. Rewarded videos (where a portal allows them) unlock disguises and a sure spin.
 *   **Disguises (round 4):** The toaster is everyone's; a crate, a clown box, a Trojan horse, a bush and a teddy bear unlock, worn from the Chassis Bay.
-*   **Three fortresses (round 4):** The Bastion (a mountain stronghold), the Foundry (rooms cut out of a block of works, joined by bent halls and stair tunnels) and the Harbour (ships moored over the sky). Each opens after threat III of the one before, has its own look, five threat levels and its own records, and pays more than the one before.
+*   **Four fortresses (rounds 4 and 5):** The Bastion (a mountain stronghold), the Foundry (rooms cut out of a block of works, joined by bent halls and stair tunnels), the Harbour (ships moored over the sky) and the Spire (five terraces one in the other, climbed ring by ring to the way out on top, under the Watchtower: a lamp that cannot be destroyed, sweeps slowly and rings the alarm the moment it finds the Mech). Each opens after threat III of the one before, has its own look, three threat levels and its own records, and pays more than the one before. The outro plays after the Spire's first threat III.
 
 ---
 

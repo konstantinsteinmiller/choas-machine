@@ -35,7 +35,8 @@ export default {
   'fortress': {
     'bastion': 'Bastione',
     'foundry': 'Fonderia',
-    'harbour': 'Porto'
+    'harbour': 'Porto',
+    'spire': 'Guglia'
   },
   'hud': {
     'alert': 'Livello di allerta',

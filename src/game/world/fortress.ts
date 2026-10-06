@@ -82,6 +82,8 @@ export interface Post {
   dummy?: boolean
   /** Its hit points, in place of its kind's (a training target's). */
   hp?: number
+  /** A searchlight that is a Watchtower lamp (#144): it cannot be destroyed, sweeps slowly, and rings the alarm the moment it finds the mech. */
+  watch?: boolean
 }
 
 export type DecorKind =
@@ -506,6 +508,18 @@ export class FortressBuilder {
       kind: 'searchlight', x: cellMid(cx), z: cellMid(cz), facing: Math.atan2(first.x - cellMid(cx), first.z - cellMid(cz)),
       route, altitude: top + SEARCHLIGHT_MAST
     })
+    return this
+  }
+
+  /**
+   * The Watchtower (#144): a steel column `h` metres high and the lamp on top
+   * of it, sweeping the ground slowly; it cannot be destroyed, and the moment
+   * it finds the mech in its pool the alarm rings (no uplink).
+   */
+  watchtower(cx: number, cz: number, h: number, sweep: Array<[number, number, number?]>): this {
+    this.fill(cx, cz, cx, cz, h)
+    this.searchlight(cx, cz, sweep)
+    Object.assign(this.posts[this.posts.length - 1]!, { watch: true, armoured: true })
     return this
   }
 

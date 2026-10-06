@@ -805,7 +805,7 @@ fortress; the outro after the first Spire III clear).
 - [x] **R54 The Airship** (#142): model, loop, belly light, turrets, flying
   enemy rockets, socket-synced fire, engine pods, crash; Spire II/III and
   Harbour III
-- [ ] **R55 The Spire** (#144): 4th fortress, terraced tower, Watchtower lamp,
+- [x] **R55 The Spire** (#144): 4th fortress, terraced tower, Watchtower lamp,
   Airship at II/III, story (outro after the first Spire III clear)
 - [ ] **R56 Map fly-over** (#149): orbit shots of every map, fixes,
   integrity test over roofs / props / cables / skirt / scenery

@@ -35,7 +35,8 @@ export default {
   'fortress': {
     'bastion': 'Bastionas',
     'foundry': 'Liejykla',
-    'harbour': 'Uostas'
+    'harbour': 'Uostas',
+    'spire': 'Bokštas'
   },
   'hud': {
     'alert': 'Pavojaus lygis',

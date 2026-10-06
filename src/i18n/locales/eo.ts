@@ -35,7 +35,8 @@ export default {
   'fortress': {
     'bastion': 'Bastiono',
     'foundry': 'Fandejo',
-    'harbour': 'Haveno'
+    'harbour': 'Haveno',
+    'spire': 'Pinto'
   },
   'hud': {
     'alert': 'Alarmnivelo',

@@ -35,7 +35,8 @@ export default {
   'fortress': {
     'bastion': 'Bastion',
     'foundry': 'Quyma zavodi',
-    'harbour': 'Port'
+    'harbour': 'Port',
+    'spire': 'Minora'
   },
   'hud': {
     'alert': 'Xavf darajasi',

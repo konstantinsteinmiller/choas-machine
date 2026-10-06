@@ -35,7 +35,8 @@ export default {
   'fortress': {
     'bastion': '보루',
     'foundry': '제련소',
-    'harbour': '항구'
+    'harbour': '항구',
+    'spire': '첨탑'
   },
   'hud': {
     'alert': '경계 수준',

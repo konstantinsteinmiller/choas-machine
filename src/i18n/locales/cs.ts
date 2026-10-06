@@ -35,7 +35,8 @@ export default {
   'fortress': {
     'bastion': 'Bašta',
     'foundry': 'Slévárna',
-    'harbour': 'Přístav'
+    'harbour': 'Přístav',
+    'spire': 'Věž'
   },
   'hud': {
     'alert': 'Úroveň poplachu',

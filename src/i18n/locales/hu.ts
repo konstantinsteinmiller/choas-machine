@@ -35,7 +35,8 @@ export default {
   'fortress': {
     'bastion': 'Bástya',
     'foundry': 'Öntöde',
-    'harbour': 'Kikötő'
+    'harbour': 'Kikötő',
+    'spire': 'Torony'
   },
   'hud': {
     'alert': 'Riadószint',

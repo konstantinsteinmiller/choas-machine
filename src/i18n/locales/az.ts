@@ -35,7 +35,8 @@ export default {
   'fortress': {
     'bastion': 'Bürc',
     'foundry': 'Tökmə zavodu',
-    'harbour': 'Liman'
+    'harbour': 'Liman',
+    'spire': 'Qüllə'
   },
   'hud': {
     'alert': 'Həyəcan səviyyəsi',

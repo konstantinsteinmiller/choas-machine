@@ -35,7 +35,8 @@ export default {
   'fortress': {
     'bastion': 'Burç',
     'foundry': 'Dökümhane',
-    'harbour': 'Liman'
+    'harbour': 'Liman',
+    'spire': 'Kule'
   },
   'hud': {
     'alert': 'Alarm seviyesi',

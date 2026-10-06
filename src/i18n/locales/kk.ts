@@ -35,7 +35,8 @@ export default {
   'fortress': {
     'bastion': 'Бастион',
     'foundry': 'Құю цехы',
-    'harbour': 'Айлақ'
+    'harbour': 'Айлақ',
+    'spire': 'Шпиль'
   },
   'hud': {
     'alert': 'Дабыл деңгейі',

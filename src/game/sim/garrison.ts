@@ -72,6 +72,13 @@ const MARKSMAN_SIGHT = 1.6
 /** The drone's searchlight: this far ahead of it on the ground, this wide. */
 export const SPOT_AHEAD = 3
 export const SPOT_RADIUS = 4.5
+/** A Watchtower lamp's pool (#144): wider, and its beam crosses the ground at this share of a searchlight's pace. */
+export const WATCH_RADIUS = 6.5
+export const WATCH_PACE = 0.35
+/** Held this long in a Watchtower's pool and it is sure: the alarm rings. */
+export const WATCH_SURE_S = 0.35
+/** The pool a light throws on the ground. */
+export const spotRadius = (u: { watch?: boolean }): number => (u.watch ? WATCH_RADIUS : SPOT_RADIUS)
 /** Seconds a fully lit, standing mech has before a drone is sure of it. */
 const SPOT_NOTICE_S = 0.9
 
@@ -233,6 +240,8 @@ export interface Unit {
   boss: 'warden' | 'foreman' | 'goliath' | null
   /** Only a blast hurts it (#146); a training target that never wakes. */
   armoured: boolean
+  /** A Watchtower lamp (#144): it cannot be destroyed, sweeps slowly, rings the alarm at once. */
+  watch: boolean
   dummy: boolean
   maxHp: number
   shield: boolean
@@ -831,7 +840,7 @@ export const makeGarrison = (f: Fortress, level = 2): Garrison => {
       yaw: p.facing, pyaw: p.facing, look: 0,
       state: p.reserve ? 'reserve' : mech ? 'dormant' : 'patrol', t: 0, detect: 0, sees: false, seenX: p.x, seenZ: p.z, lured: false,
       route: p.route, wp: p.route.length > 1 ? 1 : 0, wait: p.route[0]?.wait ?? 0,
-      path: [], pathI: 0, repath: 0, bodyT: 0, seenFor: 0, unseenFor: 9, shouted: false, runner: -1, wary: false, hop: 0, fought: false, checkAt: Infinity, checked: false, hp: p.hp ?? Math.round(SPECS[p.kind].hp * threat.hp * (p.boss === 'foreman' ? FOREMAN_HP : 1)), maxHp: p.hp ?? Math.round(SPECS[p.kind].hp * threat.hp * (p.boss === 'foreman' ? FOREMAN_HP : 1)), boss: p.boss ?? null, armoured: !!p.armoured, dummy: !!p.dummy, shield: !!p.shield, deadT: 0, fallDir: 1, huh: HUH_S, noise: 0, gripped: false, hold: 0, held: null, death: 'back', hitX: 0, hitZ: 0, found: false,
+      path: [], pathI: 0, repath: 0, bodyT: 0, seenFor: 0, unseenFor: 9, shouted: false, runner: -1, wary: false, hop: 0, fought: false, checkAt: Infinity, checked: false, hp: p.hp ?? Math.round(SPECS[p.kind].hp * threat.hp * (p.boss === 'foreman' ? FOREMAN_HP : 1)), maxHp: p.hp ?? Math.round(SPECS[p.kind].hp * threat.hp * (p.boss === 'foreman' ? FOREMAN_HP : 1)), boss: p.boss ?? null, armoured: !!p.armoured, dummy: !!p.dummy, watch: !!p.watch, shield: !!p.shield, deadT: 0, fallDir: 1, huh: HUH_S, noise: 0, gripped: false, hold: 0, held: null, death: 'back', hitX: 0, hitZ: 0, found: false,
       stride: 0, speed01: 0, homeX: p.x, homeZ: p.z, homeYaw: p.facing, altitude: p.altitude,
       spotX: spot.x, spotZ: spot.z,
       seed: (id * 2.399) % (Math.PI * 2),
@@ -958,7 +967,7 @@ const moveSpot = (u: Unit, dx: number, dz: number): void => {
 const sight = (u: Unit, g: Grid, t: Seen, gar: Garrison): number => {
   if (!isLight(u)) return exposure(g, viewerOf(u, gar.heightened), t)
   const c = spotCentre(u)
-  if (Math.hypot(t.x - c.x, t.z - c.z) > SPOT_RADIUS) return 0
+  if (Math.hypot(t.x - c.x, t.z - c.z) > spotRadius(u)) return 0
   // In the shadow of a wall or a crate that stands between the light pool
   // and the mech, it is not lit, whatever the lamp up above can see (#56).
   const floor = heightAt(g, c.x, c.z)
@@ -1127,6 +1136,11 @@ const stepUplink = (u: Unit, gar: Garrison, g: Grid, target: Target, dt: number)
   if (u.uplinkT < UPLINK_S) return
   u.uplinkT = 0
   gar.events.push({ type: 'uplinkDone', id: u.id })
+  alarmNow(gar, g, target)
+}
+
+/** The base's alarm, at once: everyone hunts where the mech was, the nearest Enforcer wakes, runners go to the beacons. */
+const alarmNow = (gar: Garrison, g: Grid, target: Target): void => {
   if (gar.drill) return
   gar.lkp.x = target.x
   gar.lkp.y = target.y
@@ -1485,7 +1499,7 @@ const patrol = (u: Unit, g: Grid, time: number, dt: number): void => {
     const dx = stop.x - u.spotX
     const dz = stop.z - u.spotZ
     const dist = Math.hypot(dx, dz)
-    const step = SPECS.searchlight.walk * dt
+    const step = SPECS.searchlight.walk * (u.watch ? WATCH_PACE : 1) * dt
     if (dist <= step) {
       u.spotX = stop.x
       u.spotZ = stop.z
@@ -1632,7 +1646,7 @@ const fight = (u: Unit, g: Grid, gar: Garrison, target: Target, dt: number): voi
     const dz = u.seenZ - c.z
     const d = Math.hypot(dx, dz)
     if (d > 0.3) {
-      const step = Math.min(d, spec.run * dt)
+      const step = Math.min(d, spec.run * (u.watch ? WATCH_PACE : 1) * dt)
       moveSpot(u, (dx / d) * step, (dz / d) * step)
     }
     if (u.kind === 'drone') turnToward(u, headingTo(u.x, u.z, u.seenX, u.seenZ), dt, 3)
@@ -1988,6 +2002,8 @@ export const stepGarrison = (gar: Garrison, g: Grid, target: Target, dt: number)
       // The yellow band is not: the player gets a fair moment to duck out.
       const wary = !yellow && (u.state === 'suspicious' || u.state === 'search') ? WARY_GAIN : 1
       if (!grace) u.detect = Math.min(1, u.detect + rate * wary * gar.threat.notice * dt)
+      // The Watchtower (#144) does not wonder: a moment in its pool and it is sure.
+      if (u.watch && u.seenFor >= WATCH_SURE_S) u.detect = 1
       u.seenX = target.x
       u.seenZ = target.z
       gar.lkp.x = target.x
@@ -2016,7 +2032,11 @@ export const stepGarrison = (gar: Garrison, g: Grid, target: Target, dt: number)
       const known = gar.units.some(o => o !== u && o.state === 'combat')
       // A hound barks: the guards round it come, beacons or not.
       if (u.kind === 'hound') shout(gar, u, target)
-      if (uplinks(u)) {
+      if (u.watch) {
+        // The Watchtower (#144): no uplink to wait for; the alarm rings now.
+        gar.events.push({ type: 'uplinkDone', id: u.id })
+        alarmNow(gar, g, target)
+      } else if (uplinks(u)) {
         // A machine has no voice: it uplinks to the base (#73). The ring
         // fills while it keeps the mech in view; it is the player's moment.
         u.uplinkT = 0.0001
@@ -2434,6 +2454,8 @@ const stepOnFire = (gar: Garrison, u: Unit, g: Grid, dt: number): void => {
 export const damageUnit = (gar: Garrison, id: number, amount: number, fromX: number, fromZ: number, how: KillHow = 'shot'): boolean => {
   const u = gar.units[id]
   if (!u || !isAlive(u)) return false
+  // A Watchtower lamp cannot be destroyed (#144).
+  if (u.watch) return false
   u.hp -= amount
   if (u.hp > 0) return false
   killUnit(gar, id, fromX, fromZ, how)

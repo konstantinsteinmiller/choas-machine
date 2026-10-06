@@ -11,7 +11,7 @@ import type { ThemeId } from '../themes'
  * its own chunk.
  */
 
-export type FortressId = 'bastion' | 'foundry' | 'harbour'
+export type FortressId = 'bastion' | 'foundry' | 'harbour' | 'spire'
 
 export interface FortressMeta {
   id: FortressId
@@ -27,7 +27,9 @@ export const FORTRESSES: readonly FortressMeta[] = [
   { id: 'bastion', theme: 'dusk', unlock: null, pay: 1 },
   // Open once the Bastion has fallen at threat III (Q4).
   { id: 'foundry', theme: 'foundry', unlock: { after: 'bastion', threat: 3 }, pay: 1.35 },
-  { id: 'harbour', theme: 'harbour', unlock: { after: 'foundry', threat: 3 }, pay: 1.7 }
+  { id: 'harbour', theme: 'harbour', unlock: { after: 'foundry', threat: 3 }, pay: 1.7 },
+  // Round 5 (#144): the last, open once the Harbour has fallen at threat III.
+  { id: 'spire', theme: 'spire', unlock: { after: 'harbour', threat: 3 }, pay: 2 }
 ]
 
 export const FORTRESS_IDS: readonly FortressId[] = FORTRESSES.map(f => f.id)
@@ -42,5 +44,6 @@ export const loadFortress = async (id: FortressId, level: number, run: number, a
     case 'bastion': return (await import('./bastion')).buildBastion(level, run, answers)
     case 'foundry': return (await import('./foundry')).buildFoundry(level, run, answers)
     case 'harbour': return (await import('./harbour')).buildHarbour(level, run, answers)
+    case 'spire': return (await import('./spire')).buildSpire(level, run, answers)
   }
 }

@@ -35,7 +35,8 @@ export default {
   'fortress': {
     'bastion': 'Бастіон',
     'foundry': 'Ливарня',
-    'harbour': 'Гавань'
+    'harbour': 'Гавань',
+    'spire': 'Шпиль'
   },
   'hud': {
     'alert': 'Рівень тривоги',

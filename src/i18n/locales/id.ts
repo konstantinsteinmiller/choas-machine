@@ -35,7 +35,8 @@ export default {
   'fortress': {
     'bastion': 'Bastion',
     'foundry': 'Pengecoran',
-    'harbour': 'Pelabuhan'
+    'harbour': 'Pelabuhan',
+    'spire': 'Menara'
   },
   'hud': {
     'alert': 'Tingkat siaga',

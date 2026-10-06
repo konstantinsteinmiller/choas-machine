@@ -35,7 +35,8 @@ export default {
   'fortress': {
     'bastion': 'Bastionen',
     'foundry': 'Smelteverket',
-    'harbour': 'Havnen'
+    'harbour': 'Havnen',
+    'spire': 'Spiret'
   },
   'hud': {
     'alert': 'Alarmnivå',

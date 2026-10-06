@@ -35,7 +35,8 @@ export default {
   'fortress': {
     'bastion': 'Bastions',
     'foundry': 'Lietuve',
-    'harbour': 'Osta'
+    'harbour': 'Osta',
+    'spire': 'Tornis'
   },
   'hud': {
     'alert': 'Trauksmes līmenis',

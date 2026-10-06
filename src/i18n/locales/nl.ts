@@ -35,7 +35,8 @@ export default {
   'fortress': {
     'bastion': 'Bastion',
     'foundry': 'Gieterij',
-    'harbour': 'Haven'
+    'harbour': 'Haven',
+    'spire': 'Spits'
   },
   'hud': {
     'alert': 'Alarmniveau',

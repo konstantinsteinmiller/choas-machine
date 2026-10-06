@@ -9,7 +9,7 @@ import { DUSK, type SkyColors } from '../world/sky'
  * violet dusk.
  */
 
-export type ThemeId = 'dusk' | 'foundry' | 'harbour'
+export type ThemeId = 'dusk' | 'foundry' | 'harbour' | 'spire'
 
 export interface LevelTheme {
   /** Ground, walls, cover, trims (`world/fortressMesh.ts`). */
@@ -75,6 +75,41 @@ const HARBOUR_MESH: Theme = {
   ladder: '#5fe9d0',
   cable: '#ffe6c2'
 }
+/** The Spire (#144): blued steel terraces with signal-red trims under a deep dusk going to night. */
+const SPIRE_MESH: Theme = {
+  ...SCRAPYARD,
+  groundA: '#5f6488',
+  groundB: '#585c7f',
+  rim: '#7c82a8',
+  cliffTop: '#3d4070',
+  cliffFoot: '#191a3f',
+  plate: '#a7abc8',
+  blockTop: '#9ea3c2',
+  blockSide: '#646a92',
+  blockSideAlt: '#585e86',
+  rust: '#c2463f',
+  blockFoot: '#2c2f58',
+  cover: ['#d8443e', '#4f86d0', '#e0b23c', '#7a5bc8'],
+  stair: '#9aa0c0',
+  pad: '#ff5a4f',
+  trimWall: '#ff4f5f',
+  trimTower: '#ffd166',
+  ladder: '#ffd166',
+  cable: '#ffd8d0'
+}
+const SIGNAL: SkyColors = {
+  zenith: '#241f5a',
+  mid: '#6a3f86',
+  horizon: '#e9706a',
+  below: '#1d1438',
+  sun: '#ffd9c8',
+  skyLight: '#d8c2ff',
+  groundLight: '#4a3a7a',
+  cloud: '#d38aa8',
+  farIsland: '#5a4a8e',
+  farIslandFoot: '#211849'
+}
+
 const AMBER: SkyColors = {
   zenith: '#2f4f86',
   mid: '#c9867a',
@@ -91,7 +126,8 @@ const AMBER: SkyColors = {
 export const THEMES: Readonly<Record<ThemeId, LevelTheme>> = {
   dusk: { mesh: SCRAPYARD, sky: DUSK },
   foundry: { mesh: FOUNDRY_MESH, sky: EMBER },
-  harbour: { mesh: HARBOUR_MESH, sky: AMBER }
+  harbour: { mesh: HARBOUR_MESH, sky: AMBER },
+  spire: { mesh: SPIRE_MESH, sky: SIGNAL }
 }
 
 /** A fortress's look; the training ground and anything unthemed wear the dusk. */

@@ -35,7 +35,8 @@ export default {
   'fortress': {
     'bastion': 'Bastion',
     'foundry': 'Turnătoria',
-    'harbour': 'Portul'
+    'harbour': 'Portul',
+    'spire': 'Turla'
   },
   'hud': {
     'alert': 'Nivel de alertă',

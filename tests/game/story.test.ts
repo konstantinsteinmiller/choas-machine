@@ -13,12 +13,13 @@ import { CELL, heightAt } from '@/game/world/grid'
 import { WALK_EARSHOT } from '@/game/sim/garrison'
 
 describe('which scene a first clear earns', () => {
-  it('the haul after Bastion I and II, the falls at III, the outro at Harbour V, nothing on a replay', () => {
+  it('the haul after Bastion I and II, the falls at III, the outro at Spire III (round 5), nothing on a replay', () => {
     expect(cinemaAfterClear('bastion', 1, true)).toBe('salvage')
     expect(cinemaAfterClear('bastion', 2, true)).toBe('salvage')
     expect(cinemaAfterClear('bastion', 3, true)).toBe('fallBastion')
     expect(cinemaAfterClear('foundry', 3, true)).toBe('fallFoundry')
-    expect(cinemaAfterClear('harbour', 5, true)).toBe('outro')
+    expect(cinemaAfterClear('spire', 3, true)).toBe('outro')
+    expect(cinemaAfterClear('harbour', 5, true)).toBeNull()
     expect(cinemaAfterClear('bastion', 4, true)).toBeNull()
     expect(cinemaAfterClear('bastion', 1, false)).toBeNull()
   })

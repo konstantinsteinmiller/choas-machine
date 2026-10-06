@@ -35,7 +35,8 @@ export default {
   'fortress': {
     'bastion': 'Bastion',
     'foundry': 'Huta',
-    'harbour': 'Port'
+    'harbour': 'Port',
+    'spire': 'Iglica'
   },
   'hud': {
     'alert': 'Poziom alarmu',
