@@ -2,7 +2,7 @@ import {
   BackSide, BufferGeometry, Color, CylinderGeometry, DirectionalLight, Euler, Float32BufferAttribute, Fog, Group, HemisphereLight,
   InstancedMesh, Matrix4, Mesh, MeshBasicMaterial, Quaternion, Scene, SphereGeometry, Vector3
 } from 'three'
-import { merge, rbox, rock, sph, torus, paint, paintBy, weldKey } from '../models/kit'
+import { merge, rbox, rock, sph, torus, paint, paintBy, weldKey, xform } from '../models/kit'
 import { toonVCInstanced } from '../models/toon'
 import { mulberry32 } from './rng'
 import { sceneQuality } from '../engine/quality'
@@ -154,6 +154,61 @@ const buildClouds = (c: SkyColors, count: number, centre: Vector3): { mesh: Inst
   drift(0)
   return { mesh, drift }
 }
+
+/**
+ * Clouds in the sky and along the horizon: cumulus heaps of a few puffs,
+ * flat underneath, lit on top and lilac below. One instanced mesh, unlit and
+ * opaque (nothing to sort), out past the haze so it never fogs them away; the
+ * whole ring turns slowly round the base (one rotation a frame, nothing else),
+ * so they drift with no work at all.
+ */
+const buildSkyClouds = (c: SkyColors, count: number, centre: Vector3): Group => {
+  const puffs = [[0, 0, 0, 1], [0.9, -0.12, 0.1, 0.72], [-0.85, -0.1, -0.05, 0.78], [0.35, 0.32, -0.15, 0.66], [-0.4, 0.28, 0.12, 0.6]] as const
+  const geo = merge(puffs.map(([x, y, z, r]) => xform(sph(r, 9, 6), [x, y, z])))
+  const pos = geo.attributes.position!
+  const lit = new Color('#fff4fb')
+  const under = new Color(c.cloud).lerp(new Color(c.mid), 0.45)
+  const col = new Float32Array(pos.count * 3)
+  const tmp = new Color()
+  for (let i = 0; i < pos.count; i++) {
+    // Flat underneath, like a fair-weather cumulus.
+    if (pos.getY(i) < -0.18) pos.setY(i, -0.18)
+    tmp.copy(under).lerp(lit, Math.min(1, Math.max(0, (pos.getY(i) + 0.18) / 0.9)))
+    col[i * 3] = tmp.r
+    col[i * 3 + 1] = tmp.g
+    col[i * 3 + 2] = tmp.b
+  }
+  geo.setAttribute('color', new Float32BufferAttribute(col, 3))
+  geo.deleteAttribute('uv')
+  geo.deleteAttribute('normal')
+  const mat = new MeshBasicMaterial({ vertexColors: true, toneMapped: false, fog: false })
+  const mesh = new InstancedMesh(geo, mat, count)
+  mesh.name = 'sky-clouds'
+  const rng = mulberry32(4242)
+  for (let i = 0; i < count; i++) {
+    // Half up in the sky, half low along the horizon, spread round the whole ring.
+    const high = i % 2 === 0
+    const a = (i / count) * Math.PI * 2 + rng() * 0.5
+    // Inside the dome (400 m round the camera) wherever the camera stands on a fortress.
+    const dist = 210 + rng() * 50
+    const w = high ? 22 + rng() * 22 : 34 + rng() * 34
+    _p.set(Math.cos(a) * dist, high ? 45 + rng() * 55 : 6 + rng() * 16, Math.sin(a) * dist)
+    // Broadside to the base, so each reads as a long heap.
+    _q.setFromAxisAngle(_axis, -a + Math.PI / 2 + (rng() - 0.5) * 0.6)
+    _s.set(w, w * (0.22 + rng() * 0.12), w * (0.45 + rng() * 0.2))
+    mesh.setMatrixAt(i, _m.compose(_p, _q, _s))
+  }
+  mesh.instanceMatrix.needsUpdate = true
+  mesh.frustumCulled = false
+  const ring = new Group()
+  ring.name = 'sky-cloud-ring'
+  ring.position.copy(centre)
+  ring.add(mesh)
+  return ring
+}
+
+/** How fast the cloud ring turns (rad/s): a few metres a second out where they are. */
+export const SKY_CLOUD_SPIN = 0.004
 
 /** The sea of clouds the mountains stand in: flat, wide puffs at one level. */
 export const CLOUD_SEA_Y = -32
@@ -313,7 +368,8 @@ export const buildSky = (scene: Scene, centre: Vector3, c: SkyColors = DUSK, gro
   const low = sceneQuality() === 'low'
   const islands = buildFarIslands(c, low ? 5 : 9, centre, 230, 320)
   const clouds = buildClouds(c, low ? 8 : 18, centre)
-  group.add(islands, clouds.mesh)
+  const skyClouds = buildSkyClouds(c, low ? 8 : 16, centre)
+  group.add(islands, clouds.mesh, skyClouds)
   // The mountain the base stands on, the cloud sea, spires out of it, and
   // (round a fortress) two chains to the nearest spires.
   const half = ground ? Math.max(ground.w, ground.d) / 2 : 40
@@ -357,6 +413,7 @@ export const buildSky = (scene: Scene, centre: Vector3, c: SkyColors = DUSK, gro
     group,
     update: (cameraPos, time) => {
       dome.position.copy(cameraPos)
+      skyClouds.rotation.y = time * SKY_CLOUD_SPIN
       if (time - lastDrift > 0.25) {
         clouds.drift(time)
         lastDrift = time
@@ -379,6 +436,10 @@ export const buildSky = (scene: Scene, centre: Vector3, c: SkyColors = DUSK, gro
       clouds.mesh.geometry.dispose()
       ;(clouds.mesh.material as MeshBasicMaterial).dispose()
       clouds.mesh.dispose()
+      const sc = skyClouds.children[0] as InstancedMesh
+      sc.geometry.dispose()
+      ;(sc.material as MeshBasicMaterial).dispose()
+      sc.dispose()
       scene.remove(group)
     }
   }
