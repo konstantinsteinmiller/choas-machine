@@ -99,7 +99,7 @@ export const hud = reactive({
   alarm: 0,
   alarmLit: 0,
   /** The boss whose bar is up ('' none), its health 0 … 1, and whether it carries a shield. */
-  bossKind: '' as '' | 'warden' | 'foreman' | 'goliath',
+  bossKind: '' as '' | 'warden' | 'foreman' | 'goliath' | 'airship',
   bossHp: 1,
   bossShield: false,
   /** A pile within reach; and 0 … 1 of stripping one. */

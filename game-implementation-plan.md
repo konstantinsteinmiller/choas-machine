@@ -802,7 +802,7 @@ fortress; the outro after the first Spire III clear).
 - [x] **R53 Shield guard tactics** (#151): shield up while approaching, leads
   the squad and covers guards behind it, peeks to fire only after 5 s without
   being hit; burnable
-- [ ] **R54 The Airship** (#142): model, loop, belly light, turrets, flying
+- [x] **R54 The Airship** (#142): model, loop, belly light, turrets, flying
   enemy rockets, socket-synced fire, engine pods, crash; Spire II/III and
   Harbour III
 - [ ] **R55 The Spire** (#144): 4th fortress, terraced tower, Watchtower lamp,

@@ -11,6 +11,7 @@ import {
 } from '../models/garrison'
 import type { WeaponId } from '../data/ids'
 import { guardGaitRate } from '../sim/gait'
+import { buildAirship } from '../models/airship'
 import { BACKSTAB_VARIANTS, VARIANTS, type BackstabVariant } from '../sim/backstab'
 import { poseBackstabGuard, poseBackstabMech } from '../sim/backstabStage'
 
@@ -145,6 +146,15 @@ export class ModelBench implements GameMode {
         const rig = buildGuard(false, shield, false, kit)
         add(rig, 0, (t) => poseGuard(rig, { ...restGuardPose(), time: t, aim: poseName === 'aim' ? 1 : 0 }))
       }
+    }
+    // The Airship (#142), on its own (it is the size of a building): fans turning, turrets swinging.
+    if (which === 'airship') {
+      const rig = buildAirship()
+      add(rig, 8, (t) => {
+        for (let i = 0; i < 4; i++) rig.bones[`fan${i}`]!.rotation.z = t * 18
+        rig.bones.turretF!.rotation.y = Math.sin(t * 0.7) * 0.8
+        rig.bones.turretB!.rotation.y = Math.cos(t * 0.6) * 0.8
+      }, 32)
     }
     if (all || which === 'drone') {
       const rig = buildDrone()

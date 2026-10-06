@@ -46,16 +46,23 @@ import { bodySink, placeKillBody } from './killPose'
 import { guardJoints } from '../models/ragdollPose'
 import { makeGrappleVisual, type GrappleVisual } from '../fx/grappleHook'
 import { castShot, makeShotHit, HEAD_Y } from './hitscan'
-import { blast, shotDamage } from './damage'
+import { BASE_DAMAGE, blast, shotDamage } from './damage'
 import { SNIPER_MAG, SPREAD, ammoOf, isDry, isLow, makeArsenal, reloadProgress, reserveOf, stepArsenal, type Arsenal, type Trigger } from './weapons'
 import { decoySpot, findRopeStrike, findStrike, stepDecoys, type Decoy, type Strike, type StrikeKind } from './melee'
 import { HIP_Y, airAt, airCam, airMark, planAir, type AirBeat, type AirPlan } from './airStrike'
-import { fireRocket, stepRockets, type Rocket } from './rockets'
+import { fireRocket, stepRockets, type Burst, type Rocket } from './rockets'
 import { blastRagdoll, nearRay, push, ragdollFrom, wake as wakeRagdoll } from './ragdoll'
 import { MARKSMAN_AIM_S, stepFire } from './chaos'
 import { hurtArmor, makeArmor, stepArmor, type Armor } from './armor'
 import { flow, finishMission, failMission, finishTraining } from '../flow'
 import { BANNER_HOLD, clearBanner, showBanner } from '../state/banner'
+import {
+  AIRSHIP_SCRAP, LAMP_R, ROUND_DAMAGE, ROUND_HIT, SHIP_BLAST_R, TURRET_RANGE, UPLINK_S as SHIP_UPLINK_S, ENGINE_HP,
+  blastAirship, enginesUp, flying, hitTurret, launchRocket, makeAirship, shipBlastDamage, stepAirship, stepGuns, stepShipRockets,
+  type Airship, type ShipRocket, type TurretId
+} from './airship'
+import { AirshipView } from './airshipView'
+import { AIRSHIP_HALF } from '../models/airship'
 import { TrainingDirector } from './trainingDirector'
 import { entryOf, lessonStuck, roomAt } from './training'
 import { TRAINING_ID, TRAINING_ROOMS } from '../data/fortresses/training'
@@ -481,6 +488,8 @@ export class Mission implements GameMode {
     m.shadow = makeBlobShadow(0.7)
     await slice()
     m.garrisonView = new GarrisonView(m.garrison, fortress.grid)
+    // The Airship circles the later fortresses (#142).
+    if (fortress.airship) m.ship = { a: makeAirship(fortress.grid), v: new AirshipView(m.scene, fortress.grid), rockets: [] }
     await slice()
     m.fx = new CombatFx()
     m.strikeMark = new Sprite(new SpriteMaterial({
@@ -779,6 +788,7 @@ export class Mission implements GameMode {
       }
       this.stepWeapons(dt)
       this.stepRockets(dt)
+      this.stepShip(dt)
       stepDecoys(this.decoys, this.garrison, this.fortress.grid, dt)
       if (this.decoyCool > 0) this.decoyCool = Math.max(0, this.decoyCool - dt)
       mirror('decoys', this.decoyCool <= 0 ? 1 : 0)
@@ -867,7 +877,13 @@ export class Mission implements GameMode {
       mirror('alarmLit', b ? b.lit : gar.alert.chaos ? 1 : 0)
     }
     const boss = this.bossFocus >= 0 ? this.garrison.units[this.bossFocus] : undefined
-    if (boss && boss.boss) {
+    const ship = this.ship
+    if (ship && this.shipFocus > 0 && flying(ship.a)) {
+      // The Airship once it has been shot at (#142): its engines, as the bar.
+      mirror('bossKind', 'airship')
+      mirror('bossHp', ship.a.engines.reduce((n, h) => n + h, 0) / (4 * ENGINE_HP))
+      mirror('bossShield', false)
+    } else if (boss && boss.boss) {
       mirror('bossKind', boss.boss)
       mirror('bossHp', Math.max(0, boss.hp) / boss.maxHp)
       mirror('bossShield', boss.shield)
@@ -1060,6 +1076,8 @@ export class Mission implements GameMode {
     if (w === 'minigun') this.goLoud()
 
     const h = castShot(g, gar.units, ox, oy, oz, dx, dy, dz, SHOT_RANGE, this.hit)
+    // The Airship (#142) is not in the grid: a round that meets it first stops there.
+    if (this.roundOnShip(ox, oy, oz, dx, dy, dz, h.kind === 'none' ? SHOT_RANGE : h.t, w, mx, my, mz)) return
     // A rifle round is quiet, not unnoticed (#68, #70): whoever it lands near,
     // or passes close to, turns to where the base guesses it came from.
     const p0 = this.player
@@ -1167,25 +1185,51 @@ export class Mission implements GameMode {
   private stepRockets(dt: number): void {
     if (this.rockets.length === 0) return
     const g = this.fortress.grid
-    for (const b of stepRockets(this.rockets, g, this.garrison.units, dt)) {
-      const floor = heightAt(g, b.x, b.z)
-      this.fx.explosion(b.x, b.y, b.z, floor === VOID ? b.y - 1 : floor)
-      this.killBy = 'rocket'
-      this.killHead = false
-      const res = blast(this.garrison, g, b.x, b.y, b.z, b.direct, this.loadout.blastRadius, this.loadout.damage.rocket)
-      for (const o of this.barrels) if (o.live && Math.hypot(o.x - b.x, o.z - b.z) < this.loadout.blastRadius) ignite(o, 0.08)
-      // The dead fly too (#64).
-      for (const d of this.garrison.units) {
-        if (d.rag && d.state === 'dead' && !d.hidden && d.deadT >= d.hold) blastRagdoll(d.rag, b.x, b.y, b.z, this.loadout.blastRadius * 1.3, 1 / 60)
+    // Into the Airship (#142): it is not in the grid, so it is looked for here.
+    if (this.ship && flying(this.ship.a)) {
+      for (let i = this.rockets.length - 1; i >= 0; i--) {
+        const r = this.rockets[i]!
+        if (!this.onShip(r.x, r.y, r.z)) continue
+        this.rockets.splice(i, 1)
+        this.rocketBurst({ x: r.x, y: r.y, z: r.z, direct: -1 })
       }
-      if (res.kills.length + res.hurt.length > 0) this.stats.hits++
-      for (const id of res.hurt) alarmUnit(this.garrison, id, this.player.x, this.player.z)
-      emit('blast', { x: b.x, y: b.y, z: b.z, weak: res.weakHit })
-      haptic('blast')
-      // The nearer the blast, the harder the picture shakes.
-      const d = Math.hypot(b.x - this.player.x, b.z - this.player.z)
-      this.shake = Math.max(this.shake, Math.max(0.2, 1.1 - d / 40))
-      this.flushGarrison()
+    }
+    for (const b of stepRockets(this.rockets, g, this.garrison.units, dt)) this.rocketBurst(b)
+  }
+
+  /** A rocket goes off: everyone in the blast, barrels, bodies, the Airship's engines. */
+  private rocketBurst(b: Burst): void {
+    const g = this.fortress.grid
+    const floor = heightAt(g, b.x, b.z)
+    this.fx.explosion(b.x, b.y, b.z, floor === VOID ? b.y - 1 : floor)
+    this.killBy = 'rocket'
+    this.killHead = false
+    const res = blast(this.garrison, g, b.x, b.y, b.z, b.direct, this.loadout.blastRadius, this.loadout.damage.rocket)
+    for (const o of this.barrels) if (o.live && Math.hypot(o.x - b.x, o.z - b.z) < this.loadout.blastRadius) ignite(o, 0.08)
+    // The dead fly too (#64).
+    for (const d of this.garrison.units) {
+      if (d.rag && d.state === 'dead' && !d.hidden && d.deadT >= d.hold) blastRagdoll(d.rag, b.x, b.y, b.z, this.loadout.blastRadius * 1.3, 1 / 60)
+    }
+    if (res.kills.length + res.hurt.length > 0) this.stats.hits++
+    for (const id of res.hurt) alarmUnit(this.garrison, id, this.player.x, this.player.z)
+    emit('blast', { x: b.x, y: b.y, z: b.z, weak: res.weakHit })
+    haptic('blast')
+    // The nearer the blast, the harder the picture shakes.
+    const d = Math.hypot(b.x - this.player.x, b.z - this.player.z)
+    this.shake = Math.max(this.shake, Math.max(0.2, 1.1 - d / 40))
+    this.flushGarrison()
+    // The Airship's engines (#142): only a blast hurts them.
+    const s = this.ship
+    if (s && flying(s.a)) {
+      const at = s.v.engines()
+      const lost = blastAirship(s.a, at, b.x, b.y, b.z, this.loadout.blastRadius, BASE_DAMAGE.rocket * this.loadout.damage.rocket)
+      for (const i of lost) {
+        const e = at[i]!
+        this.fx.explosion(e.x, e.y, e.z, e.y - 3)
+        this.fx.particles.sparks(e.x, e.y, e.z, '#ffd88a', 30, 9, 0.4)
+        emit('blast', { x: e.x, y: e.y, z: e.z, weak: true })
+      }
+      if (Math.hypot(b.x - s.a.x, b.y - s.a.y, b.z - s.a.z) < 25) this.shipFocus = 6
     }
   }
 
@@ -2827,6 +2871,180 @@ export class Mission implements GameMode {
   }
 
   /** Every defender whose place is in this training room is down (#109); false for a room without any. */
+  // ─── The Airship (#142) ────────────────────────────────────────────────────
+
+  /** A point inside the Airship: its hull (an ellipsoid), an engine or a turret. */
+  private onShip(x: number, y: number, z: number): boolean {
+    const s = this.ship!
+    const l = s.v.toHull(x, y, z, this.shipTmp)
+    if ((l.x / AIRSHIP_HALF.x) ** 2 + (l.y / AIRSHIP_HALF.y) ** 2 + (l.z / AIRSHIP_HALF.z) ** 2 <= 1) return true
+    for (const e of s.v.engines()) if (Math.hypot(e.x - x, e.y - y, e.z - z) < 1.4) return true
+    for (const id of ['F', 'B'] as const) if (s.v.turret(id).distanceTo(this.shipTmp.set(x, y, z)) < 1.1) return true
+    return false
+  }
+
+  /**
+   * A round toward the Airship, nearer than `maxT`: a turret takes it (and
+   * may be knocked out); the hull and the engines are armour, and it glances
+   * off. True if the Airship took it.
+   */
+  private roundOnShip(ox: number, oy: number, oz: number, dx: number, dy: number, dz: number, maxT: number, w: WeaponId, mx: number, my: number, mz: number): boolean {
+    const s = this.ship
+    if (!s || !flying(s.a)) return false
+    const sphere = (cx: number, cy: number, cz: number, r: number): number => {
+      const lx = ox - cx
+      const ly = oy - cy
+      const lz = oz - cz
+      const b = lx * dx + ly * dy + lz * dz
+      const c = lx * lx + ly * ly + lz * lz - r * r
+      const disc = b * b - c
+      if (disc < 0) return Infinity
+      const t = -b - Math.sqrt(disc)
+      return t > 0 ? t : Infinity
+    }
+    let best = maxT
+    let what: TurretId | 'armour' | null = null
+    for (const id of ['F', 'B'] as const) {
+      const t = s.v.turret(id)
+      const d = sphere(t.x, t.y, t.z, 1.0)
+      if (d < best && s.a.turrets[id] > 0) { best = d; what = id }
+    }
+    for (const e of s.v.engines()) {
+      const d = sphere(e.x, e.y, e.z, 1.3)
+      if (d < best) { best = d; what = 'armour' }
+    }
+    // The hull: the ray in the hull's own frame, against its ellipsoid.
+    const o = s.v.toHull(ox, oy, oz, new Vector3())
+    const p2 = s.v.toHull(ox + dx, oy + dy, oz + dz, new Vector3())
+    const hx = AIRSHIP_HALF.x
+    const hy = AIRSHIP_HALF.y
+    const hz = AIRSHIP_HALF.z
+    const ux = (p2.x - o.x) / hx
+    const uy = (p2.y - o.y) / hy
+    const uz = (p2.z - o.z) / hz
+    const sx = o.x / hx
+    const sy = o.y / hy
+    const sz = o.z / hz
+    const qa = ux * ux + uy * uy + uz * uz
+    const qb = 2 * (sx * ux + sy * uy + sz * uz)
+    const qc = sx * sx + sy * sy + sz * sz - 1
+    const disc = qb * qb - 4 * qa * qc
+    if (disc >= 0) {
+      const t = (-qb - Math.sqrt(disc)) / (2 * qa)
+      if (t > 0 && t < best) { best = t; what = 'armour' }
+    }
+    if (!what) return false
+    const hx2 = ox + dx * best
+    const hy2 = oy + dy * best
+    const hz2 = oz + dz * best
+    this.fx.tracer(mx, my, mz, hx2, hy2, hz2, w)
+    this.shipFocus = 6
+    if (what === 'armour') {
+      this.fx.particles.sparks(hx2, hy2, hz2, '#ffe98f', 10, 5, 0.22)
+      emit('glance', { id: -1, weapon: w })
+      return true
+    }
+    this.fx.impact(hx2, hy2, hz2, -dx, -dy, -dz, false, w)
+    emit('hit', { id: -1, weapon: w, zone: 'armor' })
+    this.stats.hits++
+    if (hitTurret(s.a, what, BASE_DAMAGE[w] * this.loadout.damage[w])) {
+      const t = s.v.turret(what)
+      this.fx.explosion(t.x, t.y, t.z, t.y - 3)
+      emit('blast', { x: t.x, y: t.y, z: t.z, weak: true })
+    }
+    return true
+  }
+
+  /**
+   * The Airship, one step: its loop; its searchlight on a quiet base; on full
+   * alert its turrets' bursts and its pods' rockets, every one leaving from
+   * the barrel or the tube it is drawn from; its rockets' blasts; its fall.
+   */
+  private stepShip(dt: number): void {
+    const s = this.ship
+    if (!s) return
+    const { a, v } = s
+    const p = this.player
+    const was = flying(a)
+    stepAirship(a, dt)
+    this.shipFocus = Math.max(0, this.shipFocus - dt)
+    const g = this.fortress.grid
+    const chest = { x: p.x, y: p.y + 1.5, z: p.z }
+    // The searchlight: the mech held in its pool in the open, and the base is told.
+    if (flying(a) && !this.garrison.alert.chaos) {
+      const inPool = Math.hypot(p.x - a.lampX, p.z - a.lampZ) < LAMP_R && !p.boxed && hud.concealed !== 2
+      a.seenT = inPool ? a.seenT + dt : Math.max(0, a.seenT - dt * 0.5)
+      if (a.seenT >= SHIP_UPLINK_S) {
+        a.seenT = 0
+        noiseAt(this.garrison, this.target, p.x, p.z, 200, 'loud')
+        this.goLoud()
+      }
+    }
+    const clear = (o: Vector3): boolean => hasLineOfSight(g, o.x, o.y, o.z, chest.x, chest.y, chest.z)
+    const inRange: Record<TurretId, boolean> = { F: false, B: false }
+    for (const id of ['F', 'B'] as const) {
+      const t = v.turret(id)
+      inRange[id] = Math.hypot(t.x - chest.x, t.y - chest.y, t.z - chest.z) < TURRET_RANGE && clear(t)
+    }
+    const podAt = v.socket(a.tube < 4 ? 'podL' : 'podR', a.tube % 4, new Vector3())
+    const guns = stepGuns(a, this.garrison.alert.chaos && hud.phase === 'play', inRange, Math.hypot(podAt.x - p.x, podAt.z - p.z) < 90 && clear(podAt), dt)
+    for (const r of guns.rounds) {
+      // From the barrel's own mouth (#142): the flash, the tracer and the kick together.
+      const o = v.socket(r.id === 'F' ? 'turretF' : 'turretB', r.barrel, this.shipTmp)
+      const hit = Math.random() < ROUND_HIT * (p.crouched ? 0.7 : 1)
+      const miss = hit ? 0.2 : 1.6
+      const tx = chest.x + (Math.random() - 0.5) * miss * 2
+      const ty = chest.y + (Math.random() - 0.5) * miss
+      const tz = chest.z + (Math.random() - 0.5) * miss * 2
+      const d = Math.hypot(tx - o.x, ty - o.y, tz - o.z) || 1
+      this.fx.muzzle(o.x, o.y, o.z, (tx - o.x) / d, (ty - o.y) / d, (tz - o.z) / d, 'minigun')
+      this.fx.tracer(o.x, o.y, o.z, tx, ty, tz, 'minigun')
+      v.fired(r.id)
+      emit('incoming', { id: -1, kind: 'drone', hit })
+      if (hit) this.hurt(Math.round(ROUND_DAMAGE * this.garrison.threat.damage), o.x, o.z)
+    }
+    if (guns.rocket >= 0) {
+      // From the tube's mouth, at where the mech will be; a ring where it lands.
+      const o = v.socket(guns.rocket < 4 ? 'podL' : 'podR', guns.rocket % 4, this.shipTmp)
+      const tx = p.x + p.vx * 0.6
+      const tz = p.z + p.vz * 0.6
+      const fl = heightAt(g, tx, tz)
+      const r = launchRocket(s.rockets, o.x, o.y, o.z, tx, (fl === VOID ? p.y : fl) + 0.3, tz)
+      const sp = Math.hypot(r.vx, r.vy, r.vz) || 1
+      this.fx.muzzle(o.x, o.y, o.z, r.vx / sp, r.vy / sp, r.vz / sp, 'rocket')
+      this.markers.spawn(r.tx, r.tz, SHIP_BLAST_R, r.life)
+      emit('telegraph', { x: r.tx, z: r.tz, radius: SHIP_BLAST_R, dur: r.life })
+    }
+    for (const r of s.rockets) {
+      if (Math.random() < dt * 30) this.fx.particles.emit({ x: r.x, y: r.y, z: r.z, vx: 0, vy: 0.4, vz: 0, color: '#b9a8d8', size: 0.5, sizeEnd: 1.1, life: 0.6, drag: 1.2 })
+    }
+    for (const r of stepShipRockets(s.rockets, dt)) {
+      const fl = heightAt(g, r.x, r.z)
+      this.fx.explosion(r.x, r.y, r.z, fl === VOID ? r.y - 1 : fl)
+      emit('blast', { x: r.x, y: r.y, z: r.z, weak: false })
+      const dmg = shipBlastDamage(Math.hypot(p.x - r.x, p.y + 1 - r.y, p.z - r.z))
+      if (dmg > 0 && hud.phase === 'play') this.hurt(Math.round(dmg * this.garrison.threat.damage), r.x, r.z)
+      for (const o of this.barrels) if (o.live && Math.hypot(o.x - r.x, o.z - r.z) < SHIP_BLAST_R) ignite(o, 0.1)
+      this.shake = Math.max(this.shake, Math.max(0.15, 0.9 - Math.hypot(r.x - p.x, r.z - p.z) / 30))
+    }
+    // A dead engine smokes.
+    if (flying(a) || a.crashT < 2) {
+      v.engines().forEach((e, i) => {
+        if (a.engines[i]! > 0 || Math.random() > dt * 20) return
+        this.fx.particles.emit({ x: e.x, y: e.y, z: e.z, vx: (Math.random() - 0.5), vy: 1.2, vz: (Math.random() - 0.5), color: '#3a3250', size: 1.2, sizeEnd: 2.6, life: 1.6, drag: 0.6 })
+      })
+    }
+    // Brought down (#142): a great deal of scrap for the haul.
+    if (was && !flying(a)) {
+      this.stats.salvage += AIRSHIP_SCRAP
+      this.stats.bossDown = true
+      emit('bolts', { n: AIRSHIP_SCRAP, x: a.x, y: a.y, z: a.z })
+      this.shake = Math.max(this.shake, 0.8)
+      this.say('multiKill')
+      void enginesUp
+    }
+  }
+
   /** The launcher full again: one in the tube, the rest in the rack (#146). */
   private refillRockets(): void {
     const a = this.arsenal
@@ -2834,6 +3052,11 @@ export class Mission implements GameMode {
     a.rocketReload = 0
     a.rockets = Math.max(a.rockets, this.loadout.rockets - 1)
   }
+
+  /** The Airship over the fortress (#142), its rockets in flight; seconds left of its bar on the HUD. */
+  private ship: { a: Airship; v: AirshipView; rockets: ShipRocket[] } | null = null
+  private shipFocus = 0
+  private shipTmp = new Vector3()
 
   /** The squash of the last landing, easing out (#148). */
   private landSquash = 0
@@ -3792,6 +4015,11 @@ export class Mission implements GameMode {
     // The beacon breathes.
     if (this.beacon.visible) (this.beacon.material as MeshBasicMaterial).opacity = 0.22 + 0.12 * Math.sin(this.time * 3)
     this.garrisonView.update(alpha, dt, this.time, view.x, view.y, view.z)
+    if (this.ship) {
+      const p = this.player
+      this.ship.v.update(this.ship.a, dt, { x: p.x, y: p.y + 1.5, z: p.z }, this.garrison.alert.chaos)
+      this.ship.v.drawRockets(this.ship.rockets)
+    }
     this.markers.update(dt, this.time)
     this.fx.update(dt, alpha, this.rockets, this.decoys, this.viewH, this.camera.fov)
     this.writeThreats(x, z)
@@ -3852,6 +4080,7 @@ export class Mission implements GameMode {
 
   dispose(): void {
     clearBanner()
+    this.ship?.v.dispose()
     this.training?.dispose()
     this.offReplay?.()
     this.offZoom?.()

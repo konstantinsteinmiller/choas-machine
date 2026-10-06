@@ -155,6 +155,8 @@ export const buildHarbour = (level = 1, run = 0, answers: Answers = NO_ANSWERS):
     b.goliath(46, 25, -Math.PI / 2)
     b.hound(pick([[6, 45, 2], [24, 45], [24, 30, 2]], [[58, 46, 2], [40, 46], [40, 30, 2]]))
     b.guard([[49, 4, 2], [58, 4, 2], [58, 8, 2]])
+    // Round 5 (#142): the Airship circles the Harbour on its hardest raid.
+    b.airship()
   }
   if (level >= 4) {
     b.shieldGuard([[17, 20, 2], [16, 10, 2]])

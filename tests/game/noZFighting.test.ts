@@ -13,6 +13,7 @@ import type { Rig } from '@/game/models/kit'
 import { buildMech } from '@/game/models/mech'
 import { buildDrone, buildEnforcer, buildGoliath, buildGuard, buildRoomba, buildSearchlight } from '@/game/models/garrison'
 import { buildRobodog } from '@/game/models/robodog'
+import { buildAirship } from '@/game/models/airship'
 import { PARTS } from '@/game/world/decor'
 import { beaconParts } from '@/game/models/beacon'
 import { hideBoxParts } from '@/game/models/hideBox'
@@ -53,7 +54,8 @@ const RIGS: Record<string, () => Rig> = {
   foreman: () => buildEnforcer(true),
   goliath: buildGoliath,
   'robo dog': () => buildRobodog(),
-  hound: () => buildRobodog(true)
+  hound: () => buildRobodog(true),
+  airship: buildAirship
 }
 
 describe('no z-fighting on anything in the field (#147)', () => {

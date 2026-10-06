@@ -155,6 +155,8 @@ export interface Fortress {
   barrels?: Array<{ cx: number; cz: number; x: number; y: number; z: number }>
   /** Its look (#79): palette, sky, haze. The dusk when unset. */
   theme?: ThemeId
+  /** The Airship circles it (#142). */
+  airship?: boolean
 }
 
 /** An exploding barrel's cell is raised this much: it is cover (`sim/barrels.ts` BARREL_H). */
@@ -175,6 +177,13 @@ export class FortressBuilder {
   private supplySpots: Array<{ kind: 'kit' | 'crate'; x: number; y: number; z: number }> = []
   private barrelSpots: Array<{ cx: number; cz: number; x: number; y: number; z: number }> = []
   private themeId: ThemeId | undefined
+  private withAirship = false
+
+  /** The Airship circles this fortress (#142). */
+  airship(): this {
+    this.withAirship = true
+    return this
+  }
 
   constructor(readonly id: string, w: number, d: number) {
     this.grid = makeGrid(w, d)
@@ -741,7 +750,8 @@ export class FortressBuilder {
       generators: this.generatorSpots,
       supplies: this.supplySpots,
       barrels: this.barrelSpots,
-      theme: this.themeId
+      theme: this.themeId,
+      ...(this.withAirship ? { airship: true } : {})
     }
   }
 }
