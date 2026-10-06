@@ -39,9 +39,11 @@ export interface GameEvents {
   /** A defender found a body. */
   body: { id: number; corpse: number }
   /** A defender went down. */
-  kill: { id: number; kind: PostKind; by: WeaponId | 'blade'; head: boolean; dist: number }
+  kill: { id: number; kind: PostKind; by: WeaponId | 'blade' | 'flame'; head: boolean; dist: number }
   /** A round left the barrel; a round or a rocket arrived. */
   shot: { weapon: WeaponId }
+  /** A wreck melted down to a few bolts, added to the haul (#148). */
+  bolts: { n: number; x: number; y: number; z: number }
   /** The weapon in hand just ran low; the trigger was pulled with nothing left (#145). */
   ammoLow: { weapon: WeaponId }
   dryFire: Record<string, never>

@@ -306,6 +306,9 @@ interface UnitView {
   caution: number
   /** Humans: eased 0 … 1 while the mech has hold of it. */
   grip: number
+  /** Humans (#148): eased 0 … 1 down on one knee by a body it found; at work on a crank or a repair. */
+  kneelBy: number
+  work: number
   spin: number
   /** Drones: last frame's heading, and the bank it is easing into. */
   lastYaw: number
@@ -469,6 +472,15 @@ export class GarrisonView {
   readonly shatter: Shatter
   private beamGeo = new CylinderGeometry(0.03, 1, 1, 16, 1, true)
 
+  /** A body it has found lies within reach of a kneel (#148). */
+  private byFoundBody(u: Unit): boolean {
+    for (const c of this.gar.units) {
+      if (c === u || c.state !== 'dead' || !c.found || c.hidden) continue
+      if (Math.abs(c.x - u.x) < 1.9 && Math.abs(c.z - u.z) < 1.9) return true
+    }
+    return false
+  }
+
   constructor(private gar: Garrison, private grid: Grid) {
     this.wreckage = new Wreckage(grid)
     this.group.add(this.wreckage.mesh)
@@ -530,7 +542,7 @@ export class GarrisonView {
         goliath: u.kind === 'goliath' ? { time: 0, turretYaw: 0, barrelPitch: 0, recoil: 0, rumble: 0, dead: 0 } : null,
         dog: u.kind === 'hound' ? restDogPose() : null,
         roomba: u.kind === 'roomba' ? { time: 0, alarm: 0, recoil: 0, aimYaw: 0, speed: 0 } : null,
-        aim: 0, wary: 0, caution: 0, grip: 0, spin: 0, lastYaw: u.yaw, bank: 0, pop: 0, lastState: u.state, flash: 0, wrecked: false, landed: false,
+        aim: 0, wary: 0, caution: 0, grip: 0, kneelBy: 0, work: 0, spin: 0, lastYaw: u.yaw, bank: 0, pop: 0, lastState: u.state, flash: 0, wrecked: false, landed: false,
         tag: null, route: null, top: 0,
         clipX: u.x, clipZ: u.z, clipYaw: u.yaw, clipFrame: 0, clipState: u.state, clipTint: null, used: 0,
         laidX: NaN, laidZ: NaN, laidYaw: NaN
@@ -1050,6 +1062,15 @@ export class GarrisonView {
         s.limp = dead ? Math.min(1, Math.max(0, (u.deadT - 0.25) / Math.max(0.2, u.hold - 0.3))) : 0
         if (dead && u.hold <= 0) { s.gripped = 0; s.impaled = 0; s.limp = 0 }
         s.kneel = 0
+        // What it does with its hands and knees (#148): stopped by a body it
+        // found, it goes down on one knee to look; at a beacon's crank or an
+        // Engineer's repair, both hands work; on fire, it flails.
+        const still = !dead && !u.gripped && u.speed01 < 0.05 && u.state !== 'combat'
+        v.kneelBy += ((still && this.byFoundBody(u) ? 1 : 0) - v.kneelBy) * Math.min(1, dt * 4)
+        v.work += ((!dead && u.speed01 < 0.05 && (this.gar.runner === u.id || (!!u.job && still)) ? 1 : 0) - v.work) * Math.min(1, dt * 5)
+        s.inspect = v.kneelBy
+        s.work = v.work
+        s.burning = !dead && u.onFire > 0 ? 1 : 0
         // In the mech's hands (a backstab, a drop from a rope): posed as the kill's choreography holds it.
         if (u.held) {
           // Seized, it has no thought for its gun.

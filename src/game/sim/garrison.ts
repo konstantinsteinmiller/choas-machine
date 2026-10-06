@@ -6,6 +6,7 @@ import { exposure, type Viewer, type Seen, fillRate, GRACE_S, CLOSE_M } from './
 import { makeAlert, raiseAlert, pressAlert, stepAlert, ENGAGED_PER_S, BEACON_CAP, ALERT_MAX, type Alert, type AlertCause } from './alert'
 import { angleDelta } from './player'
 import { hashSeed, mulberry32, type Rng } from '../world/rng'
+import { guardGaitRate } from './gait'
 
 /**
  * ─── The garrison ────────────────────────────────────────────────────────────
@@ -290,6 +291,8 @@ export interface Unit {
   /** A fallen person's ragdoll (#64), how it was killed, and whether the blow has pushed it yet. */
   rag: Ragdoll | null
   ragHow: KillHow
+  /** Seconds it has left on fire (#148), 0 when it is not burning. */
+  onFire: number
   ragStruck: boolean
   /** The body has hit the ground, and been heard doing it (#108). */
   thud: boolean
@@ -790,7 +793,7 @@ export type GarrisonEvent =
   | { type: 'change'; id: number; kind: Change['kind'] }
   /** `id` noticed `corpse` missed its check-in and is going to look. */
   | { type: 'checkin'; id: number; corpse: number }
-  | { type: 'kill'; id: number; death: DeathKind }
+  | { type: 'kill'; id: number; death: DeathKind; burnt?: boolean }
   | { type: 'chaos' }
   /** A machine powers up. */
   | { type: 'wake'; id: number }
@@ -832,7 +835,7 @@ export const makeGarrison = (f: Fortress, level = 2): Garrison => {
       power: mech && !p.dummy ? 0 : 1, aimT: 0, fireT: 0, burst: 0, burstT: 0, shellT: 0, shellX: 0, shellZ: 0, shellLure: false, recoil: 0,
       tagged: false, hidden: false, partner: p.partner ?? -1, chatting: false, poke: false, changeT: 0,
       role: p.role ?? null, shotgun: p.gun === 'shotgun', grenadeT: 0, job: null, jobT: 0, scentT: -1e9,
-      rag: null, ragHow: 'shot', ragStruck: false, thud: false,
+      rag: null, ragHow: 'shot', ragStruck: false, thud: false, onFire: 0,
       helmet: !!f.answers?.helmets && (p.kind === 'guard' || p.kind === 'sentry'), boxLook: 0, inspect: null, inspectCool: 0, focusT: 0, bodySearch: false, uplinkT: 0, lostT: 0,
       jammed: false, shells: 0, overheat: 0, phase2: false, glintT: 0, dashT: 0, dashX: 0, dashZ: 0, dashCool: 2, dashHit: false
     }
@@ -891,8 +894,9 @@ const follow = (u: Unit, g: Grid, speed: number, dt: number, turn = TURN_RATE): 
   }
   const floor = heightAt(g, u.x, u.z)
   if (floor !== VOID) u.y += (floor - u.y) * Math.min(1, dt * 12)
-  u.stride += step * 3.4
   u.speed01 = Math.min(1, speed / SPECS[u.kind].run)
+  // A person's stride lengthens with its pace, so its feet stay planted (#148).
+  u.stride += step * (isHuman(u) ? guardGaitRate(u.speed01) : 3.4)
   return u.pathI >= u.path.length
 }
 
@@ -1908,6 +1912,8 @@ export const stepGarrison = (gar: Garrison, g: Grid, target: Target, dt: number)
     if (u.state === 'dormant' || u.state === 'reserve') continue
     // In the mech's grip: no eyes, no feet, no voice.
     if (u.gripped) { u.speed01 = 0; u.sees = false; continue }
+    // On fire (#148): it runs blind, beating at itself, and drops when the fire has it.
+    if (u.onFire > 0) { stepOnFire(gar, u, g, dt); calm = false; continue }
     if (u.power < 1) {
       // Powering up: it stands and whirs, and does nothing else yet.
       u.power = Math.min(1, u.power + dt / (WAKE_S * (u.jammed ? JAM_WAKE : 1)))
@@ -2294,6 +2300,59 @@ export const startleUnit = (gar: Garrison, id: number, fromX: number, fromZ: num
   if (u.state !== 'patrol') { alarmUnit(gar, id, fromX, fromZ); return }
   u.detect = Math.max(u.detect, SUSPECT_AT + 0.15)
   suspect(gar, u, fromX, fromZ, false)
+}
+
+/** How long a person burns before it drops (#148). */
+export const ON_FIRE_S = 3.2
+
+/**
+ * The flamethrower on a living person (#148): it catches fire, drops whatever
+ * it held (a riot shield too), and runs from the flame screaming; those near
+ * it come running. A boss does not catch. True if it caught.
+ */
+export const igniteUnit = (gar: Garrison, id: number, fromX: number, fromZ: number): boolean => {
+  const u = gar.units[id]
+  if (!u || !isAlive(u) || !isHuman(u) || u.boss || u.onFire > 0 || u.gripped) return false
+  u.onFire = ON_FIRE_S
+  u.yaw = u.pyaw = Math.atan2(u.x - fromX, u.z - fromZ)
+  u.look = 0
+  u.inspect = null
+  u.path = []
+  if (u.shield) { u.shield = false; gar.events.push({ type: 'shieldDown', id: u.id }) }
+  for (const o of gar.units) {
+    if (o === u || !isAlive(o) || o.state === 'dormant' || Math.hypot(o.x - u.x, o.z - u.z) > BURN_SCREAM_M) continue
+    alarmUnit(gar, o.id, u.x, u.z)
+  }
+  return true
+}
+/** How far a burning man's screams carry. */
+const BURN_SCREAM_M = 16
+
+const stepOnFire = (gar: Garrison, u: Unit, g: Grid, dt: number): void => {
+  u.onFire -= dt
+  u.sees = false
+  u.recoil = 0
+  if (u.onFire <= 0) {
+    u.onFire = 0
+    killUnit(gar, u.id, u.x - Math.sin(u.yaw), u.z - Math.cos(u.yaw), 'blade')
+    const ev = gar.events[gar.events.length - 1]
+    if (ev && ev.type === 'kill' && ev.id === u.id) ev.burnt = true
+    return
+  }
+  // Blind, at a stumbling run, veering; a wall or a drop turns it about.
+  const speed = SPECS[u.kind].run * 0.8
+  u.yaw += Math.sin(u.onFire * 4.3 + u.seed * 7) * dt * 2.6
+  const nx = u.x + Math.sin(u.yaw) * speed * dt
+  const nz = u.z + Math.cos(u.yaw) * speed * dt
+  const from = heightAt(g, u.x, u.z)
+  const to = heightAt(g, nx, nz)
+  if (to !== VOID && from !== VOID && canStep(from, to)) {
+    u.x = nx
+    u.z = nz
+    u.y += (to - u.y) * Math.min(1, dt * 12)
+  } else u.yaw += Math.PI * 0.7
+  u.speed01 = 0.8
+  u.stride += speed * dt * guardGaitRate(0.8)
 }
 
 /** Hurt a unit; kills it when its health runs out. True if it died. */

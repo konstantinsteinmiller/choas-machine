@@ -1,6 +1,7 @@
 import { BoxGeometry, CylinderGeometry, Quaternion, Vector3 } from 'three'
-import { RigBuilder, cap, ell, pose, nudge, rbox, rcyl, scaleBone, sph, stripUv, torus, type Rig } from './kit'
+import { RigBuilder, blendPose, cap, ell, pose, nudge, rbox, rcyl, scaleBone, sph, stripUv, torus, type Rig } from './kit'
 import { PAL } from './palette'
+import { stanceSweep } from '../sim/gait'
 import type { WeaponId } from '../data/ids'
 
 /**
@@ -292,11 +293,17 @@ export interface MechPose {
   plunge: number
   /** 0 … 1 the weapon put away (the flamethrower: the jet comes from the hand). */
   stow: number
+  /** 0 … 1 down on one knee, one hand on a panel: sabotage (#148). */
+  activate: number
+  /** 0 … 1 braced on the flamethrower: feet apart, leaning in, the jet swept (#148). */
+  brace: number
+  /** 0 … 1 the squash of a landing, easing out (#148). */
+  land: number
 }
 
 export const restPose = (): MechPose => ({
   time: 0, stride: 0, speed: 0, crouch: 0, sprint: 0, aim: 0, aimPitch: 0, weapon: 'sniper', recoil: 0, spin: 0, reload: 0,
-  blade: 0, stab: 0, climb: 0, climbPhase: 0, cable: 0, air: 0, down: 0, loot: 0, boxed: 0, grab: 0, draw: 0, plunge: 0, stow: 0
+  blade: 0, stab: 0, climb: 0, climbPhase: 0, cable: 0, air: 0, down: 0, loot: 0, boxed: 0, grab: 0, draw: 0, plunge: 0, stow: 0, activate: 0, brace: 0, land: 0
 })
 
 const HIDDEN = 0.001
@@ -376,6 +383,59 @@ const CROUCH_KNEE = 2.65
  * Put the rig in the pose the simulation describes. Every channel blends, so
  * a crouched, aiming, walking mech is the sum of its three poses.
  */
+/**
+ * What CM-07 does with its body besides walking and fighting (#148), laid
+ * over the rest of the pose: one knee down with a hand on a panel, braced
+ * behind the flamethrower, and the squash of a landing.
+ */
+const poseMechActions = (rig: Rig, s: MechPose): void => {
+  const hips = rig.bones.hips!
+  const rest = rig.rest.hips!.p.y
+  const act = s.activate
+  if (act > 0.001) {
+    // The left foot planted ahead, the right knee on the floor, the right hand
+    // at the panel, working it; the left on the knee.
+    const tap = Math.sin(s.time * 9)
+    blendPose(rig, 'thighL', -1.35, 0, 0.12, act)
+    blendPose(rig, 'shinL', 1.45, 0, 0, act)
+    blendPose(rig, 'footL', -0.1, 0, 0, act)
+    blendPose(rig, 'thighR', 0.08, 0, -0.12, act)
+    blendPose(rig, 'shinR', 1.62, 0, 0, act)
+    blendPose(rig, 'footR', 1.2, 0, 0, act)
+    blendPose(rig, 'spine', 0.22, 0, 0, act)
+    blendPose(rig, 'shoulderR', -1.2 + tap * 0.06, 0, 0.15, act)
+    blendPose(rig, 'foreR', -0.45 + tap * 0.16, 0, 0, act)
+    blendPose(rig, 'shoulderL', -0.45, 0, -0.3, act)
+    blendPose(rig, 'foreL', -0.75, 0, 0, act)
+    hips.position.y += (rest - KNEEL_DROP - hips.position.y) * act
+  }
+  const br = s.brace
+  if (br > 0.001) {
+    // Feet planted apart, a lean into the jet, the body sweeping it a little side to side.
+    const sweep = Math.sin(s.time * 3.2) * 0.14
+    blendPose(rig, 'thighL', -0.25, 0, 0.16, br)
+    blendPose(rig, 'shinL', 0.4, 0, 0, br)
+    blendPose(rig, 'thighR', 0.15, 0, -0.16, br)
+    blendPose(rig, 'shinR', 0.3, 0, 0, br)
+    blendPose(rig, 'spine', 0.12, sweep, 0, br)
+    blendPose(rig, 'shoulderL', -0.9, 0, -0.35, br)
+    blendPose(rig, 'foreL', -1.1, 0, 0, br)
+    hips.position.y -= 0.06 * br
+  }
+  const ld = s.land
+  if (ld > 0.001) {
+    // A landing: the knees give, the hips drop, the arms come out for balance.
+    hips.position.y -= 0.16 * ld
+    for (const t of ['L', 'R'] as const) {
+      blendPose(rig, `thigh${t}`, -0.45, 0, 0, ld * 0.7)
+      blendPose(rig, `shin${t}`, 0.85, 0, 0, ld * 0.7)
+    }
+    blendPose(rig, 'spine', 0.18, 0, 0, ld * 0.6)
+  }
+}
+/** How far the hips come down for a kneel on one knee (rig units). */
+const KNEEL_DROP = 0.43
+
 export const poseMech = (rig: Rig, s: MechPose): void => {
   const walk = s.speed * (1 - s.climb) * (1 - s.air)
   const swing = Math.sin(s.stride)
@@ -396,7 +456,9 @@ export const poseMech = (rig: Rig, s: MechPose): void => {
   const hipPitch = 0.06 * walk + 0.1 * run
   let deepest = 0
   for (const [tag, sign] of [['L', 1], ['R', -1]] as const) {
-    const sw = swing * sign
+    // The leg on the floor sweeps back at an even rate under the body, so its
+    // foot stays put (#148); in the air it swings forward again.
+    const sw = stanceSweep(s.stride + (sign > 0 ? 0 : Math.PI))
     const li = lift * sign
     // On a cable the steps are short and careful: less reach, a higher lift.
     // A sneak takes short steps: a deep squat swinging a full stride would
@@ -523,6 +585,7 @@ export const poseMech = (rig: Rig, s: MechPose): void => {
     pose(rig, 'foreL', -0.6 * s.loot, 0, 0)
     pose(rig, 'foreR', -0.6 * s.loot, 0, 0)
   }
+  poseMechActions(rig, s)
   // Its lights: steady while it lives, a stutter as it goes, then almost out.
   const lit = s.down <= 0 ? 1 : s.down < MECH_KNEEL_S + 0.5 ? (Math.sin(s.down * 47) > 0 ? 1 : 0.2) : 0.12
   rig.glowMaterial.color.setScalar(lit)

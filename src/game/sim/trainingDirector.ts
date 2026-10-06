@@ -11,6 +11,7 @@ import { poseBackstabGuard, poseBackstabMech } from './backstabStage'
 import { MUZZLE_TIP, buildMech, poseMech, restPose, type MechPose } from '../models/mech'
 import { buildEnforcer, buildGuard, poseEnforcer, poseGuard, restGuardPose } from '../models/garrison'
 import { Shatter } from '../fx/shatter'
+import { mechGaitRate } from './gait'
 import { buildDisguise, disposeDisguise } from '../models/disguises'
 import { FREE_DISGUISE } from '../models/disguiseIds'
 import { makeHologramMaterial, setHologram } from '../fx/hologram'
@@ -316,7 +317,7 @@ export class TrainingDirector {
     this.lastX = f.x
     this.lastZ = f.z
     s.time = time
-    s.stride += moved * 2.2
+    s.stride += moved * mechGaitRate(0, f.crouch)
     s.speed = f.speed
     s.crouch = f.crouch
     s.aim = f.aim

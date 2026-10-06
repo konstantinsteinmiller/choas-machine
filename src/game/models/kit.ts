@@ -429,6 +429,22 @@ export const pose = (rig: Rig, name: string, rx = 0, ry = 0, rz = 0): void => {
   b.quaternion.copy(r.q).multiply(_pq)
 }
 
+const _bq = new Quaternion()
+/**
+ * Turn a bone `w` of the way (0 … 1) from the pose it has so far toward its
+ * rest rotation plus an euler offset: an action (a kneel, a crank, flailing)
+ * laid over whatever the gait already did (#148).
+ */
+export const blendPose = (rig: Rig, name: string, rx = 0, ry = 0, rz = 0, w = 1): void => {
+  if (w <= 0) return
+  const b = rig.bones[name]
+  const r = rig.rest[name]
+  if (!b || !r) return
+  _pe.set(rx, ry, rz)
+  _bq.copy(r.q).multiply(_pq.setFromEuler(_pe))
+  b.quaternion.slerp(_bq, Math.min(1, w))
+}
+
 /** Offset a bone from its rest position (units, bone-parent space). */
 export const nudge = (rig: Rig, name: string, dx = 0, dy = 0, dz = 0): void => {
   const b = rig.bones[name]

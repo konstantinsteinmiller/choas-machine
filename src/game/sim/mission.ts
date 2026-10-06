@@ -14,7 +14,7 @@ import { QUIP_SHOW_S, makeQuips, pickQuip } from './quips'
 import { PathChevrons } from '../fx/pathChevrons'
 import type { QuipId } from '../audio/voiceCatalog'
 import { CELL, VOID, cableSpan, ceilingAt, heightAt, raycast, hasLineOfSight, toCell, inGrid, cellKind, cellHeight, CellKind, shadeAt, Shade } from '../world/grid'
-import type { Fortress } from '../world/fortress'
+import type { Fortress, PostKind } from '../world/fortress'
 import { buildFortressMesh, type FortressMesh } from '../world/fortressMesh'
 import { buildDecor, type DecorMesh } from '../world/decor'
 import { buildSky, type Sky } from '../world/sky'
@@ -31,7 +31,7 @@ import { makePlayer, stepPlayer, eyeHeight, angleDelta, type Player } from './pl
 import { makeCam, lookCam, stepCam, placeCam, stickToWorld, camForward, type Cam } from './camera'
 import { alertSegments } from './alert'
 import {
-  SPECS, SUSPECT_AT, stepHeard, sabotageBeacon, searchForShooter, noteChange, tagUnit, cutRig, helmetPops, isAlive, stepFallen, estimateShot, shotPassed, IMPACT_M, UPLINK_S, drainEvents, headingTo, killUnit, damageUnit, makeGarrison, noiseAt, hearAt, wonderAt, voidNoise, stepGarrison, alarmUnit, startleUnit, isLight,
+  SPECS, SUSPECT_AT, igniteUnit, stepHeard, sabotageBeacon, searchForShooter, noteChange, tagUnit, cutRig, helmetPops, isAlive, stepFallen, estimateShot, shotPassed, IMPACT_M, UPLINK_S, drainEvents, headingTo, killUnit, damageUnit, makeGarrison, noiseAt, hearAt, wonderAt, voidNoise, stepGarrison, alarmUnit, startleUnit, isLight,
   type Garrison, type Target, type Unit, type Change
 } from './garrison'
 import { GarrisonView } from './garrisonView'
@@ -100,6 +100,11 @@ const UP = new Vector3(0, 1, 0)
 const SHOT_RANGE = 260
 /** Out of rockets in the rocket room, this long before the mech is back at its door with fresh ones (#146). */
 const ROCKET_RESPAWN_S = 1.2
+/** The flamethrower on a living person (#148): how far off its heading, and how long the burst. */
+const BURN_LIVE_ARC = 0.9
+const BURN_LIVE_S = 0.6
+/** Bolts a machine's wreck melts down to (#148), added to the haul. */
+const BOLTS: Partial<Record<PostKind, number>> = { drone: 4, searchlight: 3, roomba: 5, hound: 5, enforcer: 10, goliath: 24 }
 /** Seconds into going down that WASTED comes up (#150): as the knees give. */
 const WASTED_AT = 0.35
 /** The flamethrower (#99): how near the body must be, and how long a burn takes. */
@@ -349,7 +354,7 @@ export class Mission implements GameMode {
   private waypointDist = 0
   private looting: { pile: Pile; t: number } | null = null
   /** The flamethrower (#99): the body or wreck under it, and how far through. */
-  private burning: { id: number; t: number; seen: number } | null = null
+  private burning: { id: number; t: number; seen: number; live: boolean } | null = null
   private burnOffer = -1
   private burnChange: Change | null = null
   private fuelLeft = 0
@@ -702,6 +707,7 @@ export class Mission implements GameMode {
           if (e.type === 'jump') continue
           if (e.type === 'land') {
             emit('land', { drop: e.drop })
+            this.landSquash = Math.min(1, Math.max(this.landSquash, (e.drop - 0.6) / 2.5))
             if (e.drop > 2) { this.shake = Math.max(this.shake, 0.25); haptic('tap') }
           } else {
             emit('traverse', { kind: e.type })
@@ -817,6 +823,20 @@ export class Mission implements GameMode {
       if (this.downT > Math.max(MECH_DOWN_S + 0.7, WASTED_AT + BANNER_HOLD.wasted) && flow.modal === '') flow.modal = 'defeat'
     }
     vital.hitAge += dt
+    this.landSquash = Math.max(0, this.landSquash - dt * 3.5)
+    // Whoever is on fire throws flames off as it runs (#148).
+    if (Math.floor(this.time / 0.05) !== Math.floor((this.time - dt) / 0.05)) {
+      for (const u of this.garrison.units) {
+        if (u.onFire <= 0) continue
+        for (let k = 0; k < 2; k++) {
+          this.fx.particles.emit({
+            x: u.x + (Math.random() - 0.5) * 0.5, y: u.y + 0.6 + Math.random() * 1.0, z: u.z + (Math.random() - 0.5) * 0.5,
+            vx: (Math.random() - 0.5) * 0.5, vy: 2 + Math.random() * 1.5, vz: (Math.random() - 0.5) * 0.5,
+            color: k === 0 ? '#ffd27a' : '#ff5a2a', size: 0.6, sizeEnd: 0.1, life: 0.45, drag: 0.8
+          })
+        }
+      }
+    }
 
     this.shake = Math.max(0, this.shake - dt * 2.2)
     mirror('device', i.device)
@@ -1736,10 +1756,15 @@ export class Mission implements GameMode {
     let best = -1
     let bestD = BURN_REACH
     for (const u of this.garrison.units) {
-      if (u.state !== 'dead' || u.hidden || u.kind === 'searchlight' || u.deadT < u.hold + 0.8) continue
       if (Math.abs(u.y - p.y) > 1.5) continue
       const d = Math.hypot(u.x - p.x, u.z - p.z)
-      if (d < bestD) { bestD = d; best = u.id }
+      if (d >= bestD) continue
+      // A body or a wreck at the mech's feet; or (#148) a living person in
+      // front of it, shield or no shield, but never a boss.
+      const dead = u.state === 'dead' && !u.hidden && u.kind !== 'searchlight' && u.deadT >= u.hold + 0.8
+      const live = isAlive(u) && camKind(u.kind) === 'human' && !u.boss && !u.gripped && u.onFire <= 0
+        && Math.abs(angleDelta(p.yaw, headingTo(p.x, p.z, u.x, u.z))) < BURN_LIVE_ARC
+      if (dead || live) { bestD = d; best = u.id }
     }
     return best
   }
@@ -1751,9 +1776,14 @@ export class Mission implements GameMode {
     p.vx = p.vz = 0
     p.speed01 = 0
     p.yaw = headingTo(p.x, p.z, u.x, u.z)
-    this.burning = { id, t: 0, seen: 0 }
+    this.burning = { id, t: 0, seen: 0, live: isAlive(u) }
     this.burnFrom.set(p.x + Math.sin(p.yaw) * 0.8, p.y + 1.4, p.z + Math.cos(p.yaw) * 0.8)
-    this.burnTo.set(u.x, u.y + 0.35, u.z)
+    this.burnTo.set(u.x, u.y + (isAlive(u) ? 1.1 : 0.35), u.z)
+    // A living person catches at once and runs (#148); the jet plays a moment.
+    if (isAlive(u)) {
+      igniteUnit(this.garrison, id, p.x, p.z)
+      this.flushGarrison()
+    }
     this.burnOffer = -1
     // The fire glows: while it burns it is a thing out of place for whoever sees it.
     noteChange(this.garrison, u.x, u.y, u.z, 'fire')
@@ -1795,6 +1825,12 @@ export class Mission implements GameMode {
       return
     }
     b.t += dt
+    // A living person: a short burst sets it alight, and it is off running (#148).
+    if (b.live) {
+      this.burnTo.set(u.x, u.y + 1.1, u.z)
+      if (b.t >= BURN_LIVE_S) { this.burnsDone++; this.endBurn() }
+      return
+    }
     // The jet runs from the mech's own hand (placed with the pose, `place`) to the body.
     this.burnTo.set(u.x, u.y + 0.35, u.z)
     const hx = this.burnFrom.x
@@ -1829,6 +1865,12 @@ export class Mission implements GameMode {
     this.scene.add(r)
     this.residues.push(r)
     this.fx.particles.sparks(u.x, u.y + 0.3, u.z, human ? '#6f6488' : '#ffb061', 16, 3, 0.3)
+    // A machine melted down leaves a few bolts worth taking (#148): a tenth of a pile, more for the big ones.
+    if (!human) {
+      const bolts = BOLTS[u.kind] ?? 3
+      this.stats.salvage += bolts
+      emit('bolts', { n: bolts, x: u.x, y: u.y, z: u.z })
+    }
     this.burnsDone++
     this.say(human ? 'burnHuman' : 'burnMachine')
     this.endBurn()
@@ -2000,8 +2042,11 @@ export class Mission implements GameMode {
         emit('body', { id: e.id, corpse: e.corpse })
       } else if (e.type === 'kill') {
         const u = gar.units[e.id]!
+        // Burnt out (#148): it fell to the fire, seconds after the flame; no camera for that.
+        const burnt = !!e.burnt
+        const by = burnt ? 'flame' : this.killBy
         this.stats.kills++
-        if (this.killBy === 'sniper') {
+        if (by === 'sniper') {
           this.sniperKills++
           // From the perch: the base will remember that (R26).
           const ins = this.fortress.insert
@@ -2022,7 +2067,7 @@ export class Mission implements GameMode {
           this.shake = Math.max(this.shake, u.kind === 'goliath' ? 0.9 : 0.3)
         }
         emit('kill', {
-          id: e.id, kind: u.kind, by: this.killBy, head: this.killHead,
+          id: e.id, kind: u.kind, by, head: !burnt && this.killHead,
           dist: Math.hypot(u.x - this.player.x, u.z - this.player.z)
         })
         // One round, one head, one down (a person or a drone, #126).
@@ -2041,7 +2086,7 @@ export class Mission implements GameMode {
         if (u.kind === 'commander' && gar.units.some(o => o.kind === 'goliath' && o.state === 'dormant')) this.finaleT = 2.2
         // The sniper's kill-cam was decided when the round was fired.
         const bossLast = !!u.boss && final
-        if ((this.killBy !== 'sniper' || (bossLast && this.bossCam)) && !this.cine && hud.phase === 'play') {
+        if (!burnt && (this.killBy !== 'sniper' || (bossLast && this.bossCam)) && !this.cine && hud.phase === 'play') {
           this.bossCam = false
           const info: KillInfo = {
             by: this.killBy, head: false, final, time: this.stats.time, dist: Math.hypot(u.x - this.player.x, u.z - this.player.z),
@@ -2787,6 +2832,9 @@ export class Mission implements GameMode {
     a.rocketReload = 0
     a.rockets = Math.max(a.rockets, this.loadout.rockets - 1)
   }
+
+  /** The squash of the last landing, easing out (#148). */
+  private landSquash = 0
 
   /** Seconds the rocket room's launcher has been out with its target standing. */
   private rocketDryT = 0
@@ -3584,9 +3632,13 @@ export class Mission implements GameMode {
     s.down = this.armor.down ? Math.max(1e-3, this.downT) : 0
     s.sprint = p.mode === 'ground' ? p.sprint : 0
     s.boxed = p.box
-    // Stripping a pile: down on one knee, both hands in the scrap.
+    // Stripping a pile: down low, both hands in the scrap.
     s.loot = this.looting ? Math.min(1, this.looting.t / 0.2) * Math.min(1, (SALVAGE_S - this.looting.t) / 0.15 + 0.2) : 0
-    if (this.sabotaging) s.loot = Math.min(1, this.sabotaging.t / 0.2)
+    // At a panel (#148): down on one knee, one hand working it.
+    s.activate = this.sabotaging ? Math.min(1, this.sabotaging.t / 0.2) : 0
+    // Braced behind the flamethrower (#148); a landing's squash.
+    s.brace = this.burning ? Math.min(1, this.burning.t / 0.15) : 0
+    s.land = this.landSquash
     if (this.looting) s.crouch = Math.max(s.crouch, s.loot)
     s.aim = striking || this.armor.down ? 0 : this.cam.aim
     s.aimPitch = this.cam.pitch

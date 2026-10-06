@@ -10,6 +10,7 @@ import {
   buildGuard, poseGuard, restGuardPose, buildDrone, poseDrone, buildEnforcer, poseEnforcer, buildGoliath, poseGoliath, buildRoomba, poseRoomba
 } from '../models/garrison'
 import type { WeaponId } from '../data/ids'
+import { guardGaitRate } from '../sim/gait'
 import { BACKSTAB_VARIANTS, VARIANTS, type BackstabVariant } from '../sim/backstab'
 import { poseBackstabGuard, poseBackstabMech } from '../sim/backstabStage'
 
@@ -68,6 +69,10 @@ export class ModelBench implements GameMode {
       if (poseName === 'climb') { p.climb = 1; p.climbPhase = t * 6 }
       if (poseName === 'cable') { p.cable = 1; p.stride = t * 7.5; p.speed = 1 }
       if (poseName === 'air') p.air = 1
+      // #148: one knee at a panel, braced on the flamethrower, a landing.
+      if (poseName === 'activate') p.activate = 1
+      if (poseName === 'brace') { p.brace = 1; p.stow = 1; p.aim = 1 }
+      if (poseName === 'land') p.land = 0.5 + 0.5 * Math.cos(t * 2.5)
       return p
     }
     if (all || which === 'mech') {
@@ -108,9 +113,12 @@ export class ModelBench implements GameMode {
         add(rig, 0, (t) => poseGuard(rig, {
           ...restGuardPose(),
           time: t,
-          // A patrol's pace is 0.42 of a run; 3.4 radians of stride per metre.
-          stride: poseName === 'run' ? t * 5.2 * 3.4 : t * 2.3 * 3.4,
-          speed: poseName === 'walk' || poseName === 'wary' ? 0.42 : poseName === 'run' ? 1 : 0,
+          // A patrol's pace is 0.42 of a run (1.6 m/s), a run 3.9 m/s; the stride per metre follows the pace (#148).
+          stride: poseName === 'run' || poseName === 'burn' ? t * 3.9 * guardGaitRate(1) : t * 1.6 * guardGaitRate(0.42),
+          speed: poseName === 'walk' || poseName === 'wary' ? 0.42 : poseName === 'run' || poseName === 'burn' ? 1 : 0,
+          inspect: poseName === 'kneel' ? 1 : 0,
+          work: poseName === 'work' ? 1 : 0,
+          burning: poseName === 'burn' ? 1 : 0,
           aim: poseName === 'aim' ? 1 : 0,
           wary: poseName === 'search' ? 1 : 0,
           caution: poseName === 'wary' || poseName === 'search' ? 1 : 0,

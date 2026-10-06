@@ -15,6 +15,8 @@
       GameIcon.glyph(name="scrap")
       span.label {{ t('hud.objective.salvage') }}
       span.count {{ hud.salvageGot }}/{{ hud.salvageNeed }}
+      //- A wreck melted down to bolts (#148): what it added to the haul rises off the line.
+      span.bolts(v-if="bolts > 0" :key="boltsKey" aria-hidden="true") +{{ bolts }}
     div.line(
       role="listitem"
       :class="{ done: hud.objective === 'done', now: hud.objective === 'extract', wait: hud.objective === 'salvage' }"
@@ -28,13 +30,24 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, onUnmounted, ref } from 'vue'
+import { on } from '@/game/bus'
 import { useI18n } from 'vue-i18n'
 import GameIcon from '@/components/icons/GameIcon.vue'
 import { hud } from '@/game/state/hud'
 
 const { t } = useI18n()
 const salvaged = computed(() => hud.salvageGot >= hud.salvageNeed)
+const bolts = ref(0)
+const boltsKey = ref(0)
+let boltsTimer = 0
+onUnmounted(on('bolts', ({ n }) => {
+  bolts.value = n
+  boltsKey.value++
+  window.clearTimeout(boltsTimer)
+  boltsTimer = window.setTimeout(() => { bolts.value = 0 }, 1400)
+}))
+onUnmounted(() => window.clearTimeout(boltsTimer))
 </script>
 
 <style scoped lang="sass">
@@ -85,6 +98,29 @@ const salvaged = computed(() => hud.salvageGot >= hud.salvageNeed)
   flex: 1
   min-width: 0
   overflow-wrap: anywhere
+.line
+  position: relative
+.bolts
+  position: absolute
+  right: 0
+  bottom: 100%
+  color: #5dff9a
+  font-weight: 700
+  text-shadow: 0 0 0.4rem rgba(93, 255, 154, 0.9)
+  pointer-events: none
+  animation: bolts-rise 1.4s ease-out forwards
+@keyframes bolts-rise
+  from
+    opacity: 0
+    translate: 0 0.6em
+  20%
+    opacity: 1
+  to
+    opacity: 0
+    translate: 0 -0.8em
+@media (prefers-reduced-motion: reduce)
+  .bolts
+    animation: none
 .count
   flex: none
   font-variant-numeric: tabular-nums

@@ -796,7 +796,7 @@ fortress; the outro after the first Spire III clear).
 - [x] **R51 Asset quality and batching** (#147): guard rebuilt, mech detail
   layer, decor pass, decor per area, piles and beacons batched, coplanar test
   over every builder
-- [ ] **R52 Animation and fire** (#148): stride by speed + planted feet, guard
+- [x] **R52 Animation and fire** (#148): stride by speed + planted feet, guard
   run / kneel / interact / burn / throw / reload, mech weight, kneel-activate,
   flamethrower brace; wrecks of mechs and machines burn down for a few bolts
 - [ ] **R53 Shield guard tactics** (#151): shield up while approaching, leads
@@ -823,7 +823,15 @@ fortress; the outro after the first Spire III clear).
   Triangles 224k → 271k (the props' outlines). Salvage piles (3 calls each)
   and units (3 each) stay: a pile hides on its own, a rig moves on its own.
 
+- R52: foot slip measured over a whole cycle (`footPlant.test.ts`): a
+  patrol's planted foot slid ~50 % of the ground covered, now under 10 %;
+  CM-07's ~40 %, now under 15 %. The robo dog already had spine flex and a
+  steady head (cca3424); nothing added.
+
 ### Round 5 deferred
+
+- R52 (N2): a guard's grenade-throw and reload poses (the sim has no reload,
+  and the grenadier's throw has no beat to hang a pose on yet).
 
 - Stacked indoor floors (grid holds one height per cell); the Spire is terraced.
 - A painted CM-07 portrait; the rendered one comes first.

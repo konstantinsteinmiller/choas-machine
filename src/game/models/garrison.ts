@@ -1,6 +1,7 @@
 import { BoxGeometry, CylinderGeometry, Quaternion, Vector3 } from 'three'
-import { RigBuilder, cap, dome, ell, pose, nudge, rbox, rcone, rcyl, sph, stripUv, torus, type Rig } from './kit'
+import { RigBuilder, blendPose, cap, dome, ell, pose, nudge, rbox, rcone, rcyl, sph, stripUv, torus, type Rig } from './kit'
 import { PAL } from './palette'
+import { stanceSweep } from '../sim/gait'
 
 /**
  * Where a defender's rounds leave its weapon: the bone, and the muzzle in that
@@ -217,6 +218,12 @@ export interface GuardPose {
   limp: number
   /** 0 … 1 driven down onto its knees (a backstab, `sim/backstab.ts`). */
   kneel: number
+  /** 0 … 1 down on one knee to look at something on the floor (a body it found, #148). */
+  inspect: number
+  /** 0 … 1 at work with both hands: cranking a beacon, an Engineer at a repair (#148). */
+  work: number
+  /** 0 … 1 on fire (#148): arms flailing, beating at itself. */
+  burning: number
   /** Seconds since it died; 0 while alive. */
   deadT: number
   /** How it goes down. */
@@ -233,8 +240,9 @@ export interface GuardPose {
 export type HumanDeath = 'back' | 'front' | 'spin' | 'thrown'
 
 export const restGuardPose = (): GuardPose => ({
-  time: 0, stride: 0, speed: 0, aim: 0, wary: 0, caution: 0, startle: 0, recoil: 0, lookYaw: 0, seed: 0.5, proud: false, gripped: 0, impaled: 0, limp: 0, kneel: 0, deadT: 0, death: 'back'
+  time: 0, stride: 0, speed: 0, aim: 0, wary: 0, caution: 0, startle: 0, recoil: 0, lookYaw: 0, seed: 0.5, proud: false, gripped: 0, impaled: 0, limp: 0, kneel: 0, inspect: 0, work: 0, burning: 0, deadT: 0, death: 'back'
 })
+
 
 const sat = (v: number): number => (v < 0 ? 0 : v > 1 ? 1 : v)
 const smooth = (v: number): number => { const k = sat(v); return k * k * (3 - 2 * k) }
@@ -444,8 +452,11 @@ const poseGuardAlive = (rig: Rig, s: GuardPose): void => {
     const ph = s.stride + (sign > 0 ? 0 : Math.PI)
     const sw = Math.sin(ph)
     const up = Math.max(0, Math.cos(ph))
-    // Forward further than back, the way a stride really is.
-    const thigh = -(sw * (0.46 + 0.22 * run) + 0.1) * walk * swagger
+    // Forward further than back, the way a stride really is. On the floor the
+    // leg sweeps back at an even rate, heel strike to toe-off, so the foot
+    // stays where it was put while the body passes over it (#148); in the air
+    // it swings forward again.
+    const thigh = -(stanceSweep(ph) * (0.46 + 0.22 * run) + 0.1) * walk * swagger
       - stance
       // Standing: the leg without the weight is a little bent.
       - 0.1 * Math.max(0, -shift * sign)
@@ -482,7 +493,7 @@ const poseGuardAlive = (rig: Rig, s: GuardPose): void => {
   )
   pose(
     rig, 'chest',
-    0.04 * walk + 0.22 * s.caution + 0.1 * s.aim - 0.06 * s.recoil - 0.22 * s.startle - 0.2 * grip - 0.38 * stuck + 0.2 * gone + tremble
+    0.04 * walk + 0.14 * run + 0.22 * s.caution + 0.1 * s.aim - 0.06 * s.recoil - 0.22 * s.startle - 0.2 * grip - 0.38 * stuck + 0.2 * gone + tremble
       + breathe * 0.012 * alive + lookDown * 0.18 - shrug * 0.12 - (s.proud ? 0.07 * calm : 0),
     -swing * 0.3 * walk * swagger * calm,
     -Math.cos(s.stride) * 0.04 * walk - shift * 0.05
@@ -524,6 +535,63 @@ const poseGuardAlive = (rig: Rig, s: GuardPose): void => {
       - 1.6 * grip - 0.5 * stuck - 0.1 * gone,
     0, 0
   )
+  poseGuardActions(rig, s)
+}
+
+/**
+ * What a guard does with its body besides walking (#148), laid over the gait:
+ * down on one knee to look at what lies on the floor, both hands at work, and
+ * on fire.
+ */
+const poseGuardActions = (rig: Rig, s: GuardPose): void => {
+  const t = s.time
+  // One knee: the left foot planted ahead, the right knee on the floor, the
+  // body bent over what it looks at, the free hand reaching down to it.
+  const ins = s.inspect * (1 - s.gripped)
+  if (ins > 0.001) {
+    blendPose(rig, 'legL', -1.45, 0, 0.08, ins)
+    blendPose(rig, 'shinL', 1.5, 0, 0, ins)
+    blendPose(rig, 'footL', -0.05, 0, 0, ins)
+    blendPose(rig, 'legR', 0.06, 0, -0.08, ins)
+    blendPose(rig, 'shinR', 1.62, 0, 0, ins)
+    blendPose(rig, 'footR', 1.35, 0, 0, ins)
+    blendPose(rig, 'hips', 0.05, 0, 0, ins)
+    blendPose(rig, 'chest', 0.42, 0.12, 0, ins)
+    blendPose(rig, 'head', 0.4, Math.sin(t * 0.9) * 0.2, 0, ins)
+    blendPose(rig, 'armL', -1.0, 0, -0.15, ins)
+    blendPose(rig, 'foreL', -0.35, 0, 0, ins)
+    blendPose(rig, 'armR', -0.55, 0, 0.12, ins)
+    // The hips come down until the right knee is on the floor.
+    const hips = rig.bones.hips!
+    const rest = rig.rest.hips!.p.y
+    hips.position.y += (rest - (G_LEG - G_THIGH - 0.07) - hips.position.y) * ins
+  }
+  // Both hands at a crank or a panel: the right turning, the left steadying, leaning in.
+  const wk = s.work * (1 - s.gripped)
+  if (wk > 0.001) {
+    const crank = Math.sin(t * 7)
+    const crank2 = Math.cos(t * 7)
+    blendPose(rig, 'armR', -1.2 + crank * 0.14, 0.15, 0.12 + crank2 * 0.08, wk)
+    blendPose(rig, 'foreR', -0.4 + crank2 * 0.35, 0, 0, wk)
+    blendPose(rig, 'armL', -1.05, -0.2, -0.12, wk)
+    blendPose(rig, 'foreL', -0.65, 0, 0, wk)
+    blendPose(rig, 'chest', 0.24, crank * 0.06, 0, wk)
+    blendPose(rig, 'head', 0.28, 0, 0, wk)
+  }
+  // On fire: both arms thrown up and beating, the head thrashing, the body
+  // twisting away from the flames.
+  const bn = s.burning
+  if (bn > 0.001) {
+    const f1 = Math.sin(t * 13)
+    const f2 = Math.sin(t * 11 + 1.3)
+    const f3 = Math.sin(t * 7 + 0.4)
+    blendPose(rig, 'armL', -2.5 + f1 * 0.55, 0, -0.45 + f2 * 0.35, bn)
+    blendPose(rig, 'foreL', -1.0 + f2 * 0.7, 0, 0, bn)
+    blendPose(rig, 'armR', -2.3 + f2 * 0.55, 0, 0.45 + f1 * 0.35, bn)
+    blendPose(rig, 'foreR', -0.9 + f1 * 0.7, 0, 0, bn)
+    blendPose(rig, 'head', -0.35 + f1 * 0.2, f3 * 0.6, 0, bn)
+    blendPose(rig, 'chest', -0.12 + f2 * 0.12, f3 * 0.35, 0, bn)
+  }
 }
 
 // ─── Surveillance drone ──────────────────────────────────────────────────────

@@ -3,6 +3,7 @@ import {
   type Cable, type Grid, type Ladder, type MoveRule
 } from '../world/grid'
 import { MECH_EYE, MECH_EYE_CROUCH, MECH_HEIGHT as MECH_HEAD, MECH_RADIUS } from '../models/mech'
+import { mechGaitRate } from './gait'
 
 /**
  * ─── The mech's body ─────────────────────────────────────────────────────────
@@ -432,7 +433,8 @@ export const stepPlayer = (p: Player, g: Grid, w: Wish, dt: number): PlayerEvent
   // ── Heading and gait ──
   const flat = Math.hypot(p.vx, p.vz)
   p.speed01 = Math.min(1, flat / (RUN_SPEED * p.speedMul))
-  p.stride += went * (p.crouched ? 3.2 : 2.3)
+  // A stride that matches the ground covered: the feet stay planted (#148).
+  p.stride += went * mechGaitRate(p.sprint, p.crouch)
   if (w.aiming) p.yaw += angleDelta(p.yaw, w.aimYaw) * Math.min(1, dt * TURN_RATE * 1.6)
   else if (mag > 0.1) p.yaw += angleDelta(p.yaw, Math.atan2(dirX, dirZ)) * Math.min(1, dt * TURN_RATE)
   return events
