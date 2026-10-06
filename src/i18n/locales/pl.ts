@@ -234,7 +234,17 @@ export default {
     'replay': 'Pokaż jeszcze raz',
     'progress': 'Trening: ukończono {n} z {total} lekcji',
     'scrapWhy': 'Za złom ulepszysz broń w Bazie Dowodzenia.',
-    'skip': 'Pomiń trening'
+    'skip': 'Pomiń trening',
+    'goal': 'Wyeliminuj całą trójkę',
+    'goalProgress': '{n} z {total} wyeliminowanych',
+    'shout': {
+      'backstab': 'Atakuj od tyłu'
+    },
+    'reset': {
+      'cover': 'Wykryto cię. Kucaj za osłoną.',
+      'seen': 'Wykryto cię. Pokój od nowa.',
+      'rockets': 'Brak rakiet. Pokój od nowa.'
+    }
   },
   'pause': {
     'title': 'PAUZA',

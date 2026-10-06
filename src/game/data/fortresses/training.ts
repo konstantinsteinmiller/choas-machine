@@ -44,6 +44,15 @@ export const ROOM_WALL_H = 16
 export const HOOK_WALL_H = 6
 /** The jump room's two platforms, the gap between them a jump wide (#95). */
 export const JUMP_DECK_H = 2.5
+/** The jump room's gap (room cells): the column between the two decks. */
+export const JUMP_PIT_COL = 5
+/**
+ * The cover room's crates (#155): as high as the sentry's eye, so a crouched
+ * mech behind them is out of its sight, and low enough that a mech standing
+ * up right behind them shoots over them (a rifle round leaves its shoulder
+ * at 1.73 m; at the old 1.8 m every round met the crate).
+ */
+export const COVER_ROOM_H = 1.5
 /** The rope room's tower, and the platform a rope from it reaches (#94). */
 export const ROPE_TOWER_H = 4
 export const ROPE_DECK_H = 2
@@ -122,7 +131,7 @@ export const buildTrainingGround = (): Fortress => {
   // · Crouch and cover: a sentry in the far corner watches the room; a
   //   low wall of cover runs along the way through.
   b.sentry(...at(room('cover'), 9, 2), W)
-  b.cover(...at(room('cover'), 1, 5), 8, 'x')
+  b.cover(...at(room('cover'), 1, 5), 8, 'x', COVER_ROOM_H)
 
   // · Weapons: a sentry with its back turned at the far end (the rifle),
   //   two guards facing the corner (the minigun).

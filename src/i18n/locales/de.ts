@@ -234,7 +234,17 @@ export default {
     'replay': 'Nochmal zeigen',
     'progress': 'Training: {n} von {total} Lektionen geschafft',
     'scrapWhy': 'Mit Techschrott verbesserst du deine Waffen in der Kommandobasis.',
-    'skip': 'Training überspringen'
+    'skip': 'Training überspringen',
+    'goal': 'Schalte alle drei aus',
+    'goalProgress': '{n} von {total} ausgeschaltet',
+    'shout': {
+      'backstab': 'Von hinten zustechen'
+    },
+    'reset': {
+      'cover': 'Entdeckt. Bleib hinter der Deckung geduckt.',
+      'seen': 'Entdeckt. Der Raum beginnt von vorn.',
+      'rockets': 'Keine Raketen mehr. Der Raum beginnt von vorn.'
+    }
   },
   'pause': {
     'title': 'PAUSIERT',

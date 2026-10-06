@@ -234,7 +234,17 @@ export default {
     'replay': 'Mutasd újra',
     'progress': 'Gyakorlás: {total} leckéből {n} kész',
     'scrapWhy': 'A techhulladékból a Parancsnoki bázison fejlesztheted a fegyvereidet.',
-    'skip': 'Gyakorlás kihagyása'
+    'skip': 'Gyakorlás kihagyása',
+    'goal': 'Iktasd ki mind a hármat',
+    'goalProgress': '{n}/{total} kiiktatva',
+    'shout': {
+      'backstab': 'Szúrd hátba őket'
+    },
+    'reset': {
+      'cover': 'Észrevettek. Maradj guggolva a fedezék mögött.',
+      'seen': 'Észrevettek. A terem újraindul.',
+      'rockets': 'Elfogytak a rakéták. A terem újraindul.'
+    }
   },
   'pause': {
     'title': 'SZÜNET',

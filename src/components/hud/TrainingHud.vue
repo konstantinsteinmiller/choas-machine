@@ -18,6 +18,12 @@
       @click="replay"
     )
     p.why(v-if="hud.training.scrapWhy") {{ t('training.scrapWhy') }}
+    //- The weapons room's goal (#153): its three targets, ticked as each goes down.
+    div.goal(v-if="hud.training.goalTotal" data-testid="training-goal")
+      span.foes(role="img" :aria-label="t('training.goalProgress', { n: hud.training.goalDown, total: hud.training.goalTotal })")
+        span.foe(v-for="n in hud.training.goalTotal" :key="n" :class="{ down: n <= hud.training.goalDown }")
+          GameIcon(:name="n <= hud.training.goalDown ? 'check' : 'skull'")
+      span.what {{ t('training.goal') }}
 </template>
 
 <script setup lang="ts">
@@ -77,6 +83,30 @@ const replay = (): void => emit('trainingReplay', {})
     +tech-hex(rgba(95, 233, 255, 0.85), transparent, 2px)
 .replay
   pointer-events: auto
+.goal
+  display: flex
+  align-items: center
+  gap: 0.5em
+  padding: 0.3em 0.8em
+  color: #ffd27a
+  font-size: var(--cm-fs-s)
+  font-weight: 700
+  text-shadow: var(--cm-text-outline)
+  +tech-plate(var(--cm-violet), tech-fill(var(--cm-violet), 14%), 0.5rem)
+.foes
+  display: flex
+  gap: 0.2em
+.foe
+  display: grid
+  place-items: center
+  width: clamp(1rem, 3.8vmin, 1.5rem)
+  height: clamp(1rem, 3.8vmin, 1.5rem)
+  color: #ff7a9c
+  :deep(svg)
+    width: 85%
+    height: 85%
+  &.down
+    color: var(--cm-ok, #7dffb0)
 .why
   max-width: min(26rem, 80vw)
   margin: 0

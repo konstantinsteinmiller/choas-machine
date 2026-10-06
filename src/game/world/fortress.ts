@@ -304,8 +304,8 @@ export class FortressBuilder {
   }
 
   /** A chest-high cover block. */
-  cover(cx: number, cz: number, len = 1, dir: 'x' | 'z' = 'x'): this {
-    for (let i = 0; i < len; i++) this.set(cx + (dir === 'x' ? i : 0), cz + (dir === 'z' ? i : 0), COVER_H, CellKind.Cover)
+  cover(cx: number, cz: number, len = 1, dir: 'x' | 'z' = 'x', h = COVER_H): this {
+    for (let i = 0; i < len; i++) this.set(cx + (dir === 'x' ? i : 0), cz + (dir === 'z' ? i : 0), h, CellKind.Cover)
     return this
   }
 

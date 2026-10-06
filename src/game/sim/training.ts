@@ -1,5 +1,5 @@
 import { CELL, cellMid } from '../world/grid'
-import { ROCKET_TARGET, TRAINING_ROOMS, type LessonId } from '../data/fortresses/training'
+import { HOOK_WALL_H, JUMP_DECK_H, JUMP_PIT_COL, ROCKET_TARGET, TRAINING_ROOMS, type LessonId } from '../data/fortresses/training'
 import type { WeaponId } from '../data/ids'
 import type { HintId } from './coach'
 import { isAlive, type Garrison } from './garrison'
@@ -39,6 +39,8 @@ export interface DemoKey {
   rope?: number
   /** The grappling hook's line, out from the hand to the wall top (0 … 1, #117). */
   hook?: number
+  /** Where the hook bites (room cells x, z, and the height of the top): set on the throw. */
+  grip?: readonly [number, number, number]
   body?: number
   burn?: number
   /** A takedown starts here (#110): the full choreography, on the hologram guard. */
@@ -51,9 +53,13 @@ export interface DemoKey {
   hint?: HintId
 }
 
-/** The blade room's hologram guard, in the room's own cells (its back to the way in), and what it looks at. */
-export const BLADE_VICTIM: readonly [number, number] = [7, 3.5]
-const BLADE_LOOK: readonly [number, number] = [9, 3.5]
+/**
+ * The blade room's hologram guard, in the room's own cells (its back to the
+ * way in), and what it looks at: in the middle of the room, straight ahead of
+ * the way in (#158: up in the far corner it went unseen).
+ */
+export const BLADE_VICTIM: readonly [number, number] = [5, 7]
+const BLADE_LOOK: readonly [number, number] = [7, 7]
 
 /**
  * The demo's backstab (#110): always the one variant, so the ghost's path
@@ -130,10 +136,10 @@ export const DEMOS: Readonly<Record<LessonId, readonly DemoKey[]>> = {
   // Crouched, from behind, up to the hologram guard: the takedown, all of it (#110).
   blade: [
     { t: 0, x: 1.5, z: 7, crouch: 0, hint: 'crouch' }, { t: 0.6, crouch: 1 },
-    { t: 4, x: BLADE_BEHIND.x, z: BLADE_BEHIND.z, crouch: 1, face: BLADE_BEHIND.face },
-    { t: 4.3, hint: 'blade', takedown: true, crouch: 0 },
-    { t: 4.3 + TD_END, x: BLADE_AFTER.x, z: BLADE_AFTER.z },
-    { t: 5.6 + TD_END, x: 6, z: 7 }
+    { t: 3.2, x: BLADE_BEHIND.x, z: BLADE_BEHIND.z, crouch: 1, face: BLADE_BEHIND.face },
+    { t: 3.5, hint: 'blade', takedown: true, crouch: 0 },
+    { t: 3.5 + TD_END, x: BLADE_AFTER.x, z: BLADE_AFTER.z },
+    { t: 4.6 + TD_END, x: 3.5, z: 9 }
   ],
   // The guard here is already down (#113: one takedown lesson is enough):
   // over to the body, and the flame, until nothing is left (#99).
@@ -159,7 +165,7 @@ export const DEMOS: Readonly<Record<LessonId, readonly DemoKey[]>> = {
   // To the foot of the wall, the hook up to its top, reeled up on the line,
   // over the top, and down the far side (#117: the hook flies, it is no ladder).
   hook: [
-    { t: 0, x: 1.5, z: 7 }, { t: 3.2, x: 9.6, z: 7, y: 0 }, { t: 3.3, hint: 'grapple', hook: 0 }, { t: 3.6, hook: 1 },
+    { t: 0, x: 1.5, z: 7 }, { t: 3.2, x: 9.6, z: 7, y: 0 }, { t: 3.3, hint: 'grapple', hook: 0, grip: [10.55, 7, HOOK_WALL_H] }, { t: 3.6, hook: 1 },
     { t: 3.75, x: 9.6, z: 7, y: 0, air: 0, hook: 1 }, { t: 4.6, x: 10.2, z: 7, y: 5.3, air: 1, hook: 1 },
     { t: 4.9, x: 10.7, z: 7, y: 6, air: 0, hook: 0 }, { t: 5.3, x: 11, z: 7, y: 6 },
     { t: 5.8, x: 11.8, z: 7, y: 0, air: 1 }, { t: 6, air: 0 }
@@ -176,6 +182,25 @@ export const DEMOS: Readonly<Record<LessonId, readonly DemoKey[]>> = {
     { t: 0, x: 1.5, z: 7, loot: 0 }, { t: 3, x: 5.4, z: 8.3, hint: 'loot' }, { t: 3.4, face: [6, 9], loot: 1 }, { t: 5.6, loot: 1 }
   ],
   extract: [{ t: 0, x: 1.5, z: 7, hint: 'goal' }, { t: 3.5, x: 6, z: 7 }]
+}
+
+/**
+ * Down in the jump room's gap (#154): the way out of it, shown right there.
+ * The hook thrown up to the far deck's edge (G pops up), the mech reeled up
+ * onto it, and on to the way out. Rows are shifted to beside the mech
+ * (`Training.pitZ`); the decks run the whole length of the gap.
+ */
+export const PIT_DEMO: readonly DemoKey[] = [
+  { t: 0, x: JUMP_PIT_COL, z: 7, y: 0 }, { t: 0.7, x: JUMP_PIT_COL, z: 7, y: 0, face: [JUMP_PIT_COL + 2, 7] },
+  { t: 0.9, hint: 'grapple', hook: 0, grip: [JUMP_PIT_COL + 0.55, 7, JUMP_DECK_H] }, { t: 1.2, hook: 1 },
+  { t: 1.35, x: JUMP_PIT_COL, z: 7, y: 0, air: 0, hook: 1 }, { t: 2, x: JUMP_PIT_COL + 0.35, z: 7, y: JUMP_DECK_H - 0.3, air: 1, hook: 1 },
+  { t: 2.25, x: JUMP_PIT_COL + 1.1, z: 7, y: JUMP_DECK_H, air: 0, hook: 0 }, { t: 3.4, x: JUMP_PIT_COL + 3.2, z: 7, y: JUMP_DECK_H }
+]
+
+/** Whether a point is down in room `i`'s gap: the jump room, the gap's column, below the decks (#154). */
+export const inPit = (i: number, x: number, y: number): boolean => {
+  const r = TRAINING_ROOMS[i]
+  return !!r && r.lesson === 'jump' && Math.floor(x / CELL) === r.x0 + JUMP_PIT_COL - 1 && y < JUMP_DECK_H - 1
 }
 
 /** A demo loops until its lesson is done (#87), with this pause between plays. */
@@ -217,12 +242,15 @@ export interface Training {
   gap: number
   /** Times the mech was seen and sent back to the room's door. */
   resets: number
+  /** Down in the jump room's gap (#154): the way-out demo plays instead, this many rows from its own. */
+  pit: boolean
+  pitZ: number
 }
 
 export type TrainingEvent = { type: 'enter'; room: number } | { type: 'done'; room: number }
 
 export const makeTraining = (): Training => ({
-  room: -1, done: TRAINING_ROOMS.map(() => false), base: null, demoT: -1, demoLeft: 0, gap: 0, resets: 0
+  room: -1, done: TRAINING_ROOMS.map(() => false), base: null, demoT: -1, demoLeft: 0, gap: 0, resets: 0, pit: false, pitZ: 0
 })
 
 /** The room a point is in (by its column); −1 west of the first. */
@@ -343,7 +371,14 @@ export const replayDemo = (t: Training): boolean => {
 }
 
 /** The length of a demo, seconds. */
-export const demoLength = (lesson: LessonId): number => DEMOS[lesson][DEMOS[lesson].length - 1]!.t + 0.6
+export const demoLength = (lesson: LessonId): number => keysLength(DEMOS[lesson])
+const keysLength = (keys: readonly DemoKey[]): number => keys[keys.length - 1]!.t + 0.6
+
+/** The demo playing in the mech's room: its own, or the way out of the gap (#154). */
+export const activeKeys = (t: Training): readonly DemoKey[] => (t.pit ? PIT_DEMO : DEMOS[TRAINING_ROOMS[t.room]!.lesson])
+
+/** Where the demo playing now is, at its own time (the room, the keys, the rows it is shifted by). */
+export const currentFrame = (t: Training): DemoFrame => demoFrame(t.room, t.demoT, activeKeys(t), t.pit ? t.pitZ : 0)
 
 /** Advance the lessons one step. */
 export const stepTraining = (t: Training, c: TrainingContext, dt: number): TrainingEvent[] => {
@@ -362,11 +397,22 @@ export const stepTraining = (t: Training, c: TrainingContext, dt: number): Train
     t.demoLeft = 0
     out.push({ type: 'done', room: t.room })
   }
+  // Into the jump room's gap, or out of it (#154): the demo for where the mech is.
+  const pit = t.room >= 0 && !t.done[t.room] && inPit(t.room, c.x, c.y)
+  if (pit !== t.pit) {
+    t.pit = pit
+    if (pit) {
+      // Beside the mech, a little toward the middle, never on top of it.
+      const r = TRAINING_ROOMS[t.room]!
+      const row = c.z / CELL - r.z0 + 0.5
+      t.pitZ = Math.min(11, Math.max(2, row + (row < 7 ? 1.5 : -1.5))) - 7
+    }
+    startDemo(t)
+  }
   // The demo: play, pause, play again, until the lesson is done.
   if (t.demoT >= 0) {
-    const lesson = TRAINING_ROOMS[t.room]!.lesson
     t.demoT += dt
-    if (t.demoT > demoLength(lesson)) { t.demoT = -1; t.gap = DEMO_GAP_S }
+    if (t.demoT > keysLength(activeKeys(t))) { t.demoT = -1; t.gap = DEMO_GAP_S }
   } else if (t.gap > 0) {
     t.gap -= dt
     if (t.gap <= 0) t.demoT = 0
@@ -412,8 +458,9 @@ export interface DemoFrame {
   air: number
   cable: number
   rope: number
-  /** The hook's line, out from the hand (0 … 1, #117). */
+  /** The hook's line, out from the hand (0 … 1, #117), and where it bites (metres; the top's height). */
   hook: number
+  grip: { x: number; y: number; z: number } | null
   body: number
   burn: number
   /** Seconds into the demo's takedown (#110), or −1. */
@@ -428,11 +475,11 @@ export interface DemoFrame {
   hint: HintId | null
 }
 
-export const demoFrame = (i: number, time: number): DemoFrame => {
+/** `keys`: another demo than the room's own; `shift`: rows it is moved by (both #154). */
+export const demoFrame = (i: number, time: number, keys: readonly DemoKey[] = DEMOS[TRAINING_ROOMS[i]!.lesson], shift = 0): DemoFrame => {
   const r = TRAINING_ROOMS[i]!
-  const keys = DEMOS[r.lesson]
   // Fill every key from the one before.
-  let prev: Required<Omit<DemoKey, 'hint' | 'face' | 'takedown' | 'decoy' | 'rocket'>> & { face: readonly [number, number] | null } = {
+  let prev: Required<Omit<DemoKey, 'hint' | 'face' | 'takedown' | 'decoy' | 'rocket' | 'grip'>> & { face: readonly [number, number] | null } = {
     t: 0, x: 1.5, z: 7, y: 0, crouch: 0, aim: 0, weapon: 'sniper', stab: 0, boxed: 0, loot: 0,
     climb: 0, air: 0, cable: 0, rope: 0, hook: 0, body: 0, burn: 0, face: null
   }
@@ -451,7 +498,7 @@ export const demoFrame = (i: number, time: number): DemoFrame => {
   const lx = lerp(a.x, b.x)
   const lz = lerp(a.z, b.z)
   const toX = (v: number): number => (r.x0 + v - 1) * CELL + CELL / 2
-  const toZ = (v: number): number => (r.z0 + v - 1) * CELL + CELL / 2
+  const toZ = (v: number): number => (r.z0 + v + shift - 1) * CELL + CELL / 2
   const dx = (b.x - a.x) * CELL
   const dz = (b.z - a.z) * CELL
   const moving = b !== a && Math.hypot(dx, dz) > 0.05
@@ -465,6 +512,8 @@ export const demoFrame = (i: number, time: number): DemoFrame => {
   for (const k of keys) if (k.decoy && time >= k.t) decoy = { x: toX(k.decoy[0]), z: toZ(k.decoy[1]), t: time - k.t }
   let rocket: DemoFrame['rocket'] = null
   for (const k of keys) if (k.rocket && time >= k.t) rocket = { x: toX(k.rocket[0]), z: toZ(k.rocket[1]), t: time - k.t }
+  let grip: DemoFrame['grip'] = null
+  for (const k of keys) if (k.grip && time >= k.t) grip = { x: toX(k.grip[0]), y: k.grip[2] + 0.05, z: toZ(k.grip[1]) }
   let press: DemoFrame['press'] = null
   for (const k of keys) if (k.hint && k.t <= time && time - k.t < HINT_HOLD_S) press = { hint: k.hint, t: time - k.t }
   return {
@@ -473,6 +522,6 @@ export const demoFrame = (i: number, time: number): DemoFrame => {
     crouch: lerp(a.crouch, b.crouch), aim: lerp(a.aim, b.aim), weapon: a.weapon,
     stab: lerp(a.stab, b.stab), boxed: lerp(a.boxed, b.boxed), loot: lerp(a.loot, b.loot),
     climb: lerp(a.climb, b.climb), air: lerp(a.air, b.air), cable: lerp(a.cable, b.cable),
-    rope: lerp(a.rope, b.rope), hook: lerp(a.hook, b.hook), body: lerp(a.body, b.body), burn: lerp(a.burn, b.burn), td, decoy, rocket, press, hint
+    rope: lerp(a.rope, b.rope), hook: lerp(a.hook, b.hook), grip, body: lerp(a.body, b.body), burn: lerp(a.burn, b.burn), td, decoy, rocket, press, hint
   }
 }

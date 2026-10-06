@@ -234,7 +234,17 @@ export default {
     'replay': 'Mostrar outra vez',
     'progress': 'Treino: {n} de {total} lições concluídas',
     'scrapWhy': 'A Sucata Tech compra melhorias para as tuas armas na base de comando.',
-    'skip': 'Saltar treino'
+    'skip': 'Saltar treino',
+    'goal': 'Elimina os três',
+    'goalProgress': '{n} de {total} abatidos',
+    'shout': {
+      'backstab': 'Ataca pelas costas'
+    },
+    'reset': {
+      'cover': 'Visto. Fica agachado atrás da cobertura.',
+      'seen': 'Visto. A sala recomeça.',
+      'rockets': 'Sem foguetes. A sala recomeça.'
+    }
   },
   'pause': {
     'title': 'EM PAUSA',

@@ -234,7 +234,17 @@ export default {
     'replay': 'Yenidən göstər',
     'progress': 'Məşq: {total} dərsdən {n} keçildi',
     'scrapWhy': 'Tex-qırıntı ilə bazada silahların üçün təkmilləşdirmələr alırsan.',
-    'skip': 'Məşqi keç'
+    'skip': 'Məşqi keç',
+    'goal': 'Hər üçünü zərərsizləşdir',
+    'goalProgress': '{n}/{total} yerə sərildi',
+    'shout': {
+      'backstab': 'Arxadan vur'
+    },
+    'reset': {
+      'cover': 'Səni gördülər. Örtüyün arxasında çömelmiş qal.',
+      'seen': 'Səni gördülər. Otaq yenidən başlayır.',
+      'rockets': 'Raketlər bitdi. Otaq yenidən başlayır.'
+    }
   },
   'pause': {
     'title': 'FASİLƏ',

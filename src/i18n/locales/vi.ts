@@ -234,7 +234,17 @@ export default {
     'replay': 'Xem lại',
     'progress': 'Huấn luyện: xong {n}/{total} bài',
     'scrapWhy': 'Phế liệu dùng để nâng cấp vũ khí tại Căn cứ chỉ huy.',
-    'skip': 'Bỏ qua huấn luyện'
+    'skip': 'Bỏ qua huấn luyện',
+    'goal': 'Hạ gục cả ba',
+    'goalProgress': 'Đã hạ {n}/{total}',
+    'shout': {
+      'backstab': 'Đâm sau lưng'
+    },
+    'reset': {
+      'cover': 'Bị lộ. Cúi xuống sau chỗ nấp.',
+      'seen': 'Bị lộ. Phòng bắt đầu lại.',
+      'rockets': 'Hết tên lửa. Phòng bắt đầu lại.'
+    }
   },
   'pause': {
     'title': 'TẠM DỪNG',

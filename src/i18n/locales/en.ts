@@ -238,7 +238,17 @@ export default {
     'replay': 'Show me again',
     'progress': 'Training: {n} of {total} lessons done',
     'scrapWhy': 'Scrap buys upgrades for your weapons back at the Command Base.',
-    'skip': 'Skip training'
+    'skip': 'Skip training',
+    'goal': 'Take down all three',
+    'goalProgress': '{n} of {total} down',
+    'shout': {
+      'backstab': 'Backstab them'
+    },
+    'reset': {
+      'cover': 'Seen. Stay crouched behind the cover.',
+      'seen': 'Seen. The room starts over.',
+      'rockets': 'Out of rockets. The room starts over.'
+    }
   },
   'pause': {
     'title': 'PAUSED',

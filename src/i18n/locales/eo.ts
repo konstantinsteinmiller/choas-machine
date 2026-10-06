@@ -234,7 +234,17 @@ export default {
     'replay': 'Montru denove',
     'progress': 'Trejnado: {n} el {total} lecionoj faritaj',
     'scrapWhy': 'Teknorestaĵoj aĉetas plibonigojn por viaj armiloj en la komandobazo.',
-    'skip': 'Preterpasi trejnadon'
+    'skip': 'Preterpasi trejnadon',
+    'goal': 'Neŭtraligu ĉiujn tri',
+    'goalProgress': '{n} el {total} faligitaj',
+    'shout': {
+      'backstab': 'Ataku de malantaŭe'
+    },
+    'reset': {
+      'cover': 'Vidita. Restu kaŝkaŭre malantaŭ la ŝirmilo.',
+      'seen': 'Vidita. La ĉambro rekomenciĝas.',
+      'rockets': 'Raketoj elĉerpitaj. La ĉambro rekomenciĝas.'
+    }
   },
   'pause': {
     'title': 'PAŬZITA',

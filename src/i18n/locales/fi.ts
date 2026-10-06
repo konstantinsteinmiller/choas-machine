@@ -234,7 +234,17 @@ export default {
     'replay': 'Näytä uudelleen',
     'progress': 'Harjoitus: {n}/{total} oppituntia tehty',
     'scrapWhy': 'Romulla ostat aseillesi päivityksiä tukikohdassa.',
-    'skip': 'Ohita harjoitus'
+    'skip': 'Ohita harjoitus',
+    'goal': 'Kaada kaikki kolme',
+    'goalProgress': '{n}/{total} kaadettu',
+    'shout': {
+      'backstab': 'Iske selkään'
+    },
+    'reset': {
+      'cover': 'Huomattu. Pysy kyyryssä suojan takana.',
+      'seen': 'Huomattu. Huone alkaa alusta.',
+      'rockets': 'Raketit loppu. Huone alkaa alusta.'
+    }
   },
   'pause': {
     'title': 'TAUKO',

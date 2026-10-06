@@ -31,6 +31,9 @@ import type { HintView } from '../sim/coach'
  */
 export type Phase = 'boot' | 'intro' | 'play' | 'outro' | 'dead' | 'done' | 'base' | 'cinema'
 
+/** What the training ground calls out (`training.shout.*`, `training.reset.*` in the locales). */
+export type TrainingShout = '' | 'shout.backstab' | 'reset.cover' | 'reset.seen' | 'reset.rockets'
+
 export const hud = reactive({
   phase: 'boot' as Phase,
   /** Which controls to draw: the touch HUD or the desktop one. */
@@ -109,8 +112,16 @@ export const hud = reactive({
   concealed: 0 as 0 | 1 | 2,
   /** The scope's zoom (1 = the loadout's own). */
   zoom: 1,
-  /** The training ground: which room, lessons done of how many, whether the demo can be asked for again, the scrap line. */
-  training: { on: false, room: -1, done: 0, total: 0, replay: false, scrapWhy: false },
+  /**
+   * The training ground: which room, lessons done of how many, whether the
+   * demo can be asked for again, the scrap line; the room's targets down of
+   * how many (#153, 0 of 0: no such goal); and the line called out over the
+   * middle of the screen (#155, #156), replayed on every `shoutSeq`.
+   */
+  training: {
+    on: false, room: -1, done: 0, total: 0, replay: false, scrapWhy: false,
+    goalDown: 0, goalTotal: 0, shout: '' as TrainingShout, shoutSeq: 0
+  },
   /** 0 … 1 of holding the scope on a unit to tag it. */
   tagging: 0,
   /** A body to grab ('grab'), or one in tow ('drop'). */

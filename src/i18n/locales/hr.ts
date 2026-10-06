@@ -234,7 +234,17 @@ export default {
     'replay': 'Pokaži ponovno',
     'progress': 'Trening: završeno {n} od {total} lekcija',
     'scrapWhy': 'Tehno-otpadom u Zapovjednoj bazi nadograđuješ oružje.',
-    'skip': 'Preskoči trening'
+    'skip': 'Preskoči trening',
+    'goal': 'Sredi svu trojicu',
+    'goalProgress': '{n} od {total} oboreno',
+    'shout': {
+      'backstab': 'Ubodi ih u leđa'
+    },
+    'reset': {
+      'cover': 'Primijećen si. Ostani čučnut iza zaklona.',
+      'seen': 'Primijećen si. Soba kreće ispočetka.',
+      'rockets': 'Nema više raketa. Soba kreće ispočetka.'
+    }
   },
   'pause': {
     'title': 'PAUZA',

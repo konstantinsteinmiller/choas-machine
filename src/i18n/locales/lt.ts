@@ -234,7 +234,17 @@ export default {
     'replay': 'Parodyk dar kartą',
     'progress': 'Treniruotė: baigta {n} iš {total} pamokų',
     'scrapWhy': 'Už technikos laužą Vadavietėje patobulinsi ginklus.',
-    'skip': 'Praleisti treniruotę'
+    'skip': 'Praleisti treniruotę',
+    'goal': 'Nukauk visus tris',
+    'goalProgress': '{n} iš {total} nukauti',
+    'shout': {
+      'backstab': 'Smok į nugarą'
+    },
+    'reset': {
+      'cover': 'Tave pastebėjo. Būk pritūpęs už priedangos.',
+      'seen': 'Tave pastebėjo. Kambarys iš naujo.',
+      'rockets': 'Raketos baigėsi. Kambarys iš naujo.'
+    }
   },
   'pause': {
     'title': 'PAUZĖ',

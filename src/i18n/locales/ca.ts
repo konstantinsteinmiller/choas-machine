@@ -234,7 +234,17 @@ export default {
     'replay': 'Torna-m\'ho a ensenyar',
     'progress': 'Entrenament: {n} de {total} lliçons fetes',
     'scrapWhy': 'La ferralla tècnica compra millores per a les teves armes a la base de comandament.',
-    'skip': 'Ometre l\'entrenament'
+    'skip': 'Ometre l\'entrenament',
+    'goal': "Elimina'ls tots tres",
+    'goalProgress': '{n} de {total} eliminats',
+    'shout': {
+      'backstab': "Per l'esquena"
+    },
+    'reset': {
+      'cover': "T'han vist. Queda't ajupit darrere la cobertura.",
+      'seen': "T'han vist. La sala torna a començar.",
+      'rockets': 'Sense coets. La sala torna a començar.'
+    }
   },
   'pause': {
     'title': 'PAUSA',

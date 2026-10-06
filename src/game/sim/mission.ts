@@ -8,7 +8,7 @@ import { noSlice, type Slice } from '../engine/slicer'
 import { consumeEdges, type Input } from '../engine/input'
 import { input as sharedInput, inputClock } from '../engine/inputState'
 import { emit, on } from '../bus'
-import { gun, hud, mirror, runHudTickers, setPhase, threats, vital, waypoint, MAX_THREATS, callouts, MAX_CALLOUTS, prompt, bars, MAX_BARS, uplinks, MAX_UPLINKS, quipPop, type PromptKind } from '../state/hud'
+import { gun, hud, mirror, runHudTickers, setPhase, threats, vital, waypoint, MAX_THREATS, callouts, MAX_CALLOUTS, prompt, bars, MAX_BARS, uplinks, MAX_UPLINKS, quipPop, type PromptKind, type TrainingShout } from '../state/hud'
 import { god } from '../state/god'
 import { QUIP_SHOW_S, makeQuips, pickQuip } from './quips'
 import { PathChevrons } from '../fx/pathChevrons'
@@ -65,7 +65,7 @@ import {
 import { AirshipView } from './airshipView'
 import { AIRSHIP_HALF } from '../models/airship'
 import { TrainingDirector } from './trainingDirector'
-import { entryOf, lessonStuck, roomAt } from './training'
+import { DEMO_GAP_S, demoLength, entryOf, inPit, lessonStuck, roomAt, victimFrame } from './training'
 import { TRAINING_ID, TRAINING_ROOMS } from '../data/fortresses/training'
 import { COVER_H } from '../world/fortress'
 import { BASE_LOADOUT, type Loadout } from '../data/upgrades'
@@ -211,7 +211,22 @@ type Cine =
   | { kind: 'orbit'; t: number; dur: number; id: number; yaw: number; final: boolean; boss?: boolean; wide?: boolean }
   /** No camera move: time just dips for a beat. */
   | { kind: 'dip'; t: number; dur: number }
+  /**
+   * The blade room's lesson, watched (#158): the mech held at the way in, the
+   * camera on the middle of the room, where the hologram takes its guard from
+   * behind, twice over. Not skipped: that is the point of it.
+   */
+  | { kind: 'lesson'; t: number; dur: number; x: number; z: number; yaw: number }
 
+/** The blade room says "Backstab them" again after this many seconds of shooting (#156). */
+const SHOUT_EVERY_S = 3
+/** The blade room's watched lesson (#158): the camera's distance from the middle and its height. */
+const LESSON_CAM_R = 6.5
+const LESSON_CAM_H = 3.2
+/** Over the jump room's gap (#154): how high above the mech, how far behind, and how fast it rises (per second). */
+const PIT_CAM_UP = 6.5
+const PIT_CAM_BACK = 2.2
+const PIT_CAM_RATE = 2.5
 /** How long a shouted line stays over a defender's head. */
 const CALLOUT_S = 2.4
 /** How slow the world runs while a kill-cam holds on its kill. */
@@ -599,6 +614,8 @@ export class Mission implements GameMode {
     mirror('objective', 'salvage')
     hud.training.on = !!this.training
     hud.training.room = -1
+    hud.training.goalTotal = hud.training.goalDown = 0
+    hud.training.shout = ''
     this.scopeZoom = 0
     mirror('zoom', 1)
     mirror('salvageGot', 0)
@@ -667,7 +684,7 @@ export class Mission implements GameMode {
     // Any press skips a scripted shot (once it has had a moment to register).
     // (A takedown needs a later press: the one that started it is still going down.)
     // The press that skips is spent on the skip: Space must not also jump (#95).
-    if (this.cine && i.anyPressed && this.cine.t > (this.cine.kind === 'stab' ? 0.7 : 0.3)) { this.skipCine(); consumeEdges(i) }
+    if (this.cine && this.cine.kind !== 'lesson' && i.anyPressed && this.cine.t > (this.cine.kind === 'stab' ? 0.7 : 0.3)) { this.skipCine(); consumeEdges(i) }
     // The bullet in flight: the world holds its breath. After it lands, and
     // through any kill-cam, nothing moves but the fallen (#91).
     if (this.cine?.kind === 'bullet' && !this.cine.hit) {
@@ -692,6 +709,11 @@ export class Mission implements GameMode {
       this.stats.time += dt
       if (this.strike) {
         this.stepStrike(dt)
+      } else if (this.cine?.kind === 'lesson') {
+        // Held while the lesson plays (#158): it stands and watches.
+        p.vx = p.vz = 0
+        p.speed01 = 0
+        consumeEdges(i)
       } else if (this.grapple) {
         this.stepHook(dt)
       } else if (this.burning) {
@@ -938,7 +960,7 @@ export class Mission implements GameMode {
     const p = this.player
     const t = this.trigger
     // Hands are busy on a ladder, a cable, a ledge, or mid-strike.
-    const free = p.mode === 'ground' && !this.strike
+    const free = p.mode === 'ground' && !this.strike && this.cine?.kind !== 'lesson'
     t.touch = i.device === 'touch'
     t.aimHeld = free && i.aimHeld
     t.aimReleased = free && i.aimReleased
@@ -1050,6 +1072,7 @@ export class Mission implements GameMode {
     const { ox, oy, oz, dx, dy, dz } = this.aimLine(SPREAD[w])
     this.stats.shots++
     this.learn('fire')
+    this.bladeRoomShot()
     // The flash and the trail start at the weapon's own muzzle, out along the
     // aimed arm (#81); the round itself is traced from the shoulder, so a
     // barrel poking through a wall never shoots from the far side of it.
@@ -3222,6 +3245,8 @@ export class Mission implements GameMode {
         if (lesson === 'burn') this.fuelLeft = Math.max(this.fuelLeft, this.loadout.fuel)
         // The launcher's room (#146): both rockets in, whatever was spent before.
         if (lesson === 'rocket') this.refillRockets()
+        // The blade room (#158): held at the way in to watch its lesson first.
+        if (lesson === 'blade' && !tr.state.done[e.room] && !this.cine) this.watchLesson(e.room)
         // The supply room (#111): everything is spent (the strip blinks dry), so the crate's refill shows.
         if (lesson === 'supply') {
           this.arsenal.sniperMag = 0
@@ -3245,6 +3270,7 @@ export class Mission implements GameMode {
         this.rocketDryT = 0
         tr.resetRoom(this.placeAtDoor)
         this.refillRockets()
+        this.trainingShout('reset.rockets')
         emit('trainingReset', {})
       }
     }
@@ -3265,6 +3291,8 @@ export class Mission implements GameMode {
         this.sabotaging = null
         if (this.dragId >= 0) this.dropBody()
       })
+      // Why (#155): in the cover room, what would have kept it unseen.
+      this.trainingShout(TRAINING_ROOMS[tr.state.room]?.lesson === 'cover' ? 'reset.cover' : 'reset.seen')
       emit('trainingReset', {})
     }
     const s = tr.state
@@ -3280,6 +3308,42 @@ export class Mission implements GameMode {
     if (hud.training.replay !== replay) hud.training.replay = replay
     const why = lesson === 'salvage' && !s.done[room]
     if (hud.training.scrapWhy !== why) hud.training.scrapWhy = why
+    // The weapons room's goal (#153): its three, and how many are down.
+    const foes = lesson === 'weapons' && !s.done[room] ? this.garrison.units.filter(u => roomAt(u.homeX) === room) : []
+    const down = foes.filter(u => !isAlive(u)).length
+    if (hud.training.goalTotal !== foes.length) hud.training.goalTotal = foes.length
+    if (hud.training.goalDown !== down) hud.training.goalDown = down
+  }
+
+  /** The training ground calls a line out over the screen (#155, #156). */
+  private trainingShout(key: TrainingShout): void {
+    hud.training.shout = key
+    hud.training.shoutSeq++
+  }
+
+  /** When the blade room last called out "Backstab them". */
+  private shoutT = -Infinity
+
+  /** A shot in the blade room before its lesson is done (#156): the blade is the way here; said again every few seconds of shooting. */
+  private bladeRoomShot(): void {
+    const s = this.training?.state
+    if (!s || s.room < 0 || s.done[s.room] || TRAINING_ROOMS[s.room]!.lesson !== 'blade') return
+    if (this.time - this.shoutT < SHOUT_EVERY_S) return
+    this.shoutT = this.time
+    this.trainingShout('shout.backstab')
+  }
+
+  /** Hold the mech at room `room`'s way in and watch its hologram twice (#158). */
+  private watchLesson(room: number): void {
+    const v = victimFrame(room, 0)
+    if (!v) return
+    const p = this.player
+    p.vx = p.vz = 0
+    this.cine = {
+      kind: 'lesson', t: 0, dur: 2 * demoLength('blade') + DEMO_GAP_S,
+      // From the way in's side and a little south, over the shoulder of the room.
+      x: v.x, z: v.z, yaw: -Math.PI / 2 + 0.45
+    }
   }
 
   /** The scope held on one unit: which, and for how long. */
@@ -3638,6 +3702,29 @@ export class Mission implements GameMode {
     c.z = oz + (dz / len) * t
   }
 
+  private pitK = 0
+  private pitPose = makeCinePose()
+
+  /** The camera over the jump room's gap (#154): high above, a little behind the way the mech looks, down at it. */
+  private pitCam(x: number, y: number, z: number): CinePose {
+    const out = this.pitPose
+    const yaw = this.cam.yaw
+    const fx = Math.sin(yaw)
+    const fz = Math.cos(yaw)
+    const oy = y + PIT_CAM_UP
+    // Never inside a wall: in along the line from above the mech.
+    const h = raycast(this.fortress.grid, x, oy, z, -fx, 0, -fz, PIT_CAM_BACK + 0.4)
+    const back = h.hit ? Math.max(0, h.t - 0.4) : PIT_CAM_BACK
+    out.x = x - fx * back
+    out.y = oy
+    out.z = z - fz * back
+    out.tx = x + fx * 0.8
+    out.ty = y + 0.9
+    out.tz = z + fz * 0.8
+    out.fov = this.baseFov
+    return out
+  }
+
   /** A press during a scripted shot: cut to its end. */
   private skipCine(): void {
     const c = this.cine
@@ -3785,6 +3872,15 @@ export class Mission implements GameMode {
       if (k >= 1) this.endCine()
       return true
     }
+    if (c.kind === 'lesson') {
+      // The middle of the room, framed, a slow drift round it (#158); out of
+      // the follow camera and back into it.
+      orbitCam(out, c.t, c.x, 0.9, c.z, c.yaw, LESSON_CAM_R, LESSON_CAM_H, 0.025, this.baseFov * 0.85)
+      const edge = Math.min(1, c.t / 0.7, (c.dur - c.t) / 0.7)
+      if (edge < 1) blendPose(out, follow, out, smooth(Math.max(0, edge)))
+      if (k >= 1) this.endCine()
+      return true
+    }
     // dip: time only.
     if (k >= 1) this.endCine()
     return false
@@ -3861,6 +3957,13 @@ export class Mission implements GameMode {
     fp.x = follow.x; fp.y = follow.y; fp.z = follow.z
     fp.tx = follow.tx; fp.ty = follow.ty; fp.tz = follow.tz
     fp.fov = follow.fov
+    // Down in the jump room's gap (#154): the follow camera has only a wall to
+    // look at there, and fades the mech out of its way. It rises instead and
+    // looks down into the gap, the mech and the way out in view.
+    const ts = this.training?.state
+    const pit = !!ts && ts.room >= 0 && inPit(ts.room, x, y) && !aiming
+    this.pitK = Math.max(0, Math.min(1, this.pitK + (pit ? dt : -dt) * PIT_CAM_RATE))
+    if (this.pitK > 0) blendPose(fp, fp, this.pitCam(x, y, z), smooth(this.pitK))
     const scripted = this.stepCine(dt, fp, x, y, z)
     // A scripted shot never looks through a wall (#105): its camera comes in
     // along its line toward what it looks at until nothing stands between.
@@ -3906,7 +4009,7 @@ export class Mission implements GameMode {
     }
     // Pressed close by a wall, the camera has craned over the mech's shoulder:
     // the mech fades out of its own way.
-    this.fadeMech(scripted ? 0 : follow.fade)
+    this.fadeMech(scripted || this.pitK > 0.3 ? 0 : follow.fade)
     const striking = this.strike
     let airBeat: AirBeat | null = null
     let stab: BackstabPose | null = null

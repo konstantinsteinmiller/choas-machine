@@ -234,7 +234,17 @@ export default {
     'replay': 'Ukaž znovu',
     'progress': 'Výcvik: hotovo {n} z {total} lekcí',
     'scrapWhy': 'Za techno šrot si na Velitelské základně vylepšíš zbraně.',
-    'skip': 'Přeskočit výcvik'
+    'skip': 'Přeskočit výcvik',
+    'goal': 'Vyřaď všechny tři',
+    'goalProgress': '{n} z {total} vyřazeno',
+    'shout': {
+      'backstab': 'Bodni je do zad'
+    },
+    'reset': {
+      'cover': 'Odhalen. Zůstaň skrčený za krytem.',
+      'seen': 'Odhalen. Místnost začíná znovu.',
+      'rockets': 'Došly rakety. Místnost začíná znovu.'
+    }
   },
   'pause': {
     'title': 'PAUZA',

@@ -5,7 +5,7 @@ import {
 import { demoPop } from '../state/hud'
 import { CELL, CellKind, cellMid, heightAt, VOID, type Grid } from '../world/grid'
 import type { Fortress } from '../world/fortress'
-import { HOOK_WALL_H, ROCKET_LEDGE_H, ROCKET_TARGET, ROOM_WALL_H, ROPE_DECK_H, ROPE_TOWER_H, TRAINING_ROOMS } from '../data/fortresses/training'
+import { ROCKET_LEDGE_H, ROCKET_TARGET, ROOM_WALL_H, ROPE_DECK_H, ROPE_TOWER_H, TRAINING_ROOMS } from '../data/fortresses/training'
 import { VARIANTS } from './backstab'
 import { poseBackstabGuard, poseBackstabMech } from './backstabStage'
 import { MUZZLE_TIP, buildMech, poseMech, restPose, type MechPose } from '../models/mech'
@@ -18,8 +18,8 @@ import { makeHologramMaterial, setHologram } from '../fx/hologram'
 import type { Rig } from '../models/kit'
 import type { Garrison } from './garrison'
 import {
-  DEMO_BACKSTAB, demoFrame, victimFrame, doorOf, entryOf, makeTraining, replayDemo, rewindRoom, roomAt, stepTraining,
-  type Training, type TrainingContext, type TrainingEvent
+  DEMO_BACKSTAB, currentFrame, demoFrame, victimFrame, doorOf, entryOf, makeTraining, replayDemo, rewindRoom, roomAt, stepTraining,
+  type DemoFrame, type Training, type TrainingContext, type TrainingEvent
 } from './training'
 import type { HintId } from './coach'
 
@@ -236,7 +236,7 @@ export class TrainingDirector {
   hint(): HintId | null {
     const t = this.state
     if (t.demoT < 0 || t.room < 0) return null
-    return demoFrame(t.room, t.demoT).hint
+    return currentFrame(t).hint
   }
 
   /**
@@ -305,7 +305,7 @@ export class TrainingDirector {
       return
     }
     if (!playing) return
-    const f = demoFrame(t.room, t.demoT)
+    const f = currentFrame(t)
     const floor = heightAt(this.fortress.grid, f.x, f.z)
     const base = floor === VOID ? 0 : floor
     // A climb or a jump: the hologram rises above the floor it starts on.
@@ -358,7 +358,7 @@ export class TrainingDirector {
    * The key of each control the hologram uses pops up over its head (#114):
    * on screen, from the hologram's head, it rises and fades (DemoPop.vue).
    */
-  private pops(f: ReturnType<typeof demoFrame>, y: number, camera?: Camera): void {
+  private pops(f: DemoFrame, y: number, camera?: Camera): void {
     if (!camera || !f.press) { demoPop.on = false; if (!f.press) this.lastPress = ''; return }
     const key = `${f.press.hint}@${(this.state.demoT - f.press.t).toFixed(2)}`
     if (key !== this.lastPress) { this.lastPress = key; demoPop.seq++ }
@@ -370,7 +370,7 @@ export class TrainingDirector {
   }
 
   /** The decoy lesson's decoy (#114): it arcs from the hologram's hand and stands where it lands, flickering. */
-  private throwDecoy(f: ReturnType<typeof demoFrame>, y: number, time: number): void {
+  private throwDecoy(f: DemoFrame, y: number, time: number): void {
     const d = f.decoy
     this.decoyOrb.visible = !!d && d.t < DECOY_FLY_S
     this.decoyHolo.root.visible = !!d && d.t >= DECOY_FLY_S
@@ -396,7 +396,7 @@ export class TrainingDirector {
    * leaves the launcher's nose (the same tip the mission fires from) and flies
    * straight into it; the mech comes apart into its own parts, in the same light.
    */
-  private fireRocket(room: number, f: ReturnType<typeof demoFrame>, time: number, dt: number): void {
+  private fireRocket(room: number, f: DemoFrame, time: number, dt: number): void {
     const r = TRAINING_ROOMS[room]!
     const here = r.lesson === 'rocket'
     const rk = f.rocket
@@ -431,7 +431,7 @@ export class TrainingDirector {
   }
 
   /** The lesson's props: the rope it shoots, the body it burns and the flame, the targets that fall. */
-  private props(room: number, f: ReturnType<typeof demoFrame>, y: number, time: number): void {
+  private props(room: number, f: DemoFrame, y: number, time: number): void {
     const r = TRAINING_ROOMS[room]!
     const toX = (v: number): number => (r.x0 + v - 1) * CELL + CELL / 2
     const toZ = (v: number): number => (r.z0 + v - 1) * CELL + CELL / 2
@@ -470,12 +470,12 @@ export class TrainingDirector {
       this.rope.scale.set(1, a.distanceTo(b), 1)
       this.rope.quaternion.copy(new Quaternion().setFromUnitVectors(new Vector3(0, 1, 0), b.sub(a).normalize()))
     }
-    // The hook (#117): out of the raised hand to the top of the wall, and the
-    // line the mech is reeled up on.
-    this.hookLine.visible = this.hookHead.visible = r.lesson === 'hook' && f.hook > 0.01
-    if (this.hookLine.visible) {
+    // The hook (#117): out of the raised hand to the top of the wall (or of
+    // the deck, out of the jump room's gap, #154), and the line the mech is reeled up on.
+    this.hookLine.visible = this.hookHead.visible = !!f.grip && f.hook > 0.01
+    if (this.hookLine.visible && f.grip) {
       const hand = new Vector3(f.x + Math.sin(f.yaw) * 0.25, y + 2.05, f.z + Math.cos(f.yaw) * 0.25)
-      const top = new Vector3(toX(10.55), HOOK_WALL_H + 0.05, toZ(7))
+      const top = new Vector3(f.grip.x, f.grip.y, f.grip.z)
       const end = hand.clone().lerp(top, Math.min(1, f.hook))
       const len = Math.max(0.05, hand.distanceTo(end))
       this.hookLine.position.copy(hand).add(end).multiplyScalar(0.5)

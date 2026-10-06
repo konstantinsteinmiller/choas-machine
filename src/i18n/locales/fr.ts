@@ -234,7 +234,17 @@ export default {
     'replay': 'Remontre-moi',
     'progress': 'Entraînement : {n} leçons sur {total} terminées',
     'scrapWhy': 'La ferraille tech achète des améliorations d\'armes à la base de commandement.',
-    'skip': 'Passer l\'entraînement'
+    'skip': 'Passer l\'entraînement',
+    'goal': 'Neutralise les trois',
+    'goalProgress': '{n} sur {total} neutralisés',
+    'shout': {
+      'backstab': 'Frappe dans le dos'
+    },
+    'reset': {
+      'cover': "Repéré. Reste accroupi derrière l'abri.",
+      'seen': 'Repéré. La salle recommence.',
+      'rockets': 'Plus de roquettes. La salle recommence.'
+    }
   },
   'pause': {
     'title': 'PAUSE',

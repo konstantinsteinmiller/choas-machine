@@ -234,7 +234,17 @@ export default {
     'replay': 'Nog eens laten zien',
     'progress': 'Training: {n} van {total} lessen klaar',
     'scrapWhy': 'Met techschroot koop je upgrades voor je wapens in de commandobasis.',
-    'skip': 'Training overslaan'
+    'skip': 'Training overslaan',
+    'goal': 'Schakel alle drie uit',
+    'goalProgress': '{n} van {total} uitgeschakeld',
+    'shout': {
+      'backstab': 'Steek ze in de rug'
+    },
+    'reset': {
+      'cover': 'Gezien. Blijf gebukt achter de dekking.',
+      'seen': 'Gezien. De kamer begint opnieuw.',
+      'rockets': 'Raketten op. De kamer begint opnieuw.'
+    }
   },
   'pause': {
     'title': 'GEPAUZEERD',

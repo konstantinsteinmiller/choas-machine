@@ -234,7 +234,17 @@ export default {
     'replay': '다시 보기',
     'progress': '훈련: {total}개 중 {n}개 완료',
     'scrapWhy': '스크랩으로 지휘 기지에서 무기를 업그레이드할 수 있습니다.',
-    'skip': '훈련 건너뛰기'
+    'skip': '훈련 건너뛰기',
+    'goal': '셋 모두 제압해',
+    'goalProgress': '{total}명 중 {n}명 제압',
+    'shout': {
+      'backstab': '뒤에서 찔러'
+    },
+    'reset': {
+      'cover': '들켰다. 엄폐물 뒤에 앉아 있어.',
+      'seen': '들켰다. 방을 처음부터 다시.',
+      'rockets': '로켓 소진. 방을 처음부터 다시.'
+    }
   },
   'pause': {
     'title': '일시정지',

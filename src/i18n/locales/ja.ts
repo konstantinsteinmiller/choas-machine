@@ -234,7 +234,17 @@ export default {
     'replay': 'もう一度見る',
     'progress': '訓練：{total}中{n}レッスン完了',
     'scrapWhy': 'スクラップは司令基地で武器の強化に使えます。',
-    'skip': '訓練をスキップ'
+    'skip': '訓練をスキップ',
+    'goal': '3体すべて倒せ',
+    'goalProgress': '{total}体中{n}体撃破',
+    'shout': {
+      'backstab': '背後から仕留めろ'
+    },
+    'reset': {
+      'cover': '見つかった。遮蔽物の陰でしゃがんだままでいろ。',
+      'seen': '見つかった。部屋をやり直し。',
+      'rockets': 'ロケット弾切れ。部屋をやり直し。'
+    }
   },
   'pause': {
     'title': 'ポーズ中',

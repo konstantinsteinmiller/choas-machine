@@ -883,7 +883,14 @@ weapons, the backstab room = blade. Decisions (defaults, nobody asked):
 
 - [x] **R59 Idle feet** (#157)
 - [x] **R60 Rounds through people** (#152)
-- [ ] **R61 Training ground clarity** (#153 #154 #155 #156 #158)
+- [x] **R61 Training ground clarity** (#153 #154 #155 #156 #158)
+  Built as decided, plus: the crates at 1.5 m (the sentry's eye height: a
+  crouched mech stays hidden, a standing rifle line clears them by 20 cm); the
+  reset says why in every room ("Seen. The room starts over.", "Out of
+  rockets…"), the cover room its own line; the gap's hologram stands a row and
+  a half beside the mech; the blade room's watched lesson (16.5 s, two loops)
+  cannot be skipped, as asked. The [E] prompt behind the blade room's guard
+  shows (its wording is the game's own "Takedown").
 
 ## Resume notes
 

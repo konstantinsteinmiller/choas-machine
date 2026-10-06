@@ -234,7 +234,17 @@ export default {
     'replay': 'Parādi vēlreiz',
     'progress': 'Treniņš: pabeigtas {n} no {total} nodarbībām',
     'scrapWhy': 'Par lūžņiem bāzē var uzlabot ieročus.',
-    'skip': 'Izlaist treniņu'
+    'skip': 'Izlaist treniņu',
+    'goal': 'Neitralizē visus trīs',
+    'goalProgress': '{n} no {total} pieveikti',
+    'shout': {
+      'backstab': 'Dur mugurā'
+    },
+    'reset': {
+      'cover': 'Tevi pamanīja. Paliec pietupies aiz aizsega.',
+      'seen': 'Tevi pamanīja. Telpa sākas no jauna.',
+      'rockets': 'Raķetes beigušās. Telpa sākas no jauna.'
+    }
   },
   'pause': {
     'title': 'PAUZE',

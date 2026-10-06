@@ -234,7 +234,17 @@ export default {
     'replay': 'Mostramelo di nuovo',
     'progress': 'Addestramento: {n} lezioni su {total} completate',
     'scrapWhy': 'I rottami tech comprano potenziamenti per le tue armi alla base di comando.',
-    'skip': 'Salta l\'addestramento'
+    'skip': 'Salta l\'addestramento',
+    'goal': 'Elimina tutti e tre',
+    'goalProgress': '{n} su {total} a terra',
+    'shout': {
+      'backstab': 'Colpisci alle spalle'
+    },
+    'reset': {
+      'cover': 'Visto. Resta accovacciato dietro la copertura.',
+      'seen': 'Visto. La stanza ricomincia.',
+      'rockets': 'Razzi finiti. La stanza ricomincia.'
+    }
   },
   'pause': {
     'title': 'IN PAUSA',

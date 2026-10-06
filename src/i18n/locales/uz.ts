@@ -234,7 +234,17 @@ export default {
     'replay': 'Yana ko\'rsatish',
     'progress': 'Mashq: {total} darsdan {n} tasi tugadi',
     'scrapWhy': 'Tex-parchalar evaziga bazada qurollaringizni yaxshilaysiz.',
-    'skip': 'Mashqni o\'tkazib yuborish'
+    'skip': 'Mashqni o\'tkazib yuborish',
+    'goal': 'Uchalasini ham zararsizlantir',
+    'goalProgress': '{n}/{total} yiqildi',
+    'shout': {
+      'backstab': 'Orqadan ur'
+    },
+    'reset': {
+      'cover': "Seni ko'rishdi. Pana ortida cho'kkalab tur.",
+      'seen': "Seni ko'rishdi. Xona qaytadan boshlanadi.",
+      'rockets': 'Raketalar tugadi. Xona qaytadan boshlanadi.'
+    }
   },
   'pause': {
     'title': 'PAUZA',

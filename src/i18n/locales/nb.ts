@@ -234,7 +234,17 @@ export default {
     'replay': 'Vis meg igjen',
     'progress': 'Trening: {n} av {total} leksjoner fullført',
     'scrapWhy': 'Skrap kjøper våpenoppgraderinger hjemme på basen.',
-    'skip': 'Hopp over trening'
+    'skip': 'Hopp over trening',
+    'goal': 'Ta ut alle tre',
+    'goalProgress': '{n} av {total} nede',
+    'shout': {
+      'backstab': 'Stikk dem i ryggen'
+    },
+    'reset': {
+      'cover': 'Oppdaget. Hold deg huket bak dekningen.',
+      'seen': 'Oppdaget. Rommet starter på nytt.',
+      'rockets': 'Tom for raketter. Rommet starter på nytt.'
+    }
   },
   'pause': {
     'title': 'PAUSE',

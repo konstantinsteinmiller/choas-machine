@@ -234,7 +234,17 @@ export default {
     'replay': 'Visa igen',
     'progress': 'Träning: {n} av {total} lektioner klara',
     'scrapWhy': 'Skrot köper vapenuppgraderingar hemma på basen.',
-    'skip': 'Hoppa över träningen'
+    'skip': 'Hoppa över träningen',
+    'goal': 'Slå ut alla tre',
+    'goalProgress': '{n} av {total} nere',
+    'shout': {
+      'backstab': 'Hugg dem i ryggen'
+    },
+    'reset': {
+      'cover': 'Upptäckt. Håll dig hukad bakom skyddet.',
+      'seen': 'Upptäckt. Rummet börjar om.',
+      'rockets': 'Slut på raketer. Rummet börjar om.'
+    }
   },
   'pause': {
     'title': 'PAUSAT',

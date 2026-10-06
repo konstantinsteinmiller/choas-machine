@@ -234,7 +234,17 @@ export default {
     'replay': 'Muéstramelo otra vez',
     'progress': 'Entrenamiento: {n} de {total} lecciones hechas',
     'scrapWhy': 'La chatarra tech compra mejoras para tus armas en la base de mando.',
-    'skip': 'Saltar entrenamiento'
+    'skip': 'Saltar entrenamiento',
+    'goal': 'Elimina a los tres',
+    'goalProgress': '{n} de {total} eliminados',
+    'shout': {
+      'backstab': 'Por la espalda'
+    },
+    'reset': {
+      'cover': 'Te han visto. Quédate agachado tras la cobertura.',
+      'seen': 'Te han visto. La sala vuelve a empezar.',
+      'rockets': 'Sin cohetes. La sala vuelve a empezar.'
+    }
   },
   'pause': {
     'title': 'PAUSA',

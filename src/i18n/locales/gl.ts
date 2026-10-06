@@ -234,7 +234,17 @@ export default {
     'replay': 'Amósamo outra vez',
     'progress': 'Adestramento: {n} de {total} leccións feitas',
     'scrapWhy': 'A chatarra tec compra melloras para as túas armas na base de mando.',
-    'skip': 'Saltar o adestramento'
+    'skip': 'Saltar o adestramento',
+    'goal': 'Elimina os tres',
+    'goalProgress': '{n} de {total} eliminados',
+    'shout': {
+      'backstab': 'Polas costas'
+    },
+    'reset': {
+      'cover': 'Víronte. Queda agachado tras a cobertura.',
+      'seen': 'Víronte. A sala comeza de novo.',
+      'rockets': 'Sen foguetes. A sala comeza de novo.'
+    }
   },
   'pause': {
     'title': 'PAUSA',

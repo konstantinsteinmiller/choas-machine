@@ -234,7 +234,17 @@ export default {
     'replay': 'Tunjukkan lagi',
     'progress': 'Latihan: {n} dari {total} pelajaran selesai',
     'scrapWhy': 'Rongsokan membeli peningkatan senjatamu di Markas Komando.',
-    'skip': 'Lewati latihan'
+    'skip': 'Lewati latihan',
+    'goal': 'Lumpuhkan ketiganya',
+    'goalProgress': '{n} dari {total} tumbang',
+    'shout': {
+      'backstab': 'Tikam dari belakang'
+    },
+    'reset': {
+      'cover': 'Ketahuan. Tetap jongkok di balik perlindungan.',
+      'seen': 'Ketahuan. Ruangan diulang.',
+      'rockets': 'Roket habis. Ruangan diulang.'
+    }
   },
   'pause': {
     'title': 'JEDA',

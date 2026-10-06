@@ -234,7 +234,17 @@ export default {
     'replay': '再演示一次',
     'progress': '训练：已完成 {n}/{total} 课',
     'scrapWhy': '废料可在指挥基地升级你的武器。',
-    'skip': '跳过训练'
+    'skip': '跳过训练',
+    'goal': '干掉全部三个',
+    'goalProgress': '已击倒 {n}/{total}',
+    'shout': {
+      'backstab': '背刺他们'
+    },
+    'reset': {
+      'cover': '被发现了。躲在掩体后保持蹲下。',
+      'seen': '被发现了。房间重新开始。',
+      'rockets': '火箭弹用完了。房间重新开始。'
+    }
   },
   'pause': {
     'title': '已暂停',

@@ -234,7 +234,17 @@ export default {
     'replay': 'Arată-mi din nou',
     'progress': 'Antrenament: {n} din {total} lecții terminate',
     'scrapWhy': 'Cu fier vechi tech îți îmbunătățești armele la Baza de Comandă.',
-    'skip': 'Sari peste antrenament'
+    'skip': 'Sari peste antrenament',
+    'goal': 'Elimină-i pe toți trei',
+    'goalProgress': '{n} din {total} doborâți',
+    'shout': {
+      'backstab': 'Lovește-i pe la spate'
+    },
+    'reset': {
+      'cover': 'Ai fost văzut. Stai ghemuit după adăpost.',
+      'seen': 'Ai fost văzut. Camera o ia de la capăt.',
+      'rockets': 'Gata rachetele. Camera o ia de la capăt.'
+    }
   },
   'pause': {
     'title': 'PAUZĂ',

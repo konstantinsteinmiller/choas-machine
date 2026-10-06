@@ -234,7 +234,17 @@ export default {
     'replay': 'Tekrar göster',
     'progress': 'Eğitim: {total} dersten {n} tanesi bitti',
     'scrapWhy': 'Hurdayla üste silahlarına yükseltme alırsın.',
-    'skip': 'Eğitimi atla'
+    'skip': 'Eğitimi atla',
+    'goal': 'Üçünü de etkisiz hale getir',
+    'goalProgress': '{n}/{total} düştü',
+    'shout': {
+      'backstab': 'Sırtından sapla'
+    },
+    'reset': {
+      'cover': 'Görüldün. Siperin arkasında çömelmiş kal.',
+      'seen': 'Görüldün. Oda baştan başlıyor.',
+      'rockets': 'Roket bitti. Oda baştan başlıyor.'
+    }
   },
   'pause': {
     'title': 'DURAKLATILDI',

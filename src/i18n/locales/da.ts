@@ -234,7 +234,17 @@ export default {
     'replay': 'Vis mig igen',
     'progress': 'Træning: {n} af {total} lektioner klaret',
     'scrapWhy': 'For skrot køber du våbenopgraderinger hjemme på basen.',
-    'skip': 'Spring træning over'
+    'skip': 'Spring træning over',
+    'goal': 'Nedlæg alle tre',
+    'goalProgress': '{n} af {total} nede',
+    'shout': {
+      'backstab': 'Stik dem i ryggen'
+    },
+    'reset': {
+      'cover': 'Opdaget. Bliv dukket bag dækningen.',
+      'seen': 'Opdaget. Rummet starter forfra.',
+      'rockets': 'Ingen raketter. Rummet starter forfra.'
+    }
   },
   'pause': {
     'title': 'PAUSE',
