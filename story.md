@@ -39,7 +39,10 @@ scrap for itself: melting it into new war machines that patrol the sky.
    hull is loaded onto a cargo ship marked with the Warden's insignia.
 3. **The Harbour.** The cartel's dockyard on the edge of the islands, where
    the Warden's flagship takes the war machines out to the other islands.
-   Its fall at threat V ends the campaign: the flagship breaks from its
+   When it falls, the flagship slips its moorings and makes for the Spire.
+4. **The Spire** (round 5). The cartel's signal tower: five terraces one in
+   the other, its Watchtower lamp sweeping the rings, the Airship circling it.
+   Its fall at threat III ends the campaign: the flagship breaks from its
    moorings and drifts down into the cloud, and the islands' scrap is free.
 
 ## The scenes
@@ -79,7 +82,10 @@ board hums, loaded, and lifts off toward the Command Base.
   cast, is craned onto a cargo ship bearing the Warden's red visor mark; the
   ship drifts off toward the island's edge. Tension cue.
 
-### Outro (about 40 s; after the Harbour falls at threat V)
+### Outro (about 40 s; after the Spire falls at threat III)
+
+(Round 5: it used to wait on a Harbour threat V that no longer exists; it is
+still staged on the Harbour's quay, see the round 5 deferred list.)
 
 The flagship breaks loose and sinks slowly into the cloud, the Warden's red
 visor the last thing visible. Scrap rains on the quay. The robo dog unfolds

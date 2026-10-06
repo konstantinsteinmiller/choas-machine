@@ -809,7 +809,7 @@ fortress; the outro after the first Spire III clear).
   Airship at II/III, story (outro after the first Spire III clear)
 - [x] **R56 Map fly-over** (#149): orbit shots of every map, fixes,
   integrity test over roofs / props / cables / skirt / scenery
-- [ ] **R57 Regression**: translations, docs, e2e, balance
+- [x] **R57 Regression**: translations, docs, e2e, balance
 - [ ] **R58 Startup loading** (#36): measured A/B only
 
 ### Round 5 notes
@@ -838,8 +838,17 @@ fortress; the outro after the first Spire III clear).
   is closed now. One prop stood inside a column (the Spire III's second
   Watchtower over a corner lamp); moved. Everything else held.
 
+- R57: unit suite green bar the owner's own poki.config edit (a team and
+  game id pasted in; the test wants them empty). e2e: 7 of 9 pass; the two
+  that fail (the perch headshot's kill never lands within 20 s; the
+  returning base's workshop never opens its rows) fail the same way on
+  a9995e0, the commit before this round: pre-existing, not touched here.
+
 ### Round 5 deferred
 
+- The outro now plays after the Spire's first threat III, but its scene is
+  still staged on the Harbour's quay; restaging it at the Spire is a
+  cinematic of its own.
 - R52 (N2): a guard's grenade-throw and reload poses (the sim has no reload,
   and the grenadier's throw has no beat to hang a pose on yet).
 
