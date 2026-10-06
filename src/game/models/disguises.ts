@@ -28,7 +28,8 @@ const toaster = (): Group => {
   const TOAST = '#e0a15a'
   const CRUST = '#9c5f2a'
   const lit: BufferGeometry[] = [
-    part(rbox(2.0, 1.45, 1.4, 0.35, 10, 8), CHROME, [0, 0.72, 0]),
+    // The shell stands in the dark foot, its underside clear of the foot's (no two faces in one plane).
+    part(rbox(2.0, 1.4, 1.4, 0.35, 10, 8), CHROME, [0, 0.745, 0]),
     part(rbox(1.96, 0.1, 1.36, 0.4, 8, 3), DARK, [0, 0.05, 0]),
     // The two slices sticking up out of their slots.
     part(rbox(0.72, 0.5, 0.16, 0.45, 6, 4), TOAST, [-0.42, 1.55, 0]),

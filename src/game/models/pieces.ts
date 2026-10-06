@@ -1,4 +1,4 @@
-import { Box3, BufferGeometry, Color, CylinderGeometry, Euler, Group, Mesh, Quaternion, SphereGeometry, Vector3, type Material } from 'three'
+import { Box3, BufferGeometry, Color, CylinderGeometry, Euler, Group, Mesh, Quaternion, SphereGeometry, SRGBColorSpace, Vector3 } from 'three'
 import { paint } from './kit'
 import { glowVC, toonVC } from './toon'
 import { PAL } from './palette'
@@ -38,13 +38,18 @@ const tmp = new Color()
 /**
  * A colour as the mech wears it: by brightness, its armour (light to deep)
  * or its suit (dark); a small, strongly coloured accent in the mech's pink.
+ *
+ * The brightness is the one the colour was authored in (sRGB hex). The vertex
+ * colour holds it LINEAR (`paint`), where a mid tone reads far darker: a
+ * wooden horse (#b07a4a) is 0.49 light in sRGB but 0.25 linear, which put
+ * every disguise but the chrome toaster into the mech's near-black suit.
  */
 const mechTone = (geo: BufferGeometry, small: boolean): string => {
   const c = geo.attributes.color
   if (!c) return PAL.mechArmor
   tmp.setRGB(c.getX(0), c.getY(0), c.getZ(0))
   const hsl = { h: 0, s: 0, l: 0 }
-  tmp.getHSL(hsl)
+  tmp.getHSL(hsl, SRGBColorSpace)
   if (small && hsl.s > 0.55 && hsl.l > 0.35 && hsl.l < 0.8) return PAL.mechEye
   return hsl.l > 0.78 ? PAL.mechArmorHi : hsl.l > 0.55 ? PAL.mechArmor : hsl.l > 0.36 ? PAL.mechArmorDeep : hsl.l > 0.2 ? PAL.mechSuit : PAL.mechSuitDeep
 }
@@ -100,7 +105,6 @@ export const assemblePieces = (name: string, lit: BufferGeometry[], glow: Buffer
   const order = [...pieces].sort((a, b) => volume(b.mesh) - volume(a.mesh))
   order.forEach((p, i) => { p.delay = (i / Math.max(1, order.length)) * (1 - FLIGHT) })
   group.userData.pieces = pieces
-  group.userData.mats = [toon, shine]
   group.visible = false
   return group
 }
@@ -140,8 +144,11 @@ export const morphDisguise = (g: Group, k: number): boolean => {
   return any
 }
 
-/** Free a disguise's pieces and its two materials. */
+/**
+ * Free a disguise's pieces. Not its two materials: they are the shared
+ * `toonVC` / `glowVC` the pad, the level's props and the salvage draw with
+ * too (`beacon.ts` keeps them the same way).
+ */
 export const disposePieces = (g: Group): void => {
   for (const c of g.children) (c as Mesh).geometry?.dispose()
-  for (const m of (g.userData.mats as Material[] | undefined) ?? []) m.dispose()
 }
