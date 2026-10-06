@@ -15,6 +15,7 @@ import { lookSensitivity, setLookSensitivity, scopeSensitivity, setScopeSensitiv
 import { touchFirst } from '@/game/engine/input'
 import { ACTIONS, bindKey, bindingsChanged, isBindable, primaryCode, resetBindings, type Action } from '@/game/engine/keyBindings'
 import { keyboard, keyLabel, LAYOUTS, setAutoLayout, setManualLayout, type Layout } from '@/game/engine/keyLabels'
+import { keyCapture } from '@/use/useMenuKeys'
 
 defineProps<{
   isOpen: boolean
@@ -112,11 +113,14 @@ const onCapture = (e: KeyboardEvent): void => {
 }
 const stopCapture = (): void => {
   capturing.value = null
+  keyCapture.value = false
   window.removeEventListener('keydown', onCapture, true)
 }
 const startCapture = (a: Action): void => {
   if (capturing.value === a) { stopCapture(); return }
   capturing.value = a
+  // The menu's own keys (Tab, the arrows, Esc) are the binding's now (#170).
+  keyCapture.value = true
   window.addEventListener('keydown', onCapture, true)
 }
 watch(currentTab, stopCapture)

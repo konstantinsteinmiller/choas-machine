@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { watch, onMounted, onUnmounted } from 'vue'
+import { nextTick, ref, watch, onMounted, onUnmounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import FTabs, { type TabOption } from '@/components/atoms/FTabs.vue'
 import GameIcon from '@/components/icons/GameIcon.vue'
 import { sfx } from '@/game/audio/sfx'
 import { acquireModalOpen } from '@/use/useModalState'
+import { focusablesIn, keyCapture, listsOpen, menuKey, menuStep } from '@/use/useMenuKeys'
 
 const { t } = useI18n()
 
@@ -53,25 +54,73 @@ watch(() => props.modelValue, (open, prev) => {
   else if (!open && prev) sfx('uiClose')
   if (open) markOpen()
   else markClosed()
+  if (open && !prev) void takeFocus()
+  else if (!open && prev) giveFocusBack()
 })
+
+// ─── By keyboard (#170, `use/useMenuKeys.ts`) ────────────────────────────────
+// Open, the dialog takes the focus (its tab row's chosen tab, or its first
+// control); Tab and the arrows walk its controls and wrap inside it; closed,
+// the focus goes back where it was.
+const panel = ref<HTMLElement | null>(null)
+let before: HTMLElement | null = null
+/** The dialog on top (a settings dialog opened over the pause menu is). */
+const onTop = (): boolean => {
+  const mine = panel.value?.closest('.f-modal')
+  const all = document.querySelectorAll('.f-modal')
+  return !!mine && all[all.length - 1] === mine
+}
+const takeFocus = async (): Promise<void> => {
+  before = document.activeElement instanceof HTMLElement ? document.activeElement : null
+  await nextTick()
+  const p = panel.value
+  if (!p) return
+  // Its chosen tab; else its first control (the close button only when there is nothing else).
+  const body = [p.querySelector('.f-modal__content'), p.querySelector('.f-modal__footer')].flatMap(r => (r ? focusablesIn(r) : []))
+  const first = p.querySelector<HTMLElement>('[role="tab"][aria-selected="true"]') ?? body[0] ?? focusablesIn(p)[0]
+  first?.focus({ preventScroll: true })
+}
+const giveFocusBack = (): void => {
+  const b = before
+  before = null
+  if (b && b.isConnected) b.focus({ preventScroll: true })
+}
+const onNav = (e: KeyboardEvent): void => {
+  if (!props.modelValue || keyCapture.value || e.defaultPrevented || !onTop()) return
+  const k = menuKey(e)
+  const p = panel.value
+  if (!k || !p) return
+  const active = document.activeElement
+  // Focus somewhere of its own outside the panel (a picker's open list): not ours.
+  if (active && active !== document.body && !p.contains(active)) return
+  const to = menuStep(focusablesIn(p), active, k)
+  if (!to) return
+  e.preventDefault()
+  to.focus()
+}
 
 const close = (): void => emit('update:modelValue', false)
 const handleTabChange = (val: string | number): void => emit('update:activeTab', val)
 
 const onKey = (e: KeyboardEvent): void => {
-  if (e.code === 'Escape' && props.modelValue && props.isClosable) {
+  // Esc closes the picker's open list first, and is the binding's while a key is being captured.
+  if (keyCapture.value || listsOpen.value > 0) return
+  if (e.code === 'Escape' && props.modelValue && props.isClosable && onTop()) {
     e.stopPropagation()
     close()
   }
 }
 
 onMounted(() => {
-  if (props.modelValue) markOpen()
+  if (props.modelValue) { markOpen(); void takeFocus() }
   window.addEventListener('keydown', onKey, true)
+  // In the bubble: a control that handles its own keys (a picker's list, a tab row) stops them first.
+  window.addEventListener('keydown', onNav)
 })
 onUnmounted(() => {
   markClosed()
   window.removeEventListener('keydown', onKey, true)
+  window.removeEventListener('keydown', onNav)
 })
 </script>
 
@@ -89,7 +138,7 @@ onUnmounted(() => {
       )
         div.f-modal__backdrop(@click="isClosable && close()")
 
-        div.f-modal__panel
+        div.f-modal__panel(ref="panel")
           header.f-modal__header(v-if="(tabs && tabs.length > 0) || title || isClosable")
             FTabs.f-modal__tabs(
               v-if="tabs && tabs.length > 0"

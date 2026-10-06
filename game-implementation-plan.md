@@ -969,7 +969,17 @@ replay key, the keyboard-driven settings.
   together; the training's "show me again" is K on a keyboard (its keycap on
   the button, rebindable, 39 locales); looking round is a finger running an
   endless loop, on touch and on a desktop (the mouse's slide is gone).
-- [ ] **R73 Settings by keyboard** (#170)
+- [x] **R73 Settings by keyboard** (#170): every dialog (`use/useMenuKeys.ts`
+  in `FModal`): open, it takes the focus (its chosen tab, else its first
+  control) and gives it back when shut; Tab/Shift+Tab walk it and wrap inside
+  it, up/down move between controls, left/right change a tab row (roving
+  tabindex), a slider (its own) or a picker in place; a picker's list opens on
+  Space/Enter and is walked and chosen from by the arrows and Enter, Esc shuts
+  the list before the dialog. Named keys only (arrows, Tab, Enter, Space), so
+  every layout is the same. The game's key handler stands aside while any
+  dialog is open (it ate Tab and Space), and the menu leaves every key alone
+  while a binding is being captured. Harvested into the user-level skill
+  `menu-keyboard-navigation`, linked from the playbook.
 
 ## Resume notes
 

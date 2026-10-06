@@ -43,6 +43,7 @@
 import { mobileCheck } from '@/utils/function'
 import { actionForCode, codesFor, type Action } from './keyBindings'
 import { observeKey } from './keyLabels'
+import { isAnyModalOpen } from '@/use/useModalState'
 
 export interface Input {
   // Movement (joystick or keys), x = strafe right, y = forward. |v| ≤ 1.
@@ -587,6 +588,9 @@ export const attachInput = (surface: HTMLElement, input: Input, opts: InputOptio
   const onKeyDown = (e: KeyboardEvent) => {
     const tag = (e.target as HTMLElement | null)?.tagName
     if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return
+    // A menu is up (#170): its keys are the menu's (Tab walks it, Space
+    // presses its buttons), none of them a move in the game behind it.
+    if (isAnyModalOpen.value) return
     input.touched = true
     if (!touchOnly) input.device = 'mouse'
     // Every real key teaches the layout its label (`keyLabels.ts`).

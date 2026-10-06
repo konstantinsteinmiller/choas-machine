@@ -114,12 +114,12 @@ const onKey = (e: KeyboardEvent) => {
   // Esc always; the pause KEY is whatever the player bound it to.
   if ((e.code === 'Escape' || actionForCode(e.code) === 'pause') && !typing(e) && !e.repeat) openPause()
   // The lessons, back on request: the help key, or F1 (#82).
-  if ((e.code === 'F1' || actionForCode(e.code) === 'help') && !typing(e) && !e.repeat && hud.phase === 'play') {
+  if ((e.code === 'F1' || actionForCode(e.code) === 'help') && !typing(e) && !e.repeat && hud.phase === 'play' && !isAnyModalOpen.value) {
     e.preventDefault()
     busEmit('help', {})
   }
   // The training's "show me again" (#169): its key, while the button is up.
-  if (actionForCode(e.code) === 'replay' && !typing(e) && !e.repeat && hud.phase === 'play' && hud.training.replay) busEmit('trainingReplay', {})
+  if (actionForCode(e.code) === 'replay' && !typing(e) && !e.repeat && hud.phase === 'play' && hud.training.replay && !isAnyModalOpen.value) busEmit('trainingReplay', {})
 }
 
 onMounted(async () => {

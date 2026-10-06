@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, nextTick, onUnmounted, useId } from 'vue'
 import GameIcon from '@/components/icons/GameIcon.vue'
+import { listsOpen } from '@/use/useMenuKeys'
 
 interface Option {
   value: string | number
@@ -55,6 +56,7 @@ const position = (): void => {
 const close = (): void => {
   if (!isOpen.value) return
   isOpen.value = false
+  listsOpen.value = Math.max(0, listsOpen.value - 1)
   document.removeEventListener('pointerdown', onOutside, true)
   window.removeEventListener('resize', close)
   window.removeEventListener('scroll', onScroll, true)
@@ -73,6 +75,7 @@ const onScroll = (e: Event): void => {
 }
 
 const open = async (): Promise<void> => {
+  if (!isOpen.value) listsOpen.value++
   isOpen.value = true
   position()
   await nextTick()
@@ -83,7 +86,7 @@ const open = async (): Promise<void> => {
   window.addEventListener('scroll', onScroll, true)
 }
 
-const toggle = (): void => { if (isOpen.value) close(); else void open() }
+const toggle = (): void => { if (isOpen.value) close(); else void open().then(focusOption) }
 
 const selectOption = (value: string | number): void => {
   emit('update:modelValue', value)
@@ -94,7 +97,44 @@ const onKey = (e: KeyboardEvent): void => {
   if (e.code === 'Escape' && isOpen.value) {
     e.stopPropagation()
     close()
+    return
   }
+  // Closed, left/right step through the values in place (#170); Enter, Space
+  // and the down arrow open the list (Enter and Space by the button's own click).
+  if (isOpen.value) return
+  const i = props.options.findIndex(o => o.value === props.modelValue)
+  if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+    e.preventDefault()
+    e.stopPropagation()
+    const n = props.options.length
+    const to = props.options[((i < 0 ? 0 : i) + (e.key === 'ArrowRight' ? 1 : -1) + n) % n]
+    if (to) emit('update:modelValue', to.value)
+  }
+}
+
+/** The open list by keyboard (#170): up/down walk it, Enter/Space choose, Esc and Tab close it, back on the button. */
+const optionEls = (): HTMLElement[] => [...(menu.value?.querySelectorAll<HTMLElement>('[role="option"]') ?? [])]
+const focusOption = async (): Promise<void> => {
+  await nextTick()
+  const els = optionEls()
+  const at = props.options.findIndex(o => o.value === props.modelValue)
+  els[Math.max(0, at)]?.focus({ preventScroll: false })
+}
+const onListKey = (e: KeyboardEvent, i: number): void => {
+  const els = optionEls()
+  if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+    els[(i + (e.key === 'ArrowDown' ? 1 : -1) + els.length) % els.length]?.focus()
+  } else if (e.key === 'Home') els[0]?.focus()
+  else if (e.key === 'End') els[els.length - 1]?.focus()
+  else if (e.key === 'Enter' || e.code === 'Space' || e.key === ' ') {
+    selectOption(props.options[i]!.value)
+    trigger.value?.focus()
+  } else if (e.code === 'Escape' || e.key === 'Tab') {
+    close()
+    trigger.value?.focus()
+  } else return
+  e.preventDefault()
+  e.stopPropagation()
 }
 
 onUnmounted(close)
@@ -128,9 +168,11 @@ onUnmounted(close)
           :style="place"
         )
           li.f-select__option(
-            v-for="option in options"
+            v-for="(option, i) in options"
             :key="option.value"
             role="option"
+            tabindex="-1"
+            @keydown="onListKey($event, i)"
             :aria-selected="modelValue === option.value"
             :class="{ 'is-selected': modelValue === option.value }"
             :lang="option.lang"

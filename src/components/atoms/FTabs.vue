@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { nextTick } from 'vue'
 import GameIcon from '@/components/icons/GameIcon.vue'
 import type { GameIconName } from '@/components/icons/iconNames'
 
@@ -14,11 +15,26 @@ interface Props {
   options: TabOption[]
 }
 
-defineProps<Props>()
+const props = defineProps<Props>()
 const emit = defineEmits(['update:modelValue'])
 
 const selectTab = (value: string | number): void => {
   emit('update:modelValue', value)
+}
+
+/**
+ * The row by keyboard (#170): one stop for Tab (the chosen tab), and
+ * left/right (Home/End) choose the next tab and keep the focus on it.
+ */
+const onKey = (e: KeyboardEvent, i: number, options: TabOption[]): void => {
+  const n = options.length
+  const to = e.key === 'ArrowRight' ? (i + 1) % n : e.key === 'ArrowLeft' ? (i - 1 + n) % n : e.key === 'Home' ? 0 : e.key === 'End' ? n - 1 : -1
+  if (to < 0) return
+  e.preventDefault()
+  e.stopPropagation()
+  selectTab(options[to]!.value)
+  const row = (e.currentTarget as HTMLElement).parentElement
+  void nextTick(() => (row?.children[to] as HTMLElement | undefined)?.focus())
 }
 </script>
 
@@ -27,10 +43,12 @@ const selectTab = (value: string | number): void => {
   //- four tabs, wrapping would push the content down by a row.
   div.f-tabs(role="tablist")
     button.f-tabs__tab(
-      v-for="tab in options"
+      v-for="(tab, i) in options"
       :key="tab.value"
       type="button"
       role="tab"
+      :tabindex="modelValue === tab.value || (i === 0 && !options.some(o => o.value === modelValue)) ? 0 : -1"
+      @keydown="onKey($event, i, props.options)"
       :aria-selected="modelValue === tab.value"
       :aria-label="tab.label"
       :class="{ 'is-active': modelValue === tab.value }"
