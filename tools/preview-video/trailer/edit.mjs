@@ -34,7 +34,7 @@ export const EDIT = {
     { shot: 'snipe', from: 0.3, len: 4.2 },
     { shot: 'noise', from: 0.3, len: 2.7 },
     // The round ridden into the drone's red eye, and the drone coming apart (#139).
-    { shot: 'drone', from: 0.3, len: 4.4 },
+    { shot: 'drone', from: 0.3, len: 2.4 },
     // ── Act 3: loud ──
     { shot: 'spotted', from: 0.3, len: 2.8, flash: true },
     { shot: 'chase', from: 0.2, len: 2.5 },
