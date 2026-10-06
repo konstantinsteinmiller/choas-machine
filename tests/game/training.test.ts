@@ -66,7 +66,7 @@ describe('the layout', () => {
     expect(f.salvage).toHaveLength(1)
     expect(roomAt(f.salvage[0]!.x)).toBe(LESSON_IDS.indexOf('salvage'))
     expect(roomAt(f.beacons[0]!.x)).toBe(LESSON_IDS.indexOf('beacon'))
-    for (const p of f.posts) expect(LESSON_IDS[roomAt(p.x)]).toMatch(/cover|weapons|blade|burn|decoy|box/)
+    for (const p of f.posts) expect(LESSON_IDS[roomAt(p.x)]).toMatch(/cover|weapons|rocket|blade|burn|decoy|box/)
   })
 })
 
@@ -101,11 +101,11 @@ describe('the lessons', () => {
     expect(replayDemo(t)).toBe(false)
   })
 
-  it('the weapons room wants a rifle kill, two rockets, an overheat and a zoom', () => {
+  it('the weapons room wants a rifle kill, an overheat and a zoom (the launcher has its own room, #146)', () => {
     const i = LESSON_IDS.indexOf('weapons')
     const b = ctx(0, 0)
-    expect(lessonDone(i, ctx(0, 0, { sniperKills: 1, rockets: 2, overheats: 1 }), b)).toBe(false)
-    expect(lessonDone(i, ctx(0, 0, { sniperKills: 1, rockets: 2, overheats: 1, zooms: 1 }), b)).toBe(true)
+    expect(lessonDone(i, ctx(0, 0, { sniperKills: 1, overheats: 1 }), b)).toBe(false)
+    expect(lessonDone(i, ctx(0, 0, { sniperKills: 1, overheats: 1, zooms: 1 }), b)).toBe(true)
   })
 
   it('the blade lesson shows a full takedown on a hologram guard; the flame room does not teach it again (#110, #113)', () => {

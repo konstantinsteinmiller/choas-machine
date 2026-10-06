@@ -44,7 +44,7 @@ export const findRopeStrike = (gar: Garrison, g: Grid, x: number, y: number, z: 
   let best: Strike | null = null
   let bestScore = Infinity
   for (const u of gar.units) {
-    if (u.state === 'dead' || u.state === 'reserve' || u.state === 'dormant' || !ropeTarget(u) || u.boss) continue
+    if (u.state === 'dead' || u.state === 'reserve' || u.state === 'dormant' || !ropeTarget(u) || u.boss || u.armoured) continue
     const dist = Math.hypot(u.x - x, u.z - z)
     const below = y - u.y
     if (dist > ROPE_STRIKE_REACH || below < ROPE_STRIKE_MIN || below > ROPE_STRIKE_MAX) continue
@@ -65,7 +65,7 @@ export const findStrike = (gar: Garrison, g: Grid, x: number, y: number, z: numb
   let bestScore = Infinity
   for (const u of gar.units) {
     // A boss is not taken quietly: no blade reaches it.
-    if (u.state === 'dead' || u.state === 'reserve' || !isHuman(u) || u.boss) continue
+    if (u.state === 'dead' || u.state === 'reserve' || !isHuman(u) || u.boss || u.armoured) continue
     const dist = Math.hypot(u.x - x, u.z - z)
     const above = y - u.y
     let kind: StrikeKind | null = null

@@ -5,11 +5,12 @@ import {
 import { demoPop } from '../state/hud'
 import { CELL, CellKind, cellMid, heightAt, VOID, type Grid } from '../world/grid'
 import type { Fortress } from '../world/fortress'
-import { HOOK_WALL_H, ROOM_WALL_H, ROPE_DECK_H, ROPE_TOWER_H, TRAINING_ROOMS } from '../data/fortresses/training'
+import { HOOK_WALL_H, ROCKET_LEDGE_H, ROCKET_TARGET, ROOM_WALL_H, ROPE_DECK_H, ROPE_TOWER_H, TRAINING_ROOMS } from '../data/fortresses/training'
 import { VARIANTS } from './backstab'
 import { poseBackstabGuard, poseBackstabMech } from './backstabStage'
-import { buildMech, poseMech, restPose, type MechPose } from '../models/mech'
-import { buildGuard, poseGuard, restGuardPose } from '../models/garrison'
+import { MUZZLE_TIP, buildMech, poseMech, restPose, type MechPose } from '../models/mech'
+import { buildEnforcer, buildGuard, poseEnforcer, poseGuard, restGuardPose } from '../models/garrison'
+import { Shatter } from '../fx/shatter'
 import { buildDisguise, disposeDisguise } from '../models/disguises'
 import { FREE_DISGUISE } from '../models/disguiseIds'
 import { makeHologramMaterial, setHologram } from '../fx/hologram'
@@ -41,6 +42,10 @@ import type { HintId } from './coach'
 const GATE_COLOR = '#5fe9ff'
 /** The demo's decoy flies this long before it stands (#114). */
 const DECOY_FLY_S = 0.55
+/** The demo's rocket flies this long from the launcher's nose to the mech (#146). */
+const ROCKET_FLY_S = 0.45
+/** The hologram mech's id in the training director's own shatter. */
+const HOLO_WRECK = 0
 
 export class TrainingDirector {
   readonly state: Training = makeTraining()
@@ -66,6 +71,12 @@ export class TrainingDirector {
   private victimPose = restGuardPose()
   /** The weapons room's targets, in the same light: they fall to the demo's rounds (#109). */
   private targets: Array<{ rig: Rig; at: readonly [number, number]; yaw: number; dies: number; death: 'back' | 'front' | 'thrown' }> = []
+  /** The rocket room's hologram (#146): the armoured mech on the ledge, the rocket, and the mech in pieces. */
+  private holoMech: Rig
+  private rocketMesh: Group
+  private shatter: Shatter
+  private broken = false
+  private muzzleV = new Vector3()
   /** A projector disc by each room's way in. */
   private discs: Mesh[] = []
   private discMat = new MeshBasicMaterial({ color: GATE_COLOR, transparent: true, opacity: 0.5, blending: AdditiveBlending, depthWrite: false, toneMapped: false, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 })
@@ -123,8 +134,25 @@ export class TrainingDirector {
     if (this.victim.outline) this.victim.outline.visible = false
     this.victim.root.visible = false
     this.group.add(this.victim.root)
-    // The sentry the rifle takes, the two the rocket throws down (as the demo's keys time them).
-    for (const [at, yaw, dies, death] of [[[10, 2], Math.PI, 1.85, 'back'], [[8, 11], 0, 3.55, 'thrown'], [[9, 11], 0, 3.6, 'thrown']] as const) {
+    // The rocket room's armoured mech (#146), the rocket (a tube and its nose), and the mech's parts.
+    this.holoMech = buildEnforcer()
+    this.holoMech.mesh.material = this.holo
+    if (this.holoMech.outline) this.holoMech.outline.visible = false
+    this.holoMech.root.visible = false
+    this.group.add(this.holoMech.root)
+    this.rocketMesh = new Group()
+    const tube = new Mesh(new CylinderGeometry(0.09, 0.09, 0.6, 8), this.holo)
+    tube.rotation.x = Math.PI / 2
+    const nose = new Mesh(new ConeGeometry(0.09, 0.22, 8), this.holo)
+    nose.rotation.x = Math.PI / 2
+    nose.position.z = 0.41
+    this.rocketMesh.add(tube, nose)
+    this.rocketMesh.visible = false
+    this.group.add(this.rocketMesh)
+    this.shatter = new Shatter(fortress.grid)
+    this.group.add(this.shatter.group)
+    // The sentry the rifle takes, the two the minigun cuts down (as the demo's keys time them).
+    for (const [at, yaw, dies, death] of [[[10, 2], Math.PI, 1.85, 'back'], [[8, 11], 0, 4.1, 'front'], [[9, 11], 0, 4.4, 'back']] as const) {
       const rig = buildGuard()
       rig.mesh.material = this.holo
       if (rig.outline) rig.outline.visible = false
@@ -237,7 +265,7 @@ export class TrainingDirector {
         return !done && p ? at(p.x, p.z, 1.6) : door ? at(door.x, door.z) : null
       }
       case 'extract': return at(this.fortress.extract.x, this.fortress.extract.z, 1.2)
-      case 'weapons': case 'blade': return done && door ? at(door.x, door.z) : null
+      case 'weapons': case 'blade': case 'rocket': return done && door ? at(door.x, door.z) : null
       default: return door ? at(door.x, door.z) : null
     }
   }
@@ -271,6 +299,8 @@ export class TrainingDirector {
       this.body.root.visible = this.disguise.visible = this.rope.visible = this.flame.visible = false
       for (const tg of this.targets) tg.rig.root.visible = false
       this.victim.root.visible = false
+      this.holoMech.root.visible = this.rocketMesh.visible = false
+      if (this.broken) { this.shatter.clear(HOLO_WRECK); this.broken = false }
       return
     }
     if (!playing) return
@@ -317,6 +347,7 @@ export class TrainingDirector {
       this.disguise.rotation.y = f.yaw
     }
     this.props(t.room, f, y, time)
+    this.fireRocket(t.room, f, time, dt)
     this.pops(f, y, camera)
     this.throwDecoy(f, y, time)
     this.gateMat.opacity = 0.26 + 0.08 * Math.sin(time * 3)
@@ -357,6 +388,45 @@ export class TrainingDirector {
     const grow = Math.min(1, (d.t - DECOY_FLY_S) / 0.25)
     r.scale.setScalar(grow * (1 + Math.sin(time * 6) * 0.02))
     poseMech(this.decoyHolo, { ...restPose(), time })
+  }
+
+  /**
+   * The rocket room (#146): the armoured mech stands on its ledge; the rocket
+   * leaves the launcher's nose (the same tip the mission fires from) and flies
+   * straight into it; the mech comes apart into its own parts, in the same light.
+   */
+  private fireRocket(room: number, f: ReturnType<typeof demoFrame>, time: number, dt: number): void {
+    const r = TRAINING_ROOMS[room]!
+    const here = r.lesson === 'rocket'
+    const rk = f.rocket
+    const hit = !!rk && rk.t >= ROCKET_FLY_S
+    // A new loop: the mech whole again.
+    if (this.broken && (!here || !hit)) { this.shatter.clear(HOLO_WRECK); this.broken = false }
+    this.shatter.update(dt)
+    const tx = (r.x0 + ROCKET_TARGET[0] - 1) * CELL + CELL / 2
+    const tz = (r.z0 + ROCKET_TARGET[1] - 1) * CELL + CELL / 2
+    this.holoMech.root.visible = here && !hit
+    if (this.holoMech.root.visible) {
+      this.holoMech.root.position.set(tx, ROCKET_LEDGE_H, tz)
+      this.holoMech.root.rotation.y = 0
+      poseEnforcer(this.holoMech, { time, stride: 0, speed: 0, power: 1, aimYaw: 0, aimPitch: -0.15, recoilL: 0, recoilR: 0, deadT: 0 })
+    }
+    this.rocketMesh.visible = here && !!rk && !hit
+    if (this.rocketMesh.visible && rk) {
+      const [bone, ox, oy, oz] = MUZZLE_TIP.rocket
+      const from = this.muzzleV.set(ox, oy, oz)
+      this.ghost.bones[bone]?.localToWorld(from)
+      const to = new Vector3(tx, ROCKET_LEDGE_H + 1.9, tz)
+      const k = Math.min(1, rk.t / ROCKET_FLY_S)
+      this.rocketMesh.position.copy(from).lerp(to, k)
+      this.rocketMesh.lookAt(to)
+    }
+    if (here && hit && !this.broken) {
+      this.holoMech.root.visible = true
+      this.holoMech.root.updateMatrixWorld(true)
+      this.broken = this.shatter.break(HOLO_WRECK, this.holoMech, { dirX: -0.3, dirZ: 1, force: 7, seed: 0.3, material: this.holo })
+      this.holoMech.root.visible = false
+    }
   }
 
   /** The lesson's props: the rope it shoots, the body it burns and the flame, the targets that fall. */
@@ -458,6 +528,12 @@ export class TrainingDirector {
     this.victim.material.dispose()
     this.victim.glowMaterial.dispose()
     for (const tg of this.targets) { tg.rig.mesh.geometry.dispose(); tg.rig.outline?.geometry.dispose(); tg.rig.material.dispose(); tg.rig.glowMaterial.dispose() }
+    this.holoMech.mesh.geometry.dispose()
+    this.holoMech.outline?.geometry.dispose()
+    this.holoMech.material.dispose()
+    this.holoMech.glowMaterial.dispose()
+    this.rocketMesh.traverse((o: Object3D) => { if ((o as Mesh).isMesh) (o as Mesh).geometry.dispose() })
+    this.shatter.dispose()
     this.rope.geometry.dispose()
     this.hookLine.geometry.dispose()
     this.hookHead.geometry.dispose()

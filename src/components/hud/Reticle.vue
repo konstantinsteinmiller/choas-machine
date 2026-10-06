@@ -21,11 +21,13 @@
     //- where the round would go, so a pull on nothing explains itself.
     GameIcon.dry-mark(v-if="hud.dry && !hud.scoped" name="ammo-out")
     //- A round that landed on someone, and a round that ended someone.
-    div.hitmark(:class="{ show: hitFlash, kill: killFlash }")
+    div.hitmark(:class="{ show: hitFlash, kill: killFlash, glance: glanceFlash }")
       i
       i
       i
       i
+      //- It glanced off (#146): a shield in the middle, the ticks grey.
+      GameIcon.glance-mark(v-if="glanceFlash" name="shield")
 </template>
 
 <script setup lang="ts">
@@ -43,18 +45,21 @@ const spool = ref<HTMLElement | null>(null)
 const reloadArc = ref<SVGCircleElement | null>(null)
 const hitFlash = ref(false)
 const killFlash = ref(false)
+const glanceFlash = ref(false)
 let hitTimer = 0
 const offs: Array<() => void> = []
 
-const flash = (kill: boolean): void => {
+const flash = (kill: boolean, glance = false): void => {
   hitFlash.value = true
   killFlash.value = kill
+  glanceFlash.value = glance
   window.clearTimeout(hitTimer)
-  hitTimer = window.setTimeout(() => { hitFlash.value = false; killFlash.value = false }, kill ? 320 : 150)
+  hitTimer = window.setTimeout(() => { hitFlash.value = false; killFlash.value = false; glanceFlash.value = false }, kill ? 320 : glance ? 420 : 150)
 }
 
 onMounted(() => {
   offs.push(on('hit', () => flash(false)))
+  offs.push(on('glance', () => flash(false, true)))
   offs.push(on('kill', (e) => { if (e.by !== 'blade') flash(true) }))
   let last = -1
   let lastLoad = -1
@@ -258,6 +263,8 @@ onUnmounted(() => {
     transition: none
   &.kill
     color: var(--cm-pink)
+  &.glance
+    color: #a7a3c4
   i
     position: absolute
     background: currentColor
@@ -281,6 +288,15 @@ onUnmounted(() => {
     left: 0
   i:nth-child(4)
     right: 0
+.glance-mark
+  position: absolute
+  left: 50%
+  top: 50%
+  width: 46%
+  height: 46%
+  translate: -50% -50%
+  rotate: -45deg
+  color: #ffe98f
 .dry-mark
   position: absolute
   left: 50%

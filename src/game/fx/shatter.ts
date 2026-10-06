@@ -136,7 +136,7 @@ export class Shatter {
    * the killing blow pushed (unit, or 0), `force` how hard it comes apart (m/s).
    * Returns false for a rig that does not keep its parts.
    */
-  break(id: number, rig: Rig, opts: { dirX?: number; dirZ?: number; force?: number; seed?: number } = {}): boolean {
+  break(id: number, rig: Rig, opts: { dirX?: number; dirZ?: number; force?: number; seed?: number; material?: Material } = {}): boolean {
     const parts = rig.parts
     if (!parts || parts.length === 0) return false
     this.clear(id)
@@ -215,6 +215,8 @@ export class Shatter {
     if (toon.length && glow.length) { geometry = merge([merge(toon), merge(glow)], true); mats = [material, rig.glowMaterial] }
     else if (glow.length) { geometry = merge(glow); mats = rig.glowMaterial }
     else { geometry = merge(toon); mats = material }
+    // One material for every piece (a hologram's light, #146): no outline then.
+    if (opts.material) mats = opts.material
     const skeleton = new Skeleton(bones, binds)
     const mesh = new SkinnedMesh(geometry, mats)
     for (const b of bones) mesh.add(b)
@@ -222,7 +224,7 @@ export class Shatter {
     mesh.frustumCulled = false
     const geos = [geometry]
     let outline: SkinnedMesh | null = null
-    if (rig.outline && lines.length) {
+    if (rig.outline && lines.length && !opts.material) {
       const og = lines.length === toon.length + glow.length && glow.length === 0 ? geometry : merge(lines)
       if (og !== geometry) geos.push(og)
       outline = new SkinnedMesh(og, rig.outline.material)

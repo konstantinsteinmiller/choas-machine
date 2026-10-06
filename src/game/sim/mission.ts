@@ -98,6 +98,8 @@ const UP = new Vector3(0, 1, 0)
 
 /** How far a round flies. */
 const SHOT_RANGE = 260
+/** Out of rockets in the rocket room, this long before the mech is back at its door with fresh ones (#146). */
+const ROCKET_RESPAWN_S = 1.2
 /** Seconds into going down that WASTED comes up (#150): as the knees give. */
 const WASTED_AT = 0.35
 /** The flamethrower (#99): how near the body must be, and how long a burn takes. */
@@ -1068,6 +1070,13 @@ export class Mission implements GameMode {
         this.fx.particles.sparks(h.x, h.y, h.z, '#d8ccff', 12, 4, 0.2)
         this.garrisonView.popHelmet(u.id, h.nx, h.nz)
         emit('helmet', { id: u.id })
+      }
+      // Armour (#146): the round glances off in sparks; only a blast gets through.
+      if (u.armoured) {
+        this.fx.tracer(mx, my, mz, h.x, h.y, h.z, w)
+        this.fx.particles.sparks(h.x, h.y, h.z, '#ffe98f', 12, 5, 0.22)
+        emit('glance', { id: u.id, weapon: w })
+        return
       }
       const damage = shotDamage(w, u.kind, zone, this.loadout.damage[w], u.maxHp)
         * (u.jammed && h.zone === 'joint' ? JAMMED_JOINTS : 1) * (u.overheat > 0 && h.zone === 'weak' ? OPEN_VENTS : 1)
@@ -2771,6 +2780,35 @@ export class Mission implements GameMode {
   }
 
   /** Every defender whose place is in this training room is down (#109); false for a room without any. */
+  /** The launcher full again: one in the tube, the rest in the rack (#146). */
+  private refillRockets(): void {
+    const a = this.arsenal
+    a.rocketLoaded = true
+    a.rocketReload = 0
+    a.rockets = Math.max(a.rockets, this.loadout.rockets - 1)
+  }
+
+  /** Seconds the rocket room's launcher has been out with its target standing. */
+  private rocketDryT = 0
+
+  /** The mech back at a room's way in, on its feet, whole. */
+  private placeAtDoor = (x: number, z: number, yaw: number): void => {
+    const p = this.player
+    p.x = p.px = x
+    p.z = p.pz = z
+    const floor = heightAt(this.fortress.grid, x, z)
+    p.y = p.py = floor > VOID ? floor : 0
+    p.vx = p.vz = 0
+    p.yaw = p.pyaw = yaw
+    p.boxed = false
+    p.crouched = false
+    this.cam.yaw = yaw
+    this.armor.hp = this.armor.max
+    this.looting = null
+    this.sabotaging = null
+    if (this.dragId >= 0) this.dropBody()
+  }
+
   private roomCleared(room: number): boolean {
     if (room < 0) return false
     const here = this.garrison.units.filter(u => roomAt(u.homeX) === room)
@@ -2840,6 +2878,8 @@ export class Mission implements GameMode {
         const lesson = TRAINING_ROOMS[e.room]!.lesson
         if (lesson === 'rope') this.ropesLeft = Math.max(this.ropesLeft, this.loadout.ropes)
         if (lesson === 'burn') this.fuelLeft = Math.max(this.fuelLeft, this.loadout.fuel)
+        // The launcher's room (#146): both rockets in, whatever was spent before.
+        if (lesson === 'rocket') this.refillRockets()
         // The supply room (#111): everything is spent (the strip blinks dry), so the crate's refill shows.
         if (lesson === 'supply') {
           this.arsenal.sniperMag = 0
@@ -2853,6 +2893,18 @@ export class Mission implements GameMode {
     if (h) {
       this.coach.recalled.add(h)
       this.coach.until[h] = Math.max(this.coach.until[h], this.coach.time + 0.5)
+    }
+    // Out of rockets with the armoured mech still standing (#146): a beat to
+    // see it, then back at the room's door with both rockets in again.
+    if (cur >= 0 && TRAINING_ROOMS[cur]!.lesson === 'rocket' && !tr.state.done[cur]) {
+      const out = isDry(this.arsenal, 'rocket') && this.rockets.length === 0
+      this.rocketDryT = out ? this.rocketDryT + dt : 0
+      if (this.rocketDryT >= ROCKET_RESPAWN_S) {
+        this.rocketDryT = 0
+        tr.resetRoom(this.placeAtDoor)
+        this.refillRockets()
+        emit('trainingReset', {})
+      }
     }
     // Seen: back to the room's door, the room as it was.
     if (this.garrison.units.some(u => u.state === 'combat' && u.state as string !== 'dead')) {

@@ -1,5 +1,5 @@
 import { CELL, cellMid } from '../world/grid'
-import { TRAINING_ROOMS, type LessonId } from '../data/fortresses/training'
+import { ROCKET_TARGET, TRAINING_ROOMS, type LessonId } from '../data/fortresses/training'
 import type { WeaponId } from '../data/ids'
 import type { HintId } from './coach'
 import { isAlive, type Garrison } from './garrison'
@@ -45,6 +45,8 @@ export interface DemoKey {
   takedown?: true
   /** A decoy is thrown here, at this cell (#114): it arcs out and stands there, a light the guard turns to. */
   decoy?: readonly [number, number]
+  /** A rocket leaves the launcher's nose here, at this cell (#146): it flies, and its target comes apart. */
+  rocket?: readonly [number, number]
   /** The control this moment shows: its glyph pulses. */
   hint?: HintId
 }
@@ -114,8 +116,14 @@ export const DEMOS: Readonly<Record<LessonId, readonly DemoKey[]>> = {
   ],
   weapons: [
     { t: 0, x: 2, z: 7, face: [10, 2], weapon: 'sniper', aim: 0, hint: 'scope' }, { t: 0.7, aim: 1 }, { t: 1.8, aim: 1, hint: 'fire' },
-    { t: 2.6, aim: 0, weapon: 'rocket', face: [8.5, 11], hint: 'weapon' }, { t: 3.2, aim: 1, hint: 'fire' }, { t: 4.4, aim: 1 },
-    { t: 5.2, aim: 0, weapon: 'minigun', face: [9, 6], hint: 'weapon' }, { t: 5.8, aim: 1, hint: 'fire' }, { t: 8, aim: 1 }
+    { t: 2.6, aim: 0, weapon: 'minigun', face: [8.5, 11], hint: 'weapon' }, { t: 3.2, aim: 1, hint: 'fire' }, { t: 5.6, aim: 1 }
+  ],
+  // The launcher (#146): 3 draws it, up it comes, and the rocket leaves its
+  // nose for the mech on the ledge, which comes apart.
+  rocket: [
+    { t: 0, x: 1.5, z: 7.5, face: ROCKET_TARGET, weapon: 'sniper', aim: 0 },
+    { t: 0.9, x: 3, z: 8, face: ROCKET_TARGET, hint: 'rocket' }, { t: 1.2, weapon: 'rocket' }, { t: 1.7, aim: 1 },
+    { t: 2.3, aim: 1, hint: 'fire', rocket: ROCKET_TARGET }, { t: 4.4, aim: 1 }, { t: 5, aim: 0 }
   ],
   // Over the crate: it is the mech's.
   supply: [{ t: 0, x: 1.5, z: 7, hint: 'supply' }, { t: 2.4, x: 5, z: 7 }, { t: 2.8, x: 5, z: 7 }, { t: 4.6, x: 10.4, z: 7 }],
@@ -246,9 +254,12 @@ export const lessonDone = (i: number, c: TrainingContext, b: TrainingContext): b
     case 'supply': return c.supplies > b.supplies || (atDoor() && c.stocked)
     case 'burn': return c.burns > b.burns
     case 'rope': return c.ropes > b.ropes
-    // The full drill (a rifle kill, two rockets, an overheat, a zoom), or the room
-    // emptied whichever way: a player who has taken every target is done (#109).
-    case 'weapons': return !!c.cleared || (c.sniperKills > b.sniperKills && c.rockets - b.rockets >= 2 && c.overheats > b.overheats && c.zooms > b.zooms)
+    // The full drill (a rifle kill, an overheat, a zoom), or the room emptied
+    // whichever way: a player who has taken every target is done (#109).
+    // The launcher has its own room now (#146).
+    case 'weapons': return !!c.cleared || (c.sniperKills > b.sniperKills && c.overheats > b.overheats && c.zooms > b.zooms)
+    // The armoured mech on the ledge is down (#146): only a rocket did that.
+    case 'rocket': return !!c.cleared
     // From behind, and close in from the side: two.
     case 'blade': return c.bladeKills - b.bladeKills >= 2
     case 'hook': return roomAt(c.x) > i
@@ -409,6 +420,8 @@ export interface DemoFrame {
   td: number
   /** The decoy thrown (#114): where it lands (metres) and seconds since the throw; null before. */
   decoy: { x: number; z: number; t: number } | null
+  /** The rocket fired (#146): its target (metres) and seconds since it left; null before. */
+  rocket: { x: number; z: number; t: number } | null
   /** The control just pressed (#114): its key pops up over the hologram, for HINT_HOLD_S. */
   press: { hint: HintId; t: number } | null
   /** The control whose glyph should pulse now, if any. */
@@ -419,7 +432,7 @@ export const demoFrame = (i: number, time: number): DemoFrame => {
   const r = TRAINING_ROOMS[i]!
   const keys = DEMOS[r.lesson]
   // Fill every key from the one before.
-  let prev: Required<Omit<DemoKey, 'hint' | 'face' | 'takedown' | 'decoy'>> & { face: readonly [number, number] | null } = {
+  let prev: Required<Omit<DemoKey, 'hint' | 'face' | 'takedown' | 'decoy' | 'rocket'>> & { face: readonly [number, number] | null } = {
     t: 0, x: 1.5, z: 7, y: 0, crouch: 0, aim: 0, weapon: 'sniper', stab: 0, boxed: 0, loot: 0,
     climb: 0, air: 0, cable: 0, rope: 0, hook: 0, body: 0, burn: 0, face: null
   }
@@ -450,6 +463,8 @@ export const demoFrame = (i: number, time: number): DemoFrame => {
   for (const k of keys) if (k.takedown && time >= k.t && time - k.t <= TD_END + 4) td = time - k.t
   let decoy: DemoFrame['decoy'] = null
   for (const k of keys) if (k.decoy && time >= k.t) decoy = { x: toX(k.decoy[0]), z: toZ(k.decoy[1]), t: time - k.t }
+  let rocket: DemoFrame['rocket'] = null
+  for (const k of keys) if (k.rocket && time >= k.t) rocket = { x: toX(k.rocket[0]), z: toZ(k.rocket[1]), t: time - k.t }
   let press: DemoFrame['press'] = null
   for (const k of keys) if (k.hint && k.t <= time && time - k.t < HINT_HOLD_S) press = { hint: k.hint, t: time - k.t }
   return {
@@ -458,6 +473,6 @@ export const demoFrame = (i: number, time: number): DemoFrame => {
     crouch: lerp(a.crouch, b.crouch), aim: lerp(a.aim, b.aim), weapon: a.weapon,
     stab: lerp(a.stab, b.stab), boxed: lerp(a.boxed, b.boxed), loot: lerp(a.loot, b.loot),
     climb: lerp(a.climb, b.climb), air: lerp(a.air, b.air), cable: lerp(a.cable, b.cable),
-    rope: lerp(a.rope, b.rope), hook: lerp(a.hook, b.hook), body: lerp(a.body, b.body), burn: lerp(a.burn, b.burn), td, decoy, press, hint
+    rope: lerp(a.rope, b.rope), hook: lerp(a.hook, b.hook), body: lerp(a.body, b.body), burn: lerp(a.burn, b.burn), td, decoy, rocket, press, hint
   }
 }

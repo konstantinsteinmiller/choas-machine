@@ -18,7 +18,7 @@ export const TRAINING_ID = 'training'
 
 /** The lessons, one per room, in the order they are crossed. */
 export const LESSON_IDS = [
-  'move', 'jump', 'cover', 'weapons', 'supply', 'blade', 'burn', 'decoy', 'box', 'hook', 'rope', 'beacon', 'salvage', 'extract'
+  'move', 'jump', 'cover', 'weapons', 'rocket', 'supply', 'blade', 'burn', 'decoy', 'box', 'hook', 'rope', 'beacon', 'salvage', 'extract'
 ] as const
 export type LessonId = (typeof LESSON_IDS)[number]
 
@@ -47,6 +47,12 @@ export const JUMP_DECK_H = 2.5
 /** The rope room's tower, and the platform a rope from it reaches (#94). */
 export const ROPE_TOWER_H = 4
 export const ROPE_DECK_H = 2
+/** The rocket room's ledge (#146), its parapet, and the target's hit points. */
+export const ROCKET_LEDGE_H = 4
+export const ROCKET_PARAPET_H = 5.2
+export const ROCKET_TARGET_HP = 300
+/** Where the rocket room's target stands (room cells). */
+export const ROCKET_TARGET: readonly [number, number] = [8, 3]
 /** The doorways: the middle two rows of a room. */
 const DOOR_Z0 = OZ + 6
 const DOOR_Z1 = OZ + 7
@@ -119,12 +125,25 @@ export const buildTrainingGround = (): Fortress => {
   b.cover(...at(room('cover'), 1, 5), 8, 'x')
 
   // · Weapons: a sentry with its back turned at the far end (the rifle),
-  //   two guards facing the corner (the launcher), and room for the minigun.
+  //   two guards facing the corner (the minigun).
   {
     const w = room('weapons')
     b.sentry(...at(w, 10, 2), Math.PI)
     b.guard([at(w, 8, 11)], 0).guard([at(w, 9, 11)], 0)
     b.solid('stack', ...at(w, 3, 11), 1.4).solid('stack', ...at(w, 6, 1), 1.4)
+  }
+
+  // · The launcher (#146): an armoured mech up on a ledge behind a parapet,
+  //   its head and shoulders over it. Nothing walks up there; rounds and
+  //   the blade glance off it; a rocket into it, or onto the parapet's top
+  //   beside it, takes it. Its blast is what reaches over the cover.
+  {
+    const k = room('rocket')
+    b.fill(...at(k, 5, 1), ...at(k, 10, 4), ROCKET_LEDGE_H)
+    b.fill(...at(k, 5, 4), ...at(k, 10, 4), ROCKET_PARAPET_H)
+    b.fill(...at(k, 5, 1), ...at(k, 5, 4), ROCKET_PARAPET_H)
+    b.rocketTarget(...at(k, ROCKET_TARGET[0], ROCKET_TARGET[1]), 0, ROCKET_TARGET_HP)
+    b.solid('stack', ...at(k, 2, 11), 1.4)
   }
 
   // · Supplies (#76): the rounds just spent are not coming back by

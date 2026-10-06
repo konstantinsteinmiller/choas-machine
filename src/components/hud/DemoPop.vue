@@ -22,7 +22,7 @@ import { addHudTicker, demoPop, hud } from '@/game/state/hud'
 /** The key each control is pressed with (the player's own binding is lettered by KeyCap). */
 const KEYS: Readonly<Record<string, Action>> = {
   move: 'forward', climb: 'forward', supply: 'forward', crouch: 'crouch', blade: 'act', decoy: 'decoy', hide: 'hide',
-  grapple: 'grapple', sabotage: 'act', loot: 'act', jump: 'jump', rope: 'rope', burn: 'act', weapon: 'cycle', sprint: 'sprint', goal: 'forward'
+  grapple: 'grapple', sabotage: 'act', loot: 'act', jump: 'jump', rope: 'rope', burn: 'act', weapon: 'cycle', sprint: 'sprint', goal: 'forward', rocket: 'weapon3'
 }
 /** The ones a mouse does. */
 const MOUSE: Readonly<Record<string, 'move' | 'left' | 'right'>> = { look: 'move', scope: 'right', fire: 'left' }
@@ -30,7 +30,7 @@ const MOUSE: Readonly<Record<string, 'move' | 'left' | 'right'>> = { look: 'move
 const ICONS: Readonly<Record<string, GameIconName>> = {
   move: 'mech', look: 'eye', scope: 'scope', fire: 'sniper', crouch: 'crouch', blade: 'blade', climb: 'up', decoy: 'decoy',
   weapon: 'minigun', sprint: 'sprint', grapple: 'hook', loot: 'scrap', goal: 'mech', hide: 'box', sabotage: 'siren',
-  jump: 'up', rope: 'rope', burn: 'flame', supply: 'bolt'
+  jump: 'up', rope: 'rope', burn: 'flame', supply: 'bolt', rocket: 'rocket'
 }
 
 const el = ref<HTMLElement | null>(null)

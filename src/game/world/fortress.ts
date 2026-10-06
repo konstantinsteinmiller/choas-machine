@@ -73,6 +73,15 @@ export interface Post {
   role?: 'engineer' | 'grenadier' | 'marksman'
   /** A Roomba's gun: the SMG, or (`shotgun`) the close-range one (#72). */
   gun?: 'shotgun'
+  /**
+   * Armoured (#146): only an explosion hurts it; rounds and the blade glance
+   * off its plate. The rocket lesson's target; the Airship's engines.
+   */
+  armoured?: boolean
+  /** A training target: it never wakes, never fights back (#146). */
+  dummy?: boolean
+  /** Its hit points, in place of its kind's (a training target's). */
+  hp?: number
 }
 
 export type DecorKind =
@@ -653,6 +662,16 @@ export class FortressBuilder {
   enforcer(cx: number, cz: number, facing = 0, foreman = false): this {
     this.post('enforcer', [[cx, cz]], facing)
     if (foreman) this.posts[this.posts.length - 1]!.boss = 'foreman'
+    return this
+  }
+
+  /**
+   * The rocket lesson's target (#146): an armoured Enforcer that only a blast
+   * hurts, powered down for good, with `hp` hit points.
+   */
+  rocketTarget(cx: number, cz: number, facing: number, hp: number): this {
+    this.post('enforcer', [[cx, cz]], facing)
+    Object.assign(this.posts[this.posts.length - 1]!, { armoured: true, dummy: true, hp })
     return this
   }
 

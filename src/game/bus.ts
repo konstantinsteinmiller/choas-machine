@@ -46,6 +46,8 @@ export interface GameEvents {
   ammoLow: { weapon: WeaponId }
   dryFire: Record<string, never>
   hit: { id: number; weapon: WeaponId; zone: string }
+  /** A round glanced off armour that only a blast gets through (#146). */
+  glance: { id: number; weapon: WeaponId }
   blast: { x: number; y: number; z: number; weak: boolean }
   /** Another weapon was drawn. */
   weapon: { weapon: WeaponId }

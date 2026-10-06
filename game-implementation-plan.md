@@ -791,7 +791,7 @@ fortress; the outro after the first Spire III clear).
 - [x] **R49 Unit frame HUD and banners** (#145 #150): portrait + HP + ammo +
   alert top-left, quest log on the right, low vs. out ammo cues taught in
   training; Mega Droid's red WASTED and blue LEVEL CLEARED banners
-- [ ] **R50 Rocket lesson** (#146): armoured (blast-only) rule, pit room,
+- [x] **R50 Rocket lesson** (#146): armoured (blast-only) rule, pit room,
   respawn refill, hologram rocket
 - [ ] **R51 Asset quality and batching** (#147): guard rebuilt, mech detail
   layer, decor pass, decor per area, piles and beacons batched, coplanar test

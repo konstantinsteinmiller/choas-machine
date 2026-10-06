@@ -25,7 +25,7 @@ import type { InputFamily } from '../data/ids'
 
 export const HINT_IDS = [
   'move', 'look', 'scope', 'fire', 'crouch', 'blade', 'climb', 'cable', 'decoy', 'weapon', 'sprint', 'grapple', 'loot', 'goal', 'hide', 'sabotage',
-  'jump', 'rope', 'burn', 'supply'
+  'jump', 'rope', 'burn', 'supply', 'rocket'
 ] as const
 export type HintId = (typeof HINT_IDS)[number]
 
@@ -64,7 +64,9 @@ export const HINTS: Readonly<Record<HintId, HintDef>> = {
   jump: { goal: 1, priority: 6 },
   rope: { goal: 1, priority: 8 },
   burn: { goal: 1, priority: 8 },
-  supply: { goal: 1, priority: 6 }
+  supply: { goal: 1, priority: 6 },
+  // The launcher drawn (#146): taught by its own hologram room.
+  rocket: { goal: 1, priority: 4 }
 }
 
 /** At most this many glyphs at once: more than two is more than a new player takes in. */
@@ -236,6 +238,7 @@ export const stepCoach = (c: Coach, ctx: CoachContext, dt: number): HintView[] |
     jump: false,
     rope: false,
     burn: false,
+    rocket: false,
     supply: false
   }
 
