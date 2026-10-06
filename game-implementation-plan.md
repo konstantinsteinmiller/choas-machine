@@ -980,6 +980,25 @@ replay key, the keyboard-driven settings.
   dialog is open (it ate Tab and Space), and the menu leaves every key alone
   while a binding is being captured. Harvested into the user-level skill
   `menu-keyboard-navigation`, linked from the playbook.
+- [x] **R74 Follow-ups, #173-#175**:
+  - #173: a person killed by the mini-gun falls as a ragdoll; only machines
+    come apart. The Warden is a person: backstab, ledge drop and rope kill
+    take him (never the face-to-face strike); machine bosses stay out of reach.
+  - The furnace's game plays over the result screen's numbers from the top
+    (one grid cell, no scrolling to see the flame). The rank badge sits left
+    of the wallet, off the stations. The Forge has an info button (each sign
+    explained) and shows each weapon's next tier as "+18% damage", 39 locales.
+  - #174: the blade arm after Assassin's Creed's hidden-blade kills (web brief
+    in the session's scratchpad): cocked by the hip with the elbow out, then
+    on the stab's line (`STAB_LINES`) and driven straight along it (`drive`),
+    pulled out the same way; two-bone reach with an elbow pole (the elbow
+    always out to the side); the free hand travels out and round. Stances
+    re-placed by a measured optimizer (per-part boxes: arm in own body, arm in
+    the guard, body in the guard, the blade's drag); pinned by
+    `backstabClearance.test.ts`.
+  - #175: cutscenes hand the mouse back (taken back after; a veil click if the
+    scene played out); Space held 1.5 s skips any cutscene, the key on the
+    button in a filling ring (`HoldSkipButton`).
 
 ## Resume notes
 
