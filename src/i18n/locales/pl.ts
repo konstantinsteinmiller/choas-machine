@@ -313,7 +313,8 @@ export default {
       'jump': 'Skok',
       'rope': 'Wyrzutnia liny',
       'burn': 'Miotacz ognia',
-      'drag': 'Chwyć ciało'
+      'drag': 'Chwyć ciało',
+      'replay': 'Pokaż lekcję jeszcze raz'
     }
   },
   'prompt': {

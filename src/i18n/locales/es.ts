@@ -313,7 +313,8 @@ export default {
       'jump': 'Saltar',
       'rope': 'Pistola de cuerda',
       'burn': 'Lanzallamas',
-      'drag': 'Agarrar cuerpo'
+      'drag': 'Agarrar cuerpo',
+      'replay': 'Mostrar la lección otra vez'
     }
   },
   'prompt': {

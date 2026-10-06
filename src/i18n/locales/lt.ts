@@ -313,7 +313,8 @@ export default {
       'jump': 'Šuolis',
       'rope': 'Virvės šautuvas',
       'burn': 'Liepsnosvaidis',
-      'drag': 'Paimti kūną'
+      'drag': 'Paimti kūną',
+      'replay': 'Rodyti pamoką dar kartą'
     }
   },
   'prompt': {

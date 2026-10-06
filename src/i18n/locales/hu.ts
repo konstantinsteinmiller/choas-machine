@@ -313,7 +313,8 @@ export default {
       'jump': 'Ugrás',
       'rope': 'Kötélvető',
       'burn': 'Lángszóró',
-      'drag': 'Test megfogása'
+      'drag': 'Test megfogása',
+      'replay': 'Lecke mutatása újra'
     }
   },
   'prompt': {

@@ -313,7 +313,8 @@ export default {
       'jump': 'Hopp',
       'rope': 'Repkanon',
       'burn': 'Eldkastare',
-      'drag': 'Ta kroppen'
+      'drag': 'Ta kroppen',
+      'replay': 'Visa lektionen igen'
     }
   },
   'prompt': {

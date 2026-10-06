@@ -313,7 +313,8 @@ export default {
       'jump': 'Salti',
       'rope': 'Ŝnurpafilo',
       'burn': 'Flamĵetilo',
-      'drag': 'Preni korpon'
+      'drag': 'Preni korpon',
+      'replay': 'Montri la lecionon denove'
     }
   },
   'prompt': {

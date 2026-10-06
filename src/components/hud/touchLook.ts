@@ -87,9 +87,10 @@ export const HINT_KEYS: Readonly<Partial<Record<HintId, Action>>> = {
   grapple: 'grapple', sabotage: 'act', loot: 'act', jump: 'jump', rope: 'rope', burn: 'burn', weapon: 'cycle', sprint: 'sprint', goal: 'forward', rocket: 'weapon3'
 }
 /** The ones a mouse does. */
-export const HINT_MOUSE: Readonly<Partial<Record<HintId, 'move' | 'left' | 'right'>>> = { look: 'move', scope: 'right', fire: 'left' }
+export const HINT_MOUSE: Readonly<Partial<Record<HintId, 'move' | 'left' | 'right'>>> = { scope: 'right', fire: 'left' }
 
 /** On touch, a control with no button: the gesture that does it (the stick, a swipe, a hold). */
-export const HINT_GESTURE: Readonly<Partial<Record<HintId, 'drag' | 'swipe' | 'hold' | 'release' | 'push' | 'tap'>>> = {
-  move: 'drag', climb: 'push', cable: 'push', supply: 'push', goal: 'push', look: 'swipe', scope: 'hold', fire: 'release'
+// Looking round is the endless loop on touch and on a desktop alike (#169).
+export const HINT_GESTURE: Readonly<Partial<Record<HintId, 'drag' | 'swipe' | 'hold' | 'release' | 'push' | 'tap' | 'loop'>>> = {
+  move: 'drag', climb: 'push', cable: 'push', supply: 'push', goal: 'push', look: 'loop', scope: 'hold', fire: 'release'
 }

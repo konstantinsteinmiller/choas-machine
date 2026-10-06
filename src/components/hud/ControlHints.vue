@@ -21,7 +21,8 @@
               KeyCap(action="left")
               KeyCap(action="back")
               KeyCap(action="right")
-          MouseGlyph(v-else-if="h.id === 'look'" lit="move")
+          //- Looking round: the finger running its loop (#169), as on touch.
+          FingerGlyph.loop(v-else-if="h.id === 'look'" mode="loop")
           MouseGlyph(v-else-if="h.id === 'scope'" lit="right")
           MouseGlyph(v-else-if="h.id === 'fire'" lit="left")
           KeyCap(v-else-if="h.id === 'crouch'" action="crouch")
@@ -90,8 +91,8 @@ const ICONS: Readonly<Record<HintId, GameIconName>> = {
 const SPOTS: Readonly<Partial<Record<HintId, 'stick' | 'right'>>> = {
   move: 'stick', climb: 'stick', cable: 'stick', look: 'right', scope: 'right', fire: 'right', supply: 'stick'
 }
-const FINGER: Readonly<Partial<Record<HintId, 'drag' | 'swipe' | 'hold' | 'release' | 'push'>>> = {
-  move: 'drag', climb: 'push', cable: 'push', look: 'swipe', scope: 'hold', fire: 'release', supply: 'push'
+const FINGER: Readonly<Partial<Record<HintId, 'drag' | 'swipe' | 'hold' | 'release' | 'push' | 'loop'>>> = {
+  move: 'drag', climb: 'push', cable: 'push', look: 'loop', scope: 'hold', fire: 'release', supply: 'push'
 }
 /** The sentence a screen reader gets: the glyphs themselves carry no words. */
 const LABELS: Readonly<Record<HintId, string>> = {
@@ -190,6 +191,9 @@ onUnmounted(() => { for (const id of Object.values(timers)) window.clearTimeout(
   display: flex
   align-items: center
   gap: clamp(0.15rem, 0.7vmin, 0.3rem)
+// The look's loop (#169), card-sized.
+.loop
+  --size: clamp(2rem, 8vmin, 2.9rem)
 // W over A S D.
 .wasd
   display: grid

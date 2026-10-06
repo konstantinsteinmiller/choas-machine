@@ -313,7 +313,8 @@ export default {
       'jump': 'Skok',
       'rope': 'Pištolj za uže',
       'burn': 'Bacač plamena',
-      'drag': 'Uhvati tijelo'
+      'drag': 'Uhvati tijelo',
+      'replay': 'Prikaži uputu ponovno'
     }
   },
   'prompt': {

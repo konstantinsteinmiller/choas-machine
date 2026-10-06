@@ -313,7 +313,8 @@ export default {
       'jump': 'Sakrash',
       'rope': 'Arqon quroli',
       'burn': 'Alanga otgich',
-      'drag': 'Jasadni olish'
+      'drag': 'Jasadni olish',
+      'replay': 'Darsni yana koʻrsatish'
     }
   },
   'prompt': {

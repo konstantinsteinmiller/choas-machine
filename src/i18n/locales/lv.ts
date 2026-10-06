@@ -313,7 +313,8 @@ export default {
       'jump': 'Lēciens',
       'rope': 'Virvju šautene',
       'burn': 'Liesmmetējs',
-      'drag': 'Satvert ķermeni'
+      'drag': 'Satvert ķermeni',
+      'replay': 'Rādīt mācību vēlreiz'
     }
   },
   'prompt': {

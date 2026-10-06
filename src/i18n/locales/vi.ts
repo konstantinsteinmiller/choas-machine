@@ -313,7 +313,8 @@ export default {
       'jump': 'Nhảy',
       'rope': 'Súng bắn dây',
       'burn': 'Súng phun lửa',
-      'drag': 'Nắm xác'
+      'drag': 'Nắm xác',
+      'replay': 'Hiện lại bài hướng dẫn'
     }
   },
   'prompt': {

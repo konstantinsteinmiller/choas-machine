@@ -22,7 +22,7 @@ import { KEY_BINDINGS_KEY } from '@/keys'
 export type Action =
   | 'forward' | 'back' | 'left' | 'right' | 'turnLeft' | 'turnRight'
   | 'sprint' | 'crouch' | 'hide' | 'act' | 'grapple' | 'decoy' | 'reload'
-  | 'weapon1' | 'weapon2' | 'weapon3' | 'cycle' | 'pause' | 'help' | 'jump' | 'rope' | 'burn' | 'drag'
+  | 'weapon1' | 'weapon2' | 'weapon3' | 'cycle' | 'pause' | 'help' | 'jump' | 'rope' | 'burn' | 'drag' | 'replay'
 
 /** Defaults: the first code is the action's main key, the rest alternates.
  *  No action sits on Ctrl: Ctrl+W, with W held for walking, closes the tab. */
@@ -58,7 +58,9 @@ export const DEFAULT_BINDINGS: Readonly<Record<Action, readonly string[]>> = {
   // The flamethrower (#99): a body to ash, a wreck to slag (E does it too).
   burn: ['KeyX'],
   // A body grabbed and dragged off, and let go (its own key since E burns).
-  drag: ['KeyF']
+  drag: ['KeyF'],
+  // The training ground's "show me again" (#169): the room's hologram from the start.
+  replay: ['KeyK']
 }
 
 /** The order the Controls tab lists them in. */

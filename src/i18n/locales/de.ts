@@ -313,7 +313,8 @@ export default {
       'jump': 'Springen',
       'rope': 'Seilwerfer',
       'burn': 'Flammenwerfer',
-      'drag': 'Körper greifen'
+      'drag': 'Körper greifen',
+      'replay': 'Lektion nochmal zeigen'
     }
   },
   'prompt': {

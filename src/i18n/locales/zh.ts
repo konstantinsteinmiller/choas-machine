@@ -313,7 +313,8 @@ export default {
       'jump': '跳跃',
       'rope': '绳索枪',
       'burn': '火焰喷射器',
-      'drag': '抓住尸体'
+      'drag': '抓住尸体',
+      'replay': '再显示一次教程'
     }
   },
   'prompt': {

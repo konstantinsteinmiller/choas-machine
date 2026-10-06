@@ -4,7 +4,9 @@
   //- of the very button (#160), or the finger doing a gesture. The launcher
   //- shows both ways to draw it (#168): its number and the switch key.
   span.hint-glyph(v-if="device === 'mouse'")
-    MouseGlyph.mouse(v-if="MOUSE[hint]" :lit="MOUSE[hint]")
+    //- Looking round: the finger on its loop, on a desktop too (#169).
+    FingerGlyph.finger(v-if="hint === 'look'" mode="loop")
+    MouseGlyph.mouse(v-else-if="MOUSE[hint]" :lit="MOUSE[hint]")
     template(v-else-if="hint === 'rocket'")
       KeyCap(action="weapon3")
       span.or /

@@ -2,18 +2,16 @@
   //- CM-07's unit frame (#145), top left like an action-RPG's: the portrait
   //- in its hex socket, the threat level under it, and beside it the health,
   //- the weapon in hand and the base's alert with its alarm, all in one
-  //- machined plate.
+  //- machined plate. Compact (#169): a portrait a quarter smaller, the rows
+  //- close together, no name printed over them.
   div.unit-frame(data-testid="unit-frame")
     div.portrait(aria-hidden="true")
       div.socket
         img.face(v-if="face" :src="face" alt="" draggable="false")
         GameIcon.face-glyph(v-else name="mech")
       span.level(v-if="!hud.training.on") {{ roman }}
+    //- No name over the bars (#169): the portrait says who it is.
     div.rows
-      //- The name engraved over the bars, a ruled line running off it.
-      div.nameplate(aria-hidden="true")
-        span.name CM-07
-        span.rule
       ArmorBar
       AmmoStrip
       div.alert-row
@@ -60,7 +58,8 @@ onMounted(() => { face.value = mechPortrait() })
 // The frame: a wide plate, its cut and edge in the mech's violet, a second
 // hairline inside it, the portrait's socket breaking out of its left side.
 .unit-frame
-  --face: clamp(3.2rem, 15vmin, 4.9rem)
+  // A quarter smaller than it was (#169: 3.2rem, 15vmin, 4.9rem).
+  --face: clamp(2.4rem, 11.25vmin, 3.675rem)
   position: relative
   display: flex
   align-items: center
@@ -106,24 +105,6 @@ onMounted(() => { face.value = mechPortrait() })
   text-align: center
   letter-spacing: 0.06em
   +tech-plate(var(--cm-warn), tech-fill(var(--cm-warn), 26%), 0.3rem, 1px, false)
-.nameplate
-  display: flex
-  align-items: center
-  gap: 0.45em
-  margin-bottom: -0.05em
-.name
-  color: var(--cm-cyan-hi)
-  font-family: var(--font-ui)
-  font-weight: 700
-  font-size: var(--cm-fs-xs)
-  line-height: 1
-  letter-spacing: 0.14em
-  text-shadow: 0 0 0.35em rgba(77, 232, 255, 0.7)
-// A hairline with a tick every eighth, brighter at the name's end.
-.rule
-  flex: 1
-  height: 0.32em
-  background: repeating-linear-gradient(90deg, rgba(203, 188, 255, 0.45) 0 1px, transparent 1px 12.5%) bottom / 100% 60% no-repeat, linear-gradient(90deg, rgba(77, 232, 255, 0.8), rgba(154, 120, 255, 0.15)) bottom / 100% 1px no-repeat
 .vents
   position: absolute
   right: 0.55em
@@ -139,7 +120,7 @@ onMounted(() => { face.value = mechPortrait() })
 .rows
   display: flex
   flex-direction: column
-  gap: clamp(0.18rem, 0.8vmin, 0.32rem)
+  gap: clamp(0.08rem, 0.4vmin, 0.16rem)
   min-width: 0
 .alert-row
   display: flex

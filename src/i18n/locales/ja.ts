@@ -313,7 +313,8 @@ export default {
       'jump': 'ジャンプ',
       'rope': 'ロープガン',
       'burn': '火炎放射器',
-      'drag': '体をつかむ'
+      'drag': '体をつかむ',
+      'replay': 'レッスンをもう一度表示'
     }
   },
   'prompt': {

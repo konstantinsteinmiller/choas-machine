@@ -313,7 +313,8 @@ export default {
       'jump': 'Saltar',
       'rope': 'Pistola de corda',
       'burn': 'Llançaflames',
-      'drag': 'Agafa el cos'
+      'drag': 'Agafa el cos',
+      'replay': 'Mostra la lliçó un altre cop'
     }
   },
   'prompt': {

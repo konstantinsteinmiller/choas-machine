@@ -313,7 +313,8 @@ export default {
       'jump': 'Springen',
       'rope': 'Touwkanon',
       'burn': 'Vlammenwerper',
-      'drag': 'Lichaam pakken'
+      'drag': 'Lichaam pakken',
+      'replay': 'Toon de les opnieuw'
     }
   },
   'prompt': {

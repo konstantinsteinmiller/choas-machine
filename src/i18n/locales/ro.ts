@@ -313,7 +313,8 @@ export default {
       'jump': 'Săritură',
       'rope': 'Pistol cu frânghie',
       'burn': 'Aruncător de flăcări',
-      'drag': 'Apucă corpul'
+      'drag': 'Apucă corpul',
+      'replay': 'Arată lecția din nou'
     }
   },
   'prompt': {

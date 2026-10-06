@@ -313,7 +313,8 @@ export default {
       'jump': 'Hyppy',
       'rope': 'Köysipyssy',
       'burn': 'Liekinheitin',
-      'drag': 'Ota ruumis'
+      'drag': 'Ota ruumis',
+      'replay': 'Näytä oppi uudelleen'
     }
   },
   'prompt': {

@@ -964,7 +964,11 @@ replay key, the keyboard-driven settings.
   of a fifth of a second; the kill-cam is up by the time the hand closes. A
   blade in a person sounds of the body (a swish, the wet thrust, the cloth,
   the grab), never steel ringing; the quick E strike on a person too.
-- [ ] **R72 Unit frame, replay key, the look gesture** (#169)
+- [x] **R72 Unit frame, replay key, the look gesture** (#169): the unit
+  frame prints no name, its portrait a quarter smaller, the rows close
+  together; the training's "show me again" is K on a keyboard (its keycap on
+  the button, rebindable, 39 locales); looking round is a finger running an
+  endless loop, on touch and on a desktop (the mouse's slide is gone).
 - [ ] **R73 Settings by keyboard** (#170)
 
 ## Resume notes

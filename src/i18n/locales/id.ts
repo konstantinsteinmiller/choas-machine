@@ -313,7 +313,8 @@ export default {
       'jump': 'Lompat',
       'rope': 'Senapan tali',
       'burn': 'Penyembur api',
-      'drag': 'Seret tubuh'
+      'drag': 'Seret tubuh',
+      'replay': 'Tampilkan pelajaran lagi'
     }
   },
   'prompt': {

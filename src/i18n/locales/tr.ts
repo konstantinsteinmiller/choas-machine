@@ -313,7 +313,8 @@ export default {
       'jump': 'Zıpla',
       'rope': 'İp silahı',
       'burn': 'Alev silahı',
-      'drag': 'Cesedi tut'
+      'drag': 'Cesedi tut',
+      'replay': 'Dersi tekrar göster'
     }
   },
   'prompt': {

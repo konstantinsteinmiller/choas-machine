@@ -118,6 +118,8 @@ const onKey = (e: KeyboardEvent) => {
     e.preventDefault()
     busEmit('help', {})
   }
+  // The training's "show me again" (#169): its key, while the button is up.
+  if (actionForCode(e.code) === 'replay' && !typing(e) && !e.repeat && hud.phase === 'play' && hud.training.replay) busEmit('trainingReplay', {})
 }
 
 onMounted(async () => {

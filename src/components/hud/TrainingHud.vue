@@ -13,6 +13,7 @@
       v-if="hud.training.replay"
       icon="replay"
       tone="cyan"
+      :hotkey="hud.device === 'mouse' ? 'replay' : undefined"
       :aria-label="t('training.replay')"
       data-testid="btn-demo"
       @click="replay"

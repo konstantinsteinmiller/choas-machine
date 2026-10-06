@@ -41,7 +41,8 @@ const { t } = useI18n()
   display: flex
   align-items: center
   gap: clamp(0.3rem, 1.2vmin, 0.5rem)
-  min-height: clamp(1.1rem, 4.4vmin, 1.6rem)
+  // Close under the ammunition (#169).
+  min-height: clamp(0.85rem, 3.4vmin, 1.25rem)
   box-sizing: border-box
   color: var(--cm-cyan)
   transition: color 200ms ease-out, opacity 300ms ease-out

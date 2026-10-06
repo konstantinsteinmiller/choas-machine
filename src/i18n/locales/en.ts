@@ -317,7 +317,8 @@ export default {
       'jump': 'Jump',
       'rope': 'Rope gun',
       'burn': 'Flamethrower',
-      'drag': 'Grab body'
+      'drag': 'Grab body',
+      'replay': 'Show the lesson again'
     }
   },
   'prompt': {

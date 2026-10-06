@@ -313,7 +313,8 @@ export default {
       'jump': 'Skok',
       'rope': 'Lanová pistole',
       'burn': 'Plamenomet',
-      'drag': 'Popadnout tělo'
+      'drag': 'Popadnout tělo',
+      'replay': 'Zobrazit lekci znovu'
     }
   },
   'prompt': {

@@ -313,7 +313,8 @@ export default {
       'jump': 'Saut',
       'rope': 'Lance-corde',
       'burn': 'Lance-flammes',
-      'drag': 'Saisir le corps'
+      'drag': 'Saisir le corps',
+      'replay': 'Afficher la leçon à nouveau'
     }
   },
   'prompt': {
