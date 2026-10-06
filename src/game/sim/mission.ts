@@ -22,6 +22,7 @@ import { ringTexture } from '../world/textures'
 import { FloorMarkers, makeBlobShadow } from '../fx/markers'
 import { CombatFx } from '../fx/combatFx'
 import { BulletMarks } from '../fx/bulletMarks'
+import { buildRopeLine, type RopeLine } from '../fx/ropeLine'
 import type { Rig } from '../models/kit'
 import { MUZZLE_TIP, buildMech, poseMech, restPose, MECH_HEIGHT, MECH_HEIGHT_CROUCH, MECH_SCALE, type MechPose , MECH_KNEEL_S, MECH_DOWN_S } from '../models/mech'
 import { PAL } from '../models/palette'
@@ -372,7 +373,8 @@ export class Mission implements GameMode {
   private ropeAim: RopeShot | null = null
   private ropesLeft = 0
   /** The ropes the mech has shot this raid, drawn. */
-  private ropeMeshes: Mesh[] = []
+  /** The lines the rope gun has strung (#164). */
+  private ropeLines: RopeLine[] = []
   private grapple: GrappleRun | null = null
   private hookPos = { x: 0, y: 0, z: 0 }
   private handPos = new Vector3()
@@ -2033,23 +2035,15 @@ export class Mission implements GameMode {
     this.ropesShot++
     this.ropeAim = null
     // From this platform's edge to the far one's, where the mech walks it,
-    // with a spike driven in at each end.
+    // with a piton driven in at each end (#164: the hook's braided line).
     const s = cableSpan(g, r.cable)
     const ex = r.ax + (r.bx - r.ax) * s.ta
     const ez = r.az + (r.bz - r.az) * s.ta
     const fx = r.ax + (r.bx - r.ax) * s.tb
     const fz = r.az + (r.bz - r.az) * s.tb
-    const stretch = (x0: number, y0: number, z0: number, x1: number, y1: number, z1: number, thick: number): void => {
-      const mesh = new Mesh(this.ropeGeo, this.ropeMat)
-      mesh.position.set((x0 + x1) / 2, (y0 + y1) / 2, (z0 + z1) / 2)
-      mesh.scale.set(thick, Math.hypot(x1 - x0, y1 - y0, z1 - z0), thick)
-      mesh.quaternion.setFromUnitVectors(UP, new Vector3(x1 - x0, y1 - y0, z1 - z0).normalize())
-      this.scene.add(mesh)
-      this.ropeMeshes.push(mesh)
-    }
-    stretch(ex, r.ay + 0.06, ez, fx, r.by + 0.06, fz, 1)
-    stretch(ex, r.ay, ez, ex, r.ay + 0.45, ez, 2)
-    stretch(fx, r.by, fz, fx, r.by + 0.45, fz, 2)
+    const line = buildRopeLine(ex, r.ay + 0.06, ez, fx, r.by + 0.06, fz)
+    this.scene.add(line.group)
+    this.ropeLines.push(line)
     this.fx.particles.sparks(fx, r.by + 0.3, fz, '#fff1c9', 10, 3, 0.25)
     // A line strung across the base is a thing out of place for whoever sees it.
     noteChange(this.garrison, (r.ax + r.bx) / 2, (r.ay + r.by) / 2 + 0.5, (r.az + r.bz) / 2, 'rope')
@@ -3504,8 +3498,6 @@ export class Mission implements GameMode {
   private supplies: Supply[] = []
   private barrels: Barrel[] = []
   private supplyView!: SupplyView
-  private ropeGeo = new CylinderGeometry(0.04, 0.04, 1, 6)
-  private ropeMat = new MeshBasicMaterial({ color: '#7ff4ff', toneMapped: false })
 
   private dropPouch(x: number, y: number, z: number): void {
     const pouches = this.supplies.filter(s => s.kind === 'pouch' && !s.taken)
@@ -4310,8 +4302,7 @@ export class Mission implements GameMode {
     this.ghost.mesh.geometry.dispose()
     this.ghostMat.dispose()
     this.supplyView.dispose()
-    this.ropeGeo.dispose()
-    this.ropeMat.dispose()
+    for (const l of this.ropeLines) l.dispose()
     this.chevrons.dispose()
     this.aimRing.geometry.dispose()
     ;(this.aimRing.material as MeshBasicMaterial).dispose()

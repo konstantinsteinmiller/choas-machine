@@ -171,8 +171,8 @@ export const hookHeadGeometry = (): { lit: BufferGeometry; glow: BufferGeometry;
  * tracer wound `twists` whole turns per segment, so the helix lines up across
  * every joint.
  */
-export const cableGeometry = (twists = 4, sides = 10, rows = 20): BufferGeometry => {
-  const g = stripUv(new CylinderGeometry(CABLE_R, CABLE_R, 1, sides, rows, true))
+export const cableGeometry = (twists = 4, sides = 10, rows = 20, radius = CABLE_R): BufferGeometry => {
+  const g = stripUv(new CylinderGeometry(radius, radius, 1, sides, rows, true))
   g.translate(0, 0.5, 0)
   const strandA = new Color(PAL.steelDark)
   const strandB = new Color(PAL.mechSuit)
