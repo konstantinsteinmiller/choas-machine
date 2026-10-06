@@ -857,6 +857,34 @@ fortress; the outro after the first Spire III clear).
 - H7 (the low and out cues taught in training) lands with R50's rocket room:
   firing its two rockets runs the launcher low, then out.
 
+## Round 6: playtest notes #152–#158 (2026-10-06)
+
+Rooms as the playtesters counted them (the opening room uncounted): "first"
+with a gap = the jump room, "second" = cover, "3rd" with three guards =
+weapons, the backstab room = blade. Decisions (defaults, nobody asked):
+- #152: a sniper round goes through a person (not a machine) and on, at
+  80 % of its damage, into whoever stands behind; only the first hit can
+  roll a kill-cam. Non-blood exit puffs; small entry and exit marks that ride
+  the bone they hit: a dark hole on a person, a hot then dark dent on a machine.
+- #153: the weapons room shows its goal: three guard glyphs that tick as each
+  goes down, and one line ("Take down all three").
+- #154: falling into the jump room's gap plays a second hologram there (the
+  hook thrown up to the deck, G popping up), and the camera rises to look down
+  into the gap instead of losing the mech.
+- #155: the cover room's crates lowered so a standing mech can headshot the
+  sentry over them; a reset says why ("Seen. Stay crouched behind the cover.").
+- #156: shooting at the blade room's guards shows a big "Backstab them",
+  again every 3 s while the shooting goes on.
+- #157: an idle guard's feet stay planted through its weight shift
+  (measured: 20.5 cm of sideways slide, now 1.3 cm).
+- #158: the blade room's hologram plays in the middle of the room; entering
+  it, the mech is held and the camera frames the middle for two loops of the
+  demo (E popping up), then hands back. Check the [E] prompt shows.
+
+- [x] **R59 Idle feet** (#157)
+- [ ] **R60 Rounds through people** (#152)
+- [ ] **R61 Training ground clarity** (#153 #154 #155 #156 #158)
+
 ## Resume notes
 
 - Dev server: `pnpm dev` (port 2196). Check the served `<title>` ("Chaos Machine") before

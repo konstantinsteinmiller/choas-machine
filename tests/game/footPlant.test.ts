@@ -83,6 +83,23 @@ describe('feet stay planted (#148)', () => {
   it('(the old fixed rate, 3.4 rad a metre, slid the foot half the way)', () => {
     expect(slip(1.5 / SPECS.guard.run, 3.4)).toBeGreaterThan(0.4)
   })
+  it('standing at ease, the weight shifts from foot to foot and the feet stay put (#157)', () => {
+    const v = new Vector3()
+    for (const b of ['footL', 'footR'] as const) {
+      let lo = Infinity
+      let hi = -Infinity
+      for (let t = 0; t < 30; t += 0.05) {
+        poseGuard(rig, { ...restGuardPose(), time: t, seed: 0.7 })
+        rig.root.updateMatrixWorld(true)
+        rig.bones[b]!.getWorldPosition(v)
+        lo = Math.min(lo, v.x)
+        hi = Math.max(hi, v.x)
+      }
+      // It slid 20 cm side to side before; a relaxing knee moves it a centimetre or so.
+      expect(hi - lo, b).toBeLessThan(0.03)
+    }
+  })
+
   it('the cycle lengthens with pace', () => {
     expect(guardGaitRate(1)).toBeLessThan(guardGaitRate(0.4))
   })

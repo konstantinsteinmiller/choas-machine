@@ -42,6 +42,8 @@ export const GUARD_HEAD_R = 0.24
 const G_THIGH = 0.32
 const G_SHIN = 0.3
 const G_LEG = G_THIGH + G_SHIN
+/** How far a leg leans per unit of the idle weight shift: the pelvis's sideways move over the leg's length, and its roll (#157). */
+const IDLE_PLANT = 0.06 + 0.035 / G_LEG
 
 export const buildGuard = (commander = false, shield = false, engineer = false, kit: 'grenadier' | 'marksman' | null = null): Rig => {
   const cloth = commander ? PAL.commander : PAL.uniform
@@ -469,7 +471,10 @@ const poseGuardAlive = (rig: Rig, s: GuardPose): void => {
       + 1.62 * kneel
     // Heel first (toes up as the leg reaches), toe last (heel up as it leaves).
     const roll = (Math.max(0, sw) * 0.3 * (1 - up) - Math.max(0, -sw) * 0.45 * up) * walk
-    pose(rig, `leg${tag}`, thigh, 0, sign * (0.07 + 0.06 * s.aim) * alive + 0.04 * shift)
+    // Standing, the weight moves over one foot and then the other; the feet
+    // stay where they are (#157): each leg leans against the pelvis's sideways
+    // shift and roll by just as much, so the soles do not slide.
+    pose(rig, `leg${tag}`, thigh, 0, sign * (0.07 + 0.06 * s.aim) * alive - shift * IDLE_PLANT)
     pose(rig, `shin${tag}`, knee, 0, 0)
     // Kneeling, the foot lies flat behind the shin, its top on the floor.
     pose(rig, `foot${tag}`, (-(thigh + knee) - roll) * (1 - kneel) + 1.4 * kneel, 0, 0)
