@@ -50,7 +50,8 @@ const PILES: ReadonlyArray<readonly [number, number, number, boolean?]> = [
 ]
 const ALWAYS = [0, 8]
 const KITS: ReadonlyArray<readonly [number, number]> = [[16, 46], [47, 40], [30, 40], [22, 25], [46, 15]]
-const CRATES: ReadonlyArray<readonly [number, number]> = [[16, 17], [40, 38]]
+// Round 5 (#143): two crates more than the Bastion's first map, threat III.
+const CRATES: ReadonlyArray<readonly [number, number]> = [[16, 17], [40, 38], [46, 5], [14, 40]]
 const BARRELS: ReadonlyArray<readonly [number, number]> = [[48, 45], [33, 22], [16, 24], [24, 41]]
 
 export const buildSteelKeep = (run = 0, answers: Answers = NO_ANSWERS): Fortress => {

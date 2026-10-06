@@ -44,7 +44,8 @@ const PILES: ReadonlyArray<readonly [number, number, number, boolean?]> = [
 ]
 const ALWAYS = [0, 8]
 const KITS: ReadonlyArray<readonly [number, number]> = [[18, 46], [46, 20], [35, 42], [14, 22], [27, 26]]
-const CRATES: ReadonlyArray<readonly [number, number]> = [[44, 47], [21, 31]]
+// Round 5 (#143): one crate more than the Bastion's first map, threat II.
+const CRATES: ReadonlyArray<readonly [number, number]> = [[44, 47], [21, 31], [43, 1]]
 const BARRELS: ReadonlyArray<readonly [number, number]> = [[40, 45], [22, 28], [46, 36], [27, 47]]
 
 export const buildSeaFort = (run = 0, answers: Answers = NO_ANSWERS): Fortress => {

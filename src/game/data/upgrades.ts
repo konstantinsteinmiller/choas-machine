@@ -117,6 +117,12 @@ export interface Loadout {
 export const DECOY_COOLDOWN_S = 20
 export const DECOY_COOLDOWN_PERK = 4
 
+/** Round 5 (#143): one level of ammo racks carries this many more rifle rounds and this much more belt. */
+export const RACK_RIFLE = 4
+export const RACK_BELT = 60
+/** The rifle's magazine (`sim/weapons.ts` SNIPER_MAG; this file stays free of the sim). */
+const RIFLE_MAG = 5
+
 export const BASE_LOADOUT: Readonly<Loadout> = {
   scopeFov: 17,
   damage: { sniper: 1, minigun: 1, rocket: 1 },
@@ -124,9 +130,9 @@ export const BASE_LOADOUT: Readonly<Loadout> = {
   heatSeconds: 5,
   coolRate: 0.4,
   blastRadius: 5.5,
-  rockets: 6,
-  rifleReserve: 15,
-  belt: 300,
+  rockets: 2,
+  rifleReserve: 5,
+  belt: 100,
   armor: 100,
   speed: 1,
   decoySeconds: 9,
@@ -163,8 +169,8 @@ export const loadoutOf = (src: LoadoutSource): Loadout => {
     coolRate: BASE_LOADOUT.coolRate * (1 + 0.1 * level(src, 'minigunCooling')),
     blastRadius: BASE_LOADOUT.blastRadius + 0.5 * level(src, 'rocketBlast'),
     rockets: BASE_LOADOUT.rockets + level(src, 'rocketAmmo'),
-    rifleReserve: BASE_LOADOUT.rifleReserve + 5 * level(src, 'ammoRacks'),
-    belt: BASE_LOADOUT.belt + 100 * level(src, 'ammoRacks'),
+    rifleReserve: BASE_LOADOUT.rifleReserve + RACK_RIFLE * level(src, 'ammoRacks'),
+    belt: BASE_LOADOUT.belt + RACK_BELT * level(src, 'ammoRacks'),
     armor: BASE_LOADOUT.armor + 20 * level(src, 'armor'),
     speed: BASE_LOADOUT.speed + 0.04 * level(src, 'speed'),
     decoySeconds: BASE_LOADOUT.decoySeconds + 2 * level(src, 'decoy'),
@@ -194,7 +200,8 @@ export const trackValue = (id: TrackId, lvl: number): number => {
     case 'minigunDamage': return Math.round(l.damage.minigun * 100)
     case 'rocketBlast': return l.blastRadius
     case 'rocketAmmo': return l.rockets
-    case 'ammoRacks': return l.rifleReserve
+    // Every rifle round carried, the magazine's 5 included: 10 from the factory.
+    case 'ammoRacks': return RIFLE_MAG + l.rifleReserve
     case 'armor': return l.armor
     case 'speed': return Math.round(l.speed * 100)
     case 'decoy': return l.decoySeconds

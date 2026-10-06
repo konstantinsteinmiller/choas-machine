@@ -6,11 +6,11 @@ import { FortressBuilder } from '@/game/world/fortress'
 import { CELL, cellHeight, cellMid } from '@/game/world/grid'
 import { MINIGUN_BELT, SNIPER_MAG, SNIPER_RESERVE, isDry, makeArsenal, stepArsenal, type Trigger } from '@/game/sim/weapons'
 import { makeArmor } from '@/game/sim/armor'
-import { CRATE_BELT, POUCH_BELT, POUCH_RIFLE, supplyUnderfoot, take, type Supply } from '@/game/sim/supplies'
+import { CRATE_BELT, CRATE_RIFLE, POUCH_BELT, POUCH_RIFLE, supplyUnderfoot, take, type Supply } from '@/game/sim/supplies'
 import { BARREL_RADIUS, CHAIN_S, barrelAt, ignite, stepBarrels, type Barrel } from '@/game/sim/barrels'
 import { blast } from '@/game/sim/damage'
 import { makeGarrison } from '@/game/sim/garrison'
-import { BASE_LOADOUT, loadoutOf } from '@/game/data/upgrades'
+import { BASE_LOADOUT, RACK_BELT, RACK_RIFLE, loadoutOf } from '@/game/data/upgrades'
 
 const DT = 1 / 60
 const idle: Trigger = { aimHeld: false, aimReleased: false, firePressed: false, fireHeld: false, touch: false, reload: false, select: null, cycle: false }
@@ -42,11 +42,11 @@ describe('ammunition runs out (#76)', () => {
   it('the factory fit and the Ammo racks track', () => {
     expect([BASE_LOADOUT.rifleReserve, BASE_LOADOUT.belt]).toEqual([SNIPER_RESERVE, MINIGUN_BELT])
     const l = loadoutOf({ tiers: { sniper: 1, minigun: 1, rocket: 1 }, upgrades: { ammoRacks: 3 } })
-    expect(l.rifleReserve).toBe(SNIPER_RESERVE + 15)
-    expect(l.belt).toBe(MINIGUN_BELT + 300)
+    expect(l.rifleReserve).toBe(SNIPER_RESERVE + 3 * RACK_RIFLE)
+    expect(l.belt).toBe(MINIGUN_BELT + 3 * RACK_BELT)
   })
 
-  it('a pouch tops both up; a crate fills the reserve, adds belt and a rocket; a full mech walks past', () => {
+  it('a pouch tops both up; a crate adds rifle rounds, belt and a rocket; a full mech walks past', () => {
     const a = makeArsenal(6, 5, 0.4, 15, 300)
     const armor = makeArmor()
     a.sniperReserve = 2
@@ -61,7 +61,7 @@ describe('ammunition runs out (#76)', () => {
     expect([a.sniperReserve, a.minigunBelt]).toEqual([2 + POUCH_RIFLE, 10 + POUCH_BELT])
     const c = supplyUnderfoot(list, 10, 0, 0.4, a, armor, 6)!
     take(c, a, armor, 6)
-    expect(a.sniperReserve).toBe(15)
+    expect(a.sniperReserve).toBe(Math.min(15, 2 + POUCH_RIFLE + CRATE_RIFLE))
     expect(a.minigunBelt).toBe(10 + POUCH_BELT + CRATE_BELT)
     expect(a.rockets).toBe(2)
     const full = makeArsenal()

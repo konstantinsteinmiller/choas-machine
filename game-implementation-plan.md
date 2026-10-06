@@ -776,6 +776,47 @@ R47 done. Translations: the 19 strings of rounds R38-R46 (the jump, rope and fla
 
 (nothing cut yet)
 
+## Round 5: the owner's list #142–#151, then #36 (2026-10-06)
+
+Decision report (every decision, default, source and the owner's answers):
+https://claude.ai/artifact/LXCSqcXtAB4JQRxMGfEnrs. Answered: Q2 the Airship
+also flies over the Harbour at threat III; Q3 full stock every mission; Q5 both
+readings, plus mech and machine wrecks burn down for a few bolts, and shield
+guards burn too. Added by the owner: #150 (Mega Droid's WASTED / LEVEL CLEARED
+banners) and #151 (shield guard tactics). Q1 and Q4 take their defaults (a 4th
+fortress; the outro after the first Spire III clear).
+
+- [x] **R48 Ammo budget** (#143): factory 10 rifle / 100 belt / 2 rockets,
+  smaller upgrade steps and pickups, crates scale with threat, balance test
+- [ ] **R49 Unit frame HUD and banners** (#145 #150): portrait + HP + ammo +
+  alert top-left, quest log on the right, low vs. out ammo cues taught in
+  training; Mega Droid's red WASTED and blue LEVEL CLEARED banners
+- [ ] **R50 Rocket lesson** (#146): armoured (blast-only) rule, pit room,
+  respawn refill, hologram rocket
+- [ ] **R51 Asset quality and batching** (#147): guard rebuilt, mech detail
+  layer, decor pass, decor per area, piles and beacons batched, coplanar test
+  over every builder
+- [ ] **R52 Animation and fire** (#148): stride by speed + planted feet, guard
+  run / kneel / interact / burn / throw / reload, mech weight, kneel-activate,
+  flamethrower brace; wrecks of mechs and machines burn down for a few bolts
+- [ ] **R53 Shield guard tactics** (#151): shield up while approaching, leads
+  the squad and covers guards behind it, peeks to fire only after 5 s without
+  being hit; burnable
+- [ ] **R54 The Airship** (#142): model, loop, belly light, turrets, flying
+  enemy rockets, socket-synced fire, engine pods, crash; Spire II/III and
+  Harbour III
+- [ ] **R55 The Spire** (#144): 4th fortress, terraced tower, Watchtower lamp,
+  Airship at II/III, story (outro after the first Spire III clear)
+- [ ] **R56 Map fly-over** (#149): orbit shots of every map, fixes,
+  integrity test over roofs / props / cables / skirt / scenery
+- [ ] **R57 Regression**: translations, docs, e2e, balance
+- [ ] **R58 Startup loading** (#36): measured A/B only
+
+### Round 5 deferred
+
+- Stacked indoor floors (grid holds one height per cell); the Spire is terraced.
+- A painted CM-07 portrait; the rendered one comes first.
+
 ## Resume notes
 
 - Dev server: `pnpm dev` (port 2196). Check the served `<title>` ("Chaos Machine") before

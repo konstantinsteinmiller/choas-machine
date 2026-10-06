@@ -87,6 +87,8 @@ const PILES: ReadonlyArray<readonly [number, number, number, boolean?]> = [
 const ALWAYS = [0, 8]
 const KITS: ReadonlyArray<readonly [number, number]> = [[10, 48], [32, 48], [12, 15], [31, 21], [42, 47]]
 const CRATES: ReadonlyArray<readonly [number, number]> = [[3, 47], [43, 28], [20, 11]]
+/** Round 5 (#143): one more crate per threat level above I, in the grown frame (placed after `grow`). */
+const MORE_CRATES: ReadonlyArray<readonly [number, number]> = [[38, 62], [2, 12]]
 const BARRELS: ReadonlyArray<readonly [number, number]> = [[26, 46], [45, 25], [48, 22], [11, 6], [28, 21], [42, 36]]
 
 export const buildFoundry = (level = 1, run = 0, answers: Answers = NO_ANSWERS): Fortress => {
@@ -201,6 +203,7 @@ export const buildFoundry = (level = 1, run = 0, answers: Answers = NO_ANSWERS):
   const P = FOUNDRY_PAD
   const at = (cx: number, cz: number): [number, number] => [cx + P, cz + P]
   b.insert(...at(-3, 42), Math.PI / 2).extract(...at(42, 53))
+  for (const [cx, cz] of MORE_CRATES.slice(0, level - 1)) b.ammo(cx, cz)
   b.cover(...at(-2, 38), 2, 'z').cover(...at(-1, 47), 2).cover(...at(38, 53), 2).thicket(...at(-1, 34), 'tangle', 2, 'z')
   b.heap(...at(-3, 30), 0.4).heap(...at(47, 52), 1.1)
   b.prop('lamp', ...at(-1, 41), Math.PI / 2).prop('lamp', ...at(-1, 44), Math.PI / 2).prop('flag', ...at(41, 52))

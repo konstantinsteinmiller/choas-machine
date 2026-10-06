@@ -41,6 +41,8 @@ const PILES: ReadonlyArray<readonly [number, number, number, boolean?]> = [
 const ALWAYS = [0, 8]
 const KITS: ReadonlyArray<readonly [number, number]> = [[10, 40], [28, 38], [42, 20], [54, 40], [16, 24]]
 const CRATES: ReadonlyArray<readonly [number, number]> = [[5, 40], [40, 35], [57, 4]]
+/** Round 5 (#143): one more crate per threat level above I. */
+const MORE_CRATES: ReadonlyArray<readonly [number, number]> = [[60, 62], [16, 11]]
 const BARRELS: ReadonlyArray<readonly [number, number]> = [[24, 24], [60, 27], [21, 38], [33, 42], [5, 14], [52, 6]]
 
 export const buildHarbour = (level = 1, run = 0, answers: Answers = NO_ANSWERS): Fortress => {
@@ -106,7 +108,7 @@ export const buildHarbour = (level = 1, run = 0, answers: Answers = NO_ANSWERS):
 
   // ── Supplies and barrels ──
   for (const [cx, cz] of KITS.slice(0, 3 + Math.floor((level - 1) / 2))) b.kit(cx, cz)
-  for (const [cx, cz] of CRATES) b.ammo(cx, cz)
+  for (const [cx, cz] of [...CRATES, ...MORE_CRATES.slice(0, level - 1)]) b.ammo(cx, cz)
   for (const [cx, cz] of BARRELS) b.fuel(cx, cz)
 
   // ── Beacons: the quay, the east warehouse, ship B's deck ──

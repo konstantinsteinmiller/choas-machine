@@ -17,9 +17,14 @@ import { WEAPON_IDS, type WeaponId } from '../data/ids'
  */
 
 export const SNIPER_MAG = 5
-/** Rounds carried for the rifle besides the magazine, and the mini-gun's belt, as the factory fits them. */
-export const SNIPER_RESERVE = 15
-export const MINIGUN_BELT = 300
+/**
+ * Rounds carried for the rifle besides the magazine, and the mini-gun's belt,
+ * as the factory fits them. Round 5 (#143): a tight factory stock (10 rifle
+ * rounds in all, 100 on the belt, 2 rockets); the rest is upgraded at the
+ * Armory or picked up in the fortress.
+ */
+export const SNIPER_RESERVE = 5
+export const MINIGUN_BELT = 100
 export const SNIPER_BOLT_S = 0.85
 export const SNIPER_RELOAD_S = 1.9
 export const MINIGUN_SPOOL_S = 0.55
@@ -30,7 +35,7 @@ const MINIGUN_COOL_PER_S = 0.4
 /** An overheated minigun fires again once it is this cool. */
 const MINIGUN_RESUME_AT = 0.3
 export const ROCKET_RELOAD_S = 2.1
-export const ROCKETS_PER_MISSION = 6
+export const ROCKETS_PER_MISSION = 2
 export const SWITCH_S = 0.35
 
 /** Spread of a round, as the radius of its cone in radians. */
