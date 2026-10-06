@@ -3,8 +3,10 @@
   //- the wall top. Pinned by a HUD ticker as the camera moves; the key is the
   //- player's own binding, lettered as on their keyboard.
   div.world-prompt(ref="el" aria-hidden="true")
-    div.chip(v-for="k in kinds" :key="k" :class="`k-${k}`")
+    div.chip(v-for="k in kinds" :key="k" :class="`k-${k}`" :style="{ '--plate-edge': toneVar(BUTTON_LOOK[PROMPT_BUTTON[k]].tone) }")
       KeyCap.key(v-if="hud.device === 'mouse'" :action="keyFor(k)")
+      //- On touch (#160): the button that does it, in its own shape and colour.
+      TouchButtonGlyph.button(v-else :look="lookOf(PROMPT_BUTTON[k], hud.weapon)")
       span.label {{ t(`prompt.${k}`) }}
 </template>
 
@@ -12,6 +14,8 @@
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import KeyCap from '@/components/hud/hints/KeyCap.vue'
+import TouchButtonGlyph from '@/components/hud/hints/TouchButtonGlyph.vue'
+import { BUTTON_LOOK, PROMPT_BUTTON, lookOf, toneVar } from '@/components/hud/touchLook'
 import { addHudTicker, hud, prompt, type PromptKind } from '@/game/state/hud'
 import type { Action } from '@/game/engine/keyBindings'
 
@@ -21,7 +25,7 @@ const keyFor = (kind: PromptKind): Action =>
   kind === 'hook' ? 'grapple' : kind === 'rope' ? 'rope' : kind === 'grab' || kind === 'drop' ? 'drag' : 'act'
 const el = ref<HTMLElement | null>(null)
 /** What is on offer here: one key, or two (the hook and the rope). */
-const kinds = computed<PromptKind[]>(() => [hud.prompt, hud.prompt2].filter((k): k is PromptKind => !!k))
+const kinds = computed<Array<Exclude<PromptKind, ''>>>(() => [hud.prompt, hud.prompt2].filter((k): k is Exclude<PromptKind, ''> => !!k))
 let off: (() => void) | null = null
 
 onMounted(() => {
@@ -68,17 +72,14 @@ onUnmounted(() => off?.())
   color: var(--cm-text)
   font-size: var(--cm-fs-s)
   white-space: nowrap
-  // The kind as a prefixed class: a bare `strike` would also match the HUD's own chip rules.
-  &.k-salvage
-    --plate-edge: var(--cm-warn)
-  &.k-sabotage, &.k-silence, &.k-cutPower, &.k-jam
-    --plate-edge: var(--cm-danger)
-  &.k-strike
-    --plate-edge: var(--cm-pink)
+  // Its edge wears the colour of the button that does it (#160, `touchLook.ts`), set inline.
 .key
   min-width: 1.6rem
   height: 1.6rem
   font-size: var(--cm-fs-s)
+.button
+  width: 1.9rem
+  height: 1.9rem
 .label
   padding-left: 0.15em
 </style>

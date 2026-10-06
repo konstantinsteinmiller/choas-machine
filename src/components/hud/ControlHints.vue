@@ -5,9 +5,17 @@
   div.control-hints(:class="hud.device")
     template(v-for="h in shown" :key="h.id")
       //- ── Desktop: cards under the crosshair, where the eyes already are ──
-      div.card(v-if="hud.device === 'mouse'" :class="{ flash: flashing[h.id] }" role="img" :aria-label="label(h.id)")
+      //- On touch (#160) a lesson for a button gets a card too: a copy of that
+      //- button, its shape and its colour, while the button itself pulses.
+      div.card(
+        v-if="hud.device === 'mouse' || HINT_BUTTON[h.id]"
+        :class="{ flash: flashing[h.id], touch: hud.device !== 'mouse' }"
+        role="img"
+        :aria-label="label(h.id)"
+      )
         div.glyph
-          template(v-if="h.id === 'move'")
+          TouchButtonGlyph(v-if="hud.device !== 'mouse'" :look="lookOf(HINT_BUTTON[h.id] ?? 'strike', hud.weapon, h.id)")
+          template(v-else-if="h.id === 'move'")
             div.wasd
               KeyCap.w(action="forward")
               KeyCap(action="left")
@@ -39,7 +47,7 @@
             KeyCap(action="weapon3")
           template(v-else)
             KeyCap(action="forward")
-        GameIcon.what(:name="ICONS[h.id]")
+        GameIcon.what(v-if="hud.device === 'mouse'" :name="ICONS[h.id]")
         div.pips
           span.pip(v-for="n in h.goal" :key="n" :class="{ on: n <= h.count }")
 
@@ -65,6 +73,8 @@ import type { GameIconName } from '@/components/icons/iconNames'
 import KeyCap from '@/components/hud/hints/KeyCap.vue'
 import MouseGlyph from '@/components/hud/hints/MouseGlyph.vue'
 import FingerGlyph from '@/components/hud/hints/FingerGlyph.vue'
+import TouchButtonGlyph from '@/components/hud/hints/TouchButtonGlyph.vue'
+import { HINT_BUTTON, lookOf } from '@/components/hud/touchLook'
 import { hud } from '@/game/state/hud'
 import type { HintId } from '@/game/sim/coach'
 
@@ -93,12 +103,13 @@ const LABELS: Readonly<Record<HintId, string>> = {
 const label = (id: HintId): string => t(LABELS[id])
 
 /** On touch, one finger per spot: two gestures drawn on the stick at once
- *  would be neither. The list is already in order of urgency. */
+ *  would be neither; and one button card, the most urgent (#160). The list
+ *  is already in order of urgency. */
 const shown = computed(() => {
   if (hud.device !== 'touch') return hud.hints
   const taken = new Set<string>()
   return hud.hints.filter((h) => {
-    const spot = SPOTS[h.id]
+    const spot = SPOTS[h.id] ?? (HINT_BUTTON[h.id] ? 'card' : undefined)
     if (!spot) return false
     if (taken.has(spot)) return false
     taken.add(spot)
@@ -207,6 +218,14 @@ onUnmounted(() => { for (const id of Object.values(timers)) window.clearTimeout(
   +tech-cut(0.1rem)
   &.on
     background: var(--cm-ok)
+
+// Touch: the button's card, low in the middle of the view, clear of both thumbs.
+.card.touch
+  position: absolute
+  left: 50%
+  bottom: calc(var(--cm-safe-bottom) + 16%)
+  translate: -50% 0
+  padding-bottom: clamp(0.6rem, 2.4vmin, 0.95rem)
 
 // ── Touch spots ──
 .spot

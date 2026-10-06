@@ -1,0 +1,49 @@
+// ─── A HUD button's look: its tone and its shape (#160) ──────────────────────
+//
+// Shared by the button itself (`FHudButton`) and its small copy wherever a
+// hint points at it (`TouchButtonGlyph`), so the two can never drift apart.
+// The element carrying `.tone-*` / `.shape-*` sets the tone variables; the
+// body element given to `button-shapes` is the painted part.
+@use 'tech' as *
+
+/** `.tone-*` classes: the tone, its highlight, its glow. */
+=button-tones
+  .tone-cyan
+    --fhb-tone: var(--cm-cyan)
+    --fhb-tone-hi: var(--cm-cyan-hi)
+    --fhb-glow: var(--cm-glow-cyan)
+  .tone-pink
+    --fhb-tone: var(--cm-pink)
+    --fhb-tone-hi: var(--cm-pink-hi)
+    --fhb-glow: var(--cm-glow-pink)
+  .tone-violet
+    --fhb-tone: var(--cm-violet)
+    --fhb-tone-hi: var(--cm-lilac)
+    --fhb-glow: 0 0 0.75em rgba(154, 120, 255, 0.5)
+  .tone-warn
+    --fhb-tone: var(--cm-warn)
+    --fhb-tone-hi: #ffe98f
+    --fhb-glow: 0 0 0.75em rgba(255, 210, 63, 0.45)
+  .tone-danger
+    --fhb-tone: var(--cm-danger)
+    --fhb-tone-hi: #ff96ab
+    --fhb-glow: 0 0 0.75em rgba(255, 85, 118, 0.45)
+  .tone-ok
+    --fhb-tone: var(--cm-ok)
+    --fhb-tone-hi: color-mix(in srgb, var(--cm-ok) 55%, white)
+    --fhb-glow: 0 0 0.75em color-mix(in srgb, var(--cm-ok) 45%, transparent)
+  .tone-lilac
+    --fhb-tone: var(--cm-lilac)
+    --fhb-tone-hi: color-mix(in srgb, var(--cm-lilac) 50%, white)
+    --fhb-glow: 0 0 0.75em color-mix(in srgb, var(--cm-lilac) 45%, transparent)
+
+/** `.shape-*` classes on the element, painting `$body` inside it; `$c` the plate's cut. */
+=button-shapes($body, $c: 0.55rem)
+  .shape-plate #{$body}
+    +tech-plate(var(--fhb-tone), tech-fill(var(--fhb-tone)), $c)
+  .shape-hex #{$body}
+    +tech-hex-plate(var(--fhb-tone))
+  .shape-diamond #{$body}
+    +tech-diamond(var(--fhb-tone))
+  .shape-round #{$body}
+    +tech-round(var(--fhb-tone))

@@ -898,6 +898,13 @@ weapons, the backstab room = blade. Decisions (defaults, nobody asked):
   has (the launcher's, the weapons room's rifle and gun, anywhere every
   weapon) starts over with "Ammo depleted! Try again!" (the supply room,
   dry on purpose, excepted).
+- [x] **R63 Touch buttons that name themselves** (#160): every HUD button a
+  shape and a colour of its own (round: the hands on something; diamond: the
+  gadgets; hex: the body; plate: the weapons), from one table
+  (`components/hud/touchLook.ts`). On touch the hologram's press, the prompt
+  over the world (the ledge's hook, the backstab) and a lesson's card show a
+  copy of the very button, as a desktop shows the keycap; gestures (the
+  stick, a swipe, a hold) show the finger. The minigun is violet now (#161).
 
 ## Resume notes
 

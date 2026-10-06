@@ -58,10 +58,11 @@
     div.strike(v-if="hud.strike")
       FHudButton(
         icon="blade"
-        tone="pink"
+        :tone="LOOK.strike.tone"
         attention
         :aria-label="t('hud.strike')"
         :hotkey="kb('act')"
+        :shape="LOOK.strike.shape"
         data-testid="btn-strike"
         @click="input.actQueued = true"
       )
@@ -70,10 +71,11 @@
     div.strike.sabotage(v-if="(hud.sabotage || hud.sabotaging > 0) && !hud.strike")
       FHudButton(
         :icon="hud.sabotage === 'generator' || hud.sabotage === 'servo' ? 'bolt' : 'siren'"
-        tone="danger"
+        :tone="LOOK.sabotage.tone"
         :attention="hud.sabotaging === 0"
         :aria-label="t(hud.sabotage === 'generator' ? 'hud.cutPower' : hud.sabotage === 'servo' ? 'hud.jamServo' : hud.sabotage === 'alarm' ? 'hud.silence' : 'hud.sabotage')"
         :hotkey="kb('act')"
+        :shape="LOOK.sabotage.shape"
         data-testid="btn-sabotage"
         @click="input.actQueued = true"
       )
@@ -85,10 +87,11 @@
     div.strike.loot(v-if="(hud.loot || hud.looting > 0) && !hud.strike")
       FHudButton(
         icon="scrap"
-        tone="warn"
+        :tone="LOOK.loot.tone"
         :attention="hud.looting === 0 || teaching('loot')"
         :aria-label="t('hud.loot')"
         :hotkey="kb('act')"
+        :shape="LOOK.loot.shape"
         data-testid="btn-loot"
         @click="input.actQueued = true"
       )
@@ -101,10 +104,11 @@
     div.strike.drag(v-if="hud.drag && !hud.strike && !hud.loot && !hud.sabotage" :class="{ beside: hud.burn }")
       FHudButton(
         :icon="hud.drag === 'grab' ? 'skull' : 'box'"
-        tone="cyan"
+        :tone="LOOK.drag.tone"
         :attention="hud.drag === 'grab'"
         :aria-label="t(hud.drag === 'grab' ? 'hud.dragBody' : 'hud.dropBody')"
         :hotkey="kb('drag')"
+        :shape="LOOK.drag.shape"
         data-testid="btn-drag"
         @click="input.dragQueued = true"
       )
@@ -114,10 +118,11 @@
     div.strike.grapple(v-if="(hud.grapple || hud.grappling === 'up') && !hud.strike")
       FHudButton(
         :icon="hud.grappling ? 'close' : 'hook'"
-        :tone="hud.grappling ? (hud.grappleHeard > 0 ? 'danger' : 'violet') : 'cyan'"
+        :tone="hud.grappling ? (hud.grappleHeard > 0 ? 'danger' : 'violet') : LOOK.grapple.tone"
         :attention="!hud.grappling || hud.grappleHeard > 0"
         :aria-label="hud.grappling ? t('hud.grappleRecall') : t('hud.grapple')"
         :hotkey="kb('grapple')"
+        :shape="LOOK.grapple.shape"
         data-testid="btn-grapple"
         @click="input.grappleQueued = true"
       )
@@ -128,10 +133,11 @@
     div.strike.burn(v-if="(hud.burn || hud.burning > 0) && !hud.strike && !hud.loot && !hud.sabotage")
       FHudButton(
         icon="flame"
-        tone="warn"
+        :tone="LOOK.burn.tone"
         :attention="hud.burning === 0"
         :hotkey="kb('act')"
         :aria-label="t('hud.burn')"
+        :shape="LOOK.burn.shape"
         data-testid="btn-burn"
         @click="input.burnQueued = true"
       )
@@ -143,10 +149,11 @@
     div.strike.rope(v-if="hud.rope && !hud.strike && !hud.loot && !hud.sabotage && !hud.drag")
       FHudButton(
         icon="rope"
-        tone="cyan"
+        :tone="LOOK.rope.tone"
         attention
         :hotkey="kb('rope')"
         :aria-label="t('hud.rope')"
+        :shape="LOOK.rope.shape"
         data-testid="btn-rope"
         @click="input.ropeQueued = true"
       )
@@ -159,7 +166,7 @@
       FHudButton(
         v-if="hud.scoped && hud.device === 'touch'"
         icon="scope"
-        tone="cyan"
+        :tone="LOOK.zoom.tone"
         :aria-label="t('hud.zoom')"
         data-testid="btn-zoom"
         @click="busEmit('zoom', {})"
@@ -178,7 +185,7 @@
       FHudButton(
         v-if="hud.aiming && hud.device === 'touch'"
         icon="close"
-        tone="danger"
+        :tone="LOOK.cancel.tone"
         :aria-label="t('hud.cancel')"
         data-testid="btn-cancel"
         @click="cancelAim(input)"
@@ -211,10 +218,12 @@
         )
       FHudButton(
         icon="decoy"
+        :tone="LOOK.decoy.tone"
         :attention="teaching('decoy')"
         :is-disabled="hud.decoys <= 0 || hud.mode !== 'ground'"
         :aria-label="t('hud.decoy')"
         :hotkey="kb('decoy')"
+        :shape="LOOK.decoy.shape"
         data-testid="btn-decoy"
         @click="input.decoyQueued = true"
       )
@@ -224,13 +233,14 @@
       //- The hide box: down over the mech, and off again.
       FHudButton(
         icon="box"
-        tone="violet"
+        :tone="LOOK.hide.tone"
         :active="hud.boxed"
         :pressed="hud.boxed"
         :is-disabled="hud.mode !== 'ground'"
         :attention="teaching('hide')"
         :aria-label="t('hud.hide')"
         :hotkey="kb('hide')"
+        :shape="LOOK.hide.shape"
         data-testid="btn-hide"
         @click="input.hideQueued = true"
       )
@@ -239,12 +249,13 @@
       FHudButton(
         v-if="hud.device === 'touch'"
         icon="sprint"
-        tone="warn"
+        :tone="LOOK.sprint.tone"
         :active="hud.sprinting || input.sprintHeld"
         :pressed="input.sprintHeld"
         :is-disabled="hud.mode !== 'ground'"
         :attention="teaching('sprint')"
         :aria-label="t('hud.sprint')"
+        :shape="LOOK.sprint.shape"
         data-testid="btn-sprint"
         @click="input.sprintHeld = !input.sprintHeld"
       )
@@ -252,21 +263,24 @@
       FHudButton(
         v-if="hud.device === 'touch'"
         icon="up"
-        tone="cyan"
+        :tone="LOOK.jump.tone"
+        :attention="teaching('jump')"
         :is-disabled="hud.mode !== 'ground'"
         :aria-label="t('hud.jump')"
+        :shape="LOOK.jump.shape"
         data-testid="btn-jump"
         @click="input.jumpQueued = true"
       )
       FHudButton(
         :icon="hud.crouched ? 'stand' : 'crouch'"
-        tone="violet"
+        :tone="LOOK.crouch.tone"
         :attention="teaching('crouch')"
         :active="hud.crouched"
         :pressed="hud.crouched"
         :is-disabled="hud.mode !== 'ground'"
         :aria-label="hud.crouched ? t('hud.stand') : t('hud.crouch')"
         :hotkey="kb('crouch')"
+        :shape="LOOK.crouch.shape"
         data-testid="btn-crouch"
         @click="input.crouchQueued = true"
       )
@@ -276,6 +290,7 @@
 import { onMounted, onUnmounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import FHudButton from '@/components/atoms/FHudButton.vue'
+import { BUTTON_LOOK as LOOK, WEAPON_TONES } from '@/components/hud/touchLook'
 import HealthBars from '@/components/hud/HealthBars.vue'
 import UplinkRings from '@/components/hud/UplinkRings.vue'
 import WorldPrompt from '@/components/hud/WorldPrompt.vue'
@@ -312,7 +327,8 @@ import type { HintId } from '@/game/sim/coach'
 const emit = defineEmits<{ (e: 'pause'): void }>()
 const { t } = useI18n()
 
-const TONES: Record<WeaponId, 'cyan' | 'warn' | 'danger'> = { sniper: 'cyan', minigun: 'warn', rocket: 'danger' }
+/** Each button's colour and shape come from one table (#160); the weapon in hand colours its chip. */
+const TONES = WEAPON_TONES
 
 /** A control lesson is on for this chip: it pulses until it has been used. */
 /** On a desktop every chip shows the key that works it (the mouse is captured, so the chip cannot be clicked, #82). */

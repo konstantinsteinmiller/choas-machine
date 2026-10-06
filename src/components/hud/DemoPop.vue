@@ -3,38 +3,38 @@
   //- the mouse button, or the button's picture (on touch) pops up over the
   //- hologram's head, rises and fades. Pinned by a HUD ticker.
   div.demo-pop(ref="el" aria-hidden="true")
-    div.chip(v-if="hint" :key="seq")
-      template(v-if="hud.device === 'mouse'")
-        MouseGlyph.mouse(v-if="MOUSE[hint]" :lit="MOUSE[hint]")
-        KeyCap(v-else :action="KEYS[hint] ?? 'act'")
-      GameIcon.icon(v-else :name="ICONS[hint] ?? 'mech'")
+    div.chip(v-if="hint && hud.device === 'mouse'" :key="seq")
+      MouseGlyph.mouse(v-if="MOUSE[hint]" :lit="MOUSE[hint]")
+      KeyCap(v-else :action="KEYS[hint] ?? 'act'")
+    //- On touch (#160): a copy of the very button pressed, its shape and its
+    //- colour; a gesture (the stick, a swipe, a hold) as the finger doing it.
+    div.touch(v-else-if="hint" :key="seq")
+      TouchButtonGlyph(v-if="HINT_BUTTON[hint]" :look="lookOf(HINT_BUTTON[hint] ?? 'strike', hud.weapon, hint)")
+      FingerGlyph.finger(v-else :mode="FINGER[hint] ?? 'tap'")
 </template>
 
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref } from 'vue'
 import KeyCap from '@/components/hud/hints/KeyCap.vue'
 import MouseGlyph from '@/components/hud/hints/MouseGlyph.vue'
-import GameIcon from '@/components/icons/GameIcon.vue'
-import type { GameIconName } from '@/components/icons/iconNames'
+import FingerGlyph from '@/components/hud/hints/FingerGlyph.vue'
+import TouchButtonGlyph from '@/components/hud/hints/TouchButtonGlyph.vue'
+import { HINT_BUTTON, HINT_GESTURE, lookOf } from '@/components/hud/touchLook'
+import type { HintId } from '@/game/sim/coach'
 import type { Action } from '@/game/engine/keyBindings'
 import { addHudTicker, demoPop, hud } from '@/game/state/hud'
 
 /** The key each control is pressed with (the player's own binding is lettered by KeyCap). */
 const KEYS: Readonly<Record<string, Action>> = {
   move: 'forward', climb: 'forward', supply: 'forward', crouch: 'crouch', blade: 'act', decoy: 'decoy', hide: 'hide',
-  grapple: 'grapple', sabotage: 'act', loot: 'act', jump: 'jump', rope: 'rope', burn: 'act', weapon: 'cycle', sprint: 'sprint', goal: 'forward', rocket: 'weapon3'
+  grapple: 'grapple', sabotage: 'act', loot: 'act', jump: 'jump', rope: 'rope', burn: 'burn', weapon: 'cycle', sprint: 'sprint', goal: 'forward', rocket: 'weapon3'
 }
 /** The ones a mouse does. */
 const MOUSE: Readonly<Record<string, 'move' | 'left' | 'right'>> = { look: 'move', scope: 'right', fire: 'left' }
-/** On touch: the button's own picture. */
-const ICONS: Readonly<Record<string, GameIconName>> = {
-  move: 'mech', look: 'eye', scope: 'scope', fire: 'sniper', crouch: 'crouch', blade: 'blade', climb: 'up', decoy: 'decoy',
-  weapon: 'minigun', sprint: 'sprint', grapple: 'hook', loot: 'scrap', goal: 'mech', hide: 'box', sabotage: 'siren',
-  jump: 'up', rope: 'rope', burn: 'flame', supply: 'bolt', rocket: 'rocket'
-}
+const FINGER = HINT_GESTURE
 
 const el = ref<HTMLElement | null>(null)
-const hint = ref('')
+const hint = ref<HintId | ''>('')
 const seq = ref(0)
 let off: (() => void) | null = null
 
@@ -47,7 +47,7 @@ onMounted(() => {
       shown = demoPop.on
       e.style.opacity = shown ? '1' : '0'
     }
-    if (demoPop.seq !== seq.value) { seq.value = demoPop.seq; hint.value = demoPop.hint }
+    if (demoPop.seq !== seq.value) { seq.value = demoPop.seq; hint.value = demoPop.hint as HintId }
     if (!shown) return
     e.style.left = `${(demoPop.x * 100).toFixed(2)}%`
     e.style.top = `${(demoPop.y * 100).toFixed(2)}%`
@@ -74,6 +74,11 @@ onUnmounted(() => off?.())
   color: var(--cm-cyan, #5fe9ff)
   animation: demo-pop 1.6s ease-out forwards
   +tech-plate(var(--cm-cyan), linear-gradient(180deg, rgba(43, 27, 92, 0.75), rgba(10, 5, 24, 0.65)), 0.45rem, var(--cm-edge))
+// On touch the copy of the button is the chip itself, rising and fading the same way.
+.touch
+  animation: demo-pop 1.6s ease-out forwards
+.finger
+  --size: 2.8rem
 .mouse
   width: 1.3rem
   height: 1.8rem

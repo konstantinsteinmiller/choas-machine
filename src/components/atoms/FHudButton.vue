@@ -7,6 +7,7 @@ import { resolveIconLabel } from '@/components/icons/iconLabels'
 import type { GameIconName } from '@/components/icons/iconNames'
 import { primaryCode, type Action } from '@/game/engine/keyBindings'
 import { keyLabel } from '@/game/engine/keyLabels'
+import type { ButtonShape, ButtonTone } from '@/components/hud/touchLook'
 
 /**
  * The standard HUD chip: one glyph in a square holographic key. Every HUD
@@ -25,7 +26,9 @@ import { keyLabel } from '@/game/engine/keyLabels'
 
 interface Props {
   /** Colour family. `cyan` is the everyday control. */
-  tone?: 'cyan' | 'pink' | 'violet' | 'warn' | 'danger'
+  tone?: ButtonTone
+  /** Shape family (#160): with the tone it names the control, `touchLook.ts`. */
+  shape?: ButtonShape
   /** The control is switched on (crouched, muted): it fills with its tone. */
   active?: boolean
   /** A soft pulse: there is something new here. */
@@ -44,6 +47,7 @@ interface Props {
 
 const props = withDefaults(defineProps<Props>(), {
   tone: 'cyan',
+  shape: 'plate',
   active: false,
   attention: false,
   isDisabled: false,
@@ -76,7 +80,7 @@ const keyText = computed(() => {
 <template lang="pug">
   button.f-hud-button(
     type="button"
-    :class="[`tone-${tone}`, { 'is-active': active, 'is-attention': attention, 'is-disabled': isDisabled }]"
+    :class="[`tone-${tone}`, `shape-${shape}`, { 'is-active': active, 'is-attention': attention, 'is-disabled': isDisabled }]"
     :aria-label="resolvedAriaLabel"
     :aria-pressed="pressed"
     :disabled="isDisabled"
@@ -98,6 +102,7 @@ const keyText = computed(() => {
 
 <style scoped lang="sass">
 @use '@/assets/css/tech' as *
+@use '@/assets/css/buttonLook' as *
 .f-hud-button
   --fhb-tone: var(--cm-cyan)
   --fhb-tone-hi: var(--cm-cyan-hi)
@@ -148,7 +153,6 @@ const keyText = computed(() => {
   box-sizing: border-box
   color: var(--fhb-tone-hi)
   transition: background-color 110ms ease-out, box-shadow 110ms ease-out
-  +tech-plate(var(--fhb-tone), tech-fill(var(--fhb-tone)), 0.55rem)
 
   // The glyph fills a consistent fraction of the chip regardless of chip size,
   // so a row of mixed icons reads as one set.
@@ -163,6 +167,16 @@ const keyText = computed(() => {
     width: 62%
     height: 62%
     pointer-events: none
+
+// The shape (#160): the plate, the hexagon, the diamond, the round.
++button-shapes('.f-hud-button__body')
+// A smaller glyph where the shape leaves less room round it.
+.shape-diamond .f-hud-button__glyph
+  width: 44%
+  height: 44%
+.shape-round .f-hud-button__glyph, .shape-hex .f-hud-button__glyph
+  width: 50%
+  height: 50%
 
 // Switched on: the chip fills with its tone and the glyph goes dark on it.
 .is-active .f-hud-button__body
@@ -221,25 +235,7 @@ const keyText = computed(() => {
 
 // ─── Tones ──────────────────────────────────────────────────────────────────
 
-.tone-pink
-  --fhb-tone: var(--cm-pink)
-  --fhb-tone-hi: var(--cm-pink-hi)
-  --fhb-glow: var(--cm-glow-pink)
-
-.tone-violet
-  --fhb-tone: var(--cm-violet)
-  --fhb-tone-hi: var(--cm-lilac)
-  --fhb-glow: 0 0 0.75em rgba(154, 120, 255, 0.5)
-
-.tone-warn
-  --fhb-tone: var(--cm-warn)
-  --fhb-tone-hi: #ffe98f
-  --fhb-glow: 0 0 0.75em rgba(255, 210, 63, 0.45)
-
-.tone-danger
-  --fhb-tone: var(--cm-danger)
-  --fhb-tone-hi: #ff96ab
-  --fhb-glow: 0 0 0.75em rgba(255, 85, 118, 0.45)
++button-tones
 
 // The pulse animates a child's opacity, never the button itself: a lesson's
 // highlight animates the button, and one animation would replace the other.
@@ -253,6 +249,13 @@ const keyText = computed(() => {
   background: tech-cut-strokes(var(--fhb-tone-hi), 0.55rem, calc(var(--cm-edge) * 1.5))
   opacity: 0
   animation: fhb-pulse 1.6s ease-in-out infinite
+
+// The other shapes pulse as a flash of their whole face (a ring drawn on the
+// square box would show only in pieces inside their clip).
+.shape-hex, .shape-diamond, .shape-round
+  &.is-attention .f-hud-button__body::after
+    border: 0
+    background: color-mix(in srgb, var(--fhb-tone-hi) 38%, transparent)
 
 @keyframes fhb-pulse
   50%

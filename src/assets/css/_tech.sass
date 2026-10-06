@@ -103,3 +103,42 @@
   border: 0
   border-radius: 0
   background: linear-gradient(to bottom right, transparent calc(50% - 1px), var(--hex-edge) calc(50% - 1px), var(--hex-edge) calc(50% + var(--hex-bw)), transparent calc(50% + var(--hex-bw))) left top / 25.5% 50.5% no-repeat, linear-gradient(to bottom left, transparent calc(50% - 1px), var(--hex-edge) calc(50% - 1px), var(--hex-edge) calc(50% + var(--hex-bw)), transparent calc(50% + var(--hex-bw))) right top / 25.5% 50.5% no-repeat, linear-gradient(to top right, transparent calc(50% - 1px), var(--hex-edge) calc(50% - 1px), var(--hex-edge) calc(50% + var(--hex-bw)), transparent calc(50% + var(--hex-bw))) left bottom / 25.5% 50.5% no-repeat, linear-gradient(to top left, transparent calc(50% - 1px), var(--hex-edge) calc(50% - 1px), var(--hex-edge) calc(50% + var(--hex-bw)), transparent calc(50% + var(--hex-bw))) right bottom / 25.5% 50.5% no-repeat, linear-gradient(var(--hex-edge), var(--hex-edge)) center top / calc(50% + 2px) var(--hex-bw) no-repeat, linear-gradient(var(--hex-edge), var(--hex-edge)) center bottom / calc(50% + 2px) var(--hex-bw) no-repeat, #{$fill}
+
+// ─── The other button shapes (#160) ──────────────────────────────────────────
+//
+// A button is named by its shape as well as its colour (`touchLook.ts`): the
+// round, the diamond and the hexagon join the plate. Like the plate they
+// read --plate-edge / --plate-fill, so a state recolours them the same way;
+// their edges are painted (a border on a box cut to another shape shows only
+// in pieces).
+
+/** The four slanted sides of a diamond, a stroke down the diagonal of each quarter. */
+@function tech-diamond-strokes($bw)
+  @return linear-gradient(to bottom right, transparent calc(50% - 1px), var(--plate-edge) calc(50% - 1px), var(--plate-edge) calc(50% + #{$bw}), transparent calc(50% + #{$bw})) left top / 50.5% 50.5% no-repeat, linear-gradient(to bottom left, transparent calc(50% - 1px), var(--plate-edge) calc(50% - 1px), var(--plate-edge) calc(50% + #{$bw}), transparent calc(50% + #{$bw})) right top / 50.5% 50.5% no-repeat, linear-gradient(to top right, transparent calc(50% - 1px), var(--plate-edge) calc(50% - 1px), var(--plate-edge) calc(50% + #{$bw}), transparent calc(50% + #{$bw})) left bottom / 50.5% 50.5% no-repeat, linear-gradient(to top left, transparent calc(50% - 1px), var(--plate-edge) calc(50% - 1px), var(--plate-edge) calc(50% + #{$bw}), transparent calc(50% + #{$bw})) right bottom / 50.5% 50.5% no-repeat
+
+/** A diamond (a square on its point), its edge along all four sides. */
+=tech-diamond($edge, $fill: tech-fill($edge), $bw: var(--cm-rim-w))
+  --plate-edge: #{$edge}
+  --plate-fill: #{$fill}
+  clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%)
+  border: 0
+  border-radius: 0
+  background: tech-diamond-strokes($bw), var(--plate-fill)
+  box-shadow: inset 0 0 0.9em color-mix(in srgb, var(--plate-edge) 22%, transparent)
+
+/** A round, its edge a ring just inside the clip. */
+=tech-round($edge, $fill: tech-fill($edge), $bw: var(--cm-rim-w))
+  --plate-edge: #{$edge}
+  --plate-fill: #{$fill}
+  clip-path: circle(50%)
+  border: 0
+  border-radius: 0
+  background: radial-gradient(closest-side, transparent calc(100% - #{$bw} - 1px), var(--plate-edge) calc(100% - #{$bw}), var(--plate-edge) 100%, transparent 100%), var(--plate-fill)
+  box-shadow: inset 0 0 0.9em color-mix(in srgb, var(--plate-edge) 22%, transparent), inset 0 0.12em 0 rgba(255, 255, 255, 0.12)
+
+/** A hexagon that recolours like a plate (`tech-hex` with the plate's variables). */
+=tech-hex-plate($edge, $fill: tech-fill($edge), $bw: var(--cm-rim-w))
+  --plate-edge: #{$edge}
+  --plate-fill: #{$fill}
+  +tech-hex(var(--plate-edge), var(--plate-fill), $bw)
+  box-shadow: inset 0 0 0.9em color-mix(in srgb, var(--plate-edge) 22%, transparent)
