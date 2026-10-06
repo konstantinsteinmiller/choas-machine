@@ -793,7 +793,7 @@ fortress; the outro after the first Spire III clear).
   training; Mega Droid's red WASTED and blue LEVEL CLEARED banners
 - [x] **R50 Rocket lesson** (#146): armoured (blast-only) rule, pit room,
   respawn refill, hologram rocket
-- [ ] **R51 Asset quality and batching** (#147): guard rebuilt, mech detail
+- [x] **R51 Asset quality and batching** (#147): guard rebuilt, mech detail
   layer, decor pass, decor per area, piles and beacons batched, coplanar test
   over every builder
 - [ ] **R52 Animation and fire** (#148): stride by speed + planted feet, guard
@@ -811,6 +811,17 @@ fortress; the outro after the first Spire III clear).
   integrity test over roofs / props / cables / skirt / scenery
 - [ ] **R57 Regression**: translations, docs, e2e, balance
 - [ ] **R58 Startup loading** (#36): measured A/B only
+
+### Round 5 notes
+
+- R51 audit (model bench, one distance, against the dropship): the guard was
+  the one clearly below the bar and was rebuilt; CM-07 got the fine layer;
+  the fortress props got baked outlines; the Enforcer, Goliath, drone, robo
+  dog, beacon and supplies sit at the bar and were left as they are.
+- R51 draw calls, Bastion from the perch: 213 before, 171 after (a chunk's
+  lights fold into its lit mesh; props and their outlines are two calls).
+  Triangles 224k → 271k (the props' outlines). Salvage piles (3 calls each)
+  and units (3 each) stay: a pile hides on its own, a rig moves on its own.
 
 ### Round 5 deferred
 

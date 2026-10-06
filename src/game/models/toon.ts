@@ -113,6 +113,33 @@ export const levelMaterial = (atlas: () => Texture): MeshToonMaterial => {
   return levelPlain
 }
 
+const glowMapCache = new Map<Texture, MeshToonMaterial>()
+/**
+ * The level's material with its lights folded in (#147): an `aGlow` of 1 on a
+ * vertex draws it unlit at its own colour, as `glowVC` does, so a chunk's
+ * floors, walls and lamps are one draw call instead of two.
+ */
+export const levelGlowMaterial = (atlas: () => Texture): MeshToonMaterial => {
+  const map = typeof document !== 'undefined' ? atlas() : null
+  const hit = map ? glowMapCache.get(map) : levelGlowPlain
+  if (hit) return hit
+  const m = new MeshToonMaterial({ vertexColors: true, gradientMap: toonRamp(), side: DoubleSide, ...(map ? { map } : {}) })
+  m.onBeforeCompile = (s) => {
+    s.vertexShader = `attribute float aGlow;
+varying float vGlow;
+${s.vertexShader.replace('#include <color_vertex>', `#include <color_vertex>
+  vGlow = aGlow;`)}`
+    s.fragmentShader = `varying float vGlow;
+${s.fragmentShader.replace('#include <opaque_fragment>', `outgoingLight = mix(outgoingLight, vColor.rgb, vGlow);
+  #include <opaque_fragment>`)}`
+  }
+  m.customProgramCacheKey = () => (map ? 'level-glow-map' : 'level-glow')
+  if (map) glowMapCache.set(map, m)
+  else levelGlowPlain = m
+  return m
+}
+let levelGlowPlain: MeshToonMaterial | null = null
+
 const vcMapCache = new Map<Texture, MeshToonMaterial>()
 /** Vertex-coloured toon material with a detail texture (the level's floors and walls), drawn from both sides. */
 export const toonVCMap = (map: Texture): MeshToonMaterial => {

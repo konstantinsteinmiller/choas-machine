@@ -9,9 +9,18 @@ import { buildDecor } from '@/game/world/decor'
 import { FortressBuilder } from '@/game/world/fortress'
 import { CELL } from '@/game/world/grid'
 import { buildProvingGround } from '@/game/data/fortresses/proving'
-import { toonVC, glowVC, levelMaterial } from '@/game/models/toon'
+import { toonGlowVC, glowVC, levelGlowMaterial } from '@/game/models/toon'
 
-const tris = (m: Mesh): number => m.geometry.index!.count / 3
+/** A chunk's lit triangles: its lights ride in the same mesh (`aGlow` 1, #147). */
+const tris = (m: Mesh): number => {
+  const idx = m.geometry.index!
+  const glow = m.geometry.attributes.aGlow
+  if (!glow) return idx.count / 3
+  let n = 0
+  for (let i = 0; i < idx.count; i += 3) if (glow.getX(idx.getX(i)) === 0) n++
+  return n
+}
+const glowTris = (m: Mesh): number => (m.geometry.index!.count / 3) - tris(m)
 
 describe('the fortress mesh', () => {
   it('is one lit mesh per chunk that has ground, each with a tight bounding sphere', async () => {
@@ -31,13 +40,14 @@ describe('the fortress mesh', () => {
     }
   })
 
-  it('shares two materials across every chunk', async () => {
+  it('draws every chunk in one material, lights included; the links in the glow', async () => {
     const mesh = await buildFortressMesh(buildProvingGround())
     const mats = new Set(mesh.group.children.map(c => (c as Mesh).material))
     // In Node there is no canvas to bake the detail atlas in, so the lit
-    // material is the plain vertex-colour one (`levelMaterial`), its own
-    // instance because the level is drawn from both sides.
-    expect(mats).toEqual(new Set([levelMaterial(() => { throw new Error('no atlas in Node') }), glowVC()]))
+    // material is the plain vertex-colour one, its own instance because the
+    // level is drawn from both sides. One mesh per chunk (#147).
+    expect(mats).toEqual(new Set([levelGlowMaterial(() => { throw new Error('no atlas in Node') }), glowVC()]))
+    expect(mesh.group.children.filter(c => (c as Mesh).material !== glowVC())).toHaveLength(mesh.chunks.length)
   })
 
   it('carries position, normal and colour for every vertex, with no NaN', async () => {
@@ -97,8 +107,8 @@ describe('the fortress mesh', () => {
   it('lights a neon trim on structures and draws the ways up', async () => {
     const f = buildProvingGround()
     const mesh = await buildFortressMesh(f)
-    const glow = mesh.group.children.filter(c => (c as Mesh).material === glowVC()) as Mesh[]
-    expect(glow.length).toBeGreaterThan(1)
+    // The neon rides in the chunks' own meshes (#147).
+    expect(mesh.chunks.filter(c => glowTris(c) > 0).length).toBeGreaterThan(1)
     const links = mesh.group.getObjectByName('links') as Mesh
     expect(links).toBeTruthy()
     expect(tris(links)).toBeGreaterThan(f.grid.ladders.length * 8 + f.grid.cables.length * 8)
@@ -124,12 +134,13 @@ describe('the fortress mesh', () => {
 })
 
 describe('dressing', () => {
-  it('bakes every prop of a base into two meshes', () => {
+  it('bakes every prop of a base into two meshes: the props with their lights, and their outlines (#147)', () => {
     const f = buildProvingGround()
     expect(f.decor.length).toBeGreaterThan(8)
     const d = buildDecor(f.decor)
     expect(d.group.children).toHaveLength(2)
-    expect(new Set(d.group.children.map(c => (c as Mesh).material))).toEqual(new Set([toonVC(), glowVC()]))
+    expect((d.group.children[0] as Mesh).material).toBe(toonGlowVC())
+    expect((d.group.children[1] as Mesh).renderOrder).toBe(-1)
   })
 
   it('an undressed base adds nothing to the scene', () => {

@@ -31,8 +31,8 @@ export interface BeaconView {
   wire: Mesh
 }
 
-export const buildBeacon = (): BeaconView => {
-  const lit: BufferGeometry[] = [
+/** The mast's lit parts, before they are merged (the z-fighting test reads them). */
+export const beaconParts = (): BufferGeometry[] => [
     // The foot: a squat box in hazard stripes.
     part(rbox(0.9, 0.5, 0.9, 0.3, 6, 4), STEEL_DARK, [0, 0.25, 0]),
     ...[0, 1, 2, 3].map(i => part(rbox(0.92, 0.1, 0.2, 0.2, 4, 2), i % 2 ? INK : HAZARD, [0, 0.15 + i * 0.1, 0.44], [0, 0, 0])),
@@ -44,7 +44,10 @@ export const buildBeacon = (): BeaconView => {
     // The horn, facing out over the yard.
     part(rcone(0.07, 0.34, 0.6, 0.02, 12), STEEL, [0, 2.65, 0.32], [Math.PI / 2, 0, 0]),
     part(rcyl(0.18, 0.16, 0.03, 12, 2), STEEL_DARK, [0, 2.95, 0]),
-  ]
+]
+
+export const buildBeacon = (): BeaconView => {
+  const lit = beaconParts()
   const g = merge(lit)
   for (const x of lit) x.dispose()
   const group = new Group()

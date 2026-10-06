@@ -1,7 +1,8 @@
 import { BufferGeometry, Color, Float32BufferAttribute, Group, Mesh } from 'three'
 import { CELL, CellKind, ROOF_T, Surf, VOID, cableSpan, cellHeight, cellKind, cellSurf, roofAt, type Grid, Shade } from './grid'
 import type { Fortress } from './fortress'
-import { levelMaterial, glowVC } from '../models/toon'
+import { levelGlowMaterial, glowVC } from '../models/toon'
+import { merge } from '../models/kit'
 import { levelAtlas } from './textures'
 import { noSlice, type Slice } from '../engine/slicer'
 
@@ -640,9 +641,16 @@ export interface FortressMesh {
 
 /**
  * Build the fortress's static geometry, one chunk per slice so the loader's
- * bar keeps moving. Materials are two shared ones (the level's lit material
- * and `glowVC`), so every chunk batches into the same two GL programs.
+ * bar keeps moving. Round 5 (#147): a chunk's lights ride in its lit mesh
+ * (`aGlow`, `levelGlowMaterial`), so each chunk is ONE draw call, all of them
+ * in one GL program; the links (cables, ladders' glow) stay `glowVC`.
  */
+/** Flag every vertex of a chunk's geometry lit (0) or glowing (1). */
+const flagged = (g: BufferGeometry, glow: number): BufferGeometry => {
+  g.setAttribute('aGlow', new Float32BufferAttribute(new Float32Array(g.attributes.position!.count).fill(glow), 1))
+  return g
+}
+
 export const buildFortressMesh = async (
   f: Fortress, theme: Theme = SCRAPYARD, slice: Slice = noSlice, onProgress: (p01: number) => void = () => {}
 ): Promise<FortressMesh> => {
@@ -656,26 +664,25 @@ export const buildFortressMesh = async (
   const midZ = (g.d * CELL) / 2
   const cols = Math.ceil(g.w / CHUNK)
   const rows = Math.ceil(g.d / CHUNK)
-  const litMaterial = levelMaterial(levelAtlas)
+  const litMaterial = levelGlowMaterial(levelAtlas)
   const base = islandFloor(g)
 
   for (let r = 0; r < rows; r++) {
     for (let c = 0; c < cols; c++) {
       const { lit, glow } = buildChunk(g, pal, c * CHUNK, r * CHUNK, midX, midZ, base)
-      if (!lit.empty) {
-        const geo = lit.geometry()
+      const parts = [
+        ...(lit.empty ? [] : [flagged(lit.geometry(), 0)]),
+        ...(glow.empty ? [] : [flagged(glow.geometry(), 1)])
+      ]
+      if (parts.length > 0) {
+        const geo = parts.length === 1 ? parts[0]! : merge(parts)
+        if (parts.length > 1) for (const p of parts) p.dispose()
+        geo.computeBoundingSphere()
         const m = new Mesh(geo, litMaterial)
         m.name = `chunk:${c},${r}`
         m.matrixAutoUpdate = false
         group.add(m)
         chunks.push(m)
-        geos.push(geo)
-      }
-      if (!glow.empty) {
-        const geo = glow.geometry()
-        const m = new Mesh(geo, glowVC())
-        m.matrixAutoUpdate = false
-        group.add(m)
         geos.push(geo)
       }
       onProgress((r * cols + c + 1) / (rows * cols))

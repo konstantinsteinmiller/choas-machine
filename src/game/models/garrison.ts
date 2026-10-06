@@ -51,11 +51,38 @@ export const buildGuard = (commander = false, shield = false, engineer = false, 
   b.bone('chest', 'hips', [0, 0.14, 0])
   b.bone('head', 'chest', [0, 0.42, 0])
 
-  b.part('hips', rbox(0.4, 0.26, 0.28, 0.5, 8, 6), clothDeep)
-  b.part('chest', rbox(0.46, 0.44, 0.3, 0.45, 10, 8), cloth, { p: [0, 0.2, 0] })
-  b.part('chest', rbox(0.3, 0.06, 0.04, 0.6, 6, 4), trim, { p: [0, 0.3, 0.15] })
-  // A big friendly head under a helmet (or the Commander's cap).
-  b.part('head', sph(0.22, 10, 8), PAL.skin, { p: [0, 0.2, 0] })
+  // Round 5 (#147): the guard brought up to the rest of the cast. The same
+  // bones and proportions (the big friendly head is the headshot), with the
+  // kit a soldier carries: a vest with pouches, a belt, pads at the shoulder,
+  // elbow and knee, gloved fists, soled boots, a neck, a face, a real rifle.
+  b.part('hips', rbox(0.4, 0.26, 0.28, 0.5, 12, 8), clothDeep)
+  // The belt: a band round the hips, its buckle, a pouch on each side.
+  b.part('hips', rbox(0.44, 0.07, 0.32, 0.4, 12, 4), PAL.boot, { p: [0, 0.08, 0] })
+  b.part('hips', rbox(0.08, 0.06, 0.03, 0.4, 6, 4), trim, { p: [0, 0.08, 0.165], outline: false })
+  b.mirror((side) => b.part('hips', rbox(0.09, 0.11, 0.1, 0.35, 6, 6), PAL.vest, { p: [side * 0.2, 0.02, 0.06] }))
+  b.part('chest', rbox(0.46, 0.44, 0.3, 0.45, 14, 10), cloth, { p: [0, 0.2, 0] })
+  // The neck, up into the head.
+  b.part('chest', rcyl(0.075, 0.12, 0.02, 10, 1), PAL.skinDeep, { p: [0, 0.43, 0] })
+  if (!commander) {
+    // The vest over the chest: a plate in front and behind, straps over the
+    // shoulders, three magazine pouches, the trim as a name tape.
+    b.part('chest', rbox(0.5, 0.34, 0.36, 0.35, 14, 8), PAL.vest, { p: [0, 0.2, 0] })
+    b.mirror((side) => b.part('chest', rbox(0.1, 0.05, 0.36, 0.4, 6, 4), PAL.vest, { p: [side * 0.15, 0.4, 0] }))
+    for (const px of [-0.13, 0, 0.13]) {
+      b.part('chest', rbox(0.1, 0.13, 0.07, 0.35, 6, 6), PAL.vestDeep, { p: [px, 0.12, 0.2] })
+      b.part('chest', rbox(0.1, 0.03, 0.08, 0.4, 6, 3), PAL.vest, { p: [px, 0.185, 0.2], outline: false })
+    }
+    b.part('chest', rbox(0.24, 0.045, 0.03, 0.6, 6, 4), trim, { p: [0, 0.31, 0.185], outline: false })
+    // A radio on the left shoulder strap, its stub antenna.
+    b.part('chest', rbox(0.06, 0.1, 0.045, 0.4, 6, 4), PAL.gunDark, { p: [-0.15, 0.32, 0.2] })
+    b.part('chest', rcyl(0.008, 0.12, 0.004, 5, 1), PAL.gunDark, { p: [-0.17, 0.42, 0.2], outline: false })
+  } else {
+    b.part('chest', rbox(0.3, 0.06, 0.04, 0.6, 6, 4), trim, { p: [0, 0.3, 0.15] })
+  }
+  // A big friendly head under a helmet (or the Commander's cap): ears, a nose.
+  b.part('head', sph(0.22, 16, 12), PAL.skin, { p: [0, 0.2, 0] })
+  b.mirror((side) => b.part('head', ell(0.035, 0.06, 0.045, 8, 6), PAL.skinDeep, { p: [side * 0.215, 0.19, 0] }))
+  b.part('head', ell(0.035, 0.04, 0.045, 8, 6), PAL.skinDeep, { p: [0, 0.155, 0.205], outline: false })
   if (commander) {
     // The Warden: an armoured helm with a glowing visor and a crest, and
     // heavy plates on the shoulders. One round does not do it.
@@ -75,8 +102,13 @@ export const buildGuard = (commander = false, shield = false, engineer = false, 
     b.part('chest', rbox(0.34, 0.36, 0.18, 0.4, 6, 6), PAL.steelDeep, { p: [0, 0.22, -0.24] })
     b.part('chest', rbox(0.06, 0.3, 0.06, 0.4, 4, 4), PAL.hazard, { p: [0.12, 0.42, -0.3] })
   } else {
-    b.part('head', dome(0.245, Math.PI * 0.52, 10, 6), PAL.helmet, { p: [0, 0.22, 0] })
+    // The helmet: a shell, its rim, a strap under the chin, goggles up on the brow.
+    b.part('head', dome(0.245, Math.PI * 0.52, 16, 8), PAL.helmet, { p: [0, 0.22, 0] })
+    b.part('head', torus(0.24, 0.022, 6, 24), PAL.helmetDeep, { p: [0, 0.23, 0], r: [Math.PI / 2, 0, 0] })
     b.part('head', rbox(0.34, 0.04, 0.1, 0.6, 6, 4), PAL.helmet, { p: [0, 0.24, 0.2] })
+    b.part('head', torus(0.218, 0.012, 4, 16, Math.PI), PAL.boot, { p: [0, 0.2, 0.01], r: [0, 0, Math.PI], outline: false })
+    b.part('head', rbox(0.3, 0.07, 0.05, 0.5, 8, 4), PAL.boot, { p: [0, 0.36, 0.205] })
+    b.mirror((side) => b.part('head', rcyl(0.034, 0.03, 0.01, 10, 1), PAL.lens, { p: [side * 0.07, 0.36, 0.235], r: [Math.PI / 2, 0, 0], outline: false }))
   }
   b.mirror((side) => {
     b.part('head', sph(0.032, 6, 5), PAL.black, { p: [side * 0.08, 0.2, 0.2], outline: false })
@@ -86,17 +118,32 @@ export const buildGuard = (commander = false, shield = false, engineer = false, 
     const x = -side
     b.bone(`arm${tag}`, 'chest', [x * 0.29, 0.36, 0])
     b.bone(`fore${tag}`, `arm${tag}`, [0, -0.26, 0])
-    b.part(`arm${tag}`, cap(0.075, 0.16, 6, 3), cloth, { p: [0, -0.13, 0] })
-    b.part(`fore${tag}`, cap(0.065, 0.14, 6, 3), cloth, { p: [0, -0.11, 0] })
-    b.part(`fore${tag}`, sph(0.07, 6, 5), PAL.skinDeep, { p: [0, -0.25, 0] })
+    b.part(`arm${tag}`, cap(0.075, 0.16, 10, 3), cloth, { p: [0, -0.13, 0] })
+    // A pad on the shoulder and one on the elbow.
+    b.part(`arm${tag}`, ell(0.1, 0.07, 0.095, 10, 6), commander ? PAL.steelDeep : PAL.vest, { p: [0, -0.02, 0] })
+    b.part(`fore${tag}`, cap(0.065, 0.14, 10, 3), cloth, { p: [0, -0.11, 0] })
+    b.part(`fore${tag}`, ell(0.06, 0.055, 0.06, 8, 6), PAL.vestDeep, { p: [0, 0.0, -0.035] })
+    // A gloved fist: the cuff, the back of the hand, the curled fingers, the thumb.
+    b.part(`fore${tag}`, rcyl(0.066, 0.05, 0.015, 10, 1), PAL.boot, { p: [0, -0.2, 0] })
+    b.part(`fore${tag}`, rbox(0.09, 0.1, 0.075, 0.45, 8, 6), PAL.boot, { p: [0, -0.265, 0] })
+    b.part(`fore${tag}`, rbox(0.085, 0.045, 0.06, 0.45, 8, 4), PAL.bootDeep, { p: [0, -0.32, 0.02] })
+    b.part(`fore${tag}`, cap(0.02, 0.035, 6, 2), PAL.boot, { p: [-x * 0.045, -0.27, 0.035], r: [0.3, 0, -x * 0.5] })
     b.bone(`leg${tag}`, 'hips', [x * 0.12, -0.1, 0])
     b.bone(`shin${tag}`, `leg${tag}`, [0, -G_THIGH, 0])
     // The boot is its own bone: a foot that rolls from heel to toe is most of
     // what makes a walk read as a person's.
     b.bone(`foot${tag}`, `shin${tag}`, [0, -G_SHIN, 0])
-    b.part(`leg${tag}`, cap(0.09, 0.18, 6, 3), clothDeep, { p: [0, -0.16, 0] })
-    b.part(`shin${tag}`, cap(0.08, 0.16, 6, 3), clothDeep, { p: [0, -0.14, 0] })
-    b.part(`foot${tag}`, rbox(0.17, 0.12, 0.3, 0.5, 6, 6), PAL.boot, { p: [0, 0, 0.05] })
+    b.part(`leg${tag}`, cap(0.09, 0.18, 10, 3), clothDeep, { p: [0, -0.16, 0] })
+    // A thigh pocket.
+    b.part(`leg${tag}`, rbox(0.06, 0.1, 0.1, 0.35, 6, 6), cloth, { p: [-x * 0.085, -0.17, 0.01] })
+    b.part(`shin${tag}`, cap(0.08, 0.16, 10, 3), clothDeep, { p: [0, -0.14, 0] })
+    // The knee pad.
+    b.part(`shin${tag}`, rbox(0.11, 0.11, 0.06, 0.45, 8, 6), PAL.vest, { p: [0, -0.01, 0.07] })
+    // The boot: the upper with its laced tongue, a toe cap, a thick sole.
+    b.part(`foot${tag}`, rbox(0.17, 0.11, 0.3, 0.5, 10, 6), PAL.boot, { p: [0, 0.01, 0.05] })
+    b.part(`foot${tag}`, rbox(0.1, 0.06, 0.08, 0.4, 6, 4), PAL.bootDeep, { p: [0, 0.055, 0.12], outline: false })
+    b.part(`foot${tag}`, rbox(0.15, 0.06, 0.11, 0.5, 8, 4), PAL.bootDeep, { p: [0, -0.005, 0.15] })
+    b.part(`foot${tag}`, rbox(0.185, 0.035, 0.32, 0.3, 10, 4), PAL.sole, { p: [0, -0.0425, 0.05] })
   })
 
   // The riot shield, held square in front: a steel plate with a hazard rim
@@ -119,14 +166,23 @@ export const buildGuard = (commander = false, shield = false, engineer = false, 
     b.part('chest', sph(0.065, 8, 6), PAL.hazard, { p: [0.1, 0.32, 0.18] })
   }
 
-  // The rifle, in the right hand, barrel along the forearm.
+  // The rifle, in the right hand, barrel along the forearm: the receiver, a
+  // ribbed handguard round the barrel, a curved magazine, the stock, a sight,
+  // and a muzzle brake where every round leaves it (MUZZLE.rifle).
   b.bone('rifle', 'foreR', [0, -0.25, 0.03])
-  b.part('rifle', rbox(0.07, 0.36, 0.11, 0.5, 6, 6), PAL.gunMetal, { p: [0, -0.05, 0] })
-  b.part('rifle', stripUv(new CylinderGeometry(0.022, 0.022, 0.5, 6)), PAL.gunDark, { p: [0, -0.45, 0] })
-  b.part('rifle', rbox(0.06, 0.2, 0.09, 0.5, 6, 4), PAL.gunDark, { p: [0, 0.2, -0.02] })
+  b.part('rifle', rbox(0.07, 0.36, 0.11, 0.5, 8, 8), PAL.gunMetal, { p: [0, -0.05, 0] })
+  b.part('rifle', stripUv(new CylinderGeometry(0.022, 0.022, 0.5, 10)), PAL.gunDark, { p: [0, -0.45, 0] })
+  b.part('rifle', rbox(0.065, 0.2, 0.075, 0.45, 8, 6), PAL.gunDark, { p: [0, -0.31, 0] })
+  for (const ry of [-0.25, -0.31, -0.37]) b.part('rifle', rbox(0.07, 0.012, 0.08, 0.3, 6, 2), PAL.gunMetal, { p: [0, ry, 0], outline: false })
+  b.part('rifle', rcyl(0.032, 0.06, 0.01, 10, 1), PAL.gunMetal, { p: [0, -0.69, 0] })
+  b.part('rifle', rbox(0.05, 0.08, 0.14, 0.4, 6, 6), PAL.gunDark, { p: [0, -0.06, 0.1], r: [0.35, 0, 0] })
+  b.part('rifle', rbox(0.06, 0.2, 0.09, 0.5, 8, 6), PAL.gunDark, { p: [0, 0.2, -0.02] })
+  b.part('rifle', rbox(0.055, 0.06, 0.12, 0.45, 6, 4), PAL.gunDark, { p: [0, 0.31, -0.03] })
+  b.part('rifle', rbox(0.035, 0.1, 0.04, 0.4, 6, 4), PAL.gunDark, { p: [0, -0.08, -0.075] })
+  b.part('rifle', rcyl(0.012, 0.012, 0.004, 6, 1), PAL.glowCyan, { p: [0, -0.135, -0.075], glow: true, outline: false })
   // A marksman (#90): a long barrel, a scope and the laser's red eye.
   if (kit === 'marksman') {
-    b.part('rifle', stripUv(new CylinderGeometry(0.02, 0.02, 0.5, 6)), PAL.gunDark, { p: [0, -0.9, 0] })
+    b.part('rifle', stripUv(new CylinderGeometry(0.016, 0.016, 0.5, 6)), PAL.gunDark, { p: [0, -0.9, 0] })
     b.part('rifle', stripUv(new CylinderGeometry(0.035, 0.035, 0.22, 8)), PAL.gunMetal, { p: [0, -0.2, 0.09] })
     b.part('rifle', sph(0.025, 6, 5), PAL.glowRed, { p: [0, -0.62, 0.05], glow: true, outline: false })
   }
@@ -567,10 +623,10 @@ export const buildSearchlight = (): Rig => {
   })
   // The lamp: a drum with a hooded lens.
   b.part('lamp', rcyl(0.36, 0.62, 0.08, 14), PAL.steel, { r: [Math.PI / 2, 0, 0] })
-  b.part('lamp', rcyl(0.41, 0.14, 0.04, 14), PAL.steelDark, { p: [0, 0, 0.3], r: [Math.PI / 2, 0, 0] })
-  b.part('lamp', rcyl(0.33, 0.06, 0.02, 14), PAL.glowWhite, { p: [0, 0, 0.34], r: [Math.PI / 2, 0, 0], glow: true, outline: false })
+  b.part('lamp', rcyl(0.41, 0.14, 0.04, 14), PAL.steelDark, { p: [0, 0, 0.32], r: [Math.PI / 2, 0, 0] })
+  b.part('lamp', rcyl(0.33, 0.06, 0.02, 14), PAL.glowWhite, { p: [0, 0, 0.37], r: [Math.PI / 2, 0, 0], glow: true, outline: false })
   b.part('lamp', rbox(0.3, 0.2, 0.2, 0.5, 6, 4), PAL.steelDark, { p: [0, 0.05, -0.36] })
-  b.part('lamp', sph(0.05, 6, 5), PAL.glowRed, { p: [0, 0.2, -0.36], glow: true, outline: false })
+  b.part('lamp', sph(0.05, 6, 5), PAL.glowRed, { p: [0, 0.215, -0.36], glow: true, outline: false })
   return b.build({ outline: 0.02, height: 0.8 })
 }
 
@@ -594,7 +650,7 @@ export const buildRoomba = (shotgun = false): Rig => {
   b.part('body', sph(0.075, 8, 6), PAL.glowRed, { p: [0, 0.27, 0.32], glow: true, outline: false })
   // Its little brushes at the front.
   b.mirror((side) => {
-    b.part('body', rcyl(0.11, 0.03, 0.01, 8), PAL.steelDeep, { p: [side * 0.36, -0.17, 0.42] })
+    b.part('body', rcyl(0.11, 0.03, 0.01, 8), PAL.steelDeep, { p: [side * 0.36, -0.178, 0.42] })
   })
   // The gun on its back.
   b.part('turret', rbox(0.07, 0.3, 0.07, 0.5, 4, 4), PAL.steelDark, { p: [0, -0.16, 0] })

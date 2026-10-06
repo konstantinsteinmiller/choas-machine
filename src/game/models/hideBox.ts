@@ -26,7 +26,8 @@ export const BOX_LIFT = 0.28
 
 const part = (g: BufferGeometry, color: string, p: V3, r: V3 = [0, 0, 0]): BufferGeometry => paint(xform(g, p, r), color)
 
-export const buildHideBox = (): Group => {
+/** The box's parts, before they are assembled (the z-fighting test reads them). */
+export const hideBoxParts = (): { lit: BufferGeometry[]; glow: BufferGeometry[] } => {
   const h = BOX_H
   const w = BOX_W
   const lit: BufferGeometry[] = [
@@ -36,7 +37,7 @@ export const buildHideBox = (): Group => {
     // Corner posts and a rim at the foot.
     ...[[-1, -1], [1, -1], [-1, 1], [1, 1]].map(([sx, sz]) =>
       part(rbox(0.16, h + 0.04, 0.16, 0.4, 4, 4), RIM, [sx! * (w / 2 - 0.04), h / 2, sz! * (w / 2 - 0.04)])),
-    part(rbox(w + 0.06, 0.12, w + 0.06, 0.3, 6, 3), RIM, [0, 0.06, 0]),
+    part(rbox(w + 0.06, 0.12, w + 0.06, 0.3, 6, 3), RIM, [0, 0.07, 0]),
     // A dark band behind the slits.
     part(rbox(w * 0.72, 0.28, 0.04, 0.4, 4, 3), INK, [0, h * 0.72, w / 2 + 0.01]),
     // The lifting ring on the lid.
@@ -66,6 +67,11 @@ export const buildHideBox = (): Group => {
     part(rbox(0.38, 0.07, 0.04, 0.45, 4, 3), SLIT, [-0.32, h * 0.72, w / 2 + 0.03], [0, 0, 0.12]),
     part(rbox(0.38, 0.07, 0.04, 0.45, 4, 3), SLIT, [0.32, h * 0.72, w / 2 + 0.03], [0, 0, -0.12])
   ]
+  return { lit, glow }
+}
+
+export const buildHideBox = (): Group => {
+  const { lit, glow } = hideBoxParts()
   // In pieces, in the mech's colours: the crate is one more thing it folds into (#111).
   return assemblePieces('hide-box', lit, glow)
 }

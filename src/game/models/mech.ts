@@ -1,5 +1,5 @@
 import { BoxGeometry, CylinderGeometry, Quaternion, Vector3 } from 'three'
-import { RigBuilder, cap, ell, pose, nudge, rbox, rcyl, scaleBone, sph, stripUv, type Rig } from './kit'
+import { RigBuilder, cap, ell, pose, nudge, rbox, rcyl, scaleBone, sph, stripUv, torus, type Rig } from './kit'
 import { PAL } from './palette'
 import type { WeaponId } from '../data/ids'
 
@@ -168,6 +168,12 @@ export const buildMech = (): Rig => {
   // The pack, with the power line the cyan trims of the base echo.
   b.part('chest', rbox(0.52, 0.5, 0.26, 0.45, 8, 8), PAL.mechSuit, { p: [0, 0.3, -0.36] })
   b.part('chest', rbox(0.08, 0.34, 0.04, 0.6, 6, 6), PAL.mechCore, { p: [0, 0.3, -0.5], glow: true, outline: false })
+  // Round 5 (#147), the finer layer the dropship has: rivets at the chest
+  // plate's corners, seams down the chest's flanks, cooling slats either side
+  // of the pack's power line.
+  for (const rx of [-0.21, 0.21]) for (const ry of [0.31, 0.49]) b.part('chest', sph(0.022, 6, 4), PAL.mechArmorDeep, { p: [rx, ry, 0.312], outline: false })
+  b.mirror((side) => b.part('chest', rbox(0.022, 0.4, 0.5, 0.5, 4, 6), PAL.mechArmorDeep, { p: [side * 0.428, 0.3, 0], outline: false }))
+  for (const sx of [-0.16, 0.16]) for (const sy of [0.2, 0.3, 0.4]) b.part('chest', rbox(0.13, 0.03, 0.03, 0.4, 4, 2), PAL.mechSuitDeep, { p: [sx, sy, -0.492], outline: false })
 
   // ── Head: a helmet, a visor band, two eyes, an antenna, two ear pods ──
   b.part('head', rbox(0.52, 0.44, 0.48, 0.42, 12, 10), PAL.mechArmor, { p: [0, 0.2, 0] })
@@ -185,6 +191,8 @@ export const buildMech = (): Rig => {
     b.bone(`shoulder${tag}`, 'chest', [x * 0.52, 0.48, 0])
     b.bone(`fore${tag}`, `shoulder${tag}`, [0, -0.42, 0])
     b.part(`shoulder${tag}`, sph(0.19, 10, 8), PAL.mechArmorDeep)
+    // An armour band round the shoulder ball.
+    b.part(`shoulder${tag}`, torus(0.185, 0.022, 6, 18), PAL.mechArmor, { p: [0, 0.02, 0], r: [0, 0, Math.PI / 2] })
     b.part(`shoulder${tag}`, cap(0.105, 0.24, 8, 3), PAL.mechSuit, { p: [0, -0.22, 0] })
     b.part(`fore${tag}`, rbox(0.22, 0.42, 0.24, 0.45, 8, 8), PAL.mechArmor, { p: [0, -0.2, 0] })
     b.part(`fore${tag}`, sph(0.1, 8, 6), PAL.mechSuitDeep, { p: [0, -0.45, 0] })
