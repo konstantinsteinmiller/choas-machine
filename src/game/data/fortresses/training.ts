@@ -62,6 +62,8 @@ export const ROCKET_PARAPET_H = 5.2
 export const ROCKET_TARGET_HP = 300
 /** Where the rocket room's target stands (room cells). */
 export const ROCKET_TARGET: readonly [number, number] = [8, 3]
+/** The disguise room's corridor (#163): its two rows, the doorway's. */
+export const BOX_LANE: readonly [number, number] = [6, 7]
 /** The doorways: the middle two rows of a room. */
 const DOOR_Z0 = OZ + 6
 const DOOR_Z1 = OZ + 7
@@ -173,10 +175,17 @@ export const buildTrainingGround = (): Fortress => {
   b.guard([at(room('decoy'), 9, 7)], W)
   b.cover(...at(room('decoy'), 3, 4), 6, 'z')
 
-  // · The disguise (the hide box, #97): a searchlight on the north wall sweeps the way across.
+  // · The disguise (the hide box, #97, #163): the way across is a corridor
+  //   between walls no hook gets over, and a searchlight behind armoured
+  //   glass in a cage sweeps it end to end: no way round the light, none
+  //   through it but standing still in the box while it passes over.
   {
     const x = room('box')
-    b.searchlight(...at(x, 6, 12), [[...at(x, 3, 7), 0.8], [...at(x, 8, 7), 0.8], [...at(x, 6, 4), 0.6]])
+    b.fill(...at(x, 2, 1), ...at(x, 9, BOX_LANE[0] - 1), ROOM_WALL_H)
+    b.fill(...at(x, 2, BOX_LANE[1] + 1), ...at(x, 9, 12), ROOM_WALL_H)
+    // On the wall's very edge over the corridor (#163): from the middle of
+    // its top, the wall itself hid the corridor from it.
+    b.searchlight(...at(x, 5, BOX_LANE[1] + 1), [[...at(x, 2, BOX_LANE[1]), 0.8], [...at(x, 9, BOX_LANE[0]), 0.8]], true, [0, -0.95])
   }
 
   // · The hook: the way out is over the east wall.

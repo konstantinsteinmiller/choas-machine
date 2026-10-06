@@ -243,7 +243,11 @@ export default {
     'reset': {
       'cover': "Repéré. Reste accroupi derrière l'abri.",
       'seen': 'Repéré. La salle recommence.',
-      'ammo': 'Plus de munitions ! Réessaie !'
+      'ammo': 'Plus de munitions ! Réessaie !',
+      'box': 'Déguise-toi pour ne pas être repéré',
+      'decoy': 'Utilise un leurre [{key}], frappe dans le dos quand il est distrait',
+      'decoyTouch': 'Utilise un leurre, frappe dans le dos quand il est distrait',
+      'decoyAny': 'Encore repéré. Élimine le garde comme tu veux.'
     }
   },
   'pause': {

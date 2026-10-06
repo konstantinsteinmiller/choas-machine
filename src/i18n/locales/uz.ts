@@ -243,7 +243,11 @@ export default {
     'reset': {
       'cover': "Seni ko'rishdi. Pana ortida cho'kkalab tur.",
       'seen': "Seni ko'rishdi. Xona qaytadan boshlanadi.",
-      'ammo': "O'q-dorilar tugadi! Yana urinib ko'r!"
+      'ammo': "O'q-dorilar tugadi! Yana urinib ko'r!",
+      'box': "Ko'rinmaslik uchun niqoblan",
+      'decoy': "Yem ishlat [{key}], chalg'iganda orqadan ur",
+      'decoyTouch': "Yem ishlat, chalg'iganda orqadan ur",
+      'decoyAny': "Seni yana ko'rishdi. Qo'riqchini xohlagan usulda yo'q qil."
     }
   },
   'pause': {

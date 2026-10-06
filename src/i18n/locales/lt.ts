@@ -243,7 +243,11 @@ export default {
     'reset': {
       'cover': 'Tave pastebėjo. Būk pritūpęs už priedangos.',
       'seen': 'Tave pastebėjo. Kambarys iš naujo.',
-      'ammo': 'Nebėra amunicijos! Bandyk dar kartą!'
+      'ammo': 'Nebėra amunicijos! Bandyk dar kartą!',
+      'box': 'Persirenk, kad tavęs nepastebėtų',
+      'decoy': 'Panaudok masalą [{key}], smok į nugarą, kai jis išsiblaškys',
+      'decoyTouch': 'Panaudok masalą, smok į nugarą, kai jis išsiblaškys',
+      'decoyAny': 'Vėl pastebėjo. Įveik sargybinį kaip tik nori.'
     }
   },
   'pause': {

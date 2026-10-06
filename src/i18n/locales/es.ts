@@ -243,7 +243,11 @@ export default {
     'reset': {
       'cover': 'Te han visto. Quédate agachado tras la cobertura.',
       'seen': 'Te han visto. La sala vuelve a empezar.',
-      'ammo': '¡Sin munición! ¡Inténtalo de nuevo!'
+      'ammo': '¡Sin munición! ¡Inténtalo de nuevo!',
+      'box': 'Disfrázate para que no te vean',
+      'decoy': 'Usa un señuelo [{key}] y apuñala por la espalda cuando se distraiga',
+      'decoyTouch': 'Usa un señuelo y apuñala por la espalda cuando se distraiga',
+      'decoyAny': 'Te han vuelto a ver. Acaba con el guardia como quieras.'
     }
   },
   'pause': {

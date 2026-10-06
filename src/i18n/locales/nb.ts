@@ -243,7 +243,11 @@ export default {
     'reset': {
       'cover': 'Oppdaget. Hold deg huket bak dekningen.',
       'seen': 'Oppdaget. Rommet starter på nytt.',
-      'ammo': 'Tom for ammunisjon! Prøv igjen!'
+      'ammo': 'Tom for ammunisjon! Prøv igjen!',
+      'box': 'Forkle deg, så du ikke blir oppdaget',
+      'decoy': 'Bruk en lokkedue [{key}], stikk i ryggen når vakten er distrahert',
+      'decoyTouch': 'Bruk en lokkedue, stikk i ryggen når vakten er distrahert',
+      'decoyAny': 'Oppdaget igjen. Ta ut vakten akkurat som du vil.'
     }
   },
   'pause': {

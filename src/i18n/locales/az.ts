@@ -243,7 +243,11 @@ export default {
     'reset': {
       'cover': 'Səni gördülər. Örtüyün arxasında çömelmiş qal.',
       'seen': 'Səni gördülər. Otaq yenidən başlayır.',
-      'ammo': 'Sursat bitdi! Yenidən cəhd et!'
+      'ammo': 'Sursat bitdi! Yenidən cəhd et!',
+      'box': 'Görünməmək üçün maskalan',
+      'decoy': 'Yem istifadə et [{key}], diqqəti yayınanda arxadan vur',
+      'decoyTouch': 'Yem istifadə et, diqqəti yayınanda arxadan vur',
+      'decoyAny': 'Səni yenə gördülər. Mühafizəçini istədiyin kimi aradan qaldır.'
     }
   },
   'pause': {

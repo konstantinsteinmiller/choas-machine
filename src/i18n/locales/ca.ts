@@ -243,7 +243,11 @@ export default {
     'reset': {
       'cover': "T'han vist. Queda't ajupit darrere la cobertura.",
       'seen': "T'han vist. La sala torna a començar.",
-      'ammo': 'Sense munició! Torna-ho a provar!'
+      'ammo': 'Sense munició! Torna-ho a provar!',
+      'box': "Disfressa't perquè no et vegin",
+      'decoy': "Fes servir un parany [{key}] i ataca per l'esquena quan es distregui",
+      'decoyTouch': "Fes servir un parany i ataca per l'esquena quan es distregui",
+      'decoyAny': "T'han tornat a veure. Elimina el guàrdia com vulguis."
     }
   },
   'pause': {

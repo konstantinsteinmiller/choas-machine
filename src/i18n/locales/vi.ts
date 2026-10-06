@@ -243,7 +243,11 @@ export default {
     'reset': {
       'cover': 'Bị lộ. Cúi xuống sau chỗ nấp.',
       'seen': 'Bị lộ. Phòng bắt đầu lại.',
-      'ammo': 'Hết đạn! Thử lại nào!'
+      'ammo': 'Hết đạn! Thử lại nào!',
+      'box': 'Hãy cải trang để không bị phát hiện',
+      'decoy': 'Dùng mồi nhử [{key}], đâm sau lưng khi địch mất tập trung',
+      'decoyTouch': 'Dùng mồi nhử, đâm sau lưng khi địch mất tập trung',
+      'decoyAny': 'Lại bị lộ. Hạ gục lính gác theo cách nào cũng được.'
     }
   },
   'pause': {

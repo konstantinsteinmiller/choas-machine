@@ -243,7 +243,11 @@ export default {
     'reset': {
       'cover': 'Huomattu. Pysy kyyryssä suojan takana.',
       'seen': 'Huomattu. Huone alkaa alusta.',
-      'ammo': 'Ammukset lopussa! Yritä uudelleen!'
+      'ammo': 'Ammukset lopussa! Yritä uudelleen!',
+      'box': 'Naamioidu, ettei sinua huomata',
+      'decoy': 'Käytä houkutinta [{key}], iske selkään, kun vartija on harhautettu',
+      'decoyTouch': 'Käytä houkutinta, iske selkään, kun vartija on harhautettu',
+      'decoyAny': 'Huomattu taas. Kaada vartija miten haluat.'
     }
   },
   'pause': {

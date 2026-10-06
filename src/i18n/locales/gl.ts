@@ -243,7 +243,11 @@ export default {
     'reset': {
       'cover': 'Víronte. Queda agachado tras a cobertura.',
       'seen': 'Víronte. A sala comeza de novo.',
-      'ammo': 'Sen munición! Téntao de novo!'
+      'ammo': 'Sen munición! Téntao de novo!',
+      'box': 'Disfrázate para que non te vexan',
+      'decoy': 'Usa un reclamo [{key}] e apuñala polas costas cando se distraia',
+      'decoyTouch': 'Usa un reclamo e apuñala polas costas cando se distraia',
+      'decoyAny': 'Víronte de novo. Acaba co garda como queiras.'
     }
   },
   'pause': {

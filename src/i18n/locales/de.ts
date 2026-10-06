@@ -243,7 +243,11 @@ export default {
     'reset': {
       'cover': 'Entdeckt. Bleib hinter der Deckung geduckt.',
       'seen': 'Entdeckt. Der Raum beginnt von vorn.',
-      'ammo': "Keine Munition mehr! Versuch's noch mal!"
+      'ammo': "Keine Munition mehr! Versuch's noch mal!",
+      'box': 'Tarn dich, damit dich keiner entdeckt',
+      'decoy': 'Nutz einen Köder [{key}], stich von hinten zu, wenn er abgelenkt ist',
+      'decoyTouch': 'Nutz einen Köder, stich von hinten zu, wenn er abgelenkt ist',
+      'decoyAny': 'Wieder entdeckt. Schalte die Wache aus, wie du willst.'
     }
   },
   'pause': {

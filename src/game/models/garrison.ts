@@ -1,5 +1,6 @@
-import { BoxGeometry, CylinderGeometry, Quaternion, Vector3 } from 'three'
-import { RigBuilder, blendPose, cap, dome, ell, pose, nudge, rbox, rcone, rcyl, sph, stripUv, torus, type Rig } from './kit'
+import { BoxGeometry, CylinderGeometry, DoubleSide, Group, Mesh, MeshBasicMaterial, Quaternion, Vector3, type BufferGeometry } from 'three'
+import { RigBuilder, blendPose, cap, dome, ell, merge, paint, pose, nudge, rbox, rcone, rcyl, sph, stripUv, torus, xform, type Rig } from './kit'
+import { outlineMat, toonVC } from './toon'
 import { PAL } from './palette'
 import { stanceSweep } from '../sim/gait'
 
@@ -974,4 +975,44 @@ export const poseGoliath = (rig: Rig, s: GoliathPose): void => {
   pose(rig, 'barrel', -s.barrelPitch + Math.sin(s.time * 0.7) * 0.015 * alive + s.dead * 0.35, 0, 0)
   nudge(rig, 'barrel', 0, 0, -0.5 * s.recoil)
   rig.glowMaterial.color.setScalar(0.15 + 0.85 * alive)
+}
+
+/**
+ * The cage round a searchlight that cannot be broken (#163): a drum of
+ * armoured glass, steel bars round it, a hood on top, all centred on the lamp
+ * (the rig's origin). Round, so it reads the same however the lamp turns
+ * inside it; it does not turn with it.
+ */
+export const LAMP_CAGE_R = 0.78
+export const buildLampCage = (): { group: Group; dispose(): void } => {
+  const group = new Group()
+  group.name = 'lampCage'
+  const h = 1.5
+  const bars = 8
+  const parts: BufferGeometry[] = []
+  for (let i = 0; i < bars; i++) {
+    const a = (i / bars) * Math.PI * 2
+    parts.push(paint(xform(rcyl(0.035, h, 0.01, 8, 1), [Math.sin(a) * LAMP_CAGE_R, 0, Math.cos(a) * LAMP_CAGE_R]), PAL.steelDark))
+  }
+  // A ring round the foot and the top, and the hood over it.
+  parts.push(paint(xform(torus(LAMP_CAGE_R, 0.045, 6, 32), [0, -h / 2 + 0.05, 0], [Math.PI / 2, 0, 0]), PAL.steelDeep))
+  parts.push(paint(xform(torus(LAMP_CAGE_R, 0.045, 6, 32), [0, h / 2 - 0.05, 0], [Math.PI / 2, 0, 0]), PAL.steelDeep))
+  parts.push(paint(xform(rcone(LAMP_CAGE_R + 0.12, 0.22, 0.28, 0.03, 20), [0, h / 2 + 0.16, 0]), PAL.hazard))
+  const steelGeo = merge(parts)
+  for (const p of parts) p.dispose()
+  const toon = toonVC()
+  const line = outlineMat(0.012)
+  const steel = new Mesh(steelGeo, toon)
+  const steelLine = new Mesh(steelGeo, line)
+  steelLine.renderOrder = -1
+  // The glass: a faint cyan drum, open at both ends (the rings and the hood close it).
+  const glassGeo = new CylinderGeometry(LAMP_CAGE_R - 0.02, LAMP_CAGE_R - 0.02, h - 0.16, 24, 1, true)
+  const glassMat = new MeshBasicMaterial({ color: PAL.mechCore, transparent: true, opacity: 0.16, depthWrite: false, side: DoubleSide, toneMapped: false })
+  const glass = new Mesh(glassGeo, glassMat)
+  glass.renderOrder = 4
+  group.add(steel, steelLine, glass)
+  return {
+    group,
+    dispose: () => { steelGeo.dispose(); glassGeo.dispose(); toon.dispose(); line.dispose(); glassMat.dispose() }
+  }
 }

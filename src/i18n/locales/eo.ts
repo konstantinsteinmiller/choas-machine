@@ -243,7 +243,11 @@ export default {
     'reset': {
       'cover': 'Vidita. Restu kaŝkaŭre malantaŭ la ŝirmilo.',
       'seen': 'Vidita. La ĉambro rekomenciĝas.',
-      'ammo': 'Municio elĉerpita! Provu denove!'
+      'ammo': 'Municio elĉerpita! Provu denove!',
+      'box': 'Alivestu vin por ne esti vidita',
+      'decoy': 'Uzu logilon [{key}], ataku de malantaŭe kiam li distriĝas',
+      'decoyTouch': 'Uzu logilon, ataku de malantaŭe kiam li distriĝas',
+      'decoyAny': 'Vidita denove. Venku la gardiston kiel ajn vi volas.'
     }
   },
   'pause': {

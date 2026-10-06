@@ -12,6 +12,13 @@ import {
 } from '@/game/sim/training'
 import { CELL, cellHeight, cellMid, hasLineOfSight } from '@/game/world/grid'
 import { MECH_EYE_CROUCH, MECH_HEIGHT_CROUCH } from '@/game/models/mech'
+import { BOX_LANE, ROOM_WALL_H } from '@/game/data/fortresses/training'
+import { BASE_LOADOUT, TRACK_MAX } from '@/game/data/upgrades'
+import { damageUnit, makeGarrison } from '@/game/sim/garrison'
+import { lessonDone } from '@/game/sim/training'
+import { buildLampCage } from '@/game/models/garrison'
+import { Mesh, type BufferGeometry } from 'three'
+import { coplanarClashes } from '../helpers/coplanar'
 
 const room = (id: (typeof LESSON_IDS)[number]): number => LESSON_IDS.indexOf(id)
 const ctx = (x: number, z: number, y = 0): TrainingContext => ({
@@ -109,5 +116,62 @@ describe('the blade room\'s hologram (#158)', () => {
     const v = victimFrame(b, 0)!
     expect(v.x).toBeGreaterThan(r.x0 * CELL + CELL * 3)
     expect(v.x).toBeLessThan((r.x1 + 1) * CELL - CELL * 3)
+  })
+})
+
+describe('the disguise room (#163)', () => {
+  const x = room('box')
+  const f = buildTrainingGround()
+  const r = TRAINING_ROOMS[x]!
+
+  it('is one corridor to the door between walls no hook gets over, however upgraded', () => {
+    const hookMost = BASE_LOADOUT.hookMax + 1.2 * TRACK_MAX
+    expect(ROOM_WALL_H).toBeGreaterThan(hookMost)
+    for (let col = 2; col <= 9; col++) {
+      for (let row = 1; row <= 12; row++) {
+        const [cx, cz] = roomCell(x, col, row)
+        const lane = row >= BOX_LANE[0] && row <= BOX_LANE[1]
+        expect(cellHeight(f.grid, cx, cz), `${col},${row}`).toBe(lane ? 0 : ROOM_WALL_H)
+      }
+    }
+    // The lane is the doorway's rows.
+    expect(r.door!.cz0).toBe(roomCell(x, 1, BOX_LANE[0])[1])
+    expect(r.door!.cz1).toBe(roomCell(x, 1, BOX_LANE[1])[1])
+  })
+
+  it('its light is caged: rounds glance off, nothing breaks it, and it sees the whole lane', () => {
+    const post = f.posts.find(p => p.kind === 'searchlight' && Math.floor(p.x / CELL) >= r.x0 && Math.floor(p.x / CELL) <= r.x1)!
+    expect(post.caged).toBe(true)
+    expect(post.armoured).toBe(true)
+    const gar = makeGarrison(f, 1)
+    const u = gar.units.find(v => v.caged)!
+    expect(damageUnit(gar, u.id, 99999, u.x, u.z, 'blast')).toBe(false)
+    expect(u.state).not.toBe('dead')
+    // From the lamp, down to the floor of every cell of the lane.
+    for (let col = 2; col <= 9; col++) {
+      for (const row of BOX_LANE) {
+        const c = at(x, col, row)
+        expect(hasLineOfSight(f.grid, post.x, post.altitude - 0.2, post.z, c.x, 1, c.z), `${col},${row}`).toBe(true)
+      }
+    }
+  })
+
+  it('its cage has no two faces in one plane', () => {
+    const cage = buildLampCage()
+    cage.group.updateMatrixWorld(true)
+    const geos: BufferGeometry[] = []
+    cage.group.traverse(o => { if (o instanceof Mesh && o.renderOrder !== -1) geos.push(o.geometry.clone().applyMatrix4(o.matrixWorld)) })
+    expect(coplanarClashes(geos)).toEqual([])
+    cage.dispose()
+  })
+})
+
+describe('the decoy room (#165)', () => {
+  it('is done past the guard to the door, or with the guard down any way at all', () => {
+    const d = room('decoy')
+    const base = ctx(0, 0)
+    const mid = at(d, 5, 7)
+    expect(lessonDone(d, ctx(mid.x, mid.z), base)).toBe(false)
+    expect(lessonDone(d, { ...ctx(mid.x, mid.z), cleared: true }, base)).toBe(true)
   })
 })

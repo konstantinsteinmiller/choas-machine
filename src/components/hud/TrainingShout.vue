@@ -9,12 +9,14 @@
       :class="{ big: hud.training.shout === 'shout.backstab' }"
       data-testid="training-shout"
       @animationend="hud.training.shout = ''"
-    ) {{ t(`training.${hud.training.shout}`) }}
+    ) {{ t(`training.${hud.training.shout}`, { key: keyLabel(primaryCode('decoy')) }) }}
 </template>
 
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
 import { hud } from '@/game/state/hud'
+import { primaryCode } from '@/game/engine/keyBindings'
+import { keyLabel } from '@/game/engine/keyLabels'
 
 const { t } = useI18n()
 </script>

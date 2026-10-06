@@ -243,7 +243,11 @@ export default {
     'reset': {
       'cover': 'Visto. Fique agachado atrás da cobertura.',
       'seen': 'Visto. A sala recomeça.',
-      'ammo': 'Sem munição! Tente de novo!'
+      'ammo': 'Sem munição! Tente de novo!',
+      'box': 'Disfarce-se para não ser visto',
+      'decoy': 'Use uma isca [{key}] e ataque pelas costas quando ele se distrair',
+      'decoyTouch': 'Use uma isca e ataque pelas costas quando ele se distrair',
+      'decoyAny': 'Visto de novo. Derrube o guarda do jeito que quiser.'
     }
   },
   'pause': {

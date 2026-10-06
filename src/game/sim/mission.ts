@@ -3292,8 +3292,8 @@ export class Mission implements GameMode {
       })
       // A reset always hands the ammunition back (#159).
       this.refillTraining(tr.state.room)
-      // Why (#155): in the cover room, what would have kept it unseen.
-      this.trainingShout(TRAINING_ROOMS[tr.state.room]?.lesson === 'cover' ? 'reset.cover' : 'reset.seen')
+      // Why (#155, #163, #165): what would have kept it unseen here.
+      this.trainingShout(this.seenLine(tr.state.room, tr.state.roomResets[tr.state.room] ?? 1))
       emit('trainingReset', {})
     }
     const s = tr.state
@@ -3341,6 +3341,26 @@ export class Mission implements GameMode {
     a.heat = 0
     a.overheated = false
     this.refillRockets()
+  }
+
+  /**
+   * The line for a mech seen in a training room and sent back (#155, #163,
+   * #165). The decoy room hints at its trick the first time; the second time
+   * it gives up on it: its guard stands like a target (it never wakes again)
+   * and the room is done once it is down, however that is done.
+   */
+  private seenLine(room: number, times: number): TrainingShout {
+    const lesson = TRAINING_ROOMS[room]?.lesson
+    if (lesson === 'cover') return 'reset.cover'
+    if (lesson === 'box') return 'reset.box'
+    if (lesson !== 'decoy') return 'reset.seen'
+    if (times < 2) return this.input.device === 'touch' ? 'reset.decoyTouch' : 'reset.decoy'
+    for (const u of this.garrison.units) {
+      if (roomAt(u.homeX) !== room || !isAlive(u)) continue
+      u.state = 'dormant'
+      u.dummy = true
+    }
+    return 'reset.decoyAny'
   }
 
   /** The training ground calls a line out over the screen (#155, #156). */

@@ -243,7 +243,11 @@ export default {
     'reset': {
       'cover': 'Észrevettek. Maradj guggolva a fedezék mögött.',
       'seen': 'Észrevettek. A terem újraindul.',
-      'ammo': 'Elfogyott a lőszer! Próbáld újra!'
+      'ammo': 'Elfogyott a lőszer! Próbáld újra!',
+      'box': 'Álcázd magad, hogy ne vegyenek észre',
+      'decoy': 'Használj csalit [{key}], szúrd hátba, amikor elterelted a figyelmét',
+      'decoyTouch': 'Használj csalit, szúrd hátba, amikor elterelted a figyelmét',
+      'decoyAny': 'Megint észrevettek. Intézd el az őrt, ahogy akarod.'
     }
   },
   'pause': {

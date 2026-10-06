@@ -276,6 +276,7 @@ export class TrainingDirector {
     const t = this.state
     const room = Math.max(0, t.room)
     t.resets++
+    t.roomResets[room] = (t.roomResets[room] ?? 0) + 1
     rewindRoom(this.gar, room)
     const e = entryOf(room)
     place(e.x, e.z, Math.PI / 2)

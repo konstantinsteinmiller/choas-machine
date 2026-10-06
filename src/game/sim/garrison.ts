@@ -243,6 +243,8 @@ export interface Unit {
   /** A Watchtower lamp (#144): it cannot be destroyed, sweeps slowly, rings the alarm at once. */
   watch: boolean
   dummy: boolean
+  /** A caged searchlight (#163): nothing breaks it. */
+  caged: boolean
   maxHp: number
   shield: boolean
   /** When its missed check-in sends somebody to look (garrison time); and whether it has. */
@@ -840,7 +842,7 @@ export const makeGarrison = (f: Fortress, level = 2): Garrison => {
       yaw: p.facing, pyaw: p.facing, look: 0,
       state: p.reserve ? 'reserve' : mech ? 'dormant' : 'patrol', t: 0, detect: 0, sees: false, seenX: p.x, seenZ: p.z, lured: false,
       route: p.route, wp: p.route.length > 1 ? 1 : 0, wait: p.route[0]?.wait ?? 0,
-      path: [], pathI: 0, repath: 0, bodyT: 0, seenFor: 0, unseenFor: 9, shouted: false, runner: -1, wary: false, hop: 0, fought: false, checkAt: Infinity, checked: false, hp: p.hp ?? Math.round(SPECS[p.kind].hp * threat.hp * (p.boss === 'foreman' ? FOREMAN_HP : 1)), maxHp: p.hp ?? Math.round(SPECS[p.kind].hp * threat.hp * (p.boss === 'foreman' ? FOREMAN_HP : 1)), boss: p.boss ?? null, armoured: !!p.armoured, dummy: !!p.dummy, watch: !!p.watch, shield: !!p.shield, deadT: 0, fallDir: 1, huh: HUH_S, noise: 0, gripped: false, hold: 0, held: null, death: 'back', hitX: 0, hitZ: 0, found: false,
+      path: [], pathI: 0, repath: 0, bodyT: 0, seenFor: 0, unseenFor: 9, shouted: false, runner: -1, wary: false, hop: 0, fought: false, checkAt: Infinity, checked: false, hp: p.hp ?? Math.round(SPECS[p.kind].hp * threat.hp * (p.boss === 'foreman' ? FOREMAN_HP : 1)), maxHp: p.hp ?? Math.round(SPECS[p.kind].hp * threat.hp * (p.boss === 'foreman' ? FOREMAN_HP : 1)), boss: p.boss ?? null, armoured: !!p.armoured, dummy: !!p.dummy, caged: !!p.caged, watch: !!p.watch, shield: !!p.shield, deadT: 0, fallDir: 1, huh: HUH_S, noise: 0, gripped: false, hold: 0, held: null, death: 'back', hitX: 0, hitZ: 0, found: false,
       stride: 0, speed01: 0, homeX: p.x, homeZ: p.z, homeYaw: p.facing, altitude: p.altitude,
       spotX: spot.x, spotZ: spot.z,
       seed: (id * 2.399) % (Math.PI * 2),
@@ -2003,7 +2005,8 @@ export const stepGarrison = (gar: Garrison, g: Grid, target: Target, dt: number)
       const wary = !yellow && (u.state === 'suspicious' || u.state === 'search') ? WARY_GAIN : 1
       if (!grace) u.detect = Math.min(1, u.detect + rate * wary * gar.threat.notice * dt)
       // The Watchtower (#144) does not wonder: a moment in its pool and it is sure.
-      if (u.watch && u.seenFor >= WATCH_SURE_S) u.detect = 1
+      // Nor the disguise lesson's caged lamp (#163): no running through its pool.
+      if ((u.watch || u.caged) && u.seenFor >= WATCH_SURE_S) u.detect = 1
       u.seenX = target.x
       u.seenZ = target.z
       gar.lkp.x = target.x
@@ -2454,8 +2457,8 @@ const stepOnFire = (gar: Garrison, u: Unit, g: Grid, dt: number): void => {
 export const damageUnit = (gar: Garrison, id: number, amount: number, fromX: number, fromZ: number, how: KillHow = 'shot'): boolean => {
   const u = gar.units[id]
   if (!u || !isAlive(u)) return false
-  // A Watchtower lamp cannot be destroyed (#144).
-  if (u.watch) return false
+  // A Watchtower lamp cannot be destroyed (#144), nor a caged one (#163).
+  if (u.watch || u.caged) return false
   u.hp -= amount
   if (u.hp > 0) return false
   killUnit(gar, id, fromX, fromZ, how)

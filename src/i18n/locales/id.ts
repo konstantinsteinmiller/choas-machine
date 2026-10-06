@@ -243,7 +243,11 @@ export default {
     'reset': {
       'cover': 'Ketahuan. Tetap jongkok di balik perlindungan.',
       'seen': 'Ketahuan. Ruangan diulang.',
-      'ammo': 'Amunisi habis! Coba lagi!'
+      'ammo': 'Amunisi habis! Coba lagi!',
+      'box': 'Menyamarlah agar tidak ketahuan',
+      'decoy': 'Pakai umpan [{key}], tikam dari belakang saat dia lengah',
+      'decoyTouch': 'Pakai umpan, tikam dari belakang saat dia lengah',
+      'decoyAny': 'Ketahuan lagi. Lumpuhkan penjaga dengan cara apa pun.'
     }
   },
   'pause': {

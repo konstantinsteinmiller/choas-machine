@@ -243,7 +243,11 @@ export default {
     'reset': {
       'cover': 'Ai fost văzut. Stai ghemuit după adăpost.',
       'seen': 'Ai fost văzut. Camera o ia de la capăt.',
-      'ammo': 'Fără muniție! Mai încearcă!'
+      'ammo': 'Fără muniție! Mai încearcă!',
+      'box': 'Deghizează-te, ca să nu fii văzut',
+      'decoy': 'Folosește o momeală [{key}], lovește pe la spate când e distras',
+      'decoyTouch': 'Folosește o momeală, lovește pe la spate când e distras',
+      'decoyAny': 'Ai fost văzut din nou. Doboară paznicul cum vrei.'
     }
   },
   'pause': {

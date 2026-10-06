@@ -243,7 +243,11 @@ export default {
     'reset': {
       'cover': 'Wykryto cię. Kucaj za osłoną.',
       'seen': 'Wykryto cię. Pokój od nowa.',
-      'ammo': 'Brak amunicji! Spróbuj jeszcze raz!'
+      'ammo': 'Brak amunicji! Spróbuj jeszcze raz!',
+      'box': 'Przebierz się, żeby cię nie wykryli',
+      'decoy': 'Użyj wabika [{key}], atakuj od tyłu, gdy się rozproszy',
+      'decoyTouch': 'Użyj wabika, atakuj od tyłu, gdy się rozproszy',
+      'decoyAny': 'Znowu cię wykryto. Załatw strażnika, jak chcesz.'
     }
   },
   'pause': {

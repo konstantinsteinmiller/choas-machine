@@ -243,7 +243,11 @@ export default {
     'reset': {
       'cover': 'Primijećen si. Ostani čučnut iza zaklona.',
       'seen': 'Primijećen si. Soba kreće ispočetka.',
-      'ammo': 'Nema streljiva! Pokušaj ponovno!'
+      'ammo': 'Nema streljiva! Pokušaj ponovno!',
+      'box': 'Preruši se da te ne primijete',
+      'decoy': 'Iskoristi mamac [{key}], ubodi u leđa kad mu odvučeš pažnju',
+      'decoyTouch': 'Iskoristi mamac, ubodi u leđa kad mu odvučeš pažnju',
+      'decoyAny': 'Opet primijećen. Sredi stražara kako god želiš.'
     }
   },
   'pause': {

@@ -243,7 +243,11 @@ export default {
     'reset': {
       'cover': 'Visto. Resta accovacciato dietro la copertura.',
       'seen': 'Visto. La stanza ricomincia.',
-      'ammo': 'Munizioni esaurite! Riprova!'
+      'ammo': 'Munizioni esaurite! Riprova!',
+      'box': 'Travestiti per non farti vedere',
+      'decoy': "Usa un'esca [{key}], colpisci alle spalle quando è distratto",
+      'decoyTouch': "Usa un'esca, colpisci alle spalle quando è distratto",
+      'decoyAny': 'Visto di nuovo. Elimina la guardia come preferisci.'
     }
   },
   'pause': {

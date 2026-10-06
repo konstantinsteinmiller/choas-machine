@@ -240,8 +240,9 @@ export interface Training {
   demoT: number
   demoLeft: number
   gap: number
-  /** Times the mech was seen and sent back to the room's door. */
+  /** Times the mech was seen and sent back to the room's door: in all, and per room (#165). */
   resets: number
+  roomResets: number[]
   /** Down in the jump room's gap (#154): the way-out demo plays instead, this many rows from its own. */
   pit: boolean
   pitZ: number
@@ -250,7 +251,7 @@ export interface Training {
 export type TrainingEvent = { type: 'enter'; room: number } | { type: 'done'; room: number }
 
 export const makeTraining = (): Training => ({
-  room: -1, done: TRAINING_ROOMS.map(() => false), base: null, demoT: -1, demoLeft: 0, gap: 0, resets: 0, pit: false, pitZ: 0
+  room: -1, done: TRAINING_ROOMS.map(() => false), base: null, demoT: -1, demoLeft: 0, gap: 0, resets: 0, roomResets: TRAINING_ROOMS.map(() => 0), pit: false, pitZ: 0
 })
 
 /** The room a point is in (by its column); −1 west of the first. */
@@ -278,7 +279,10 @@ export const lessonDone = (i: number, c: TrainingContext, b: TrainingContext): b
     return !!d && Math.abs(c.x - d.x) < CELL * 1.6 && Math.abs(c.z - d.z) < CELL * 1.6
   }
   switch (r.lesson) {
-    case 'move': case 'jump': case 'cover': case 'decoy': case 'box': return atDoor()
+    case 'move': case 'jump': case 'cover': case 'box': return atDoor()
+    // Past the guard to the door, or the guard down any way at all (#165:
+    // a player who will not learn the decoy is let through after the hint).
+    case 'decoy': return atDoor() || !!c.cleared
     case 'supply': return c.supplies > b.supplies || (atDoor() && c.stocked)
     case 'burn': return c.burns > b.burns
     case 'rope': return c.ropes > b.ropes

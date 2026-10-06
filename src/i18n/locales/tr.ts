@@ -243,7 +243,11 @@ export default {
     'reset': {
       'cover': 'Görüldün. Siperin arkasında çömelmiş kal.',
       'seen': 'Görüldün. Oda baştan başlıyor.',
-      'ammo': 'Cephane bitti! Tekrar dene!'
+      'ammo': 'Cephane bitti! Tekrar dene!',
+      'box': 'Görülmemek için kılık değiştir',
+      'decoy': 'Yem kullan [{key}], dikkati dağılınca sırtından sapla',
+      'decoyTouch': 'Yem kullan, dikkati dağılınca sırtından sapla',
+      'decoyAny': 'Yine görüldün. Muhafızı istediğin gibi indir.'
     }
   },
   'pause': {

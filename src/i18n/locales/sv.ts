@@ -243,7 +243,11 @@ export default {
     'reset': {
       'cover': 'Upptäckt. Håll dig hukad bakom skyddet.',
       'seen': 'Upptäckt. Rummet börjar om.',
-      'ammo': 'Slut på ammunition! Försök igen!'
+      'ammo': 'Slut på ammunition! Försök igen!',
+      'box': 'Förklä dig så att du inte blir upptäckt',
+      'decoy': 'Använd ett lockbete [{key}], hugg i ryggen när vakten är distraherad',
+      'decoyTouch': 'Använd ett lockbete, hugg i ryggen när vakten är distraherad',
+      'decoyAny': 'Upptäckt igen. Ta ut vakten hur du vill.'
     }
   },
   'pause': {

@@ -247,7 +247,11 @@ export default {
     'reset': {
       'cover': 'Seen. Stay crouched behind the cover.',
       'seen': 'Seen. The room starts over.',
-      'ammo': 'Ammo depleted! Try again!'
+      'ammo': 'Ammo depleted! Try again!',
+      'box': 'Disguise yourself, to not get spotted',
+      'decoy': 'Use a decoy [{key}], backstab when distracted',
+      'decoyTouch': 'Use a decoy, backstab when distracted',
+      'decoyAny': 'Seen again. Take the guard down any way you like.'
     }
   },
   'pause': {

@@ -84,6 +84,8 @@ export interface Post {
   hp?: number
   /** A searchlight that is a Watchtower lamp (#144): it cannot be destroyed, sweeps slowly, and rings the alarm the moment it finds the mech. */
   watch?: boolean
+  /** A searchlight behind armoured glass in a cage (#163): rounds glance off it, nothing breaks it. */
+  caged?: boolean
 }
 
 export type DecorKind =
@@ -499,14 +501,14 @@ export class FortressBuilder {
    * `[cx, cz, waitSeconds?]`), holding at each. What the light falls on, the
    * base knows about.
    */
-  searchlight(cx: number, cz: number, sweep: Array<[number, number, number?]>): this {
+  searchlight(cx: number, cz: number, sweep: Array<[number, number, number?]>, caged = false, nudge: readonly [number, number] = [0, 0]): this {
     const top = this.heightOf(cx, cz)
     if (top === VOID) throw new Error(`[fortress ${this.id}] searchlight at ${cx},${cz} is off the island`)
     const route: Waypoint[] = sweep.map(([x, z, wait]) => ({ x: cellMid(x), z: cellMid(z), wait: wait ?? 1.2 }))
     const first = route[0] ?? { x: cellMid(cx), z: cellMid(cz) + 6 }
     this.posts.push({
-      kind: 'searchlight', x: cellMid(cx), z: cellMid(cz), facing: Math.atan2(first.x - cellMid(cx), first.z - cellMid(cz)),
-      route, altitude: top + SEARCHLIGHT_MAST
+      kind: 'searchlight', x: cellMid(cx) + nudge[0], z: cellMid(cz) + nudge[1], facing: Math.atan2(first.x - cellMid(cx), first.z - cellMid(cz)),
+      route, altitude: top + SEARCHLIGHT_MAST, ...(caged ? { caged: true, armoured: true } : {})
     })
     return this
   }

@@ -243,7 +243,11 @@ export default {
     'reset': {
       'cover': 'Gezien. Blijf gebukt achter de dekking.',
       'seen': 'Gezien. De kamer begint opnieuw.',
-      'ammo': 'Geen munitie meer! Probeer opnieuw!'
+      'ammo': 'Geen munitie meer! Probeer opnieuw!',
+      'box': 'Vermom je, zodat je niet gezien wordt',
+      'decoy': 'Gebruik een lokvogel [{key}], steek in de rug als hij afgeleid is',
+      'decoyTouch': 'Gebruik een lokvogel, steek in de rug als hij afgeleid is',
+      'decoyAny': 'Weer gezien. Schakel de bewaker uit zoals jij wilt.'
     }
   },
   'pause': {

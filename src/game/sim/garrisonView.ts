@@ -9,7 +9,7 @@ import { Shatter } from '../fx/shatter'
 import type { PostKind } from '../world/fortress'
 import { dome, paint, rbox, merge, type Rig } from '../models/kit'
 import {
-  buildDrone, buildEnforcer, buildGoliath, buildGuard, buildSearchlight, poseSearchlight, type SearchlightPose, restGuardPose, poseDrone, poseEnforcer, poseGoliath, poseGuard,
+  buildDrone, buildEnforcer, buildGoliath, buildGuard, buildLampCage, buildSearchlight, poseSearchlight, type SearchlightPose, restGuardPose, poseDrone, poseEnforcer, poseGoliath, poseGuard,
   type DronePose, type EnforcerPose, type GoliathPose, type GuardPose, buildRoomba, poseRoomba, type RoombaPose
 } from '../models/garrison'
 import { makeBlobShadow } from '../fx/markers'
@@ -296,6 +296,8 @@ const measureTop = (rig: Rig, kind: PostKind): number => {
 
 interface UnitView {
   rig: Rig
+  /** A caged searchlight's glass and bars (#163); it stands with the lamp, it does not turn with it. */
+  cage: { group: Group; dispose(): void } | null
   shadow: Mesh
   mark: Sprite | null
   /** Drones: the light on the ground and the beam down to it. */
@@ -546,8 +548,10 @@ export class GarrisonView {
         }))
         beam.renderOrder = 3
       }
+      const cage = u.caged ? buildLampCage() : null
+      if (cage) this.group.add(cage.group)
       const v: UnitView = {
-        rig, shadow, mark, spot, beam, pool: spot ? new Float32Array((POOL_SEGS + 1) * (POOL_RINGS + 1) * 4) : null,
+        rig, cage, shadow, mark, spot, beam, pool: spot ? new Float32Array((POOL_SEGS + 1) * (POOL_RINGS + 1) * 4) : null,
         cone: human || u.kind === 'hound' || u.kind === 'roomba' ? this.coneCount++ : -1,
         guard: human ? { ...restGuardPose(), seed: (u.seed * 0.618) % 1, proud: u.kind === 'commander' } : null,
         drone: u.kind === 'drone' ? { time: 0, spin: 0, pitch: 0, roll: 0, eyeYaw: 0, eyePitch: 0.5, alarm: 0, deadT: 0, landed: false } : null,
@@ -1022,6 +1026,7 @@ export class GarrisonView {
       const yaw = u.pyaw + angleDelta(u.pyaw, u.yaw) * alpha
       v.rig.root.position.set(x, y, z)
       v.rig.root.rotation.y = yaw
+      v.cage?.group.position.set(x, y, z)
       if (v.cone >= 0) {
         // The cone goes with the body as drawn, a touch ahead of its motion (a teleport is not motion).
         const lead = CONE_LEAD_S / STEP
@@ -1312,6 +1317,7 @@ export class GarrisonView {
       if (v.route) { v.route.geometry.dispose(); (v.route.material as LineBasicMaterial).dispose() }
       if (v.spot) { v.spot.geometry.dispose(); (v.spot.material as MeshBasicMaterial).dispose() }
       if (v.beam) (v.beam.material as MeshBasicMaterial).dispose()
+      v.cage?.dispose()
     }
     this.wreckage.dispose()
     this.shatter.dispose()

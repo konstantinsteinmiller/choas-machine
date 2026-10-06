@@ -243,7 +243,11 @@ export default {
     'reset': {
       'cover': 'Opdaget. Bliv dukket bag dækningen.',
       'seen': 'Opdaget. Rummet starter forfra.',
-      'ammo': 'Ingen ammunition! Prøv igen!'
+      'ammo': 'Ingen ammunition! Prøv igen!',
+      'box': 'Forklæd dig, så du ikke bliver opdaget',
+      'decoy': 'Brug en lokkedue [{key}], stik i ryggen, når de er distraheret',
+      'decoyTouch': 'Brug en lokkedue, stik i ryggen, når de er distraheret',
+      'decoyAny': 'Opdaget igen. Nedlæg vagten, som du vil.'
     }
   },
   'pause': {

@@ -243,7 +243,11 @@ export default {
     'reset': {
       'cover': 'Tevi pamanīja. Paliec pietupies aiz aizsega.',
       'seen': 'Tevi pamanīja. Telpa sākas no jauna.',
-      'ammo': 'Munīcija beigusies! Mēģini vēlreiz!'
+      'ammo': 'Munīcija beigusies! Mēģini vēlreiz!',
+      'box': 'Pārģērbies, lai tevi nepamanītu',
+      'decoy': 'Izmanto ēsmu [{key}], dur mugurā, kad viņš ir novērsies',
+      'decoyTouch': 'Izmanto ēsmu, dur mugurā, kad viņš ir novērsies',
+      'decoyAny': 'Tevi atkal pamanīja. Novāc sargu, kā vien vēlies.'
     }
   },
   'pause': {

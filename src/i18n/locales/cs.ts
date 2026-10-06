@@ -243,7 +243,11 @@ export default {
     'reset': {
       'cover': 'Odhalen. Zůstaň skrčený za krytem.',
       'seen': 'Odhalen. Místnost začíná znovu.',
-      'ammo': 'Došla munice! Zkus to znovu!'
+      'ammo': 'Došla munice! Zkus to znovu!',
+      'box': 'Převlékni se, ať tě neodhalí',
+      'decoy': 'Použij návnadu [{key}], bodni do zad, až se rozptýlí',
+      'decoyTouch': 'Použij návnadu, bodni do zad, až se rozptýlí',
+      'decoyAny': 'Zase odhalen. Zneškodni strážce, jak chceš.'
     }
   },
   'pause': {

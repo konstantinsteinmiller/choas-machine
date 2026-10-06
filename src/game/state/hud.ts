@@ -32,7 +32,7 @@ import type { HintView } from '../sim/coach'
 export type Phase = 'boot' | 'intro' | 'play' | 'outro' | 'dead' | 'done' | 'base' | 'cinema'
 
 /** What the training ground calls out (`training.shout.*`, `training.reset.*` in the locales). */
-export type TrainingShout = '' | 'shout.backstab' | 'reset.cover' | 'reset.seen' | 'reset.ammo'
+export type TrainingShout = '' | 'shout.backstab' | 'reset.cover' | 'reset.seen' | 'reset.ammo' | 'reset.box' | 'reset.decoy' | 'reset.decoyTouch' | 'reset.decoyAny'
 
 export const hud = reactive({
   phase: 'boot' as Phase,
