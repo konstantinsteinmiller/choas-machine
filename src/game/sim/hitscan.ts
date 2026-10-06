@@ -209,7 +209,7 @@ const hitUnit = (u: Unit, ox: number, oy: number, oz: number, dx: number, dy: nu
  */
 export const castShot = (
   g: Grid, units: readonly Unit[], ox: number, oy: number, oz: number, dx: number, dy: number, dz: number,
-  maxDist: number, out: ShotHit
+  maxDist: number, out: ShotHit, skip = -1
 ): ShotHit => {
   const w = raycast(g, ox, oy, oz, dx, dy, dz, maxDist)
   let t = w.hit ? w.t : maxDist
@@ -221,7 +221,7 @@ export const castShot = (
   out.nz = w.nz
   for (let i = 0; i < units.length; i++) {
     const u = units[i]!
-    if (u.state === 'dead' || u.state === 'reserve') continue
+    if (i === skip || u.state === 'dead' || u.state === 'reserve') continue
     // Skip anything whose whole body is further than the best hit so far.
     const reach = u.kind === 'goliath' ? 4.2 : u.kind === 'enforcer' ? 1.6 : 0.6
     const ux = u.x - ox

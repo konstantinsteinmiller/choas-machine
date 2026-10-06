@@ -882,7 +882,7 @@ weapons, the backstab room = blade. Decisions (defaults, nobody asked):
   demo (E popping up), then hands back. Check the [E] prompt shows.
 
 - [x] **R59 Idle feet** (#157)
-- [ ] **R60 Rounds through people** (#152)
+- [x] **R60 Rounds through people** (#152)
 - [ ] **R61 Training ground clarity** (#153 #154 #155 #156 #158)
 
 ## Resume notes

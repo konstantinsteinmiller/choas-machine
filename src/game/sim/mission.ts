@@ -21,6 +21,7 @@ import { buildSky, type Sky } from '../world/sky'
 import { ringTexture } from '../world/textures'
 import { FloorMarkers, makeBlobShadow } from '../fx/markers'
 import { CombatFx } from '../fx/combatFx'
+import { BulletMarks } from '../fx/bulletMarks'
 import type { Rig } from '../models/kit'
 import { MUZZLE_TIP, buildMech, poseMech, restPose, MECH_HEIGHT, MECH_HEIGHT_CROUCH, MECH_SCALE, type MechPose , MECH_KNEEL_S, MECH_DOWN_S } from '../models/mech'
 import { PAL } from '../models/palette'
@@ -112,6 +113,9 @@ const BURN_LIVE_ARC = 0.9
 const BURN_LIVE_S = 0.6
 /** Bolts a machine's wreck melts down to (#148), added to the haul. */
 const BOLTS: Partial<Record<PostKind, number>> = { drone: 4, searchlight: 3, roomba: 5, hound: 5, enforcer: 10, goliath: 24 }
+/** A rifle round goes through this many people at most, keeping this share of its damage each time (#152). */
+const PIERCE_MAX = 2
+const PIERCE_KEEP = 0.8
 /** Seconds into going down that WASTED comes up (#150): as the knees give. */
 const WASTED_AT = 0.35
 /** The flamethrower (#99): how near the body must be, and how long a burn takes. */
@@ -305,6 +309,8 @@ export class Mission implements GameMode {
   private strike: StrikeRun | null = null
   private garrisonView!: GarrisonView
   private fx!: CombatFx
+  /** Where rounds went into bodies and out again (#152). */
+  private marks = new BulletMarks()
   private markers = new FloorMarkers()
   /** Seconds since the mech went down. */
   private downT = 0
@@ -1163,6 +1169,8 @@ export class Mission implements GameMode {
           if (w === 'sniper') searchForShooter(gar, u.id, at.x, at.z)
         }
       }
+      // A rifle round goes through a person and on (#152).
+      if (w === 'sniper') this.roundThrough(u.id, h.x, h.y, h.z, dx, dy, dz, damage, false)
     } else if (h.kind === 'world') {
       const b = barrelAt(this.barrels, toCell(h.x + dx * 0.05), toCell(h.z + dz * 0.05))
       if (b) ignite(b, 0)
@@ -1172,6 +1180,62 @@ export class Mission implements GameMode {
       this.fx.tracer(mx, my, mz, h.x, h.y, h.z, w)
     }
     this.flushGarrison()
+  }
+
+  /**
+   * A rifle round that has hit unit `id` at a point (#152): a mark where it
+   * went in; through a person it comes out the far side (a mark there, a
+   * puff of light, no blood) and flies on at four fifths of its damage into
+   * whoever stands behind, a second kill for a lined-up pair (or a third).
+   * A machine stops it. The first hit alone could have had a kill-cam.
+   * `camOut`: the kill-cam already drew this exit.
+   */
+  private roundThrough(id: number, hx: number, hy: number, hz: number, dx: number, dy: number, dz: number, damage: number, camOut: boolean, depth = 0): void {
+    const gar = this.garrison
+    const u = gar.units[id]
+    if (!u) return
+    const human = camKind(u.kind) === 'human'
+    const rig = this.garrisonView.rigOf(id)
+    if (rig) this.marks.mark(rig, hx, hy, hz, dx, dy, dz, !human)
+    if (!human || depth >= PIERCE_MAX) return
+    const through = 0.5
+    const ex = hx + dx * through
+    const ey = hy + dy * through
+    const ez = hz + dz * through
+    // The way out: the body's back looked for from behind it.
+    if (rig) this.marks.mark(rig, hx + dx * 1.2, hy + dy * 1.2, hz + dz * 1.2, -dx, -dy, -dz, false)
+    if (!camOut) this.fx.exitShot(hx, hy, hz, dx, dy, dz, through, false)
+    const next = castShot(this.fortress.grid, gar.units, ex, ey, ez, dx, dy, dz, SHOT_RANGE, makeShotHit(), id)
+    if (next.kind === 'world') {
+      this.fx.tracer(ex, ey, ez, next.x, next.y, next.z, 'sniper')
+      this.fx.impact(next.x, next.y, next.z, next.nx, next.ny, next.nz, false, 'sniper')
+      return
+    }
+    if (next.kind !== 'unit') {
+      this.fx.tracer(ex, ey, ez, ex + dx * 40, ey + dy * 40, ez + dz * 40, 'sniper')
+      return
+    }
+    const v = gar.units[next.unit]!
+    this.fx.tracer(ex, ey, ez, next.x, next.y, next.z, 'sniper')
+    if (v.armoured) {
+      this.fx.particles.sparks(next.x, next.y, next.z, '#ffe98f', 12, 5, 0.22)
+      emit('glance', { id: v.id, weapon: 'sniper' })
+      return
+    }
+    const soft = camKind(v.kind) === 'human'
+    const head = next.zone === 'head' && soft
+    this.fx.impact(next.x, next.y, next.z, next.nx, next.ny, next.nz, soft, 'sniper')
+    shieldStruck(gar, v.id)
+    const dmg = shotDamage('sniper', v.kind, next.zone, this.loadout.damage.sniper, v.maxHp) * PIERCE_KEEP ** (depth + 1)
+    this.stats.hits++
+    if (head) this.stats.headshots++
+    this.killBy = 'sniper'
+    this.killHead = head
+    emit('hit', { id: v.id, weapon: 'sniper', zone: next.zone })
+    if (v.boss) emit('bossHit', { amount: Math.round(Math.min(dmg, Math.max(0, v.hp))) })
+    if (!damageUnit(gar, v.id, dmg, ex, ez)) alarmUnit(gar, v.id, this.player.x, this.player.z)
+    this.roundThrough(v.id, next.x, next.y, next.z, dx, dy, dz, dmg, false, depth + 1)
+    void damage
   }
 
   /** A weapon nobody can miss: the whole base hears it. */
@@ -2551,6 +2615,9 @@ export class Mission implements GameMode {
     this.killHead = c.head
     emit('hit', { id: u.id, weapon: 'sniper', zone: c.head ? 'head' : 'body' })
     damageUnit(gar, c.id, c.damage, c.ox, c.oz)
+    // ...and on, into whoever stands behind (#152): no second camera for that.
+    const cl = Math.hypot(c.hx - c.ox, c.hy - c.oy, c.hz - c.oz) || 1
+    this.roundThrough(u.id, c.hx, c.hy, c.hz, (c.hx - c.ox) / cl, (c.hy - c.oy) / cl, (c.hz - c.oz) / cl, c.damage, true)
     this.flushGarrison()
     app.setTimeScale(KILLCAM_SLOW)
   }
@@ -3103,6 +3170,8 @@ export class Mission implements GameMode {
       if (u.id === this.dragId) this.dropBody()
       Object.assign(u, structuredClone(start))
       this.garrisonView.restore(u.id)
+      const rig = this.garrisonView.rigOf(u.id)
+      if (rig) this.marks.clear(rig)
       for (let k = this.residues.length - 1; k >= 0; k--) {
         const r = this.residues[k]!
         if (Math.hypot(r.position.x - u.x, r.position.z - u.z) > 2.5) continue
@@ -4015,6 +4084,7 @@ export class Mission implements GameMode {
     // The beacon breathes.
     if (this.beacon.visible) (this.beacon.material as MeshBasicMaterial).opacity = 0.22 + 0.12 * Math.sin(this.time * 3)
     this.garrisonView.update(alpha, dt, this.time, view.x, view.y, view.z)
+    this.marks.update(dt)
     if (this.ship) {
       const p = this.player
       this.ship.v.update(this.ship.a, dt, { x: p.x, y: p.y + 1.5, z: p.z }, this.garrison.alert.chaos)
@@ -4080,6 +4150,7 @@ export class Mission implements GameMode {
 
   dispose(): void {
     clearBanner()
+    this.marks.dispose()
     this.ship?.v.dispose()
     this.training?.dispose()
     this.offReplay?.()
