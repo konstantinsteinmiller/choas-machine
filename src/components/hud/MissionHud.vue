@@ -189,32 +189,39 @@
         data-testid="btn-cancel"
         @click="cancelAim(input)"
       )
-      div.weapons
-        //- The wheel: the other weapons fan out beside the one in hand.
-        template(v-if="wheelOpen")
-          FHudButton(
+      //- The weapons (#161): each one drawn side on, in its colour, with no
+      //- chip round it. On touch all three side by side, a switch to tap: the
+      //- one in hand big and lit. On a desktop the one in hand, with the wheel
+      //- and Tab that turn it; a click fans out the other two.
+      div.weapons(:class="{ spread: spread }")
+        template(v-if="spread")
+          button.weapon(
             v-for="(w, n) in WEAPON_IDS"
             :key="w"
-            :icon="w"
-            :tone="TONES[w]"
-            :active="hud.weapon === w"
-            :attention="flare"
+            type="button"
+            :class="[`w-${w}`, { held: hud.weapon === w, 'is-attention': flare || (teaching('weapon') && hud.weapon !== w) }]"
             :aria-label="t(`options.actions.weapon${n + 1}`)"
-            :hotkey="weaponKey(n)"
+            :aria-pressed="hud.weapon === w"
             :data-testid="`btn-weapon-${w}`"
             @click="pick(n)"
           )
-        FHudButton(
+            WeaponArt(:weapon="w")
+            span.key(v-if="hud.device === 'mouse'" aria-hidden="true") {{ weaponKeyText(n) }}
+        button.weapon.held(
           v-else
-          :icon="hud.weapon"
-          :tone="TONES[hud.weapon]"
-          :attention="teaching('weapon')"
+          type="button"
+          :class="`w-${hud.weapon}`"
           :aria-label="t('hud.weapons')"
-          :hotkey="kb('cycle')"
-          wheel
-        data-testid="btn-weapons"
+          data-testid="btn-weapons"
           @click="wheelOpen = true"
         )
+          WeaponArt(:weapon="hud.weapon")
+          span.key.wide(v-if="hud.device === 'mouse'" aria-hidden="true")
+            svg.wheel(viewBox="0 0 12 16")
+              rect(x="1" y="1" width="10" height="14" rx="5")
+              rect.lit(x="5" y="3" width="2" height="4" rx="1")
+            span.or /
+            | {{ cycleKeyText }}
       FHudButton(
         icon="decoy"
         :tone="LOOK.decoy.tone"
@@ -286,10 +293,14 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref, watch } from 'vue'
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import FHudButton from '@/components/atoms/FHudButton.vue'
-import { BUTTON_LOOK as LOOK, WEAPON_TONES } from '@/components/hud/touchLook'
+import WeaponArt from '@/components/hud/WeaponArt.vue'
+import { sfx } from '@/game/audio/sfx'
+import { primaryCode } from '@/game/engine/keyBindings'
+import { keyLabel } from '@/game/engine/keyLabels'
+import { BUTTON_LOOK as LOOK } from '@/components/hud/touchLook'
 import HealthBars from '@/components/hud/HealthBars.vue'
 import UplinkRings from '@/components/hud/UplinkRings.vue'
 import WorldPrompt from '@/components/hud/WorldPrompt.vue'
@@ -326,14 +337,11 @@ import type { HintId } from '@/game/sim/coach'
 const emit = defineEmits<{ (e: 'pause'): void }>()
 const { t } = useI18n()
 
-/** Each button's colour and shape come from one table (#160); the weapon in hand colours its chip. */
-const TONES = WEAPON_TONES
 
 /** A control lesson is on for this chip: it pulses until it has been used. */
 /** On a desktop every chip shows the key that works it (the mouse is captured, so the chip cannot be clicked, #82). */
 const kb = (a: Action): Action | undefined => (hud.device === 'mouse' ? a : undefined)
 const WEAPON_KEYS: readonly Action[] = ['weapon1', 'weapon2', 'weapon3']
-const weaponKey = (n: number): Action | undefined => kb(WEAPON_KEYS[n] ?? 'cycle')
 const teaching = (id: HintId): boolean => hud.device === 'touch' && hud.hints.some(h => h.id === id)
 
 // ── The quest log sits on the action column (#145) ──
@@ -389,9 +397,15 @@ const offChaos = on('chaos', () => {
 onUnmounted(offChaos)
 let closeTimer = 0
 const pick = (n: number): void => {
+  sfx('uiClick')
   input.weaponQueued = (n + 1) as 1 | 2 | 3
   wheelOpen.value = false
 }
+/** All three out (#161): always on touch, a switch to tap; on a desktop while the wheel is open. */
+const spread = computed(() => hud.device === 'touch' || wheelOpen.value)
+/** The keys lettered on the weapons: 1, 2, 3, and the one that turns through them. */
+const weaponKeyText = (n: number): string => keyLabel(primaryCode(WEAPON_KEYS[n] ?? 'cycle'))
+const cycleKeyText = computed(() => (primaryCode('cycle') === 'Tab' ? 'Tab' : keyLabel(primaryCode('cycle'))))
 // An open wheel nobody picks from folds away again.
 watch(wheelOpen, (open) => {
   window.clearTimeout(closeTimer)
@@ -516,7 +530,103 @@ onUnmounted(() => window.clearTimeout(closeTimer))
 .weapons
   display: flex
   flex-direction: row-reverse
+  align-items: center
   gap: var(--gap)
+  &.spread
+    flex-direction: row
+
+// A weapon, drawn (#161): no plate, no border; it is the button. The one in
+// hand is big and lit, the others smaller and dimmed; a bar of its colour
+// under the one in hand.
+.weapon
+  --wt: var(--cm-cyan)
+  position: relative
+  display: flex
+  align-items: center
+  justify-content: center
+  box-sizing: border-box
+  width: calc(var(--cm-chip) * 1.7)
+  height: var(--cm-chip)
+  min-height: 2.5rem
+  padding: 0.2rem 0.15rem
+  border: 0
+  background: none
+  cursor: pointer
+  pointer-events: auto
+  touch-action: manipulation
+  -webkit-tap-highlight-color: transparent
+  opacity: 0.72
+  filter: saturate(0.55) brightness(0.85)
+  transition: opacity 140ms ease-out, filter 140ms ease-out, width 140ms ease-out
+  &.w-minigun
+    --wt: var(--cm-violet)
+  &.w-rocket
+    --wt: var(--cm-danger)
+  &.held
+    width: calc(var(--cm-chip) * 2.5)
+    opacity: 1
+    filter: none
+    &::after
+      content: ''
+      position: absolute
+      left: 12%
+      right: 12%
+      bottom: 0.05rem
+      height: 0.2rem
+      background: var(--wt)
+      box-shadow: 0 0 0.5rem var(--wt)
+      +tech-cut(0.1rem)
+  &:hover
+    opacity: 0.85
+  &.held:hover
+    opacity: 1
+  &:focus-visible
+    outline: var(--cm-edge) solid var(--cm-text)
+  &.is-attention:not(.held)
+    animation: weapon-call 1.2s ease-in-out infinite
+@keyframes weapon-call
+  50%
+    opacity: 1
+    filter: none
+@media (prefers-reduced-motion: reduce)
+  .weapon.is-attention:not(.held)
+    animation: none
+    opacity: 0.85
+// Its key (desktop), small in the bottom-left corner, as on every chip.
+.weapon .key
+  position: absolute
+  left: 0
+  bottom: 0
+  min-width: 1.15rem
+  height: 1.15rem
+  padding: 0 0.2rem
+  box-sizing: border-box
+  display: flex
+  align-items: center
+  justify-content: center
+  color: var(--cm-text)
+  font-size: 0.68rem
+  line-height: 1
+  text-transform: uppercase
+  white-space: nowrap
+  pointer-events: none
+  +tech-plate(var(--cm-cyan), linear-gradient(180deg, #4a3590, #2a1a5e), 0.28rem, var(--cm-edge), false)
+  &.wide
+    font-size: 0.55rem
+  .wheel
+    width: 0.6rem
+    height: 0.8rem
+    flex: none
+    rect
+      fill: none
+      stroke: currentColor
+      stroke-width: 1.4
+    rect.lit
+      fill: currentColor
+      stroke: none
+  .or
+    margin: 0 0.12rem
+    opacity: 0.7
 
 // Left of the action column, level with its middle: where the thumb comes
 // from, and never under the column itself.
