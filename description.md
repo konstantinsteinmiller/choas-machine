@@ -8,7 +8,7 @@ Sneak a cute mech into a neon fortress. Snipe guards, strike from the shadows, t
 
 ## Description (max 500 characters)
 
-You are the Chaos Machine: a small mech raiding sky fortresses for salvage. Snipe from your perch, grapple over walls, shoot ropes, take guards from behind, burn the evidence and hide as a toaster. Stop the runner before the beacon is lit. Strip the salvage, outwit the Warden, and fly out on your robo dog. If the alarm sounds, the minigun and rockets come out. Three fortresses, upgrades, and a base that learns your habits.
+You are the CM-07: a cute mech raiding sky fortresses for salvage. Snipe from your platform, grapple over walls, shoot ropes over gaps, take guards from behind, burn the evidence and hide as a toaster. Stop the runner before the beacon is lit. Strip the salvage, outwit the Warden, and fly out on your robo dog. If the alarm sounds, the minigun and rockets come out. Three fortresses, upgrades, and a base that learns your habits.
 
 (424 characters)
 

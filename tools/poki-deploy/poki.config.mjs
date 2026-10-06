@@ -7,14 +7,14 @@
 export default {
   // The developer team the game lives under in P4D. Empty until the game is
   // created there.
-  team: '',
+  team: 'hyperg8',
   // NOT KNOWN YET, and deliberately not guessed. Until Chaos Machine exists in
   // P4D and its uuid is pasted here (or passed as `--game-id <uuid>`), every mode
   // that talks to P4D refuses to start — see lib/target.mjs. This repo was
   // forked from Mega Droid; an upload with that game's id would land in its
   // Versions list, so its id is refused outright even if it is pasted back in.
   // `--gates-only` (offline) needs no id.
-  gameId: '',
+  gameId: 'dc3dfa72-85a4-4ae0-be16-66fa95ed1db0',
   gameName: 'Chaos Machine',
 
   build: 'pnpm build:poki',
