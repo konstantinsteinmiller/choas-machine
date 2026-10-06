@@ -84,7 +84,7 @@ describe('Roombas (#72)', () => {
 })
 
 describe('the riot shield (#90)', () => {
-  it('stops a round from in front; the head shows over it', () => {
+  it('stops a round from in front; the head shows over it while he looks out (#151: otherwise it is up over his head too)', () => {
     const b = yard()
     b.shieldGuard([[10, 10]], 0)
     const f = b.build()
@@ -95,7 +95,10 @@ describe('the riot shield (#90)', () => {
     const chest = castShot(f.grid, gar.units, u.x, u.y + 1, u.z + 10, 0, 0, -1, 20, hit())
     expect(chest.unit).toBe(u.id)
     expect(chest.zone).toBe('armor')
-    // At the head: over the shield.
+    // At the head, the shield up: on the shield.
+    expect(castShot(f.grid, gar.units, u.x, u.y + 1.58, u.z + 10, 0, 0, -1, 20, hit()).zone).toBe('armor')
+    // Looking out over it: the head.
+    u.peekT = 1
     const head = castShot(f.grid, gar.units, u.x, u.y + 1.58, u.z + 10, 0, 0, -1, 20, hit())
     expect(head.zone).toBe('head')
   })

@@ -31,7 +31,7 @@ import { makePlayer, stepPlayer, eyeHeight, angleDelta, type Player } from './pl
 import { makeCam, lookCam, stepCam, placeCam, stickToWorld, camForward, type Cam } from './camera'
 import { alertSegments } from './alert'
 import {
-  SPECS, SUSPECT_AT, igniteUnit, stepHeard, sabotageBeacon, searchForShooter, noteChange, tagUnit, cutRig, helmetPops, isAlive, stepFallen, estimateShot, shotPassed, IMPACT_M, UPLINK_S, drainEvents, headingTo, killUnit, damageUnit, makeGarrison, noiseAt, hearAt, wonderAt, voidNoise, stepGarrison, alarmUnit, startleUnit, isLight,
+  SPECS, SUSPECT_AT, igniteUnit, shieldStruck, stepHeard, sabotageBeacon, searchForShooter, noteChange, tagUnit, cutRig, helmetPops, isAlive, stepFallen, estimateShot, shotPassed, IMPACT_M, UPLINK_S, drainEvents, headingTo, killUnit, damageUnit, makeGarrison, noiseAt, hearAt, wonderAt, voidNoise, stepGarrison, alarmUnit, startleUnit, isLight,
   type Garrison, type Target, type Unit, type Change
 } from './garrison'
 import { GarrisonView } from './garrisonView'
@@ -1078,6 +1078,8 @@ export class Mission implements GameMode {
     }
     if (h.kind === 'unit') {
       const u = gar.units[h.unit]!
+      // A shield guard struck, on the shield or not: up it goes (#151).
+      shieldStruck(gar, u.id)
       const soft = u.kind === 'guard' || u.kind === 'sentry' || u.kind === 'commander'
       this.stats.hits++
       const head = h.zone === 'head' && soft

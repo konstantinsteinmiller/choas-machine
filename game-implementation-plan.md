@@ -799,7 +799,7 @@ fortress; the outro after the first Spire III clear).
 - [x] **R52 Animation and fire** (#148): stride by speed + planted feet, guard
   run / kneel / interact / burn / throw / reload, mech weight, kneel-activate,
   flamethrower brace; wrecks of mechs and machines burn down for a few bolts
-- [ ] **R53 Shield guard tactics** (#151): shield up while approaching, leads
+- [x] **R53 Shield guard tactics** (#151): shield up while approaching, leads
   the squad and covers guards behind it, peeks to fire only after 5 s without
   being hit; burnable
 - [ ] **R54 The Airship** (#142): model, loop, belly light, turrets, flying
@@ -827,6 +827,10 @@ fortress; the outro after the first Spire III clear).
   patrol's planted foot slid ~50 % of the ground covered, now under 10 %;
   CM-07's ~40 %, now under 15 %. The robo dog already had spine flex and a
   steady head (cca3424); nothing added.
+
+- R53: a dead shield guard's body was already burnable where it lay (its
+  place follows the ragdoll); what was missing was burning him alive, which
+  R52's live burn now does, shield or not.
 
 ### Round 5 deferred
 

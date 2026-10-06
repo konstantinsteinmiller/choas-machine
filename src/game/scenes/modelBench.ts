@@ -109,7 +109,7 @@ export class ModelBench implements GameMode {
     }
     for (const commander of [false, true]) {
       if (all || which === (commander ? 'commander' : 'guard')) {
-        const rig = buildGuard(commander, commander && q.has('shield'))
+        const rig = buildGuard(commander, q.has('shield'))
         add(rig, 0, (t) => poseGuard(rig, {
           ...restGuardPose(),
           time: t,
@@ -119,6 +119,8 @@ export class ModelBench implements GameMode {
           inspect: poseName === 'kneel' ? 1 : 0,
           work: poseName === 'work' ? 1 : 0,
           burning: poseName === 'burn' ? 1 : 0,
+          // A shield guard (`shield`, #151): up over his head, or (`peek`) looking out.
+          shieldUp: q.has('shield') && poseName !== 'peek' ? 1 : 0,
           aim: poseName === 'aim' ? 1 : 0,
           wary: poseName === 'search' ? 1 : 0,
           caution: poseName === 'wary' || poseName === 'search' ? 1 : 0,

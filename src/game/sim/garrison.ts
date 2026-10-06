@@ -293,6 +293,9 @@ export interface Unit {
   ragHow: KillHow
   /** Seconds it has left on fire (#148), 0 when it is not burning. */
   onFire: number
+  /** A shield guard (#151): seconds since anything struck it, and seconds left of a peek over the shield. */
+  quietT: number
+  peekT: number
   ragStruck: boolean
   /** The body has hit the ground, and been heard doing it (#108). */
   thud: boolean
@@ -835,7 +838,7 @@ export const makeGarrison = (f: Fortress, level = 2): Garrison => {
       power: mech && !p.dummy ? 0 : 1, aimT: 0, fireT: 0, burst: 0, burstT: 0, shellT: 0, shellX: 0, shellZ: 0, shellLure: false, recoil: 0,
       tagged: false, hidden: false, partner: p.partner ?? -1, chatting: false, poke: false, changeT: 0,
       role: p.role ?? null, shotgun: p.gun === 'shotgun', grenadeT: 0, job: null, jobT: 0, scentT: -1e9,
-      rag: null, ragHow: 'shot', ragStruck: false, thud: false, onFire: 0,
+      rag: null, ragHow: 'shot', ragStruck: false, thud: false, onFire: 0, quietT: 0, peekT: 0,
       helmet: !!f.answers?.helmets && (p.kind === 'guard' || p.kind === 'sentry'), boxLook: 0, inspect: null, inspectCool: 0, focusT: 0, bodySearch: false, uplinkT: 0, lostT: 0,
       jammed: false, shells: 0, overheat: 0, phase2: false, glintT: 0, dashT: 0, dashX: 0, dashZ: 0, dashCool: 2, dashHit: false
     }
@@ -1692,6 +1695,20 @@ const fight = (u: Unit, g: Grid, gar: Garrison, target: Target, dt: number): voi
     turnToward(u, headingTo(u.x, u.z, u.sees ? target.x : u.seenX, u.sees ? target.z : u.seenZ), dt, turn)
     return
   }
+  // The shield guard (#151): ahead of the guard nearest him, toward the mech,
+  // at a walk while his shield is up; facing the mech all the while.
+  if (shieldGuard(u) && u.sees) {
+    turnToward(u, headingTo(u.x, u.z, target.x, target.z), dt, turn)
+    const spot = escortSpot(u, gar, target)
+    if (Math.hypot(spot.x - u.x, spot.z - u.z) < 1.2 || Math.hypot(target.x - u.x, target.z - u.z) < 4) { u.path = []; stand(u); return }
+    if (u.path.length === 0 || (u.repath -= dt) <= 0) {
+      u.repath = 0.8
+      if (!goTo(u, g, spot.x, spot.z)) goTo(u, g, target.x, target.z)
+    }
+    follow(u, g, shieldUp(u) ? spec.walk * 1.4 : spec.run * 0.8, dt, turn)
+    turnToward(u, headingTo(u.x, u.z, target.x, target.z), dt, turn)
+    return
+  }
   if (u.sees) {
     turnToward(u, headingTo(u.x, u.z, target.x, target.z), dt, turn)
     if (dist > engage) {
@@ -1914,6 +1931,7 @@ export const stepGarrison = (gar: Garrison, g: Grid, target: Target, dt: number)
     if (u.gripped) { u.speed01 = 0; u.sees = false; continue }
     // On fire (#148): it runs blind, beating at itself, and drops when the fire has it.
     if (u.onFire > 0) { stepOnFire(gar, u, g, dt); calm = false; continue }
+    stepShield(u, dt)
     if (u.power < 1) {
       // Powering up: it stands and whirs, and does nothing else yet.
       u.power = Math.min(1, u.power + dt / (WAKE_S * (u.jammed ? JAM_WAKE : 1)))
@@ -2300,6 +2318,63 @@ export const startleUnit = (gar: Garrison, id: number, fromX: number, fromZ: num
   if (u.state !== 'patrol') { alarmUnit(gar, id, fromX, fromZ); return }
   u.detect = Math.max(u.detect, SUSPECT_AT + 0.15)
   suspect(gar, u, fromX, fromZ, false)
+}
+
+// ─── The shield guard (#151) ─────────────────────────────────────────────────
+//
+// His shield is up, over his head, unless he has gone SHIELD_QUIET_S without
+// anything striking him: then he looks out over it for PEEK_S, and only then
+// can his handgun fire (and his head be hit). Anything that strikes him puts
+// it straight back up and starts the count again. In a fight he walks ahead
+// of the guard nearest him, between it and the mech, so his shield covers it
+// too (`escortSpot`); its rounds go past him.
+
+/** Seconds without being struck before a shield guard looks out over his shield, and how long he looks. */
+export const SHIELD_QUIET_S = 5
+export const PEEK_S = 1.5
+/** How far in front of the guard he covers he walks. */
+const ESCORT_M = 2.2
+
+/** A guard with a riot shield of his own (not the Warden's). */
+export const shieldGuard = (u: Unit): boolean => u.shield && !u.boss
+
+/** His shield is up: over his head, his gun quiet. */
+export const shieldUp = (u: Unit): boolean => shieldGuard(u) && isAlive(u) && u.onFire <= 0 && u.peekT <= 0
+
+/** Something struck a shield guard (a round on the shield or on him, a blast): up it goes. */
+export const shieldStruck = (gar: Garrison, id: number): void => {
+  const u = gar.units[id]
+  if (!u || !shieldGuard(u)) return
+  u.quietT = 0
+  u.peekT = 0
+}
+
+const stepShield = (u: Unit, dt: number): void => {
+  if (!shieldGuard(u)) return
+  if (u.peekT > 0) {
+    u.peekT -= dt
+    if (u.peekT <= 0) { u.peekT = 0; u.quietT = 0 }
+    return
+  }
+  u.quietT += dt
+  if (u.quietT >= SHIELD_QUIET_S) u.peekT = PEEK_S
+}
+
+/** Where a shield guard walks in a fight: a little ahead of the guard nearest him, toward the mech; or at the mech. */
+export const escortSpot = (u: Unit, gar: Garrison, target: { x: number; z: number }): { x: number; z: number } => {
+  let ally: Unit | null = null
+  let best = 20
+  for (const o of gar.units) {
+    if (o === u || !isAlive(o) || !isHuman(o) || o.shield || o.state !== 'combat') continue
+    const d = Math.hypot(o.x - u.x, o.z - u.z)
+    if (d < best) { best = d; ally = o }
+  }
+  if (!ally) return { x: target.x, z: target.z }
+  const dx = target.x - ally.x
+  const dz = target.z - ally.z
+  const d = Math.hypot(dx, dz) || 1
+  const k = Math.min(ESCORT_M, d * 0.5)
+  return { x: ally.x + (dx / d) * k, z: ally.z + (dz / d) * k }
 }
 
 /** How long a person burns before it drops (#148). */

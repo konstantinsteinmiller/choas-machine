@@ -17,7 +17,7 @@ import { poseRagdoll } from '../models/ragdollPose'
 import { DOG_STAND, HOUND_SCALE, buildRobodog, poseRobodog, restDogPose, type DogPose } from '../models/robodog'
 import { angleDelta } from './player'
 import { STEP } from '../engine/clock'
-import { SPECS, SPOT_RADIUS, SUSPECT_AT, spotCentre, viewerOf, type Garrison, type Unit , isLight } from './garrison'
+import { SPECS, SPOT_RADIUS, SUSPECT_AT, spotCentre, viewerOf, shieldUp, type Garrison, type Unit , isLight } from './garrison'
 
 /**
  * ─── The garrison, drawn ─────────────────────────────────────────────────────
@@ -309,6 +309,8 @@ interface UnitView {
   /** Humans (#148): eased 0 … 1 down on one knee by a body it found; at work on a crank or a repair. */
   kneelBy: number
   work: number
+  /** A shield guard's shield, eased 0 … 1 (#151). */
+  shieldUp: number
   spin: number
   /** Drones: last frame's heading, and the bank it is easing into. */
   lastYaw: number
@@ -542,7 +544,7 @@ export class GarrisonView {
         goliath: u.kind === 'goliath' ? { time: 0, turretYaw: 0, barrelPitch: 0, recoil: 0, rumble: 0, dead: 0 } : null,
         dog: u.kind === 'hound' ? restDogPose() : null,
         roomba: u.kind === 'roomba' ? { time: 0, alarm: 0, recoil: 0, aimYaw: 0, speed: 0 } : null,
-        aim: 0, wary: 0, caution: 0, grip: 0, kneelBy: 0, work: 0, spin: 0, lastYaw: u.yaw, bank: 0, pop: 0, lastState: u.state, flash: 0, wrecked: false, landed: false,
+        aim: 0, wary: 0, caution: 0, grip: 0, kneelBy: 0, work: 0, shieldUp: 0, spin: 0, lastYaw: u.yaw, bank: 0, pop: 0, lastState: u.state, flash: 0, wrecked: false, landed: false,
         tag: null, route: null, top: 0,
         clipX: u.x, clipZ: u.z, clipYaw: u.yaw, clipFrame: 0, clipState: u.state, clipTint: null, used: 0,
         laidX: NaN, laidZ: NaN, laidYaw: NaN
@@ -1071,6 +1073,9 @@ export class GarrisonView {
         s.inspect = v.kneelBy
         s.work = v.work
         s.burning = !dead && u.onFire > 0 ? 1 : 0
+        // A shield guard's shield (#151): up over his head, down for a peek.
+        v.shieldUp += ((shieldUp(u) ? 1 : 0) - v.shieldUp) * Math.min(1, dt * 7)
+        s.shieldUp = u.shield ? v.shieldUp : 0
         // In the mech's hands (a backstab, a drop from a rope): posed as the kill's choreography holds it.
         if (u.held) {
           // Seized, it has no thought for its gun.

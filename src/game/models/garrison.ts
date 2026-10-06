@@ -224,6 +224,8 @@ export interface GuardPose {
   work: number
   /** 0 … 1 on fire (#148): arms flailing, beating at itself. */
   burning: number
+  /** 0 … 1 a shield guard's shield raised over his head, the body crouched behind it (#151). */
+  shieldUp: number
   /** Seconds since it died; 0 while alive. */
   deadT: number
   /** How it goes down. */
@@ -240,7 +242,7 @@ export interface GuardPose {
 export type HumanDeath = 'back' | 'front' | 'spin' | 'thrown'
 
 export const restGuardPose = (): GuardPose => ({
-  time: 0, stride: 0, speed: 0, aim: 0, wary: 0, caution: 0, startle: 0, recoil: 0, lookYaw: 0, seed: 0.5, proud: false, gripped: 0, impaled: 0, limp: 0, kneel: 0, inspect: 0, work: 0, burning: 0, deadT: 0, death: 'back'
+  time: 0, stride: 0, speed: 0, aim: 0, wary: 0, caution: 0, startle: 0, recoil: 0, lookYaw: 0, seed: 0.5, proud: false, gripped: 0, impaled: 0, limp: 0, kneel: 0, inspect: 0, work: 0, burning: 0, shieldUp: 0, deadT: 0, death: 'back'
 })
 
 
@@ -545,6 +547,22 @@ const poseGuardAlive = (rig: Rig, s: GuardPose): void => {
  */
 const poseGuardActions = (rig: Rig, s: GuardPose): void => {
   const t = s.time
+  // The riot shield up over the head (#151): the plate lifted to the face,
+  // the left arm high behind it, a crouch, the head down behind the rim.
+  const sh = rig.bones.shield
+  if (sh) {
+    const up = s.shieldUp * (1 - s.gripped)
+    const rest = rig.rest.shield!.p
+    sh.position.set(rest.x, rest.y + SHIELD_LIFT * up, rest.z + 0.04 * up)
+    if (up > 0.001) {
+      blendPose(rig, 'armL', -1.55, 0, -0.2, up)
+      blendPose(rig, 'foreL', -0.9, 0, 0, up)
+      blendPose(rig, 'chest', 0.2, 0, 0, up)
+      blendPose(rig, 'head', 0.3, 0, 0, up)
+      const hips = rig.bones.hips!
+      hips.position.y -= 0.08 * up
+    }
+  }
   // One knee: the left foot planted ahead, the right knee on the floor, the
   // body bent over what it looks at, the free hand reaching down to it.
   const ins = s.inspect * (1 - s.gripped)
@@ -593,6 +611,9 @@ const poseGuardActions = (rig: Rig, s: GuardPose): void => {
     blendPose(rig, 'chest', -0.12 + f2 * 0.12, f3 * 0.35, 0, bn)
   }
 }
+
+/** How far a guard's riot shield rises when he raises it (#151): `hitscan.ts` GUARD_SHIELD_UP. */
+const SHIELD_LIFT = 0.54
 
 // ─── Surveillance drone ──────────────────────────────────────────────────────
 

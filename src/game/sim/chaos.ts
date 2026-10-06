@@ -1,7 +1,7 @@
 import type { Grid } from '../world/grid'
 import { VOID, heightAt } from '../world/grid'
 import { angleDelta } from './player'
-import { GOLIATH_MIN_M, SPECS, fireTokens, goliathAim, headingTo, isAlive, killUnit, type Garrison, type Target, type Unit } from './garrison'
+import { GOLIATH_MIN_M, SPECS, fireTokens, goliathAim, headingTo, isAlive, killUnit, shieldUp, type Garrison, type Target, type Unit } from './garrison'
 
 /**
  * ─── The base shoots back ────────────────────────────────────────────────────
@@ -113,6 +113,8 @@ export const stepFire = (gar: Garrison, g: Grid, target: Target, dt: number): vo
     if (!isAlive(u) || u.state !== 'combat' || u.power < 1) continue
     if (u.kind === 'goliath') { stepCannon(u, gar, g, target, dt); continue }
     if (u.glintT > 0 || u.dashT > 0) { u.burst = 0; continue }
+    // A shield guard fires only while he looks out over his shield (#151).
+    if (shieldUp(u)) { u.burst = 0; u.fireT = Math.max(u.fireT, 0.25); u.aimT = 0; continue }
     if (u.role === 'grenadier') stepGrenade(u, gar, g, target, dt)
     const gun = gunOf(u)
     if (!gun) continue

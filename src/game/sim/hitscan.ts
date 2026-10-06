@@ -1,5 +1,5 @@
 import { raycast, type Grid } from '../world/grid'
-import type { Unit } from './garrison'
+import { shieldUp, type Unit } from './garrison'
 
 /**
  * ─── What a shot hits ────────────────────────────────────────────────────────
@@ -47,6 +47,8 @@ export const DRONE_EYE = { z: 0.3, y: -0.06, r: 0.19 } as const
 export const RIOT_SHIELD = { z: 0.42, y: 0.95, hw: 0.36, hh: 0.62 } as const
 /** A guard's riot shield (#90): carried lower than the Warden's, so the head shows over it. */
 export const GUARD_SHIELD = { z: 0.42, y: 0.78, hw: 0.34, hh: 0.48 } as const
+/** ...and raised over his head (#151): the whole of him behind it but his legs. */
+export const GUARD_SHIELD_UP = { z: 0.42, y: 1.32, hw: 0.34, hh: 0.48 } as const
 /** A Roomba's shell and its dome (#72). */
 const ROOMBA_R = 0.58
 const ROOMBA_TOP = 0.43
@@ -189,7 +191,7 @@ const hitUnit = (u: Unit, ox: number, oy: number, oz: number, dx: number, dy: nu
     // The Warden's riot shield: a plate held in front of him. A round that
     // meets it first stops there.
     if (u.shield) {
-      const sh = u.boss ? RIOT_SHIELD : GUARD_SHIELD
+      const sh = u.boss ? RIOT_SHIELD : shieldUp(u) ? GUARD_SHIELD_UP : GUARD_SHIELD
       const s = local(u, -0.08, sh.z)
       take(rayBox(ox, oy, oz, dx, dy, dz, s.x, u.y + sh.y, s.z, u.yaw, sh.hw, sh.hh, 0.05), 'armor')
     }
