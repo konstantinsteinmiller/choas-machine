@@ -243,6 +243,28 @@ pairs in each scene (the fifth a tie or the machine's noise: it was busy, and
 every number here is slower than the round 3 baseline). The precompile
 (3.1-3.9 s) is untouched and is now the largest piece: see Open.
 
+### 9. Every device draws at its own pixel ratio (up to 3×) — shipped by rule, cost not yet measured on a phone
+
+The owner's rule: never draw below the display's own pixel ratio. The cap was
+1 on weak devices, 1.5 on iPhones, 1.6 on other touch screens and 2 on
+desktop: a 3× phone drew 1170 device px wide at 0.53 of them and the browser
+stretched it up (blur probe: backing-store ratio 0.67 at the 390×844 portrait,
+SOFT, 0.13). Now `dprCap()` is 3 for everyone (`dpr1` stays an opt-in arm).
+After: ratio 1.00 at 1280×720@1, 320×658@3 and 764×385@3; the phone image
+SHARP (0.44 portrait, 0.37 at 320 wide), desktop SHARP (0.26).
+
+The cost: a 3× phone fills (3 ÷ 1.6)² ≈ 3.5× the pixels it did, an iPhone
+4×. What a weak device still gives up is scenery and MSAA (`quality.ts`,
+`deviceProfile.ts`), never resolution. Not measurable here: headless
+SwiftShader on a desktop says nothing about a phone's fill rate. Open: measure
+frame time on a real mid-range Android and an iPhone; if it costs frames,
+trim with the scenery tier, never with the cap.
+
+Harness note: on the DEV server a 3× portrait run reloaded the page now and
+then (navigation type `reload`, nothing in the game reloads): the Vite
+client's socket starving under a heavy software-rendered frame. The same runs
+on a production build (`vite preview`) never reloaded (5 of 5).
+
 ## Round 2 check (2026-10-03): inconclusive
 
 Measured after round 2 (salvage, robo dog, smithy, UI material, hide box,

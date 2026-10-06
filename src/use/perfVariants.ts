@@ -62,8 +62,9 @@ export const activeVariants = (): string[] => [...flags]
 //
 /**
  * Baseline: iOS opens like any other phone (full scenery when it reports no
- * small RAM, 1.6x resolution). The shipping path opens iOS at low scenery and
- * 1.5x. Inherited, and not yet measured on a real iPhone (PERF-LEDGER.md, open items).
+ * small RAM). The shipping path opens iOS at low scenery. Inherited, and not
+ * yet measured on a real iPhone (PERF-LEDGER.md, open items). Resolution is no
+ * longer part of it: every device draws at its own pixel ratio (renderer.ts).
  */
 export const IOS_LEGACY = perfFlag('ios-legacy')
 

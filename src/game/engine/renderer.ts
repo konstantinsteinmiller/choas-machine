@@ -2,8 +2,7 @@ import {
   WebGLRenderer, SRGBColorSpace, NoToneMapping, PerspectiveCamera
 } from 'three'
 import { deviceClass } from '@/use/deviceProfile'
-import { perfFlag, IOS_LEGACY } from '@/use/perfVariants'
-import { isAppleTouch } from '@/use/deviceProfile'
+import { perfFlag } from '@/use/perfVariants'
 import { watchContextLoss } from './glContext'
 
 /**
@@ -18,15 +17,21 @@ import { watchContextLoss } from './glContext'
  */
 let renderer: WebGLRenderer | null = null
 
-/** Device-pixel-ratio cap. A 3× phone rendering at 3× fills 9× the pixels of
- *  1× for a picture that a cel-shaded, outlined style barely benefits from. */
+/** The highest device pixel ratio drawn at: past 3× nobody can see more. */
+export const MAX_DPR = 3
+
+/**
+ * Device-pixel-ratio cap. Never below the display's own ratio (up to 3×): a
+ * canvas drawn at 1.6× on a 3× phone is stretched up by the browser, and the
+ * whole 3D scene goes soft while the HTML HUD over it stays crisp (measured:
+ * backing-store ratio 0.67, SOFT). Every device class, phones and weak GPUs
+ * included, draws at its own ratio; what a weak device gives up is scenery
+ * (`quality.ts`), never resolution under native. The `dpr1` flag is an
+ * opt-in A/B arm, never set for a player.
+ */
 export const dprCap = (): number => {
   if (perfFlag('dpr1')) return 1
-  const weak = deviceClass() === 'weak'
-  const coarse = typeof matchMedia === 'function' && matchMedia('(pointer: coarse)').matches
-  if (weak) return 1
-  if (!IOS_LEGACY && isAppleTouch()) return 1.5
-  return coarse ? 1.6 : 2
+  return MAX_DPR
 }
 
 export const getRenderer = (): WebGLRenderer => {

@@ -14,8 +14,8 @@ import { IOS_LEGACY } from '@/use/perfVariants'
  * phone with 4 GB or less, or 4 cores or fewer: budget phones, where fill,
  * vertices and the main thread are all short. Everything else gets `full`.
  *
- * `deviceProfile` itself only ever changes the canvas resolution (its own
- * rule); this is a separate, narrower knob for scenery, so it lives here.
+ * Since round 5 nothing lowers the canvas resolution below the display's own
+ * pixel ratio (`renderer.ts`); this scenery knob is what a weak device gives up.
  *
  * `?scenery=low|full` pins it (QA, screenshots, A/B arms).
  */

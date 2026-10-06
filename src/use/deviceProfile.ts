@@ -22,12 +22,12 @@
  *
  * ── What it is allowed to change ──
  *
- * The canvas RESOLUTION, and nothing else. Not the effect tier, not the
- * particle budget, not a single pass in the renderer — those are what the game
- * LOOKS like, and a wrong guess there is a permanently worse-looking game for a
- * player whose device was fine. Resolution is the cheapest thing to give up
- * (fill cost scales with its square) and the least visible on a phone-class
- * screen, and a wrong guess is a slightly softer picture.
+ * Originally the canvas resolution and nothing else. Since round 5 it may not
+ * touch resolution either: nothing draws below the display's own pixel ratio
+ * (`renderer.ts`), because a canvas stretched up is a soft picture on exactly
+ * the phones people play on. What a weak device gives up now is the backdrop
+ * (`quality.ts`, low scenery) and MSAA; never the effect tier, the particle
+ * budget or a renderer pass, which are what the game LOOKS like.
  *
  * ── Why the GPU string and not a benchmark ──
  *
@@ -159,7 +159,7 @@ export const deviceRenderer = (): string => cachedRenderer
  *
  * iOS reports neither `deviceMemory` nor a weak GPU name ("Apple GPU"), so
  * every iPhone — a 3 GB one included — looked like a desktop-class device and
- * opened at full scenery and 1.6x resolution. iOS kills a tab that grows too
+ * opened at full scenery. iOS kills a tab that grows too
  * large instead of slowing it down, and that reads as a crash. Until a real
  * device has been measured, iOS opens one step lighter (see PERF-LEDGER).
  */
