@@ -314,6 +314,17 @@ const buildChunk = (g: Grid, pal: Palette, c0x: number, c0z: number, midX: numbe
     for (let cx = c0x; cx < Math.min(g.w, c0x + CHUNK); cx++) {
       const h = cellHeight(g, cx, cz)
       if (h === VOID) continue
+      // The island's underside (#149): a floor across the skirt's foot, the
+      // cell drawn in toward the middle as the skirt is, so the cells close
+      // it exactly. From below there was nothing, and the floors showed through.
+      {
+        const tuck = (v: number, mid: number): number => v + (mid - v) * SKIRT_TUCK
+        const x0 = tuck(cx * CELL, midX)
+        const x1 = tuck((cx + 1) * CELL, midX)
+        const z0 = tuck(cz * CELL, midZ)
+        const z1 = tuck((cz + 1) * CELL, midZ)
+        lit.add([x0, ySkirt, z0, x1, ySkirt, z0, x1, ySkirt, z1, x0, ySkirt, z1], [0, -1, 0], pal.cliffFoot, pal.cliffFoot, pal.cliffFoot, pal.cliffFoot)
+      }
       const kind = cellKind(g, cx, cz)
       const surf = cellSurf(g, cx, cz)
       // A solid prop stands here and draws itself: all the mesh owes it is

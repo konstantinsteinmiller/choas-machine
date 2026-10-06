@@ -807,7 +807,7 @@ fortress; the outro after the first Spire III clear).
   Harbour III
 - [x] **R55 The Spire** (#144): 4th fortress, terraced tower, Watchtower lamp,
   Airship at II/III, story (outro after the first Spire III clear)
-- [ ] **R56 Map fly-over** (#149): orbit shots of every map, fixes,
+- [x] **R56 Map fly-over** (#149): orbit shots of every map, fixes,
   integrity test over roofs / props / cables / skirt / scenery
 - [ ] **R57 Regression**: translations, docs, e2e, balance
 - [ ] **R58 Startup loading** (#36): measured A/B only
@@ -831,6 +831,12 @@ fortress; the outro after the first Spire III clear).
 - R53: a dead shield guard's body was already burnable where it lay (its
   place follows the ragdoll); what was missing was burning him alive, which
   R52's live burn now does, shield or not.
+
+- R56 fly-over (every fortress at every threat level, 8 directions × 3
+  heights and 4 from below): the one hole on every map was the island's
+  underside, open under the skirt (the floors showed through from below); it
+  is closed now. One prop stood inside a column (the Spire III's second
+  Watchtower over a corner lamp); moved. Everything else held.
 
 ### Round 5 deferred
 

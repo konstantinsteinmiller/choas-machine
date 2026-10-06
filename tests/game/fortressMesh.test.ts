@@ -7,7 +7,7 @@ import type { Mesh } from 'three'
 import { buildFortressMesh, CHUNK } from '@/game/world/fortressMesh'
 import { buildDecor } from '@/game/world/decor'
 import { FortressBuilder } from '@/game/world/fortress'
-import { CELL } from '@/game/world/grid'
+import { CELL, VOID } from '@/game/world/grid'
 import { buildProvingGround } from '@/game/data/fortresses/proving'
 import { toonGlowVC, glowVC, levelGlowMaterial } from '@/game/models/toon'
 
@@ -62,21 +62,36 @@ describe('the fortress mesh', () => {
     }
   })
 
-  it('a single ground cell is a top and four cliff sides', async () => {
+  it("a single ground cell is a top, four cliff sides and the island's underside", async () => {
     const b = new FortressBuilder('one', 3, 3)
     b.ground(1, 1, 1, 1).insert(1, 1).extract(1, 1)
     const mesh = await buildFortressMesh(b.build())
     expect(mesh.chunks).toHaveLength(1)
-    // 1 top + 4 edges × (a lip and a tapering skirt) = 9 quads.
-    expect(tris(mesh.chunks[0]!)).toBe(9 * 2)
+    // 1 top + 4 edges × (a lip and a tapering skirt) + the underside (#149) = 10 quads.
+    expect(tris(mesh.chunks[0]!)).toBe(10 * 2)
+  })
+
+  it("closes the island underneath: a floor at the skirt's foot under every cell (#149)", async () => {
+    const f = buildProvingGround()
+    const mesh = await buildFortressMesh(f)
+    let cells = 0
+    for (let i = 0; i < f.grid.h.length; i++) if (f.grid.h[i]! !== VOID) cells++
+    let down = 0
+    for (const c of mesh.chunks) {
+      const n = c.geometry.attributes.normal!
+      const idx = c.geometry.index!
+      for (let i = 0; i < idx.count; i += 3) if (n.getY(idx.getX(i)) < -0.99) down++
+    }
+    // Roofs' undersides face down too: at least one quad under every cell.
+    expect(down).toBeGreaterThanOrEqual(cells * 2)
   })
 
   it('draws a side only where a neighbour is lower', async () => {
     const flat = new FortressBuilder('flat', 8, 8)
     flat.ground(0, 0, 7, 7).insert(1, 1).extract(6, 6)
     const base = tris((await buildFortressMesh(flat.build())).chunks[0]!)
-    // 64 tops + 32 rim edges × 2 quads.
-    expect(base).toBe((64 + 32 * 2) * 2)
+    // 64 tops + 32 rim edges × 2 quads + 64 cells of underside.
+    expect(base).toBe((64 + 32 * 2 + 64) * 2)
 
     // A lone steel pillar four metres high: a chamfered top (1 + 4 chamfer
     // quads), two plates on each of its four faces, a rib on each face (it

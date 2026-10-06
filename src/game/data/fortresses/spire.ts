@@ -160,7 +160,7 @@ export const buildSpire = (level = 1, run = 0, answers: Answers = NO_ANSWERS): F
     b.hound(pick([[4, 4, 2], [51, 4, 2]], [[51, 51, 2], [4, 51, 2]]))
     b.shieldGuard([[13, 26, 2], [13, 34, 2]])
     // A second Watchtower over the lowest ring's west side.
-    b.watchtower(8, 8, 14, [[9, 20, 2], [20, 9, 2], [9, 40, 2], [40, 9, 2]])
+    b.watchtower(10, 10, 14, [[9, 20, 2], [20, 9, 2], [9, 40, 2], [40, 9, 2]])
   }
 
   // ── Reinforcements, up the stairs ──
