@@ -72,6 +72,8 @@ export class TrainingDirector {
   private victimPose = restGuardPose()
   /** The weapons room's targets, in the same light: they fall to the demo's rounds (#109). */
   private targets: Array<{ rig: Rig; at: readonly [number, number]; yaw: number; dies: number; death: 'back' | 'front' | 'thrown' }> = []
+  /** The weapons room's rounds (#168), drawn as a streak from the muzzle. */
+  private streak: Mesh
   /** The rocket room's hologram (#146): the armoured mech on the ledge, the rocket, and the mech in pieces. */
   private holoMech: Rig
   private rocketMesh: Group
@@ -150,6 +152,11 @@ export class TrainingDirector {
     this.rocketMesh.add(tube, nose)
     this.rocketMesh.visible = false
     this.group.add(this.rocketMesh)
+    // The weapons room's rounds (#168): a streak of light from the ghost's muzzle to each target as it falls.
+    this.streak = new Mesh(new CylinderGeometry(0.025, 0.025, 1, 6, 1, true), this.holo)
+    this.streak.geometry.translate(0, 0.5, 0)
+    this.streak.visible = false
+    this.group.add(this.streak)
     this.shatter = new Shatter(fortress.grid)
     this.group.add(this.shatter.group)
     // The sentry the rifle takes, the two the minigun cuts down (as the demo's keys time them).
@@ -301,7 +308,7 @@ export class TrainingDirector {
       this.body.root.visible = this.disguise.visible = this.rope.visible = this.flame.visible = false
       for (const tg of this.targets) tg.rig.root.visible = false
       this.victim.root.visible = false
-      this.holoMech.root.visible = this.rocketMesh.visible = false
+      this.holoMech.root.visible = this.rocketMesh.visible = this.streak.visible = false
       if (this.broken) { this.shatter.clear(HOLO_WRECK); this.broken = false }
       return
     }
@@ -453,13 +460,27 @@ export class TrainingDirector {
       this.victim.root.rotation.y = f.td >= 0 ? poseBackstabGuard(g, DEMO_BACKSTAB, f.td, vf.yaw) : vf.yaw
       poseGuard(this.victim, g)
     }
-    for (const tg of this.targets) {
+    this.streak.visible = false
+    for (const [k, tg] of this.targets.entries()) {
       tg.rig.root.visible = r.lesson === 'weapons'
       if (!tg.rig.root.visible) continue
       tg.rig.root.position.set(toX(tg.at[0]), 0, toZ(tg.at[1]))
       tg.rig.root.rotation.y = tg.yaw
       const down = dt >= tg.dies
       poseGuard(tg.rig, { ...restGuardPose(), time: time + tg.at[0], deadT: down ? Math.max(1e-3, dt - tg.dies) : 0, death: tg.death })
+      // The round that takes it (#168): the rifle's one streak, the mini-gun's
+      // flicker of them through its burst; out of the ghost's own muzzle.
+      const lead = dt - (tg.dies - (k === 0 ? 0.12 : 0.55))
+      const on = lead > 0 && dt < tg.dies && (k === 0 || Math.floor(time * 24) % 2 === 0)
+      if (on && !this.streak.visible) {
+        const from = muzzleWorld(this.ghost, f.weapon, this.muzzleV) ?? this.muzzleV.copy(this.ghost.root.position)
+        const to = new Vector3(toX(tg.at[0]), 1.35, toZ(tg.at[1]))
+        const len = from.distanceTo(to)
+        this.streak.position.copy(from)
+        this.streak.scale.set(1, len, 1)
+        this.streak.quaternion.setFromUnitVectors(new Vector3(0, 1, 0), to.sub(from).normalize())
+        this.streak.visible = true
+      }
     }
     // The rope: from the tower's edge to the platform's, once shot.
     this.rope.visible = f.rope > 0.5
@@ -509,6 +530,7 @@ export class TrainingDirector {
   }
 
   dispose(): void {
+    this.streak.geometry.dispose()
     this.ghost.mesh.geometry.dispose()
     this.ghost.outline?.geometry.dispose()
     this.ghost.material.dispose()

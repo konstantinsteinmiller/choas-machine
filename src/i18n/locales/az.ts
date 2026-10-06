@@ -249,6 +249,18 @@ export default {
       'decoy': 'Yem istifadə et [{key}], diqqəti yayınanda arxadan vur',
       'decoyTouch': 'Yem istifadə et, diqqəti yayınanda arxadan vur',
       'decoyAny': 'Səni yenə gördülər. Mühafizəçini istədiyin kimi aradan qaldır.'
+    },
+    'door': {
+      'cover': 'Keçmək üçün bir dəfə çömel',
+      'weapons': 'Keçmək üçün üçünü də vur',
+      'rocket': 'Mekanı raketatanla məhv et',
+      'supply': 'Təchizat qutusunu götür',
+      'blade': 'Hər iki mühafizəçini arxadan vur',
+      'burn': 'Cəsədi yandır',
+      'decoy': 'Yem at, sonra mühafizəçini arxadan vur',
+      'rope': 'Qarşı tərəfə ip at',
+      'beacon': 'Həyəcan postunu söndür',
+      'salvage': 'Hurdanı topla'
     }
   },
   'pause': {

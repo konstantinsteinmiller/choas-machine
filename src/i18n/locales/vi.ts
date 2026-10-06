@@ -249,6 +249,18 @@ export default {
       'decoy': 'Dùng mồi nhử [{key}], đâm sau lưng khi địch mất tập trung',
       'decoyTouch': 'Dùng mồi nhử, đâm sau lưng khi địch mất tập trung',
       'decoyAny': 'Lại bị lộ. Hạ gục lính gác theo cách nào cũng được.'
+    },
+    'door': {
+      'cover': 'Cúi xuống một lần để qua',
+      'weapons': 'Hạ cả ba để qua',
+      'rocket': 'Phá hủy mech bằng súng phóng',
+      'supply': 'Lấy thùng tiếp tế',
+      'blade': 'Đâm sau lưng cả hai lính gác',
+      'burn': 'Đốt xác',
+      'decoy': 'Ném mồi nhử, rồi đâm sau lưng lính gác',
+      'rope': 'Bắn dây sang bên kia',
+      'beacon': 'Tắt trạm báo động',
+      'salvage': 'Thu gom phế liệu'
     }
   },
   'pause': {

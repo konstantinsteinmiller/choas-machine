@@ -249,6 +249,18 @@ export default {
       'decoy': 'Usa un reclamo [{key}] e apuñala polas costas cando se distraia',
       'decoyTouch': 'Usa un reclamo e apuñala polas costas cando se distraia',
       'decoyAny': 'Víronte de novo. Acaba co garda como queiras.'
+    },
+    'door': {
+      'cover': 'Agáchate unha vez para pasar',
+      'weapons': 'Abate os tres para pasar',
+      'rocket': 'Destrúe o mecha co lanzafoguetes',
+      'supply': 'Colle a caixa de subministracións',
+      'blade': 'Apuñala polas costas os dous gardas',
+      'burn': 'Queima o corpo',
+      'decoy': 'Lanza un reclamo e apuñala o garda polas costas',
+      'rope': 'Dispara unha corda ao outro lado',
+      'beacon': 'Apaga o posto de alarma',
+      'salvage': 'Recolle a chatarra'
     }
   },
   'pause': {

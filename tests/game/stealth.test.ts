@@ -233,9 +233,11 @@ describe('the garrison', () => {
     expect(isUnaware(u)).toBe(true)
     let nearest = Infinity
     const e = run(gar, f, away, 40, () => { nearest = Math.min(nearest, Math.hypot(u.x - cellMid(14), u.z - cellMid(12))) })
-    expect(nearest).toBeLessThan(1.5)
+    // Up to it, arm's length or so (#171).
+    expect(nearest).toBeLessThan(2.4)
     expect(gar.alert.level).toBe(0)
-    expect(types(e)).toEqual(['suspicious', 'calm'])
+    // It stood and fired its one round at the thing (#171).
+    expect(types(e)).toEqual(['suspicious', 'decoyShot', 'calm'])
     // And it walks back to its post.
     expect(Math.hypot(u.x - u.homeX, u.z - u.homeZ)).toBeLessThan(0.5)
   })

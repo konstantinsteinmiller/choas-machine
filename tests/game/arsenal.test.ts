@@ -274,7 +274,8 @@ describe('decoys', () => {
       nearest = Math.min(nearest, Math.hypot(gar.units[0]!.x - cellMid(13), gar.units[0]!.z - cellMid(11)))
     }
     drainEvents(gar)
-    expect(nearest).toBeLessThan(1.5)
+    // Up to it, arm's length or so, and it stands there watching (#171).
+    expect(nearest).toBeLessThan(2.4)
     expect(out).toBe(1)
     expect(decoys).toHaveLength(0)
     expect(gar.alert.level).toBe(0)

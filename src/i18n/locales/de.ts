@@ -249,6 +249,18 @@ export default {
       'decoy': 'Nutz einen Köder [{key}], stich von hinten zu, wenn er abgelenkt ist',
       'decoyTouch': 'Nutz einen Köder, stich von hinten zu, wenn er abgelenkt ist',
       'decoyAny': 'Wieder entdeckt. Schalte die Wache aus, wie du willst.'
+    },
+    'door': {
+      'cover': 'Duck dich einmal, um durchzukommen',
+      'weapons': 'Schalt alle drei aus, um durchzukommen',
+      'rocket': 'Zerstör den Mech mit dem Raketenwerfer',
+      'supply': 'Schnapp dir die Versorgungskiste',
+      'blade': 'Stich beide Wachen von hinten nieder',
+      'burn': 'Verbrenn die Leiche',
+      'decoy': 'Wirf einen Köder, dann stich die Wache von hinten nieder',
+      'rope': 'Schieß ein Seil hinüber',
+      'beacon': 'Schalt den Alarmposten aus',
+      'salvage': 'Sammle das Bergegut ein'
     }
   },
   'pause': {

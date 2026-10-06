@@ -226,8 +226,12 @@ export interface TrainingContext {
   /** Bodies and wrecks burnt (#99); ropes shot (#94). */
   burns: number
   ropes: number
-  /** Every defender of the mech's room is down (#109). */
+  /** Every defender of the mech's room is down (#109): the room it is in now, not the one it left (#168). */
   cleared?: boolean
+  /** Times the mech has gone into a crouch (#171: the cover room's door wants one). */
+  crouches?: number
+  /** Times the mech's room has been started over (#171: the decoy room's first try wants the blade). */
+  tries?: number
 }
 
 export interface Training {
@@ -279,17 +283,19 @@ export const lessonDone = (i: number, c: TrainingContext, b: TrainingContext): b
     return !!d && Math.abs(c.x - d.x) < CELL * 1.6 && Math.abs(c.z - d.z) < CELL * 1.6
   }
   switch (r.lesson) {
-    case 'move': case 'jump': case 'cover': case 'box': return atDoor()
-    // Past the guard to the door, or the guard down any way at all (#165:
-    // a player who will not learn the decoy is let through after the hint).
-    case 'decoy': return atDoor() || !!c.cleared
+    case 'move': case 'jump': case 'box': return atDoor()
+    // To the door, and crouched on the way at least once (#171).
+    case 'cover': return atDoor() && (c.crouches ?? 0) > (b.crouches ?? 0)
+    // The guard down (#171): by the blade on the first try; after a try
+    // started over, any way at all (#165: a player who will not learn the
+    // decoy is let through after the hint).
+    case 'decoy': return !!c.cleared && (c.bladeKills > b.bladeKills || (c.tries ?? 0) > 0)
     case 'supply': return c.supplies > b.supplies || (atDoor() && c.stocked)
     case 'burn': return c.burns > b.burns
     case 'rope': return c.ropes > b.ropes
-    // The full drill (a rifle kill, an overheat, a zoom), or the room emptied
-    // whichever way: a player who has taken every target is done (#109).
-    // The launcher has its own room now (#146).
-    case 'weapons': return !!c.cleared || (c.sniperKills > b.sniperKills && c.overheats > b.overheats && c.zooms > b.zooms)
+    // All three down (#168), whichever way: the hologram shows the drill (a
+    // rifle kill, the mini-gun on the other two). The launcher has its own room (#146).
+    case 'weapons': return !!c.cleared
     // The armoured mech on the ledge is down (#146): only a rocket did that.
     case 'rocket': return !!c.cleared
     // From behind, and close in from the side: two.
@@ -314,6 +320,8 @@ export const lessonStuck = (i: number, c: TrainingContext, b: TrainingContext, s
     case 'blade': return c.bladeKills - b.bladeKills + s.alive < 2
     case 'burn': return c.burns <= b.burns && (s.bodies === 0 || s.fuel <= 0)
     case 'rope': return c.ropes <= b.ropes && s.ropes <= 0
+    // The decoy room's guard shot on the first try (#171): it stands again, and the try starts over.
+    case 'decoy': return !!c.cleared && c.bladeKills <= b.bladeKills && (c.tries ?? 0) === 0
     default: return false
   }
 }
@@ -348,6 +356,7 @@ export const rewindRoom = (gar: Garrison, room: number): void => {
     u.seenFor = 0
     u.unseenFor = 9
     u.lured = false
+    u.decoyWatch = 0
     u.poke = false
     u.path = []
     u.wp = u.route.length > 1 ? 1 : 0
@@ -384,6 +393,41 @@ export const activeKeys = (t: Training): readonly DemoKey[] => (t.pit ? PIT_DEMO
 /** Where the demo playing now is, at its own time (the room, the keys, the rows it is shifted by). */
 export const currentFrame = (t: Training): DemoFrame => demoFrame(t.room, t.demoT, activeKeys(t), t.pit ? t.pitZ : 0)
 
+/**
+ * The hologram plays while the mech is this near its room's projector disc
+ * (#168): on the way in, and every time it comes back to it. Only in the
+ * room it is in, so never through a shut door.
+ */
+export const DEMO_NEAR_M = 6.5
+
+/** Whether the mech is by its room's projector disc, in that room. */
+export const nearProjector = (t: Training, c: TrainingContext): boolean => {
+  if (t.room < 0 || roomAt(c.x) !== t.room) return false
+  const e = entryOf(t.room)
+  return Math.hypot(c.x - e.x, c.z - e.z) < DEMO_NEAR_M
+}
+
+/** What a shut lesson door says to a mech walking into it (#171): the line, and the control it is about. */
+export const DOOR_LINES: Readonly<Partial<Record<LessonId, { line: string; hint: HintId | null }>>> = {
+  cover: { line: 'door.cover', hint: 'crouch' },
+  weapons: { line: 'door.weapons', hint: 'scope' },
+  rocket: { line: 'door.rocket', hint: 'rocket' },
+  supply: { line: 'door.supply', hint: 'supply' },
+  blade: { line: 'door.blade', hint: 'blade' },
+  burn: { line: 'door.burn', hint: 'burn' },
+  decoy: { line: 'door.decoy', hint: 'decoy' },
+  rope: { line: 'door.rope', hint: 'rope' },
+  beacon: { line: 'door.beacon', hint: 'sabotage' },
+  salvage: { line: 'door.salvage', hint: 'loot' }
+}
+
+/** The mech is up against room `i`'s shut door, from inside the room. */
+export const atShutDoor = (t: Training, i: number, c: TrainingContext): boolean => {
+  if (i < 0 || t.done[i] || roomAt(c.x) !== i) return false
+  const d = doorOf(i)
+  return !!d && d.x - c.x < CELL * 1.25 && d.x - c.x > -CELL * 0.5 && Math.abs(c.z - d.z) < CELL * 1.4
+}
+
 /** Advance the lessons one step. */
 export const stepTraining = (t: Training, c: TrainingContext, dt: number): TrainingEvent[] => {
   const out: TrainingEvent[] = []
@@ -394,6 +438,8 @@ export const stepTraining = (t: Training, c: TrainingContext, dt: number): Train
     out.push({ type: 'enter', room: here })
     if (!t.done[here]) startDemo(t)
     else t.demoT = -1
+    // A lesson is judged on the next step, by what is done in the room: never by the step that walked in.
+    return out
   }
   if (t.room >= 0 && !t.done[t.room] && t.base && lessonDone(t.room, c, t.base)) {
     t.done[t.room] = true
@@ -413,14 +459,16 @@ export const stepTraining = (t: Training, c: TrainingContext, dt: number): Train
     }
     startDemo(t)
   }
-  // The demo: play, pause, play again, until the lesson is done.
+  // The demo: play, pause, play again, until the lesson is done; while the
+  // mech is by the projector (or down the gap), and again when it comes back.
+  const near = t.pit || nearProjector(t, c)
   if (t.demoT >= 0) {
     t.demoT += dt
     if (t.demoT > keysLength(activeKeys(t))) { t.demoT = -1; t.gap = DEMO_GAP_S }
   } else if (t.gap > 0) {
     t.gap -= dt
-    if (t.gap <= 0) t.demoT = 0
-  }
+    if (t.gap <= 0 && near) t.demoT = 0
+  } else if (near && t.room >= 0 && !t.done[t.room]) t.demoT = 0
   return out
 }
 

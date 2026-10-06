@@ -249,6 +249,18 @@ export default {
       'decoy': 'Use uma isca [{key}] e ataque pelas costas quando ele se distrair',
       'decoyTouch': 'Use uma isca e ataque pelas costas quando ele se distrair',
       'decoyAny': 'Visto de novo. Derrube o guarda do jeito que quiser.'
+    },
+    'door': {
+      'cover': 'Agache uma vez para passar',
+      'weapons': 'Derrube os três para passar',
+      'rocket': 'Destrua o mecha com o lançador',
+      'supply': 'Pegue a caixa de suprimentos',
+      'blade': 'Ataque os dois guardas pelas costas',
+      'burn': 'Queime o corpo',
+      'decoy': 'Lance uma isca e ataque o guarda pelas costas',
+      'rope': 'Atire uma corda para o outro lado',
+      'beacon': 'Desligue o posto de alarme',
+      'salvage': 'Recolha a sucata'
     }
   },
   'pause': {

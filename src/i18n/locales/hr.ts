@@ -249,6 +249,18 @@ export default {
       'decoy': 'Iskoristi mamac [{key}], ubodi u leđa kad mu odvučeš pažnju',
       'decoyTouch': 'Iskoristi mamac, ubodi u leđa kad mu odvučeš pažnju',
       'decoyAny': 'Opet primijećen. Sredi stražara kako god želiš.'
+    },
+    'door': {
+      'cover': 'Čučni jednom da prođeš',
+      'weapons': 'Obori sva tri da prođeš',
+      'rocket': 'Uništi meha bacačem',
+      'supply': 'Uzmi sanduk sa zalihama',
+      'blade': 'Ubodi oba čuvara u leđa',
+      'burn': 'Spali tijelo',
+      'decoy': 'Baci mamac, pa ubodi čuvara u leđa',
+      'rope': 'Ispucaj uže na drugu stranu',
+      'beacon': 'Ugasi alarmni punkt',
+      'salvage': 'Skupi otpad'
     }
   },
   'pause': {

@@ -249,6 +249,18 @@ export default {
       'decoy': 'Pakai umpan [{key}], tikam dari belakang saat dia lengah',
       'decoyTouch': 'Pakai umpan, tikam dari belakang saat dia lengah',
       'decoyAny': 'Ketahuan lagi. Lumpuhkan penjaga dengan cara apa pun.'
+    },
+    'door': {
+      'cover': 'Jongkok sekali untuk lewat',
+      'weapons': 'Tumbangkan ketiganya untuk lewat',
+      'rocket': 'Hancurkan mech dengan peluncur',
+      'supply': 'Ambil peti persediaan',
+      'blade': 'Tikam kedua penjaga dari belakang',
+      'burn': 'Bakar mayatnya',
+      'decoy': 'Lempar umpan, lalu tikam penjaga dari belakang',
+      'rope': 'Tembakkan tali ke seberang',
+      'beacon': 'Matikan pos alarm',
+      'salvage': 'Kumpulkan rongsokan'
     }
   },
   'pause': {

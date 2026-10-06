@@ -249,6 +249,18 @@ export default {
       'decoy': '使用诱饵 [{key}]，趁其分心时背刺',
       'decoyTouch': '使用诱饵，趁其分心时背刺',
       'decoyAny': '又被发现了。用你喜欢的任何方式解决守卫。'
+    },
+    'door': {
+      'cover': '蹲下一次即可通过',
+      'weapons': '击倒全部三个才能通过',
+      'rocket': '用发射器摧毁机甲',
+      'supply': '拿起补给箱',
+      'blade': '背刺两名守卫',
+      'burn': '烧掉尸体',
+      'decoy': '扔出诱饵，再背刺守卫',
+      'rope': '射出绳索到对面',
+      'beacon': '关闭警报站',
+      'salvage': '收集废料'
     }
   },
   'pause': {

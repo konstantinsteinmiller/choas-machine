@@ -60,9 +60,10 @@ const CONE_LEAD_S = 0.05
 /** Marks over a unit start this far above the top of its model (m). */
 const MARK_GAP = 0.18
 /** A light's pool: a polar grid draped on the ground and clipped by whatever
- *  stands between it and the lamp or the middle of the pool (#69). */
-const POOL_SEGS = 20
-const POOL_RINGS = 3
+ *  stands between it and the lamp or the middle of the pool (#69). Fine
+ *  enough that a shadow's edge is a line, not a row of notches (#171). */
+const POOL_SEGS = 40
+const POOL_RINGS = 6
 const POOL_VERTS = POOL_SEGS * POOL_RINGS * 6
 const POOL_ALPHA = 0.24
 const CALM = new Color('#e9fdff')
@@ -928,11 +929,15 @@ export class GarrisonView {
         const x = cx + dx * radius * k
         const z = cz + dz * radius * k
         const floor = r === 0 ? midY : heightAt(g, x, z)
-        const y = floor === VOID ? midY : floor
+        // A point up on a wall or down off an edge is not part of this pool:
+        // it stays in the pool's own floor, dark, under whatever stands there
+        // (no stretched triangle, no notch cut out of the light, #171).
+        const off = floor === VOID || Math.abs(floor - midY) > CONE_CLIFF
+        const y = off ? midY : floor
         gp[o] = x
         gp[o + 1] = y + 0.08
         gp[o + 2] = z
-        const lit = floor !== VOID && (r === 0 || (hasLineOfSight(g, cx, midY + 1.0, cz, x, y + 0.3, z) && hasLineOfSight(g, lx, ly, lz, x, y + 0.3, z)))
+        const lit = !off && (r === 0 || (hasLineOfSight(g, cx, midY + 1.0, cz, x, y + 0.3, z) && hasLineOfSight(g, lx, ly, lz, x, y + 0.3, z)))
         gp[o + 3] = lit ? POOL_ALPHA * (1 - 0.45 * k) : 0
       }
     }
@@ -956,10 +961,8 @@ export class GarrisonView {
         const b = (s * H + r + 1) * 4
         const d = ((s + 1) * H + r) * 4
         const e = ((s + 1) * H + r + 1) * 4
-        const ys = [gp[a + 1]!, gp[b + 1]!, gp[d + 1]!, gp[e + 1]!]
-        const k = Math.max(...ys) - Math.min(...ys) < CONE_CLIFF ? 1 : 0
-        put(a, gp[a + 3]! * k); put(b, gp[b + 3]! * k); put(e, gp[e + 3]! * k)
-        put(a, gp[a + 3]! * k); put(e, gp[e + 3]! * k); put(d, gp[d + 3]! * k)
+        put(a, gp[a + 3]!); put(b, gp[b + 3]!); put(e, gp[e + 3]!)
+        put(a, gp[a + 3]!); put(e, gp[e + 3]!); put(d, gp[d + 3]!)
       }
     }
     geo.attributes.position!.needsUpdate = true

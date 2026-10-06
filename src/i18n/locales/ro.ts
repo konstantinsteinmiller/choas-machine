@@ -249,6 +249,18 @@ export default {
       'decoy': 'Folosește o momeală [{key}], lovește pe la spate când e distras',
       'decoyTouch': 'Folosește o momeală, lovește pe la spate când e distras',
       'decoyAny': 'Ai fost văzut din nou. Doboară paznicul cum vrei.'
+    },
+    'door': {
+      'cover': 'Ghemuiește-te o dată ca să treci',
+      'weapons': 'Doboară-le pe toate trei ca să treci',
+      'rocket': 'Distruge mechul cu lansatorul',
+      'supply': 'Ia lada cu provizii',
+      'blade': 'Lovește pe la spate ambii paznici',
+      'burn': 'Arde cadavrul',
+      'decoy': 'Aruncă o momeală, apoi lovește paznicul pe la spate',
+      'rope': 'Trage o frânghie de partea cealaltă',
+      'beacon': 'Oprește postul de alarmă',
+      'salvage': 'Adună fierul vechi'
     }
   },
   'pause': {

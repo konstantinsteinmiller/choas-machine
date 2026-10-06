@@ -15,7 +15,7 @@ import { MECH_EYE_CROUCH, MECH_HEIGHT_CROUCH } from '@/game/models/mech'
 import { BOX_LANE, ROOM_WALL_H } from '@/game/data/fortresses/training'
 import { BASE_LOADOUT, TRACK_MAX } from '@/game/data/upgrades'
 import { damageUnit, makeGarrison } from '@/game/sim/garrison'
-import { lessonDone } from '@/game/sim/training'
+import { doorOf, lessonDone, lessonStuck } from '@/game/sim/training'
 import { buildLampCage } from '@/game/models/garrison'
 import { Mesh, type BufferGeometry } from 'three'
 import { coplanarClashes } from '../helpers/coplanar'
@@ -167,11 +167,18 @@ describe('the disguise room (#163)', () => {
 })
 
 describe('the decoy room (#165)', () => {
-  it('is done past the guard to the door, or with the guard down any way at all', () => {
+  it('is done with the guard backstabbed on the first try, or down any way after a try started over (#171)', () => {
     const d = room('decoy')
     const base = ctx(0, 0)
     const mid = at(d, 5, 7)
+    const door = doorOf(d)!
+    // Walking past it to the door is not the lesson.
+    expect(lessonDone(d, ctx(door.x - 1, door.z), base)).toBe(false)
     expect(lessonDone(d, ctx(mid.x, mid.z), base)).toBe(false)
-    expect(lessonDone(d, { ...ctx(mid.x, mid.z), cleared: true }, base)).toBe(true)
+    // Shot on the first try: not done, and the room is set up again.
+    expect(lessonDone(d, { ...ctx(mid.x, mid.z), cleared: true }, base)).toBe(false)
+    expect(lessonStuck(d, { ...ctx(mid.x, mid.z), cleared: true }, base, { alive: 0, bodies: 1, fuel: 1, ropes: 1 })).toBe(true)
+    expect(lessonDone(d, { ...ctx(mid.x, mid.z), cleared: true, bladeKills: 1 }, base)).toBe(true)
+    expect(lessonDone(d, { ...ctx(mid.x, mid.z), cleared: true, tries: 1 }, base)).toBe(true)
   })
 })

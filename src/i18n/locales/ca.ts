@@ -249,6 +249,18 @@ export default {
       'decoy': "Fes servir un parany [{key}] i ataca per l'esquena quan es distregui",
       'decoyTouch': "Fes servir un parany i ataca per l'esquena quan es distregui",
       'decoyAny': "T'han tornat a veure. Elimina el guàrdia com vulguis."
+    },
+    'door': {
+      'cover': 'Ajup-te una vegada per passar',
+      'weapons': 'Abat-los tots tres per passar',
+      'rocket': 'Destrueix el mecha amb el llançacohets',
+      'supply': 'Agafa la caixa de subministraments',
+      'blade': "Ataca per l'esquena els dos guàrdies",
+      'burn': 'Crema el cos',
+      'decoy': "Llança un parany i ataca el guàrdia per l'esquena",
+      'rope': "Dispara una corda a l'altre costat",
+      'beacon': "Apaga el punt d'alarma",
+      'salvage': 'Recull la ferralla'
     }
   },
   'pause': {

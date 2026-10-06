@@ -249,6 +249,18 @@ export default {
       'decoy': "Yem ishlat [{key}], chalg'iganda orqadan ur",
       'decoyTouch': "Yem ishlat, chalg'iganda orqadan ur",
       'decoyAny': "Seni yana ko'rishdi. Qo'riqchini xohlagan usulda yo'q qil."
+    },
+    'door': {
+      'cover': "O'tish uchun bir marta cho'kkala",
+      'weapons': "O'tish uchun uchalasini ham yiq",
+      'rocket': "Mexni granatomyot bilan yo'q qil",
+      'supply': "Ta'minot qutisini ol",
+      'blade': 'Ikkala qorovulni ham orqadan ur',
+      'burn': 'Jasadni yoq',
+      'decoy': 'Yem tashla, keyin qorovulni orqadan ur',
+      'rope': 'Arqonni narigi tomonga ot',
+      'beacon': "Signal postini o'chir",
+      'salvage': "Temir-tersakni yig'"
     }
   },
   'pause': {

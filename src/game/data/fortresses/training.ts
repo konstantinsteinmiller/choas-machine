@@ -185,7 +185,9 @@ export const buildTrainingGround = (): Fortress => {
     b.fill(...at(x, 2, BOX_LANE[1] + 1), ...at(x, 9, 12), ROOM_WALL_H)
     // On the wall's very edge over the corridor (#163): from the middle of
     // its top, the wall itself hid the corridor from it.
-    b.searchlight(...at(x, 5, BOX_LANE[1] + 1), [[...at(x, 2, BOX_LANE[1]), 0.8], [...at(x, 9, BOX_LANE[0]), 0.8]], true, [0, -0.95])
+    // It starts at the far end (#171): a mech sent back to the way in is not
+    // stood in its pool again, it has the sweep's length to get into its box.
+    b.searchlight(...at(x, 5, BOX_LANE[1] + 1), [[...at(x, 9, BOX_LANE[0]), 0.8], [...at(x, 2, BOX_LANE[1]), 0.8]], true, [0, -0.95])
   }
 
   // · The hook: the way out is over the east wall.

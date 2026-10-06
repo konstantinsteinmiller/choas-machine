@@ -2,6 +2,7 @@ import type { GameIconName } from '@/components/icons/iconNames'
 import type { HintId } from '@/game/sim/coach'
 import type { PromptKind } from '@/game/state/hud'
 import type { WeaponId } from '@/game/data/ids'
+import type { Action } from '@/game/engine/keyBindings'
 
 /**
  * ─── What each on-screen button looks like (#160) ────────────────────────────
@@ -79,6 +80,14 @@ export const lookOf = (b: TouchButton, weapon: WeaponId = 'sniper', hint?: HintI
 
 /** A tone as its colour token, for whatever wears a button's colour (a prompt's edge). */
 export const toneVar = (t: ButtonTone): string => `var(--cm-${t})`
+
+/** The key each control is pressed with on a keyboard (the player's own binding is lettered by KeyCap). */
+export const HINT_KEYS: Readonly<Partial<Record<HintId, Action>>> = {
+  move: 'forward', climb: 'forward', supply: 'forward', crouch: 'crouch', blade: 'act', decoy: 'decoy', hide: 'hide',
+  grapple: 'grapple', sabotage: 'act', loot: 'act', jump: 'jump', rope: 'rope', burn: 'burn', weapon: 'cycle', sprint: 'sprint', goal: 'forward', rocket: 'weapon3'
+}
+/** The ones a mouse does. */
+export const HINT_MOUSE: Readonly<Partial<Record<HintId, 'move' | 'left' | 'right'>>> = { look: 'move', scope: 'right', fire: 'left' }
 
 /** On touch, a control with no button: the gesture that does it (the stick, a swipe, a hold). */
 export const HINT_GESTURE: Readonly<Partial<Record<HintId, 'drag' | 'swipe' | 'hold' | 'release' | 'push' | 'tap'>>> = {

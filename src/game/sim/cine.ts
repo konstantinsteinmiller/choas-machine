@@ -108,6 +108,28 @@ export const orbitCam = (
   return out
 }
 
+/**
+ * The blade room's watched lesson (#158, #171): a camera of its own, standing
+ * inside the room on the way in's side of the hologram at (cx, cz) and to its
+ * left (the room is entered facing +x, so left is −z), looking at it from a
+ * little above. It drifts a few hand's widths over the shot, never more: it
+ * is cut to and cut back from, and has nothing to pass through.
+ */
+export const LESSON_CAM_BACK = 4.6
+export const LESSON_CAM_LEFT = 3.6
+export const LESSON_CAM_UP = 3.1
+export const lessonCam = (out: CinePose, t: number, cx: number, cz: number, floor: number, fov: number): CinePose => {
+  const k = Math.min(1, t / 16)
+  out.x = cx - LESSON_CAM_BACK + 0.4 * k
+  out.y = floor + LESSON_CAM_UP - 0.2 * k
+  out.z = cz - LESSON_CAM_LEFT + 0.25 * k
+  out.tx = cx + 0.3
+  out.ty = floor + 1.0
+  out.tz = cz
+  out.fov = fov
+  return out
+}
+
 // ─── The drop-in ─────────────────────────────────────────────────────────────
 
 /** Height the mech falls from, above its perch. */

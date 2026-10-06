@@ -249,6 +249,18 @@ export default {
       'decoy': 'Brug en lokkedue [{key}], stik i ryggen, når de er distraheret',
       'decoyTouch': 'Brug en lokkedue, stik i ryggen, når de er distraheret',
       'decoyAny': 'Opdaget igen. Nedlæg vagten, som du vil.'
+    },
+    'door': {
+      'cover': 'Dukke dig én gang for at komme forbi',
+      'weapons': 'Tag alle tre ned for at komme forbi',
+      'rocket': 'Ødelæg mechen med raketkasteren',
+      'supply': 'Tag forsyningskassen',
+      'blade': 'Stik begge vagter i ryggen',
+      'burn': 'Brænd liget',
+      'decoy': 'Kast en lokkedue, og stik så vagten i ryggen',
+      'rope': 'Skyd et reb over',
+      'beacon': 'Luk alarmposten ned',
+      'salvage': 'Saml skrottet op'
     }
   },
   'pause': {

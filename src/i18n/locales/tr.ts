@@ -249,6 +249,18 @@ export default {
       'decoy': 'Yem kullan [{key}], dikkati dağılınca sırtından sapla',
       'decoyTouch': 'Yem kullan, dikkati dağılınca sırtından sapla',
       'decoyAny': 'Yine görüldün. Muhafızı istediğin gibi indir.'
+    },
+    'door': {
+      'cover': 'Geçmek için bir kez çömel',
+      'weapons': 'Geçmek için üçünü de indir',
+      'rocket': "Mech'i roketatarla yok et",
+      'supply': 'İkmal sandığını kap',
+      'blade': 'İki gardiyanı da sırtından sapla',
+      'burn': 'Cesedi yak',
+      'decoy': 'Yem at, sonra gardiyanı sırtından sapla',
+      'rope': 'Karşıya bir halat at',
+      'beacon': 'Alarm noktasını kapat',
+      'salvage': 'Hurdayı topla'
     }
   },
   'pause': {

@@ -253,6 +253,18 @@ export default {
       'decoy': 'Use a decoy [{key}], backstab when distracted',
       'decoyTouch': 'Use a decoy, backstab when distracted',
       'decoyAny': 'Seen again. Take the guard down any way you like.'
+    },
+    'door': {
+      'cover': 'Crouch once to pass',
+      'weapons': 'Take down all three to pass',
+      'rocket': 'Destroy the mech with the launcher',
+      'supply': 'Grab the supply crate',
+      'blade': 'Backstab both guards',
+      'burn': 'Burn the body',
+      'decoy': 'Throw a decoy, then backstab the guard',
+      'rope': 'Shoot a rope across',
+      'beacon': 'Shut down the alarm post',
+      'salvage': 'Collect the salvage'
     }
   },
   'pause': {

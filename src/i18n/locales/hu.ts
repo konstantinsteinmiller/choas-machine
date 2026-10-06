@@ -249,6 +249,18 @@ export default {
       'decoy': 'Használj csalit [{key}], szúrd hátba, amikor elterelted a figyelmét',
       'decoyTouch': 'Használj csalit, szúrd hátba, amikor elterelted a figyelmét',
       'decoyAny': 'Megint észrevettek. Intézd el az őrt, ahogy akarod.'
+    },
+    'door': {
+      'cover': 'Guggolj egyszer az átjutáshoz',
+      'weapons': 'Ütsd ki mind a hármat az átjutáshoz',
+      'rocket': 'Semmisítsd meg a mechet a rakétavetővel',
+      'supply': 'Kapd fel az utánpótlásládát',
+      'blade': 'Szúrd hátba mindkét őrt',
+      'burn': 'Égesd el a holttestet',
+      'decoy': 'Dobj egy csalit, aztán szúrd hátba az őrt',
+      'rope': 'Lőj át egy kötelet',
+      'beacon': 'Kapcsold le a riasztóállomást',
+      'salvage': 'Gyűjtsd össze a hulladékot'
     }
   },
   'pause': {

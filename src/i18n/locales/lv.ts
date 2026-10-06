@@ -249,6 +249,18 @@ export default {
       'decoy': 'Izmanto ēsmu [{key}], dur mugurā, kad viņš ir novērsies',
       'decoyTouch': 'Izmanto ēsmu, dur mugurā, kad viņš ir novērsies',
       'decoyAny': 'Tevi atkal pamanīja. Novāc sargu, kā vien vēlies.'
+    },
+    'door': {
+      'cover': 'Pietupies vienreiz, lai tiktu cauri',
+      'weapons': 'Notriec visus trīs, lai tiktu cauri',
+      'rocket': 'Iznīcini mehu ar granātmetēju',
+      'supply': 'Paķer apgādes kasti',
+      'blade': 'Dur mugurā abiem sargiem',
+      'burn': 'Sadedzini līķi',
+      'decoy': 'Izmet ēsmu, tad dur sargam mugurā',
+      'rope': 'Izšauj virvi pāri',
+      'beacon': 'Izslēdz trauksmes posteni',
+      'salvage': 'Savāc lūžņus'
     }
   },
   'pause': {

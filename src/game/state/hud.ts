@@ -1,7 +1,7 @@
 import { reactive } from 'vue'
 import { emit } from '../bus'
 import type { WeaponId } from '../data/ids'
-import type { HintView } from '../sim/coach'
+import type { HintId, HintView } from '../sim/coach'
 
 /**
  * ─── The HUD mirror ──────────────────────────────────────────────────────────
@@ -33,6 +33,8 @@ export type Phase = 'boot' | 'intro' | 'play' | 'outro' | 'dead' | 'done' | 'bas
 
 /** What the training ground calls out (`training.shout.*`, `training.reset.*` in the locales). */
 export type TrainingShout = '' | 'shout.backstab' | 'reset.cover' | 'reset.seen' | 'reset.ammo' | 'reset.box' | 'reset.decoy' | 'reset.decoyTouch' | 'reset.decoyAny'
+  // A shut lesson door, walked into (#171): what it wants.
+  | 'door.cover' | 'door.weapons' | 'door.rocket' | 'door.supply' | 'door.blade' | 'door.burn' | 'door.decoy' | 'door.rope' | 'door.beacon' | 'door.salvage'
 
 export const hud = reactive({
   phase: 'boot' as Phase,
@@ -120,7 +122,9 @@ export const hud = reactive({
    */
   training: {
     on: false, room: -1, done: 0, total: 0, replay: false, scrapWhy: false,
-    goalDown: 0, goalTotal: 0, shout: '' as TrainingShout, shoutSeq: 0
+    goalDown: 0, goalTotal: 0, shout: '' as TrainingShout, shoutSeq: 0,
+    /** The control a line is about (#171: a shut door's), drawn beside it as its key or button. */
+    shoutHint: '' as HintId | ''
   },
   /** 0 … 1 of holding the scope on a unit to tag it. */
   tagging: 0,

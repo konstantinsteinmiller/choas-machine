@@ -118,11 +118,21 @@ describe('the control coach', () => {
     expect(ids(run(c, ctx({ walked: 0.05, turned: 0.01 }), 2))).toEqual([])
   })
 
-  it('the "?" button brings the core set back, two at a time, and it goes again', () => {
+  it('the "?" button (H) brings the whole core set back at once, keeps it up while it is used, and it goes again (#168)', () => {
+    const c = taught(...HINT_IDS)
+    expect(coachHelp(c)).toBe(true)
+    expect(run(c, ctx({ walked: 0.05, turned: 0.01 }), 0.1).length).toBeGreaterThan(MAX_SHOWN)
+    // Walking and looking about does not send it away (it went on the next step walked).
+    expect(ids(run(c, ctx({ walked: 3, turned: 1 }), 2))).toEqual(expect.arrayContaining(['move', 'look']))
+    expect(ids(run(c, ctx({ walked: 0.05, turned: 0.01 }), 24))).toEqual([])
+  })
+
+  it('pressed again, the help goes at once', () => {
     const c = taught(...HINT_IDS)
     coachHelp(c)
-    expect(run(c, ctx({ walked: 0.05, turned: 0.01 }), 0.1)).toHaveLength(MAX_SHOWN)
-    expect(ids(run(c, ctx({ walked: 0.05, turned: 0.01 }), 24))).toEqual([])
+    run(c, ctx(), 0.5)
+    expect(coachHelp(c)).toBe(false)
+    expect(ids(run(c, ctx(), 3))).toEqual([])
   })
 
   it('shows nothing while the player has no control, and reports only changes', () => {

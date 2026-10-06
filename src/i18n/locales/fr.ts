@@ -249,6 +249,18 @@ export default {
       'decoy': 'Utilise un leurre [{key}], frappe dans le dos quand il est distrait',
       'decoyTouch': 'Utilise un leurre, frappe dans le dos quand il est distrait',
       'decoyAny': 'Encore repéré. Élimine le garde comme tu veux.'
+    },
+    'door': {
+      'cover': 'Accroupis-toi une fois pour passer',
+      'weapons': 'Abats les trois pour passer',
+      'rocket': 'Détruis le mécha avec le lance-roquettes',
+      'supply': 'Attrape la caisse de ravitaillement',
+      'blade': 'Frappe les deux gardes dans le dos',
+      'burn': 'Brûle le corps',
+      'decoy': 'Lance un leurre, puis frappe le garde dans le dos',
+      'rope': "Tire une corde de l'autre côté",
+      'beacon': "Coupe le poste d'alarme",
+      'salvage': 'Récupère le butin'
     }
   },
   'pause': {

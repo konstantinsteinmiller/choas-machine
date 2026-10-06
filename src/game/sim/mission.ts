@@ -66,13 +66,13 @@ import {
 import { AirshipView } from './airshipView'
 import { AIRSHIP_HALF } from '../models/airship'
 import { TrainingDirector } from './trainingDirector'
-import { DEMO_GAP_S, demoLength, entryOf, inPit, lessonStuck, roomAt, victimFrame } from './training'
+import { DEMO_GAP_S, DOOR_LINES, atShutDoor, demoLength, entryOf, inPit, lessonStuck, roomAt, victimFrame } from './training'
 import { TRAINING_ID, TRAINING_ROOMS, type LessonId } from '../data/fortresses/training'
 import { COVER_H } from '../world/fortress'
 import { BASE_LOADOUT, type Loadout } from '../data/upgrades'
 import { camKind, camZone, chooseKillCam, makeKillCamState, type CamCut, type KillInfo } from './killcam'
 import {
-  DROP_LANDED, INTRO_CAM_DIST, blendPose, smooth, bulletAt, bulletCam, bulletFlightS, dropHeight, introCam, liftHeight, makeCinePose, orbitCam, outroCam,
+  DROP_LANDED, INTRO_CAM_DIST, blendPose, smooth, bulletAt, bulletCam, bulletFlightS, dropHeight, introCam, lessonCam, liftHeight, makeCinePose, orbitCam, outroCam,
   type CinePose
 } from './cine'
 import { buildRobodog, poseRobodog, restDogPose, type DogPose } from '../models/robodog'
@@ -230,8 +230,8 @@ type Cine =
 /** The blade room says "Backstab them" again after this many seconds of shooting (#156). */
 const SHOUT_EVERY_S = 3
 /** The blade room's watched lesson (#158): the camera's distance from the middle and its height. */
-const LESSON_CAM_R = 6.5
-const LESSON_CAM_H = 3.2
+/** A shut lesson door says what it wants at most this often (s, #171). */
+const DOOR_SAY_S = 4.5
 /** It can be skipped from this long before its first loop ends, and blends back to the follow camera over this long. */
 const LESSON_SKIP_EARLY_S = 1
 const LESSON_OUT_S = 0.7
@@ -638,7 +638,17 @@ export class Mission implements GameMode {
     this.lastYaw = this.cam.yaw
     this.lastPitch = this.cam.pitch
     this.offHelp?.()
-    this.offHelp = on('help', () => coachHelp(this.coach))
+    // Help (H, the "?" button): the core controls up for a while, and in the
+    // training ground the room's hologram again, with what its door wants (#168).
+    this.offHelp = on('help', () => {
+      const shown = coachHelp(this.coach)
+      const tr = this.training
+      if (!tr || !shown) return
+      tr.replay()
+      const room = tr.state.room
+      const say = room >= 0 && !tr.state.done[room] ? DOOR_LINES[TRAINING_ROOMS[room]!.lesson] : undefined
+      if (say) this.trainingShout(say.line as TrainingShout, say.hint)
+    })
     this.offReplay?.()
     this.offReplay = on('trainingReplay', () => { this.training?.replay() })
     this.offZoom?.()
@@ -777,7 +787,7 @@ export class Mission implements GameMode {
         }
         if (p.crouched !== wasCrouched) {
           emit('crouch', { crouched: p.crouched })
-          if (p.crouched) this.learn('crouch')
+          if (p.crouched) { this.learn('crouch'); this.crouchesDone++ }
         }
         // On a rope, the drop onto whoever is below (jam build); on the ground, the blade.
         this.offer = p.mode === 'cable'
@@ -2396,6 +2406,20 @@ export class Mission implements GameMode {
         emit('suspicious', { id: e.id, kind: gar.units[e.id]!.kind })
       } else if (e.type === 'heightened') {
         emit('heightened', {})
+      } else if (e.type === 'decoyShot') {
+        // One round into the decoy (#171), out of the unit's own barrel.
+        const u = gar.units[e.id]!
+        const floor = heightAt(this.fortress.grid, e.x, e.z)
+        const ty = (floor > VOID ? floor : u.y) + 1.0
+        const nose = this.enemyMuzzle(u, this.enemyNose)
+        const ox = nose ? nose.x : u.x + Math.sin(u.yaw) * 0.6
+        const oy = nose ? nose.y : u.y + SPECS[u.kind].eye - 0.2
+        const oz = nose ? nose.z : u.z + Math.cos(u.yaw) * 0.6
+        const len = Math.hypot(e.x - ox, ty - oy, e.z - oz) || 1
+        this.fx.muzzle(ox, oy, oz, (e.x - ox) / len, (ty - oy) / len, (e.z - oz) / len, 'minigun')
+        this.fx.tracer(ox, oy, oz, e.x, ty, e.z, 'minigun')
+        this.fx.particles.sparks(e.x, ty, e.z, '#7ff4ff', 10, 3, 0.25)
+        emit('decoyShot', { id: e.id, kind: u.kind })
       } else {
         if (e.type === 'spotted') {
           this.stats.spotted++
@@ -3274,7 +3298,10 @@ export class Mission implements GameMode {
       x: p.x, y: p.y, z: p.z, bladeKills: this.stats.bladeKills, sniperKills: this.sniperKills, rockets: this.rocketsFired,
       overheats: this.overheats, zooms: this.zooms, sabotaged: this.sabotaged, piles: this.stats.piles,
       supplies: this.suppliesTaken, burns: this.burnsDone, ropes: this.ropesShot,
-      cleared: this.roomCleared(tr.state.room),
+      // The room the mech is in now (#168): the one it just left must not open this one.
+      cleared: this.roomCleared(Math.max(tr.state.room, roomAt(p.x))),
+      crouches: this.crouchesDone,
+      tries: tr.state.roomResets[Math.max(0, tr.state.room, roomAt(p.x))] ?? 0,
       stocked: this.supplies.every(s => s.taken || !wants(s, this.arsenal, this.armor, this.loadout.rockets))
     }
     const ev = tr.step(ctx, dt)
@@ -3288,7 +3315,22 @@ export class Mission implements GameMode {
         fuel: this.fuelLeft,
         ropes: this.ropesLeft
       }
-      if (lessonStuck(cur, ctx, tr.state.base, stock)) this.restoreLesson(cur)
+      if (lessonStuck(cur, ctx, tr.state.base, stock)) {
+        this.restoreLesson(cur)
+        // The decoy room's guard shot on the first try (#171): back to the door, told how.
+        if (TRAINING_ROOMS[cur]!.lesson === 'decoy') {
+          tr.resetRoom(this.placeAtDoor)
+          this.refillTraining(cur)
+          this.trainingShout(this.seenLine(cur, tr.state.roomResets[cur] ?? 1))
+          emit('trainingReset', {})
+        }
+      }
+      // Up against the shut door (#171): what it wants, in a few words, now and then.
+      const say = DOOR_LINES[TRAINING_ROOMS[cur]!.lesson]
+      if (say && atShutDoor(tr.state, cur, ctx) && this.time - this.doorSaidT > DOOR_SAY_S) {
+        this.doorSaidT = this.time
+        this.trainingShout(say.line as TrainingShout, say.hint)
+      }
     }
     for (const e of ev) {
       if (e.type === 'done') {
@@ -3421,11 +3463,17 @@ export class Mission implements GameMode {
     return 'reset.decoyAny'
   }
 
-  /** The training ground calls a line out over the screen (#155, #156). */
-  private trainingShout(key: TrainingShout): void {
+  /** The training ground calls a line out over the screen (#155, #156), with the control it is about (#171). */
+  private trainingShout(key: TrainingShout, hint: HintId | null = null): void {
     hud.training.shout = key
+    hud.training.shoutHint = hint ?? ''
     hud.training.shoutSeq++
   }
+
+  /** When a shut lesson door last said what it wants. */
+  private doorSaidT = -Infinity
+  /** Times the mech has gone into a crouch (the cover room's door, #171). */
+  private crouchesDone = 0
 
   /** When the blade room last called out "Backstab them". */
   private shoutT = -Infinity
@@ -3445,12 +3493,17 @@ export class Mission implements GameMode {
     if (!v) return
     const p = this.player
     p.vx = p.vz = 0
+    const floor = heightAt(this.fortress.grid, v.x, v.z)
+    this.lessonFloor = floor > VOID ? floor : 0
     this.cine = {
       kind: 'lesson', t: 0, dur: 2 * demoLength('blade') + DEMO_GAP_S, skipAt: demoLength('blade') - LESSON_SKIP_EARLY_S,
       // From the way in's side and a little south, over the shoulder of the room.
       x: v.x, z: v.z, yaw: -Math.PI / 2 + 0.45
     }
   }
+
+  /** The floor under the blade room's hologram (its camera stands on it). */
+  private lessonFloor = 0
 
   /** The scope held on one unit: which, and for how long. */
   private tagId = -1
@@ -3981,11 +4034,11 @@ export class Mission implements GameMode {
       return true
     }
     if (c.kind === 'lesson') {
-      // The middle of the room, framed, a slow drift round it (#158); out of
-      // the follow camera and back into it.
-      orbitCam(out, c.t, c.x, 0.9, c.z, c.yaw, LESSON_CAM_R, LESSON_CAM_H, 0.025, this.baseFov * 0.85)
-      const edge = Math.min(1, c.t / LESSON_OUT_S, (c.dur - c.t) / LESSON_OUT_S)
-      if (edge < 1) blendPose(out, follow, out, smooth(Math.max(0, edge)))
+      // A camera of its own (#171), cut to and cut back from: inside the room,
+      // on the way in's side and a little to the left of the hologram, looking
+      // at it; it drifts a hand's width. Nothing to pass through on the way
+      // (a move out of the follow camera went through the doorway and the mech).
+      lessonCam(out, c.t, c.x, c.z, this.lessonFloor, this.baseFov * 0.85)
       if (k >= 1) this.endCine()
       return true
     }
@@ -4075,7 +4128,7 @@ export class Mission implements GameMode {
     const scripted = this.stepCine(dt, fp, x, y, z)
     // A scripted shot never looks through a wall (#105): its camera comes in
     // along its line toward what it looks at until nothing stands between.
-    if (scripted) this.clearCine(this.cinePose, dt)
+    if (scripted && this.cine?.kind !== 'lesson') this.clearCine(this.cinePose, dt)
     // Just out of the drop-in: the last frame glides into the follow camera (#119).
     if (!scripted && this.exitT < CINE_EXIT_S) {
       this.exitT += dt

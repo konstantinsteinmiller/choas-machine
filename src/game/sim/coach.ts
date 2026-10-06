@@ -132,6 +132,8 @@ export const hintDone = (c: Coach, id: HintId): boolean => c.counts[id] >= HINTS
  */
 export const coachUse = (c: Coach, id: HintId): boolean => {
   c.flash[id]++
+  // Asked for (H): it stays until the help goes.
+  if (c.helpUntil >= 0 && CORE.includes(id) && c.recalled.has(id)) return false
   if (c.recalled.delete(id)) {
     // A recalled glyph goes with one use.
     c.until[id] = c.time + 0.9
@@ -145,11 +147,24 @@ export const coachUse = (c: Coach, id: HintId): boolean => {
   return true
 }
 
-/** The "?" button: bring the core set back for a while. */
-export const coachHelp = (c: Coach): void => {
+/**
+ * The "?" button (H): bring the core set back for a while, all of it at
+ * once, and keep it up through using it (#168: it went away again on the
+ * next step walked). Pressed again, it goes. Returns whether it came up.
+ */
+export const coachHelp = (c: Coach): boolean => {
+  if (c.helpUntil >= 0) {
+    c.helpUntil = -1
+    for (const id of CORE) c.recalled.delete(id)
+    return false
+  }
   c.helpUntil = c.time + HELP_S
   for (const id of CORE) c.recalled.add(id)
+  return true
 }
+
+/** The help is up (`coachHelp`). */
+export const helping = (c: Coach): boolean => c.helpUntil >= 0
 
 /** What the mission tells the coach every step. */
 export interface CoachContext {
@@ -250,7 +265,7 @@ export const stepCoach = (c: Coach, ctx: CoachContext, dt: number): HintView[] |
       if (c.until[id] > c.time && (live || c.flash[id] > 0 || !hintDone(c, id))) shown.push(id)
     }
     shown.sort((a, b) => HINTS[b].priority - HINTS[a].priority || HINT_IDS.indexOf(a) - HINT_IDS.indexOf(b))
-    shown.length = Math.min(shown.length, MAX_SHOWN)
+    shown.length = Math.min(shown.length, c.helpUntil >= 0 ? CORE.length : MAX_SHOWN)
   }
 
   const sig = shown.map(id => `${id}:${c.counts[id]}:${c.flash[id]}`).join('|')

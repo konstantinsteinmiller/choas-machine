@@ -934,7 +934,24 @@ replay key, the keyboard-driven settings.
   only a barrel through a wall or pressed to cover (0.6 m) stops it there.
   The kill-cam rides from the rifle's muzzle. Pinned by `muzzles.test.ts`
   (the mech's three and every defender's).
-- [ ] **R70 Training gates and lamps** (#168, #171 rooms, the searchlight)
+- [x] **R70 Training gates and lamps** (#168, #171): a room is judged by
+  what is done in it, from the step after it is walked into (the "cleared"
+  flag was the room just left's: the weapons and launcher rooms opened by
+  themselves, their holograms cancelled). The weapons room wants all three
+  down, its hologram's rounds drawn from the ghost's muzzle; the cover room
+  one crouch; the decoy room the blade on the first try (a guard shot is
+  stood up again, the try starts over with the decoy hint), any kill after.
+  A hologram plays by its projector disc (6.5 m), and again on coming back,
+  never through a shut door. A shut door says what it wants, with its key or
+  button (`training.door.*`, 39 locales). H keeps the core glyphs up, all
+  five, until pressed again, and in the training replays the room's
+  hologram with its door line; the launcher's pop shows 3 and Tab. The blade
+  room's watched lesson has its own camera (cut to, inside the room, left of
+  the hologram). The disguise lamp is 40 % narrower and starts at the far
+  end (a mech sent back was stood in its pool again); every pool is a finer
+  grid whose off-floor points stay dark in the pool's own floor (no notches).
+  A decoy holds whoever comes (people and the walking or flying machines):
+  4 s stood watching it, one round into it, then a look about.
 - [ ] **R71 The backstab** (#172)
 - [ ] **R72 Unit frame, replay key, the look gesture** (#169)
 - [ ] **R73 Settings by keyboard** (#170)

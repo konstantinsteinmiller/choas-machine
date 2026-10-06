@@ -249,6 +249,18 @@ export default {
       'decoy': 'Použij návnadu [{key}], bodni do zad, až se rozptýlí',
       'decoyTouch': 'Použij návnadu, bodni do zad, až se rozptýlí',
       'decoyAny': 'Zase odhalen. Zneškodni strážce, jak chceš.'
+    },
+    'door': {
+      'cover': 'Skrč se jednou a projdeš',
+      'weapons': 'Sejmi všechny tři a projdeš',
+      'rocket': 'Znič mecha raketometem',
+      'supply': 'Vezmi zásobovací bednu',
+      'blade': 'Bodni do zad oba strážce',
+      'burn': 'Spal tělo',
+      'decoy': 'Hoď návnadu, pak bodni strážce do zad',
+      'rope': 'Přestřel lano na druhou stranu',
+      'beacon': 'Vypni poplašné stanoviště',
+      'salvage': 'Seber šrot'
     }
   },
   'pause': {

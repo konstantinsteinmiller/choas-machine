@@ -249,6 +249,18 @@ export default {
       'decoy': 'Käytä houkutinta [{key}], iske selkään, kun vartija on harhautettu',
       'decoyTouch': 'Käytä houkutinta, iske selkään, kun vartija on harhautettu',
       'decoyAny': 'Huomattu taas. Kaada vartija miten haluat.'
+    },
+    'door': {
+      'cover': 'Kyyristy kerran päästäksesi läpi',
+      'weapons': 'Kaada kaikki kolme päästäksesi läpi',
+      'rocket': 'Tuhoa mekki raketinheittimellä',
+      'supply': 'Nappaa tarvikelaatikko',
+      'blade': 'Iske molemmat vartijat selkään',
+      'burn': 'Polta ruumis',
+      'decoy': 'Heitä houkutin ja iske sitten vartija selkään',
+      'rope': 'Ammu köysi yli',
+      'beacon': 'Sammuta hälytyspiste',
+      'salvage': 'Kerää romu'
     }
   },
   'pause': {

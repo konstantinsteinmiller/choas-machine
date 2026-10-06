@@ -249,6 +249,18 @@ export default {
       'decoy': 'Panaudok masalą [{key}], smok į nugarą, kai jis išsiblaškys',
       'decoyTouch': 'Panaudok masalą, smok į nugarą, kai jis išsiblaškys',
       'decoyAny': 'Vėl pastebėjo. Įveik sargybinį kaip tik nori.'
+    },
+    'door': {
+      'cover': 'Pritūpk kartą, kad praeitum',
+      'weapons': 'Pakirsk visus tris, kad praeitum',
+      'rocket': 'Sunaikink mechą granatsvaidžiu',
+      'supply': 'Pagriebk atsargų dėžę',
+      'blade': 'Smok į nugarą abiem sargybiniams',
+      'burn': 'Sudegink kūną',
+      'decoy': 'Mesk masalą, tada smok sargybiniui į nugarą',
+      'rope': 'Iššauk virvę į kitą pusę',
+      'beacon': 'Išjunk aliarmo postą',
+      'salvage': 'Surink laužą'
     }
   },
   'pause': {

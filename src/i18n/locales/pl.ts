@@ -249,6 +249,18 @@ export default {
       'decoy': 'Użyj wabika [{key}], atakuj od tyłu, gdy się rozproszy',
       'decoyTouch': 'Użyj wabika, atakuj od tyłu, gdy się rozproszy',
       'decoyAny': 'Znowu cię wykryto. Załatw strażnika, jak chcesz.'
+    },
+    'door': {
+      'cover': 'Kucnij raz, żeby przejść',
+      'weapons': 'Powal wszystkie trzy, żeby przejść',
+      'rocket': 'Zniszcz mecha wyrzutnią',
+      'supply': 'Zabierz skrzynię z zaopatrzeniem',
+      'blade': 'Zaatakuj od tyłu obu strażników',
+      'burn': 'Spal ciało',
+      'decoy': 'Rzuć wabik, potem zaatakuj strażnika od tyłu',
+      'rope': 'Wystrzel linę na drugą stronę',
+      'beacon': 'Wyłącz posterunek alarmowy',
+      'salvage': 'Zbierz złom'
     }
   },
   'pause': {

@@ -77,8 +77,10 @@ export const WATCH_RADIUS = 6.5
 export const WATCH_PACE = 0.35
 /** Held this long in a Watchtower's pool and it is sure: the alarm rings. */
 export const WATCH_SURE_S = 0.35
+/** The disguise room's caged lamp (#171): 40 % narrower, so a mech in its box can get clear once it has passed. */
+export const CAGED_RADIUS = SPOT_RADIUS * 0.6
 /** The pool a light throws on the ground. */
-export const spotRadius = (u: { watch?: boolean }): number => (u.watch ? WATCH_RADIUS : SPOT_RADIUS)
+export const spotRadius = (u: { watch?: boolean; caged?: boolean }): number => (u.watch ? WATCH_RADIUS : u.caged ? CAGED_RADIUS : SPOT_RADIUS)
 /** Seconds a fully lit, standing mech has before a drone is sure of it. */
 const SPOT_NOTICE_S = 0.9
 
@@ -193,6 +195,9 @@ export interface Unit {
   seenZ: number
   /** Walking over because of a decoy: not a worry for the base. */
   lured: boolean
+  /** At the decoy (#171): seconds left of standing and watching it, and whether its one round at it has gone. */
+  decoyWatch: number
+  decoyShot: boolean
   route: Waypoint[]
   /** Route stop it is heading for. */
   wp: number
@@ -815,12 +820,21 @@ export type GarrisonEvent =
   | { type: 'wave'; n: number }
   /** A round fired at the mech: `damage` is 0 for a miss. */
   | { type: 'fire'; id: number; damage: number }
+  /** One round at a decoy, from a unit stood watching it (#171). */
+  | { type: 'decoyShot'; id: number; x: number; z: number }
   /** The Goliath has called a shell onto a point; it lands in `dur` seconds. */
   | { type: 'telegraph'; id: number; x: number; z: number; radius: number; dur: number }
   /** The shell landed. `damage` is what the mech took from it. */
   | { type: 'shell'; id: number; x: number; y: number; z: number; damage: number }
 
 const isHuman = (u: Unit): boolean => u.kind === 'guard' || u.kind === 'sentry' || u.kind === 'commander'
+/** What a decoy draws (#171): the people, and the machines that walk or fly a beat (not the posts' lamps, not the Goliath, which aims at it from where it stands). */
+const lurable = (u: Unit): boolean => isHuman(u) || u.kind === 'enforcer' || u.kind === 'roomba' || u.kind === 'hound' || u.kind === 'drone'
+/** What has a gun to fire at it once it is there. */
+const armedAtDecoy = (u: Unit): boolean => isHuman(u) || u.kind === 'enforcer' || u.kind === 'roomba'
+/** At the decoy (#171): it stands and watches this long, and fires its one round this far in. */
+export const DECOY_WATCH_S = 4
+const DECOY_SHOT_AT_S = 1.6
 /** Sees by a light on the ground, not by eyes: a drone, a searchlight. */
 export const isLight = (u: { kind: PostKind }): boolean => u.kind === 'drone' || u.kind === 'searchlight'
 /** Still on its feet (or in the air) and part of the defence. */
@@ -840,7 +854,7 @@ export const makeGarrison = (f: Fortress, level = 2): Garrison => {
     return {
       id, kind: p.kind, x: p.x, y, z: p.z, px: p.x, py: y, pz: p.z,
       yaw: p.facing, pyaw: p.facing, look: 0,
-      state: p.reserve ? 'reserve' : mech ? 'dormant' : 'patrol', t: 0, detect: 0, sees: false, seenX: p.x, seenZ: p.z, lured: false,
+      state: p.reserve ? 'reserve' : mech ? 'dormant' : 'patrol', t: 0, detect: 0, sees: false, seenX: p.x, seenZ: p.z, lured: false, decoyWatch: 0, decoyShot: false,
       route: p.route, wp: p.route.length > 1 ? 1 : 0, wait: p.route[0]?.wait ?? 0,
       path: [], pathI: 0, repath: 0, bodyT: 0, seenFor: 0, unseenFor: 9, shouted: false, runner: -1, wary: false, hop: 0, fought: false, checkAt: Infinity, checked: false, hp: p.hp ?? Math.round(SPECS[p.kind].hp * threat.hp * (p.boss === 'foreman' ? FOREMAN_HP : 1)), maxHp: p.hp ?? Math.round(SPECS[p.kind].hp * threat.hp * (p.boss === 'foreman' ? FOREMAN_HP : 1)), boss: p.boss ?? null, armoured: !!p.armoured, dummy: !!p.dummy, caged: !!p.caged, watch: !!p.watch, shield: !!p.shield, deadT: 0, fallDir: 1, huh: HUH_S, noise: 0, gripped: false, hold: 0, held: null, death: 'back', hitX: 0, hitZ: 0, found: false,
       stride: 0, speed01: 0, homeX: p.x, homeZ: p.z, homeYaw: p.facing, altitude: p.altitude,
@@ -919,6 +933,7 @@ const stand = (u: Unit): void => { u.speed01 = 0 }
 const enter = (u: Unit, state: UnitState): void => {
   u.state = state
   u.t = 0
+  if (state !== 'suspicious') u.decoyWatch = 0
   // In a fight: afterwards it hunts. Back on its round, the fight is behind
   // it: it may shout (and hunt) again next time.
   if (state === 'combat') u.fought = true
@@ -1547,8 +1562,22 @@ const patrol = (u: Unit, g: Grid, time: number, dt: number): void => {
 }
 
 /** Walk over to where something was seen, look about, give up. */
-const investigate = (u: Unit, g: Grid, dt: number): void => {
+const investigate = (u: Unit, g: Grid, gar: Garrison, dt: number): void => {
   const face = headingTo(u.x, u.z, u.seenX, u.seenZ)
+  if (u.state === 'suspicious' && u.decoyWatch > 0) {
+    // At the decoy (#171): it stands there staring at the thing, puts one
+    // round into it, and only then looks about: a crouched mech's moment.
+    stand(u)
+    turnToward(u, face, dt)
+    u.look *= Math.max(0, 1 - dt * 6)
+    u.decoyWatch -= dt
+    if (!u.decoyShot && u.decoyWatch <= DECOY_WATCH_S - DECOY_SHOT_AT_S && armedAtDecoy(u)) {
+      u.decoyShot = true
+      gar.events.push({ type: 'decoyShot', id: u.id, x: u.seenX, z: u.seenZ })
+    }
+    if (u.decoyWatch <= 0) enter(u, 'search')
+    return
+  }
   if (u.state === 'suspicious') {
     if (u.t < u.huh) {
       stand(u)
@@ -1578,19 +1607,22 @@ const investigate = (u: Unit, g: Grid, dt: number): void => {
       if (u.t > u.huh + (u.lured ? SCAN_LURED_S : SCAN_S)) enter(u, 'search')
       return
     }
+    // Arrived at a decoy: it stands and watches (#171); anything else, it looks about.
+    const arrive = (): void => {
+      u.path = []
+      if (u.lured) { u.decoyWatch = DECOY_WATCH_S; u.decoyShot = false } else enter(u, 'search')
+    }
     if (u.path.length === 0) {
-      const near = Math.hypot(u.seenX - u.x, u.seenZ - u.z) < 1.2
+      // A decoy is gone up to, to arm's length or so; anything else, to where it was.
+      const near = Math.hypot(u.seenX - u.x, u.seenZ - u.z) < (u.lured ? 2.2 : 1.2)
       if (near || !goTo(u, g, u.seenX, u.seenZ)) {
         // Already there, or it cannot be walked to (the mech is up a tower):
         // look from here.
-        enter(u, 'search')
+        arrive()
         return
       }
     }
-    if (follow(u, g, SPECS[u.kind].look, dt)) {
-      u.path = []
-      enter(u, 'search')
-    }
+    if (follow(u, g, SPECS[u.kind].look, dt) || (u.lured && Math.hypot(u.seenX - u.x, u.seenZ - u.z) < 2.2)) arrive()
     return
   }
   // search: stand and sweep.
@@ -2123,7 +2155,7 @@ export const stepGarrison = (gar: Garrison, g: Grid, target: Target, dt: number)
         else patrol(u, g, gar.time, dt)
         break
       case 'suspicious':
-        investigate(u, g, dt)
+        investigate(u, g, gar, dt)
         break
       case 'search': {
         if (u.kind === 'goliath') {
@@ -2138,7 +2170,7 @@ export const stepGarrison = (gar: Garrison, g: Grid, target: Target, dt: number)
         const body = u.bodySearch && !hunt && !isLight(u)
         if (hunt) huntAround(u, g, gar, dt)
         else if (body) huntAround(u, g, gar, dt, true)
-        else investigate(u, g, dt)
+        else investigate(u, g, gar, dt)
         const limit = u.lured ? SCAN_LURED_S : hunt ? SEARCH_HOT_S : body ? BODY_SEARCH_S : gar.alert.level > 0 ? HUNT_SCAN_S : SCAN_S
         if (body && u.focusT < 1) u.focusT = 1
         if (u.t > limit && !u.sees) {
@@ -2659,8 +2691,11 @@ export const voidNoise = (gar: Garrison, token: number): number => {
 export const lureTo = (gar: Garrison, g: Grid, x: number, y: number, z: number, radius: number): number => {
   let n = 0
   for (const u of gar.units) {
-    if (!isAlive(u) || !isHuman(u) || u.state === 'combat') continue
+    if (!isAlive(u) || !lurable(u) || u.state === 'combat') continue
     if (u.state === 'suspicious' && !u.lured) continue
+    // Stood at it, or done watching it and looking about: one look per decoy (#171).
+    if (u.decoyWatch > 0) continue
+    if (u.lured && u.state === 'search' && Math.hypot(u.seenX - x, u.seenZ - z) < 1.5) continue
     if (Math.hypot(u.x - x, u.z - z) > radius) continue
     if (!hasLineOfSight(g, u.x, u.y + SPECS[u.kind].eye, u.z, x, y + 1.2, z)) continue
     suspect(gar, u, x, z, true)

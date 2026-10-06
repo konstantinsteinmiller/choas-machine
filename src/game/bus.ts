@@ -61,6 +61,8 @@ export interface GameEvents {
   wave: { n: number }
   /** A round fired at the mech; a shell called onto a point. */
   incoming: { id: number; kind: PostKind; hit: boolean }
+  /** A defender's one round into a decoy it stands watching (#171). */
+  decoyShot: { id: number; kind: PostKind }
   telegraph: { x: number; z: number; radius: number; dur: number }
   /** The mech took damage; the mech is down. */
   hurt: { amount: number; hp: number }

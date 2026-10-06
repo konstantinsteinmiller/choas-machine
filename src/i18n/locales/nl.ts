@@ -249,6 +249,18 @@ export default {
       'decoy': 'Gebruik een lokvogel [{key}], steek in de rug als hij afgeleid is',
       'decoyTouch': 'Gebruik een lokvogel, steek in de rug als hij afgeleid is',
       'decoyAny': 'Weer gezien. Schakel de bewaker uit zoals jij wilt.'
+    },
+    'door': {
+      'cover': 'Buk één keer om erdoor te komen',
+      'weapons': 'Schakel alle drie uit om erdoor te komen',
+      'rocket': 'Vernietig de mech met de raketwerper',
+      'supply': 'Pak de bevoorradingskist',
+      'blade': 'Steek beide bewakers in de rug',
+      'burn': 'Verbrand het lichaam',
+      'decoy': 'Gooi een lokvogel en steek dan de bewaker in de rug',
+      'rope': 'Schiet een touw naar de overkant',
+      'beacon': 'Schakel de alarmpost uit',
+      'salvage': 'Verzamel het schroot'
     }
   },
   'pause': {

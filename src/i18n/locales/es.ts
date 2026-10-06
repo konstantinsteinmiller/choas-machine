@@ -249,6 +249,18 @@ export default {
       'decoy': 'Usa un señuelo [{key}] y apuñala por la espalda cuando se distraiga',
       'decoyTouch': 'Usa un señuelo y apuñala por la espalda cuando se distraiga',
       'decoyAny': 'Te han vuelto a ver. Acaba con el guardia como quieras.'
+    },
+    'door': {
+      'cover': 'Agáchate una vez para pasar',
+      'weapons': 'Abate a los tres para pasar',
+      'rocket': 'Destruye el mecha con el lanzacohetes',
+      'supply': 'Coge la caja de suministros',
+      'blade': 'Apuñala por la espalda a los dos guardias',
+      'burn': 'Quema el cuerpo',
+      'decoy': 'Lanza un señuelo y apuñala al guardia por la espalda',
+      'rope': 'Dispara una cuerda al otro lado',
+      'beacon': 'Apaga el puesto de alarma',
+      'salvage': 'Recoge la chatarra'
     }
   },
   'pause': {

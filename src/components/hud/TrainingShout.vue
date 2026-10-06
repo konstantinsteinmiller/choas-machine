@@ -9,7 +9,10 @@
       :class="{ big: hud.training.shout === 'shout.backstab' }"
       data-testid="training-shout"
       @animationend="hud.training.shout = ''"
-    ) {{ t(`training.${hud.training.shout}`, { key: keyLabel(primaryCode('decoy')) }) }}
+    )
+      span {{ t(`training.${hud.training.shout}`, { key: keyLabel(primaryCode('decoy')) }) }}
+      //- What a shut door wants is shown as its control too (#171).
+      HintGlyph.glyph(v-if="hud.training.shoutHint" :hint="hud.training.shoutHint" :device="hud.device" :weapon="hud.weapon")
 </template>
 
 <script setup lang="ts">
@@ -17,6 +20,7 @@ import { useI18n } from 'vue-i18n'
 import { hud } from '@/game/state/hud'
 import { primaryCode } from '@/game/engine/keyBindings'
 import { keyLabel } from '@/game/engine/keyLabels'
+import HintGlyph from '@/components/hud/hints/HintGlyph.vue'
 
 const { t } = useI18n()
 </script>
@@ -45,6 +49,11 @@ const { t } = useI18n()
   text-align: center
   text-wrap: balance
   text-shadow: var(--cm-text-outline)
+  display: inline-flex
+  align-items: center
+  justify-content: center
+  flex-wrap: wrap
+  gap: 0.5em
   animation: shout 3s ease-out forwards
   +tech-plate(var(--cm-violet), tech-fill(var(--cm-violet), 18%), 0.6rem)
   &.big

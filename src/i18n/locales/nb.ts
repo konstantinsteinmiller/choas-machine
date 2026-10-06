@@ -249,6 +249,18 @@ export default {
       'decoy': 'Bruk en lokkedue [{key}], stikk i ryggen når vakten er distrahert',
       'decoyTouch': 'Bruk en lokkedue, stikk i ryggen når vakten er distrahert',
       'decoyAny': 'Oppdaget igjen. Ta ut vakten akkurat som du vil.'
+    },
+    'door': {
+      'cover': 'Huk deg én gang for å komme forbi',
+      'weapons': 'Ta ned alle tre for å komme forbi',
+      'rocket': 'Ødelegg mechen med rakettkasteren',
+      'supply': 'Ta forsyningskassen',
+      'blade': 'Stikk begge vaktene i ryggen',
+      'burn': 'Brenn liket',
+      'decoy': 'Kast en lokkedue, og stikk så vakten i ryggen',
+      'rope': 'Skyt et tau over',
+      'beacon': 'Slå av alarmposten',
+      'salvage': 'Samle opp skrapet'
     }
   },
   'pause': {

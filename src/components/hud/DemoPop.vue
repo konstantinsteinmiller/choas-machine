@@ -4,34 +4,18 @@
   //- hologram's head, rises and fades. Pinned by a HUD ticker.
   div.demo-pop(ref="el" aria-hidden="true")
     div.chip(v-if="hint && hud.device === 'mouse'" :key="seq")
-      MouseGlyph.mouse(v-if="MOUSE[hint]" :lit="MOUSE[hint]")
-      KeyCap(v-else :action="KEYS[hint] ?? 'act'")
+      HintGlyph(:hint="hint" device="mouse" :weapon="hud.weapon")
     //- On touch (#160): a copy of the very button pressed, its shape and its
     //- colour; a gesture (the stick, a swipe, a hold) as the finger doing it.
     div.touch(v-else-if="hint" :key="seq")
-      TouchButtonGlyph(v-if="HINT_BUTTON[hint]" :look="lookOf(HINT_BUTTON[hint] ?? 'strike', hud.weapon, hint)")
-      FingerGlyph.finger(v-else :mode="FINGER[hint] ?? 'tap'")
+      HintGlyph(:hint="hint" device="touch" :weapon="hud.weapon")
 </template>
 
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref } from 'vue'
-import KeyCap from '@/components/hud/hints/KeyCap.vue'
-import MouseGlyph from '@/components/hud/hints/MouseGlyph.vue'
-import FingerGlyph from '@/components/hud/hints/FingerGlyph.vue'
-import TouchButtonGlyph from '@/components/hud/hints/TouchButtonGlyph.vue'
-import { HINT_BUTTON, HINT_GESTURE, lookOf } from '@/components/hud/touchLook'
+import HintGlyph from '@/components/hud/hints/HintGlyph.vue'
 import type { HintId } from '@/game/sim/coach'
-import type { Action } from '@/game/engine/keyBindings'
 import { addHudTicker, demoPop, hud } from '@/game/state/hud'
-
-/** The key each control is pressed with (the player's own binding is lettered by KeyCap). */
-const KEYS: Readonly<Record<string, Action>> = {
-  move: 'forward', climb: 'forward', supply: 'forward', crouch: 'crouch', blade: 'act', decoy: 'decoy', hide: 'hide',
-  grapple: 'grapple', sabotage: 'act', loot: 'act', jump: 'jump', rope: 'rope', burn: 'burn', weapon: 'cycle', sprint: 'sprint', goal: 'forward', rocket: 'weapon3'
-}
-/** The ones a mouse does. */
-const MOUSE: Readonly<Record<string, 'move' | 'left' | 'right'>> = { look: 'move', scope: 'right', fire: 'left' }
-const FINGER = HINT_GESTURE
 
 const el = ref<HTMLElement | null>(null)
 const hint = ref<HintId | ''>('')
@@ -77,11 +61,6 @@ onUnmounted(() => off?.())
 // On touch the copy of the button is the chip itself, rising and fading the same way.
 .touch
   animation: demo-pop 1.6s ease-out forwards
-.finger
-  --size: 2.8rem
-.mouse
-  width: 1.3rem
-  height: 1.8rem
 .icon
   width: 1.5rem
   height: 1.5rem

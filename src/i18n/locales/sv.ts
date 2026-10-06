@@ -249,6 +249,18 @@ export default {
       'decoy': 'Använd ett lockbete [{key}], hugg i ryggen när vakten är distraherad',
       'decoyTouch': 'Använd ett lockbete, hugg i ryggen när vakten är distraherad',
       'decoyAny': 'Upptäckt igen. Ta ut vakten hur du vill.'
+    },
+    'door': {
+      'cover': 'Huka dig en gång för att komma förbi',
+      'weapons': 'Ta ner alla tre för att komma förbi',
+      'rocket': 'Förstör mechen med raketkastaren',
+      'supply': 'Ta förrådslådan',
+      'blade': 'Hugg båda vakterna i ryggen',
+      'burn': 'Bränn kroppen',
+      'decoy': 'Kasta ett lockbete och hugg sedan vakten i ryggen',
+      'rope': 'Skjut ett rep över',
+      'beacon': 'Stäng av larmposten',
+      'salvage': 'Samla ihop skrotet'
     }
   },
   'pause': {

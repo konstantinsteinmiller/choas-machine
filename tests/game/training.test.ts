@@ -101,11 +101,11 @@ describe('the lessons', () => {
     expect(replayDemo(t)).toBe(false)
   })
 
-  it('the weapons room wants a rifle kill, an overheat and a zoom (the launcher has its own room, #146)', () => {
+  it('the weapons room wants all three down (#168): the drill alone does not open it', () => {
     const i = LESSON_IDS.indexOf('weapons')
     const b = ctx(0, 0)
-    expect(lessonDone(i, ctx(0, 0, { sniperKills: 1, overheats: 1 }), b)).toBe(false)
-    expect(lessonDone(i, ctx(0, 0, { sniperKills: 1, overheats: 1, zooms: 1 }), b)).toBe(true)
+    expect(lessonDone(i, ctx(0, 0, { sniperKills: 1, overheats: 1, zooms: 1 }), b)).toBe(false)
+    expect(lessonDone(i, { ...ctx(0, 0), cleared: true }, b)).toBe(true)
   })
 
   it('the blade lesson shows a full takedown on a hologram guard; the flame room does not teach it again (#110, #113)', () => {

@@ -138,6 +138,8 @@ export const installGameSounds = (): void => {
     sfx('alertDown')
     setMusicTrack('stealth')
   })
+  // A round into a decoy (#171): the shot, and the hologram's crackle where it lands.
+  on('decoyShot', () => { sfx('enemyShot', 0, 0.55); sfx('tink', 0, 0.35) })
   on('incoming', ({ hit }) => {
     sfx('enemyShot', 0, 0.8)
     // A round that lands rings off the mech's own plate.
