@@ -14,7 +14,7 @@
           role="radio"
           :aria-checked="f.id === flow.fortress"
           :disabled="!fortressOpen(f.id)"
-          :class="{ on: f.id === flow.fortress, locked: !fortressOpen(f.id) }"
+          :class="{ on: f.id === flow.fortress, locked: !fortressOpen(f.id), next: flow.next?.fortress === f.id }"
           :title="fortTitle(f)"
           :data-testid="`fort-${f.id}`"
           @click="pickFort(f.id)"
@@ -34,7 +34,7 @@
         :aria-checked="n === flow.level"
         :aria-label="n > open ? t('base.locked', { n: n - 1 }) : `${t('base.threat')} ${n}: ${missionName(n)}`"
         :disabled="n > open"
-        :class="{ on: n === flow.level, locked: n > open, cleared: clears(n) > 0 }"
+        :class="{ on: n === flow.level, locked: n > open, cleared: clears(n) > 0, next: isNext(n) }"
         :data-testid="`level-${n}`"
         @click="pick(n)"
       )
@@ -42,6 +42,8 @@
           MissionArt(:n="n")
         span.numeral {{ NUMERALS[n - 1] }}
         GameIcon.done(v-if="clears(n) > 0" name="check")
+        //- The mission the last clear opened (#166): framed, and called what it is.
+        span.next-tag(v-if="isNext(n)" data-testid="next-mission") {{ t('base.nextMission') }}
         span.name {{ missionName(n) }}
         span.stars
           span.star(v-for="m in MEDAL_IDS" :key="m" :class="{ won: medalWon(n, m) }")
@@ -131,6 +133,8 @@ const fortTitle = (f: FortressMeta): string => {
   if (fortressOpen(f.id) || !f.unlock) return name
   return t('base.fortressLocked', { name: t('fortress.' + f.unlock.after), n: NUMERALS[f.unlock.threat - 1] })
 }
+/** The card of the mission a first clear has just opened (#166). */
+const isNext = (n: number): boolean => flow.next?.fortress === flow.fortress && flow.next.level === n
 const pickFort = (id: FortressId): void => {
   if (!fortressOpen(id) || id === flow.fortress) return
   sfx('uiClick')
@@ -233,6 +237,9 @@ const train = (): void => { void startTraining() }
     --plate-edge: var(--cm-cyan)
     color: var(--cm-white, #fff)
     box-shadow: var(--cm-glow-cyan)
+  // The fortress the last clear opened (#166).
+  &.next
+    --plate-edge: var(--cm-warn)
   &.locked
     opacity: 0.55
     cursor: default
@@ -270,6 +277,9 @@ const train = (): void => { void startTraining() }
     filter: brightness(1.12)
   &.cleared
     --edge: var(--cm-ok)
+  // Taken already and not the one picked (#166): a step back, the next one forward.
+  &.cleared:not(.on)
+    filter: saturate(0.5) brightness(0.78)
   // The chosen one: pink, lifted, a scan line running down its picture.
   &.on
     --edge: var(--cm-pink)
@@ -279,6 +289,10 @@ const train = (): void => { void startTraining() }
       animation: card-scan 2.2s linear infinite
   &.locked
     cursor: not-allowed
+  // The next mission (#166): picked or not, a yellow frame that breathes, and its tag.
+  &.next
+    --edge: var(--cm-warn)
+    animation: next-call 1.6s ease-in-out infinite
   // The edge along both cuts, over the picture and the medal strip: the strip
   // runs into the bottom-right corner and would hide the card's colour there.
   &::after
@@ -371,6 +385,31 @@ const train = (): void => { void startTraining() }
     height: auto
     aspect-ratio: 1
     filter: drop-shadow(0 0 0.3rem rgba(154, 120, 255, 0.8))
+.next-tag
+  position: absolute
+  // Centred over the card's full width (at left 50% it could only take half).
+  left: 0
+  right: 0
+  top: 0.35em
+  width: fit-content
+  max-width: 92%
+  margin-inline: auto
+  box-sizing: border-box
+  padding: 0.1em 0.5em
+  color: var(--cm-ink)
+  background: var(--cm-warn)
+  font-size: var(--cm-fs-xs)
+  font-weight: 700
+  line-height: 1.2
+  text-align: center
+  text-transform: uppercase
+  // A long locale wraps onto two lines rather than losing its end.
+  text-wrap: balance
+  +tech-cut(0.25rem)
+  pointer-events: none
+@keyframes next-call
+  50%
+    filter: drop-shadow(0 0 0.7rem color-mix(in srgb, var(--cm-warn) 80%, transparent))
 @keyframes card-scan
   from
     top: -30%
@@ -379,6 +418,9 @@ const train = (): void => { void startTraining() }
 @media (prefers-reduced-motion: reduce)
   .level.on .art::after
     animation: none
+  .level.next
+    animation: none
+    filter: drop-shadow(0 0 0.5rem color-mix(in srgb, var(--cm-warn) 70%, transparent))
 // A short screen (a phone on its side): the cards and the record lose height first.
 @media (max-height: 480px)
   .deploy

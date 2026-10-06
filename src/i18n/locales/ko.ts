@@ -110,7 +110,8 @@ export default {
     'forge': '제작소',
     'scrap': '테크 스크랩',
     'cores': '데이터 코어',
-    'blueprints': '설계도'
+    'blueprints': '설계도',
+    'nextMission': '다음 임무'
   },
   'track': {
     'sniperZoom': '스코프 배율',

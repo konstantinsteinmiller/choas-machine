@@ -110,7 +110,8 @@ export default {
     'forge': 'Smederij',
     'scrap': 'Techschroot',
     'cores': 'Datakernen',
-    'blueprints': 'Blauwdrukken'
+    'blueprints': 'Blauwdrukken',
+    'nextMission': 'Volgende missie'
   },
   'track': {
     'sniperZoom': 'Scopezoom',

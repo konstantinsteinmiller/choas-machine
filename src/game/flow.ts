@@ -2,7 +2,7 @@ import { reactive } from 'vue'
 import { app, type GameMode } from './engine/app'
 import { hud, setPhase } from './state/hud'
 import { isFreshProfile, markSeen, profile, saveProfile } from './state/profile'
-import { bankDefeat, bankMission, campaignScore, fortressOpen, highestCleared, levelKey, unlockedLevel } from './state/progress'
+import { bankDefeat, bankMission, campaignScore, fortressOpen, highestCleared, levelKey, nextOpened, unlockedLevel } from './state/progress'
 import { cinemaAfterClear, seenKey, type CinemaId } from './story/cinemaIds'
 import { currentMusicTrack, setMusicTrack } from '@/use/useSound'
 import type { TrackId } from './audio/songs'
@@ -40,6 +40,12 @@ export const flow = reactive({
   fortress: 'bastion' as FortressId,
   /** The threat level of the mission in play, or picked for the next one. */
   level: 1,
+  /**
+   * The mission a first clear has just opened (#166): back at the base it is
+   * picked and framed as the next one, until the player deploys or picks
+   * another. Null when none is new.
+   */
+  next: null as { fortress: FortressId; level: number } | null,
   /** What the last extraction paid (the rewards screen reads it). */
   result: null as Payout | null,
   /** The run the rewards or defeat screen is about. */
@@ -140,6 +146,7 @@ const swap = async (screen: Screen, factory: ModeFactory, phase: 'intro' | 'base
 export const startMission = async (level: number = flow.level): Promise<void> => {
   if (!factories) return
   flow.training = false
+  flow.next = null
   if (!fortressOpen(flow.fortress)) flow.fortress = 'bastion'
   flow.level = Math.min(unlockedLevel(flow.fortress), Math.max(1, level))
   await swap('mission', factories.mission, 'intro')
@@ -196,6 +203,11 @@ export const finishTraining = async (): Promise<void> => {
 
 /** Leave whatever is running for the Command Base. */
 export const goBase = async (): Promise<void> => {
+  // The mission just opened is the one picked (#166).
+  if (flow.next) {
+    flow.fortress = flow.next.fortress
+    flow.level = flow.next.level
+  }
   if (factories) await swap('base', factories.base, 'base')
 }
 
@@ -204,6 +216,9 @@ export const finishMission = (run: MissionResult): void => {
   flow.run = { ...run }
   const first = (profile.fortresses[levelKey(flow.level, flow.fortress)]?.clears ?? 0) === 0
   flow.result = bankMission(run, flow.level, flow.fortress)
+  // What this clear has opened is what comes next (#166): every playtester
+  // went back into the fortress they had just taken, the one still picked.
+  if (first && !flow.training) flow.next = nextOpened(flow.fortress, flow.level)
   // A first clear may earn a story scene (#103, #100), before the rewards.
   const scene = cinemaAfterClear(flow.fortress, flow.level, first)
   if (scene && !profile.seen.includes(seenKey(scene))) void playCinema(scene).then(() => { flow.modal = 'rewards' })

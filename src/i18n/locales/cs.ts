@@ -110,7 +110,8 @@ export default {
     'forge': 'Kovárna',
     'scrap': 'Techno šrot',
     'cores': 'Datová jádra',
-    'blueprints': 'Plány'
+    'blueprints': 'Plány',
+    'nextMission': 'Další mise'
   },
   'track': {
     'sniperZoom': 'Zoom zaměřovače',

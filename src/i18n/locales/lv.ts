@@ -110,7 +110,8 @@ export default {
     'forge': 'Kalve',
     'scrap': 'Tehnikas lūžņi',
     'cores': 'Datu serdes',
-    'blueprints': 'Rasējumi'
+    'blueprints': 'Rasējumi',
+    'nextMission': 'Nākamā misija'
   },
   'track': {
     'sniperZoom': 'Optikas tuvinājums',

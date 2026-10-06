@@ -110,7 +110,8 @@ export default {
     'forge': 'Forge',
     'scrap': 'Ferraille tech',
     'cores': 'Noyaux de données',
-    'blueprints': 'Plans'
+    'blueprints': 'Plans',
+    'nextMission': 'Mission suivante'
   },
   'track': {
     'sniperZoom': 'Zoom de lunette',

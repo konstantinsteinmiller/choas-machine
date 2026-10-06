@@ -110,7 +110,8 @@ export default {
     'forge': '鍛造所',
     'scrap': 'テックスクラップ',
     'cores': 'データコア',
-    'blueprints': '設計図'
+    'blueprints': '設計図',
+    'nextMission': '次の任務'
   },
   'track': {
     'sniperZoom': 'スコープ倍率',

@@ -110,7 +110,8 @@ export default {
     'forge': 'Lò rèn',
     'scrap': 'Phế liệu công nghệ',
     'cores': 'Lõi dữ liệu',
-    'blueprints': 'Bản thiết kế'
+    'blueprints': 'Bản thiết kế',
+    'nextMission': 'Nhiệm vụ tiếp'
   },
   'track': {
     'sniperZoom': 'Độ phóng đại',

@@ -110,7 +110,8 @@ export default {
     'forge': 'Kovačnica',
     'scrap': 'Tehno-otpad',
     'cores': 'Podatkovne jezgre',
-    'blueprints': 'Nacrti'
+    'blueprints': 'Nacrti',
+    'nextMission': 'Sljedeća misija'
   },
   'track': {
     'sniperZoom': 'Zum nišana',

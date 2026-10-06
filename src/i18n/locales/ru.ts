@@ -110,7 +110,8 @@ export default {
     'forge': 'Кузница',
     'scrap': 'Техлом',
     'cores': 'Ядра данных',
-    'blueprints': 'Чертежи'
+    'blueprints': 'Чертежи',
+    'nextMission': 'Следующая миссия'
   },
   'track': {
     'sniperZoom': 'Кратность прицела',

@@ -110,7 +110,8 @@ export default {
     'forge': 'Smedja',
     'scrap': 'Teknikskrot',
     'cores': 'Datakärnor',
-    'blueprints': 'Ritningar'
+    'blueprints': 'Ritningar',
+    'nextMission': 'Nästa uppdrag'
   },
   'track': {
     'sniperZoom': 'Kikarzoom',

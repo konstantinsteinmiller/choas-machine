@@ -110,7 +110,8 @@ export default {
     'forge': 'Paja',
     'scrap': 'Teknoromu',
     'cores': 'Dataytimet',
-    'blueprints': 'Piirustukset'
+    'blueprints': 'Piirustukset',
+    'nextMission': 'Seuraava tehtävä'
   },
   'track': {
     'sniperZoom': 'Tähtäimen zoomaus',

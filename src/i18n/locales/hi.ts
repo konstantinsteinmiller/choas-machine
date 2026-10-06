@@ -110,7 +110,8 @@ export default {
     'forge': 'फोर्ज',
     'scrap': 'टेक स्क्रैप',
     'cores': 'डेटा कोर',
-    'blueprints': 'ब्लूप्रिंट'
+    'blueprints': 'ब्लूप्रिंट',
+    'nextMission': 'अगला मिशन'
   },
   'track': {
     'sniperZoom': 'स्कोप ज़ूम',

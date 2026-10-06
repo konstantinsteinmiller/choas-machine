@@ -110,7 +110,8 @@ export default {
     'forge': 'Соғу цехы',
     'scrap': 'Тех-сынықтар',
     'cores': 'Дерек өзектері',
-    'blueprints': 'Сызбалар'
+    'blueprints': 'Сызбалар',
+    'nextMission': 'Келесі миссия'
   },
   'track': {
     'sniperZoom': 'Оптика ұлғайтуы',

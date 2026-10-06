@@ -110,7 +110,8 @@ export default {
     'forge': 'Temirchilik',
     'scrap': 'Tex-parchalar',
     'cores': 'Ma\'lumot yadrolari',
-    'blueprints': 'Chizmalar'
+    'blueprints': 'Chizmalar',
+    'nextMission': 'Keyingi missiya'
   },
   'track': {
     'sniperZoom': 'Nishon kattalashtirishi',

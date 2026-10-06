@@ -110,7 +110,8 @@ export default {
     'forge': 'Forxa',
     'scrap': 'Chatarra tec',
     'cores': 'Núcleos de datos',
-    'blueprints': 'Planos'
+    'blueprints': 'Planos',
+    'nextMission': 'Próxima misión'
   },
   'track': {
     'sniperZoom': 'Zoom da mira',

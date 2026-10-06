@@ -110,7 +110,8 @@ export default {
     'forge': 'Schmiede',
     'scrap': 'Techschrott',
     'cores': 'Datenkerne',
-    'blueprints': 'Baupläne'
+    'blueprints': 'Baupläne',
+    'nextMission': 'Nächster Einsatz'
   },
   'track': {
     'sniperZoom': 'Zielfernrohr-Zoom',

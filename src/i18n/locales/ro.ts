@@ -110,7 +110,8 @@ export default {
     'forge': 'Forjă',
     'scrap': 'Fier vechi tech',
     'cores': 'Nuclee de date',
-    'blueprints': 'Scheme'
+    'blueprints': 'Scheme',
+    'nextMission': 'Misiunea următoare'
   },
   'track': {
     'sniperZoom': 'Zoom lunetă',

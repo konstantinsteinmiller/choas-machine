@@ -110,7 +110,8 @@ export default {
     'forge': 'Fucina',
     'scrap': 'Rottami tech',
     'cores': 'Nuclei dati',
-    'blueprints': 'Progetti'
+    'blueprints': 'Progetti',
+    'nextMission': 'Prossima missione'
   },
   'track': {
     'sniperZoom': 'Zoom mirino',

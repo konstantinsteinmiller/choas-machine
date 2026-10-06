@@ -110,7 +110,8 @@ export default {
     'forge': '锻造炉',
     'scrap': '科技废料',
     'cores': '数据核心',
-    'blueprints': '蓝图'
+    'blueprints': '蓝图',
+    'nextMission': '下一个任务'
   },
   'track': {
     'sniperZoom': '瞄准镜倍率',

@@ -114,7 +114,8 @@ export default {
     'forge': 'Forge',
     'scrap': 'Tech Scrap',
     'cores': 'Data Cores',
-    'blueprints': 'Blueprints'
+    'blueprints': 'Blueprints',
+    'nextMission': 'Next mission'
   },
   'track': {
     'sniperZoom': 'Scope zoom',

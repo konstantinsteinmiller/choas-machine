@@ -110,7 +110,8 @@ export default {
     'forge': 'Σφυρηλάτηση',
     'scrap': 'Τεχνο-σκραπ',
     'cores': 'Πυρήνες δεδομένων',
-    'blueprints': 'Σχέδια'
+    'blueprints': 'Σχέδια',
+    'nextMission': 'Επόμενη αποστολή'
   },
   'track': {
     'sniperZoom': 'Ζουμ σκόπευτρου',

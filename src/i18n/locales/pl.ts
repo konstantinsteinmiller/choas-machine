@@ -110,7 +110,8 @@ export default {
     'forge': 'Kuźnia',
     'scrap': 'Złom techniczny',
     'cores': 'Rdzenie danych',
-    'blueprints': 'Schematy'
+    'blueprints': 'Schematy',
+    'nextMission': 'Następna misja'
   },
   'track': {
     'sniperZoom': 'Przybliżenie lunety',

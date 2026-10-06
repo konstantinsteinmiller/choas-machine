@@ -110,7 +110,8 @@ export default {
     'forge': 'Farga',
     'scrap': 'Ferralla tècnica',
     'cores': 'Nuclis de dades',
-    'blueprints': 'Plànols'
+    'blueprints': 'Plànols',
+    'nextMission': 'Missió següent'
   },
   'track': {
     'sniperZoom': 'Zoom de la mira',

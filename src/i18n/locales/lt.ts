@@ -110,7 +110,8 @@ export default {
     'forge': 'Kalvė',
     'scrap': 'Technikos laužas',
     'cores': 'Duomenų šerdys',
-    'blueprints': 'Brėžiniai'
+    'blueprints': 'Brėžiniai',
+    'nextMission': 'Kita misija'
   },
   'track': {
     'sniperZoom': 'Taikiklio artinimas',

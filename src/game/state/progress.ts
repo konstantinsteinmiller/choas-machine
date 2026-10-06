@@ -8,7 +8,7 @@ import { MISS_REFUND, spinCost, winChance, winGain } from '../data/wheel'
 import { THREAT_LEVELS, defeatScrap, payout, type MissionResult, type Payout } from '../sim/rewards'
 import { fortressSave, profile, saveProfile } from './profile'
 import { DISGUISE_SCRAP, type DisguiseId } from '../models/disguiseIds'
-import { FORTRESS_IDS, fortressMeta, type FortressId } from '../data/fortresses/registry'
+import { FORTRESSES, FORTRESS_IDS, fortressMeta, type FortressId } from '../data/fortresses/registry'
 
 /**
  * ─── The player's progress ───────────────────────────────────────────────────
@@ -38,6 +38,13 @@ export const unlockedLevel = (fort: FortressId = FORTRESS_ID): number => {
 export const fortressOpen = (fort: FortressId): boolean => {
   const u = fortressMeta(fort).unlock
   return !u || cleared(u.after, u.threat)
+}
+
+/** The mission a first clear of `level` in `fort` opens (#166): the next threat level, or after the last, the fortress it opens. */
+export const nextOpened = (fort: FortressId, level: number): { fortress: FortressId; level: number } | null => {
+  if (level < unlockedLevel(fort)) return { fortress: fort, level: level + 1 }
+  const after = FORTRESSES.find(f => f.unlock?.after === fort && f.unlock.threat === level && fortressOpen(f.id))
+  return after ? { fortress: after.id, level: 1 } : null
 }
 
 /**

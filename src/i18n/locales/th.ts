@@ -110,7 +110,8 @@ export default {
     'forge': 'โรงหลอม',
     'scrap': 'เศษเทค',
     'cores': 'คอร์ข้อมูล',
-    'blueprints': 'พิมพ์เขียว'
+    'blueprints': 'พิมพ์เขียว',
+    'nextMission': 'ภารกิจถัดไป'
   },
   'track': {
     'sniperZoom': 'ซูมกล้องเล็ง',

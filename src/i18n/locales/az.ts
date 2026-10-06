@@ -110,7 +110,8 @@ export default {
     'forge': 'Zavod',
     'scrap': 'Tex-qırıntı',
     'cores': 'Data nüvələri',
-    'blueprints': 'Cizgilər'
+    'blueprints': 'Cizgilər',
+    'nextMission': 'Növbəti tapşırıq'
   },
   'track': {
     'sniperZoom': 'Optik yaxınlaşma',

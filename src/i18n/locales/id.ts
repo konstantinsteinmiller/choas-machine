@@ -110,7 +110,8 @@ export default {
     'forge': 'Tempa',
     'scrap': 'Rongsok Teknologi',
     'cores': 'Inti Data',
-    'blueprints': 'Cetak Biru'
+    'blueprints': 'Cetak Biru',
+    'nextMission': 'Misi berikutnya'
   },
   'track': {
     'sniperZoom': 'Zoom teropong',

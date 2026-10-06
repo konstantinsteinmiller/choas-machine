@@ -110,7 +110,8 @@ export default {
     'forge': 'Smie',
     'scrap': 'Teknoskrap',
     'cores': 'Datakjerner',
-    'blueprints': 'Tegninger'
+    'blueprints': 'Tegninger',
+    'nextMission': 'Neste oppdrag'
   },
   'track': {
     'sniperZoom': 'Siktezoom',

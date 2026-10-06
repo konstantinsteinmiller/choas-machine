@@ -110,7 +110,8 @@ export default {
     'forge': 'Demirhane',
     'scrap': 'Teknik Hurda',
     'cores': 'Veri Çekirdekleri',
-    'blueprints': 'Planlar'
+    'blueprints': 'Planlar',
+    'nextMission': 'Sıradaki görev'
   },
   'track': {
     'sniperZoom': 'Dürbün yakınlaştırma',

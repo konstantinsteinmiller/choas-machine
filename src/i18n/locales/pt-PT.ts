@@ -110,7 +110,8 @@ export default {
     'forge': 'Forja',
     'scrap': 'Sucata Tech',
     'cores': 'Núcleos de Dados',
-    'blueprints': 'Planos'
+    'blueprints': 'Planos',
+    'nextMission': 'Próxima missão'
   },
   'track': {
     'sniperZoom': 'Zoom da mira',

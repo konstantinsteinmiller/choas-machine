@@ -110,7 +110,8 @@ export default {
     'forge': 'Kovácsműhely',
     'scrap': 'Techhulladék',
     'cores': 'Adatmagok',
-    'blueprints': 'Tervrajzok'
+    'blueprints': 'Tervrajzok',
+    'nextMission': 'Következő küldetés'
   },
   'track': {
     'sniperZoom': 'Távcső zoom',

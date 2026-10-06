@@ -110,7 +110,8 @@ export default {
     'forge': 'المصهر',
     'scrap': 'خردة تقنية',
     'cores': 'نوى البيانات',
-    'blueprints': 'المخططات'
+    'blueprints': 'المخططات',
+    'nextMission': 'المهمة التالية'
   },
   'track': {
     'sniperZoom': 'تقريب المنظار',

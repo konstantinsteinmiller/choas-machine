@@ -110,7 +110,8 @@ export default {
     'forge': 'Forĝejo',
     'scrap': 'Teknorestaĵoj',
     'cores': 'Datumkernoj',
-    'blueprints': 'Planoj'
+    'blueprints': 'Planoj',
+    'nextMission': 'Sekva misio'
   },
   'track': {
     'sniperZoom': 'Zomo de celilo',
