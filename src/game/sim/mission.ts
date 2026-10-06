@@ -47,7 +47,7 @@ import { guardJoints } from '../models/ragdollPose'
 import { makeGrappleVisual, type GrappleVisual } from '../fx/grappleHook'
 import { castShot, makeShotHit, HEAD_Y } from './hitscan'
 import { blast, shotDamage } from './damage'
-import { SNIPER_MAG, SPREAD, ammoOf, isDry, makeArsenal, reloadProgress, reserveOf, stepArsenal, type Arsenal, type Trigger } from './weapons'
+import { SNIPER_MAG, SPREAD, ammoOf, isDry, isLow, makeArsenal, reloadProgress, reserveOf, stepArsenal, type Arsenal, type Trigger } from './weapons'
 import { decoySpot, findRopeStrike, findStrike, stepDecoys, type Decoy, type Strike, type StrikeKind } from './melee'
 import { HIP_Y, airAt, airCam, airMark, planAir, type AirBeat, type AirPlan } from './airStrike'
 import { fireRocket, stepRockets, type Rocket } from './rockets'
@@ -55,6 +55,7 @@ import { blastRagdoll, nearRay, push, ragdollFrom, wake as wakeRagdoll } from '.
 import { MARKSMAN_AIM_S, stepFire } from './chaos'
 import { hurtArmor, makeArmor, stepArmor, type Armor } from './armor'
 import { flow, finishMission, failMission, finishTraining } from '../flow'
+import { BANNER_HOLD, clearBanner, showBanner } from '../state/banner'
 import { TrainingDirector } from './trainingDirector'
 import { entryOf, lessonStuck, roomAt } from './training'
 import { TRAINING_ID, TRAINING_ROOMS } from '../data/fortresses/training'
@@ -97,6 +98,8 @@ const UP = new Vector3(0, 1, 0)
 
 /** How far a round flies. */
 const SHOT_RANGE = 260
+/** Seconds into going down that WASTED comes up (#150): as the knees give. */
+const WASTED_AT = 0.35
 /** The flamethrower (#99): how near the body must be, and how long a burn takes. */
 const BURN_REACH = 2.4
 const BURN_S = 2
@@ -178,7 +181,7 @@ type Cine =
   /** The rope kill's own camera (`airCam`): `at` is the move's own clock, held at its end while the camera blends out. */
   | { kind: 'air'; t: number; dur: number; plan: AirPlan; at: number }
   /** The extraction. */
-  | { kind: 'outro'; t: number; dur: number }
+  | { kind: 'outro'; t: number; dur: number; banner?: boolean }
   /** The sniper's round in flight, then a moment on what it did. */
   | {
     kind: 'bullet'; t: number; dur: number; hit: boolean
@@ -806,8 +809,10 @@ export class Mission implements GameMode {
         haptic('blast')
         emit('land', { drop: 3 })
       }
-      // The screen waits until it has stopped moving.
-      if (this.downT > MECH_DOWN_S + 0.7 && flow.modal === '') flow.modal = 'defeat'
+      // WASTED (#150) as the knees go; the screen that says so waits until
+      // the mech has stopped moving and the card has played out.
+      if (was < WASTED_AT && this.downT >= WASTED_AT) showBanner('wasted')
+      if (this.downT > Math.max(MECH_DOWN_S + 0.7, WASTED_AT + BANNER_HOLD.wasted) && flow.modal === '') flow.modal = 'defeat'
     }
     vital.hitAge += dt
 
@@ -909,6 +914,8 @@ export class Mission implements GameMode {
     t.cycle = i.cycleQueued || (i.wheelQueued !== 0 && !hud.scoped)
     const was = a.current
     const rounds = stepArsenal(a, t, dt)
+    // A trigger pulled on nothing (#145): the dry click, every time.
+    if (a.switching <= 0 && isDry(a) && (t.touch ? t.aimReleased : t.firePressed)) emit('dryFire', {})
     if (a.overheated && !this.wasHot) this.overheats++
     this.wasHot = a.overheated
     if (a.current !== was) {
@@ -930,6 +937,7 @@ export class Mission implements GameMode {
     mirror('ammo', ammoOf(a))
     mirror('reserve', reserveOf(a))
     mirror('dry', isDry(a))
+    mirror('ammoLow', !hud.dry && isLow(a))
     mirror('ammoMax', a.current === 'rocket' ? this.loadout.rockets : a.current === 'sniper' ? SNIPER_MAG : 0)
     gun.reload = reloadProgress(a)
     mirror('reloading', gun.reload > 0)
@@ -2647,10 +2655,13 @@ export class Mission implements GameMode {
   private watchAmmo(): void {
     const a = this.arsenal
     const w = a.current
-    const low = w === 'sniper' ? a.sniperMag + a.sniperReserve <= 3
-      : w === 'rocket' ? a.rockets + (a.rocketLoaded ? 1 : 0) <= 1
-        : a.minigunBelt <= a.minigunBeltMax * 0.2
-    if (low && !this.lowAmmoSaid[w]) { this.lowAmmoSaid[w] = true; this.say('lowAmmo') }
+    const low = isLow(a)
+    if (low && !this.lowAmmoSaid[w]) {
+      this.lowAmmoSaid[w] = true
+      this.say('lowAmmo')
+      // Two soft ticks as the line is crossed (#145); the strip turns amber.
+      if (!isDry(a)) emit('ammoLow', { weapon: w })
+    }
     if (!low) this.lowAmmoSaid[w] = false
   }
 
@@ -3296,6 +3307,9 @@ export class Mission implements GameMode {
       return true
     }
     if (c.kind === 'outro') {
+      // LEVEL CLEARED (#150) as the board lifts the mech out: the card has
+      // played out as the shot ends and the rewards open.
+      if (!c.banner && c.t >= c.dur - BANNER_HOLD.cleared) { c.banner = true; showBanner('cleared') }
       const py = heightAt(f.grid, f.extract.x, f.extract.z)
       // The dog gallops in on its jets, lies down into a board beside the
       // mech, the mech hops on, and the board climbs away with it.
@@ -3731,6 +3745,7 @@ export class Mission implements GameMode {
   }
 
   dispose(): void {
+    clearBanner()
     this.training?.dispose()
     this.offReplay?.()
     this.offZoom?.()

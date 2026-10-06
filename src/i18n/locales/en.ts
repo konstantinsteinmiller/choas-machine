@@ -79,7 +79,13 @@ export default {
     'alarmRunner': 'A guard is running to raise the alarm',
     'alarmLit': 'The alarm is raised',
     'boss': 'Boss health {n}%',
-    'loot': 'Strip the salvage'
+    'loot': 'Strip the salvage',
+    'ammoLow': 'Running low on ammunition',
+    'ammoOut': 'Out of ammunition',
+    'questLog': 'Objectives',
+    'quest': {
+      'extract': 'Extract'
+    }
   },
   'defeat': {
     'title': 'Mech down',
@@ -314,5 +320,9 @@ export default {
   },
   'license': {
     'denied': 'Access Denied: Please purchase a license.'
+  },
+  'banner': {
+    'cleared': 'Level cleared',
+    'wasted': 'Wasted'
   }
 }

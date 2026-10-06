@@ -75,7 +75,13 @@ export default {
     'alarmRunner': 'Mühafizəçi həyəcan qaldırmağa qaçır',
     'alarmLit': 'Həyəcan qaldırıldı',
     'boss': 'Bossun sağlamlığı {n}%',
-    'loot': 'Hurdanı sök'
+    'loot': 'Hurdanı sök',
+    'ammoLow': 'Sursat azalır',
+    'ammoOut': 'Sursat bitdi',
+    'questLog': 'Tapşırıqlar',
+    'quest': {
+      'extract': 'Təxliyə'
+    }
   },
   'defeat': {
     'title': 'Meka məğlub oldu',
@@ -310,5 +316,9 @@ export default {
   },
   'license': {
     'denied': 'Giriş qadağandır: zəhmət olmasa, lisenziya al.'
+  },
+  'banner': {
+    'cleared': 'Səviyyə keçildi',
+    'wasted': 'Məhv oldun'
   }
 }

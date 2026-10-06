@@ -289,6 +289,11 @@ const RECIPES: Record<SfxName, (pan: number, g: number) => void> = {
   scopeIn: (_p, g) => tone({ wave: 'sine', f0: 420, f1: 1250, dur: 0.16, vol: 0.07 * g }),
   scopeOut: (_p, g) => tone({ wave: 'sine', f0: 1100, f1: 420, dur: 0.12, vol: 0.06 * g }),
   dry: (_p, g) => tone({ wave: 'p12', f0: 1300, dur: 0.03, vol: 0.09 * g }),
+  // Running low (#145): two soft, falling ticks, a warning and not an alarm.
+  ammoLow: (_p, g) => {
+    tone({ wave: 'p25', f0: 980, dur: 0.045, vol: 0.06 * g })
+    tone({ wave: 'p25', f0: 820, dur: 0.05, vol: 0.06 * g, at: 0.11 })
+  },
 
   // ── The loud weapons (the rounds, the launch and the blast rendered, `foley.ts`) ──
   minigun: foley('minigun'),

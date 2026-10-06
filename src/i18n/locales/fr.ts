@@ -75,7 +75,13 @@ export default {
     'alarmRunner': 'Un garde court donner l\'alarme',
     'alarmLit': 'L\'alarme est donnée',
     'boss': 'Vie du boss {n} %',
-    'loot': 'Récupérer le butin'
+    'loot': 'Récupérer le butin',
+    'ammoLow': 'Munitions presque épuisées',
+    'ammoOut': 'Plus de munitions',
+    'questLog': 'Objectifs',
+    'quest': {
+      'extract': 'Extraction'
+    }
   },
   'defeat': {
     'title': 'Mécha à terre',
@@ -310,5 +316,9 @@ export default {
   },
   'license': {
     'denied': 'Accès refusé : veuillez acheter une licence.'
+  },
+  'banner': {
+    'cleared': 'Niveau terminé',
+    'wasted': 'Éliminé'
   }
 }

@@ -75,7 +75,13 @@ export default {
     'alarmRunner': 'Gardisto kuras por alarmi',
     'alarmLit': 'La alarmo sonas',
     'boss': 'Vivo de la estro {n}%',
-    'loot': 'Malmunti la rubaĵon'
+    'loot': 'Malmunti la rubaĵon',
+    'ammoLow': 'Municio preskaŭ elĉerpita',
+    'ammoOut': 'Municio elĉerpita',
+    'questLog': 'Celoj',
+    'quest': {
+      'extract': 'Evakuo'
+    }
   },
   'defeat': {
     'title': 'Meĥo falis',
@@ -310,5 +316,9 @@ export default {
   },
   'license': {
     'denied': 'Aliro rifuzita: bonvolu aĉeti permesilon.'
+  },
+  'banner': {
+    'cleared': 'Nivelo venkita',
+    'wasted': 'Detruita'
   }
 }

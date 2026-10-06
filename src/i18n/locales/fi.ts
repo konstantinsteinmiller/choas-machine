@@ -75,7 +75,13 @@ export default {
     'alarmRunner': 'Vartija juoksee tekemään hälytyksen',
     'alarmLit': 'Hälytys on annettu',
     'boss': 'Pomon terveys {n} %',
-    'loot': 'Pura romu'
+    'loot': 'Pura romu',
+    'ammoLow': 'Ammukset vähissä',
+    'ammoOut': 'Ammukset lopussa',
+    'questLog': 'Tehtävät',
+    'quest': {
+      'extract': 'Nouto'
+    }
   },
   'defeat': {
     'title': 'Mecha kaatui',
@@ -310,5 +316,9 @@ export default {
   },
   'license': {
     'denied': 'Pääsy estetty: osta lisenssi.'
+  },
+  'banner': {
+    'cleared': 'Taso läpäisty',
+    'wasted': 'Tuhottu'
   }
 }

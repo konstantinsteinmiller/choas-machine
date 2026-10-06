@@ -60,7 +60,7 @@ export default {
     'metres': '{n}m',
     'objective': {
       'salvage': '고철',
-      'extract': '추출 지점에 도달하라'
+      'extract': '탈출 지점에 도달하라'
     },
     'haul': '고철 {n}/{need}',
     'hide': '상자에 숨기',
@@ -75,7 +75,13 @@ export default {
     'alarmRunner': '경비가 경보를 울리러 달려간다',
     'alarmLit': '경보가 울렸다',
     'boss': '보스 체력 {n}%',
-    'loot': '고철 분해'
+    'loot': '고철 분해',
+    'ammoLow': '탄약 부족',
+    'ammoOut': '탄약 소진',
+    'questLog': '목표',
+    'quest': {
+      'extract': '탈출'
+    }
   },
   'defeat': {
     'title': '메카 파괴',
@@ -310,5 +316,9 @@ export default {
   },
   'license': {
     'denied': '접근이 거부되었습니다: 라이선스를 구매해 주세요.'
+  },
+  'banner': {
+    'cleared': '스테이지 클리어',
+    'wasted': '파괴됨'
   }
 }

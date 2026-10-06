@@ -75,7 +75,13 @@ export default {
     'alarmRunner': 'Một lính gác đang chạy đi báo động',
     'alarmLit': 'Báo động đã vang',
     'boss': 'Máu trùm {n}%',
-    'loot': 'Tháo phế liệu'
+    'loot': 'Tháo phế liệu',
+    'ammoLow': 'Sắp hết đạn',
+    'ammoOut': 'Hết đạn',
+    'questLog': 'Mục tiêu',
+    'quest': {
+      'extract': 'Triệt thoái'
+    }
   },
   'defeat': {
     'title': 'Mech gục ngã',
@@ -310,5 +316,9 @@ export default {
   },
   'license': {
     'denied': 'Từ chối truy cập: vui lòng mua giấy phép.'
+  },
+  'banner': {
+    'cleared': 'Hoàn thành màn',
+    'wasted': 'Toang'
   }
 }

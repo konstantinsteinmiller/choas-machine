@@ -75,7 +75,13 @@ export default {
     'alarmRunner': 'Sargs skrien celt trauksmi',
     'alarmLit': 'Trauksme ir izsludināta',
     'boss': 'Bosa veselība {n}%',
-    'loot': 'Izjaukt lūžņus'
+    'loot': 'Izjaukt lūžņus',
+    'ammoLow': 'Munīcija beidzas',
+    'ammoOut': 'Munīcija beigusies',
+    'questLog': 'Uzdevumi',
+    'quest': {
+      'extract': 'Evakuācija'
+    }
   },
   'defeat': {
     'title': 'Mehs ir ticis',
@@ -310,5 +316,9 @@ export default {
   },
   'license': {
     'denied': 'Piekļuve liegta: lūdzu, iegādājies licenci.'
+  },
+  'banner': {
+    'cleared': 'Līmenis pabeigts',
+    'wasted': 'Iznīcināts'
   }
 }

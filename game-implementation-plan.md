@@ -788,7 +788,7 @@ fortress; the outro after the first Spire III clear).
 
 - [x] **R48 Ammo budget** (#143): factory 10 rifle / 100 belt / 2 rockets,
   smaller upgrade steps and pickups, crates scale with threat, balance test
-- [ ] **R49 Unit frame HUD and banners** (#145 #150): portrait + HP + ammo +
+- [x] **R49 Unit frame HUD and banners** (#145 #150): portrait + HP + ammo +
   alert top-left, quest log on the right, low vs. out ammo cues taught in
   training; Mega Droid's red WASTED and blue LEVEL CLEARED banners
 - [ ] **R50 Rocket lesson** (#146): armoured (blast-only) rule, pit room,
@@ -816,6 +816,8 @@ fortress; the outro after the first Spire III clear).
 
 - Stacked indoor floors (grid holds one height per cell); the Spire is terraced.
 - A painted CM-07 portrait; the rendered one comes first.
+- H7 (the low and out cues taught in training) lands with R50's rocket room:
+  firing its two rockets runs the launcher low, then out.
 
 ## Resume notes
 

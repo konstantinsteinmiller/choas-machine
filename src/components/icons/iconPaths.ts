@@ -321,6 +321,24 @@ export const ICON_PATHS: Record<GameIconName, string[]> = {
     'M10 14.4A2 2 0 1 0 14 14.4A2 2 0 1 0 10 14.4Z'
   ],
   // ── Chaos Machine ────────────────────────────────────────────────────
+  // The chassis' integrity (#145): a hex ring round a repair cross.
+  'chassis': [
+    'M12 2 20.66 7v10L12 22l-8.66-5V7Z',
+    'M12 4.4 5.42 8.2v7.6L12 19.6l6.58-3.8V8.2Z',
+    'M10.8 7.6h2.4v3.2h3.2v2.4h-3.2v3.2h-2.4v-3.2H7.6v-2.4h3.2Z'
+  ],
+  // A magazine with a little left in the bottom of it: running low (#145).
+  'ammo-low': [
+    'M7 3h10l1 2v14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V5Z',
+    'M8.2 5.2v13.6h7.6V5.2Z',
+    'M8.2 15.4h7.6v3.4H8.2Z'
+  ],
+  // The same magazine, empty and struck through: out (#145).
+  'ammo-out': [
+    'M7 3h10l1 2v14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V5Z',
+    'M8.2 5.2v13.6h7.6V5.2Z',
+    'M3.2 18.6 18.6 3.2l2.2 2.2L5.4 20.8Z'
+  ],
   // The mech's head: helmet, a visor punched through it, two eye-lights
   // standing back inside, an antenna bead and two ear pods.
   'mech': [

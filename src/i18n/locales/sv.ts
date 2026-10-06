@@ -75,7 +75,13 @@ export default {
     'alarmRunner': 'En vakt springer för att slå larm',
     'alarmLit': 'Larmet har gått',
     'boss': 'Bossens hälsa {n} %',
-    'loot': 'Plocka isär skrotet'
+    'loot': 'Plocka isär skrotet',
+    'ammoLow': 'Ammunitionen tar slut',
+    'ammoOut': 'Slut på ammunition',
+    'questLog': 'Mål',
+    'quest': {
+      'extract': 'Evakuering'
+    }
   },
   'defeat': {
     'title': 'Mechen är nere',
@@ -310,5 +316,9 @@ export default {
   },
   'license': {
     'denied': 'Åtkomst nekad: köp en licens.'
+  },
+  'banner': {
+    'cleared': 'Banan klar',
+    'wasted': 'Förintad'
   }
 }

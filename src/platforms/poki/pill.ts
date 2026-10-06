@@ -22,9 +22,9 @@ export const PILL = { width: 62, height: 46, defaultTop: 24, gap: 8, maxTopFract
 
 export interface Box { left: number, top: number, right: number, bottom: number }
 
-/** What the pill must not cover: the mission HUD's top-left cluster, and any
- *  open modal frame. Class names from HudBars / ObjectiveTracker / FModal. */
-export const PILL_AVOID_SELECTOR = '.hud-layer .bars, .hud-layer .obj, .f-modal__frame'
+/** What the pill must not cover: the mission HUD's unit frame (top left,
+ *  #145), and any open modal frame. Class names from UnitFrame / FModal. */
+export const PILL_AVOID_SELECTOR = '.hud-layer .unit-frame, .f-modal__frame'
 
 const inStrip = (b: Box): boolean => b.left < PILL.width + PILL.gap && b.right > 0 && b.bottom > b.top
 const clashes = (top: number, b: Box): boolean =>

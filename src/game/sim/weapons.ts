@@ -128,6 +128,16 @@ export const isDry = (a: Arsenal, w: WeaponId = a.current): boolean =>
     : w === 'sniper' ? a.sniperMag === 0 && a.sniperReserve === 0 && a.reloading <= 0
       : a.minigunBelt <= 0
 
+/**
+ * Running low (#145, the limits of #126's spoken warning): the rifle with 3
+ * rounds or fewer in all, the launcher with its last rocket, the belt at a
+ * fifth. Low is not dry: the HUD shows the two apart.
+ */
+export const isLow = (a: Arsenal, w: WeaponId = a.current): boolean =>
+  w === 'sniper' ? a.sniperMag + a.sniperReserve <= 3
+    : w === 'rocket' ? a.rockets + (a.rocketLoaded ? 1 : 0) <= 1
+      : a.minigunBelt <= a.minigunBeltMax * 0.2
+
 const draw = (a: Arsenal, w: WeaponId): void => {
   if (w === a.current) return
   a.current = w

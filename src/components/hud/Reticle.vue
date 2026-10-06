@@ -17,6 +17,9 @@
     svg.reload-ring(v-show="hud.reloading" viewBox="0 0 40 40" :class="`w-${hud.weapon}`")
       circle.track(cx="20" cy="20" r="17")
       circle.fill(ref="reloadArc" cx="20" cy="20" r="17" pathLength="1")
+    //- Nothing left in the weapon in hand (#145): the struck-through magazine
+    //- where the round would go, so a pull on nothing explains itself.
+    GameIcon.dry-mark(v-if="hud.dry && !hud.scoped" name="ammo-out")
     //- A round that landed on someone, and a round that ended someone.
     div.hitmark(:class="{ show: hitFlash, kill: killFlash }")
       i
@@ -29,6 +32,7 @@
 import { onMounted, onUnmounted, ref } from 'vue'
 import { addHudTicker, gun, hud } from '@/game/state/hud'
 import { on } from '@/game/bus'
+import GameIcon from '@/components/icons/GameIcon.vue'
 
 /**
  * The aim point. A dot for the sniper (and the scope's own hairs once it is
@@ -277,4 +281,20 @@ onUnmounted(() => {
     left: 0
   i:nth-child(4)
     right: 0
+.dry-mark
+  position: absolute
+  left: 50%
+  top: 50%
+  width: clamp(1.2rem, 5vmin, 1.8rem)
+  height: clamp(1.2rem, 5vmin, 1.8rem)
+  translate: 1.1rem -2.2rem
+  color: var(--cm-danger)
+  filter: drop-shadow(0 0 0.25rem rgba(0, 0, 0, 0.8))
+  animation: dry-mark 0.5s steps(2) infinite
+@keyframes dry-mark
+  50%
+    opacity: 0.4
+@media (prefers-reduced-motion: reduce)
+  .dry-mark
+    animation: none
 </style>

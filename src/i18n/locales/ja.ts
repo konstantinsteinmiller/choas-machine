@@ -75,7 +75,13 @@ export default {
     'alarmRunner': '警備兵が警報を鳴らしに走っている',
     'alarmLit': '警報が鳴った',
     'boss': 'ボスの体力 {n}%',
-    'loot': 'スクラップを解体'
+    'loot': 'スクラップを解体',
+    'ammoLow': '弾薬が残りわずか',
+    'ammoOut': '弾切れ',
+    'questLog': '目標',
+    'quest': {
+      'extract': '脱出'
+    }
   },
   'defeat': {
     'title': 'メカ撃破',
@@ -310,5 +316,9 @@ export default {
   },
   'license': {
     'denied': 'アクセスが拒否されました：ライセンスをご購入ください。'
+  },
+  'banner': {
+    'cleared': 'ステージクリア',
+    'wasted': '大破'
   }
 }

@@ -75,7 +75,13 @@ export default {
     'alarmRunner': 'Strážný běží spustit poplach',
     'alarmLit': 'Poplach je spuštěn',
     'boss': 'Zdraví bosse {n} %',
-    'loot': 'Rozebrat šrot'
+    'loot': 'Rozebrat šrot',
+    'ammoLow': 'Dochází munice',
+    'ammoOut': 'Došla munice',
+    'questLog': 'Úkoly',
+    'quest': {
+      'extract': 'Evakuace'
+    }
   },
   'defeat': {
     'title': 'Mech je venku',
@@ -310,5 +316,9 @@ export default {
   },
   'license': {
     'denied': 'Přístup odepřen: kup si prosím licenci.'
+  },
+  'banner': {
+    'cleared': 'Úroveň dokončena',
+    'wasted': 'Zničen'
   }
 }

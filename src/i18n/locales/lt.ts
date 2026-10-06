@@ -75,7 +75,13 @@ export default {
     'alarmRunner': 'Sargybinis bėga kelti pavojaus',
     'alarmLit': 'Paskelbtas pavojus',
     'boss': 'Boso gyvybė {n} %',
-    'loot': 'Išardyti laužą'
+    'loot': 'Išardyti laužą',
+    'ammoLow': 'Baigiasi amunicija',
+    'ammoOut': 'Nebėra amunicijos',
+    'questLog': 'Užduotys',
+    'quest': {
+      'extract': 'Evakuacija'
+    }
   },
   'defeat': {
     'title': 'Mechas žlugo',
@@ -310,5 +316,9 @@ export default {
   },
   'license': {
     'denied': 'Prieiga uždrausta: įsigyk licenciją.'
+  },
+  'banner': {
+    'cleared': 'Lygis įveiktas',
+    'wasted': 'Sunaikintas'
   }
 }

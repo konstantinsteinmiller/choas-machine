@@ -58,6 +58,8 @@ export const hud = reactive({
   reserve: 15,
   /** The weapon in hand has nothing left to fire. */
   dry: false,
+  /** The weapon in hand is running low, short of dry (#145). */
+  ammoLow: false,
   reloading: false,
   overheated: false,
   /** A decoy is ready (1) or not (0): they never run out, they cool down (#114). */

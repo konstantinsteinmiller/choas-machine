@@ -75,7 +75,13 @@ export default {
     'alarmRunner': 'Un guàrdia corre a donar l\'alarma',
     'alarmLit': 'L\'alarma ha saltat',
     'boss': 'Vida del cap {n} %',
-    'loot': 'Desmuntar la ferralla'
+    'loot': 'Desmuntar la ferralla',
+    'ammoLow': 'Queda poca munició',
+    'ammoOut': 'Sense munició',
+    'questLog': 'Objectius',
+    'quest': {
+      'extract': 'Extracció'
+    }
   },
   'defeat': {
     'title': 'Mecha a terra',
@@ -310,5 +316,9 @@ export default {
   },
   'license': {
     'denied': 'Accés denegat: adquireix una llicència.'
+  },
+  'banner': {
+    'cleared': 'Nivell superat',
+    'wasted': 'Liquidat'
   }
 }

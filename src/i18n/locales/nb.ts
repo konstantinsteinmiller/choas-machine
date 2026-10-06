@@ -75,7 +75,13 @@ export default {
     'alarmRunner': 'En vakt løper for å slå alarm',
     'alarmLit': 'Alarmen har gått',
     'boss': 'Bossens helse {n} %',
-    'loot': 'Ta fra hverandre skrapet'
+    'loot': 'Ta fra hverandre skrapet',
+    'ammoLow': 'Lite ammunisjon igjen',
+    'ammoOut': 'Tom for ammunisjon',
+    'questLog': 'Mål',
+    'quest': {
+      'extract': 'Evakuering'
+    }
   },
   'defeat': {
     'title': 'Mechen er nede',
@@ -310,5 +316,9 @@ export default {
   },
   'license': {
     'denied': 'Ingen tilgang: kjøp en lisens.'
+  },
+  'banner': {
+    'cleared': 'Brett fullført',
+    'wasted': 'Knust'
   }
 }

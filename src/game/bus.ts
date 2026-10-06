@@ -42,6 +42,9 @@ export interface GameEvents {
   kill: { id: number; kind: PostKind; by: WeaponId | 'blade'; head: boolean; dist: number }
   /** A round left the barrel; a round or a rocket arrived. */
   shot: { weapon: WeaponId }
+  /** The weapon in hand just ran low; the trigger was pulled with nothing left (#145). */
+  ammoLow: { weapon: WeaponId }
+  dryFire: Record<string, never>
   hit: { id: number; weapon: WeaponId; zone: string }
   blast: { x: number; y: number; z: number; weak: boolean }
   /** Another weapon was drawn. */

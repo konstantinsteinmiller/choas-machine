@@ -75,7 +75,13 @@ export default {
     'alarmRunner': 'Un paznic fuge să dea alarma',
     'alarmLit': 'Alarma a fost dată',
     'boss': 'Viața șefului {n}%',
-    'loot': 'Dezmembrează fierul vechi'
+    'loot': 'Dezmembrează fierul vechi',
+    'ammoLow': 'Muniția e pe terminate',
+    'ammoOut': 'Fără muniție',
+    'questLog': 'Obiective',
+    'quest': {
+      'extract': 'Extracție'
+    }
   },
   'defeat': {
     'title': 'Mech doborât',
@@ -310,5 +316,9 @@ export default {
   },
   'license': {
     'denied': 'Acces refuzat: te rugăm să cumperi o licență.'
+  },
+  'banner': {
+    'cleared': 'Nivel terminat',
+    'wasted': 'Distrus'
   }
 }

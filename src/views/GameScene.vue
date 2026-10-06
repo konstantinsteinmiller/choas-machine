@@ -24,6 +24,8 @@
       @keydown.enter.prevent="relock"
     )
       GameIcon.relock-glyph(name="play")
+    //- WASTED and LEVEL CLEARED (#150): over the HUD, under every modal.
+    BigBanner(v-if="flow.screen === 'mission'")
     LoadingVeil
     PauseModal(@resume="onResume")
     DefeatModal
@@ -56,6 +58,7 @@ import { CheatPanel, cheatPanelOpen, registerGameCheats } from '@/game/cheats'
 import GameIcon from '@/components/icons/GameIcon.vue'
 import BaseHud from '@/components/base/BaseHud.vue'
 import MissionHud from '@/components/hud/MissionHud.vue'
+import BigBanner from '@/components/hud/BigBanner.vue'
 import CineBars from '@/components/hud/CineBars.vue'
 import PauseModal from '@/components/modals/PauseModal.vue'
 import LoadingVeil from '@/components/atoms/LoadingVeil.vue'

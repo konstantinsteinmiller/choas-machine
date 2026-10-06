@@ -75,7 +75,13 @@ export default {
     'alarmRunner': 'Egy őr riasztani fut',
     'alarmLit': 'Megszólalt a riasztás',
     'boss': 'A főellenség élete {n}%',
-    'loot': 'Hulladék szétszedése'
+    'loot': 'Hulladék szétszedése',
+    'ammoLow': 'Fogyóban a lőszer',
+    'ammoOut': 'Elfogyott a lőszer',
+    'questLog': 'Célok',
+    'quest': {
+      'extract': 'Kimentés'
+    }
   },
   'defeat': {
     'title': 'A mech kiesett',
@@ -310,5 +316,9 @@ export default {
   },
   'license': {
     'denied': 'Hozzáférés megtagadva: vásárolj licencet.'
+  },
+  'banner': {
+    'cleared': 'Pálya teljesítve',
+    'wasted': 'Elpusztultál'
   }
 }

@@ -75,7 +75,13 @@ export default {
     'alarmRunner': 'Eine Wache rennt zum Alarm',
     'alarmLit': 'Der Alarm ist ausgelöst',
     'boss': 'Leben des Bosses {n}%',
-    'loot': 'Bergegut ausschlachten'
+    'loot': 'Bergegut ausschlachten',
+    'ammoLow': 'Munition wird knapp',
+    'ammoOut': 'Keine Munition mehr',
+    'questLog': 'Ziele',
+    'quest': {
+      'extract': 'Extraktion'
+    }
   },
   'defeat': {
     'title': 'Mech außer Gefecht',
@@ -310,5 +316,9 @@ export default {
   },
   'license': {
     'denied': 'Zugriff verweigert: Bitte erwerbe eine Lizenz.'
+  },
+  'banner': {
+    'cleared': 'Level geschafft',
+    'wasted': 'Erledigt'
   }
 }

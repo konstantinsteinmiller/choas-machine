@@ -75,7 +75,13 @@ export default {
     'alarmRunner': 'حارس يركض لإطلاق الإنذار',
     'alarmLit': 'انطلق الإنذار',
     'boss': 'صحة الزعيم {n}%',
-    'loot': 'فكّ الخردة'
+    'loot': 'فكّ الخردة',
+    'ammoLow': 'الذخيرة توشك على النفاد',
+    'ammoOut': 'نفدت الذخيرة',
+    'questLog': 'الأهداف',
+    'quest': {
+      'extract': 'الإخلاء'
+    }
   },
   'defeat': {
     'title': 'تحطّم الميكا',
@@ -310,5 +316,9 @@ export default {
   },
   'license': {
     'denied': 'تم رفض الوصول: يرجى شراء ترخيص.'
+  },
+  'banner': {
+    'cleared': 'اكتملت المرحلة',
+    'wasted': 'انتهى أمرك'
   }
 }

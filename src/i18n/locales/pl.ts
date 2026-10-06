@@ -75,7 +75,13 @@ export default {
     'alarmRunner': 'Strażnik biegnie podnieść alarm',
     'alarmLit': 'Alarm podniesiony',
     'boss': 'Życie bossa {n}%',
-    'loot': 'Rozbierz złom'
+    'loot': 'Rozbierz złom',
+    'ammoLow': 'Kończy się amunicja',
+    'ammoOut': 'Brak amunicji',
+    'questLog': 'Cele',
+    'quest': {
+      'extract': 'Ewakuacja'
+    }
   },
   'defeat': {
     'title': 'Mech padł',
@@ -310,5 +316,9 @@ export default {
   },
   'license': {
     'denied': 'Odmowa dostępu: kup licencję.'
+  },
+  'banner': {
+    'cleared': 'Poziom ukończony',
+    'wasted': 'Rozwalony'
   }
 }

@@ -59,7 +59,9 @@ describe('no component is sized with a scale transform', () => {
     expect(hits).toEqual([])
   })
 
-  it.each(components)('%s does not grow or shrink a control with scale', (rel) => {
+  // The big banner (#150, Mega Droid's) zooms its WORDS in and drifts them, a
+  // headline's motion over the whole screen: no control, nothing laid out next to it.
+  it.each(components.filter(c => !c.endsWith('BigBanner.vue')))('%s does not grow or shrink a control with scale', (rel) => {
     // A panel's entrance may squash one axis (scaleX / scaleY); nothing is
     // sized by a uniform scale.
     const hits = styleLines(read(rel)).filter(l =>

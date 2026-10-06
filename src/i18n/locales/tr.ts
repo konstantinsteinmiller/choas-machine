@@ -75,7 +75,13 @@ export default {
     'alarmRunner': 'Bir muhafız alarm vermeye koşuyor',
     'alarmLit': 'Alarm verildi',
     'boss': 'Boss canı %{n}',
-    'loot': 'Hurdayı sök'
+    'loot': 'Hurdayı sök',
+    'ammoLow': 'Cephane azalıyor',
+    'ammoOut': 'Cephane bitti',
+    'questLog': 'Görevler',
+    'quest': {
+      'extract': 'Tahliye'
+    }
   },
   'defeat': {
     'title': 'Mech yenildi',
@@ -310,5 +316,9 @@ export default {
   },
   'license': {
     'denied': 'Erişim reddedildi: lütfen bir lisans satın al.'
+  },
+  'banner': {
+    'cleared': 'Bölüm tamamlandı',
+    'wasted': 'İmha edildin'
   }
 }

@@ -75,7 +75,13 @@ export default {
     'alarmRunner': 'Qo\'riqchi xavf ko\'tarish uchun yugurmoqda',
     'alarmLit': 'Xavf e\'lon qilindi',
     'boss': 'Boshliq salomatligi {n}%',
-    'loot': 'Temir-tersakni qismlarga ajratish'
+    'loot': 'Temir-tersakni qismlarga ajratish',
+    'ammoLow': "O'q-dorilar tugayapti",
+    'ammoOut': "O'q-dorilar tugadi",
+    'questLog': 'Vazifalar',
+    'quest': {
+      'extract': 'Evakuatsiya'
+    }
   },
   'defeat': {
     'title': 'Mech yiqildi',
@@ -310,5 +316,9 @@ export default {
   },
   'license': {
     'denied': 'Kirish rad etildi: iltimos, litsenziya sotib oling.'
+  },
+  'banner': {
+    'cleared': 'Bosqich yakunlandi',
+    'wasted': "Yo'q qilinding"
   }
 }

@@ -11,7 +11,7 @@ export type SfxName =
   // The mech
   | 'step' | 'land' | 'crouch' | 'climb' | 'cable' | 'hurt' | 'armorLow' | 'down'
   // The sniper: silenced, with a bolt to work
-  | 'sniper' | 'bolt' | 'reload' | 'reloadDone' | 'scopeIn' | 'scopeOut' | 'dry'
+  | 'sniper' | 'bolt' | 'reload' | 'reloadDone' | 'scopeIn' | 'scopeOut' | 'dry' | 'ammoLow'
   // The minigun and the launcher
   | 'minigun' | 'overheat' | 'rocket' | 'explode' | 'weapon'
   // The blade and the decoy: a quick strike, the blade drawn, driven into a body and pulled out

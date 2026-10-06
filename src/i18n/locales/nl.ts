@@ -75,7 +75,13 @@ export default {
     'alarmRunner': 'Een bewaker rent om alarm te slaan',
     'alarmLit': 'Het alarm is geslagen',
     'boss': 'Levens van de baas {n}%',
-    'loot': 'Schroot slopen'
+    'loot': 'Schroot slopen',
+    'ammoLow': 'Munitie raakt op',
+    'ammoOut': 'Geen munitie meer',
+    'questLog': 'Doelen',
+    'quest': {
+      'extract': 'Extractie'
+    }
   },
   'defeat': {
     'title': 'Mech neergehaald',
@@ -310,5 +316,9 @@ export default {
   },
   'license': {
     'denied': 'Toegang geweigerd: koop een licentie.'
+  },
+  'banner': {
+    'cleared': 'Level voltooid',
+    'wasted': 'Vernietigd'
   }
 }

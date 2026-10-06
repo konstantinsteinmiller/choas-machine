@@ -29,6 +29,8 @@ export const GAME_ICON_NAMES = [
   'scrap', 'core', 'blueprint', 'gem', 'clock',
   // The mech and its kit
   'mech', 'sniper', 'minigun', 'rocket', 'blade', 'decoy', 'armor', 'shield', 'bolt', 'heart',
+  // The unit frame (#145): the chassis' integrity, a magazine running low, one empty
+  'chassis', 'ammo-low', 'ammo-out',
   // In the field
   'scope', 'eye', 'crouch', 'stand', 'sprint', 'hook', 'box', 'siren', 'warning', 'skull', 'drone', 'fullscreen', 'share',
   // A rewarded video is always marked with this (CrazyGames' rule, #75)

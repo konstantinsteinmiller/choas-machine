@@ -79,6 +79,9 @@ export const installGameSounds = (): void => {
     }
   })
   on('weapon', () => sfx('weapon'))
+  // Low is two ticks once; dry is a click on every pull (#145).
+  on('ammoLow', () => sfx('ammoLow'))
+  on('dryFire', () => sfx('dry'))
   // A quick strike is one sound; a takedown plays its own beats.
   on('strike', ({ kind }) => { if (kind === 'strike' || !killCamsEnabled.value) sfx('blade') })
   on('salvage', ({ beat }) => { if (beat !== 'stop') sfx(beat === 'taken' ? 'lootDone' : 'loot') })

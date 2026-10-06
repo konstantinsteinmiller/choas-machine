@@ -44,21 +44,17 @@ const replay = (): void => emit('trainingReplay', {})
 <style scoped lang="sass">
 @use '@/assets/css/tech' as *
 .training-hud
-  // Hung under the top-centre column, out of its flow: the meter and the
-  // haul keep their own width however wide this row is.
-  position: absolute
-  top: 100%
-  left: 50%
-  translate: -50% 0
-  margin-top: clamp(0.25rem, 1.2vmin, 0.5rem)
+  // Under the unit frame (#145), left-aligned like a quest's steps.
   display: flex
   flex-direction: column
-  align-items: center
+  align-items: flex-start
   gap: clamp(0.25rem, 1.2vmin, 0.5rem)
   width: max-content
   pointer-events: none
 .pips
   display: flex
+  flex-wrap: wrap
+  max-width: min(22rem, calc(100vw - 2 * var(--cm-safe-left)))
   gap: clamp(0.15rem, 0.8vmin, 0.35rem)
   padding: 0.25em 0.5em
 .pip
@@ -87,7 +83,7 @@ const replay = (): void => emit('trainingReplay', {})
   padding: 0.35em 0.8em
   color: #ffd27a
   font-size: var(--cm-fs-s)
-  text-align: center
+  text-align: start
   text-shadow: var(--cm-text-outline)
   +tech-plate(var(--cm-violet), tech-fill(var(--cm-violet), 14%), 0.5rem)
 </style>

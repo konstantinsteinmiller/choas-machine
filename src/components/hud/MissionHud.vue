@@ -14,30 +14,14 @@
     DemoPop
     ControlHints
 
-    div.top-centre
-      AlertMeter
+    //- CM-07's unit frame (#145): portrait, health, the weapon in hand, the
+    //- base's alert and its alarm.
+    div.top-left
+      UnitFrame
+      //- The training ground's rooms, under the frame like a quest's steps.
       TrainingHud
-      //- The raid's haul: piles stripped of those it needs. Glyph and digits only.
-      div.haul(
-        v-if="hud.salvageNeed > 0"
-        :class="{ done: hud.salvageGot >= hud.salvageNeed }"
-        role="img"
-        :aria-label="t('hud.haul', { n: hud.salvageGot, need: hud.salvageNeed })"
-        data-testid="haul"
-      )
-        GameIcon(name="scrap")
-        span {{ hud.salvageGot }}/{{ hud.salvageNeed }}
-      //- The alarm: a guard runs for a beacon (a siren, blinking), cranks it
-      //- (the ring fills), and it is lit (the whole base is coming).
-      div.alarm(
-        v-if="hud.alarm > 0"
-        :class="['s' + hud.alarm]"
-        role="img"
-        :aria-label="t(hud.alarm === 3 ? 'hud.alarmLit' : 'hud.alarmRunner')"
-        data-testid="alarm"
-      )
-        GameIcon(name="siren")
-        div.alarm-fill(:style="{ width: `${Math.round((hud.alarm === 3 ? 1 : hud.alarmLit) * 100)}%` }")
+
+    div.top-centre
       //- The boss that was hit: its health, in ten plates. A shield glyph when
       //- it carries one (go round it).
       div.boss-bar(
@@ -63,9 +47,10 @@
       FHudButton(icon="help" tone="violet" :hotkey="kb('help')" :aria-label="t('hint.help')" data-testid="btn-help" @click="busEmit('help', {})")
       FHudButton(icon="pause" :hotkey="kb('pause')" :aria-label="t('ui.pause')" data-testid="btn-pause" @click="emit('pause')")
 
-    div.bottom-centre
-      ArmorBar
-      AmmoStrip
+    //- The quick quest log (#145): just above the right thumb's column,
+    //- wherever that column ends (`questStyle`).
+    div.quest(v-if="!hud.training.on" :style="questStyle")
+      QuestLog
 
     //- The blade's offer: big, pink and under the right thumb's reach. A tap
     //- anywhere on the right does the same; this is the picture of it.
@@ -168,7 +153,7 @@
           FHudBadge(tone="cyan") {{ hud.ropes }}
 
     //- The right thumb's column, above where it rests.
-    div.actions
+    div.actions(ref="actionsEl")
       //- On touch, on the scope: a chip that zooms a notch (and round again).
       FHudButton(
         v-if="hud.scoped && hud.device === 'touch'"
@@ -287,7 +272,7 @@
 </template>
 
 <script setup lang="ts">
-import { onUnmounted, ref, watch } from 'vue'
+import { onMounted, onUnmounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import FHudButton from '@/components/atoms/FHudButton.vue'
 import HealthBars from '@/components/hud/HealthBars.vue'
@@ -298,7 +283,6 @@ import GameIcon from '@/components/icons/GameIcon.vue'
 import FHudBadge from '@/components/atoms/FHudBadge.vue'
 import Joystick from '@/components/hud/Joystick.vue'
 import AimHold from '@/components/hud/AimHold.vue'
-import AlertMeter from '@/components/hud/AlertMeter.vue'
 import ThreatArcs from '@/components/hud/ThreatArcs.vue'
 import ObjectiveMarker from '@/components/hud/ObjectiveMarker.vue'
 import SpeechBubbles from '@/components/hud/SpeechBubbles.vue'
@@ -308,8 +292,8 @@ import ControlHints from '@/components/hud/ControlHints.vue'
 import { emit as busEmit, on } from '@/game/bus'
 import type { Action } from '@/game/engine/keyBindings'
 import Reticle from '@/components/hud/Reticle.vue'
-import AmmoStrip from '@/components/hud/AmmoStrip.vue'
-import ArmorBar from '@/components/hud/ArmorBar.vue'
+import UnitFrame from '@/components/hud/UnitFrame.vue'
+import QuestLog from '@/components/hud/QuestLog.vue'
 import HitFlash from '@/components/hud/HitFlash.vue'
 import { hud } from '@/game/state/hud'
 import { input } from '@/game/engine/inputState'
@@ -334,6 +318,32 @@ const kb = (a: Action): Action | undefined => (hud.device === 'mouse' ? a : unde
 const WEAPON_KEYS: readonly Action[] = ['weapon1', 'weapon2', 'weapon3']
 const weaponKey = (n: number): Action | undefined => kb(WEAPON_KEYS[n] ?? 'cycle')
 const teaching = (id: HintId): boolean => hud.device === 'touch' && hud.hints.some(h => h.id === id)
+
+// ── The quest log sits on the action column (#145) ──
+// The column's height changes with the device and with what is on offer, so
+// it is measured: the log stands a gap above the column's top.
+const actionsEl = ref<HTMLElement | null>(null)
+const questStyle = ref<Record<string, string>>({})
+let ro: ResizeObserver | null = null
+const placeQuest = (): void => {
+  const el = actionsEl.value
+  const host = el?.offsetParent as HTMLElement | null
+  if (!el || !host) return
+  const fromBottom = host.clientHeight - el.offsetTop
+  questStyle.value = { bottom: `calc(${fromBottom}px + var(--gap))` }
+}
+onMounted(() => {
+  placeQuest()
+  if (typeof ResizeObserver !== 'undefined' && actionsEl.value) {
+    ro = new ResizeObserver(placeQuest)
+    ro.observe(actionsEl.value)
+  }
+  window.addEventListener('resize', placeQuest)
+})
+onUnmounted(() => {
+  ro?.disconnect()
+  window.removeEventListener('resize', placeQuest)
+})
 
 // ── Boss damage: a number pops for each round that landed ──
 const pops = ref<Array<{ id: number; amount: number }>>([])
@@ -380,63 +390,6 @@ onUnmounted(() => window.clearTimeout(closeTimer))
   position: absolute
   inset: 0
   pointer-events: none
-
-.haul
-  display: flex
-  align-items: center
-  justify-content: center
-  gap: 0.3em
-  margin-top: 0.35em
-  padding: 0.2em 0.7em
-  color: #ffd27a
-  font-size: var(--cm-fs-s)
-  text-shadow: var(--cm-text-outline)
-  pointer-events: none
-  +tech-plate(var(--cm-warn), tech-fill(var(--cm-warn), 12%), 0.55rem)
-  :deep(svg)
-    width: 1.15em
-    height: 1.15em
-  &.done
-    --plate-edge: var(--cm-ok)
-    color: var(--cm-ok)
-
-.alarm
-  position: relative
-  display: flex
-  align-items: center
-  gap: 0.3em
-  width: clamp(5rem, 22vmin, 8rem)
-  margin-top: 0.35em
-  padding: 0.25em 0.6em
-  color: var(--cm-danger)
-  overflow: hidden
-  pointer-events: none
-  +tech-plate(var(--cm-danger), tech-fill(var(--cm-danger), 22%), 0.55rem)
-  :deep(svg)
-    position: relative
-    z-index: 1
-    width: 1.3em
-    height: 1.3em
-  &.s1 :deep(svg)
-    animation: siren-blink 0.5s steps(2) infinite
-  &.s3
-    --plate-fill: linear-gradient(var(--cm-danger), var(--cm-danger))
-    color: #fff
-.alarm-fill
-  position: absolute
-  left: 0
-  top: 0
-  bottom: 0
-  background: rgba(255, 85, 118, 0.45)
-  transition: width 120ms linear
-  // Clear of the plate's cut strokes.
-  +tech-inner-cut(0.55rem, var(--cm-rim-w))
-@keyframes siren-blink
-  50%
-    opacity: 0.25
-@media (prefers-reduced-motion: reduce)
-  .alarm.s1 :deep(svg)
-    animation: none
 
 .no-blade
   position: relative
@@ -519,19 +472,20 @@ onUnmounted(() => window.clearTimeout(closeTimer))
   display: flex
   gap: var(--gap)
 
-.bottom-centre
+.top-left
   position: absolute
-  bottom: var(--cm-safe-bottom)
-  left: 50%
-  translate: -50% 0
+  top: var(--cm-safe-top)
+  left: var(--cm-safe-left)
   display: flex
   flex-direction: column
-  align-items: center
-  gap: clamp(0.25rem, 1vmin, 0.45rem)
-  // Upright, the stick's ring reaches the middle of a narrow phone: the
-  // gauges stand just right of centre, between the ring and the chips.
-  @media (orientation: portrait)
-    left: 58%
+  align-items: flex-start
+  gap: clamp(0.25rem, 1.2vmin, 0.5rem)
+
+// Right edge, its foot a gap above the action column (`placeQuest`).
+.quest
+  position: absolute
+  right: var(--cm-safe-right)
+  bottom: calc(var(--cm-safe-bottom) + 40vh)
 
 .actions
   position: absolute

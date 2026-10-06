@@ -75,7 +75,13 @@ export default {
     'alarmRunner': '守卫正跑去拉响警报',
     'alarmLit': '警报已拉响',
     'boss': '首领生命 {n}%',
-    'loot': '拆解废料'
+    'loot': '拆解废料',
+    'ammoLow': '弹药不足',
+    'ammoOut': '弹药耗尽',
+    'questLog': '目标',
+    'quest': {
+      'extract': '撤离'
+    }
   },
   'defeat': {
     'title': '机甲倒下了',
@@ -310,5 +316,9 @@ export default {
   },
   'license': {
     'denied': '访问被拒绝：请购买许可证。'
+  },
+  'banner': {
+    'cleared': '关卡完成',
+    'wasted': '完蛋了'
   }
 }

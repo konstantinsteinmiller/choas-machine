@@ -75,7 +75,13 @@ export default {
     'alarmRunner': 'Um guarda corre para dar o alarme',
     'alarmLit': 'O alarme disparou',
     'boss': 'Vida do chefe {n}%',
-    'loot': 'Desmontar a sucata'
+    'loot': 'Desmontar a sucata',
+    'ammoLow': 'Munições a acabar',
+    'ammoOut': 'Sem munições',
+    'questLog': 'Objetivos',
+    'quest': {
+      'extract': 'Extração'
+    }
   },
   'defeat': {
     'title': 'Mech destruído',
@@ -310,5 +316,9 @@ export default {
   },
   'license': {
     'denied': 'Acesso negado: adquire uma licença.'
+  },
+  'banner': {
+    'cleared': 'Nível concluído',
+    'wasted': 'Destruído'
   }
 }

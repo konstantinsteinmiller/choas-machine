@@ -75,7 +75,13 @@ export default {
     'alarmRunner': 'Una guardia corre a dare l\'allarme',
     'alarmLit': 'L\'allarme è scattato',
     'boss': 'Vita del boss {n}%',
-    'loot': 'Smonta i rottami'
+    'loot': 'Smonta i rottami',
+    'ammoLow': 'Munizioni in esaurimento',
+    'ammoOut': 'Munizioni esaurite',
+    'questLog': 'Obiettivi',
+    'quest': {
+      'extract': 'Estrazione'
+    }
   },
   'defeat': {
     'title': 'Mech a terra',
@@ -310,5 +316,9 @@ export default {
   },
   'license': {
     'denied': 'Accesso negato: acquista una licenza.'
+  },
+  'banner': {
+    'cleared': 'Livello completato',
+    'wasted': 'Distrutto'
   }
 }

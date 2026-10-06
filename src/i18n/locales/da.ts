@@ -75,7 +75,13 @@ export default {
     'alarmRunner': 'En vagt løber for at slå alarm',
     'alarmLit': 'Alarmen er slået',
     'boss': 'Bossens liv {n} %',
-    'loot': 'Skil skrottet ad'
+    'loot': 'Skil skrottet ad',
+    'ammoLow': 'Ammunitionen er ved at slippe op',
+    'ammoOut': 'Ingen ammunition',
+    'questLog': 'Mål',
+    'quest': {
+      'extract': 'Evakuering'
+    }
   },
   'defeat': {
     'title': 'Mechen er nede',
@@ -310,5 +316,9 @@ export default {
   },
   'license': {
     'denied': 'Adgang nægtet: køb en licens.'
+  },
+  'banner': {
+    'cleared': 'Bane klaret',
+    'wasted': 'Smadret'
   }
 }

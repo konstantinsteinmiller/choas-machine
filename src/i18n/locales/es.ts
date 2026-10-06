@@ -75,7 +75,13 @@ export default {
     'alarmRunner': 'Un guardia corre a dar la alarma',
     'alarmLit': 'La alarma ha saltado',
     'boss': 'Vida del jefe {n} %',
-    'loot': 'Desguazar la chatarra'
+    'loot': 'Desguazar la chatarra',
+    'ammoLow': 'Queda poca munición',
+    'ammoOut': 'Sin munición',
+    'questLog': 'Objetivos',
+    'quest': {
+      'extract': 'Extracción'
+    }
   },
   'defeat': {
     'title': 'Mech fuera de combate',
@@ -310,5 +316,9 @@ export default {
   },
   'license': {
     'denied': 'Acceso denegado: adquiere una licencia.'
+  },
+  'banner': {
+    'cleared': 'Nivel superado',
+    'wasted': 'Liquidado'
   }
 }

@@ -1,6 +1,7 @@
 <template lang="pug">
   //- The base's Alert Level: five segments that light as the garrison grows
   //- sure of an intruder. The last one is full alert, and never goes out.
+  //- The unit frame's third row (#145).
   div.alert-meter(
     role="meter"
     :aria-label="t('hud.alert')"
@@ -40,22 +41,18 @@ const { t } = useI18n()
   display: flex
   align-items: center
   gap: clamp(0.3rem, 1.2vmin, 0.5rem)
-  min-height: clamp(1.6rem, 6vmin, 2.2rem)
-  padding: clamp(0.2rem, 0.9vmin, 0.35rem) clamp(0.45rem, 1.8vmin, 0.7rem)
+  min-height: clamp(1.1rem, 4.4vmin, 1.6rem)
   box-sizing: border-box
   color: var(--cm-cyan)
-  transition: border-color 200ms ease-out, color 200ms ease-out, opacity 300ms ease-out
-  +tech-plate(var(--cm-cyan), tech-fill(var(--cm-cyan), 12%), 0.6rem)
+  transition: color 200ms ease-out, opacity 300ms ease-out
   &.quiet
     opacity: 0.72
   &.watched
-    --plate-edge: var(--cm-warn)
     color: var(--cm-warn)
     animation: alert-throb 0.5s ease-in-out infinite alternate
   &.chaos
-    --plate-edge: var(--cm-danger)
     color: var(--cm-danger)
-    box-shadow: var(--cm-sticker), 0 0 0.9rem rgba(255, 59, 92, 0.6)
+    filter: drop-shadow(0 0 0.4rem rgba(255, 59, 92, 0.7))
 .eye
   flex: none
   width: clamp(1rem, 4.2vmin, 1.5rem)

@@ -22,11 +22,12 @@ afterEach(async () => {
 })
 afterAll(closeBrowser)
 
+// The unit frame (#145) holds the health, the ammo and the alert; the quest
+// log stands on the action column.
 const HUD = {
-  alert: '.alert-meter',
+  frame: '.unit-frame',
+  quest: '.quest-log',
   chip: '.top-right .f-hud-button, .actions .f-hud-button',
-  armor: '.armor-bar',
-  ammo: '.ammo-strip',
   stick: '.joy-home',
   hint: '.control-hints .card, .control-hints .spot'
 }

@@ -75,7 +75,13 @@ export default {
     'alarmRunner': 'Stražar trči podići uzbunu',
     'alarmLit': 'Uzbuna je podignuta',
     'boss': 'Zdravlje bossa {n} %',
-    'loot': 'Rastavi otpad'
+    'loot': 'Rastavi otpad',
+    'ammoLow': 'Streljivo je pri kraju',
+    'ammoOut': 'Nema streljiva',
+    'questLog': 'Ciljevi',
+    'quest': {
+      'extract': 'Evakuacija'
+    }
   },
   'defeat': {
     'title': 'Mech je pao',
@@ -310,5 +316,9 @@ export default {
   },
   'license': {
     'denied': 'Pristup odbijen: kupi licencu.'
+  },
+  'banner': {
+    'cleared': 'Razina završena',
+    'wasted': 'Uništen'
   }
 }

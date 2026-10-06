@@ -75,7 +75,13 @@ export default {
     'alarmRunner': 'Penjaga berlari membunyikan alarm',
     'alarmLit': 'Alarm berbunyi',
     'boss': 'Nyawa bos {n}%',
-    'loot': 'Bongkar rongsokan'
+    'loot': 'Bongkar rongsokan',
+    'ammoLow': 'Amunisi hampir habis',
+    'ammoOut': 'Amunisi habis',
+    'questLog': 'Tujuan',
+    'quest': {
+      'extract': 'Ekstraksi'
+    }
   },
   'defeat': {
     'title': 'Mech tumbang',
@@ -310,5 +316,9 @@ export default {
   },
   'license': {
     'denied': 'Akses ditolak: silakan beli lisensi.'
+  },
+  'banner': {
+    'cleared': 'Level selesai',
+    'wasted': 'Hancur'
   }
 }

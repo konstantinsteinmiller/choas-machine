@@ -1,7 +1,10 @@
 <template lang="pug">
   //- What is left in the weapon in hand: rounds as pips, or the minigun's
-  //- heat as a bar.
-  div.ammo-strip(:class="[weaponClass, { reloading: hud.reloading, hot: hud.overheated, dry: hud.dry, loss: flash === 'loss', gain: flash === 'gain' }]" data-testid="ammo")
+  //- heat as a bar. The unit frame's second row (#145). Running low and
+  //- running dry are two states, told apart without a word: low turns the row
+  //- amber with a half-empty magazine pulsing slowly beside it; dry turns it
+  //- red, the magazine struck through and blinking fast.
+  div.ammo-strip(:class="[weaponClass, { reloading: hud.reloading, hot: hud.overheated, dry: hud.dry, low: hud.ammoLow && !hud.dry, loss: flash === 'loss', gain: flash === 'gain' }]" data-testid="ammo")
     GameIcon.glyph(:name="hud.weapon")
     div.load(v-if="hud.weapon !== 'minigun'")
       div.pips(role="meter" :aria-label="t('hud.ammo')" aria-valuemin="0" :aria-valuemax="capacity" :aria-valuenow="hud.ammo")
@@ -13,6 +16,14 @@
       div.heat-fill(ref="heat")
     //- What is carried besides (#76): the rifle's reserve, the mini-gun's belt.
     span.reserve(v-if="hud.reserve >= 0" :aria-label="t('hud.reserve', { n: hud.reserve })") {{ hud.reserve }}
+    //- Low or out (#145): the warning glyph after the count.
+    GameIcon.state(
+      v-if="hud.dry || hud.ammoLow"
+      :name="hud.dry ? 'ammo-out' : 'ammo-low'"
+      role="img"
+      :aria-label="t(hud.dry ? 'hud.ammoOut' : 'hud.ammoLow')"
+      data-testid="ammo-state"
+    )
     //- What a supply brought (#111): it rises out of the bar and fades.
     span.plus(v-if="plus > 0" :key="plusKey" aria-hidden="true") +{{ plus }}
 </template>
@@ -85,35 +96,42 @@ onUnmounted(() => { off?.(); if (flashTimer) clearTimeout(flashTimer) })
   display: flex
   align-items: center
   gap: clamp(0.3rem, 1.2vmin, 0.5rem)
-  min-height: clamp(1.5rem, 5.5vmin, 2rem)
-  padding: clamp(0.18rem, 0.8vmin, 0.3rem) clamp(0.45rem, 1.8vmin, 0.7rem)
+  min-height: clamp(1.1rem, 4.4vmin, 1.6rem)
   box-sizing: border-box
   color: var(--cm-cyan)
   &.w-minigun
-    --plate-edge: rgba(255, 210, 63, 0.6)
-    color: var(--cm-warn)
+    color: #ffe08a
   &.w-rocket
-    --plate-edge: rgba(255, 138, 61, 0.7)
     color: #ff8a3d
   &.hot
-    --plate-edge: var(--cm-danger)
     color: var(--cm-danger)
   position: relative
-  transition: box-shadow 0.15s, border-color 0.15s
-  +tech-plate(var(--cm-cyan), tech-fill(var(--cm-cyan), 12%), 0.6rem)
+  // A row of the unit frame (#145): no plate of its own; a state recolours it.
   // A round gone: a red flash. Rounds in: a green glow, a moment longer.
   &.loss
-    --plate-edge: var(--cm-danger)
-    box-shadow: var(--cm-sticker), 0 0 0.9rem rgba(255, 64, 96, 0.85)
+    filter: drop-shadow(0 0 0.35rem rgba(255, 64, 96, 0.95))
   &.gain
-    --plate-edge: #5dff9a
-    box-shadow: var(--cm-sticker), 0 0 1.2rem rgba(93, 255, 154, 0.9)
+    filter: drop-shadow(0 0 0.45rem rgba(93, 255, 154, 0.95))
     animation: ammo-gain 0.9s ease-out
-  // Nothing left to fire: the strip blinks red until something is picked up.
+  // Running low (#145): amber, the warning glyph breathing slowly.
+  &.low
+    color: #ffa630
+    .state
+      animation: ammo-low-pulse 1.1s ease-in-out infinite
+  // Nothing left to fire: the row blinks red until something is picked up.
   &.dry
-    --plate-edge: var(--cm-danger)
     color: var(--cm-danger)
-    animation: ammo-dry 0.8s steps(2) infinite
+    animation: ammo-dry 0.5s steps(2) infinite
+    .reserve
+      color: var(--cm-danger)
+.state
+  flex: none
+  width: clamp(1.05rem, 4.4vmin, 1.55rem)
+  height: clamp(1.05rem, 4.4vmin, 1.55rem)
+  filter: drop-shadow(0 0 0.3rem currentColor)
+@keyframes ammo-low-pulse
+  50%
+    opacity: 0.35
 .plus
   position: absolute
   right: 0.4rem
@@ -203,6 +221,6 @@ onUnmounted(() => { off?.(); if (flashTimer) clearTimeout(flashTimer) })
     opacity: 0.55
 
 @media (prefers-reduced-motion: reduce)
-  .reloading .pip:not(.full), .ammo-strip.dry
+  .reloading .pip:not(.full), .ammo-strip.dry, .ammo-strip.low .state
     animation: none
 </style>
