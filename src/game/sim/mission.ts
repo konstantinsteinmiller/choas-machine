@@ -43,7 +43,7 @@ import {
   GRAPPLE_EARSHOT, cancelGrapple, canCancel, findGrapple, findGrappleAimed, findRappel, hookAt, startGrapple, stepGrapple, type GrappleRun, type GrappleSpot
 } from './grapple'
 import { sfx } from '../audio/sfx'
-import { VARIANTS, backstabAt, backstabCam, grabWorld, guardToWorld, guardYawAt, markAt, markWorld, pickVariant, type BackstabPose, type BackstabVariant } from './backstab'
+import { STAB_DRAW, VARIANTS, backstabAt, backstabCam, grabWorld, guardToWorld, guardYawAt, lineWorld, markAt, markWorld, pickVariant, type BackstabPose, type BackstabVariant } from './backstab'
 import { bodySink, placeKillBody } from './killPose'
 import { guardJoints } from '../models/ragdollPose'
 import { makeGrappleVisual, type GrappleVisual } from '../fx/grappleHook'
@@ -4254,7 +4254,10 @@ export class Mission implements GameMode {
       const bs = striking.bs
       const tt = striking.t - striking.dur
       const mark = markWorld(markAt(bs.variant, tt), stab, bs.gx, bs.gy, bs.gz, bs.gyaw)
-      placeKillBody(this.rig, { x, y, z }, yaw, { pitch: stab.lean, pivot: HIP_Y, arm: stab.arm, aim: stab.aim, cock: stab.cock, pin: stab.pin }, mark, grabWorld(bs.variant, stab, bs.gx, bs.gy, bs.gz, bs.gyaw), stab.grab)
+      // On the stab's own line (#174): the forearm aimed, then driven straight in.
+      const on = markAt(bs.variant, tt)
+      const line = lineWorld(on, stab, bs.gyaw)
+      placeKillBody(this.rig, { x, y, z }, yaw, { pitch: stab.lean, pivot: HIP_Y, arm: stab.arm, aim: stab.aim, cock: stab.cock, pin: stab.pin, line, drive: stab.drive, draw: STAB_DRAW[on] }, mark, grabWorld(bs.variant, stab, bs.gx, bs.gy, bs.gz, bs.gyaw), stab.grab)
     } else if (airBeat && striking?.air) {
       placeKillBody(this.rig, { x, y, z }, yaw, airBeat, airMark(striking.air, airBeat))
       // On the body and kneeling the leaning body never goes through the floor.

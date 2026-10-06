@@ -3,7 +3,7 @@ import { poseMech, type MechPose } from '../models/mech'
 import type { GuardPose } from '../models/garrison'
 import { HIP_Y } from './airStrike'
 import {
-  VARIANTS, backstabAt, grabWorld, guardToWorld, guardYawAt, markAt, markWorld, type BackstabPose, type BackstabVariant
+  STAB_DRAW, VARIANTS, backstabAt, grabWorld, guardToWorld, guardYawAt, lineWorld, markAt, markWorld, type BackstabPose, type BackstabVariant
 } from './backstab'
 import { placeKillBody } from './killPose'
 
@@ -25,6 +25,9 @@ import { placeKillBody } from './killPose'
 const _mech = backstabAt('neck', 0)
 const _guard = backstabAt('neck', 0)
 
+/** How far the blade's pin moved the body in the last `poseBackstabMech` (the arm could not reach: tests read it). */
+export const stagePin = { x: 0, y: 0, z: 0 }
+
 /** Pose and place the mech `t` into a variant (`s` carries everything else: the time, the weapon). */
 export const poseBackstabMech = (
   rig: Rig, s: MechPose, variant: BackstabVariant, t: number, gx: number, gy: number, gz: number, gyaw: number
@@ -39,7 +42,12 @@ export const poseBackstabMech = (
   poseMech(rig, s)
   const [fx, , fz] = guardToWorld(gx, gy, gz, gyaw, bp.mx, 0, bp.mz)
   const mark = markWorld(markAt(variant, t), bp, gx, gy, gz, gyaw)
-  placeKillBody(rig, { x: fx, y: gy, z: fz }, gyaw + bp.myaw, { pitch: bp.lean, pivot: HIP_Y, arm: bp.arm, aim: bp.aim, cock: bp.cock, pin: bp.pin }, mark, grabWorld(variant, bp, gx, gy, gz, gyaw), bp.grab)
+  const at = markAt(variant, t)
+  const line = lineWorld(at, bp, gyaw)
+  const off = placeKillBody(rig, { x: fx, y: gy, z: fz }, gyaw + bp.myaw, { pitch: bp.lean, pivot: HIP_Y, arm: bp.arm, aim: bp.aim, cock: bp.cock, pin: bp.pin, line, drive: bp.drive, draw: STAB_DRAW[at] }, mark, grabWorld(variant, bp, gx, gy, gz, gyaw), bp.grab)
+  stagePin.x = off.x
+  stagePin.y = off.y
+  stagePin.z = off.z
   return bp
 }
 

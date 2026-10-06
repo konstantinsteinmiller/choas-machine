@@ -3,7 +3,7 @@
 import { describe, expect, it } from 'vitest'
 import { Vector3 } from 'three'
 import {
-  BACKSTAB_VARIANTS, VARIANTS, backstabAt, backstabCam, grabWorld, guardToWorld, guardYawAt, markAt, markWorld, pickVariant, type BackstabVariant
+  BACKSTAB_VARIANTS, STAB_DRAW, VARIANTS, backstabAt, backstabCam, grabWorld, guardToWorld, guardYawAt, lineWorld, markAt, markWorld, pickVariant, type BackstabVariant
 } from '@/game/sim/backstab'
 import { placeKillBody } from '@/game/sim/killPose'
 import { HIP_Y } from '@/game/sim/airStrike'
@@ -28,7 +28,9 @@ const posed = (variant: BackstabVariant, t: number) => {
   poseMech(rig, s)
   const [fx, , fz] = guardToWorld(G.x, G.y, G.z, G.yaw, bp.mx, 0, bp.mz)
   const mark = markWorld(markAt(variant, t), bp, G.x, G.y, G.z, G.yaw)
-  const off = placeKillBody(rig, { x: fx, y: G.y, z: fz }, G.yaw + bp.myaw, { pitch: bp.lean, pivot: HIP_Y, arm: bp.arm, aim: bp.aim, cock: bp.cock, pin: bp.pin }, mark)
+  // On the stab's own line (#174), as the mission does it.
+  const line = lineWorld(markAt(variant, t), bp, G.yaw)
+  const off = placeKillBody(rig, { x: fx, y: G.y, z: fz }, G.yaw + bp.myaw, { pitch: bp.lean, pivot: HIP_Y, arm: bp.arm, aim: bp.aim, cock: bp.cock, pin: bp.pin, line, drive: bp.drive, draw: STAB_DRAW[markAt(variant, t)] }, mark)
   const tip = rig.bones.blade!.localToWorld(new Vector3(0, BLADE_TIP_LOCAL, 0))
   return { rig, bp, mark, off: Math.hypot(off.x, off.y, off.z), tip }
 }

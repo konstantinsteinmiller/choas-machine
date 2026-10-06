@@ -47,6 +47,29 @@ export const GRAB_AT: Readonly<Record<BackstabVariant, readonly [number, number,
   throat: [0.26, 1.37, -0.1]
 }
 
+/**
+ * The way the blade goes in at each mark (#174), the guard's own frame (x
+ * his right, y up, z ahead), unit. Each is a punch along the forearm from
+ * outside both bodies, after Assassin's Creed's hidden-blade kills: into the
+ * side of the neck rising from behind and outside his shoulder; into the
+ * lower back forward, in and down from beside the hip; into the base of the
+ * neck down from above; into the throat (he has been turned to face the
+ * mech) up under the chin.
+ */
+export const STAB_LINES: Readonly<Record<BodyMark, readonly [number, number, number]>> = {
+  neckSide: [-0.68, 0.29, 0.67],
+  lowerBack: [-0.49, -0.34, 0.79],
+  neckBase: [-0.25, -0.79, 0.55],
+  throat: [0, 0.3, -0.95]
+}
+
+/**
+ * How far the blade is drawn back along its line before each blow (m). The
+ * throat is stabbed face to face: drawn back further, the blade would come
+ * back into the mech's own chest.
+ */
+export const STAB_DRAW: Readonly<Record<BodyMark, number>> = { neckSide: 0.34, lowerBack: 0.34, neckBase: 0.34, throat: 0.16 }
+
 /** How much a kneeling guard's marks drop (m). */
 export const KNEEL_DROP = 0.27
 
@@ -67,6 +90,8 @@ interface Key {
   aim: number
   /** The cock direction, mech frame (x right, y up, z ahead). */
   cock: readonly [number, number, number]
+  /** On the stab's line (`aim` 1), how far the tip has gone along it: drawn back (0) … in (1) (#174). */
+  drive: number
   blade: number
   /** The guard: seized, arched on the blade, going limp, on its knees, turned toward the mech (0 … 1). */
   grip: number
@@ -90,7 +115,7 @@ interface Variant {
 
 const k = (t: number, o: Partial<Key>, base: Key): Key => ({ ...base, ...o, t })
 
-const REST: Key = { t: 0, mx: 0.4, mz: -0.75, myaw: 0, crouch: 0, lean: 0.1, grab: 0, arm: 0, aim: 0, cock: [0, -0.5, -0.85], blade: 0, grip: 0, arch: 0, limp: 0, kneel: 0, turn: 0 }
+const REST: Key = { t: 0, mx: 0.4, mz: -0.75, myaw: 0, crouch: 0, lean: 0.1, grab: 0, arm: 0, aim: 0, cock: [0, -0.5, -0.85], drive: 0, blade: 0, grip: 0, arch: 0, limp: 0, kneel: 0, turn: 0 }
 
 const chain = (list: Array<[number, Partial<Key>]>): Key[] => {
   const out: Key[] = []
@@ -100,27 +125,32 @@ const chain = (list: Array<[number, Partial<Key>]>): Key[] => {
 }
 
 /*
- * #172: the mech stands a forearm further back than it did (measured: its
- * chest and head were 20 cm inside the guard's head and back in every
- * variant; `tests/game/backstabClearance.test.ts` keeps that at none) and the
- * long arm and blade reach the mark from there; and each kill has a beat to
- * be seen before the blow: the hand closes, the blade arm draws back and
- * holds there a moment, then the swing, quick but not instant.
+ * #172: the mech stands clear of the guard's back (measured: its chest and
+ * head were 20 cm inside him; `tests/game/backstabClearance.test.ts` keeps
+ * that at none), and each kill has a beat to be seen before the blow.
+ * #174: the blade arm, after Assassin's Creed's hidden-blade kills (brief:
+ * scratchpad `ac-arm-brief.md`): the hand closes, the fist is cocked back by
+ * the hip with the elbow out (`cock`), the forearm comes onto the stab's line
+ * (`aim`, `STAB_LINES`), and the blow is a straight punch along it (`drive`),
+ * pulled out the same way. The shoulder never swings the arm across the chest.
+ * The feet are offset to the blade side, as an animator aligns a paired kill.
  */
 export const VARIANTS: Readonly<Record<BackstabVariant, Variant>> = {
   neck: {
     keys: chain([
-      [0, { mx: 0.5, mz: -1.0, myaw: 0.2, crouch: 0.35, lean: 0.15 }],
-      // The hand over the mouth, the guard seized, the blade arm drawn back.
-      [0.3, { mx: 0.34, mz: -0.84, myaw: 0.1, crouch: 0.1, lean: 0.05, grab: 1, arm: 1, aim: 0, cock: [0.2, -0.35, -0.9], blade: 1, grip: 1 }],
-      // Held: the head pulled back, the blade cocked further.
-      [0.55, { mz: -0.82, lean: 0, cock: [0.28, -0.15, -0.95] }],
-      // The swing, a fifth of a second, into the side of the neck.
-      [0.75, { mx: 0.34, mz: -0.78, aim: 1, arch: 1, lean: 0.08 }],
-      [1.25, { arch: 1, limp: 0.35 }],
-      [1.7, { limp: 1, crouch: 0.35, kneel: 0.35 }],
-      [2.3, { mx: 0.2, mz: -0.85, crouch: 0.65, lean: 0.1, kneel: 1, arm: 0.7, aim: 0.6 }],
-      [2.7, { arm: 0, aim: 0, grab: 0, blade: 0, crouch: 0.3, lean: 0.05 }]
+      [0, { mx: 0.78, mz: -0.95, myaw: -0.25, crouch: 0.3, lean: 0.12 }],
+      // The hand over the mouth, the guard seized; the fist cocked back by the hip.
+      [0.3, { mx: 0.59, mz: -0.92, myaw: -0.07, crouch: 0.24, lean: 0.05, grab: 1, arm: 1, aim: 0, cock: [0.35, -0.8, -0.45], blade: 1, grip: 1 }],
+      // His head pulled back; the forearm comes onto the line, drawn back.
+      [0.55, { aim: 1, drive: 0, arch: 0.3, lean: 0.06, mx: 0.39, mz: -0.84, myaw: 0.05, crouch: 0.16 }],
+      // The punch: a fifth of a second along the forearm into the side of the neck, the torso turning into it.
+      [0.75, { drive: 1, arch: 1, lean: 0.08, myaw: 0.17, mx: 0.23, mz: -0.72, crouch: 0.12 }],
+      [1.25, { limp: 0.35, mx: 0.19, mz: -0.72, myaw: 0.17, crouch: 0.16, lean: 0.08 }],
+      [1.7, { limp: 1, crouch: 0.23, kneel: 0.35, mx: 0.15, mz: -0.72, myaw: 0.17, lean: 0.08 }],
+      // Out along the way it went in.
+      [2.1, { drive: 0, mx: 0.15, mz: -0.72, myaw: 0.17, crouch: 0.27, lean: 0.08 }],
+      [2.3, { mz: -0.76, crouch: 0.29, lean: 0.06, kneel: 1, aim: 0, mx: 0.15, myaw: 0.17 }],
+      [2.7, { arm: 0, grab: 0, blade: 0, crouch: 0.3, lean: 0.05, mx: 0.15, mz: -0.68, myaw: 0.17 }]
     ]),
     hits: [{ t: 0.75, mark: 'neckSide' }],
     grabAt: 0.3,
@@ -130,21 +160,24 @@ export const VARIANTS: Readonly<Record<BackstabVariant, Variant>> = {
   },
   kneel: {
     keys: chain([
-      [0, { mx: 0.42, mz: -1.02, myaw: 0.15, crouch: 0.25, lean: 0.1 }],
-      [0.32, { mx: 0.14, mz: -0.8, myaw: 0.05, crouch: 0.1, lean: 0, grab: 1, arm: 1, aim: 0, cock: [0.25, -0.1, -0.97], blade: 1, grip: 1 }],
-      [0.56, { cock: [0.3, 0.05, -0.95] }],
-      [0.78, { mx: 0.04, mz: -0.74, lean: 0.05, aim: 1, arch: 1 }],
-      [1.05, { arch: 1 }],
-      // The blade out of him first; then he drops to his knees, sagging
-      // back, as the mech steps back from him; then over him, the blade arm
-      // up overhead.
-      [1.15, { aim: 0, lean: -0.05 }],
-      [1.3, { kneel: 0.2, arch: 0.85, lean: -0.15, crouch: 0, mz: -1.08 }],
-      [1.5, { kneel: 1, arch: 0.7, cock: [0.1, 1, -0.2], mz: -0.7 }],
-      [1.78, { aim: 0, lean: -0.2 }],
-      [1.94, { aim: 1, lean: 0.12, crouch: 0.15, limp: 0.4 }],
-      [2.35, { limp: 1, aim: 1, lean: 0.1 }],
-      [2.7, { arm: 0, aim: 0, grab: 0, blade: 0, lean: 0.05, crouch: 0, mz: -1.0 }]
+      [0, { mx: 0.44, mz: -0.95, myaw: 0.06, crouch: 0.3, lean: -0.21 }],
+      // Hips down, the hand on his shoulder, the fist low by the hip.
+      [0.32, { mx: 0.18, mz: -0.9, myaw: 0.05, crouch: 0.27, lean: -0.09, grab: 1, arm: 1, aim: 0, cock: [0.4, -0.85, -0.3], blade: 1, grip: 1 }],
+      [0.56, { aim: 1, drive: 0, mx: -0.06, mz: -0.9, myaw: 0.05, crouch: 0.23, lean: 0.03 }],
+      // Into the lower back, forward, in and down from beside the hip.
+      [0.78, { drive: 1, arch: 1, mx: -0.34, mz: -0.78, myaw: 0.05, crouch: 0.27, lean: 0.11 }],
+      [1.05, { arch: 1, mx: -0.38, mz: -0.82, myaw: 0.05, crouch: 0.31, lean: 0.15 }],
+      // Out along the line; the mech rises to its full height, the blade arm
+      // going up outside his shoulder blade, as he drops to his knees.
+      [1.15, { drive: 0, mx: -0.26, mz: -0.78, myaw: 0.01, crouch: 0.23, lean: 0.07 }],
+      [1.3, { aim: 0, cock: [0.3, 0.9, -0.3], crouch: 0.2, lean: 0.02, mz: -0.79, kneel: 0.2, arch: 0.85, mx: -0.14, myaw: -0.03 }],
+      [1.5, { kneel: 1, arch: 0.7, mx: -0.02, mz: -0.79, myaw: -0.07, crouch: 0.16, lean: -0.02 }],
+      // On the line down into the base of his neck, from above.
+      [1.7, { aim: 1, drive: 0, mx: 0.06, mz: -0.79, myaw: -0.03, crouch: 0.08, lean: 0.02 }],
+      [1.94, { drive: 1, lean: 0.12, limp: 0.4, mx: -0.02, mz: -0.67, myaw: 0.01, crouch: 0 }],
+      [2.35, { limp: 1, mx: -0.02, mz: -0.67, myaw: 0.01, crouch: 0, lean: 0.12 }],
+      [2.45, { drive: 0, mx: -0.06, mz: -0.75, myaw: 0.01, crouch: 0, lean: 0.08 }],
+      [2.7, { arm: 0, aim: 0, grab: 0, blade: 0, lean: 0.05, crouch: 0, mz: -1, mx: -0.1, myaw: 0.05 }]
     ]),
     hits: [{ t: 0.78, mark: 'lowerBack' }, { t: 1.94, mark: 'neckBase' }],
     grabAt: 0.32,
@@ -154,13 +187,18 @@ export const VARIANTS: Readonly<Record<BackstabVariant, Variant>> = {
   },
   throat: {
     keys: chain([
-      [0, { mx: 0.36, mz: -1.15, myaw: 0, crouch: 0.2, lean: 0.1 }],
-      [0.3, { mx: 0.52, mz: -0.87, myaw: 0.35, grab: 1, arm: 1, aim: 0, cock: [0.1, -0.9, -0.35], blade: 1, grip: 1 }],
-      [0.76, { mx: 0.74, mz: -0.44, myaw: 1.05, crouch: 0.85, lean: 0.1, turn: 1 }],
-      [1.12, { mx: 0.8, mz: -0.35, crouch: 0.3, lean: -0.05, aim: 1, arch: 1 }],
-      [1.49, { arch: 1, limp: 0.55 }],
-      [1.76, { aim: 0, arm: 0.6, lean: -0.2, crouch: 0.15 }],
-      [2.14, { arm: 0, grab: 0, blade: 0, lean: 0.05, crouch: 0, limp: 1 }]
+      [0, { mx: 0.3, mz: -1, myaw: 0, crouch: 0.2, lean: -1.34 }],
+      // A hand on his near shoulder; the fist low by the hip.
+      [0.3, { mx: 0.42, mz: -0.71, myaw: 0.34, grab: 1, arm: 1, aim: 0, cock: [0.4, -0.85, -0.3], blade: 1, grip: 1, crouch: 0.24, lean: -0.18 }],
+      // Spun round to face the mech, the mech stepping back and down.
+      [0.76, { mx: 0.51, mz: -0.48, myaw: 0.68, crouch: 0.3, lean: -0.15, turn: 1 }],
+      [0.95, { aim: 1, drive: 0, mx: 0.63, mz: -0.28, myaw: 1.04, crouch: 0.38, lean: -0.11 }],
+      // Up under his chin.
+      [1.12, { drive: 1, crouch: 0.42, arch: 1, mx: 0.63, mz: -0.24, myaw: 1.08, lean: -0.15 }],
+      [1.49, { limp: 0.55, mx: 0.67, mz: -0.24, myaw: 1.04, crouch: 0.46, lean: -0.15 }],
+      [1.6, { drive: 0.55, mx: 0.67, mz: -0.24, myaw: 1.04, crouch: 0.46, lean: -0.15 }],
+      [1.76, { aim: 0, arm: 0.6, lean: -0.08, crouch: 0.23, mx: 0.55, mz: -0.2, myaw: 1.24 }],
+      [2.14, { arm: 0, grab: 0, blade: 0, lean: 0.05, crouch: 0, limp: 1, mx: 0.35, mz: -0.6, myaw: 1.6 }]
     ]),
     hits: [{ t: 1.12, mark: 'throat' }],
     grabAt: 0.3,
@@ -190,7 +228,7 @@ export const backstabAt = (variant: BackstabVariant, t: number, out?: BackstabPo
   const b = keys[Math.min(keys.length - 1, i + 1)]!
   const e = b.t > a.t ? smooth((t - a.t) / (b.t - a.t)) : 1
   const o = out ?? ({} as BackstabPose)
-  for (const f of ['mx', 'mz', 'myaw', 'crouch', 'lean', 'grab', 'arm', 'aim', 'blade', 'grip', 'arch', 'limp', 'kneel', 'turn'] as const) o[f] = lerp(a[f], b[f], e)
+  for (const f of ['mx', 'mz', 'myaw', 'crouch', 'lean', 'grab', 'arm', 'aim', 'drive', 'blade', 'grip', 'arch', 'limp', 'kneel', 'turn'] as const) o[f] = lerp(a[f], b[f], e)
   const c = [lerp(a.cock[0], b.cock[0], e), lerp(a.cock[1], b.cock[1], e), lerp(a.cock[2], b.cock[2], e)] as const
   const n = Math.hypot(c[0], c[1], c[2]) || 1
   o.cock = [c[0] / n, c[1] / n, c[2] / n]
@@ -201,7 +239,8 @@ export const backstabAt = (variant: BackstabVariant, t: number, out?: BackstabPo
   // aimed; as the arm draws it out the hold lets go at once (#172: held on
   // while the arm pulled back, it dragged the whole mech into the body).
   const next = v.hits.find(h => t <= h.t + 0.6)
-  o.pin = next ? o.aim ** 4 * o.arm * smooth((t - (next.t - 0.12)) / 0.12) : 0
+  // On its line (#174) it is held only while it is in: drawn back out, it is the arm's own.
+  o.pin = next ? o.aim ** 4 * o.arm * o.drive ** 4 * smooth((t - (next.t - 0.12)) / 0.12) : 0
   return o
 }
 
@@ -213,7 +252,7 @@ export const markAt = (variant: BackstabVariant, t: number): BodyMark => {
 }
 
 /** How far the throat kill turns the guard toward the mech (rad, to its right). */
-export const TURN_ANGLE = 1.15
+export const TURN_ANGLE = 2.2
 
 /** The guard's heading during the kill (the throat kill turns it to its right, toward the mech). */
 export const guardYawAt = (yaw: number, p: { turn: number }): number => yaw - TURN_ANGLE * p.turn
@@ -223,6 +262,14 @@ export const markWorld = (mark: BodyMark, p: { turn: number; kneel: number }, gx
   const m = MARKS[mark]
   const [x, y, z] = guardToWorld(gx, gy, gz, guardYawAt(yaw, p), m[0], m[1] - KNEEL_DROP * p.kneel, m[2])
   return { x, y, z }
+}
+
+/** The stab's line for a mark in the world, the guard turned as in pose `p` (#174). */
+export const lineWorld = (mark: BodyMark, p: { turn: number }, yaw: number): { x: number; y: number; z: number } => {
+  const l = STAB_LINES[mark]
+  const [x, y, z] = guardToWorld(0, 0, 0, guardYawAt(yaw, p), l[0], l[1], l[2])
+  const n = Math.hypot(x, y, z) || 1
+  return { x: x / n, y: y / n, z: z / n }
 }
 
 /** Where the free hand goes now, in the world (the guard turned and kneeling as in pose `p`). */

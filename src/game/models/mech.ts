@@ -114,14 +114,34 @@ const _vd = new Vector3()
  */
 export const reachFreeHand = (rig: Rig, at: { x: number; y: number; z: number }, w: number): void => {
   const sh = rig.bones.shoulderL
-  if (!sh || w <= 0) return
+  const fore = rig.bones.foreL
+  if (!sh || !fore || w <= 0) return
   rig.root.updateMatrixWorld(true)
   sh.getWorldPosition(_vs)
-  _vb.set(at.x - _vs.x, at.y - _vs.y, at.z - _vs.z)
+  // On the way (#174) the hand travels out and round, from where it hangs to
+  // the hold, wide of the mech's own chest: blending the arm's turns straight
+  // there swept the forearm through it. Fully on, it is the hold itself.
+  let goal: { x: number; y: number; z: number } = at
+  if (w < 1) {
+    const from = fore.localToWorld(_vh.copy(HAND_LOCAL))
+    const fwd = rig.root.getWorldDirection(_vf2)
+    const k = Math.max(0, Math.min(1, w))
+    const arc = Math.sin(Math.PI * k) * 0.35
+    // Out to the left (fwd × up turned round) and a little forward.
+    goal = _vg.set(
+      from.x + (at.x - from.x) * k + (fwd.z * 0.8 + fwd.x * 0.6) * arc,
+      from.y + (at.y - from.y) * k + 0.1 * arc,
+      from.z + (at.z - from.z) * k + (-fwd.x * 0.8 + fwd.z * 0.6) * arc
+    )
+  }
+  _vb.set(goal.x - _vs.x, goal.y - _vs.y, goal.z - _vs.z)
   const reach = _vb.length()
   if (reach < 1e-4) return
-  aimArm(rig, 'L', _vd.copy(_vb).multiplyScalar(1 / reach), w, reach, HAND_LOCAL)
+  aimArm(rig, 'L', _vd.copy(_vb).multiplyScalar(1 / reach), Math.min(1, w * 4), reach, HAND_LOCAL)
 }
+const _vh = new Vector3()
+const _vg = new Vector3()
+const _vf2 = new Vector3()
 
 /**
  * An arm along the world direction `dir` (unit), blended in by `w`: the
@@ -166,10 +186,48 @@ const aimArm = (rig: Rig, side: 'L' | 'R', dir: Vector3, w: number, reach: numbe
   }
   sh.parent.getWorldQuaternion(_qa)
   _qb.setFromUnitVectors(_down, dir)
-  _qa.invert().multiply(_qb).multiply(_qe)
+  // The elbow's side (#174): turned about the arm's own line until the elbow
+  // points out to the arm's side, down and a little back (two-bone IK with a
+  // pole). Left to the shortest turn, the elbow pointed anywhere and a reach
+  // across the body swung the upper arm through the mech's own chest.
+  _qb.multiply(_qe)
+  const pole = elbowPole(rig, side, _vp)
+  const now = _vn.set(0, 0, 1).applyQuaternion(_qb)
+  now.addScaledVector(dir, -now.dot(dir))
+  pole.addScaledVector(dir, -pole.dot(dir))
+  if (now.lengthSq() > 1e-6 && pole.lengthSq() > 1e-6) {
+    now.normalize()
+    pole.normalize()
+    const ang = Math.atan2(_vc.crossVectors(now, pole).dot(dir), now.dot(pole))
+    _qb.premultiply(_qt.setFromAxisAngle(dir, ang))
+  }
+  _qa.invert().multiply(_qb)
   sh.quaternion.slerp(_qa, Math.min(1, w))
   _qc.setFromAxisAngle(_vs.set(1, 0, 0), phi)
   fore.quaternion.slerp(_qc, Math.min(1, w))
+}
+
+const _vp = new Vector3()
+const _vn = new Vector3()
+const _vc = new Vector3()
+const _vf = new Vector3()
+const _qt = new Quaternion()
+/**
+ * Where an elbow points in a reach (#174), mech-frame weights: out to its own
+ * side and down; the blade arm's a little back (drawn back, it thrusts from
+ * the hip), the free hand's a little forward (it reaches round a head).
+ */
+const POLE: Readonly<Record<'L' | 'R', { side: number; down: number; back: number }>> = {
+  R: { side: 0.75, down: 0.55, back: 0.35 },
+  L: { side: 0.8, down: 0.5, back: -0.2 }
+}
+const elbowPole = (rig: Rig, side: 'L' | 'R', out: Vector3): Vector3 => {
+  const fwd = rig.root.getWorldDirection(_vf)
+  const w = POLE[side]
+  // The mech's right is fwd × up; its left the other way.
+  const sx = side === 'R' ? -fwd.z : fwd.z
+  const sz = side === 'R' ? fwd.x : -fwd.x
+  return out.set(sx * w.side - fwd.x * w.back, -w.down, sz * w.side - fwd.z * w.back)
 }
 
 /** The blade's tip in its bone's frame (an 0.82 m blade centred 0.5 m out, design size). */

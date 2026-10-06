@@ -26,7 +26,19 @@ export interface KillBody {
   cock: readonly [number, number, number]
   /** How firmly the tip is held on the mark. */
   pin: number
+  /**
+   * The stab's line (#174, world, unit: the way the blade goes in). With it,
+   * `aim` puts the forearm on that line (`aimBladeLine`) and `drive` runs the
+   * tip along it, from drawn back (0) to in (1): a thrust, not a swing.
+   */
+  line?: { x: number; y: number; z: number } | null
+  drive?: number
+  /** How far back along the line the blade is drawn before the thrust (m; `DRAW_BACK` if not given). */
+  draw?: number
 }
+
+/** How far the blade is drawn back along its line before the thrust (m). */
+export const DRAW_BACK = 0.34
 
 /** How deep the tip goes past the mark (m). */
 export const BLADE_DEPTH = 0.13
@@ -79,6 +91,7 @@ const placeArm = (
   const at = pitchedFeet(feet.x, feet.y, feet.z, yaw, k.pitch, k.pivot)
   root.position.set(at.x, at.y, at.z)
   if (k.arm <= 0) return { x: 0, y: 0, z: 0 }
+  if (k.line) return placeOnLine(rig, at, k, mark, k.line)
   bladeDir(rig, yaw, k, mark, _dir)
   // Cocked, the elbow bent; aimed, the arm reaches exactly into the mark.
   let reach = COCK_REACH
@@ -93,6 +106,45 @@ const placeArm = (
   root.updateMatrixWorld(true)
   blade.localToWorld(_tip.set(0, BLADE_TIP_LOCAL, 0))
   const off = pinBlade(_tip, { x: mark.x + _dir.x * BLADE_DEPTH, y: mark.y + _dir.y * BLADE_DEPTH, z: mark.z + _dir.z * BLADE_DEPTH }, k.pin)
+  root.position.set(at.x + off.x, at.y + off.y, at.z + off.z)
+  root.updateMatrixWorld(true)
+  return off
+}
+
+/**
+ * The blade arm of a kill posed on its stab's line (#174): cocked first (the
+ * fist back by the hip, the elbow out), then by `aim` a two-bone reach for the
+ * point `drive` of the way along the line from drawn back to in, the elbow
+ * kept out to the side (`aimBladeArm`'s pole): the tip runs straight along
+ * the line, a punch. At the blow the tip is held there (the whole rig shifted
+ * by however far it would miss).
+ */
+const _line = new Vector3()
+const _goal = new Vector3()
+const placeOnLine = (
+  rig: Rig, at: { x: number; y: number; z: number }, k: KillBody,
+  mark: { x: number; y: number; z: number } | null, line: { x: number; y: number; z: number }
+): { x: number; y: number; z: number } => {
+  const root = rig.root
+  const yaw = root.rotation.y
+  bladeDir(rig, yaw, { ...k, aim: 0 }, null, _dir)
+  aimBladeArm(rig, _dir, k.arm, COCK_REACH)
+  if (!mark || k.aim <= 0) return { x: 0, y: 0, z: 0 }
+  _line.set(line.x, line.y, line.z).normalize()
+  const into = BLADE_DEPTH - (1 - (k.drive ?? 1)) * (k.draw ?? DRAW_BACK)
+  _goal.set(mark.x, mark.y, mark.z).addScaledVector(_line, into)
+  const sh = rig.bones.shoulderR
+  if (!sh) return { x: 0, y: 0, z: 0 }
+  root.updateMatrixWorld(true)
+  sh.getWorldPosition(_sh)
+  _aim.subVectors(_goal, _sh)
+  const reach = _aim.length()
+  if (reach > 1e-4) aimBladeArm(rig, _aim.multiplyScalar(1 / reach), Math.min(1, k.aim) * Math.min(1, k.arm), reach)
+  const blade = rig.bones.blade
+  if (!blade || k.pin <= 0) return { x: 0, y: 0, z: 0 }
+  root.updateMatrixWorld(true)
+  blade.localToWorld(_tip.set(0, BLADE_TIP_LOCAL, 0))
+  const off = pinBlade(_tip, { x: _goal.x, y: _goal.y, z: _goal.z }, k.pin)
   root.position.set(at.x + off.x, at.y + off.y, at.z + off.z)
   root.updateMatrixWorld(true)
   return off
