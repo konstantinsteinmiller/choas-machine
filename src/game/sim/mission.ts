@@ -1925,7 +1925,8 @@ export class Mission implements GameMode {
     // The fire glows: while it burns it is a thing out of place for whoever sees it.
     noteChange(this.garrison, u.x, u.y, u.z, 'fire')
     this.burnChange = this.garrison.changes[this.garrison.changes.length - 1] ?? null
-    this.fuelLeft--
+    // Nothing is spent (#162): every body and every wreck can go, so none has
+    // to be dragged about. What a burn costs is its glow, seen from afar.
     this.flame.visible = true
     emit('burn', { beat: 'start' })
   }
@@ -1947,7 +1948,7 @@ export class Mission implements GameMode {
   /**
    * Burning (#99): the jet on the body for BURN_S. The fire glows: while it
    * burns, a defender that sees it notices a thing out of place and comes to
-   * look. Walking away stops it (the fuel is spent).
+   * look. Walking away stops it.
    */
   private stepBurn(dt: number): void {
     const b = this.burning!

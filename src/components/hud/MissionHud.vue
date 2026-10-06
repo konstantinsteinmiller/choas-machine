@@ -143,7 +143,6 @@
       )
         template(#badge)
           FHudBadge(v-if="hud.burning > 0" tone="warn") {{ Math.round(hud.burning * 100) }}%
-          FHudBadge(v-else tone="warn") {{ hud.fuel }}
 
     //- The rope gun (#94): somewhere to shoot a line to, from up high.
     div.strike.rope(v-if="hud.rope && !hud.strike && !hud.loot && !hud.sabotage && !hud.drag")

@@ -108,7 +108,7 @@ export interface Loadout {
   hookMax: number
   /** Ropes the rope gun carries into a raid (#94): the hook track adds one at levels 2 and 4. */
   ropes: number
-  /** The flamethrower's fuel: bodies and wrecks it can burn in a raid (#99). */
+  /** The flamethrower's tank (#99). Burns no longer spend it (#162): every body and wreck can go. */
   fuel: number
 }
 
