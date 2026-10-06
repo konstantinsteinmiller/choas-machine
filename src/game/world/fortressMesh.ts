@@ -1,4 +1,4 @@
-import { BufferGeometry, Color, Float32BufferAttribute, Group, Mesh } from 'three'
+import { BufferAttribute, BufferGeometry, Color, Float32BufferAttribute, Group, Mesh } from 'three'
 import { CELL, CellKind, ROOF_T, Surf, VOID, cableSpan, cellHeight, cellKind, cellSurf, roofAt, type Grid, Shade } from './grid'
 import type { Fortress } from './fortress'
 import { levelGlowMaterial, glowVC } from '../models/toon'
@@ -118,13 +118,45 @@ const ATLAS_N = 4
 /** Kept off each cell's edge, so filtering never bleeds a neighbour in. */
 const UV_PAD = 0.012
 
-/** A growing list of quads: positions, face normals, vertex colours, uvs, indices. */
+/** A float list that grows by doubling, written straight into its typed array (#36). */
+class Floats {
+  a = new Float32Array(1024)
+  length = 0
+  push(...v: number[]): void {
+    if (this.length + v.length > this.a.length) {
+      const b = new Float32Array(Math.max(this.a.length * 2, this.length + v.length))
+      b.set(this.a)
+      this.a = b
+    }
+    for (let i = 0; i < v.length; i++) this.a[this.length++] = v[i]!
+  }
+  get array(): Float32Array { return this.a.subarray(0, this.length) }
+}
+/** The same for indices. */
+class Indices {
+  a = new Uint32Array(1024)
+  length = 0
+  push(...v: number[]): void {
+    if (this.length + v.length > this.a.length) {
+      const b = new Uint32Array(Math.max(this.a.length * 2, this.length + v.length))
+      b.set(this.a)
+      this.a = b
+    }
+    for (let i = 0; i < v.length; i++) this.a[this.length++] = v[i]!
+  }
+}
+
+/**
+ * A growing list of quads: positions, face normals, vertex colours, uvs,
+ * indices. Round 5 (#36): written into typed arrays as it grows; plain arrays
+ * converted at the end were a third of a second of a throttled boot.
+ */
 class Quads {
-  pos: number[] = []
-  nor: number[] = []
-  col: number[] = []
-  uv: number[] = []
-  idx: number[] = []
+  pos = new Floats()
+  nor = new Floats()
+  col = new Floats()
+  uv = new Floats()
+  idx = new Indices()
 
   /**
    * Four corners in counter-clockwise order seen from the front. `cell` is
@@ -167,11 +199,13 @@ class Quads {
 
   geometry(): BufferGeometry {
     const g = new BufferGeometry()
-    g.setAttribute('position', new Float32BufferAttribute(this.pos, 3))
-    g.setAttribute('normal', new Float32BufferAttribute(this.nor, 3))
-    g.setAttribute('color', new Float32BufferAttribute(this.col, 3))
-    g.setAttribute('uv', new Float32BufferAttribute(this.uv, 2))
-    g.setIndex(this.idx)
+    g.setAttribute('position', new BufferAttribute(this.pos.a.slice(0, this.pos.length), 3))
+    g.setAttribute('normal', new BufferAttribute(this.nor.a.slice(0, this.nor.length), 3))
+    g.setAttribute('color', new BufferAttribute(this.col.a.slice(0, this.col.length), 3))
+    g.setAttribute('uv', new BufferAttribute(this.uv.a.slice(0, this.uv.length), 2))
+    const verts = this.pos.length / 3
+    const idx = this.idx.a.subarray(0, this.idx.length)
+    g.setIndex(new BufferAttribute(verts > 65535 ? idx.slice() : Uint16Array.from(idx), 1))
     g.computeBoundingSphere()
     return g
   }

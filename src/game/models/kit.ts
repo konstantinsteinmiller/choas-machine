@@ -1,6 +1,6 @@
 import {
   BufferGeometry, SphereGeometry, CapsuleGeometry, LatheGeometry, TorusGeometry, CylinderGeometry,
-  Vector2, Vector3, Matrix4, Quaternion, Euler, Float32BufferAttribute, Uint16BufferAttribute,
+  Vector2, Vector3, Matrix4, Quaternion, Euler, BufferAttribute, Float32BufferAttribute, Uint16BufferAttribute,
   Bone, Skeleton, SkinnedMesh, Group, Color, Mesh, type Material
 } from 'three'
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js'
@@ -98,8 +98,30 @@ export const rcone = (rb: number, rt: number, h: number, bevel = 0.04, segs = 16
  * a box from a sphere by pushing vertices toward the box surface. The result
  * has continuous normals (no hull cracks) and reads as "pillowy machine block".
  */
+/**
+ * The unit sphere `rbox` deforms, built once per segment count and copied
+ * (#36): three's `SphereGeometry` gathers plain arrays and converts them, and
+ * the cast builds thousands of these.
+ */
+const unitSpheres = new Map<string, { pos: Float32Array; index: Uint16Array | Uint32Array }>()
+const unitSphere = (ws: number, hs: number): BufferGeometry => {
+  const key = `${ws}x${hs}`
+  let s = unitSpheres.get(key)
+  if (!s) {
+    const src = new SphereGeometry(1, ws, hs)
+    const ix = src.index!.array
+    s = { pos: (src.attributes.position!.array as Float32Array).slice(), index: ix instanceof Uint32Array ? ix.slice() : Uint16Array.from(ix) }
+    src.dispose()
+    unitSpheres.set(key, s)
+  }
+  const g = new BufferGeometry()
+  g.setAttribute('position', new BufferAttribute(s.pos.slice(), 3))
+  g.setIndex(new BufferAttribute(s.index.slice(), 1))
+  return g
+}
+
 export const rbox = (w: number, h: number, d: number, round = 0.35, ws = 16, hs = 12): BufferGeometry => {
-  const g = new SphereGeometry(1, ws, hs)
+  const g = unitSphere(ws, hs)
   const pos = g.attributes.position!
   const v = new Vector3()
   // Exponent < 1 squares the sphere; `round` = 1 keeps it a sphere.
@@ -266,8 +288,62 @@ export const paintBy = (g: BufferGeometry, fn: (x: number, y: number, z: number)
 
 /** Merge painted geometries (all must share attribute sets). */
 export const merge = (geos: BufferGeometry[], groups = false): BufferGeometry => {
-  const out = mergeGeometries(geos, groups)
+  const out = mergeTyped(geos, groups) ?? mergeGeometries(geos, groups)
   if (!out) throw new Error('[kit] mergeGeometries failed — attribute mismatch')
+  return out
+}
+
+/**
+ * The common case of `mergeGeometries`, written straight into typed arrays
+ * (#36): indexed geometries with the same plain attributes. Three's own merge
+ * gathers the index in a plain array and converts it at the end, which was a
+ * third of a second of the boot on a throttled CPU (the fortress's props, every
+ * rig). Anything else (no index, interleaved or morph attributes) returns null
+ * and goes the long way.
+ */
+const mergeTyped = (geos: readonly BufferGeometry[], groups: boolean): BufferGeometry | null => {
+  if (geos.length === 0) return null
+  const names = Object.keys(geos[0]!.attributes)
+  let verts = 0
+  let indices = 0
+  for (const g of geos) {
+    if (!g.index || Object.keys(g.morphAttributes).length > 0) return null
+    const keys = Object.keys(g.attributes)
+    if (keys.length !== names.length) return null
+    for (const n of names) {
+      const a = g.attributes[n] as BufferAttribute | undefined
+      const a0 = geos[0]!.attributes[n] as BufferAttribute
+      if (!a || !('array' in a) || (a as unknown as { isInterleavedBufferAttribute?: boolean }).isInterleavedBufferAttribute) return null
+      if (a.itemSize !== a0.itemSize || a.normalized !== a0.normalized || a.array.constructor !== a0.array.constructor) return null
+    }
+    verts += g.attributes[names[0]!]!.count
+    indices += g.index.count
+  }
+  const out = new BufferGeometry()
+  for (const n of names) {
+    const a0 = geos[0]!.attributes[n] as BufferAttribute
+    const Ctor = a0.array.constructor as new (n: number) => Float32Array | Uint16Array | Uint32Array | Int16Array | Uint8Array
+    const arr = new Ctor(verts * a0.itemSize)
+    let at = 0
+    for (const g of geos) {
+      const a = g.attributes[n] as BufferAttribute
+      arr.set(a.array as ArrayLike<number>, at)
+      at += a.array.length
+    }
+    out.setAttribute(n, new BufferAttribute(arr, a0.itemSize, a0.normalized))
+  }
+  const index = verts > 65535 ? new Uint32Array(indices) : new Uint16Array(indices)
+  let base = 0
+  let at = 0
+  for (const g of geos) {
+    const src = g.index!.array
+    const n = g.index!.count
+    for (let i = 0; i < n; i++) index[at + i] = src[i]! + base
+    if (groups) out.addGroup(at, n, out.groups.length)
+    at += n
+    base += g.attributes[names[0]!]!.count
+  }
+  out.setIndex(new BufferAttribute(index, 1))
   return out
 }
 

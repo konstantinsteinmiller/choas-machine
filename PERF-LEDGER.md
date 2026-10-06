@@ -197,6 +197,52 @@ in five of five pairs: rejected for that. A song played again later in a
 session (Base and raid alternate) now costs nothing at all. Tests:
 `tests/audio/halls.test.ts`.
 
+### 7. The hidden warmed up after the scene is up — reverted (null, round 5, #36)
+
+The boot's precompile shows every hidden object (holograms, effects, props
+kept for their moment) and draws one full frame of everything before the
+loader goes. Tried: warm only what the first scene shows under the loader,
+and the hidden rest after it is up (compiled a material at a time, first-drawn
+in groups of six into an 8×8 offscreen target). Built bundle, 4× CPU, 4
+interleaved pairs per first scene, flag `warm-all-legacy`:
+
+| | precompile (built → primed), median | |
+|---|---|---|
+| fresh: everything / visible only | 2.32 s / 2.24 s | B 1 of 4 pairs faster |
+| returning: everything / visible only | 2.82 s / 3.09 s | B slower |
+
+No win: the hidden objects are not where the precompile's time goes (it is
+the visible scene's programs and their first draw), and B added long tasks
+after the scene showed. Reverted, flag deleted.
+
+### 8. Geometry written straight into typed arrays — kept (round 5, #36)
+
+A CPU profile of the boot (dev server, 4× CPU) put 1.16 s of a 4.7 s boot in
+`Float32BufferAttribute` and `Uint16BufferAttribute` constructors: plain JS
+number arrays converted at the end. Three's `mergeGeometries` gathers the
+merged index in a plain array (0.31 s, every rig and every batched prop),
+and the fortress mesh's quad lists were plain arrays (0.27 s). Now
+`kit.merge` writes the common case (indexed, same plain attributes) straight
+into typed arrays and falls back to three's merge for anything else; the quad
+lists grow typed arrays; `rbox` copies one cached unit sphere per segment
+count instead of building three's `SphereGeometry` each time; and `modelTop`
+(which skins every vertex of a rig to find its top) is worked out once per
+kind and kit. Test: `tests/game/mergeTyped.test.ts` (same geometry as
+three's merge).
+
+Built bundles, the commit before against this one, 4× CPU, 5 interleaved
+pairs per first scene, medians:
+
+| | build (build-start → built) | adopted | playable |
+|---|---|---|---|
+| fresh (training): before / after | 3.08 s / 2.11 s | 8.53 s / 6.66 s | 11.05 s / 9.59 s |
+| returning (the Base): before / after | 2.51 s / 1.85 s | 7.38 s / 6.47 s | 8.59 s / 8.02 s |
+
+The build is a quarter to a third shorter; `adopted` was earlier in 4 of 5
+pairs in each scene (the fifth a tie or the machine's noise: it was busy, and
+every number here is slower than the round 3 baseline). The precompile
+(3.1-3.9 s) is untouched and is now the largest piece: see Open.
+
 ## Round 2 check (2026-10-03): inconclusive
 
 Measured after round 2 (salvage, robo dog, smithy, UI material, hide box,
@@ -246,6 +292,12 @@ the cells to mesh) and gained roofs (each slab run is a ray box); the Foundry
 is a 64 x 64 grid that is mostly one tall block. Neither was profiled.
 
 ## Open
+
+- (Round 5) The shader precompile is now the largest piece of the boot,
+  3.1-3.9 s at 4× CPU, with its longest task (1.7-2.8 s on the Base) in the
+  one full frame drawn to finish every program. Entry 7 showed the hidden
+  objects are not the cost; the visible scene's program count is the lever
+  (fewer material variants, shared programs).
 
 1. **The loud phase's tail.** Work p95 reaches 100 ms at 4× CPU, with tens of
    long tasks in 20 s, and the self-time profile does not name a culprit:

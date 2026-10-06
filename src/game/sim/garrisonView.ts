@@ -268,6 +268,18 @@ const _box = new Box3()
  * counts): the marks over a unit sit above this, never in its face.
  */
 export const modelTop = (rig: Rig, kind: PostKind): number => {
+  // One rig of a kind (and its kit: a different part count) stands as high as
+  // the next: worked out once (#36; it skins every vertex to find out).
+  const key = `${kind}:${rig.mesh.geometry.attributes.position!.count}`
+  const hit = tops.get(key)
+  if (hit !== undefined) return hit
+  const top = measureTop(rig, kind)
+  tops.set(key, top)
+  return top
+}
+const tops = new Map<string, number>()
+
+const measureTop = (rig: Rig, kind: PostKind): number => {
   const root = rig.root
   const hound = kind === 'hound'
   if (hound) poseRobodog(rig, restDogPose())

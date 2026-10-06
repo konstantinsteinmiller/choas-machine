@@ -810,7 +810,7 @@ fortress; the outro after the first Spire III clear).
 - [x] **R56 Map fly-over** (#149): orbit shots of every map, fixes,
   integrity test over roofs / props / cables / skirt / scenery
 - [x] **R57 Regression**: translations, docs, e2e, balance
-- [ ] **R58 Startup loading** (#36): measured A/B only
+- [x] **R58 Startup loading** (#36): measured A/B only
 
 ### Round 5 notes
 
