@@ -905,6 +905,19 @@ weapons, the backstab room = blade. Decisions (defaults, nobody asked):
   over the world (the ledge's hook, the backstab) and a lesson's card show a
   copy of the very button, as a desktop shows the keycap; gestures (the
   stick, a swipe, a hold) show the finger. The minigun is violet now (#161).
+- [x] **R64 Burn everything** (#162): a burn spends no fuel (the tank of 4
+  ran dry and players dragged the rest); its glow is its cost.
+- [x] **R65 The strung rope** (#164): the hook's braided line, a piton with an
+  eye on each platform, a clamp at the bend (`fx/ropeLine.ts`).
+- [x] **R66 Disguise and decoy rooms** (#163, #165): the disguise room is one
+  corridor between walls no hook clears, swept by a caged, unbreakable lamp
+  that is sure of a mech in its pool at once; the decoy room hints at the
+  decoy the first time the mech is seen, and the second time lets its guard
+  stand like a target and be taken down any way.
+- [x] **R67 Weapons drawn** (#161): the weapon button is the weapon, drawn side
+  on in its colour; on touch all three as a switch.
+- [x] **R68 Next mission** (#166): a first clear picks what it opened, framed
+  "Next mission"; what was taken is dimmed.
 
 ## Resume notes
 
