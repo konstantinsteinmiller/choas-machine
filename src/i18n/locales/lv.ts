@@ -243,7 +243,7 @@ export default {
     'reset': {
       'cover': 'Tevi pamanīja. Paliec pietupies aiz aizsega.',
       'seen': 'Tevi pamanīja. Telpa sākas no jauna.',
-      'rockets': 'Raķetes beigušās. Telpa sākas no jauna.'
+      'ammo': 'Munīcija beigusies! Mēģini vēlreiz!'
     }
   },
   'pause': {
@@ -301,7 +301,7 @@ export default {
   },
   'prompt': {
     'salvage': 'Izjaukt',
-    'strike': 'Nogalināt',
+    'strike': 'Durt mugurā',
     'assassinate': 'Slepkavība',
     'sabotage': 'Sabotēt',
     'silence': 'Apklusināt trauksmi',

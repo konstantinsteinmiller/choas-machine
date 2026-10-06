@@ -243,7 +243,7 @@ export default {
     'reset': {
       'cover': 'Wykryto cię. Kucaj za osłoną.',
       'seen': 'Wykryto cię. Pokój od nowa.',
-      'rockets': 'Brak rakiet. Pokój od nowa.'
+      'ammo': 'Brak amunicji! Spróbuj jeszcze raz!'
     }
   },
   'pause': {
@@ -301,7 +301,7 @@ export default {
   },
   'prompt': {
     'salvage': 'Rozbierz',
-    'strike': 'Cios z ukrycia',
+    'strike': 'Atak od tyłu',
     'assassinate': 'Zamach',
     'sabotage': 'Sabotaż',
     'silence': 'Wycisz alarm',

@@ -243,7 +243,7 @@ export default {
     'reset': {
       'cover': 'Vidita. Restu kaŝkaŭre malantaŭ la ŝirmilo.',
       'seen': 'Vidita. La ĉambro rekomenciĝas.',
-      'rockets': 'Raketoj elĉerpitaj. La ĉambro rekomenciĝas.'
+      'ammo': 'Municio elĉerpita! Provu denove!'
     }
   },
   'pause': {
@@ -301,7 +301,7 @@ export default {
   },
   'prompt': {
     'salvage': 'Savi',
-    'strike': 'Silenta bato',
+    'strike': 'Dorsbato',
     'assassinate': 'Atenci',
     'sabotage': 'Sabotado',
     'silence': 'Silentigi alarmon',

@@ -243,7 +243,7 @@ export default {
     'reset': {
       'cover': "Repéré. Reste accroupi derrière l'abri.",
       'seen': 'Repéré. La salle recommence.',
-      'rockets': 'Plus de roquettes. La salle recommence.'
+      'ammo': 'Plus de munitions ! Réessaie !'
     }
   },
   'pause': {
@@ -301,7 +301,7 @@ export default {
   },
   'prompt': {
     'salvage': 'Récupérer',
-    'strike': 'Neutraliser',
+    'strike': 'Frapper dans le dos',
     'assassinate': 'Assassiner',
     'sabotage': 'Saboter',
     'silence': 'Couper l\'alarme',

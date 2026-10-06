@@ -891,6 +891,13 @@ weapons, the backstab room = blade. Decisions (defaults, nobody asked):
   a half beside the mech; the blade room's watched lesson (16.5 s, two loops)
   cannot be skipped, as asked. The [E] prompt behind the blade room's guard
   shows (its wording is the game's own "Takedown").
+- [x] **R62 Follow-ups and #159**: the watched lesson can be skipped from a
+  second before its first loop ends (it blends back out); the blade prompt
+  reads "Backstab" in every locale; every training reset hands the
+  ammunition back, and a room whose lesson needs rounds the mech no longer
+  has (the launcher's, the weapons room's rifle and gun, anywhere every
+  weapon) starts over with "Ammo depleted! Try again!" (the supply room,
+  dry on purpose, excepted).
 
 ## Resume notes
 

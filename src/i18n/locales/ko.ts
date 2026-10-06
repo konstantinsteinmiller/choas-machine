@@ -243,7 +243,7 @@ export default {
     'reset': {
       'cover': '들켰다. 엄폐물 뒤에 앉아 있어.',
       'seen': '들켰다. 방을 처음부터 다시.',
-      'rockets': '로켓 소진. 방을 처음부터 다시.'
+      'ammo': '탄약 소진! 다시 해 봐!'
     }
   },
   'pause': {
@@ -301,7 +301,7 @@ export default {
   },
   'prompt': {
     'salvage': '분해',
-    'strike': '암살',
+    'strike': '뒤에서 찌르기',
     'assassinate': '공중 암살',
     'sabotage': '파괴 공작',
     'silence': '경보 끄기',

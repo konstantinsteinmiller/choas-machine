@@ -243,7 +243,7 @@ export default {
     'reset': {
       'cover': 'Bị lộ. Cúi xuống sau chỗ nấp.',
       'seen': 'Bị lộ. Phòng bắt đầu lại.',
-      'rockets': 'Hết tên lửa. Phòng bắt đầu lại.'
+      'ammo': 'Hết đạn! Thử lại nào!'
     }
   },
   'pause': {
@@ -301,7 +301,7 @@ export default {
   },
   'prompt': {
     'salvage': 'Tháo phế liệu',
-    'strike': 'Hạ gục',
+    'strike': 'Đâm sau lưng',
     'assassinate': 'Ám sát',
     'sabotage': 'Phá hoại',
     'silence': 'Tắt báo động',

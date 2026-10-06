@@ -243,7 +243,7 @@ export default {
     'reset': {
       'cover': "Seni ko'rishdi. Pana ortida cho'kkalab tur.",
       'seen': "Seni ko'rishdi. Xona qaytadan boshlanadi.",
-      'rockets': 'Raketalar tugadi. Xona qaytadan boshlanadi.'
+      'ammo': "O'q-dorilar tugadi! Yana urinib ko'r!"
     }
   },
   'pause': {
@@ -301,7 +301,7 @@ export default {
   },
   'prompt': {
     'salvage': 'Qismlarga ajratish',
-    'strike': 'Zararsizlantirish',
+    'strike': 'Orqadan urish',
     'assassinate': 'Suiqasd',
     'sabotage': 'Sabotaj',
     'silence': 'Signalni o\'chirish',

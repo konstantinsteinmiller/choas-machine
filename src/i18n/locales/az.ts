@@ -243,7 +243,7 @@ export default {
     'reset': {
       'cover': 'Səni gördülər. Örtüyün arxasında çömelmiş qal.',
       'seen': 'Səni gördülər. Otaq yenidən başlayır.',
-      'rockets': 'Raketlər bitdi. Otaq yenidən başlayır.'
+      'ammo': 'Sursat bitdi! Yenidən cəhd et!'
     }
   },
   'pause': {
@@ -301,7 +301,7 @@ export default {
   },
   'prompt': {
     'salvage': 'Söküb götür',
-    'strike': 'Sakit zərbə',
+    'strike': 'Arxadan vur',
     'assassinate': 'Suiqəsd',
     'sabotage': 'Sabotaj',
     'silence': 'Siqnalı susdur',

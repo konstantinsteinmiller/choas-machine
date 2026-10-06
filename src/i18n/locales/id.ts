@@ -243,7 +243,7 @@ export default {
     'reset': {
       'cover': 'Ketahuan. Tetap jongkok di balik perlindungan.',
       'seen': 'Ketahuan. Ruangan diulang.',
-      'rockets': 'Roket habis. Ruangan diulang.'
+      'ammo': 'Amunisi habis! Coba lagi!'
     }
   },
   'pause': {
@@ -301,7 +301,7 @@ export default {
   },
   'prompt': {
     'salvage': 'Bongkar',
-    'strike': 'Lumpuhkan',
+    'strike': 'Tikam dari belakang',
     'assassinate': 'Habisi dari atas',
     'sabotage': 'Sabotase',
     'silence': 'Matikan alarm',

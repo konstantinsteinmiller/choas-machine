@@ -243,7 +243,7 @@ export default {
     'reset': {
       'cover': 'Huomattu. Pysy kyyryssä suojan takana.',
       'seen': 'Huomattu. Huone alkaa alusta.',
-      'rockets': 'Raketit loppu. Huone alkaa alusta.'
+      'ammo': 'Ammukset lopussa! Yritä uudelleen!'
     }
   },
   'pause': {
@@ -301,7 +301,7 @@ export default {
   },
   'prompt': {
     'salvage': 'Kierrätä',
-    'strike': 'Hiljainen kaato',
+    'strike': 'Iske selkään',
     'assassinate': 'Salamurha',
     'sabotage': 'Sabotoi',
     'silence': 'Vaienna hälytys',

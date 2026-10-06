@@ -243,7 +243,7 @@ export default {
     'reset': {
       'cover': 'Ai fost văzut. Stai ghemuit după adăpost.',
       'seen': 'Ai fost văzut. Camera o ia de la capăt.',
-      'rockets': 'Gata rachetele. Camera o ia de la capăt.'
+      'ammo': 'Fără muniție! Mai încearcă!'
     }
   },
   'pause': {
@@ -301,7 +301,7 @@ export default {
   },
   'prompt': {
     'salvage': 'Recuperează',
-    'strike': 'Elimină',
+    'strike': 'Lovește pe la spate',
     'assassinate': 'Asasinează',
     'sabotage': 'Sabotează',
     'silence': 'Oprește alarma',

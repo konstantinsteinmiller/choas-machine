@@ -243,7 +243,7 @@ export default {
     'reset': {
       'cover': 'Tave pastebėjo. Būk pritūpęs už priedangos.',
       'seen': 'Tave pastebėjo. Kambarys iš naujo.',
-      'rockets': 'Raketos baigėsi. Kambarys iš naujo.'
+      'ammo': 'Nebėra amunicijos! Bandyk dar kartą!'
     }
   },
   'pause': {
@@ -301,7 +301,7 @@ export default {
   },
   'prompt': {
     'salvage': 'Išardyti',
-    'strike': 'Nutildyti',
+    'strike': 'Smūgis į nugarą',
     'assassinate': 'Pasikėsinimas',
     'sabotage': 'Sabotuoti',
     'silence': 'Nutildyti signalą',

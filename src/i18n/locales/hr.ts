@@ -243,7 +243,7 @@ export default {
     'reset': {
       'cover': 'Primijećen si. Ostani čučnut iza zaklona.',
       'seen': 'Primijećen si. Soba kreće ispočetka.',
-      'rockets': 'Nema više raketa. Soba kreće ispočetka.'
+      'ammo': 'Nema streljiva! Pokušaj ponovno!'
     }
   },
   'pause': {
@@ -301,7 +301,7 @@ export default {
   },
   'prompt': {
     'salvage': 'Rastavi',
-    'strike': 'Tihi udarac',
+    'strike': 'Ubod u leđa',
     'assassinate': 'Atentat',
     'sabotage': 'Sabotiraj',
     'silence': 'Utišaj alarm',

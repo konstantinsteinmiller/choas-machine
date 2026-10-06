@@ -243,7 +243,7 @@ export default {
     'reset': {
       'cover': 'Te han visto. Quédate agachado tras la cobertura.',
       'seen': 'Te han visto. La sala vuelve a empezar.',
-      'rockets': 'Sin cohetes. La sala vuelve a empezar.'
+      'ammo': '¡Sin munición! ¡Inténtalo de nuevo!'
     }
   },
   'pause': {
@@ -301,7 +301,7 @@ export default {
   },
   'prompt': {
     'salvage': 'Recuperar',
-    'strike': 'Derribo',
+    'strike': 'Por la espalda',
     'assassinate': 'Asesinar',
     'sabotage': 'Sabotear',
     'silence': 'Silenciar alarma',

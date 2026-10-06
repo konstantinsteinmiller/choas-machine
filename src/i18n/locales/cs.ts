@@ -243,7 +243,7 @@ export default {
     'reset': {
       'cover': 'Odhalen. Zůstaň skrčený za krytem.',
       'seen': 'Odhalen. Místnost začíná znovu.',
-      'rockets': 'Došly rakety. Místnost začíná znovu.'
+      'ammo': 'Došla munice! Zkus to znovu!'
     }
   },
   'pause': {
@@ -301,7 +301,7 @@ export default {
   },
   'prompt': {
     'salvage': 'Rozebrat',
-    'strike': 'Tichý zásah',
+    'strike': 'Bodnout do zad',
     'assassinate': 'Atentát',
     'sabotage': 'Sabotovat',
     'silence': 'Umlčet poplach',

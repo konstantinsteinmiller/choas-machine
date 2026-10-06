@@ -243,7 +243,7 @@ export default {
     'reset': {
       'cover': "T'han vist. Queda't ajupit darrere la cobertura.",
       'seen': "T'han vist. La sala torna a començar.",
-      'rockets': 'Sense coets. La sala torna a començar.'
+      'ammo': 'Sense munició! Torna-ho a provar!'
     }
   },
   'pause': {
@@ -301,7 +301,7 @@ export default {
   },
   'prompt': {
     'salvage': 'Recupera',
-    'strike': 'Atac silenciós',
+    'strike': "Per l'esquena",
     'assassinate': 'Assassinar',
     'sabotage': 'Sabota',
     'silence': 'Silencia l\'alarma',

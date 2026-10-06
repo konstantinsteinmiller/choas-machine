@@ -243,7 +243,7 @@ export default {
     'reset': {
       'cover': 'Visto. Resta accovacciato dietro la copertura.',
       'seen': 'Visto. La stanza ricomincia.',
-      'rockets': 'Razzi finiti. La stanza ricomincia.'
+      'ammo': 'Munizioni esaurite! Riprova!'
     }
   },
   'pause': {
@@ -301,7 +301,7 @@ export default {
   },
   'prompt': {
     'salvage': 'Recupera',
-    'strike': 'Neutralizza',
+    'strike': 'Colpisci alle spalle',
     'assassinate': 'Assassina',
     'sabotage': 'Sabota',
     'silence': 'Zittisci allarme',

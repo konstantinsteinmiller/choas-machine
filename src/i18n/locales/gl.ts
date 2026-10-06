@@ -243,7 +243,7 @@ export default {
     'reset': {
       'cover': 'Víronte. Queda agachado tras a cobertura.',
       'seen': 'Víronte. A sala comeza de novo.',
-      'rockets': 'Sen foguetes. A sala comeza de novo.'
+      'ammo': 'Sen munición! Téntao de novo!'
     }
   },
   'pause': {
@@ -301,7 +301,7 @@ export default {
   },
   'prompt': {
     'salvage': 'Recuperar',
-    'strike': 'Derrubar',
+    'strike': 'Polas costas',
     'assassinate': 'Asasinar',
     'sabotage': 'Sabotear',
     'silence': 'Silenciar alarma',

@@ -243,7 +243,7 @@ export default {
     'reset': {
       'cover': 'Oppdaget. Hold deg huket bak dekningen.',
       'seen': 'Oppdaget. Rommet starter på nytt.',
-      'rockets': 'Tom for raketter. Rommet starter på nytt.'
+      'ammo': 'Tom for ammunisjon! Prøv igjen!'
     }
   },
   'pause': {
@@ -301,7 +301,7 @@ export default {
   },
   'prompt': {
     'salvage': 'Berg',
-    'strike': 'Uskadeliggjør',
+    'strike': 'Stikk i ryggen',
     'assassinate': 'Snikmord',
     'sabotage': 'Saboter',
     'silence': 'Stans alarmen',

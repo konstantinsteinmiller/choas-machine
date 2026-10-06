@@ -243,7 +243,7 @@ export default {
     'reset': {
       'cover': 'Opdaget. Bliv dukket bag dækningen.',
       'seen': 'Opdaget. Rummet starter forfra.',
-      'rockets': 'Ingen raketter. Rummet starter forfra.'
+      'ammo': 'Ingen ammunition! Prøv igen!'
     }
   },
   'pause': {
@@ -301,7 +301,7 @@ export default {
   },
   'prompt': {
     'salvage': 'Skrot',
-    'strike': 'Nedtagning',
+    'strike': 'Stik i ryggen',
     'assassinate': 'Snigmord',
     'sabotage': 'Sabotér',
     'silence': 'Stop alarmen',

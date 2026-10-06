@@ -243,7 +243,7 @@ export default {
     'reset': {
       'cover': 'Entdeckt. Bleib hinter der Deckung geduckt.',
       'seen': 'Entdeckt. Der Raum beginnt von vorn.',
-      'rockets': 'Keine Raketen mehr. Der Raum beginnt von vorn.'
+      'ammo': "Keine Munition mehr! Versuch's noch mal!"
     }
   },
   'pause': {
@@ -301,7 +301,7 @@ export default {
   },
   'prompt': {
     'salvage': 'Ausschlachten',
-    'strike': 'Takedown',
+    'strike': 'Zustechen',
     'assassinate': 'Attentat',
     'sabotage': 'Sabotieren',
     'silence': 'Alarm abschalten',

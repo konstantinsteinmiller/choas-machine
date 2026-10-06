@@ -243,7 +243,7 @@ export default {
     'reset': {
       'cover': 'Észrevettek. Maradj guggolva a fedezék mögött.',
       'seen': 'Észrevettek. A terem újraindul.',
-      'rockets': 'Elfogytak a rakéták. A terem újraindul.'
+      'ammo': 'Elfogyott a lőszer! Próbáld újra!'
     }
   },
   'pause': {
@@ -301,7 +301,7 @@ export default {
   },
   'prompt': {
     'salvage': 'Bontás',
-    'strike': 'Leszedés',
+    'strike': 'Hátba szúrás',
     'assassinate': 'Orvtámadás',
     'sabotage': 'Szabotálás',
     'silence': 'Riasztó némítása',

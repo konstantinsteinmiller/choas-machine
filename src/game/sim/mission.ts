@@ -66,7 +66,7 @@ import { AirshipView } from './airshipView'
 import { AIRSHIP_HALF } from '../models/airship'
 import { TrainingDirector } from './trainingDirector'
 import { DEMO_GAP_S, demoLength, entryOf, inPit, lessonStuck, roomAt, victimFrame } from './training'
-import { TRAINING_ID, TRAINING_ROOMS } from '../data/fortresses/training'
+import { TRAINING_ID, TRAINING_ROOMS, type LessonId } from '../data/fortresses/training'
 import { COVER_H } from '../world/fortress'
 import { BASE_LOADOUT, type Loadout } from '../data/upgrades'
 import { camKind, camZone, chooseKillCam, makeKillCamState, type CamCut, type KillInfo } from './killcam'
@@ -214,15 +214,19 @@ type Cine =
   /**
    * The blade room's lesson, watched (#158): the mech held at the way in, the
    * camera on the middle of the room, where the hologram takes its guard from
-   * behind, twice over. Not skipped: that is the point of it.
+   * behind, twice over. Not skipped before `skipAt` (a second before the
+   * first loop ends): the first loop is the point of it.
    */
-  | { kind: 'lesson'; t: number; dur: number; x: number; z: number; yaw: number }
+  | { kind: 'lesson'; t: number; dur: number; x: number; z: number; yaw: number; skipAt: number }
 
 /** The blade room says "Backstab them" again after this many seconds of shooting (#156). */
 const SHOUT_EVERY_S = 3
 /** The blade room's watched lesson (#158): the camera's distance from the middle and its height. */
 const LESSON_CAM_R = 6.5
 const LESSON_CAM_H = 3.2
+/** It can be skipped from this long before its first loop ends, and blends back to the follow camera over this long. */
+const LESSON_SKIP_EARLY_S = 1
+const LESSON_OUT_S = 0.7
 /** Over the jump room's gap (#154): how high above the mech, how far behind, and how fast it rises (per second). */
 const PIT_CAM_UP = 6.5
 const PIT_CAM_BACK = 2.2
@@ -684,7 +688,7 @@ export class Mission implements GameMode {
     // Any press skips a scripted shot (once it has had a moment to register).
     // (A takedown needs a later press: the one that started it is still going down.)
     // The press that skips is spent on the skip: Space must not also jump (#95).
-    if (this.cine && this.cine.kind !== 'lesson' && i.anyPressed && this.cine.t > (this.cine.kind === 'stab' ? 0.7 : 0.3)) { this.skipCine(); consumeEdges(i) }
+    if (this.cine && i.anyPressed && this.cine.t > (this.cine.kind === 'stab' ? 0.7 : this.cine.kind === 'lesson' ? this.cine.skipAt : 0.3)) { this.skipCine(); consumeEdges(i) }
     // The bullet in flight: the world holds its breath. After it lands, and
     // through any kill-cam, nothing moves but the fallen (#91).
     if (this.cine?.kind === 'bullet' && !this.cine.hit) {
@@ -3261,16 +3265,16 @@ export class Mission implements GameMode {
       this.coach.recalled.add(h)
       this.coach.until[h] = Math.max(this.coach.until[h], this.coach.time + 0.5)
     }
-    // Out of rockets with the armoured mech still standing (#146): a beat to
-    // see it, then back at the room's door with both rockets in again.
-    if (cur >= 0 && TRAINING_ROOMS[cur]!.lesson === 'rocket' && !tr.state.done[cur]) {
-      const out = isDry(this.arsenal, 'rocket') && this.rockets.length === 0
+    // Out of ammunition with the room's lesson still to do (#146, #159): a
+    // beat to see it, then back at the room's door with everything loaded again.
+    if (cur >= 0 && !tr.state.done[cur]) {
+      const out = this.ammoOut(TRAINING_ROOMS[cur]!.lesson) && this.rockets.length === 0
       this.rocketDryT = out ? this.rocketDryT + dt : 0
       if (this.rocketDryT >= ROCKET_RESPAWN_S) {
         this.rocketDryT = 0
         tr.resetRoom(this.placeAtDoor)
-        this.refillRockets()
-        this.trainingShout('reset.rockets')
+        this.refillTraining(cur)
+        this.trainingShout('reset.ammo')
         emit('trainingReset', {})
       }
     }
@@ -3291,6 +3295,8 @@ export class Mission implements GameMode {
         this.sabotaging = null
         if (this.dragId >= 0) this.dropBody()
       })
+      // A reset always hands the ammunition back (#159).
+      this.refillTraining(tr.state.room)
       // Why (#155): in the cover room, what would have kept it unseen.
       this.trainingShout(TRAINING_ROOMS[tr.state.room]?.lesson === 'cover' ? 'reset.cover' : 'reset.seen')
       emit('trainingReset', {})
@@ -3313,6 +3319,33 @@ export class Mission implements GameMode {
     const down = foes.filter(u => !isAlive(u)).length
     if (hud.training.goalTotal !== foes.length) hud.training.goalTotal = foes.length
     if (hud.training.goalDown !== down) hud.training.goalDown = down
+  }
+
+  /**
+   * Room `lesson`'s lesson can no longer be done for want of ammunition
+   * (#159): the launcher's room with no rocket left; the weapons room with
+   * the rifle and the mini-gun both dry; anywhere else, every weapon dry. The
+   * supply room starts dry on purpose: its crate is the lesson.
+   */
+  private ammoOut(lesson: LessonId): boolean {
+    const a = this.arsenal
+    if (lesson === 'supply') return false
+    if (lesson === 'rocket') return isDry(a, 'rocket')
+    const guns = isDry(a, 'sniper') && isDry(a, 'minigun')
+    return lesson === 'weapons' ? guns : guns && isDry(a, 'rocket')
+  }
+
+  /** Every weapon loaded again, as a training room's reset leaves it (#159); not in the supply room, whose crate does it. */
+  private refillTraining(room: number): void {
+    if (TRAINING_ROOMS[room]?.lesson === 'supply') return
+    const a = this.arsenal
+    a.sniperMag = SNIPER_MAG
+    a.sniperReserve = Math.max(a.sniperReserve, a.sniperReserveMax)
+    a.minigunBelt = Math.max(a.minigunBelt, a.minigunBeltMax)
+    a.reloading = 0
+    a.heat = 0
+    a.overheated = false
+    this.refillRockets()
   }
 
   /** The training ground calls a line out over the screen (#155, #156). */
@@ -3340,7 +3373,7 @@ export class Mission implements GameMode {
     const p = this.player
     p.vx = p.vz = 0
     this.cine = {
-      kind: 'lesson', t: 0, dur: 2 * demoLength('blade') + DEMO_GAP_S,
+      kind: 'lesson', t: 0, dur: 2 * demoLength('blade') + DEMO_GAP_S, skipAt: demoLength('blade') - LESSON_SKIP_EARLY_S,
       // From the way in's side and a little south, over the shoulder of the room.
       x: v.x, z: v.z, yaw: -Math.PI / 2 + 0.45
     }
@@ -3741,6 +3774,10 @@ export class Mission implements GameMode {
       // The way out is not skipped half-way: it jumps to the end of the lift.
       c.t = c.dur
       return
+    } else if (c.kind === 'lesson') {
+      // Out of the watched lesson by its own blend back to the follow camera, not a cut.
+      c.dur = Math.min(c.dur, c.t + LESSON_OUT_S)
+      return
     }
     this.endCine()
   }
@@ -3876,7 +3913,7 @@ export class Mission implements GameMode {
       // The middle of the room, framed, a slow drift round it (#158); out of
       // the follow camera and back into it.
       orbitCam(out, c.t, c.x, 0.9, c.z, c.yaw, LESSON_CAM_R, LESSON_CAM_H, 0.025, this.baseFov * 0.85)
-      const edge = Math.min(1, c.t / 0.7, (c.dur - c.t) / 0.7)
+      const edge = Math.min(1, c.t / LESSON_OUT_S, (c.dur - c.t) / LESSON_OUT_S)
       if (edge < 1) blendPose(out, follow, out, smooth(Math.max(0, edge)))
       if (k >= 1) this.endCine()
       return true

@@ -243,7 +243,7 @@ export default {
     'reset': {
       'cover': 'Görüldün. Siperin arkasında çömelmiş kal.',
       'seen': 'Görüldün. Oda baştan başlıyor.',
-      'rockets': 'Roket bitti. Oda baştan başlıyor.'
+      'ammo': 'Cephane bitti! Tekrar dene!'
     }
   },
   'pause': {
@@ -301,7 +301,7 @@ export default {
   },
   'prompt': {
     'salvage': 'Parçala',
-    'strike': 'Etkisiz hale getir',
+    'strike': 'Sırtından sapla',
     'assassinate': 'Suikast',
     'sabotage': 'Sabotaj',
     'silence': 'Alarmı sustur',

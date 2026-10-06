@@ -243,7 +243,7 @@ export default {
     'reset': {
       'cover': '見つかった。遮蔽物の陰でしゃがんだままでいろ。',
       'seen': '見つかった。部屋をやり直し。',
-      'rockets': 'ロケット弾切れ。部屋をやり直し。'
+      'ammo': '弾切れ！もう一度！'
     }
   },
   'pause': {
@@ -301,7 +301,7 @@ export default {
   },
   'prompt': {
     'salvage': '回収',
-    'strike': '闇討ち',
+    'strike': '背後から仕留める',
     'assassinate': '空中暗殺',
     'sabotage': '妨害',
     'silence': '警報を止める',

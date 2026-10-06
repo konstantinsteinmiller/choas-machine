@@ -243,7 +243,7 @@ export default {
     'reset': {
       'cover': 'Upptäckt. Håll dig hukad bakom skyddet.',
       'seen': 'Upptäckt. Rummet börjar om.',
-      'rockets': 'Slut på raketer. Rummet börjar om.'
+      'ammo': 'Slut på ammunition! Försök igen!'
     }
   },
   'pause': {
@@ -301,7 +301,7 @@ export default {
   },
   'prompt': {
     'salvage': 'Bärga',
-    'strike': 'Slå ner',
+    'strike': 'Hugg i ryggen',
     'assassinate': 'Lönnmord',
     'sabotage': 'Sabotera',
     'silence': 'Tysta larmet',

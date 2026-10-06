@@ -243,7 +243,7 @@ export default {
     'reset': {
       'cover': 'Visto. Fique agachado atrás da cobertura.',
       'seen': 'Visto. A sala recomeça.',
-      'rockets': 'Sem foguetes. A sala recomeça.'
+      'ammo': 'Sem munição! Tente de novo!'
     }
   },
   'pause': {
@@ -301,7 +301,7 @@ export default {
   },
   'prompt': {
     'salvage': 'Desmontar',
-    'strike': 'Eliminar',
+    'strike': 'Pelas costas',
     'assassinate': 'Assassinar',
     'sabotage': 'Sabotar',
     'silence': 'Silenciar alarme',

@@ -243,7 +243,7 @@ export default {
     'reset': {
       'cover': 'Gezien. Blijf gebukt achter de dekking.',
       'seen': 'Gezien. De kamer begint opnieuw.',
-      'rockets': 'Raketten op. De kamer begint opnieuw.'
+      'ammo': 'Geen munitie meer! Probeer opnieuw!'
     }
   },
   'pause': {
@@ -301,7 +301,7 @@ export default {
   },
   'prompt': {
     'salvage': 'Slopen',
-    'strike': 'Uitschakelen',
+    'strike': 'In de rug steken',
     'assassinate': 'Liquideren',
     'sabotage': 'Saboteren',
     'silence': 'Alarm uitzetten',

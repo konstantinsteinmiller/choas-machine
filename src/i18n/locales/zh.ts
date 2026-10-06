@@ -243,7 +243,7 @@ export default {
     'reset': {
       'cover': '被发现了。躲在掩体后保持蹲下。',
       'seen': '被发现了。房间重新开始。',
-      'rockets': '火箭弹用完了。房间重新开始。'
+      'ammo': '弹药耗尽！再试一次！'
     }
   },
   'pause': {
@@ -301,7 +301,7 @@ export default {
   },
   'prompt': {
     'salvage': '拆解',
-    'strike': '击倒',
+    'strike': '背刺',
     'assassinate': '暗杀',
     'sabotage': '破坏',
     'silence': '关掉警报',

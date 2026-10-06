@@ -247,7 +247,7 @@ export default {
     'reset': {
       'cover': 'Seen. Stay crouched behind the cover.',
       'seen': 'Seen. The room starts over.',
-      'rockets': 'Out of rockets. The room starts over.'
+      'ammo': 'Ammo depleted! Try again!'
     }
   },
   'pause': {
@@ -305,7 +305,7 @@ export default {
   },
   'prompt': {
     'salvage': 'Salvage',
-    'strike': 'Takedown',
+    'strike': 'Backstab',
     'assassinate': 'Assassinate',
     'sabotage': 'Sabotage',
     'silence': 'Silence alarm',
