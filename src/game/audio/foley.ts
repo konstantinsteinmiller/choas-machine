@@ -544,6 +544,61 @@ export const bladeSlash = (sr: number, v: number): Float32Array => {
   return level(x, 0.36)
 }
 
+// ─── The blade in a person (#172): no steel ringing, the body's sounds ───────
+
+/**
+ * The swing and the thrust into a person: the arm's swish through the air,
+ * the wet punch of the blade going in, the dull thump of the forearm against
+ * the back, the cloth bunching, the body's give round it. No ring, no
+ * scrape: a blade in a body does not sound like steel on steel.
+ */
+export const fleshStab = (sr: number, v: number): Float32Array => {
+  const k: Kit = { sr, r: rng(0x5f1 + v * 7919) }
+  const x = new Float32Array(len(k, 0.75))
+  add(k, x, swell(unit(filt(k, white(k, 0.14), 'bp', sweep(380, 1500, 0.14), 1.3))), 0, 0.35)
+  add(k, x, unit(squelch(k, 0.22, 700 + v * 90, 110, 0.045)), 0.12, 1)
+  add(k, x, unit(env(k, filt(k, white(k, 0.08), 'lp', 520, 0.7), 0.001, 0.025)), 0.122, 0.8)
+  add(k, x, env(k, glide(k, 0.28, 78 - v * 4, 42, 0.05), 0.0015, 0.08), 0.124, 1)
+  add(k, x, unit(mul(unit(filt(k, white(k, 0.2), 'bp', 2400, 0.9)), lumps(k, 0.2, 40))), 0.13, 0.12)
+  add(k, x, unit(squelch(k, 0.32, sweep(900, 360, 0.3), 55, 0.09)), 0.18, 0.55)
+  drive(x, 1.25)
+  filt(k, x, 'lp', 3200, 0.7)
+  room(k, x, 0.45, 0.55, 0.65, 0.1)
+  return level(x, 0.5)
+}
+
+/** The blade drawn out of a person: a wet, slow suck, the body settling. */
+export const fleshPull = (sr: number, v: number): Float32Array => {
+  const k: Kit = { sr, r: rng(0x6c3 + v * 7919) }
+  const x = new Float32Array(len(k, 0.5))
+  add(k, x, unit(swell(mul(unit(filt(k, white(k, 0.22), 'bp', sweep(420, 1100, 0.22), 1.5)), lumps(k, 0.22, 70), 0.2))), 0, 0.7)
+  add(k, x, unit(squelch(k, 0.2, 600, 60, 0.06)), 0.1, 0.45)
+  filt(k, x, 'lp', 2600, 0.7)
+  return level(x, 0.28)
+}
+
+/** A quick strike at a person, face to face: the swish, the cut, the thump. */
+export const fleshSlash = (sr: number, v: number): Float32Array => {
+  const k: Kit = { sr, r: rng(0x7d2 + v * 7919) }
+  const x = new Float32Array(len(k, 0.45))
+  add(k, x, swell(unit(filt(k, white(k, 0.12), 'bp', sweep(500, 2000, 0.12), 1.4))), 0, 0.5)
+  add(k, x, unit(squelch(k, 0.12, 1000, 150, 0.03)), 0.1, 0.7)
+  add(k, x, env(k, glide(k, 0.2, 105, 52, 0.03), 0.001, 0.05), 0.1, 0.9)
+  drive(x, 1.2)
+  filt(k, x, 'lp', 3000, 0.7)
+  return level(x, 0.36)
+}
+
+/** The free hand closing on a person: cloth bunched, a muffled thump against the body. */
+export const bodyGrab = (sr: number, v: number): Float32Array => {
+  const k: Kit = { sr, r: rng(0x8e4 + v * 7919) }
+  const x = new Float32Array(len(k, 0.3))
+  add(k, x, unit(mul(unit(filt(k, white(k, 0.16), 'bp', 1800, 0.8)), lumps(k, 0.16, 60))), 0, 0.5)
+  add(k, x, env(k, glide(k, 0.14, 120, 70, 0.02), 0.001, 0.04), 0.01, 0.8)
+  filt(k, x, 'lp', 2400, 0.7)
+  return level(x, 0.26)
+}
+
 // ─── The table ───────────────────────────────────────────────────────────────
 
 export interface FoleyRecipe {
@@ -566,7 +621,11 @@ export const FOLEY = {
   tink: { bake: tinkMetal, variants: 3 },
   stab: { bake: bladeStab, variants: 2 },
   bladePull: { bake: bladePull, variants: 1 },
-  blade: { bake: bladeSlash, variants: 2 }
+  blade: { bake: bladeSlash, variants: 2 },
+  stabFlesh: { bake: fleshStab, variants: 2 },
+  pullFlesh: { bake: fleshPull, variants: 1 },
+  slashFlesh: { bake: fleshSlash, variants: 2 },
+  grab: { bake: bodyGrab, variants: 2 }
 } as const satisfies Partial<Record<SfxName, FoleyRecipe>>
 
 export type FoleyName = keyof typeof FOLEY

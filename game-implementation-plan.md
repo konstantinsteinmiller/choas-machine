@@ -952,7 +952,18 @@ replay key, the keyboard-driven settings.
   grid whose off-floor points stay dark in the pool's own floor (no notches).
   A decoy holds whoever comes (people and the walking or flying machines):
   4 s stood watching it, one round into it, then a look about.
-- [ ] **R71 The backstab** (#172)
+- [x] **R71 The backstab** (#172): measured first (the posed rigs, the
+  guard's body as a box per bone): the mech's chest and head were 20 cm
+  inside the guard in all three variants, and the blade's pin dragged the
+  whole mech in as the arm drew the blade out. Now the mech stands a forearm
+  back (the arm and blade reach from there), the guard arches back less, the
+  pin lets go as the blade comes out, and the kneel kill steps back while he
+  drops: at most 5 cm of contact, the head held against the chest
+  (`backstabClearance.test.ts`). Each kill has its beat: slow time from the
+  close-in, the hand closes, the blade arm draws back and holds, then a swing
+  of a fifth of a second; the kill-cam is up by the time the hand closes. A
+  blade in a person sounds of the body (a swish, the wet thrust, the cloth,
+  the grab), never steel ringing; the quick E strike on a person too.
 - [ ] **R72 Unit frame, replay key, the look gesture** (#169)
 - [ ] **R73 Settings by keyboard** (#170)
 

@@ -65,14 +65,24 @@ describe('flesh or metal', () => {
     expect(played).toEqual(['hit', 'tink'])
   })
 
-  it('a takedown: the blade into a person and out, steel through plate on a machine', () => {
+  it("a takedown: the blade into a person and out with the body's sounds, no steel ringing (#172); steel through plate on a machine", () => {
     emit('takedown', { beat: 'draw', id: 0 })
     emit('takedown', { beat: 'stab', id: 0 })
     emit('takedown', { beat: 'pull', id: 0 })
-    expect(played).toEqual(['bladeOut', 'stab', 'bladePull'])
+    expect(played).toEqual(['grab', 'bladeOut', 'stabFlesh', 'pullFlesh'])
+    expect(played).not.toContain('stab')
+    expect(played).not.toContain('blade')
     played.length = 0
     emit('takedown', { beat: 'stab', id: 5 })
     expect(played).toEqual(['blade', 'impactMetal'])
+  })
+
+  it('a quick strike at a person is the swish and the cut, not steel (#172)', () => {
+    emit('strike', { kind: 'strike', id: 0 })
+    expect(played).toEqual(['slashFlesh'])
+    played.length = 0
+    emit('strike', { kind: 'strike', id: 5 })
+    expect(played).toEqual(['blade'])
   })
 
   it('every round fired is voiced, the rifle with its bolt', () => {

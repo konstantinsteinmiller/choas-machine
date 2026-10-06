@@ -85,7 +85,8 @@ export const installGameSounds = (): void => {
   // A round off armour (#146): the ricochet's ping.
   on('glance', () => sfx('ricochet'))
   // A quick strike is one sound; a takedown plays its own beats.
-  on('strike', ({ kind }) => { if (kind === 'strike' || !killCamsEnabled.value) sfx('blade') })
+  // On a person (#172) the body's sounds, not steel on steel.
+  on('strike', ({ kind, id }) => { if (kind === 'strike' || !killCamsEnabled.value) sfx(isFlesh(id) ? 'slashFlesh' : 'blade') })
   on('salvage', ({ beat }) => { if (beat !== 'stop') sfx(beat === 'taken' ? 'lootDone' : 'loot') })
   on('grapple', ({ beat }) => sfx(beat === 'throw' ? 'hookThrow' : beat === 'bite' ? 'hookBite' : beat === 'recall' ? 'hookRecall' : 'land'))
   // The backstab, the drop and the dive from a rope: the blade goes into a
@@ -93,11 +94,13 @@ export const installGameSounds = (): void => {
   // through plate instead.
   on('takedown', ({ beat, id }) => {
     const flesh = isFlesh(id)
+    // A person (#172): the swish and the body, the hand on the cloth; the
+    // blade's own slide out of the forearm only faint under the grab.
     if (beat === 'stab') {
-      if (flesh) sfx('stab')
+      if (flesh) sfx('stabFlesh')
       else { sfx('blade'); sfx('impactMetal', 0, 0.8) }
-    } else if (beat === 'pull') sfx(flesh ? 'bladePull' : 'bladeOut', 0, flesh ? 1 : 0.7)
-    else sfx('bladeOut')
+    } else if (beat === 'pull') sfx(flesh ? 'pullFlesh' : 'bladeOut', 0, flesh ? 1 : 0.7)
+    else if (flesh) { sfx('grab'); sfx('bladeOut', 0, 0.25) } else sfx('bladeOut')
   })
   on('decoy', () => sfx('decoy'))
   // Where a round lands: a body or a machine's shell. The rifle's heavy round

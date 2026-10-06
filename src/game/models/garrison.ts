@@ -501,14 +501,14 @@ const poseGuardAlive = (rig: Rig, s: GuardPose): void => {
   )
   pose(
     rig, 'chest',
-    0.04 * walk + 0.14 * run + 0.22 * s.caution + 0.1 * s.aim - 0.06 * s.recoil - 0.22 * s.startle - 0.2 * grip - 0.38 * stuck + 0.2 * gone + tremble
+    0.04 * walk + 0.14 * run + 0.22 * s.caution + 0.1 * s.aim - 0.06 * s.recoil - 0.22 * s.startle - 0.2 * grip - 0.24 * stuck + 0.2 * gone + tremble
       + breathe * 0.012 * alive + lookDown * 0.18 - shrug * 0.12 - (s.proud ? 0.07 * calm : 0),
     -swing * 0.3 * walk * swagger * calm,
     -Math.cos(s.stride) * 0.04 * walk - shift * 0.05
   )
   pose(
     rig, 'head',
-    -0.04 * walk - 0.16 * s.caution - 0.15 * s.aim + lookDown * 0.55 + 0.25 * s.startle - 0.4 * grip - 0.55 * stuck + 0.75 * gone
+    -0.04 * walk - 0.16 * s.caution - 0.15 * s.aim + lookDown * 0.55 + 0.25 * s.startle - 0.4 * grip - 0.34 * stuck + 0.75 * gone
       + Math.sin(t * 1.3) * 0.03 * alive + (s.proud ? -0.08 * calm : 0),
     (s.lookYaw + Math.sin(t * 2.3) * 0.5 * s.wary + swing * 0.14 * walk * calm) * alive,
     scratch * 0.2

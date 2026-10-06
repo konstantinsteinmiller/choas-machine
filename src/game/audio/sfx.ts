@@ -16,6 +16,8 @@ export type SfxName =
   | 'minigun' | 'overheat' | 'rocket' | 'explode' | 'weapon'
   // The blade and the decoy: a quick strike, the blade drawn, driven into a body and pulled out
   | 'blade' | 'bladeOut' | 'stab' | 'bladePull' | 'decoy' | 'decoyOut'
+  // ...and in a person (#172): no steel ringing, the swish, the body and the cloth
+  | 'stabFlesh' | 'pullFlesh' | 'slashFlesh' | 'grab'
   // The grappling hook: thrown, biting into the wall top, reeling, recalled
   | 'hookThrow' | 'hookBite' | 'hookReel' | 'hookRecall'
   // Salvage: rummaging in a pile, and the pile stripped

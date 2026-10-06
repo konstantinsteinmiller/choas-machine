@@ -179,7 +179,7 @@ const CAP = 24
 const CAP_WINDOW = 0.25
 const recent: number[] = []
 const NEVER_DROP: ReadonlySet<SfxName> = new Set<SfxName>([
-  'hurt', 'down', 'alarm', 'spotted', 'sniper', 'rocket', 'blade', 'stab', 'bladePull', 'impactBody', 'impactMetal', 'denied', 'uiClick', 'uiOpen', 'uiClose', 'uiConfirm',
+  'hurt', 'down', 'alarm', 'spotted', 'sniper', 'rocket', 'blade', 'stab', 'bladePull', 'stabFlesh', 'slashFlesh', 'impactBody', 'impactMetal', 'denied', 'uiClick', 'uiOpen', 'uiClose', 'uiConfirm',
   'objective', 'extract', 'killcam', 'medal', 'telegraph'
 ])
 
@@ -346,6 +346,10 @@ const RECIPES: Record<SfxName, (pan: number, g: number) => void> = {
   blade: foley('blade'),
   stab: foley('stab'),
   bladePull: foley('bladePull'),
+  stabFlesh: foley('stabFlesh'),
+  pullFlesh: foley('pullFlesh'),
+  slashFlesh: foley('slashFlesh'),
+  grab: foley('grab'),
   decoy: (_p, g) => {
     arp([79, 86, 91], 0.05, 'p12', 0.1 * g, 0.12)
     tone({ wave: 'sine', f0: 600, f1: 1800, dur: 0.35, vol: 0.05 * g, vib: 40, vibRate: 9 })

@@ -195,6 +195,8 @@ interface StrikeRun {
   full: boolean
   /** The takedown's beats that have already fired. */
   drawn: boolean
+  /** Slow time started (the backstab, #172). */
+  slowed?: boolean
   pulled: boolean
 }
 
@@ -1660,11 +1662,12 @@ export class Mission implements GameMode {
         u.held.kneel = bp.kneel
       }
     }
-    if (!s.drawn && t >= 0.08) {
+    // Slow time from the close-in (#172): the grab, the held blade and the swing are seen.
+    if (!s.slowed) { s.slowed = true; app.setTimeScale(STAB_SLOW) }
+    if (!s.drawn && t >= v.grabAt) {
       s.drawn = true
       emit('takedown', { beat: 'draw', id: s.id })
       if (s.kind === 'drop') emit('land', { drop: s.fy - s.ty })
-      app.setTimeScale(STAB_SLOW)
     }
     while (bs.hit < bp.hit) this.stabBlow(s, ++bs.hit)
     if (!bs.released && t >= v.release) {
@@ -4007,10 +4010,12 @@ export class Mission implements GameMode {
         out.y = out.ty + dy * k2
         out.z = out.tz + dz * k2
       }
-      // Out of the follow camera at the start, back into it at the end.
+      // Out of the follow camera over the close-in, so the kill-cam is up as
+      // the hand closes (#172: it was still arriving as the blade went in);
+      // back into it at the end.
       const tt = st.t - st.dur
-      const edge = Math.min(1, (st.t) / 0.22, (VARIANTS[bs.variant].end - tt) / 0.28)
-      if (edge < 1) blendPose(out, follow, out, Math.max(0, edge))
+      const edge = Math.min(1, st.t / (st.dur + 0.05), (VARIANTS[bs.variant].end - tt) / 0.28)
+      if (edge < 1) blendPose(out, follow, out, smooth(Math.max(0, edge)))
       return true
     }
     if (c.kind === 'air') {
