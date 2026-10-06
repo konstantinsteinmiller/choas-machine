@@ -9,8 +9,12 @@ export const CINEMA_LENGTH: Readonly<Record<CinemaId, number>> = {
   intro: 42, salvage: 10, fallBastion: 16, fallFoundry: 16, outro: 40
 }
 
-/** Space held this long skips a scene (a press alone does not: Space is the jump). */
-export const CINEMA_HOLD_S = 0.5
+/**
+ * Space held this long skips a cutscene (#175: a story scene, a mission's
+ * drop-in and its way out), its ring filling round the key; a press alone
+ * does not (Space is the jump).
+ */
+export const SKIP_HOLD_S = 1.5
 
 /** The `seen` flag a scene sets once it has played. */
 export const seenKey = (id: CinemaId): string => `cine:${id}`

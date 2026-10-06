@@ -651,6 +651,8 @@ export class Mission implements GameMode {
     })
     this.offReplay?.()
     this.offReplay = on('trainingReplay', () => { this.training?.replay() })
+    this.offCineSkip?.()
+    this.offCineSkip = on('cineSkip', () => { if (this.cine && this.cine.t > 0.3) this.skipCine() })
     this.offZoom?.()
     this.offZoom = on('zoom', () => this.zoomStep(1, true))
     this.mirrorWeapons()
@@ -2960,6 +2962,7 @@ export class Mission implements GameMode {
   /** The training ground's lessons, gates and ghost (only there). */
   private training: TrainingDirector | null = null
   private offReplay: (() => void) | null = null
+  private offCineSkip: (() => void) | null = null
   private offZoom: (() => void) | null = null
   /** What the training ground counts: rounds, heat, zoom, beacons. */
   private sniperKills = 0
@@ -4415,6 +4418,7 @@ export class Mission implements GameMode {
     this.ship?.v.dispose()
     this.training?.dispose()
     this.offReplay?.()
+    this.offCineSkip?.()
     this.offZoom?.()
     this.mesh.dispose()
     this.decor.dispose()

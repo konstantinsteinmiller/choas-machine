@@ -207,6 +207,30 @@ watch(() => flow.screen, (sc) => {
   if (relockVeil.value) relock()
 })
 
+// ── Cutscenes (#175) ──
+// A story scene, a mission's drop-in and its way out hand the mouse back, so
+// the Skip button can be clicked; when play comes back the capture is asked
+// for again. A key or a click that skipped is a gesture and captures at once;
+// a scene that played to its end has none, and the veil asks for one click.
+const inCutscene = computed(() => hud.phase === 'cinema' || hud.phase === 'intro' || hud.phase === 'outro')
+let lockedBeforeCut = false
+watch(inCutscene, (cut, was) => {
+  if (cut && !was) {
+    lockedBeforeCut = isPointerLocked()
+    if (lockedBeforeCut) releasePointerLock()
+    return
+  }
+  if (!cut && was) {
+    const owed = lockedBeforeCut
+    lockedBeforeCut = false
+    if (!owed || hud.phase !== 'play' || flow.screen !== 'mission') return
+    if (input.device !== 'mouse' || input.lockRefused) return
+    requestPointerLock(input)
+    // No gesture to capture on: once the request has had its chance, the veil.
+    window.setTimeout(() => { if (!isPointerLocked() && hud.phase === 'play' && !flow.modal) relockOwed.value = true }, 250)
+  }
+})
+
 // The portals' gameplay bracket (CrazyGames / Poki / Playgama). The rule is in
 // `isGameplayLive`; the Poki arm defers a start inside its 50 ms bad-event
 // window, so a modal closing in the same breath as an ad opening is safe.

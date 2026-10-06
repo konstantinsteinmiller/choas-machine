@@ -5,8 +5,13 @@
     div.cine-bars(v-if="active")
       div.bar.top
       div.bar.bottom
-      //- Any press on the scene skips; this is the picture of that.
-      div.skip(v-if="hud.phase !== 'cinema'" role="img" :aria-label="t('ui.skip')")
+      //- The drop-in and the way out (#175): a button to click (the mouse is
+      //- free during them) and Space held a second and a half, its ring
+      //- filling round the key; any other press still skips.
+      div.hold(v-if="cutscene")
+        HoldSkipButton(:active="cutscene" :keys="hud.device === 'mouse'" testid="btn-cine-skip" @skip="busEmit('cineSkip', {})")
+      //- A kill-cam: any press skips; this is the picture of that.
+      div.skip(v-else-if="hud.phase !== 'cinema'" role="img" :aria-label="t('ui.skip')")
         GameIcon(name="skip-forward")
 </template>
 
@@ -14,10 +19,14 @@
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import GameIcon from '@/components/icons/GameIcon.vue'
+import HoldSkipButton from '@/components/hud/HoldSkipButton.vue'
 import { hud } from '@/game/state/hud'
 import { flow } from '@/game/flow'
+import { emit as busEmit } from '@/game/bus'
 
 const { t } = useI18n()
+/** A mission's own cutscene (the drop-in, the way out), not a kill-cam. */
+const cutscene = computed(() => flow.screen === 'mission' && !flow.curtain && !flow.loading && (hud.phase === 'intro' || hud.phase === 'outro'))
 const active = computed(() =>
   hud.phase === 'cinema' ||
   (flow.screen === 'mission' && !flow.curtain && !flow.loading && (hud.cine || hud.phase === 'intro' || hud.phase === 'outro'))
@@ -39,6 +48,11 @@ const active = computed(() =>
     top: 0
   &.bottom
     bottom: 0
+.hold
+  position: absolute
+  right: var(--cm-safe-right)
+  bottom: calc(clamp(1.6rem, 9vmin, 4.5rem) + 0.75rem)
+  pointer-events: auto
 .skip
   position: absolute
   right: var(--cm-safe-right)

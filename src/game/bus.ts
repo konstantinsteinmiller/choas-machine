@@ -88,6 +88,8 @@ export interface GameEvents {
   /** The training ground: a lesson done; the demo asked for again; seen and sent back. */
   lessonDone: { room: number }
   trainingReplay: Record<string, never>
+  /** The cutscene's skip button, or Space held (#175): the mission's drop-in or its way out ends. */
+  cineSkip: Record<string, never>
   trainingReset: Record<string, never>
   /** CM-07 says a line (#126), whispered when unseen. */
   quip: { id: string; whisper: boolean }

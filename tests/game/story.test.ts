@@ -5,7 +5,7 @@
 
 import { describe, expect, it } from 'vitest'
 import { Texture } from 'three'
-import { CINEMA_HOLD_S, CINEMA_IDS, CINEMA_LENGTH, cinemaAfterClear } from '@/game/story/cinemaIds'
+import { SKIP_HOLD_S, CINEMA_IDS, CINEMA_LENGTH, cinemaAfterClear } from '@/game/story/cinemaIds'
 import { newHold, pressHold, stepHold } from '@/game/story/holdSkip'
 import { buildBastion } from '@/game/data/fortresses/bastion'
 import { validateFortress } from '@/game/world/validate'
@@ -37,15 +37,15 @@ describe('which scene a first clear earns', () => {
 })
 
 describe('skipping', () => {
-  it('Space held half a second skips; a press does not', () => {
+  it('Space held a second and a half skips (#175); a press, or a second, does not', () => {
     const h = newHold()
     pressHold(h)
     let fired = false
-    for (let k = 0; k < 10; k++) fired = stepHold(h, 1 / 60, CINEMA_HOLD_S) || fired
+    for (let k = 0; k < 60; k++) fired = stepHold(h, 1 / 60, SKIP_HOLD_S) || fired
     expect(fired).toBe(false)
-    for (let k = 0; k < 30; k++) fired = stepHold(h, 1 / 60, CINEMA_HOLD_S) || fired
+    for (let k = 0; k < 31; k++) fired = stepHold(h, 1 / 60, SKIP_HOLD_S) || fired
     expect(fired).toBe(true)
-    expect(CINEMA_HOLD_S).toBe(0.5)
+    expect(SKIP_HOLD_S).toBe(1.5)
   })
 })
 
