@@ -139,7 +139,18 @@ export default {
   'forge': {
     'tier': 'Tier {n}',
     'build': 'Bouwen',
-    'top': 'Hoogste tier'
+    'top': 'Hoogste tier',
+    'lead': 'Elk wapen is vanaf het begin van jou. De Smederij laat het harder slaan.',
+    'gain': 'Volgende tier: +{n}% schade',
+    'infoOpen': 'Wat doet de Smederij?',
+    'infoTitle': 'De Smederij',
+    'info': {
+      'lead': 'Je draagt al alle drie de wapens. Een tier bouwen maakt dat wapen sterker in elke missie daarna.',
+      'tiers': 'Tier: elke balk is één tier. Elk wapen begint op tier 1 en gaat omhoog tot tier {max}.',
+      'blueprints': 'Blauwdrukken: "1/2" betekent dat je 1 van de 2 blauwdrukken hebt die de volgende tier nodig heeft. Elke missie waar je uit komt levert er één op, om beurten voor elk wapen; de Spook-medaille levert een tweede.',
+      'scrap': 'Techschroot: de prijs van de volgende tier. Berging, uitschakelingen, headshots en de oven na een missie leveren het op.',
+      'build': 'Bouwen: met de blauwdrukken en het schroot bij de hand gaat het wapen meteen een tier omhoog: +{n}% schade per tier.'
+    }
   },
   'smithy': {
     'furnace': 'Oven: houd de blaasbalg vast om de hitte in de band te houden',

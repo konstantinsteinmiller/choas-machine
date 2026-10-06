@@ -139,7 +139,18 @@ export default {
   'forge': {
     'tier': 'Nivel {n}',
     'build': 'Fabricar',
-    'top': 'Nivel máximo'
+    'top': 'Nivel máximo',
+    'lead': 'Todas las armas son tuyas desde el principio. La Forja hace que peguen más fuerte.',
+    'gain': 'Siguiente nivel: +{n} % de daño',
+    'infoOpen': '¿Qué hace la Forja?',
+    'infoTitle': 'La Forja',
+    'info': {
+      'lead': 'Ya llevas las tres armas. Fabricar un nivel aquí hace que esa arma sea más fuerte en todas las misiones siguientes.',
+      'tiers': 'Nivel: cada barra es un nivel. Cada arma empieza en el nivel 1 y sube hasta el nivel {max}.',
+      'blueprints': 'Planos: "1/2" significa que tienes 1 de los 2 planos que necesita el siguiente nivel. Cada misión de la que sales da uno, para cada arma por turnos; la medalla Fantasma da un segundo.',
+      'scrap': 'Chatarra tech: el precio del siguiente nivel. La consiguen la chatarra recuperada, las eliminaciones, los disparos a la cabeza y el horno tras una misión.',
+      'build': 'Fabricar: con los planos y la chatarra en mano, el arma sube un nivel al instante: +{n} % de daño por cada nivel.'
+    }
   },
   'smithy': {
     'furnace': 'Horno: mantén el fuelle para que el calor quede en la franja',

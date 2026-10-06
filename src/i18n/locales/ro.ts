@@ -139,7 +139,18 @@ export default {
   'forge': {
     'tier': 'Treapta {n}',
     'build': 'Construiește',
-    'top': 'Treapta maximă'
+    'top': 'Treapta maximă',
+    'lead': 'Fiecare armă este a ta de la început. Forja o face să lovească mai tare.',
+    'gain': 'Treapta următoare: +{n}% daune',
+    'infoOpen': 'Ce face Forja?',
+    'infoTitle': 'Forja',
+    'info': {
+      'lead': 'Porți deja toate cele trei arme. Construirea unei trepte aici face arma mai puternică în fiecare misiune de după.',
+      'tiers': 'Treapta: fiecare bară este o treaptă. Fiecare armă pornește de la treapta 1 și urcă până la treapta {max}.',
+      'blueprints': 'Scheme: "1/2" înseamnă că ai 1 din cele 2 scheme de care are nevoie treapta următoare. Fiecare misiune din care ieși aduce una, pe rând pentru fiecare armă; medalia Fantomă aduce a doua.',
+      'scrap': 'Fier vechi tech: prețul treptei următoare. Îl câștigi din recuperarea de fier vechi, din eliminări, din lovituri în cap și din cuptor, după o misiune.',
+      'build': 'Construiește: cu schemele și fierul vechi în mână, arma urcă imediat o treaptă: +{n}% daune pentru fiecare treaptă.'
+    }
   },
   'smithy': {
     'furnace': 'Cuptor: ține foalele ca să rămână căldura în bandă',

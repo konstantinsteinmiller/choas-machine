@@ -139,7 +139,18 @@ export default {
   'forge': {
     'tier': 'Nível {n}',
     'build': 'Construir',
-    'top': 'Nível máximo'
+    'top': 'Nível máximo',
+    'lead': 'Todas as armas são suas desde o início. A Forja faz com que batam mais forte.',
+    'gain': 'Próximo nível: +{n}% de dano',
+    'infoOpen': 'O que a Forja faz?',
+    'infoTitle': 'A Forja',
+    'info': {
+      'lead': 'Você já carrega as três armas. Construir um nível aqui deixa essa arma mais forte em todas as missões seguintes.',
+      'tiers': 'Nível: cada barra é um nível. Cada arma começa no nível 1 e sobe até o nível {max}.',
+      'blueprints': 'Projetos: "1/2" significa que você tem 1 dos 2 projetos de que o próximo nível precisa. Cada missão da qual você sai traz um, para cada arma na sua vez; a medalha Fantasma traz um segundo.',
+      'scrap': 'Sucata Tech: o preço do próximo nível. Você a ganha recolhendo sucata, com abates, tiros na cabeça e na fornalha depois de uma missão.',
+      'build': 'Construir: com os projetos e a sucata em mãos, a arma sobe um nível na hora: +{n}% de dano por nível.'
+    }
   },
   'smithy': {
     'furnace': 'Fornalha: segure o fole para manter o calor na faixa',

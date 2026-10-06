@@ -139,7 +139,18 @@ export default {
   'forge': {
     'tier': 'Stupanj {n}',
     'build': 'Izradi',
-    'top': 'Najviši stupanj'
+    'top': 'Najviši stupanj',
+    'lead': 'Svako oružje tvoje je od početka. Kovačnica ga tjera da udara jače.',
+    'gain': 'Sljedeći stupanj: +{n} % štete',
+    'infoOpen': 'Što radi Kovačnica?',
+    'infoTitle': 'Kovačnica',
+    'info': {
+      'lead': 'Već nosiš sva tri oružja. Izrada stupnja ovdje čini to oružje jačim u svakoj sljedećoj misiji.',
+      'tiers': 'Stupanj: svaka crtica je jedan stupanj. Svako oružje počinje na stupnju 1 i raste do stupnja {max}.',
+      'blueprints': 'Nacrti: "1/2" znači da imaš 1 od 2 nacrta koja treba sljedeći stupanj. Svaka misija iz koje izađeš donosi jedan, za svako oružje redom; medalja Duh donosi drugi.',
+      'scrap': 'Tehno-otpad: cijena sljedećeg stupnja. Zarađuju ga skupljanje otpada, eliminacije, pogoci u glavu i peć nakon misije.',
+      'build': 'Izradi: kad imaš nacrte i otpad, oružje odmah skače za jedan stupanj: +{n} % štete za svaki stupanj.'
+    }
   },
   'smithy': {
     'furnace': 'Peć: drži mijeh da žar ostane u pojasu',

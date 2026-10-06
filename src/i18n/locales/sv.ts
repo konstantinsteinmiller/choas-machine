@@ -139,7 +139,18 @@ export default {
   'forge': {
     'tier': 'Nivå {n}',
     'build': 'Bygg',
-    'top': 'Högsta nivå'
+    'top': 'Högsta nivå',
+    'lead': 'Alla vapen är dina från start. Smedjan får dem att slå hårdare.',
+    'gain': 'Nästa nivå: +{n} % skada',
+    'infoOpen': 'Vad gör Smedjan?',
+    'infoTitle': 'Smedjan',
+    'info': {
+      'lead': 'Du bär redan alla tre vapnen. Att bygga en nivå här gör vapnet starkare i varje uppdrag efteråt.',
+      'tiers': 'Nivå: varje stapel är en nivå. Varje vapen börjar på nivå 1 och går upp till nivå {max}.',
+      'blueprints': 'Ritningar: "1/2" betyder att du har 1 av de 2 ritningar som nästa nivå kräver. Varje uppdrag du tar dig ur ger en, för ett vapen i taget; Spöke-medaljen ger en till.',
+      'scrap': 'Teknikskrot: priset för nästa nivå. Bärgning, nedtagningar, skallskott och ässjan efter ett uppdrag ger det.',
+      'build': 'Bygg: har du ritningarna och skrotet går vapnet upp en nivå direkt: +{n} % skada för varje nivå.'
+    }
   },
   'smithy': {
     'furnace': 'Ässja: håll bälgen så att värmen stannar i bandet',

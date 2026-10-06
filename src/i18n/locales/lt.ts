@@ -139,7 +139,18 @@ export default {
   'forge': {
     'tier': '{n} pakopa',
     'build': 'Gaminti',
-    'top': 'Aukščiausia pakopa'
+    'top': 'Aukščiausia pakopa',
+    'lead': 'Kiekvienas ginklas tavo nuo pat pradžių. Kalvė priverčia jį smogti stipriau.',
+    'gain': 'Kita pakopa: +{n} % žalos',
+    'infoOpen': 'Ką daro Kalvė?',
+    'infoTitle': 'Kalvė',
+    'info': {
+      'lead': 'Visus tris ginklus jau nešiojiesi. Čia pakėlus pakopą, tas ginklas tampa stipresnis kiekvienoje vėlesnėje misijoje.',
+      'tiers': 'Pakopa: kiekviena juosta yra viena pakopa. Kiekvienas ginklas pradeda nuo 1 pakopos ir kyla iki {max} pakopos.',
+      'blueprints': 'Brėžiniai: "1/2" reiškia, kad turi 1 iš 2 brėžinių, kurių reikia kitai pakopai. Kiekviena misija, iš kurios išsikapstai, atneša vieną, paeiliui kiekvienam ginklui; Vaiduoklio medalis atneša antrą.',
+      'scrap': 'Technikos laužas: kitos pakopos kaina. Jį uždirbi rinkdamas laužą, nukovimais, šūviais į galvą ir krosnimi po misijos.',
+      'build': 'Gaminti: kai turi brėžinius ir laužą, ginklas iškart pakyla viena pakopa: +{n} % žalos už kiekvieną pakopą.'
+    }
   },
   'smithy': {
     'furnace': 'Krosnis: laikyk dumples, kad karštis liktų juostoje',

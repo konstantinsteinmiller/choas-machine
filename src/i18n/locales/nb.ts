@@ -139,7 +139,18 @@ export default {
   'forge': {
     'tier': 'Trinn {n}',
     'build': 'Bygg',
-    'top': 'Høyeste trinn'
+    'top': 'Høyeste trinn',
+    'lead': 'Alle våpen er dine fra start. Smia får dem til å treffe hardere.',
+    'gain': 'Neste trinn: +{n} % skade',
+    'infoOpen': 'Hva gjør Smia?',
+    'infoTitle': 'Smia',
+    'info': {
+      'lead': 'Du bærer allerede alle tre våpnene. Bygger du et trinn her, blir våpenet sterkere i alle oppdrag etterpå.',
+      'tiers': 'Trinn: hver strek er ett trinn. Hvert våpen starter på trinn 1 og går opp til trinn {max}.',
+      'blueprints': 'Tegninger: "1/2" betyr at du har 1 av de 2 tegningene neste trinn trenger. Hvert oppdrag du kommer deg ut av gir én, for ett våpen om gangen; Spøkelse-medaljen gir en til.',
+      'scrap': 'Teknoskrap: prisen på neste trinn. Berging, nedkjempinger, hodeskudd og essen etter et oppdrag gir det.',
+      'build': 'Bygg: har du tegningene og skrapet, går våpenet opp ett trinn med en gang: +{n} % skade for hvert trinn.'
+    }
   },
   'smithy': {
     'furnace': 'Esse: hold blåsebelgen så varmen blir i båndet',

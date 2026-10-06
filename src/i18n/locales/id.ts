@@ -139,7 +139,18 @@ export default {
   'forge': {
     'tier': 'Tingkat {n}',
     'build': 'Buat',
-    'top': 'Tingkat tertinggi'
+    'top': 'Tingkat tertinggi',
+    'lead': 'Setiap senjata milikmu sejak awal. Tempa membuatnya memukul lebih keras.',
+    'gain': 'Tingkat berikutnya: +{n}% damage',
+    'infoOpen': 'Apa fungsi Tempa?',
+    'infoTitle': 'Tempa',
+    'info': {
+      'lead': 'Kamu sudah membawa ketiga senjata. Membangun satu tingkat di sini membuat senjata itu lebih kuat di setiap misi setelahnya.',
+      'tiers': 'Tingkat: tiap bilah adalah satu tingkat. Setiap senjata mulai dari tingkat 1 dan naik sampai tingkat {max}.',
+      'blueprints': 'Cetak Biru: "1/2" berarti kamu punya 1 dari 2 cetak biru yang dibutuhkan tingkat berikutnya. Setiap misi yang kamu selesaikan memberi satu, bergiliran untuk tiap senjata; medali Hantu memberi yang kedua.',
+      'scrap': 'Rongsok Teknologi: harga tingkat berikutnya. Didapat dari mengumpulkan rongsokan, penumbangan, tembakan kepala, dan tungku setelah misi.',
+      'build': 'Buat: setelah cetak biru dan rongsok terkumpul, senjata langsung naik satu tingkat: +{n}% damage untuk setiap tingkat.'
+    }
   },
   'smithy': {
     'furnace': 'Tungku: tahan ububan agar panas tetap di pita',

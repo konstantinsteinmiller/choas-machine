@@ -139,7 +139,18 @@ export default {
   'forge': {
     'tier': 'Luokka {n}',
     'build': 'Rakenna',
-    'top': 'Ylin luokka'
+    'top': 'Ylin luokka',
+    'lead': 'Jokainen ase on sinun alusta asti. Paja saa sen iskemään kovempaa.',
+    'gain': 'Seuraava luokka: +{n} % vahinkoa',
+    'infoOpen': 'Mitä Paja tekee?',
+    'infoTitle': 'Paja',
+    'info': {
+      'lead': 'Kannat jo mukanasi kaikkia kolmea asetta. Luokan rakentaminen täällä tekee aseesta vahvemman jokaisessa sen jälkeisessä tehtävässä.',
+      'tiers': 'Luokka: jokainen palkki on yksi luokka. Jokainen ase alkaa luokasta 1 ja nousee luokkaan {max} asti.',
+      'blueprints': 'Piirustukset: "1/2" tarkoittaa, että sinulla on 1 niistä 2 piirustuksesta, joita seuraava luokka vaatii. Jokainen tehtävä, josta pääset ulos, tuo yhden, vuorotellen jokaiselle aseelle; Haamu-mitali tuo toisen.',
+      'scrap': 'Teknoromu: seuraavan luokan hinta. Sitä ansaitaan romun keräämisestä, kaadoista, päähaavoista ja ahjosta tehtävän jälkeen.',
+      'build': 'Rakenna: kun piirustukset ja romu ovat kädessä, ase nousee heti yhden luokan: +{n} % vahinkoa jokaista luokkaa kohden.'
+    }
   },
   'smithy': {
     'furnace': 'Ahjo: pidä palkeita pohjassa, jotta kuumuus pysyy alueella',

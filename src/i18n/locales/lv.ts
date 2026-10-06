@@ -139,7 +139,18 @@ export default {
   'forge': {
     'tier': '{n}. pakāpe',
     'build': 'Izgatavot',
-    'top': 'Augstākā pakāpe'
+    'top': 'Augstākā pakāpe',
+    'lead': 'Katrs ierocis ir tavs jau no paša sākuma. Kalve liek tam sist stiprāk.',
+    'gain': 'Nākamā pakāpe: +{n}% bojājumu',
+    'infoOpen': 'Ko dara Kalve?',
+    'infoTitle': 'Kalve',
+    'info': {
+      'lead': 'Visus trīs ieročus tu jau nēsā līdzi. Izgatavojot šeit pakāpi, šis ierocis kļūst stiprāks katrā nākamajā misijā.',
+      'tiers': 'Pakāpe: katra josla ir viena pakāpe. Katrs ierocis sākas ar 1. pakāpi un paceļas līdz {max}. pakāpei.',
+      'blueprints': 'Rasējumi: "1/2" nozīmē, ka tev ir 1 no 2 rasējumiem, kas vajadzīgi nākamajai pakāpei. Katra misija, no kuras tiec ārā, atnes vienu, pēc kārtas katram ierocim; medaļa Rēgs atnes otru.',
+      'scrap': 'Tehnikas lūžņi: nākamās pakāpes cena. Tos var nopelnīt, vācot lūžņus, nogalinot, ar šāvieniem galvā un ar krāsni pēc misijas.',
+      'build': 'Izgatavot: kad rokās ir rasējumi un lūžņi, ierocis uzreiz paceļas par vienu pakāpi: +{n}% bojājumu par katru pakāpi.'
+    }
   },
   'smithy': {
     'furnace': 'Krāsns: turi plēšas, lai karstums paliktu joslā',

@@ -69,14 +69,16 @@ describe('no one-shot', () => {
   })
 })
 
-describe('no blade', () => {
-  it('a boss cannot be taken from behind', () => {
+describe('the blade and the bosses', () => {
+  it('the Warden is a person: a precise blade takes him from behind, never face to face (R74)', () => {
     const f = new FortressBuilder('t', 24, 24).ground(0, 0, 23, 23).insert(1, 1).extract(22, 22)
       .commander([[12, 12]], 0).build()
     const gar = makeGarrison(f)
     const w = gar.units[0]!
     // Right behind him (he faces +z), looking at his back.
-    expect(findStrike(gar, f.grid, w.x, 0, w.z - 1.2, 0, true)).toBeNull()
+    expect(findStrike(gar, f.grid, w.x, 0, w.z - 1.2, 0, true)).toEqual({ id: w.id, kind: 'backstab' })
+    // In front of him: no one-stroke kill.
+    expect(findStrike(gar, f.grid, w.x, 0, w.z + 1.2, Math.PI, true)).toBeNull()
     // The same spot behind a guard would be a strike.
     const g = new FortressBuilder('t', 24, 24).ground(0, 0, 23, 23).insert(1, 1).extract(22, 22)
       .guard([[12, 12]], 0).build()

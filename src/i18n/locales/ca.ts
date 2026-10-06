@@ -139,7 +139,18 @@ export default {
   'forge': {
     'tier': 'Nivell {n}',
     'build': 'Construeix',
-    'top': 'Nivell màxim'
+    'top': 'Nivell màxim',
+    'lead': 'Totes les armes són teves des del principi. La Farga fa que colpegin més fort.',
+    'gain': 'Nivell següent: +{n} % de dany',
+    'infoOpen': 'Què fa la Farga?',
+    'infoTitle': 'La Farga',
+    'info': {
+      'lead': 'Ja portes les tres armes. Construir un nivell aquí fa que aquesta arma sigui més forta a totes les missions següents.',
+      'tiers': 'Nivell: cada barra és un nivell. Cada arma comença al nivell 1 i arriba fins al nivell {max}.',
+      'blueprints': 'Plànols: "1/2" vol dir que tens 1 dels 2 plànols que necessita el nivell següent. Cada missió de la qual surts en dona un, per a cada arma pel seu torn; la medalla Fantasma en dona un segon.',
+      'scrap': "Ferralla tècnica: el preu del nivell següent. La guanyen la recuperació de ferralla, les eliminacions, els trets al cap i el forn després d'una missió.",
+      'build': "Construeix: amb els plànols i la ferralla a la mà, l'arma puja un nivell a l'instant: +{n} % de dany per cada nivell."
+    }
   },
   'smithy': {
     'furnace': 'Forn: mantén la manxa perquè la calor quedi a la franja',

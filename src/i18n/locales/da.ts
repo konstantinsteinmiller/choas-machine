@@ -139,7 +139,18 @@ export default {
   'forge': {
     'tier': 'Trin {n}',
     'build': 'Byg',
-    'top': 'Højeste trin'
+    'top': 'Højeste trin',
+    'lead': 'Hvert våben er dit fra start. Smedjen får det til at ramme hårdere.',
+    'gain': 'Næste trin: +{n} % skade',
+    'infoOpen': 'Hvad gør Smedjen?',
+    'infoTitle': 'Smedjen',
+    'info': {
+      'lead': 'Du bærer allerede alle tre våben. Bygger du et trin her, bliver det våben stærkere i alle missioner bagefter.',
+      'tiers': 'Trin: hver streg er ét trin. Hvert våben starter på trin 1 og kan nå op til trin {max}.',
+      'blueprints': 'Tegninger: "1/2" betyder, at du har 1 af de 2 tegninger, som næste trin kræver. Hver mission, du slipper ud af, giver én, for ét våben ad gangen; medaljen Spøgelse giver endnu en.',
+      'scrap': 'Teknoskrot: prisen på næste trin. Du tjener det på bjærgning, nedtagninger, hovedskud og essen efter en mission.',
+      'build': 'Byg: har du tegningerne og skrottet, rykker våbnet straks et trin op: +{n} % skade for hvert trin.'
+    }
   },
   'smithy': {
     'furnace': 'Esse: hold blæsebælgen så varmen bliver i båndet',

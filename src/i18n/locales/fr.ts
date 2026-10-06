@@ -139,7 +139,18 @@ export default {
   'forge': {
     'tier': 'Rang {n}',
     'build': 'Fabriquer',
-    'top': 'Rang maximal'
+    'top': 'Rang maximal',
+    'lead': 'Toutes les armes sont à toi dès le départ. La Forge les fait frapper plus fort.',
+    'gain': 'Rang suivant : +{n} % de dégâts',
+    'infoOpen': 'À quoi sert la Forge ?',
+    'infoTitle': 'La Forge',
+    'info': {
+      'lead': 'Tu portes déjà les trois armes. Monter un rang ici rend cette arme plus puissante dans toutes les missions qui suivent.',
+      'tiers': "Rang : chaque barre est un rang. Chaque arme commence au rang 1 et monte jusqu'au rang {max}.",
+      'blueprints': 'Plans : "1/2" veut dire que tu as 1 des 2 plans dont le rang suivant a besoin. Chaque mission dont tu sors en rapporte un, pour chaque arme à tour de rôle ; la médaille Fantôme en rapporte un deuxième.',
+      'scrap': 'Ferraille tech : le prix du rang suivant. La récupération, les neutralisations, les tirs à la tête et le fourneau après une mission en rapportent.',
+      'build': "Fabriquer : avec les plans et la ferraille en main, l'arme monte d'un rang aussitôt : +{n} % de dégâts par rang."
+    }
   },
   'smithy': {
     'furnace': 'Fourneau : maintiens le soufflet pour garder la chaleur dans la zone',

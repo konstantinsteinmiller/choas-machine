@@ -139,7 +139,18 @@ export default {
   'forge': {
     'tier': 'Poziom {n}',
     'build': 'Buduj',
-    'top': 'Najwyższy poziom'
+    'top': 'Najwyższy poziom',
+    'lead': 'Każda broń jest twoja od początku. Kuźnia sprawia, że uderza mocniej.',
+    'gain': 'Następny poziom: +{n}% obrażeń',
+    'infoOpen': 'Co robi Kuźnia?',
+    'infoTitle': 'Kuźnia',
+    'info': {
+      'lead': 'Nosisz już wszystkie trzy bronie. Zbudowanie tu poziomu czyni tę broń silniejszą w każdej kolejnej misji.',
+      'tiers': 'Poziom: każdy pasek to jeden poziom. Każda broń zaczyna na poziomie 1 i dochodzi do poziomu {max}.',
+      'blueprints': 'Schematy: "1/2" oznacza, że masz 1 z 2 schematów potrzebnych na następny poziom. Każda misja, z której wyjdziesz, daje jeden, po kolei dla każdej broni; medal Duch daje drugi.',
+      'scrap': 'Złom techniczny: cena następnego poziomu. Zarabiasz go za zbieranie złomu, eliminacje, strzały w głowę oraz w piecu po misji.',
+      'build': 'Buduj: gdy masz schematy i złom, broń od razu zyskuje poziom: +{n}% obrażeń za każdy poziom.'
+    }
   },
   'smithy': {
     'furnace': 'Piec: przytrzymaj miech, by utrzymać żar w pasie',

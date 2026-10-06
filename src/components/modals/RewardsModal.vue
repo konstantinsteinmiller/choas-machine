@@ -1,68 +1,73 @@
 <template lang="pug">
   //- The tally after an extraction: what the run was, what it earned.
   FModal(:model-value="open" :title="t('rewards.title')" :is-closable="false" data-testid="rewards")
+    //- The furnace's game (R74) plays in the tally's own place, over its
+    //- numbers, from the top: the two share one grid cell, so nothing is
+    //- pushed below the fold and the panel does not jump when it ends.
     div.tally(v-if="pay && run")
-      //- The three medals, lit one after another.
-      div.medals
-        div.medal(v-for="(m, i) in MEDAL_IDS" :key="m" :class="{ won: pay.medals[m], shown: step > i }")
-          GameIcon.medal-icon(:name="MEDAL_ICONS[m]")
-          span.medal-name {{ t(`medal.${m}`) }}
-      dl.lines
-        div.line
-          dt {{ t('rewards.time') }}
-          dd {{ formatClock(run.time) }}
-        div.line
-          dt {{ t('rewards.kills') }}
-          dd {{ run.kills }}
-        div.line
-          dt {{ t('rewards.headshots') }}
-          dd {{ run.headshots }}
-        div.line.score
-          dt {{ t('rewards.score') }}
-          dd
-            span.best(v-if="isBest") {{ t('rewards.newBest') }}
-            | {{ fmt(score) }}
-      //- Where that puts the player in the world.
-      div.rank
-        RankBadge(:score="campaign")
-      //- What goes into the wallet.
-      div.loot
-        div.item.scrap(:title="t('base.scrap')")
-          GameIcon(name="scrap")
-          span(data-testid="reward-scrap") +{{ fmt(scrap) }}
-        div.item.cores(v-if="pay.cores > 0" :title="t('base.cores')")
-          GameIcon(name="core")
-          span +{{ pay.cores }}
-        div.item.bp(v-for="(w, i) in pay.blueprints" :key="i" :title="t('base.blueprints')")
-          GameIcon(name="blueprint")
-          GameIcon.of(:name="w")
-      //- The haul into the furnace (#75): kept in the band, it melts for a
-      //- bonus. Optional: Continue keeps the haul as it is.
-      div.melt(v-if="meltMax > 0 || melted")
-        FButton(
-          v-if="!melting && !melted"
-          type="warning"
-          size="md"
-          icon="flame"
-          icon-position="left"
-          attention
-          :aria-label="t('melt.start', { n: fmt(meltMax) })"
-          data-testid="melt-start"
-          @click="melting = true"
-        ) {{ t('melt.start', { n: fmt(meltMax) }) }}
-        FurnaceGame(v-else-if="melting" @done="onMelt")
-        div.melted(v-else-if="melted" data-testid="melt-result")
-          div.stars(role="img" :aria-label="t('smithy.stars', { n: melted.stars })")
-            GameIcon(v-for="n in 3" :key="n" :name="n <= melted.stars ? 'star' : 'star-empty'" :class="{ on: n <= melted.stars }")
-          span.bonus(v-if="melted.bonus > 0")
+      div.metrics(:class="{ covered: melting }" :aria-hidden="melting")
+        //- The three medals, lit one after another.
+        div.medals
+          div.medal(v-for="(m, i) in MEDAL_IDS" :key="m" :class="{ won: pay.medals[m], shown: step > i }")
+            GameIcon.medal-icon(:name="MEDAL_ICONS[m]")
+            span.medal-name {{ t(`medal.${m}`) }}
+        dl.lines
+          div.line
+            dt {{ t('rewards.time') }}
+            dd {{ formatClock(run.time) }}
+          div.line
+            dt {{ t('rewards.kills') }}
+            dd {{ run.kills }}
+          div.line
+            dt {{ t('rewards.headshots') }}
+            dd {{ run.headshots }}
+          div.line.score
+            dt {{ t('rewards.score') }}
+            dd
+              span.best(v-if="isBest") {{ t('rewards.newBest') }}
+              | {{ fmt(score) }}
+        //- Where that puts the player in the world.
+        div.rank
+          RankBadge(:score="campaign")
+        //- What goes into the wallet.
+        div.loot
+          div.item.scrap(:title="t('base.scrap')")
             GameIcon(name="scrap")
-            | +{{ fmt(melted.bonus) }}
+            span(data-testid="reward-scrap") +{{ fmt(scrap) }}
+          div.item.cores(v-if="pay.cores > 0" :title="t('base.cores')")
+            GameIcon(name="core")
+            span +{{ pay.cores }}
+          div.item.bp(v-for="(w, i) in pay.blueprints" :key="i" :title="t('base.blueprints')")
+            GameIcon(name="blueprint")
+            GameIcon.of(:name="w")
+        //- The haul into the furnace (#75): kept in the band, it melts for a
+        //- bonus. Optional: Continue keeps the haul as it is.
+        div.melt(v-if="meltMax > 0 || melted")
+          FButton(
+            v-if="!melting && !melted"
+            type="warning"
+            size="md"
+            icon="flame"
+            icon-position="left"
+            attention
+            :aria-label="t('melt.start', { n: fmt(meltMax) })"
+            data-testid="melt-start"
+            @click="startMelt"
+          ) {{ t('melt.start', { n: fmt(meltMax) }) }}
+          div.melted(v-else-if="melted" data-testid="melt-result")
+            div.stars(role="img" :aria-label="t('smithy.stars', { n: melted.stars })")
+              GameIcon(v-for="n in 3" :key="n" :name="n <= melted.stars ? 'star' : 'star-empty'" :class="{ on: n <= melted.stars }")
+            span.bonus(v-if="melted.bonus > 0")
+              GameIcon(name="scrap")
+              | +{{ fmt(melted.bonus) }}
+      div.melt-stage(v-if="melting" ref="stage" data-testid="melt-stage")
+        FurnaceGame(@done="onMelt")
     template(#footer)
       FButton(size="lg" icon="home" data-testid="btn-to-base" @click="toBase") {{ t('rewards.continue') }}
 </template>
 
 <script setup lang="ts">
-import { computed, onUnmounted, ref, watch } from 'vue'
+import { computed, nextTick, onUnmounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import FModal from '@/components/molecules/FModal.vue'
 import FButton from '@/components/atoms/FButton.vue'
@@ -144,6 +149,13 @@ watch(open, (o) => {
   melted.value = null
   meltMax.value = haulToMelt()
 }, { immediate: true })
+/** The game over the tally, its top in view (the panel scrolled to it). */
+const stage = ref<HTMLElement | null>(null)
+const startMelt = async (): Promise<void> => {
+  melting.value = true
+  await nextTick()
+  stage.value?.scrollIntoView({ block: 'start', behavior: 'smooth' })
+}
 const onMelt = (quality: number): void => {
   melting.value = false
   const r = meltHaul(quality)
@@ -186,10 +198,23 @@ const toBase = (): void => { void leaveResults('base') }
     :deep(svg)
       width: 1.2em
       height: 1.2em
+// The numbers and the furnace's game share one cell: the game lies over the
+// numbers from the top while it plays (R74), and they are back after.
 .tally
+  display: grid
+.metrics, .melt-stage
+  grid-area: 1 / 1
+.metrics
   display: flex
   flex-direction: column
   gap: clamp(0.5rem, 2.2vmin, 1rem)
+  &.covered
+    visibility: hidden
+.melt-stage
+  align-self: start
+  display: flex
+  justify-content: center
+  scroll-margin-top: 0.5rem
 .medals
   display: flex
   justify-content: center

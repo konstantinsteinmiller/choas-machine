@@ -139,7 +139,18 @@ export default {
   'forge': {
     'tier': 'Kademe {n}',
     'build': 'Üret',
-    'top': 'En üst kademe'
+    'top': 'En üst kademe',
+    'lead': 'Her silah en baştan senin. Demirhane onu daha sert vurdurur.',
+    'gain': 'Sonraki kademe: +%{n} hasar',
+    'infoOpen': 'Demirhane ne işe yarar?',
+    'infoTitle': 'Demirhane',
+    'info': {
+      'lead': 'Üç silahı da zaten taşıyorsun. Burada bir kademe üretmek, o silahı sonraki her görevde daha güçlü yapar.',
+      'tiers': 'Kademe: her çubuk bir kademedir. Her silah 1. kademeden başlar ve {max}. kademeye kadar çıkar.',
+      'blueprints': 'Planlar: "1/2", sonraki kademenin gerektirdiği 2 plandan 1\'ine sahip olduğun anlamına gelir. Sağ çıktığın her görev, her silah için sırayla bir plan getirir; Hayalet madalyası ikincisini getirir.',
+      'scrap': 'Teknik Hurda: sonraki kademenin bedeli. Hurda toplama, etkisiz hale getirmeler, kafadan vuruşlar ve görev sonrası ocak kazandırır.',
+      'build': 'Üret: planlar ve hurda elindeyse silah hemen bir kademe yükselir: her kademe için +%{n} hasar.'
+    }
   },
   'smithy': {
     'furnace': 'Ocak: ısıyı bantta tutmak için körüğü basılı tut',

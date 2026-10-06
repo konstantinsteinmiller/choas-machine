@@ -139,7 +139,18 @@ export default {
   'forge': {
     'tier': 'Grado {n}',
     'build': 'Costruisci',
-    'top': 'Grado massimo'
+    'top': 'Grado massimo',
+    'lead': "Ogni arma è tua fin dall'inizio. La Fucina la fa colpire più forte.",
+    'gain': 'Grado successivo: +{n}% di danno',
+    'infoOpen': 'Cosa fa la Fucina?',
+    'infoTitle': 'La Fucina',
+    'info': {
+      'lead': "Hai già con te tutte e tre le armi. Costruire un grado qui rende quell'arma più forte in ogni missione successiva.",
+      'tiers': 'Grado: ogni barra è un grado. Ogni arma parte dal grado 1 e sale fino al grado {max}.',
+      'blueprints': 'Progetti: "1/2" significa che hai 1 dei 2 progetti che servono al grado successivo. Ogni missione da cui esci ne porta uno, a turno per ogni arma; la medaglia Fantasma ne porta un secondo.',
+      'scrap': 'Rottami tech: il prezzo del grado successivo. Si guadagnano con il recupero di rottami, le eliminazioni, i colpi alla testa e la fornace dopo una missione.',
+      'build': "Costruisci: con i progetti e i rottami in mano, l'arma sale subito di un grado: +{n}% di danno per ogni grado."
+    }
   },
   'smithy': {
     'furnace': 'Fornace: tieni premuto il mantice per tenere il calore nella fascia',

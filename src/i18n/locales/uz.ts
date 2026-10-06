@@ -139,7 +139,18 @@ export default {
   'forge': {
     'tier': '{n}-pog\'ona',
     'build': 'Yasash',
-    'top': 'Eng yuqori pog\'ona'
+    'top': 'Eng yuqori pog\'ona',
+    'lead': 'Har bir qurol boshidan seniki. Temirchilik uni kuchliroq urdiradi.',
+    'gain': "Keyingi pog'ona: +{n}% zarar",
+    'infoOpen': 'Temirchilik nima qiladi?',
+    'infoTitle': 'Temirchilik',
+    'info': {
+      'lead': "Uchala qurol ham allaqachon sendan. Bu yerda pog'ona qurish o'sha qurolni keyingi har bir missiyada kuchliroq qiladi.",
+      'tiers': "Pog'ona: har bir yo'l bitta pog'ona. Har bir qurol 1-pog'onadan boshlanadi va {max}-pog'onagacha ko'tariladi.",
+      'blueprints': 'Chizmalar: "1/2" keyingi pog\'ona uchun kerak bo\'lgan 2 ta chizmadan 1 tasi sendaligini bildiradi. Sen chiqib ketgan har bir missiya bittadan chizma beradi, har bir qurol uchun navbatma-navbat; Arvoh medali ikkinchisini beradi.',
+      'scrap': "Tex-parchalar: keyingi pog'onaning narxi. Uni temir-tersak yig'ish, yo'q qilishlar, boshga otishlar va missiyadan keyingi pech beradi.",
+      'build': "Yasash: chizmalar va parchalar qo'lingda bo'lsa, qurol darhol bir pog'ona ko'tariladi: har pog'ona uchun +{n}% zarar."
+    }
   },
   'smithy': {
     'furnace': 'Pech: issiqlik chiziqda qolishi uchun damni bosib tur',

@@ -139,7 +139,18 @@ export default {
   'forge': {
     'tier': 'Grado {n}',
     'build': 'Konstrui',
-    'top': 'Plej alta grado'
+    'top': 'Plej alta grado',
+    'lead': 'Ĉiu armilo estas via de la komenco. La Forĝejo igas ĝin frapi pli forte.',
+    'gain': 'Sekva grado: +{n}% damaĝo',
+    'infoOpen': 'Kion faras la Forĝejo?',
+    'infoTitle': 'La Forĝejo',
+    'info': {
+      'lead': 'Vi jam portas ĉiujn tri armilojn. Konstrui gradon ĉi tie plifortigas tiun armilon en ĉiu posta misio.',
+      'tiers': 'Grado: ĉiu stango estas unu grado. Ĉiu armilo komencas ĉe grado 1 kaj altiĝas ĝis grado {max}.',
+      'blueprints': 'Planoj: "1/2" signifas, ke vi havas 1 el la 2 planoj, kiujn la sekva grado bezonas. Ĉiu misio, el kiu vi eliras, donas unu, por ĉiu armilo laŭvice; la medalo Fantomo donas duan.',
+      'scrap': 'Teknorestaĵoj: la prezo de la sekva grado. Ilin gajnas rubaĵkolekto, neŭtraligoj, kappafoj kaj la forno post misio.',
+      'build': 'Konstrui: kiam vi havas la planojn kaj la restaĵojn, la armilo tuj altiĝas je unu grado: +{n}% damaĝo por ĉiu grado.'
+    }
   },
   'smithy': {
     'furnace': 'Forno: tenu la blovilon por teni la varmon en la bendo',

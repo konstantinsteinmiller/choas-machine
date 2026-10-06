@@ -139,7 +139,18 @@ export default {
   'forge': {
     'tier': 'Bậc {n}',
     'build': 'Chế tạo',
-    'top': 'Bậc cao nhất'
+    'top': 'Bậc cao nhất',
+    'lead': 'Mọi vũ khí đều là của bạn ngay từ đầu. Lò rèn giúp chúng đánh mạnh hơn.',
+    'gain': 'Bậc tiếp theo: +{n}% sát thương',
+    'infoOpen': 'Lò rèn làm gì?',
+    'infoTitle': 'Lò rèn',
+    'info': {
+      'lead': 'Bạn đã mang theo cả ba vũ khí. Chế tạo một bậc ở đây sẽ làm vũ khí đó mạnh hơn trong mọi nhiệm vụ sau đó.',
+      'tiers': 'Bậc: mỗi thanh là một bậc. Mỗi vũ khí bắt đầu từ bậc 1 và lên đến bậc {max}.',
+      'blueprints': 'Bản thiết kế: "1/2" nghĩa là bạn có 1 trong 2 bản thiết kế mà bậc tiếp theo cần. Mỗi nhiệm vụ bạn thoát ra được sẽ mang về một bản, lần lượt cho từng vũ khí; huy chương Bóng ma mang về bản thứ hai.',
+      'scrap': 'Phế liệu công nghệ: giá của bậc tiếp theo. Bạn kiếm được nhờ thu gom phế liệu, hạ gục, bắn headshot và lò nung sau nhiệm vụ.',
+      'build': 'Chế tạo: có đủ bản thiết kế và phế liệu trong tay, vũ khí lên một bậc ngay lập tức: +{n}% sát thương cho mỗi bậc.'
+    }
   },
   'smithy': {
     'furnace': 'Lò rèn: giữ ống bễ để giữ nhiệt trong dải',

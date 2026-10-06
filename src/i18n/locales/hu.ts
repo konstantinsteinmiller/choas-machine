@@ -139,7 +139,18 @@ export default {
   'forge': {
     'tier': '{n}. fokozat',
     'build': 'Építés',
-    'top': 'Legmagasabb fokozat'
+    'top': 'Legmagasabb fokozat',
+    'lead': 'Minden fegyver a tiéd az elejétől fogva. A Kovácsműhely erősebb találatot ad nekik.',
+    'gain': 'Következő fokozat: +{n}% sebzés',
+    'infoOpen': 'Mit csinál a Kovácsműhely?',
+    'infoTitle': 'A Kovácsműhely',
+    'info': {
+      'lead': 'Mindhárom fegyvert már magadnál hordod. Ha itt fokozatot építesz, a fegyver erősebb lesz minden utána következő küldetésben.',
+      'tiers': 'Fokozat: minden sáv egy fokozat. Minden fegyver az 1. fokozatról indul, és {max}. fokozatig fejlődik.',
+      'blueprints': 'Tervrajzok: az "1/2" azt jelenti, hogy a következő fokozathoz szükséges 2 tervrajzból 1 megvan. Minden küldetés, amelyből kijutsz, hoz egyet, sorban minden fegyverhez; a Szellem-érem egy másodikat hoz.',
+      'scrap': 'Techhulladék: a következő fokozat ára. Hulladékgyűjtés, kiiktatások, fejlövések és a küldetés utáni kemence hoz belőle.',
+      'build': 'Építés: ha megvan a tervrajz és a hulladék, a fegyver azonnal egy fokozatot lép előre: fokozatonként +{n}% sebzés.'
+    }
   },
   'smithy': {
     'furnace': 'Kemence: tartsd a fújtatót, hogy a hő a sávban maradjon',

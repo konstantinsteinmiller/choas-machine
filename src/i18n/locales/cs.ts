@@ -139,7 +139,18 @@ export default {
   'forge': {
     'tier': 'Stupeň {n}',
     'build': 'Vyrobit',
-    'top': 'Nejvyšší stupeň'
+    'top': 'Nejvyšší stupeň',
+    'lead': 'Každá zbraň je tvoje od začátku. V Kovárně začne zasahovat silněji.',
+    'gain': 'Další stupeň: +{n} % poškození',
+    'infoOpen': 'Co dělá Kovárna?',
+    'infoTitle': 'Kovárna',
+    'info': {
+      'lead': 'Všechny tři zbraně už nosíš u sebe. Vybudováním stupně tu zbraň zesílíš pro každou další misi.',
+      'tiers': 'Stupeň: každý pruh je jeden stupeň. Každá zbraň začíná na stupni 1 a dostane se až na stupeň {max}.',
+      'blueprints': 'Plány: "1/2" znamená, že máš 1 ze 2 plánů, které další stupeň potřebuje. Každá mise, ze které vyvázneš, přinese jeden plán, postupně pro každou zbraň; medaile Duch přinese druhý.',
+      'scrap': 'Techno šrot: cena dalšího stupně. Získáš ho za sběr šrotu, likvidace, zásahy do hlavy a pec po misi.',
+      'build': 'Vyrobit: když máš plány i šrot, zbraň okamžitě postoupí o stupeň: +{n} % poškození za každý stupeň.'
+    }
   },
   'smithy': {
     'furnace': 'Pec: drž měch, ať žár zůstane v pásu',

@@ -139,7 +139,18 @@ export default {
   'forge': {
     'tier': 'Stufe {n}',
     'build': 'Bauen',
-    'top': 'Höchste Stufe'
+    'top': 'Höchste Stufe',
+    'lead': 'Jede Waffe gehört dir von Anfang an. Die Schmiede lässt sie härter treffen.',
+    'gain': 'Nächste Stufe: +{n}% Schaden',
+    'infoOpen': 'Was macht die Schmiede?',
+    'infoTitle': 'Die Schmiede',
+    'info': {
+      'lead': 'Du trägst bereits alle drei Waffen. Baust du hier eine Stufe, wird diese Waffe in jedem Einsatz danach stärker.',
+      'tiers': 'Stufe: Jeder Balken ist eine Stufe. Jede Waffe beginnt auf Stufe 1 und steigt bis Stufe {max}.',
+      'blueprints': 'Baupläne: "1/2" heißt, du hast 1 von den 2 Bauplänen, die die nächste Stufe braucht. Jeder Einsatz, aus dem du herauskommst, bringt einen, reihum für jede Waffe; die Geist-Medaille bringt einen zweiten.',
+      'scrap': 'Techschrott: der Preis der nächsten Stufe. Bergung, Ausschaltungen, Kopftreffer und der Schmelzofen nach einem Einsatz bringen ihn ein.',
+      'build': 'Bauen: Hast du die Baupläne und den Schrott beisammen, steigt die Waffe sofort eine Stufe auf: +{n}% Schaden pro Stufe.'
+    }
   },
   'smithy': {
     'furnace': 'Schmelzofen: Blasebalg halten, damit die Hitze im Band bleibt',

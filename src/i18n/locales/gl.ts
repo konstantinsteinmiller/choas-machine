@@ -139,7 +139,18 @@ export default {
   'forge': {
     'tier': 'Nivel {n}',
     'build': 'Fabricar',
-    'top': 'Nivel máximo'
+    'top': 'Nivel máximo',
+    'lead': 'Todas as armas son túas desde o principio. A Forxa fai que peguen máis forte.',
+    'gain': 'Seguinte nivel: +{n} % de dano',
+    'infoOpen': 'Que fai a Forxa?',
+    'infoTitle': 'A Forxa',
+    'info': {
+      'lead': 'Xa levas as tres armas. Fabricar un nivel aquí fai que esa arma sexa máis forte en todas as misións seguintes.',
+      'tiers': 'Nivel: cada barra é un nivel. Cada arma comeza no nivel 1 e sobe ata o nivel {max}.',
+      'blueprints': 'Planos: "1/2" significa que tes 1 dos 2 planos que precisa o seguinte nivel. Cada misión da que sales dá un, para cada arma por quendas; a medalla Pantasma dá un segundo.',
+      'scrap': 'Chatarra tec: o prezo do seguinte nivel. Gáñana a chatarra recuperada, as eliminacións, os disparos á cabeza e o forno despois dunha misión.',
+      'build': 'Fabricar: cos planos e a chatarra á man, a arma sobe un nivel ao instante: +{n} % de dano por cada nivel.'
+    }
   },
   'smithy': {
     'furnace': 'Forno: mantén o fol para que a calor quede na franxa',

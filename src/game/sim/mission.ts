@@ -277,8 +277,6 @@ const DRAG_BEHIND = 1.5
 export const DRAG_SLOW = 0.5
 /** How far the shoot lesson looks for a defender in clear sight. */
 const MARK_M = 60
-/** A mini-gun kill on a person takes it apart this often (#64). */
-const MINIGUN_APART = 0.18
 /** A guard's ammo pouch lies where it fell (#76); at most this many lie about at once. */
 const MAX_POUCHES = 24
 /** How near a beacon the mech must be to sabotage it, and how long it takes. */
@@ -2296,13 +2294,6 @@ export class Mission implements GameMode {
             moving: u.speed01, zone: 'other', boss: !!u.boss, kind: camKind(u.kind), stealth: this.quietRaid()
           }
           const cut = this.killBy === 'sniper' ? 'boss' : this.rollKillcam(info)
-          // A mini-gun burst now and then takes a person apart even without a
-          // camera (#64: kill-cams are for stealth headshots now, #85).
-          if (cut === 'none' && this.killBy === 'minigun' && u.rag && !u.boss && Math.random() < MINIGUN_APART) {
-            u.rag = null
-            u.death = 'burst'
-            this.garrisonView.burst(e.id)
-          }
           if (cut === 'boss') {
             // A boss's last blow: its own long, slow orbit.
             this.cine = { kind: 'orbit', t: 0, dur: BOSS_ORBIT_S, id: e.id, yaw: this.cam.yaw + Math.PI * 0.6, final: true, boss: true }
@@ -2312,11 +2303,9 @@ export class Mission implements GameMode {
           } else if (cut !== 'none') {
             // The blade and the last kill get the camera; a burst or a blast
             // in the middle of a fight only gets the slow beat.
+            // A person cut down by the mini-gun falls as a body, on camera; only
+            // machines come apart (#173).
             if (this.killBy === 'minigun' && u.rag && !u.boss && cut === 'full') {
-              // Now and then, on camera, a burst takes a person apart (#64).
-              u.rag = null
-              u.death = 'burst'
-              this.garrisonView.burst(e.id)
               this.cine = { kind: 'orbit', t: 0, dur: 1.6, id: e.id, yaw: this.cam.yaw + Math.PI * 0.6, final }
               mirror('cine', true)
               emit('killcam', { kind: 'orbit', final })

@@ -31,7 +31,7 @@ export const ROPE_STRIKE_REACH = 5.5
 export const ROPE_STRIKE_MIN = 1.4
 export const ROPE_STRIKE_MAX = 9
 
-/** What a rope assassination can take: people and the walking machines, never a boss. */
+/** What a rope assassination can take: people (the Warden too, R74) and the walking machines, never a machine boss. */
 const ropeTarget = (u: Unit): boolean =>
   isHuman(u) || u.kind === 'enforcer' || u.kind === 'roomba' || u.kind === 'hound'
 
@@ -44,7 +44,8 @@ export const findRopeStrike = (gar: Garrison, g: Grid, x: number, y: number, z: 
   let best: Strike | null = null
   let bestScore = Infinity
   for (const u of gar.units) {
-    if (u.state === 'dead' || u.state === 'reserve' || u.state === 'dormant' || !ropeTarget(u) || u.boss || u.armoured) continue
+    // A machine boss is not taken from a rope; the Warden is a person, and a precise blade takes him (R74).
+    if (u.state === 'dead' || u.state === 'reserve' || u.state === 'dormant' || !ropeTarget(u) || (u.boss && !isHuman(u)) || u.armoured) continue
     const dist = Math.hypot(u.x - x, u.z - z)
     const below = y - u.y
     if (dist > ROPE_STRIKE_REACH || below < ROPE_STRIKE_MIN || below > ROPE_STRIKE_MAX) continue
@@ -64,8 +65,9 @@ export const findStrike = (gar: Garrison, g: Grid, x: number, y: number, z: numb
   let best: Strike | null = null
   let bestScore = Infinity
   for (const u of gar.units) {
-    // A boss is not taken quietly: no blade reaches it.
-    if (u.state === 'dead' || u.state === 'reserve' || !isHuman(u) || u.boss || u.armoured) continue
+    // Every person can be assassinated, the Warden too: from behind or from
+    // above (R74); face to face, a boss is not cut down in one stroke.
+    if (u.state === 'dead' || u.state === 'reserve' || !isHuman(u) || u.armoured) continue
     const dist = Math.hypot(u.x - x, u.z - z)
     const above = y - u.y
     let kind: StrikeKind | null = null
@@ -76,7 +78,7 @@ export const findStrike = (gar: Garrison, g: Grid, x: number, y: number, z: numb
       kind = off > BEHIND ? 'backstab' : 'strike'
       if (!hasLineOfSight(g, x, y + 1.2, z, u.x, u.y + 1.2, u.z)) kind = null
     }
-    if (!kind) continue
+    if (!kind || (u.boss && kind === 'strike')) continue
     const score = Math.abs(angleDelta(lookYaw, headingTo(x, z, u.x, u.z))) + dist * 0.15
     if (score < bestScore) { bestScore = score; best = { id: u.id, kind } }
   }

@@ -122,14 +122,20 @@ const forgeReady = computed(() => WEAPON_IDS.some(w => canForge(w)))
   position: absolute
   top: var(--cm-safe-top)
   right: var(--cm-safe-right)
+  // One row: the rank to the left of the wallet (R74). Under the wallet it
+  // sat in the stations' column and the Armory button covered it; a screen
+  // too narrow for the row puts the wallet on a second line instead.
   display: flex
-  flex-direction: column
-  align-items: flex-end
+  flex-direction: row
+  flex-wrap: wrap
+  justify-content: flex-end
+  align-items: center
   gap: var(--gap)
   // Never under the logo on a narrow phone.
   max-width: calc(100% - var(--cm-safe-left) - var(--cm-safe-right) - clamp(2.4rem, 10vmin, 4rem) - var(--gap))
 
 .board
+  order: -1
   display: flex
   align-items: center
   gap: var(--gap)

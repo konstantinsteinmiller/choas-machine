@@ -143,7 +143,18 @@ export default {
   'forge': {
     'tier': 'Tier {n}',
     'build': 'Build',
-    'top': 'Top tier'
+    'top': 'Top tier',
+    'lead': 'Every weapon is yours from the start. The Forge makes it hit harder.',
+    'gain': 'Next tier: +{n}% damage',
+    'infoOpen': 'What does the Forge do?',
+    'infoTitle': 'The Forge',
+    'info': {
+      'lead': 'You already carry all three weapons. Building a tier here makes that weapon stronger in every mission after it.',
+      'tiers': 'Tier: each bar is one tier. Every weapon starts at tier 1 and goes up to tier {max}.',
+      'blueprints': 'Blueprints: "1/2" means you have 1 of the 2 blueprints the next tier needs. Every mission you get out of brings one, for each weapon in turn; the Ghost medal brings a second.',
+      'scrap': 'Tech Scrap: the price of the next tier. Salvage, takedowns, headshots and the furnace after a mission earn it.',
+      'build': 'Build: with the blueprints and the scrap in hand, the weapon goes up a tier at once: +{n}% damage for every tier.'
+    }
   },
   'smithy': {
     'furnace': 'Furnace: hold the bellows to keep the heat in the band',

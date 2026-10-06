@@ -139,7 +139,18 @@ export default {
   'forge': {
     'tier': 'Pillə {n}',
     'build': 'Qur',
-    'top': 'Ən yüksək pillə'
+    'top': 'Ən yüksək pillə',
+    'lead': 'Hər silah əvvəldən səninkidir. Zavod onun zərbəsini gücləndirir.',
+    'gain': 'Növbəti pillə: +{n}% zərər',
+    'infoOpen': 'Zavod nə edir?',
+    'infoTitle': 'Zavod',
+    'info': {
+      'lead': 'Üç silahın hamısı artıq səndədir. Burada pillə qurmaq həmin silahı ondan sonrakı hər tapşırıqda daha güclü edir.',
+      'tiers': 'Pillə: hər zolaq bir pillədir. Hər silah 1-ci pillədən başlayır, ən yüksək pillə isə {max} olur.',
+      'blueprints': 'Cizgilər: "1/2" növbəti pillənin tələb etdiyi 2 cizgidən 1-nin səndə olduğunu bildirir. Çıxa bildiyin hər tapşırıq hər silah üçün növbə ilə bir cizgi gətirir; Kabus medalı ikincisini gətirir.',
+      'scrap': 'Tex-qırıntı: növbəti pillənin qiymətidir. Hurda, zərərsizləşdirmə, başa atəş və tapşırıqdan sonrakı soba onu qazandırır.',
+      'build': 'Qur: cizgilər və qırıntı əlində olanda silah dərhal bir pillə yüksəlir: hər pillə üçün +{n}% zərər.'
+    }
   },
   'smithy': {
     'furnace': 'Soba: istilik zolaqda qalsın deyə körüyü basılı saxla',
