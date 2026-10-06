@@ -53,10 +53,11 @@ export const bulletAlong = (k: number): number => {
 
 /**
  * The chase camera: just behind and beside the bullet, looking past it at
- * where it is going. It swings in behind as the bullet arrives.
+ * where it is going. It swings in behind as the bullet arrives. `wide` holds
+ * further back at the end (a machine: its coming apart must fit the frame).
  */
 export const bulletCam = (
-  out: CinePose, k: number, ox: number, oy: number, oz: number, hx: number, hy: number, hz: number, baseFov: number
+  out: CinePose, k: number, ox: number, oy: number, oz: number, hx: number, hy: number, hz: number, baseFov: number, wide = false
 ): CinePose => {
   const len = Math.hypot(hx - ox, hy - oy, hz - oz) || 1
   const dx = (hx - ox) / len
@@ -70,15 +71,15 @@ export const bulletCam = (
   const flat = Math.hypot(dx, dz) || 1
   const rx = -dz / flat
   const rz = dx / flat
-  const side = lerp(0.75, 0.2, smooth(k))
-  const back = lerp(1.5, 2.3, smooth(k))
+  const side = lerp(0.75, wide ? 0.9 : 0.2, smooth(k))
+  const back = lerp(1.5, wide ? 4.6 : 2.3, smooth(k))
   out.x = bx - dx * back + rx * side
   out.y = by - dy * back + 0.22
   out.z = bz - dz * back + rz * side
   out.tx = hx
   out.ty = hy
   out.tz = hz
-  out.fov = baseFov * lerp(0.7, 0.5, smooth(k))
+  out.fov = baseFov * lerp(0.7, wide ? 0.66 : 0.5, smooth(k))
   return out
 }
 

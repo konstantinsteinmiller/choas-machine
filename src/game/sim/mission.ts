@@ -1803,6 +1803,8 @@ export class Mission implements GameMode {
     u.hidden = true
     if (u.rag) u.rag.pin = null
     this.garrisonView.wreckage.clearNear(u.x, u.z, 3)
+    // A machine's parts glow, sag and melt into the slag, wherever they lie.
+    this.garrisonView.shatter.melt(u.id)
     const r = new Mesh(this.ashGeo, human ? this.ashMat : this.slagMat)
     const floor = heightAt(this.fortress.grid, u.x, u.z)
     r.position.set(u.x, (floor === VOID ? u.y : floor) + 0.04, u.z)
@@ -3308,7 +3310,7 @@ export class Mission implements GameMode {
     }
     if (c.kind === 'bullet') {
       if (!c.hit) {
-        bulletCam(out, k, c.ox, c.oy, c.oz, c.hx, c.hy, c.hz, this.baseFov)
+        bulletCam(out, k, c.ox, c.oy, c.oz, c.hx, c.hy, c.hz, this.baseFov, camKind(this.garrison.units[c.id]!.kind) !== 'human')
         const b = bulletAt(k, c.ox, c.oy, c.oz, c.hx, c.hy, c.hz)
         const len = Math.hypot(c.hx - c.ox, c.hy - c.oy, c.hz - c.oz) || 1
         this.fx.showBullet(b.x, b.y, b.z, (c.hx - c.ox) / len, (c.hy - c.oy) / len, (c.hz - c.oz) / len)
@@ -3324,9 +3326,11 @@ export class Mission implements GameMode {
         const s = 0.3 + (c.t / EXIT_S) * 2.6
         this.fx.showBullet(c.hx + dx * s, c.hy + dy * s, c.hz + dz * s, dx, dy, dz)
       } else this.fx.hideBullet()
-      // On the target: a slow turn round it as it goes down.
+      // On the target: a slow turn round it as it goes down; a machine from
+      // further out, round where the round went in, as it comes apart.
       const u = this.garrison.units[c.id]!
-      orbitCam(out, c.t, u.x, u.y + 1.2, u.z, c.yaw, 3.3, 0.5, 0.55, this.baseFov * 0.62)
+      if (camKind(u.kind) === 'human') orbitCam(out, c.t, u.x, u.y + 1.2, u.z, c.yaw, 3.3, 0.5, 0.55, this.baseFov * 0.62)
+      else orbitCam(out, c.t, c.hx, c.hy - 0.5, c.hz, c.yaw, 4.8, 0.9, 0.35, this.baseFov * 0.7)
       if (k >= 1) this.endCine()
       return true
     }

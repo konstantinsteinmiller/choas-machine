@@ -746,15 +746,13 @@ export interface Target {
 /**
  * How a defender goes down.
  * People: `back`, `front`, `spin` (a burst turned it round), `thrown` (a blast).
- * Machines: `burst` (apart, in pieces that stay), `slump` (an Enforcer that
- * folds in one piece), `crash` (a drone that falls whole).
+ * Machines: `burst`, always (#139): it comes apart into the parts it was
+ * built from (`fx/shatter.ts`), which stay where they fall. `slump` and
+ * `crash` (a machine in one piece) are kept for old saves and replays.
  */
 export type DeathKind = 'back' | 'front' | 'spin' | 'thrown' | 'burst' | 'slump' | 'crash'
 /** What did it: a single round, a burst of them, an explosion, the blade. */
 export type KillHow = 'shot' | 'spray' | 'blast' | 'blade'
-
-/** Machines taken apart by anything less than an explosion burst this often. */
-export const BURST_CHANCE = 0.6
 
 export type GarrisonEvent =
   | { type: 'suspicious'; id: number }
@@ -2229,10 +2227,8 @@ export const killUnit = (gar: Garrison, id: number, fromX: number, fromZ: number
     u.ragHow = how
     u.ragStruck = false
   } else {
-    // Its own number decides, so the same machine dies the same way in a replay.
-    const roll = (((u.seed * 7.13 + u.id * 0.37) % 1) + 1) % 1
-    const apart = u.kind === 'goliath' || how === 'blast' || roll < BURST_CHANCE
-    u.death = apart || u.kind === 'searchlight' || u.kind === 'hound' || u.kind === 'roomba' ? 'burst' : u.kind === 'drone' ? 'crash' : 'slump'
+    // A destroyed machine comes apart into its own parts, whatever destroyed it.
+    u.death = 'burst'
   }
   u.hp = 0
   u.state = 'dead'

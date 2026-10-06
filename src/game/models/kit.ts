@@ -280,7 +280,8 @@ export const merge = (geos: BufferGeometry[], groups = false): BufferGeometry =>
 // android is therefore 3 draw calls however many parts it has, and every part
 // still animates independently by rotating its bone.
 
-interface PartSpec {
+/** A part as authored; after `build()` its geometry is in the rig's bind space (`fx/shatter.ts` breaks a rig into these). */
+export interface RigPart {
   bone: number
   geo: BufferGeometry
   glow: boolean
@@ -296,12 +297,14 @@ export interface Rig {
   material: MeshToonMaterial
   glowMaterial: MeshBasicMaterial
   height: number
+  /** Every part it was built from, in bind space: what it comes apart into when destroyed (#139). */
+  parts: readonly RigPart[]
 }
 
 export class RigBuilder {
   private bones: Bone[] = []
   private byName = new Map<string, number>()
-  private parts: PartSpec[] = []
+  private parts: RigPart[] = []
 
   bone(name: string, parent: string | null, p: V3, r: V3 = [0, 0, 0]): this {
     const b = new Bone()
@@ -407,7 +410,7 @@ export class RigBuilder {
       bones[b.name] = b
       rest[b.name] = { p: b.position.clone(), q: b.quaternion.clone() }
     }
-    return { root: group, mesh, outline, bones, rest, material, glowMaterial, height: opts.height ?? 1.5 }
+    return { root: group, mesh, outline, bones, rest, material, glowMaterial, height: opts.height ?? 1.5, parts: this.parts }
   }
 }
 

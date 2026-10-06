@@ -178,18 +178,25 @@ export const SHOTS = {
     level: 4,
     async stage(ctx) {
       const id = await ctx.evaluate(() => window.__preview.unit('drone', 0).id)
-      await ctx.evaluate((i) => window.__preview.vantage(i, 26, false), id)
+      await ctx.evaluate((i) => window.__preview.vantage(i, 22, false), id)
+      // Held where it hovers, turned to the mech: its red eye, the only place a round kills it, faces the scope.
+      await ctx.evaluate((i) => { const m = window.__t.m, u = m.garrison.units[i], p = m.player; window.__preview.pin(i, u.x, u.z, Math.atan2(p.x - u.x, p.z - u.z)) }, id)
       await ctx.wait(400)
       await ctx.evaluate(() => { window.__t.weapon('sniper'); window.__preview.aim(true) })
       await ctx.wait(900)
       await ctx.evaluate((i) => { window.__preview.aimAt(i, 1); window.__did = i; window.__t.calm() }, id)
     },
     async play(ctx) {
-      await ctx.evaluate(() => window.__preview.aimAt(window.__did, 400))
-      await ctx.wait(500)
+      // Onto the eye, and held on it to the moment the round leaves: the camera rides it in and the drone comes apart.
+      await ctx.evaluate(() => window.__preview.aimAt(window.__did, 300, true))
+      await ctx.wait(450)
+      ctx.log.info(`drone: ${await ctx.evaluate(() => window.__preview.aimReport(window.__did))}`)
       await ctx.evaluate(() => { window.__preview.forceKillcam(); window.__preview.fire() })
       await ctx.wait(200)
       await ctx.evaluate(() => window.__preview.aim(false))
+      ctx.log.info(`drone: cine ${await ctx.evaluate(() => window.__game.app.mode.cine?.kind ?? 'none')} after the shot`)
+      await ctx.wait(2500)
+      ctx.log.info(`drone: ${await ctx.evaluate(() => window.__game.app.mode.garrison.units[window.__did].state)} 2.5 s on`)
     }
   }),
 

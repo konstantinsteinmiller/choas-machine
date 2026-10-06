@@ -5,6 +5,7 @@ import {
 import { CELL, VOID, cellHeight, floorAt, hasLineOfSight, heightAt, inGrid, raycast, surfaceAt, toCell, type Grid } from '../world/grid'
 import { PAL } from '../models/palette'
 import { Wreckage } from '../fx/wreckage'
+import { Shatter } from '../fx/shatter'
 import type { PostKind } from '../world/fortress'
 import { dome, paint, rbox, merge, type Rig } from '../models/kit'
 import {
@@ -430,6 +431,11 @@ const WRECKS: Partial<Record<PostKind, {
   goliath: { count: 54, size: [0.35, 1.1], half: [1.9, 1.1, 2.9], lift: 0.5, force: 12, colors: [PAL.steel, PAL.steel, PAL.steelDeep, PAL.steelDeep, PAL.steelDark, PAL.steelDark, PAL.steelDark, PAL.hazard] }
 }
 
+/** How hard each machine comes apart into its parts (m/s, `fx/shatter.ts`). */
+const SHATTER_FORCE: Partial<Record<PostKind, number>> = {
+  drone: 3.2, searchlight: 3, roomba: 3.4, hound: 3.8, enforcer: 4.4, goliath: 5
+}
+
 export class GarrisonView {
   readonly group = new Group()
   private views: UnitView[] = []
@@ -457,13 +463,17 @@ export class GarrisonView {
     paint(dome(0.275, Math.PI * 0.55, 10, 6).translate(0, 0.23, 0), PAL.steel),
     paint(rbox(0.42, 0.06, 0.1, 0.5, 6, 4).translate(0, 0.25, 0.21), PAL.steelDeep)
   ])
-  /** Every machine taken apart in this mission, in one mesh. */
+  /** Generic debris: a person blown apart, a helmet popped off. */
   readonly wreckage: Wreckage
+  /** Destroyed machines, each in the parts it was built from (#139). */
+  readonly shatter: Shatter
   private beamGeo = new CylinderGeometry(0.03, 1, 1, 16, 1, true)
 
   constructor(private gar: Garrison, private grid: Grid) {
     this.wreckage = new Wreckage(grid)
     this.group.add(this.wreckage.mesh)
+    this.shatter = new Shatter(grid)
+    this.group.add(this.shatter.group)
     const q = markTexture(false)
     const bang = markTexture(true)
     const siren = markTexture(false, true)
@@ -574,6 +584,9 @@ export class GarrisonView {
     const v = this.views[id]
     if (!u || !v || v.wrecked) return
     v.wrecked = true
+    // A machine comes apart into its own parts, from the pose it died in.
+    const force = SHATTER_FORCE[u.kind]
+    if (force && this.shatter.break(id, v.rig, { dirX: u.hitX, dirZ: u.hitZ, force, seed: u.seed })) return
     const spec = WRECKS[u.kind]
     if (!spec) return
     this.wreckage.burst({
@@ -605,6 +618,7 @@ export class GarrisonView {
   restore(id: number): void {
     const v = this.views[id]
     if (!v) return
+    this.shatter.clear(id)
     v.wrecked = false
     v.landed = false
     v.grip = 0
@@ -956,13 +970,14 @@ export class GarrisonView {
     this.cones.geometry.attributes.color!.needsUpdate = true
     const ease = Math.min(1, dt * 8)
     this.wreckage.update(dt)
+    this.shatter.update(dt)
 
     for (let i = 0; i < units.length; i++) {
       const u = units[i]!
       const v = this.views[i]!
       // Not in the base yet: nothing of it is drawn.
       // A light the Engineer has fixed is whole again.
-      if (v.wrecked && u.state !== 'dead') v.wrecked = false
+      if (v.wrecked && u.state !== 'dead') { v.wrecked = false; this.shatter.clear(i) }
       const here = u.state !== 'reserve' && !v.wrecked && !u.hidden
       v.rig.root.visible = here
       v.shadow.visible = here
@@ -1261,6 +1276,7 @@ export class GarrisonView {
       if (v.beam) (v.beam.material as MeshBasicMaterial).dispose()
     }
     this.wreckage.dispose()
+    this.shatter.dispose()
     for (const t of this.textures) t.dispose()
     this.helmetGeo.dispose()
     this.beamGeo.dispose()

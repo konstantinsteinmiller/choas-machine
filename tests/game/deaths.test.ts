@@ -9,7 +9,7 @@ import {
 import { buildMech, poseMech, restPose, MECH_DOWN_S } from '@/game/models/mech'
 import { FortressBuilder } from '@/game/world/fortress'
 import { makeGrid, cellMid, heightAt, type Grid } from '@/game/world/grid'
-import { makeGarrison, killUnit, drainEvents, stepGarrison, BURST_CHANCE, type Garrison, type Target } from '@/game/sim/garrison'
+import { makeGarrison, killUnit, drainEvents, stepGarrison, type Garrison, type Target } from '@/game/sim/garrison'
 import { Wreckage, seedWreckage, WRECK_CAPACITY } from '@/game/fx/wreckage'
 import type { Rig } from '@/game/models/kit'
 
@@ -136,20 +136,14 @@ describe('how each one goes down is decided by what hit it', () => {
     expect(drainEvents(gar).filter(e => e.type === 'kill').map(e => (e as { death: string }).death)).toEqual(['back', 'front', 'spin', 'thrown'])
   })
 
-  it('machines: the Goliath always bursts, a blast always bursts, the rest burst most of the time', () => {
+  it('machines always come apart (#139), whatever destroyed them', () => {
     const { gar } = base()
     const drones = gar.units.filter(u => u.kind === 'drone')
     const enforcers = gar.units.filter(u => u.kind === 'enforcer')
     const goliath = gar.units.find(u => u.kind === 'goliath')!
     for (const u of [...drones, ...enforcers]) killUnit(gar, u.id, u.x, u.z + 5, 'shot')
     killUnit(gar, goliath.id, goliath.x, goliath.z - 5, 'shot')
-    expect(goliath.death).toBe('burst')
-    const burst = [...drones, ...enforcers].filter(u => u.death === 'burst').length
-    // 24 machines at 60 %: some of each outcome, whatever their seeds are.
-    expect(burst).toBeGreaterThan(24 * BURST_CHANCE * 0.5)
-    expect(burst).toBeLessThan(24)
-    expect(drones.every(u => u.death === 'burst' || u.death === 'crash')).toBe(true)
-    expect(enforcers.every(u => u.death === 'burst' || u.death === 'slump')).toBe(true)
+    expect([...drones, ...enforcers, goliath].every(u => u.death === 'burst')).toBe(true)
 
     const { gar: g2 } = base()
     for (const u of g2.units.filter(x => x.kind !== 'sentry')) killUnit(g2, u.id, u.x + 1, u.z, 'blast')

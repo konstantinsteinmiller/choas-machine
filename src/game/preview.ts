@@ -5,7 +5,7 @@ import { addHudTicker, hud } from './state/hud'
 import { angleDelta } from './sim/player'
 import { cellKind, CellKind, heightAt, toCell, VOID, walkLine } from './world/grid'
 import { textureReference } from './world/textures'
-import { castShot, makeShotHit } from './sim/hitscan'
+import { castShot, makeShotHit, DRONE_EYE } from './sim/hitscan'
 import { isLight } from './sim/garrison'
 import type { Mission } from './sim/mission'
 import { setSfxTap, type SfxName } from './audio/sfx'
@@ -71,7 +71,13 @@ const sfxLog: Array<{ t: number; name: SfxName; pan: number; gain: number; muffl
 const pins = new Map<number, { x: number; z: number; yaw: number }>()
 
 /** A camera move in progress: eased, on the clip's own clock. */
-let move: { fromYaw: number; fromPitch: number; toYaw: number; toPitch: number; t: number; dur: number; track: number } | null = null
+let move: { fromYaw: number; fromPitch: number; toYaw: number; toPitch: number; t: number; dur: number; track: number; hold: boolean } | null = null
+
+/** Where a shot at a defender goes: a person's head; a drone's red eye (#139: the only place a round kills it). */
+const aimTarget = (u: { kind: string; x: number; y: number; z: number; yaw: number }): { x: number; y: number; z: number } =>
+  u.kind === 'drone'
+    ? { x: u.x + Math.sin(u.yaw) * DRONE_EYE.z, y: u.y + DRONE_EYE.y, z: u.z + Math.cos(u.yaw) * DRONE_EYE.z }
+    : { x: u.x, y: u.y + 1.54, z: u.z }
 
 const install = (): void => {
   // Runs after the mission has placed its own camera and before the frame is
@@ -136,24 +142,26 @@ const install = (): void => {
       const u = m.garrison.units[move.track]
       if (u) {
         const c = m.aimEye
-        const dx = u.x - c.x
-        const dz = u.z - c.z
+        const at = aimTarget(u)
+        const dx = at.x - c.x
+        const dz = at.z - c.z
         move.toYaw = Math.atan2(dx, dz)
-        move.toPitch = Math.atan2(u.y + 1.54 - c.y, Math.hypot(dx, dz))
+        move.toPitch = Math.atan2(at.y - c.y, Math.hypot(dx, dz))
       }
     }
     const k = Math.min(1, move.t / move.dur)
     const e = k * k * (3 - 2 * k)
     m.cam.yaw = move.fromYaw + angleDelta(move.fromYaw, move.toYaw) * e
     m.cam.pitch = move.fromPitch + (move.toPitch - move.fromPitch) * e
-    if (k >= 1) move = null
+    // A held aim keeps tracking its target until the next aim (the shot is on it to the last frame).
+    if (k >= 1 && !move.hold) move = null
   })
 
-  const turnTo = (yaw: number, pitch: number, ms: number, track = -1): void => {
+  const turnTo = (yaw: number, pitch: number, ms: number, track = -1, hold = false): void => {
     const m = mission()
     if (!m) return
     if (ms <= 1) { m.cam.yaw = yaw; m.cam.pitch = pitch; move = null; return }
-    move = { fromYaw: m.cam.yaw, fromPitch: m.cam.pitch, toYaw: yaw, toPitch: pitch, t: 0, dur: ms / 1000, track }
+    move = { fromYaw: m.cam.yaw, fromPitch: m.cam.pitch, toYaw: yaw, toPitch: pitch, t: 0, dur: ms / 1000, track, hold }
   }
 
   const put = (x: number, z: number, yaw: number, pitch: number, crouched: boolean): void => {
@@ -293,16 +301,19 @@ const install = (): void => {
       return u ? { id: u.id, x: u.x, y: u.y, z: u.z, yaw: u.yaw, state: u.state } : null
     },
 
-    /** Swing the camera onto a defender's head over `ms`. */
-    aimAt: (id: number, ms: number): void => {
+    /**
+     * Swing the reticle onto a defender over `ms`: a person's head, a drone's
+     * eye. `hold` keeps it tracking until the next aim (fire on a moving target).
+     */
+    aimAt: (id: number, ms: number, hold = false): void => {
       const m = mission()
       const u = m?.garrison.units[id]
       if (!m || !u) return
-      const p = m.player
-      const eye = p.y + MECH_EYE + (MECH_EYE_CROUCH - MECH_EYE) * p.crouch
-      const dx = u.x - p.x
-      const dz = u.z - p.z
-      turnTo(Math.atan2(dx, dz), Math.atan2(u.y + 1.54 - eye, Math.hypot(dx, dz)), ms, id)
+      const c = m.aimEye
+      const at = aimTarget(u)
+      const dx = at.x - c.x
+      const dz = at.z - c.z
+      turnTo(Math.atan2(dx, dz), Math.atan2(at.y - c.y, Math.hypot(dx, dz)), ms, id, hold)
     },
     pan: (yaw: number, pitch: number, ms: number): void => turnTo(yaw, pitch, ms),
     /**
@@ -335,7 +346,14 @@ const install = (): void => {
           const bx = x - Math.cos(yaw) * 0.42 + Math.sin(yaw) * 0.5
           const bz = z + Math.sin(yaw) * 0.42 + Math.cos(yaw) * 0.5
           let clear = true
-          for (const ahead of [0, 1.5, 3, -1.5]) {
+          // A drone: the line to its eye, from in front (the only side the eye can be hit from).
+          if (u.kind === 'drone') {
+            const at = aimTarget(u)
+            // From the eye, and from the barrel with room under it (the round leaves the shoulder, well below the eye).
+            clear = clearShot(m, x, eye, z, at.x, at.y, at.z) && clearShot(m, bx, eye - 0.28, bz, at.x, at.y, at.z)
+              && clearShot(m, bx, y + 1.0, bz, at.x, at.y, at.z) && clearShot(m, x, y + 1.0, z, at.x, at.y, at.z)
+          }
+          for (const ahead of u.kind === 'drone' ? [] : [0, 1.5, 3, -1.5]) {
             const hx = u.x + Math.sin(u.yaw) * ahead
             const hz = u.z + Math.cos(u.yaw) * ahead
             const hy = heightAt(g, hx, hz) + 1.54
@@ -348,7 +366,7 @@ const install = (): void => {
           }
           if (!clear) continue
           // Prefer the asked distance, and a spot in front of the target.
-          const facing = Math.cos(ang - u.yaw)
+          const facing = Math.cos(ang - u.yaw) * (u.kind === 'drone' ? 4 : 1)
           // Level with the target or above it beats looking up at it.
           const below = Math.max(0, u.y - y)
           const score = Math.abs(ring - 1) * 2 - facing * 0.5 + below * 0.25
