@@ -8,7 +8,7 @@ import type { Fortress } from '../world/fortress'
 import { ROCKET_LEDGE_H, ROCKET_TARGET, ROOM_WALL_H, ROPE_DECK_H, ROPE_TOWER_H, TRAINING_ROOMS } from '../data/fortresses/training'
 import { VARIANTS } from './backstab'
 import { poseBackstabGuard, poseBackstabMech } from './backstabStage'
-import { MUZZLE_TIP, buildMech, poseMech, restPose, type MechPose } from '../models/mech'
+import { muzzleWorld, buildMech, poseMech, restPose, type MechPose } from '../models/mech'
 import { buildEnforcer, buildGuard, poseEnforcer, poseGuard, restGuardPose } from '../models/garrison'
 import { Shatter } from '../fx/shatter'
 import { mechGaitRate } from './gait'
@@ -415,9 +415,8 @@ export class TrainingDirector {
     }
     this.rocketMesh.visible = here && !!rk && !hit
     if (this.rocketMesh.visible && rk) {
-      const [bone, ox, oy, oz] = MUZZLE_TIP.rocket
-      const from = this.muzzleV.set(ox, oy, oz)
-      this.ghost.bones[bone]?.localToWorld(from)
+      // From the hole in the ghost's tube as it is posed now (#167).
+      const from = muzzleWorld(this.ghost, 'rocket', this.muzzleV) ?? this.muzzleV.copy(this.ghost.root.position)
       const to = new Vector3(tx, ROCKET_LEDGE_H + 1.9, tz)
       const k = Math.min(1, rk.t / ROCKET_FLY_S)
       this.rocketMesh.position.copy(from).lerp(to, k)

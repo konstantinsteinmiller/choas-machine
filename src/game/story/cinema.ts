@@ -10,7 +10,7 @@ import { CELL, VOID, heightAt } from '../world/grid'
 import { buildFortressMesh, type FortressMesh } from '../world/fortressMesh'
 import { buildSky, type Sky } from '../world/sky'
 import { themeOf, type ThemeId } from '../data/themes'
-import { MUZZLE_TIP, buildMech, poseMech, restPose, type MechPose } from '../models/mech'
+import { muzzleWorld, buildMech, poseMech, restPose, type MechPose } from '../models/mech'
 import { BOARD_HOVER, HOUND_SCALE, STRIDE_PER_UNIT, buildRobodog, poseRobodog, restDogPose, type DogPose } from '../models/robodog'
 import { CombatFx } from '../fx/combatFx'
 import { SalvageView } from '../world/salvageView'
@@ -928,12 +928,10 @@ export class Cinema implements GameMode {
     const st: Stage = {
       t: 0, dt: 0, cam: c.camera, mech, mp: restPose(), dog, dp: restDogPose(), fx, cfx, rockets: [], decoys: [], extra: {}, fired,
       floor: (x, z) => { const h = heightAt(fort.grid, x, z); return h === VOID ? -Infinity : h },
+      // The hole in the barrel as the mech stands this frame (#167): its pose is put on first.
       muzzle: (w, out) => {
-        const [bone, x, y, z] = MUZZLE_TIP[w]
-        const b = mech.bones[bone]
-        if (!b) return out.copy(mech.root.position).setY(mech.root.position.y + 1.4)
-        mech.root.updateMatrixWorld(true)
-        return b.localToWorld(out.set(x, y, z))
+        poseMech(mech, st.mp)
+        return muzzleWorld(mech, w, out) ?? out.copy(mech.root.position).setY(mech.root.position.y + 1.4)
       },
       once: (key, at, f) => { if (st.t >= at && !fired.has(key)) { fired.add(key); f() } },
       line: (m, a, bb) => {

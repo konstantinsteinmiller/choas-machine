@@ -339,19 +339,17 @@ const install = (): void => {
           const y = heightAt(g, x, z)
           if (y <= VOID + 1) continue
           const eye = y + (crouched ? MECH_EYE_CROUCH : MECH_EYE)
-          // The round leaves the BARREL, at the mech's right shoulder, and the
-          // target is walking: both lines must be clear to where its head is
-          // now and to where it will be in a second or two.
-          const yaw = Math.atan2(u.x - x, u.z - z)
-          const bx = x - Math.cos(yaw) * 0.42 + Math.sin(yaw) * 0.5
-          const bz = z + Math.sin(yaw) * 0.42 + Math.cos(yaw) * 0.5
+          // The round flies the eye's own line (#167), and the target is
+          // walking: the line must be clear to where its head is now and to
+          // where it will be in a second or two, and from lower down too
+          // (the trail leaves the barrel, under the eye).
           let clear = true
           // A drone: the line to its eye, from in front (the only side the eye can be hit from).
           if (u.kind === 'drone') {
             const at = aimTarget(u)
-            // From the eye, and from the barrel with room under it (the round leaves the shoulder, well below the eye).
-            clear = clearShot(m, x, eye, z, at.x, at.y, at.z) && clearShot(m, bx, eye - 0.28, bz, at.x, at.y, at.z)
-              && clearShot(m, bx, y + 1.0, bz, at.x, at.y, at.z) && clearShot(m, x, y + 1.0, z, at.x, at.y, at.z)
+            // From the eye, and with room under it.
+            clear = clearShot(m, x, eye, z, at.x, at.y, at.z) && clearShot(m, x, eye - 0.3, z, at.x, at.y, at.z)
+              && clearShot(m, x, y + 1.0, z, at.x, at.y, at.z)
           }
           for (const ahead of u.kind === 'drone' ? [] : [0, 1.5, 3, -1.5]) {
             const hx = u.x + Math.sin(u.yaw) * ahead
@@ -361,7 +359,7 @@ const install = (): void => {
             // With room to spare: a line that only just grazes a wall top is
             // clear in the arithmetic and a hit on the wall in the shot. So the
             // target must be visible from the knees up, from a little lower.
-            if (!clearShot(m, x, eye, z, hx, hy, hz) || !clearShot(m, bx, eye - 0.28, bz, hx, hy, hz)
+            if (!clearShot(m, x, eye, z, hx, hy, hz) || !clearShot(m, x, eye - 0.3, z, hx, hy, hz)
               || !clearShot(m, x, eye - 0.5, z, hx, hy - 1.0, hz)) { clear = false; break }
           }
           if (!clear) continue

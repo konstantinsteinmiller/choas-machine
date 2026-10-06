@@ -919,6 +919,26 @@ weapons, the backstab room = blade. Decisions (defaults, nobody asked):
 - [x] **R68 Next mission** (#166): a first clear picks what it opened, framed
   "Next mission"; what was taken is dimmed.
 
+Rounds R69-R73 (#167-#172), in dependency order: the weapons and where a
+round leaves them first (everything that shoots consumes it), then the
+training rooms' gates and lamps, the backstab, the unit frame and the
+replay key, the keyboard-driven settings.
+
+- [x] **R69 Weapons and their muzzles** (#167): the three weapons rebuilt from
+  their buttons' drawings (`models/weapons.ts`, the drawing's own units, its
+  colours), shared by the rig, the lab's rack and its hologram. Each muzzle is
+  taken from the numbers that place its bore, and one function finds it in
+  the world (`muzzleWorld`) for the mission, the story's scenes, the training
+  ghost and the trailer seam. A round flies the reticle's line (what is aimed
+  at is hit, a guard past a pillar's edge too) and is seen to leave the bore;
+  only a barrel through a wall or pressed to cover (0.6 m) stops it there.
+  The kill-cam rides from the rifle's muzzle. Pinned by `muzzles.test.ts`
+  (the mech's three and every defender's).
+- [ ] **R70 Training gates and lamps** (#168, #171 rooms, the searchlight)
+- [ ] **R71 The backstab** (#172)
+- [ ] **R72 Unit frame, replay key, the look gesture** (#169)
+- [ ] **R73 Settings by keyboard** (#170)
+
 ## Resume notes
 
 - Dev server: `pnpm dev` (port 2196). Check the served `<title>` ("Chaos Machine") before

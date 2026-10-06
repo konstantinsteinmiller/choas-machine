@@ -40,9 +40,11 @@ describe('every rig', () => {
     expect(g.attributes.skinIndex!.count).toBe(g.attributes.position!.count)
   })
 
-  it.each(RIGS)('%s is light enough for a crowd of them', (_name, build) => {
+  // The mech is one, not a crowd, and carries its three weapons in full
+  // detail (#167): it gets a little more room than the defenders.
+  it.each(RIGS)('%s is light enough for a crowd of them', (name, build) => {
     const tris = build().mesh.geometry.index!.count / 3
-    expect(tris).toBeLessThan(9000)
+    expect(tris).toBeLessThan(name === 'mech' ? 12000 : 9000)
   })
 })
 

@@ -24,7 +24,7 @@ import { CombatFx } from '../fx/combatFx'
 import { BulletMarks } from '../fx/bulletMarks'
 import { buildRopeLine, type RopeLine } from '../fx/ropeLine'
 import type { Rig } from '../models/kit'
-import { MUZZLE_TIP, buildMech, poseMech, restPose, MECH_HEIGHT, MECH_HEIGHT_CROUCH, MECH_SCALE, type MechPose , MECH_KNEEL_S, MECH_DOWN_S } from '../models/mech'
+import { muzzleWorld, buildMech, poseMech, restPose, MECH_HEIGHT, MECH_HEIGHT_CROUCH, MECH_SCALE, type MechPose , MECH_KNEEL_S, MECH_DOWN_S } from '../models/mech'
 import { PAL } from '../models/palette'
 import { WEAPON_IDS, type WeaponId } from '../data/ids'
 import { haptic } from '@/use/useHaptics'
@@ -127,7 +127,14 @@ const JUMP_EARSHOT = 6
 /** The silenced rifle is heard this near its muzzle (#68). */
 const RIFLE_EARSHOT_M = 4
 /** From the shoulder point `aimLine` traces from out to each weapon's muzzle (m). */
-const MUZZLE_REACH: Readonly<Record<WeaponId, number>> = { sniper: 1.75, minigun: 1.45, rocket: 1.3 }
+/** Cover this near the barrel's mouth takes the round, whatever the reticle is on (m). */
+const JAMMED_M = 0.6
+/** Through the scope the round's trail starts this far ahead of the eye and this far under it (m). */
+const SCOPE_TRAIL_M = 1.1
+const SCOPE_TRAIL_DROP = 0.14
+
+/** A round's line: from where it is traced (o, d), where it is seen to leave (m), the rig's muzzle (nose). */
+interface AimLine { ox: number; oy: number; oz: number; dx: number; dy: number; dz: number; mx: number; my: number; mz: number; nose: Vector3 }
 /** The assassination from a rope (`sim/airStrike.ts`): its slow time until the mech kneels on the body, and its camera's way back out (real s). */
 const AIR_SLOW = 0.45
 const AIR_CAM_OUT_S = 0.4
@@ -404,6 +411,7 @@ export class Mission implements GameMode {
   private burnTo = new Vector3()
   private lasers: Array<{ id: number; mesh: Mesh }> = []
   private muzzleTmp = new Vector3()
+  private aimTmp: AimLine = { ox: 0, oy: 0, oz: 0, dx: 0, dy: 0, dz: 1, mx: 0, my: 0, mz: 0, nose: new Vector3() }
   /** Aiming a decoy (#115), and what shows where it will land. */
   private decoyAiming = false
   private aimRing!: Mesh
@@ -952,14 +960,6 @@ export class Mission implements GameMode {
     return p.mode === 'ground' && Math.abs(angleDelta(p.yaw, this.cam.yaw)) < READY_YAW && this.cam.aim >= READY_AIM
   }
 
-  /** The weapon's nose in the world, from the posed rig (last frame's pose). */
-  private muzzleAt(w: WeaponId, out: Vector3): Vector3 | null {
-    const [bone, x, y, z] = MUZZLE_TIP[w]
-    const b = this.rig?.bones[bone]
-    if (!b) return null
-    return b.localToWorld(out.set(x, y, z))
-  }
-
   private stepWeapons(dt: number): void {
     const i = this.input
     const a = this.arsenal
@@ -1019,10 +1019,23 @@ export class Mission implements GameMode {
     gun.spool = a.spool
   }
 
-  /** The line from the reticle into the world, and from the barrel to there. */
-  private aimLine(spread: number): { ox: number; oy: number; oz: number; dx: number; dy: number; dz: number } {
+  /**
+   * Where a round goes and where it is seen to leave (#167). What the
+   * reticle is on is what is hit: the round flies the camera's own line, so
+   * a guard seen past a pillar's edge is a guard hit, not the pillar. It is
+   * seen to leave from the hole in the weapon's barrel (`muzzleWorld`: the
+   * rig's muzzle as posed), and its trail runs from there to the hit.
+   * Two things still stop it at the weapon: a barrel through a wall (a wall
+   * between the body and the muzzle) and a barrel pressed to cover (the way
+   * from the muzzle to the mark blocked within `JAMMED_M`): then it flies
+   * from the muzzle and meets what is in front of it.
+   * Through the scope the rig is hidden and the eye is the weapon's line;
+   * the round's trail starts just under it, a little ahead.
+   */
+  private aimLine(spread: number): AimLine {
     const p = this.player
     const cam = this.cam
+    const L = this.aimTmp
     const sway = this.swayNow()
     const yaw = cam.yaw + sway.yaw
     const pitch = cam.pitch + sway.pitch
@@ -1030,22 +1043,6 @@ export class Mission implements GameMode {
     let fx = Math.sin(yaw) * c
     let fy = Math.sin(pitch)
     let fz = Math.cos(yaw) * c
-    // What the reticle is on: a ray from the player's camera, starting past the mech.
-    const cp = this.aimEye
-    const eyeY = p.y + eyeHeight(p)
-    const skip = Math.max(0, (p.x - cp.x) * fx + (eyeY - cp.y) * fy + (p.z - cp.z) * fz)
-    const h = castShot(this.fortress.grid, this.garrison.units, cp.x + fx * skip, cp.y + fy * skip, cp.z + fz * skip, fx, fy, fz, SHOT_RANGE, this.hit)
-    // The barrel: at the mech's right shoulder (its right is −x when it faces +z),
-    // on the body's own heading: the weapon is where the mech points it.
-    const ox = p.x - Math.cos(p.yaw) * 0.42 * MECH_SCALE + Math.sin(p.yaw) * 0.5 * MECH_SCALE
-    const oy = eyeY - 0.28 * MECH_SCALE
-    const oz = p.z + Math.sin(p.yaw) * 0.42 * MECH_SCALE + Math.cos(p.yaw) * 0.5 * MECH_SCALE
-    const len = Math.hypot(h.x - ox, h.y - oy, h.z - oz)
-    if (len > 1.5) {
-      fx = (h.x - ox) / len
-      fy = (h.y - oy) / len
-      fz = (h.z - oz) / len
-    }
     if (spread > 0) {
       // A cone round the line: two small turns.
       const a = Math.random() * Math.PI * 2
@@ -1060,7 +1057,75 @@ export class Mission implements GameMode {
       fy /= n
       fz /= n
     }
-    return { ox, oy, oz, dx: fx, dy: fy, dz: fz }
+    // The reticle's line into the world, starting past the mech.
+    const cp = this.aimEye
+    const eyeY = p.y + eyeHeight(p)
+    const skip = Math.max(0, (p.x - cp.x) * fx + (eyeY - cp.y) * fy + (p.z - cp.z) * fz)
+    L.ox = cp.x + fx * skip
+    L.oy = cp.y + fy * skip
+    L.oz = cp.z + fz * skip
+    L.dx = fx
+    L.dy = fy
+    L.dz = fz
+    const g = this.fortress.grid
+    const h = castShot(g, this.garrison.units, L.ox, L.oy, L.oz, fx, fy, fz, SHOT_RANGE, this.hit)
+    const far = h.kind === 'none' ? SHOT_RANGE : h.t
+    const hx = L.ox + fx * far
+    const hy = L.oy + fy * far
+    const hz = L.oz + fz * far
+    const w = this.arsenal.current
+    const nose = this.rigMuzzle(w, L.ox, L.oy, L.oz)
+    L.nose = nose
+    if (hud.scoped) {
+      const ahead = Math.min(SCOPE_TRAIL_M, Math.max(0, far - 0.3))
+      L.mx = L.ox + fx * ahead
+      L.my = L.oy + fy * ahead - SCOPE_TRAIL_DROP
+      L.mz = L.oz + fz * ahead
+      return L
+    }
+    L.mx = nose.x
+    L.my = nose.y
+    L.mz = nose.z
+    // The body's middle at the weapon's height: a wall between it and the muzzle is a barrel through the wall.
+    const bx = p.x
+    const by = nose.y
+    const bz = p.z
+    const bl = Math.hypot(nose.x - bx, nose.z - bz)
+    if (bl > 0.05 && raycast(g, bx, by, bz, (nose.x - bx) / bl, 0, (nose.z - bz) / bl, bl).hit) {
+      L.ox = bx
+      L.oy = by
+      L.oz = bz
+      L.dx = (nose.x - bx) / bl
+      L.dy = 0
+      L.dz = (nose.z - bz) / bl
+      L.mx = bx + L.dx * 0.2
+      L.my = by
+      L.mz = bz + L.dz * 0.2
+      return L
+    }
+    // From the muzzle to the mark: cover right in front of the barrel takes the round.
+    const ml = Math.hypot(hx - nose.x, hy - nose.y, hz - nose.z)
+    if (ml > 0.05) {
+      const mx = (hx - nose.x) / ml
+      const my = (hy - nose.y) / ml
+      const mz = (hz - nose.z) / ml
+      if (raycast(g, nose.x, nose.y, nose.z, mx, my, mz, Math.min(JAMMED_M, ml)).hit) {
+        L.ox = nose.x
+        L.oy = nose.y
+        L.oz = nose.z
+        L.dx = mx
+        L.dy = my
+        L.dz = mz
+      }
+    }
+    return L
+  }
+
+  /** The weapon's muzzle in the world (the posed rig's), or, without a rig, the line's own start. */
+  private rigMuzzle(w: WeaponId, ox: number, oy: number, oz: number): Vector3 {
+    const out = this.muzzleTmp
+    if (this.rig && muzzleWorld(this.rig, w, out)) return out
+    return out.set(ox, oy, oz)
   }
 
   private swayNow(): { yaw: number; pitch: number } {
@@ -1075,27 +1140,11 @@ export class Mission implements GameMode {
     const w = this.arsenal.current
     const g = this.fortress.grid
     const gar = this.garrison
-    const { ox, oy, oz, dx, dy, dz } = this.aimLine(SPREAD[w])
+    const line = this.aimLine(SPREAD[w])
+    const { ox, oy, oz, dx, dy, dz, mx, my, mz } = line
     this.stats.shots++
     this.learn('fire')
     this.bladeRoomShot()
-    // The flash and the trail start at the weapon's own muzzle, out along the
-    // aimed arm (#81); the round itself is traced from the shoulder, so a
-    // barrel poking through a wall never shoots from the far side of it.
-    const reach = Math.min(MUZZLE_REACH[w], Math.max(0, castShot(g, gar.units, ox, oy, oz, dx, dy, dz, MUZZLE_REACH[w], this.hit).t - 0.2))
-    let mx = ox + dx * reach
-    let my = oy + dy * reach
-    let mz = oz + dz * reach
-    // The weapon's own nose, when nothing stands between the shoulder and it (#110).
-    const nose = this.muzzleAt(w, this.muzzleTmp)
-    if (nose) {
-      const nl = Math.hypot(nose.x - ox, nose.y - oy, nose.z - oz)
-      if (nl > 0.05 && nl < 3 && !raycast(g, ox, oy, oz, (nose.x - ox) / nl, (nose.y - oy) / nl, (nose.z - oz) / nl, nl).hit) {
-        mx = nose.x
-        my = nose.y
-        mz = nose.z
-      }
-    }
     this.fx.muzzle(mx, my, mz, dx, dy, dz, w)
     haptic(w)
     emit('shot', { weapon: w })
@@ -1103,7 +1152,14 @@ export class Mission implements GameMode {
     this.shake = Math.max(this.shake, w === 'sniper' ? 0.35 : w === 'rocket' ? 0.5 : 0.12)
 
     if (w === 'rocket') {
-      fireRocket(this.rockets, mx, my, mz, dx, dy, dz)
+      // A rocket is a body of its own: it leaves the tube's mouth for the mark.
+      const tgt = castShot(g, gar.units, ox, oy, oz, dx, dy, dz, SHOT_RANGE, this.hit)
+      const tx = tgt.kind === 'none' ? ox + dx * SHOT_RANGE : tgt.x
+      const ty = tgt.kind === 'none' ? oy + dy * SHOT_RANGE : tgt.y
+      const tz = tgt.kind === 'none' ? oz + dz * SHOT_RANGE : tgt.z
+      const tl = Math.hypot(tx - mx, ty - my, tz - mz)
+      if (tl > 0.3) fireRocket(this.rockets, mx, my, mz, (tx - mx) / tl, (ty - my) / tl, (tz - mz) / tl)
+      else fireRocket(this.rockets, mx, my, mz, dx, dy, dz)
       this.rocketsFired++
       this.goLoud()
       return
@@ -1165,12 +1221,14 @@ export class Mission implements GameMode {
           moving: u.speed01, zone: camZone(zone), boss: !!u.boss, kind: camKind(u.kind), stealth: this.quietRaid()
         })
         if (cut === 'full' || cut === 'short') {
-          const dist = Math.hypot(h.x - ox, h.y - oy, h.z - oz)
+          // The kill-cam rides it from the rifle's own muzzle (the rig's, seen from outside).
+          const n = line.nose
+          const dist = Math.hypot(h.x - n.x, h.y - n.y, h.z - n.z)
           const dur = bulletFlightS(dist)
           this.cine = {
             kind: 'bullet', t: cut === 'short' ? dur * SHORT_FROM : 0, dur, hit: false,
-            ox, oy, oz, hx: h.x, hy: h.y, hz: h.z, nx: h.nx, ny: h.ny, nz: h.nz,
-            id: u.id, damage, head, final, yaw: Math.atan2(ox - h.x, oz - h.z)
+            ox: n.x, oy: n.y, oz: n.z, hx: h.x, hy: h.y, hz: h.z, nx: h.nx, ny: h.ny, nz: h.nz,
+            id: u.id, damage, head, final, yaw: Math.atan2(n.x - h.x, n.z - h.z)
           }
           mirror('cine', true)
           emit('killcam', { kind: 'bullet', final })

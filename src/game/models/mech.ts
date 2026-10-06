@@ -2,7 +2,9 @@ import { BoxGeometry, CylinderGeometry, Quaternion, Vector3 } from 'three'
 import { RigBuilder, blendPose, cap, ell, pose, nudge, rbox, rcyl, scaleBone, sph, stripUv, torus, type Rig } from './kit'
 import { PAL } from './palette'
 import { stanceSweep } from '../sim/gait'
-import type { WeaponId } from '../data/ids'
+import { WEAPON_IDS, type WeaponId } from '../data/ids'
+import { MINIGUN_SPIN_AT, MUZZLE, shiftParts, weaponBodyParts, weaponSpinParts } from './weapons'
+import type { Parts } from './propKit'
 
 /**
  * Where each weapon's nose is on its bone (the bone's local frame: the barrel
@@ -10,7 +12,30 @@ import type { WeaponId } from '../data/ids'
  * game and in the story's scenes (#117).
  */
 export const MUZZLE_TIP: Readonly<Record<WeaponId, readonly [string, number, number, number]>> = {
-  sniper: ['sniper', 0, -1.42, 0.02], minigun: ['minigunBarrels', 0, -0.66, 0], rocket: ['rocket', 0, -0.95, 0.06]
+  sniper: ['sniper', ...MUZZLE.sniper],
+  minigun: ['minigunBarrels', MUZZLE.minigun[0] - MINIGUN_SPIN_AT[0], MUZZLE.minigun[1] - MINIGUN_SPIN_AT[1], MUZZLE.minigun[2] - MINIGUN_SPIN_AT[2]],
+  rocket: ['rocket', ...MUZZLE.rocket]
+}
+
+/**
+ * The weapon's muzzle in the world, from the rig as it is posed now: the one
+ * way every caller (the mission, the story's scenes, the training ghost, the
+ * trailer seam) finds where a round leaves (#167). The bone's world matrix is
+ * brought up to date first, so a pose set this frame counts.
+ */
+export const muzzleWorld = (rig: Rig, w: WeaponId, out: Vector3): Vector3 | null => {
+  const [bone, x, y, z] = MUZZLE_TIP[w]
+  const b = rig.bones[bone]
+  if (!b) return null
+  b.updateWorldMatrix(true, false)
+  return b.localToWorld(out.set(x, y, z))
+}
+
+/** Hang a weapon's parts on its bone (fine detail without an outline). */
+const hangParts = (b: RigBuilder, bone: string, p: Parts): void => {
+  for (const g of p.lit) b.painted(bone, g)
+  for (const g of p.fine) b.painted(bone, g, { outline: false })
+  for (const g of p.glow) b.painted(bone, g, { glow: true, outline: false })
 }
 
 /**
@@ -204,31 +229,13 @@ export const buildMech = (): Rig => {
   b.part('blade', stripUv(new BoxGeometry(0.045, 0.82, 0.13)), PAL.mechBlade, { p: [0, -0.5, 0], glow: true, outline: false })
   b.part('blade', stripUv(new BoxGeometry(0.02, 0.86, 0.05)), PAL.glowWhite, { p: [0, -0.5, 0.045], glow: true, outline: false })
 
-  // ── The three weapons, in the right hand, barrels along the arm ──
-  b.bone('sniper', 'foreR', [0, -0.45, 0.02])
-  b.part('sniper', rbox(0.11, 0.5, 0.16, 0.5, 8, 6), PAL.gunMetal, { p: [0, -0.05, 0.02] })
-  b.part('sniper', stripUv(new CylinderGeometry(0.03, 0.03, 1.1, 8)), PAL.gunDark, { p: [0, -0.8, 0.02] })
-  b.part('sniper', rcyl(0.05, 0.3, 0.02, 8), PAL.gunMetal, { p: [0, -1.25, 0.02] })
-  b.part('sniper', rcyl(0.05, 0.36, 0.02, 8), PAL.gunDark, { p: [0, -0.18, 0.15] })
-  b.part('sniper', sph(0.04, 6, 5), PAL.gunAccent, { p: [0, -0.37, 0.15], glow: true, outline: false })
-  b.part('sniper', rbox(0.09, 0.34, 0.14, 0.5, 6, 6), PAL.gunDark, { p: [0, 0.32, 0.0] })
-
-  b.bone('minigun', 'foreR', [0, -0.45, 0.02])
-  b.bone('minigunBarrels', 'minigun', [0, -0.5, 0.02])
-  b.part('minigun', rbox(0.24, 0.5, 0.26, 0.45, 8, 8), PAL.gunMetal, { p: [0, -0.1, 0.02] })
-  b.part('minigun', rbox(0.12, 0.2, 0.3, 0.5, 6, 6), PAL.gunDark, { p: [0, 0.1, 0.16] })
-  for (let i = 0; i < 6; i++) {
-    const a = (i / 6) * Math.PI * 2
-    b.part('minigunBarrels', stripUv(new CylinderGeometry(0.026, 0.026, 0.74, 6)), PAL.gunDark, { p: [Math.cos(a) * 0.075, -0.3, Math.sin(a) * 0.075] })
+  // ── The three weapons, in the right hand, barrels along the arm (#167: `models/weapons.ts`) ──
+  for (const w of WEAPON_IDS) {
+    b.bone(w, 'foreR', [0, -0.45, 0.02])
+    if (w === 'minigun') b.bone('minigunBarrels', 'minigun', MINIGUN_SPIN_AT)
+    hangParts(b, w, weaponBodyParts(w))
+    if (w === 'minigun') hangParts(b, 'minigunBarrels', shiftParts(weaponSpinParts(w), [-MINIGUN_SPIN_AT[0], -MINIGUN_SPIN_AT[1], -MINIGUN_SPIN_AT[2]]))
   }
-  b.part('minigunBarrels', rcyl(0.12, 0.07, 0.02, 10), PAL.gunMetal, { p: [0, -0.62, 0] })
-  b.part('minigunBarrels', rcyl(0.12, 0.07, 0.02, 10), PAL.gunAccent, { p: [0, -0.02, 0], glow: true, outline: false })
-
-  b.bone('rocket', 'foreR', [0, -0.45, 0.02])
-  b.part('rocket', rcyl(0.13, 1.1, 0.04, 10), PAL.gunMetal, { p: [0, -0.3, 0.06] })
-  b.part('rocket', rcyl(0.165, 0.16, 0.04, 10), PAL.gunDark, { p: [0, -0.86, 0.06] })
-  b.part('rocket', rcyl(0.15, 0.14, 0.04, 10), PAL.gunDark, { p: [0, 0.26, 0.06] })
-  b.part('rocket', rbox(0.08, 0.2, 0.12, 0.5, 6, 6), PAL.gunAccent, { p: [0, -0.2, 0.2], glow: true, outline: false })
 
   // ── Legs ──
   b.mirror((side, tag) => {

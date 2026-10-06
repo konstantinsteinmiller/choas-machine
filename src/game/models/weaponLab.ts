@@ -1,9 +1,11 @@
 import {
-  AdditiveBlending, BufferGeometry, Color, CylinderGeometry, DoubleSide, PlaneGeometry, ShaderMaterial, type Material
+  AdditiveBlending, BufferGeometry, Color, DoubleSide, PlaneGeometry, ShaderMaterial, type Material
 } from 'three'
-import { RigBuilder, cap, merge, rbox, rcone, rcyl, sph, stripUv, torus, xform, type Rig, type V3 } from './kit'
+import { RigBuilder, cap, merge, rbox, rcone, rcyl, sph, torus, xform, type Rig, type V3 } from './kit'
 import { PAL } from './palette'
-import { at, beam, newParts, rod, type Parts } from './propKit'
+import { addParts, at, beam, newParts, type Parts } from './propKit'
+import { weaponModelParts } from './weapons'
+import { MECH_SCALE } from './mech'
 import type { WeaponId } from '../data/ids'
 
 /**
@@ -16,8 +18,8 @@ import type { WeaponId } from '../data/ids'
  * hologram above it; a robotic welding arm on the bench's end; two
  * holographic screens on a stand. Origin at the foot; faces +z.
  *
- * The weapons are the mech's own (`models/mech.ts`), drawn at its size
- * with more of their detail: they are built here as props, muzzle up.
+ * The weapons are the mech's own (`models/weapons.ts`), drawn at its size,
+ * muzzle up.
  */
 
 const STEEL = '#5a4f9a'
@@ -29,45 +31,8 @@ const INK = '#241848'
 export const LAB_HOLO_AT: V3 = [-0.45, 1.62, 0.32]
 export const LAB_ARM_AT: V3 = [0.5, 1.06, 0.28]
 
-/** A weapon as a prop, muzzle up (+y), its grip at the origin. */
-export const weaponParts = (id: WeaponId): Parts => {
-  const p = newParts()
-  const { lit, fine, glow } = p
-  const M = PAL.gunMetal
-  const D = PAL.gunDark
-  if (id === 'sniper') {
-    lit.push(at(rbox(0.09, 0.42, 0.13, 0.4, 8, 8), M, [0, 0.05, 0]))
-    lit.push(at(stripUv(new CylinderGeometry(0.024, 0.026, 0.9, 8)), D, [0, 0.7, 0]))
-    lit.push(at(rcyl(0.04, 0.22, 0.012, 10, 2), M, [0, 1.12, 0]))
-    for (const y of [1.06, 1.12, 1.18]) fine.push(at(torus(0.041, 0.008, 4, 10), INK, [0, y, 0], [Math.PI / 2, 0, 0]))
-    lit.push(at(rcyl(0.04, 0.3, 0.012, 10, 2), D, [0, 0.16, 0.11]))
-    lit.push(at(rcyl(0.05, 0.05, 0.01, 10, 1), M, [0, 0.33, 0.11]))
-    glow.push(at(sph(0.03, 6, 5), PAL.gunAccent, [0, 0.36, 0.11]))
-    lit.push(at(rbox(0.075, 0.3, 0.12, 0.45, 6, 6), D, [0, -0.3, -0.01]))
-    lit.push(at(rbox(0.05, 0.12, 0.06, 0.4, 4, 4), D, [0, -0.05, 0.09], [0.4, 0, 0]))
-    for (const s of [-1, 1]) lit.push(rod([s * 0.015, 0.5, -0.02], [s * 0.06, 0.28, -0.08], 0.01, INK, 5))
-  } else if (id === 'minigun') {
-    lit.push(at(rbox(0.2, 0.38, 0.22, 0.35, 8, 8), M, [0, 0.0, 0]))
-    lit.push(at(rbox(0.1, 0.16, 0.24, 0.45, 6, 6), D, [0, -0.15, 0.12]))
-    for (let i = 0; i < 6; i++) {
-      const a = (i / 6) * Math.PI * 2
-      lit.push(at(stripUv(new CylinderGeometry(0.02, 0.02, 0.6, 6)), D, [Math.cos(a) * 0.062, 0.48, Math.sin(a) * 0.062]))
-    }
-    for (const y of [0.3, 0.72]) lit.push(at(rcyl(0.1, 0.05, 0.015, 12, 1), M, [0, y, 0]))
-    glow.push(at(torus(0.1, 0.012, 4, 14), PAL.gunAccent, [0, 0.21, 0], [Math.PI / 2, 0, 0]))
-    lit.push(at(rcyl(0.13, 0.11, 0.03, 14, 2), D, [0.15, -0.02, 0], [0, 0, Math.PI / 2]))
-    lit.push(rod([0.15, 0.08, 0], [0.04, 0.2, 0], 0.025, INK, 6))
-  } else {
-    lit.push(at(rcyl(0.105, 0.88, 0.03, 12, 2), M, [0, 0.3, 0.0]))
-    lit.push(at(rcyl(0.135, 0.13, 0.03, 12, 2), D, [0, 0.74, 0]))
-    lit.push(at(rcyl(0.125, 0.12, 0.03, 12, 2), D, [0, -0.12, 0]))
-    lit.push(at(torus(0.108, 0.012, 4, 14), INK, [0, 0.5, 0], [Math.PI / 2, 0, 0]))
-    glow.push(at(rbox(0.06, 0.16, 0.08, 0.5, 4, 6), PAL.gunAccent, [0, 0.28, 0.115]))
-    lit.push(at(rbox(0.06, 0.12, 0.14, 0.4, 4, 4), D, [0, 0.05, 0.16]))
-    lit.push(at(rbox(0.05, 0.14, 0.06, 0.4, 4, 4), D, [0, 0.02, -0.14], [-0.3, 0, 0]))
-  }
-  return p
-}
+/** A weapon as a prop, muzzle up (+y), its grip at the origin: the mech's own model (#167), at its drawn size. */
+export const weaponParts = (id: WeaponId): Parts => addParts(newParts(), weaponModelParts(id), [0, 0, 0], [0, 0, Math.PI], MECH_SCALE)
 
 /** How tall each weapon stands in the rack (its grip above the clamp line). */
 const RACK_LIFT: Record<WeaponId, number> = { sniper: 0.95, minigun: 1.05, rocket: 1.0 }
