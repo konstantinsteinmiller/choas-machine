@@ -25,14 +25,15 @@ import { existsSync, readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { describe, expect, it } from 'vitest'
-import { DEV_TOOL_MARKERS, DEV_TOOL_STUBS, devToolAliases, resolvePlatformPolicy } from '@/platforms/policy'
+import { DEV_TOOLS_EVERYWHERE, DEV_TOOL_MARKERS, DEV_TOOL_STUBS, devToolAliases, resolvePlatformPolicy } from '@/platforms/policy'
 
 const ROOT = resolve(__dirname, '..', '..')
 const read = (rel: string): string => readFileSync(resolve(ROOT, rel), 'utf8')
 
 describe('resolvePlatformPolicy', () => {
-  it('Poki release: free option first, no dev tooling', () => {
-    expect(resolvePlatformPolicy({ isPoki: true })).toEqual({ freeOptionFirst: true, devTools: false })
+  it('Poki release: free option first; the cheats ship too, behind "cmonc" (the owner\u2019s decision, 2026-10-08)', () => {
+    expect(DEV_TOOLS_EVERYWHERE).toBe(true)
+    expect(resolvePlatformPolicy({ isPoki: true })).toEqual({ freeOptionFirst: true, devTools: true })
   })
 
   it('Poki QA twin (VITE_POKI_QA_TOOLS): keeps the tooling, keeps the layout rule', () => {
@@ -44,9 +45,10 @@ describe('resolvePlatformPolicy', () => {
   })
 })
 
-describe('dev tooling is aliased out of the Poki release', () => {
-  it('Poki release: both cheat modules resolve to their stubs', () => {
-    expect(devToolAliases(resolvePlatformPolicy({ isPoki: true }))).toEqual({
+describe('dev tooling in the Poki release', () => {
+  it('Poki release: the real cheat modules ship (no stubs); a clean build would stub exactly these two', () => {
+    expect(devToolAliases(resolvePlatformPolicy({ isPoki: true }))).toEqual({})
+    expect(devToolAliases({ freeOptionFirst: true, devTools: false })).toEqual({
       '@/use/useCheats': 'src/use/useCheats.stub.ts',
       '@/game/cheats': 'src/game/cheats.stub.ts'
     })
@@ -100,8 +102,8 @@ describe('dev tooling is aliased out of the Poki release', () => {
 })
 
 describe('the itch.io jam upload (jam build)', () => {
-  it('ships no dev tooling: no cheat to skip a room, no debug toggle', () => {
-    expect(resolvePlatformPolicy({ isPoki: false, isItch: true }).devTools).toBe(false)
+  it('ships the cheats too, behind "cmonc" (the owner\u2019s decision, 2026-10-08)', () => {
+    expect(resolvePlatformPolicy({ isPoki: false, isItch: true }).devTools).toBe(true)
     expect(resolvePlatformPolicy({ isPoki: false }).devTools).toBe(true)
   })
 })

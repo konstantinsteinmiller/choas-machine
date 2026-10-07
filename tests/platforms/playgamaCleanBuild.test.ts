@@ -35,20 +35,21 @@ const read = (rel: string): string => readFileSync(resolve(ROOT, rel), 'utf8')
 const code = (src: string): string => src.replace(/\/\*[\s\S]*?\*\//g, '').replace(/(^|[^:])\/\/.*$/gm, '$1')
 
 describe('policy: the Playgama release is a clean build', () => {
-  it('ships no dev tooling, and keeps every layout rule of the web build', () => {
-    expect(resolvePlatformPolicy({ isPoki: false, isPlaygama: true })).toEqual({ freeOptionFirst: false, devTools: false })
+  it('ships the cheats (behind "cmonc", the owner\u2019s decision 2026-10-08), and keeps every layout rule of the web build', () => {
+    expect(resolvePlatformPolicy({ isPoki: false, isPlaygama: true })).toEqual({ freeOptionFirst: false, devTools: true })
   })
 
-  it('aliases exactly the two dev-tool modules to their stubs', () => {
-    expect(devToolAliases(resolvePlatformPolicy({ isPoki: false, isPlaygama: true }))).toEqual({ ...DEV_TOOL_STUBS })
+  it('aliases nothing now; a clean build would stub exactly the two dev-tool modules', () => {
+    expect(devToolAliases(resolvePlatformPolicy({ isPoki: false, isPlaygama: true }))).toEqual({})
+    expect(devToolAliases({ freeOptionFirst: false, devTools: false })).toEqual({ ...DEV_TOOL_STUBS })
   })
 
   it('the QA twin (VITE_QA_TOOLS) keeps the tooling — and is refused by the gate', () => {
     expect(resolvePlatformPolicy({ isPoki: false, isPlaygama: true, qaTools: true }).devTools).toBe(true)
   })
 
-  it('leaves Poki and every other build exactly as they were', () => {
-    expect(resolvePlatformPolicy({ isPoki: true })).toEqual({ freeOptionFirst: true, devTools: false })
+  it('Poki and every other build carry the cheats too', () => {
+    expect(resolvePlatformPolicy({ isPoki: true })).toEqual({ freeOptionFirst: true, devTools: true })
     expect(resolvePlatformPolicy({ isPoki: false })).toEqual({ freeOptionFirst: false, devTools: true })
   })
 })

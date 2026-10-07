@@ -59,9 +59,18 @@ export interface PlatformPolicy {
   devTools: boolean
 }
 
+/**
+ * The owner's decision (2026-10-08): the cheats ship in EVERY build, the Poki,
+ * Playgama and itch releases included, still locked behind the typed "cmonc"
+ * (or `localStorage.cheat`); a player who does not know the word never sees
+ * them. Accepted risk: a portal reviewer may flag the dev tooling. The stubs
+ * and the switch stay, so a clean build is one line away if a portal asks.
+ */
+export const DEV_TOOLS_EVERYWHERE = true
+
 export const resolvePlatformPolicy = ({ isPoki, isPlaygama = false, isItch = false, qaTools = false }: PolicyInput): PlatformPolicy => ({
   freeOptionFirst: isPoki,
-  devTools: !(isPoki || isPlaygama || isItch) || qaTools
+  devTools: DEV_TOOLS_EVERYWHERE || !(isPoki || isPlaygama || isItch) || qaTools
 })
 
 /**

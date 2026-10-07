@@ -31,7 +31,7 @@ import { packArtifact } from '../poki-deploy/lib/pack.mjs'
 import { bold, bytes, die, fail, info, pass, step, warn } from '../poki-deploy/lib/log.mjs'
 import { runPlaygamaGates } from './gates.mjs'
 import { PLAYGAMA_OUT_DIR, PLAYGAMA_ZIP } from '../../src/platforms/playgama/release.ts'
-import { DEV_TOOL_MARKERS } from '../../src/platforms/policy.ts'
+import { DEV_TOOL_MARKERS, DEV_TOOLS_EVERYWHERE } from '../../src/platforms/policy.ts'
 
 const here = dirname(fileURLToPath(import.meta.url))
 const ROOT = resolve(here, '..', '..')
@@ -64,7 +64,9 @@ try {
   bridgeVersion = JSON.parse(readFileSync(join(ROOT, 'node_modules', '@playgama', 'bridge', 'package.json'), 'utf8')).version
 } catch { /* reported by the gate as "no version to compare" */ }
 
-const g = runPlaygamaGates({ dist, zip, forbid: DEV_TOOL_MARKERS, bridgeVersion })
+// The cheats ship in this release too (the owner's decision, 2026-10-08:
+// src/platforms/policy.ts, DEV_TOOLS_EVERYWHERE), so their markers are not forbidden.
+const g = runPlaygamaGates({ dist, zip, forbid: DEV_TOOLS_EVERYWHERE ? [] : DEV_TOOL_MARKERS, bridgeVersion })
 for (const r of g.results) {
   if (r.level === 'pass') pass(r.name, r.detail)
   else if (r.level === 'warn') (STRICT ? fail : warn)(r.name, r.detail)

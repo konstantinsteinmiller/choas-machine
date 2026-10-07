@@ -43,13 +43,10 @@ export default {
    *  build, "no debug code, no dev artifacts". The release aliases this tooling
    *  to stubs (src/platforms/policy.ts → vite.config.ts); a QA twin built with
    *  `VITE_POKI_QA_TOOLS=true` keeps it and is REFUSED here, by design. */
-  forbidInBundle: [
-    { text: '[CHEAT]', why: 'dev cheats, src/use/useCheats.ts' },
-    { text: 'ctrl+shift+alt+', why: 'cheat shortcuts, src/game/cheats.ts' },
-    { text: 'cmarc', why: 'typed debug-mode toggle, src/use/useCheats.ts' },
-    // NOT the hidden multi-tap interstitial (src/use/useQaAdTrigger.ts): it
-    // ships in the release on purpose (src/platforms/policy.ts).
-  ],
+  //  The owner's decision (2026-10-08): the cheats ship in the Poki release
+  //  too, locked behind the typed "cmonc" (src/platforms/policy.ts,
+  //  DEV_TOOLS_EVERYWHERE), so nothing of them is forbidden here any more.
+  forbidInBundle: [],
 
   qa: {
     playMs: 45000,          // how long the harness actually plays before judging

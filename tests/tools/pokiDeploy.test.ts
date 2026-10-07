@@ -299,18 +299,15 @@ describe('release gates (lib/gates.mjs)', () => {
     expect(res.level).toBe('pass')
   })
 
-  it('fails a release carrying any dev-tooling marker the config forbids (clean build)', async () => {
+  it('fails a release carrying any marker the config forbids (clean build); the cheats are no longer forbidden', async () => {
     const { runGates } = await load('lib/gates.mjs')
     const { default: cfg } = await load('poki.config.mjs')
-    const texts = cfg.forbidInBundle.map((f: { text: string }) => f.text)
-    expect(texts).toEqual(expect.arrayContaining(['[CHEAT]', 'ctrl+shift+alt+', 'cmarc']))
-    // The hidden 30-tap interstitial ships in the release on purpose.
-    expect(texts).not.toContain('[qa-ad]')
-    const gate = (dist: string) => runGates({ dist, zip: null, forbid: cfg.forbidInBundle })
+    // The owner's decision (2026-10-08): the cheats ship on Poki too, behind "cmonc".
+    expect(cfg.forbidInBundle).toEqual([])
+    const forbid = [{ text: '[CHEAT]', why: 'example' }]
+    const gate = (dist: string) => runGates({ dist, zip: null, forbid })
       .results.find((x: { name: string }) => x.name.startsWith('clean build'))
-    for (const text of texts) {
-      expect(gate(makeDist(`devtools-${texts.indexOf(text)}`, `console.warn(${JSON.stringify(text + ' x')})`)).level, text).toBe('fail')
-    }
+    expect(gate(makeDist('devtools-0', 'console.warn("[CHEAT] x")')).level).toBe('fail')
     expect(gate(makeDist('devtools-clean', 'console.log("ok")')).level).toBe('pass')
   })
 })
