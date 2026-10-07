@@ -334,6 +334,46 @@ export const minigunSpin = (sr: number): Float32Array => {
   return level(x, 0.9)
 }
 
+/** One loop of the minigun firing (#183): this many rounds in it. */
+export const BURST_LOOP_S = 0.24
+const BURST_ROUNDS = 12
+
+/**
+ * The minigun firing, as one seamless loop (#183): the "brrrt" a minigun is
+ * known by is not a run of separate shots but one tearing roar, some fifty
+ * cracks a second fused by the blasts that overlap them, over the low growl
+ * of the gun shaking its mount. Each crack differs a little (pitch, level,
+ * timing), so the loop never sounds like a buzzer. Wrapped round the loop so
+ * it has no seam; played while the gun fires, over the motor's whine.
+ */
+export const minigunBurst = (sr: number): Float32Array => {
+  const k: Kit = { sr, r: rng(0xb22) }
+  const n = len(k, BURST_LOOP_S)
+  const x = new Float32Array(n)
+  const wrapAdd = (src: Float32Array, at: number, g: number): void => {
+    for (let i = 0; i < src.length; i++) x[(at + i) % n]! += g * src[i]!
+  }
+  for (let r = 0; r < BURST_ROUNDS; r++) {
+    const at = Math.round(((r + (k.r() - 0.5) * 0.25) / BURST_ROUNDS) * n + n) % n
+    const g = 0.8 + k.r() * 0.35
+    // The crack: bright, short, a touch different every round.
+    wrapAdd(unit(env(k, filt(k, white(k, 0.012), 'hp', 2400 + k.r() * 900, 0.7), 0.0002, 0.0022)), at, 1.1 * g)
+    // The blast's bark, long enough to run into the next round: what fuses them.
+    wrapAdd(unit(env(k, filt(k, white(k, 0.05), 'bp', 780 + k.r() * 260, 0.8), 0.001, 0.013)), at, 0.9 * g)
+    // The thump in the chest.
+    wrapAdd(env(k, glide(k, 0.05, 150 + k.r() * 30, 58, 0.015), 0.002, 0.016), at, 0.6 * g)
+  }
+  // The growl under it all: the mount shaking, a low band of noise round the loop.
+  const w = white(k, BURST_LOOP_S)
+  const ww = new Float32Array(2 * n)
+  ww.set(w); ww.set(w, n)
+  filt(k, ww, 'lp', 220, 0.8)
+  const growl = unit(ww.subarray(n))
+  for (let i = 0; i < n; i++) x[i]! += 0.35 * growl[i]!
+  drive(x, 1.8)
+  return level(x, 0.85)
+}
+
 // ─── The rocket launcher ─────────────────────────────────────────────────────
 
 /** The launch: a hollow "fwoomp" out of the tube, then the motor's hiss going away. */

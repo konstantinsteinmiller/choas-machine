@@ -1,4 +1,4 @@
-import type { Arsenal } from './weapons'
+import { SNIPER_MAG, type Arsenal } from './weapons'
 import type { Armor } from './armor'
 
 /**
@@ -10,7 +10,8 @@ import type { Armor } from './armor'
  *  - repair kits (a wrench across a handful of screws) mend KIT_ARMOR;
  *  - ammo crates ("weapon piles") add rifle rounds and belt and put a rocket
  *    back in the rack (Round 5, #143: they top up, they no longer fill);
- *  - a fallen guard drops a pouch: a few rifle rounds and a stretch of belt.
+ *  - a fallen guard drops one or two rifle rounds (#183: the belt he used to
+ *    drop was rarely wanted; a round for the rifle always is).
  * The mech takes one by walking over it, and only when it is short of what
  * it gives, so a full mech walks past and leaves it for later. Pure.
  */
@@ -24,12 +25,14 @@ export interface Supply {
   y: number
   z: number
   taken: boolean
+  /** A dropped pouch's rifle rounds, 1 or 2 (#183). */
+  rounds?: number
 }
 
 export const KIT_ARMOR = 40
-/** A guard's pouch: rifle rounds and mini-gun belt. */
-export const POUCH_RIFLE = 3
-export const POUCH_BELT = 30
+/** A guard's drop: one or two rifle rounds (#183), no belt. */
+export const POUCH_ROUNDS_MIN = 1
+export const POUCH_ROUNDS_MAX = 2
 /** A crate: rifle rounds, belt, and a rocket. */
 export const CRATE_RIFLE = 5
 export const CRATE_BELT = 60
@@ -43,7 +46,8 @@ export const wants = (s: Supply, a: Arsenal, armor: Armor, rocketMax: number): b
   if (s.kind === 'kit') return armor.hp < armor.max && !armor.down
   const rifle = a.sniperReserve < a.sniperReserveMax
   const belt = a.minigunBelt < a.minigunBeltMax
-  if (s.kind === 'pouch') return rifle || belt
+  // A round fits in the reserve, or straight into a magazine that is not full.
+  if (s.kind === 'pouch') return rifle || a.sniperMag < SNIPER_MAG
   return rifle || belt || a.rockets + (a.rocketLoaded ? 1 : 0) < rocketMax
 }
 
@@ -55,8 +59,11 @@ export const take = (s: Supply, a: Arsenal, armor: Armor, rocketMax: number): vo
     return
   }
   if (s.kind === 'pouch') {
-    a.sniperReserve = Math.min(a.sniperReserveMax, a.sniperReserve + POUCH_RIFLE)
-    a.minigunBelt = Math.min(a.minigunBeltMax, a.minigunBelt + POUCH_BELT)
+    let n = s.rounds ?? POUCH_ROUNDS_MIN
+    const into = Math.min(n, a.sniperReserveMax - a.sniperReserve)
+    a.sniperReserve += into
+    n -= into
+    a.sniperMag = Math.min(SNIPER_MAG, a.sniperMag + n)
     return
   }
   a.sniperReserve = Math.min(a.sniperReserveMax, a.sniperReserve + CRATE_RIFLE)

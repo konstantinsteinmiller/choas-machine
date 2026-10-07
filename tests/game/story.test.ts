@@ -163,3 +163,26 @@ describe('the finale of the intro (#179)', () => {
     s.dispose()
   }, 30000)
 })
+
+describe('the intro: from the kill straight up the wall (#183)', () => {
+  it('no cut to a ladder: it rises from the body and the hook pulls it up the wall, one take', async () => {
+    const { Cinema } = await import('@/game/story/cinema')
+    const s = await Cinema.create('intro', undefined, new Texture())
+    const st = (s as unknown as { stage: { mech: { root: { position: { x: number; y: number; z: number } } }; extra: Record<string, { group: { visible: boolean } }> } }).stage
+    const m = st.mech.root.position
+    // From the landing on the body (the drop itself is fast, it is the kill) to the wall top.
+    s.seek(16)
+    let last = { x: m.x, y: m.y, z: m.z }
+    let hooked = false
+    for (let t = 16; t < 19.6; t += 1 / 30) {
+      s.seek(t)
+      expect(Math.hypot(m.x - last.x, m.y - last.y, m.z - last.z), `t ${t.toFixed(2)}`).toBeLessThan(0.9)
+      last = { x: m.x, y: m.y, z: m.z }
+      if (t > 17.6 && t < 18.6 && st.extra.hook!.group.visible) hooked = true
+    }
+    expect(hooked).toBe(true)
+    // On the wall top for the rifle.
+    expect(m.y).toBeCloseTo(10, 1)
+    s.dispose()
+  }, 30000)
+})

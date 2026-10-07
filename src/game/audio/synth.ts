@@ -2,7 +2,7 @@ import { registerOneShotSource } from '@/use/useAssets'
 import { audio, audioForced, canPlay, noise, pulse, midiHz, duckMusic } from './engine'
 import { setSfxPlayer, type SfxName } from './sfx'
 import { SFX_FILES } from '../assets/overrides'
-import { FOLEY, minigunSpin, type FoleyName } from './foley'
+import { FOLEY, minigunBurst, minigunSpin, type FoleyName } from './foley'
 
 /**
  * ─── Synthesised SFX ─────────────────────────────────────────────────────────
@@ -197,14 +197,14 @@ export const muffleHz = (muffle: number): number =>
 const foleyBuffers = new Map<string, AudioBuffer>()
 const lastVariant = new Map<FoleyName, number>()
 
-const foleyBuffer = (name: FoleyName | 'spin', v: number): AudioBuffer | null => {
+const foleyBuffer = (name: FoleyName | 'spin' | 'burst', v: number): AudioBuffer | null => {
   const a = audio()
   if (!a) return null
   const sr = a.ctx.sampleRate
   const key = `${name}:${v}:${sr}`
   let buf = foleyBuffers.get(key)
   if (!buf) {
-    const data = name === 'spin' ? minigunSpin(sr) : FOLEY[name].bake(sr, v)
+    const data = name === 'spin' ? minigunSpin(sr) : name === 'burst' ? minigunBurst(sr) : FOLEY[name].bake(sr, v)
     buf = a.ctx.createBuffer(1, data.length, sr)
     buf.getChannelData(0).set(data)
     foleyBuffers.set(key, buf)
@@ -710,6 +710,41 @@ const SPIN_RATE_IDLE = 0.25
 const SPIN_RATE_FULL = 1
 
 let hum: { src: AudioBufferSourceNode; lp: BiquadFilterNode; gain: GainNode } | null = null
+
+// ─── The minigun firing (#183) ───────────────────────────────────────────────
+// One persistent voice while it fires: the "brrrt" (`foley.minigunBurst`),
+// looping, faded in on the first round and out a beat after the last.
+let fire: { src: AudioBufferSourceNode; gain: GainNode } | null = null
+
+/** True while the minigun fires; false fades the roar out. */
+export const minigunFire = (on: boolean): void => {
+  const a = audio()
+  if (!a) return
+  const t = a.ctx.currentTime
+  if (!on || !canPlay()) {
+    if (fire) {
+      fire.gain.gain.setTargetAtTime(0, t, 0.025)
+      const src = fire.src
+      setTimeout(() => { try { src.stop() } catch { /* stopped */ } }, 140)
+    }
+    fire = null
+    return
+  }
+  if (fire) return
+  const buf = foleyBuffer('burst', 0)
+  if (!buf) return
+  const src = a.ctx.createBufferSource()
+  src.buffer = buf
+  src.loop = true
+  src.playbackRate.value = 0.97 + Math.random() * 0.06
+  const gain = a.ctx.createGain()
+  gain.gain.value = 0
+  gain.gain.setTargetAtTime(0.42, t, 0.012)
+  src.connect(gain).connect(a.sfx)
+  src.start(t, Math.random() * buf.duration)
+  registerOneShotSource(src)
+  fire = { src, gain }
+}
 
 /** `spool01` 0 still … 1 at speed; null (or 0) stops it. */
 export const minigunHum = (spool01: number | null): void => {

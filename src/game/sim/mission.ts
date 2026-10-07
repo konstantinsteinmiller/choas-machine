@@ -78,7 +78,7 @@ import {
 } from './cine'
 import { buildRobodog, poseRobodog, restDogPose, type DogPose } from '../models/robodog'
 import { buildDisguise, disposeDisguise, morphDisguise } from '../models/disguises'
-import { supplyUnderfoot, take, wants, type Supply } from './supplies'
+import { POUCH_ROUNDS_MAX, POUCH_ROUNDS_MIN, supplyUnderfoot, take, wants, type Supply } from './supplies'
 import { findRopeShot, type RopeShot } from './ropes'
 import { makeFlameMaterial, setFlame } from '../fx/flameCone'
 import { themeOf } from '../data/themes'
@@ -3650,7 +3650,9 @@ export class Mission implements GameMode {
   private dropPouch(x: number, y: number, z: number): void {
     const pouches = this.supplies.filter(s => s.kind === 'pouch' && !s.taken)
     if (pouches.length >= MAX_POUCHES) pouches[0]!.taken = true
-    this.supplies.push({ kind: 'pouch', x: x + 0.4, y: heightAt(this.fortress.grid, x + 0.4, z) > VOID ? heightAt(this.fortress.grid, x + 0.4, z) : y, z, taken: false })
+    // One or two rifle rounds (#183), from the garrison's own dice: a retry drops the same.
+    const rounds = this.garrison.rng() < 0.5 ? POUCH_ROUNDS_MIN : POUCH_ROUNDS_MAX
+    this.supplies.push({ kind: 'pouch', x: x + 0.4, y: heightAt(this.fortress.grid, x + 0.4, z) > VOID ? heightAt(this.fortress.grid, x + 0.4, z) : y, z, taken: false, rounds })
   }
 
   /** Walk over a kit, a crate or a pouch: it is the mech's, if it wants it. */

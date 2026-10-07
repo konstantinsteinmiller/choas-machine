@@ -8,8 +8,8 @@ import { mkdirSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import {
-  FOLEY, SPIN_LOOP_S, boltCycle, bladePull, bladeSlash, bladeStab, explosion, hitBody, impactBody, impactMetal,
-  minigunRound, minigunSpin, rocketLaunch, sniperShot, tinkMetal, type FoleyName
+  BURST_LOOP_S, FOLEY, SPIN_LOOP_S, boltCycle, bladePull, bladeSlash, bladeStab, explosion, hitBody, impactBody, impactMetal,
+  minigunBurst as minigunBurstLoop, minigunRound, minigunSpin, rocketLaunch, sniperShot, tinkMetal, type FoleyName
 } from '@/game/audio/foley'
 import { SFX_MIN_GAP_MS } from '@/game/audio/sfx'
 import { MINIGUN_RPS, MINIGUN_SPOOL_S } from '@/game/sim/weapons'
@@ -189,6 +189,28 @@ describe('foley renders', () => {
     expect(heard(x)).toBeGreaterThan(0.8)
     // Receding: quieter late than early.
     expect(dbAt(x, 1.1, 1.4)).toBeLessThan(dbAt(x, 0.2, 0.5) - 6)
+  })
+
+  it('the minigun firing (#183): one seamless roar of some fifty cracks a second over a low growl', () => {
+    const x = minigunBurstLoop(SR)
+    expect(x.length).toBe(Math.round(BURST_LOOP_S * SR))
+    // No click at the wrap.
+    let maxStep = 0
+    for (let i = 1; i < x.length; i++) maxStep = Math.max(maxStep, Math.abs(x[i]! - x[i - 1]!))
+    expect(Math.abs(x[0]! - x[x.length - 1]!)).toBeLessThanOrEqual(maxStep)
+    expect(peak(x)).toBeLessThanOrEqual(1)
+    // Bright cracks and a low body both carry weight.
+    expect(band(x, 2000, 8000)).toBeGreaterThan(0.05)
+    expect(band(x, 40, 300)).toBeGreaterThan(0.1)
+    // Twelve rounds a loop (50 a second): nearly every 20 ms slot has its crack.
+    const slots = 12
+    const slot = x.length / slots
+    let cracks = 0
+    for (let b = 0; b < slots; b++) {
+      const part = x.subarray(Math.round(b * slot), Math.round((b + 1) * slot))
+      if (peak(part) > 1.2 * rms(x) * Math.SQRT2) cracks++
+    }
+    expect(cracks).toBeGreaterThanOrEqual(10)
   })
 
   it('the explosion: a sharp crack, a boom heavy below 120 Hz, a long debris tail', () => {

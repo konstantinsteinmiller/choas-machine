@@ -1088,6 +1088,22 @@ pass on a rerun (flaky, not this round's).
   stays, disabled, with "Needs time to refresh, do some missions" on hover or
   for 4 s after a tap (`VideoOfferButton`), 39 locales.
 
+## Round 9: #183, #184 and the pillar (2026-10-07)
+
+- [x] **R78** #183: a fallen guard drops 1 or 2 rifle rounds (garrison dice),
+  drawn as a big rifle cartridge; wanted while the reserve or the magazine
+  has room. The minigun's fire is a seamless 50-cracks-a-second roar
+  (`foley.minigunBurst`, looped while it fires) over the motor, each round's
+  punch lighter under it; the intro's minigun plays both (bus `cineGun`).
+  The intro no longer cuts from the rope kill to a ladder: the kneel is cut
+  short and the hook pulls the mech across the yard and up the wall in one
+  take. #184: the closing still was playing (checked in real time), but read
+  as the next level starting; it now has a vignette and the Harbour's name
+  with a lock (`hud.cineStill`, the fortress names already in 39 locales).
+  A vent stack (drawn 4.8 m, 1.4 m in the grid) could be mantled: column
+  props are solid to their drawn height (`COLUMN_PROPS`), under a roof to
+  just below it.
+
 ## Resume notes
 
 - Dev server: `pnpm dev` (port 2196). Check the served `<title>` ("Chaos Machine") before

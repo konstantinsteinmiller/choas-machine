@@ -20,7 +20,7 @@ import { SalvageView } from '../world/salvageView'
 import type { Rocket } from '../sim/rockets'
 import type { Decoy } from '../sim/melee'
 import { angleDelta } from '../sim/player'
-import { airAt, airCam, airMark, planAir } from '../sim/airStrike'
+import { AIR_IMPACT_S, AIR_KNEEL_S, AIR_RIDE_S, airAt, airCam, airMark, planAir } from '../sim/airStrike'
 import { bodySink, placeKillBody } from '../sim/killPose'
 import type { WeaponId } from '../data/ids'
 import {
@@ -33,8 +33,10 @@ import type { Rig } from '../models/kit'
 import { Particles } from '../fx/particles'
 import { makeFlameMaterial, setFlame } from '../fx/flameCone'
 import { sfx } from '../audio/sfx'
+import { emit } from '../bus'
 import type { TrackId } from '../audio/songs'
 import { CINEMA_LENGTH, INTRO_STILL_S, type CinemaId } from './cinemaIds'
+import { hud } from '../state/hud'
 
 /**
  * ─── The story's scenes (round 4, #100 #103) ─────────────────────────────────
@@ -144,8 +146,8 @@ interface Stage {
 interface Script {
   theme: ThemeId
   music: TrackId
-  /** A picture the scene ends on, held for its last INTRO_STILL_S (#179); under `public/`. */
-  still?: string
+  /** A picture the scene ends on, held for its last INTRO_STILL_S (#179), and the fortress it shows; under `public/`. */
+  still?: { src: string; fortress: 'bastion' | 'foundry' | 'harbour' | 'spire' }
   /** The ground: cells laid out with the fortress builder. */
   stage: (b: FortressBuilder) => void
   cast: (s: Stage, scene: Group) => void
@@ -207,7 +209,7 @@ const shipSocket = (ship: Rig, name: keyof typeof AIRSHIP_SOCKETS, i: number, ou
 const INTRO: Script = {
   theme: 'dusk',
   music: 'hero',
-  still: 'images/intro-next-fortress.webp',
+  still: { src: '/images/intro-next-fortress.webp', fortress: 'harbour' },
   stage: (b) => {
     // West shelf at 0, a cliff up to a plateau (outcrop A), a gap, then a
     // piece of the Bastion (#131): its walls 10 m, a sunken yard 6 m below
@@ -364,8 +366,9 @@ const INTRO: Script = {
       const k = span(t, 10.2, 10.9)
       s.place(ball, tmpA.set(35.4 + (DECOY[0] - 35.4) * k, 12 + (DECOY[1] - 12) * k + Math.sin(k * Math.PI) * 3.5, 24 + (DECOY[2] - 24) * k))
     }
-    // The game's own hologram, waving where it landed, until the guard is down.
-    if (between(t, 10.9, 16)) {
+    // The game's own hologram, waving where it landed, until the guard is down
+    // (gone before the camera leaves the kill: it passes where it stood).
+    if (between(t, 10.9, 15.4)) {
       const dc = s.decoys[0] ?? (s.decoys[0] = { x: DECOY[0], y: DECOY[1], z: DECOY[2], yaw: Math.PI * 1.2, t: 0, life: 6, pulse: 0 })
       dc.t = t - 10.9
     } else s.decoys.length = 0
@@ -393,6 +396,8 @@ const INTRO: Script = {
     const diveT = (t - DIVE_AT) / INTRO_DIVE_SLOW
     const HIT = DIVE_AT + plan.hitAt * INTRO_DIVE_SLOW
     const LET_GO = DIVE_AT + plan.releaseAt * INTRO_DIVE_SLOW
+    /** Off the body (#183): the kneel cut short, the hook fired from it (the game's rise is not played). */
+    const OUT_AT = DIVE_AT + (plan.hitAt + AIR_IMPACT_S + AIR_RIDE_S + AIR_KNEEL_S * 0.6) * INTRO_DIVE_SLOW
     {
       const at = round(Math.min(t, 11), [46, 4, 18], [56, 4, 18], 7, tmpA, 1.5)
       let yaw = at.yaw
@@ -418,7 +423,7 @@ const INTRO: Script = {
     }
     // Off the rope: one motion from the push off to the blow to kneeling on
     // the body, filmed with the game's own kill-cam (`airCam`).
-    if (between(t, DIVE_AT, DIVE_AT + plan.total * INTRO_DIVE_SLOW)) {
+    if (between(t, DIVE_AT, OUT_AT)) {
       const b = airAt(plan, diveT)
       s.place(s.mech.root, tmpA.set(b.x, b.y, b.z), plan.yaw)
       mp.air = b.air
@@ -442,17 +447,48 @@ const INTRO: Script = {
       s.once('pull', DIVE_AT + (plan.total - 1.0) * INTRO_DIVE_SLOW, () => sfx('bladePull'))
     }
 
-    // ── Out of the yard: to the ladder, up onto the wall ──
-    if (between(t, 15.6, 19.3)) {
-      const keys: Key[] = [[15.6, 51.6, 4, 26.6], [17.4, 58.6, 4, 23], [17.6, 58.6, 4, 23], [19.1, 58.6, 10, 23], [19.3, 61, 10, 23]]
-      const p = track(keys, t, tmpA)
-      const climbing = between(t, 17.6, 19.1)
-      s.place(s.mech.root, p, climbing || t > 19.1 ? Math.PI / 2 : Math.atan2(58.6 - 51.6, 23 - 26.6))
-      mp.climb = climbing ? 1 : 0
+    // ── Out of the yard: the hook straight up onto the wall (#183) ──
+    // No cut to a ladder: still on one knee over the body, it fires the hook
+    // at the top of the wall and is pulled across the yard and up it in one
+    // motion, the camera easing out of the kill-cam's frame to follow it.
+    if (between(t, OUT_AT, 19.3)) {
+      const HOOK_AT = OUT_AT + 0.25
+      const BITE_AT = HOOK_AT + 0.25
+      const TOP_AT = 18.85
+      const kneel = airAt(plan, (OUT_AT - DIVE_AT) / INTRO_DIVE_SLOW)
+      const from = tmpD.set(kneel.x, kneel.y, kneel.z)
+      // The pull: across and up to the wall's face, the last stretch up it.
+      const k = span(t, BITE_AT, TOP_AT)
+      const e = k * k * (3 - 2 * k)
+      const p = t < BITE_AT ? tmpA.copy(from)
+        : t < TOP_AT ? tmpA.set(from.x + (59.2 - from.x) * e, from.y + (9.6 - from.y) * Math.pow(e, 0.8), from.z + (23 - from.z) * e)
+          : tmpA.set(59.2 + (61 - 59.2) * span(t, TOP_AT, 19.3), 10, 23)
+      const face = Math.atan2(60 - from.x, 23 - from.z)
+      s.place(s.mech.root, p, t < TOP_AT ? face : Math.PI / 2)
+      mp.crouch = t < HOOK_AT ? 1 - span(t, OUT_AT, HOOK_AT) : 0
+      mp.aim = between(t, OUT_AT, BITE_AT) ? 1 : 0
+      mp.aimPitch = 0.35
+      mp.air = between(t, BITE_AT, TOP_AT - 0.35) ? 1 : 0
+      mp.climb = between(t, TOP_AT - 0.35, TOP_AT) ? 1 : 0
       mp.climbPhase = p.y
-      mp.speed = climbing ? 0 : Math.min(1, pace(keys, t) / 4)
-      mp.stride = t * 6
-      s.look(tmpB.set(51, 9, 33), tmpC.set(57.5, 6.5, 23))
+      hook.setVisible(between(t, HOOK_AT, TOP_AT + 0.1))
+      if (t >= HOOK_AT) {
+        hook.update(tmpB.set(p.x + 0.4, p.y + 2, p.z), tmpC.set(60.05, 10.05, 23), face,
+          { flying: t < BITE_AT, time: t, progress: span(t, HOOK_AT, BITE_AT) })
+      }
+      s.once('hook3', HOOK_AT, () => sfx('hookThrow'))
+      s.once('bite3', BITE_AT, () => sfx('hookBite'))
+      // From where the kill-cam is at the cut into a shot that follows the
+      // pull: back in the yard, aimed between the mech and the wall's top.
+      const end = airCam(tmpCam, plan, (OUT_AT - DIVE_AT) / INTRO_DIVE_SLOW, kneel, 62)
+      const c = smooth(span(t, OUT_AT, OUT_AT + 0.9))
+      const ax = p.x + (60 - p.x) * 0.35
+      const ay = p.y + 1.4
+      s.look(
+        tmpB.set(end.x + (45.5 - end.x) * c, end.y + (9.5 + (p.y - 4) * 0.4 - end.y) * c, end.z + (34.5 - end.z) * c),
+        tmpC.set(end.tx + (ax - end.tx) * c, end.ty + (ay - end.ty) * c, end.tz + (24.2 - end.tz) * c),
+        end.fov + (50 - end.fov) * c
+      )
     }
 
     // ── The sentry on his tower, the rifle ──
@@ -509,7 +545,8 @@ const INTRO: Script = {
       // Once the base is after it, the camera turns round to what is coming.
       if (t < 26.2) s.look(tmpB.set(57, 13, 19), tmpC.set(67, 13, 33))
       else s.look(tmpB.set(58, 13.5, 17), tmpC.set(70, 10.5, 37))
-      s.once('spin', 23.6, () => sfx('minigun'))
+      // The gun's own sound (#183): the motor spooling up and the roar while it fires.
+      s.once('spin', 23.6, () => sfx('minigun', 0, 0.6))
       s.once('drone', DRONE_DOWN, () => { sfx('explode'); s.fx.orbBurst(66, 16, 34, '#ffb061', 0.7) })
     }
 
@@ -759,6 +796,11 @@ const INTRO: Script = {
         if (t < 44.6) s.look(tmpB.set(p.x + 6, p.y + 2.2, p.z + 5), tmpD.set(p.x, p.y + 1, p.z))
         else s.look(tmpB.set(138, 38, 42), tmpD.copy(p))
       } else s.look(shake(tmpB.set(64, 23, 2), jolt * 0.5), tmpD.set(84, 15, 25))
+    }
+    // The minigun's motor and roar (#183): spooled from 23.4, firing to the drone's fall, winding down after.
+    if (s.cfx) {
+      const spool = t < 23.4 || t > DRONE_DOWN + 1.2 ? 0 : t < DRONE_DOWN ? smooth(span(t, 23.4, 23.8)) : 1 - span(t, DRONE_DOWN, DRONE_DOWN + 1.2)
+      emit('cineGun', { spool, firing: between(t, 23.8, DRONE_DOWN) })
     }
     poseMech(s.mech, mp)
     finish?.()
@@ -1118,7 +1160,7 @@ export class Cinema implements GameMode {
     c.stage = st
     s.cast(st, c.root)
     s.frame(st)
-    if (s.still && !particleMap) c.loadStill(s.still)
+    if (s.still && !particleMap) c.loadStill(s.still.src)
     return c
   }
 
@@ -1167,6 +1209,9 @@ export class Cinema implements GameMode {
   private end(): void {
     if (this.over) return
     this.over = true
+    hud.cineStill = ''
+    // A scene skipped mid-burst leaves no gun running.
+    emit('cineGun', { spool: 0, firing: false })
     this.finish()
   }
 
@@ -1176,6 +1221,10 @@ export class Cinema implements GameMode {
     r.info.reset()
     const still = this.still
     const k = this.stage.t - this.stillFrom
+    // The HUD frames the still as what is coming: the fortress's name, locked (#184).
+    const showing = !!still && k >= 0 && !this.over
+    const want = showing ? this.script.still!.fortress : ''
+    if (hud.cineStill !== want) hud.cineStill = want
     if (still && k >= 0) {
       // Fill the screen with it (cover, never stretched), up from black, pushed in slowly.
       const el = r.domElement

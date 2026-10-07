@@ -5,13 +5,17 @@ import { on } from '../bus'
 import { addHudTicker, gun, hud, vital } from '../state/hud'
 import { flow } from '../flow'
 import { sfx } from './sfx'
-import { minigunHum, warmFoley } from './synth'
+import { minigunFire, minigunHum, warmFoley } from './synth'
 import { setMusicTrack } from '@/use/useSound'
 import { playJingle, warmMusic } from './music'
 import { whenAudio } from './engine'
 import { app } from '../engine/app'
 import { camKind } from '../sim/killcam'
 import type { PostKind } from '../world/fortress'
+
+/** The minigun's roar lasts this long past its last round (its rounds come 15 a second). */
+const MINIGUN_ROAR_HOLD_MS = 110
+let minigunFiringUntil = 0
 
 /**
  * ─── What the game sounds like ───────────────────────────────────────────────
@@ -74,11 +78,20 @@ export const installGameSounds = (): void => {
     if (weapon === 'sniper') {
       sfx('sniper')
       sfx('bolt')
+    } else if (weapon === 'minigun') {
+      // Each round's punch, lighter, under the roar (#183) that the ticker below holds while it fires.
+      sfx('minigun', 0, 0.6)
+      minigunFiringUntil = performance.now() + MINIGUN_ROAR_HOLD_MS
     } else {
       sfx(weapon)
     }
   })
   on('weapon', () => sfx('weapon'))
+  // A story scene's minigun: its motor and its roar (#183).
+  on('cineGun', ({ spool, firing }) => {
+    minigunHum(spool > 0.01 ? spool : null)
+    minigunFire(firing)
+  })
   // Low is two ticks once; dry is a click on every pull (#145).
   on('ammoLow', () => sfx('ammoLow'))
   on('dryFire', () => sfx('dry'))
@@ -209,8 +222,11 @@ export const installGameSounds = (): void => {
     }
   }, { immediate: true })
 
-  // The minigun's motor: one voice, re-pitched every frame.
+  // The minigun's motor: one voice, re-pitched every frame; and its roar while
+  // it fires (#183). A story scene drives its own (the intro's minigun).
   addHudTicker(() => {
+    if (hud.phase === 'cinema') return
     minigunHum(hud.weapon === 'minigun' && (hud.phase === 'play') ? gun.spool : null)
+    minigunFire(hud.phase === 'play' && performance.now() < minigunFiringUntil)
   })
 }

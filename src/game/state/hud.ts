@@ -38,6 +38,11 @@ export type TrainingShout = '' | 'shout.backstab' | 'reset.cover' | 'reset.seen'
 
 export const hud = reactive({
   phase: 'boot' as Phase,
+  /**
+   * A story scene is holding its closing still (#179, #184): the fortress it
+   * shows, so the HUD frames it as a look ahead (its name, locked); '' when not.
+   */
+  cineStill: '' as '' | 'bastion' | 'foundry' | 'harbour' | 'spire',
   /** Which controls to draw: the touch HUD or the desktop one. */
   device: 'mouse' as 'touch' | 'mouse',
   crouched: false,

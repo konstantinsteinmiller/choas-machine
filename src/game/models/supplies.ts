@@ -66,14 +66,20 @@ export const buildAmmoCrate = (): { lit: BufferGeometry; glow: BufferGeometry } 
   return done(lit, glow)
 }
 
-/** A guard's ammo pouch, dropped where it fell (#76): a little satchel with a glowing clasp. */
+/**
+ * What a fallen guard drops (#76, #183): rifle rounds, drawn as one big rifle
+ * cartridge standing up, in the rifle's cyan with a brass case, so it reads
+ * as the rifle's ammunition from across a yard.
+ */
 export const buildAmmoPouch = (): { lit: BufferGeometry; glow: BufferGeometry } => {
   const lit: BufferGeometry[] = [
-    part(rbox(0.42, 0.24, 0.26, 0.45, 6, 4), '#4b5a7a', [0, 0.12, 0]),
-    part(rbox(0.44, 0.08, 0.28, 0.45, 6, 3), '#2f3a55', [0, 0.25, 0], [0.15, 0, 0]),
-    part(cap(0.03, 0.14, 6, 2), '#e8c35a', [0.14, 0.3, 0.02])
+    // The brass case, its rim, and a small dark base plate to stand on.
+    part(cap(0.1, 0.34, 10, 3), '#e8c35a', [0, 0.28, 0]),
+    part(rbox(0.26, 0.05, 0.26, 0.4, 6, 3), '#2f3a55', [0, 0.025, 0]),
+    part(cap(0.108, 0.03, 10, 2), '#b8932f', [0, 0.11, 0])
   ]
-  const glow: BufferGeometry[] = [part(sph(0.05, 6, 4), '#ffd23f', [0, 0.2, 0.14])]
+  // The bullet: the rifle's cyan, glowing.
+  const glow: BufferGeometry[] = [part(cap(0.075, 0.18, 10, 4), '#4de8ff', [0, 0.6, 0])]
   return done(lit, glow)
 }
 

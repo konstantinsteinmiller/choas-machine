@@ -42,6 +42,8 @@ export interface GameEvents {
   kill: { id: number; kind: PostKind; by: WeaponId | 'blade' | 'flame'; head: boolean; dist: number }
   /** A round left the barrel; a round or a rocket arrived. */
   shot: { weapon: WeaponId }
+  /** A story scene's minigun (#183): how fast its barrels turn (0 … 1) and whether it fires. */
+  cineGun: { spool: number; firing: boolean }
   /** A wreck melted down to a few bolts, added to the haul (#148). */
   bolts: { n: number; x: number; y: number; z: number }
   /** The weapon in hand just ran low; the trigger was pulled with nothing left (#145). */

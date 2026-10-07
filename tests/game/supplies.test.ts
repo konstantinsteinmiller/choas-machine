@@ -6,7 +6,7 @@ import { FortressBuilder } from '@/game/world/fortress'
 import { CELL, cellHeight, cellMid } from '@/game/world/grid'
 import { MINIGUN_BELT, SNIPER_MAG, SNIPER_RESERVE, isDry, makeArsenal, stepArsenal, type Trigger } from '@/game/sim/weapons'
 import { makeArmor } from '@/game/sim/armor'
-import { CRATE_BELT, CRATE_RIFLE, POUCH_BELT, POUCH_RIFLE, supplyUnderfoot, take, type Supply } from '@/game/sim/supplies'
+import { CRATE_BELT, CRATE_RIFLE, POUCH_ROUNDS_MAX, supplyUnderfoot, take, type Supply } from '@/game/sim/supplies'
 import { BARREL_RADIUS, CHAIN_S, barrelAt, ignite, stepBarrels, type Barrel } from '@/game/sim/barrels'
 import { blast } from '@/game/sim/damage'
 import { makeGarrison } from '@/game/sim/garrison'
@@ -53,16 +53,17 @@ describe('ammunition runs out (#76)', () => {
     a.minigunBelt = 10
     a.rockets = 1
     const list: Supply[] = [
-      { kind: 'pouch', x: 0, y: 0, z: 0, taken: false },
+      { kind: 'pouch', x: 0, y: 0, z: 0, taken: false, rounds: POUCH_ROUNDS_MAX },
       { kind: 'crate', x: 10, y: 0, z: 0, taken: false }
     ]
     const p = supplyUnderfoot(list, 0.5, 0, 0, a, armor, 6)!
     take(p, a, armor, 6)
-    expect([a.sniperReserve, a.minigunBelt]).toEqual([2 + POUCH_RIFLE, 10 + POUCH_BELT])
+    // Rifle rounds only (#183).
+    expect([a.sniperReserve, a.minigunBelt]).toEqual([2 + POUCH_ROUNDS_MAX, 10])
     const c = supplyUnderfoot(list, 10, 0, 0.4, a, armor, 6)!
     take(c, a, armor, 6)
-    expect(a.sniperReserve).toBe(Math.min(15, 2 + POUCH_RIFLE + CRATE_RIFLE))
-    expect(a.minigunBelt).toBe(10 + POUCH_BELT + CRATE_BELT)
+    expect(a.sniperReserve).toBe(Math.min(15, 2 + POUCH_ROUNDS_MAX + CRATE_RIFLE))
+    expect(a.minigunBelt).toBe(10 + CRATE_BELT)
     expect(a.rockets).toBe(2)
     const full = makeArsenal()
     expect(supplyUnderfoot([{ kind: 'pouch', x: 0, y: 0, z: 0, taken: false }], 0, 0, 0, full, armor, 6)).toBeNull()
