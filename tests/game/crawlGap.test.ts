@@ -51,3 +51,20 @@ describe('a crawl gap (#186)', () => {
     expect(p.x).toBeGreaterThan(7 * CELL)
   })
 })
+
+describe('the cover room hologram (#186)', () => {
+  it('crawls through the gap and stops just past the gate, still crouched, held there', async () => {
+    const { demoFrame, demoLength } = await import('@/game/sim/training')
+    const { LESSON_IDS, TRAINING_ROOMS } = await import('@/game/data/fortresses/training')
+    const i = LESSON_IDS.indexOf('cover')
+    const gateX = (TRAINING_ROOMS[i]!.door!.cx + 0.5) * CELL
+    const len = demoLength('cover')
+    const end = demoFrame(i, len)
+    // Past the glass, by less than a body length: seen through the opening.
+    expect(end.x - gateX).toBeGreaterThan(0.5)
+    expect(end.x - gateX).toBeLessThan(1.6)
+    expect(end.crouch).toBe(1)
+    // Held: the last second does not move.
+    expect(demoFrame(i, len - 1).x).toBeCloseTo(end.x, 3)
+  })
+})

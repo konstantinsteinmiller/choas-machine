@@ -100,8 +100,9 @@ const arrowStyle = computed(() => {
 .centre
   position: absolute
   left: 50%
-  // Below the door's line (28%), in the player's face.
-  top: 56%
+  // In the player's face, but below the door ahead (where the hologram
+  // shows the way through): over the mech's legs, not the doorway.
+  top: 72%
   translate: -50% -50%
   display: grid
   place-items: center

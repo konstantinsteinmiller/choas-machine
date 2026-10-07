@@ -116,11 +116,13 @@ export const DEMOS: Readonly<Record<LessonId, readonly DemoKey[]>> = {
     { t: 3.2, x: 5, z: 7, y: 3.6, air: 1 }, { t: 3.5, x: 5.8, z: 7, y: 2.5, air: 0 }, { t: 4.5, x: 8.4, z: 7, y: 2.5 },
     { t: 4.9, x: 9.3, z: 7, y: 0, air: 1 }, { t: 5.1, air: 0 }, { t: 5.9, x: 10.4, z: 7, y: 0 }
   ],
-  // Crouched all the way, and on through the gap under the gate (#186): it does not stop at it.
+  // Crouched all the way, and through the gap under the gate (#186); it stops
+  // just past the glass, still crouched and held there, where a player at the
+  // gate still sees it (further on it was out of sight).
   cover: [
     { t: 0, x: 1.5, z: 7, crouch: 0, hint: 'crouch' }, { t: 0.8, x: 1.5, z: 7, crouch: 1 },
     { t: 5.6, x: 9.4, z: 7.3, crouch: 1 }, { t: 6.6, x: 10.4, z: 7, crouch: 1 },
-    { t: 7.4, x: 11.5, z: 7, crouch: 1 }, { t: 8.2, x: 12.6, z: 7, crouch: 1 }
+    { t: 7.2, x: 11, z: 7, crouch: 1 }, { t: 7.8, x: 11.5, z: 7, crouch: 1 }, { t: 9.0, x: 11.5, z: 7, crouch: 1 }
   ],
   weapons: [
     { t: 0, x: 2, z: 7, face: [10, 2], weapon: 'sniper', aim: 0, hint: 'scope' }, { t: 0.7, aim: 1 }, { t: 1.8, aim: 1, hint: 'fire' },
