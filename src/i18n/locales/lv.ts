@@ -265,12 +265,11 @@ export default {
       'cover': 'Pietupies vienreiz, lai tiktu cauri',
       'weapons': 'Notriec visus trīs, lai tiktu cauri',
       'rocket': 'Iznīcini mehu ar granātmetēju',
-      'supply': 'Paķer apgādes kasti',
+      'supply': 'Paķer apgādi',
       'blade': 'Dur mugurā abiem sargiem',
       'burn': 'Sadedzini līķi',
       'decoy': 'Izmet ēsmu, tad dur sargam mugurā',
       'rope': 'Izšauj virvi pāri',
-      'beacon': 'Izslēdz trauksmes posteni',
       'salvage': 'Savāc lūžņus'
     }
   },

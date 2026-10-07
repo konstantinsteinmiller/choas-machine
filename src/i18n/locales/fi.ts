@@ -265,12 +265,11 @@ export default {
       'cover': 'Kyyristy kerran päästäksesi läpi',
       'weapons': 'Kaada kaikki kolme päästäksesi läpi',
       'rocket': 'Tuhoa mekki raketinheittimellä',
-      'supply': 'Nappaa tarvikelaatikko',
+      'supply': 'Nappaa tarvikkeet',
       'blade': 'Iske molemmat vartijat selkään',
       'burn': 'Polta ruumis',
       'decoy': 'Heitä houkutin ja iske sitten vartija selkään',
       'rope': 'Ammu köysi yli',
-      'beacon': 'Sammuta hälytyspiste',
       'salvage': 'Kerää romu'
     }
   },

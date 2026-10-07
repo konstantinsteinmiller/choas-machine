@@ -265,12 +265,11 @@ export default {
       'cover': 'Pritūpk kartą, kad praeitum',
       'weapons': 'Pakirsk visus tris, kad praeitum',
       'rocket': 'Sunaikink mechą granatsvaidžiu',
-      'supply': 'Pagriebk atsargų dėžę',
+      'supply': 'Pagriebk atsargas',
       'blade': 'Smok į nugarą abiem sargybiniams',
       'burn': 'Sudegink kūną',
       'decoy': 'Mesk masalą, tada smok sargybiniui į nugarą',
       'rope': 'Iššauk virvę į kitą pusę',
-      'beacon': 'Išjunk aliarmo postą',
       'salvage': 'Surink laužą'
     }
   },

@@ -34,7 +34,7 @@ export type Phase = 'boot' | 'intro' | 'play' | 'outro' | 'dead' | 'done' | 'bas
 /** What the training ground calls out (`training.shout.*`, `training.reset.*` in the locales). */
 export type TrainingShout = '' | 'shout.backstab' | 'reset.cover' | 'reset.seen' | 'reset.ammo' | 'reset.box' | 'reset.decoy' | 'reset.decoyTouch' | 'reset.decoyAny'
   // A shut lesson door, walked into (#171): what it wants.
-  | 'door.cover' | 'door.weapons' | 'door.rocket' | 'door.supply' | 'door.blade' | 'door.burn' | 'door.decoy' | 'door.rope' | 'door.beacon' | 'door.salvage'
+  | 'door.cover' | 'door.weapons' | 'door.rocket' | 'door.supply' | 'door.blade' | 'door.burn' | 'door.decoy' | 'door.rope' | 'door.salvage'
 
 export const hud = reactive({
   phase: 'boot' as Phase,

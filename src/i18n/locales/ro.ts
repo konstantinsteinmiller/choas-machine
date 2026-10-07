@@ -265,12 +265,11 @@ export default {
       'cover': 'Ghemuiește-te o dată ca să treci',
       'weapons': 'Doboară-le pe toate trei ca să treci',
       'rocket': 'Distruge mechul cu lansatorul',
-      'supply': 'Ia lada cu provizii',
+      'supply': 'Ia proviziile',
       'blade': 'Lovește pe la spate ambii paznici',
       'burn': 'Arde cadavrul',
       'decoy': 'Aruncă o momeală, apoi lovește paznicul pe la spate',
       'rope': 'Trage o frânghie de partea cealaltă',
-      'beacon': 'Oprește postul de alarmă',
       'salvage': 'Adună fierul vechi'
     }
   },

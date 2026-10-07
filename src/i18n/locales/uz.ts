@@ -265,12 +265,11 @@ export default {
       'cover': "O'tish uchun bir marta cho'kkala",
       'weapons': "O'tish uchun uchalasini ham yiq",
       'rocket': "Mexni granatomyot bilan yo'q qil",
-      'supply': "Ta'minot qutisini ol",
+      'supply': "Ta'minotni ol",
       'blade': 'Ikkala qorovulni ham orqadan ur',
       'burn': 'Jasadni yoq',
       'decoy': 'Yem tashla, keyin qorovulni orqadan ur',
       'rope': 'Arqonni narigi tomonga ot',
-      'beacon': "Signal postini o'chir",
       'salvage': "Temir-tersakni yig'"
     }
   },

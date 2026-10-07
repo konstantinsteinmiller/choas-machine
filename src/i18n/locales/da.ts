@@ -265,12 +265,11 @@ export default {
       'cover': 'Dukke dig én gang for at komme forbi',
       'weapons': 'Tag alle tre ned for at komme forbi',
       'rocket': 'Ødelæg mechen med raketkasteren',
-      'supply': 'Tag forsyningskassen',
+      'supply': 'Tag forsyningerne',
       'blade': 'Stik begge vagter i ryggen',
       'burn': 'Brænd liget',
       'decoy': 'Kast en lokkedue, og stik så vagten i ryggen',
       'rope': 'Skyd et reb over',
-      'beacon': 'Luk alarmposten ned',
       'salvage': 'Saml skrottet op'
     }
   },

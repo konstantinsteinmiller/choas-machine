@@ -265,12 +265,11 @@ export default {
       'cover': '蹲下一次即可通過',
       'weapons': '擊倒全部三個才能通過',
       'rocket': '用發射器摧毀機甲',
-      'supply': '拿起補給箱',
+      'supply': '拿起補給品',
       'blade': '背刺兩名守衛',
       'burn': '燒掉屍體',
       'decoy': '丟出誘餌，再背刺守衛',
       'rope': '射出繩索到對面',
-      'beacon': '關閉警報站',
       'salvage': '收集廢料'
     }
   },

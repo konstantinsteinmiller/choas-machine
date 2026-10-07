@@ -265,12 +265,11 @@ export default {
       'cover': 'Ajup-te una vegada per passar',
       'weapons': 'Abat-los tots tres per passar',
       'rocket': 'Destrueix el mecha amb el llançacohets',
-      'supply': 'Agafa la caixa de subministraments',
+      'supply': 'Agafa els subministraments',
       'blade': "Ataca per l'esquena els dos guàrdies",
       'burn': 'Crema el cos',
       'decoy': "Llança un parany i ataca el guàrdia per l'esquena",
       'rope': "Dispara una corda a l'altre costat",
-      'beacon': "Apaga el punt d'alarma",
       'salvage': 'Recull la ferralla'
     }
   },

@@ -265,12 +265,11 @@ export default {
       'cover': 'Accroupis-toi une fois pour passer',
       'weapons': 'Abats les trois pour passer',
       'rocket': 'Détruis le mécha avec le lance-roquettes',
-      'supply': 'Attrape la caisse de ravitaillement',
+      'supply': 'Récupère le ravitaillement',
       'blade': 'Frappe les deux gardes dans le dos',
       'burn': 'Brûle le corps',
       'decoy': 'Lance un leurre, puis frappe le garde dans le dos',
       'rope': "Tire une corde de l'autre côté",
-      'beacon': "Coupe le poste d'alarme",
       'salvage': 'Récupère le butin'
     }
   },

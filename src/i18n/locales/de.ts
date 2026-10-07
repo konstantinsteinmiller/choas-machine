@@ -265,12 +265,11 @@ export default {
       'cover': 'Duck dich einmal, um durchzukommen',
       'weapons': 'Schalt alle drei aus, um durchzukommen',
       'rocket': 'Zerstör den Mech mit dem Raketenwerfer',
-      'supply': 'Schnapp dir die Versorgungskiste',
+      'supply': 'Schnapp dir die Vorräte',
       'blade': 'Stich beide Wachen von hinten nieder',
       'burn': 'Verbrenn die Leiche',
       'decoy': 'Wirf einen Köder, dann stich die Wache von hinten nieder',
       'rope': 'Schieß ein Seil hinüber',
-      'beacon': 'Schalt den Alarmposten aus',
       'salvage': 'Sammle das Bergegut ein'
     }
   },

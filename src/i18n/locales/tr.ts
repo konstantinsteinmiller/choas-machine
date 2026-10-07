@@ -265,12 +265,11 @@ export default {
       'cover': 'Geçmek için bir kez çömel',
       'weapons': 'Geçmek için üçünü de indir',
       'rocket': "Mech'i roketatarla yok et",
-      'supply': 'İkmal sandığını kap',
+      'supply': 'İkmali kap',
       'blade': 'İki gardiyanı da sırtından sapla',
       'burn': 'Cesedi yak',
       'decoy': 'Yem at, sonra gardiyanı sırtından sapla',
       'rope': 'Karşıya bir halat at',
-      'beacon': 'Alarm noktasını kapat',
       'salvage': 'Hurdayı topla'
     }
   },

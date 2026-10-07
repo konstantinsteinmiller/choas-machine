@@ -18,9 +18,18 @@ export const TRAINING_ID = 'training'
 
 /** The lessons, one per room, in the order they are crossed. */
 export const LESSON_IDS = [
-  'move', 'jump', 'cover', 'weapons', 'rocket', 'supply', 'blade', 'burn', 'decoy', 'box', 'hook', 'rope', 'beacon', 'salvage', 'extract'
+  'move', 'jump', 'cover', 'weapons', 'rocket', 'supply', 'blade', 'burn', 'decoy', 'box', 'hook', 'rope', 'salvage', 'extract'
 ] as const
 export type LessonId = (typeof LESSON_IDS)[number]
+
+/**
+ * The armour the training starts with (#177): three quarters, so the supply
+ * room's repair pack has something to mend. A reset puts the mech back at that
+ * until the supply room is behind it, and at full armour after.
+ */
+export const TRAINING_ARMOR = 0.75
+export const trainingArmor = (room: number, max: number): number =>
+  room > LESSON_IDS.indexOf('supply') ? max : max * TRAINING_ARMOR
 
 /** A room's cells: its inside, and the doorway out (cells) if it has one. */
 export interface Room {
@@ -203,8 +212,6 @@ export const buildTrainingGround = (): Fortress => {
     const [dx, dz] = at(r, 9, 9)
     b.fill(cx, cz, dx, dz, ROPE_DECK_H)
   }
-  // · The beacon: put it out of action.
-  b.beacon(...at(room('beacon'), 6, 9))
   // · Salvage: a pile to strip.
   b.salvage(...at(room('salvage'), 6, 9), 30)
   // · The way out.

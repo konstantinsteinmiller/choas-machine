@@ -273,10 +273,6 @@ export class TrainingDirector {
     const done = t.done[t.room]
     switch (r.lesson) {
       case 'hook': return at(cellMid(r.x1 + 1), (r.z0 + 6.5) * CELL, 0.6)
-      case 'beacon': {
-        const b = this.gar.beacons[0]
-        return !done && b ? at(b.x, b.z, 2.2) : door ? at(door.x, door.z) : null
-      }
       case 'salvage': {
         const p = this.fortress.salvage[0]
         return !done && p ? at(p.x, p.z, 1.6) : door ? at(door.x, door.z) : null

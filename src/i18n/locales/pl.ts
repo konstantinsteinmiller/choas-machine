@@ -265,12 +265,11 @@ export default {
       'cover': 'Kucnij raz, żeby przejść',
       'weapons': 'Powal wszystkie trzy, żeby przejść',
       'rocket': 'Zniszcz mecha wyrzutnią',
-      'supply': 'Zabierz skrzynię z zaopatrzeniem',
+      'supply': 'Zabierz zaopatrzenie',
       'blade': 'Zaatakuj od tyłu obu strażników',
       'burn': 'Spal ciało',
       'decoy': 'Rzuć wabik, potem zaatakuj strażnika od tyłu',
       'rope': 'Wystrzel linę na drugą stronę',
-      'beacon': 'Wyłącz posterunek alarmowy',
       'salvage': 'Zbierz złom'
     }
   },

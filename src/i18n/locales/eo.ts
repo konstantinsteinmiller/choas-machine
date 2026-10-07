@@ -265,12 +265,11 @@ export default {
       'cover': 'Kaŝkaŭru unufoje por pasi',
       'weapons': 'Faligu ĉiujn tri por pasi',
       'rocket': 'Detruu la meĥon per la lanĉilo',
-      'supply': 'Prenu la provizan keston',
+      'supply': 'Prenu la provizojn',
       'blade': 'Ataku ambaŭ gardistojn de malantaŭe',
       'burn': 'Bruligu la korpon',
       'decoy': 'Ĵetu logilon, poste ataku la gardiston de malantaŭe',
       'rope': 'Pafu ŝnuron trans',
-      'beacon': 'Malŝaltu la alarmpoŝton',
       'salvage': 'Kolektu la rubaĵon'
     }
   },

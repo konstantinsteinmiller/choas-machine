@@ -269,12 +269,11 @@ export default {
       'cover': 'Crouch once to pass',
       'weapons': 'Take down all three to pass',
       'rocket': 'Destroy the mech with the launcher',
-      'supply': 'Grab the supply crate',
+      'supply': 'Pick up the supplies',
       'blade': 'Backstab both guards',
       'burn': 'Burn the body',
       'decoy': 'Throw a decoy, then backstab the guard',
       'rope': 'Shoot a rope across',
-      'beacon': 'Shut down the alarm post',
       'salvage': 'Collect the salvage'
     }
   },

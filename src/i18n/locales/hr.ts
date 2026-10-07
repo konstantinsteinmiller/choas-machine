@@ -265,12 +265,11 @@ export default {
       'cover': 'Čučni jednom da prođeš',
       'weapons': 'Obori sva tri da prođeš',
       'rocket': 'Uništi meha bacačem',
-      'supply': 'Uzmi sanduk sa zalihama',
+      'supply': 'Uzmi zalihe',
       'blade': 'Ubodi oba čuvara u leđa',
       'burn': 'Spali tijelo',
       'decoy': 'Baci mamac, pa ubodi čuvara u leđa',
       'rope': 'Ispucaj uže na drugu stranu',
-      'beacon': 'Ugasi alarmni punkt',
       'salvage': 'Skupi otpad'
     }
   },

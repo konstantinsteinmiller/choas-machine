@@ -177,7 +177,6 @@ export const DEMOS: Readonly<Record<LessonId, readonly DemoKey[]>> = {
     { t: 1.6, x: 3.5, z: 7, y: 4, cable: 1 }, { t: 4, x: 7.5, z: 7, y: 2, cable: 1 }, { t: 4.2, cable: 0 },
     { t: 4.8, x: 9.3, z: 7, y: 2 }, { t: 5.2, x: 9.9, z: 7, y: 0, air: 1 }, { t: 5.4, air: 0 }, { t: 6, x: 10.4, z: 7, y: 0 }
   ],
-  beacon: [{ t: 0, x: 1.5, z: 7 }, { t: 3, x: 5.4, z: 8.3, hint: 'sabotage' }, { t: 5, x: 5.4, z: 8.3, face: [6, 9] }],
   salvage: [
     { t: 0, x: 1.5, z: 7, loot: 0 }, { t: 3, x: 5.4, z: 8.3, hint: 'loot' }, { t: 3.4, face: [6, 9], loot: 1 }, { t: 5.6, loot: 1 }
   ],
@@ -301,7 +300,6 @@ export const lessonDone = (i: number, c: TrainingContext, b: TrainingContext): b
     // From behind, and close in from the side: two.
     case 'blade': return c.bladeKills - b.bladeKills >= 2
     case 'hook': return roomAt(c.x) > i
-    case 'beacon': return c.sabotaged > b.sabotaged
     case 'salvage': return c.piles > b.piles
     case 'extract': return false
   }
@@ -417,7 +415,6 @@ export const DOOR_LINES: Readonly<Partial<Record<LessonId, { line: string; hint:
   burn: { line: 'door.burn', hint: 'burn' },
   decoy: { line: 'door.decoy', hint: 'decoy' },
   rope: { line: 'door.rope', hint: 'rope' },
-  beacon: { line: 'door.beacon', hint: 'sabotage' },
   salvage: { line: 'door.salvage', hint: 'loot' }
 }
 

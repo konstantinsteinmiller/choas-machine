@@ -4,7 +4,7 @@
 
 import { describe, expect, it } from 'vitest'
 import {
-  HOOK_WALL_H, LESSON_IDS, ROOM_WALL_H, TRAINING_ROOMS, buildTrainingGround, roomCell
+  HOOK_WALL_H, LESSON_IDS, ROOM_WALL_H, TRAINING_ARMOR, TRAINING_ROOMS, buildTrainingGround, roomCell, trainingArmor
 } from '@/game/data/fortresses/training'
 import {
   BLADE_VICTIM, DEMOS, demoFrame, demoLength, doorOf, entryOf, lessonDone, makeTraining, replayDemo, roomAt, stepTraining,
@@ -17,6 +17,19 @@ import { validateFortress } from '@/game/world/validate'
 const ctx = (x: number, z: number, more: Partial<TrainingContext> = {}): TrainingContext => ({
   x, y: 0, z, bladeKills: 0, sniperKills: 0, rockets: 0, overheats: 0, zooms: 0, sabotaged: 0, piles: 0,
   supplies: 0, stocked: false, burns: 0, ropes: 0, ...more
+})
+
+describe('the armour (#177)', () => {
+  it('starts at three quarters, so the repair pack in the supply room mends it', () => {
+    expect(TRAINING_ARMOR).toBe(0.75)
+    expect(trainingArmor(0, 100)).toBe(75)
+  })
+
+  it('a reset keeps it at three quarters up to the supply room, full after it', () => {
+    const supply = LESSON_IDS.indexOf('supply')
+    for (let i = 0; i <= supply; i++) expect(trainingArmor(i, 120)).toBe(90)
+    for (let i = supply + 1; i < LESSON_IDS.length; i++) expect(trainingArmor(i, 120)).toBe(120)
+  })
 })
 
 describe('the layout', () => {
@@ -62,10 +75,12 @@ describe('the layout', () => {
     expect(ROOM_WALL_H).toBeGreaterThan(GRAPPLE_MAX + 6)
   })
 
-  it('a pile, a beacon and the defenders are where their lessons are', () => {
+  it('a pile and the defenders are where their lessons are; no alarm post to sabotage (#177)', () => {
     expect(f.salvage).toHaveLength(1)
     expect(roomAt(f.salvage[0]!.x)).toBe(LESSON_IDS.indexOf('salvage'))
-    expect(roomAt(f.beacons[0]!.x)).toBe(LESSON_IDS.indexOf('beacon'))
+    expect(f.beacons).toHaveLength(0)
+    expect(LESSON_IDS).not.toContain('beacon')
+    expect(TRAINING_ROOMS[LESSON_IDS.indexOf('rope')]!.door).not.toBeNull()
     for (const p of f.posts) expect(LESSON_IDS[roomAt(p.x)]).toMatch(/cover|weapons|rocket|blade|burn|decoy|box/)
   })
 })

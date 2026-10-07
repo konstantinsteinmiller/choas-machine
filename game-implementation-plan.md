@@ -1000,6 +1000,26 @@ replay key, the keyboard-driven settings.
     scene played out); Space held 1.5 s skips any cutscene, the key on the
     button in a filling ring (`HoldSkipButton`).
 
+## Round 7: the owner's list #176-#181 (2026-10-07)
+
+Decision report: https://claude.ai/artifact/N4Yf8DtnTZTR6CG72cxtNh (D1-D15).
+Order: shared systems before the content that uses them (the outline and the
+drone AI before the new roster and the intro).
+
+- [x] **R75.1 Training trim** (#177): the alarm-post room is gone (14 rooms,
+  the rope room opens into salvage; `training.door.beacon` out of 39 locales).
+  The training starts at 75 % armour (`TRAINING_ARMOR`); a reset puts it back
+  at that until the supply room is behind the mech, full after, so the repair
+  pack mends something. The supply door says "Pick up the supplies" (39 locales).
+- [ ] **R75.2 Outline always on top** (#178)
+- [ ] **R75.3 CM-07 bursts into its parts** (#180)
+- [ ] **R75.4 Drones that listen and hunt** (#181)
+- [ ] **R75.5 The first fortress's roster** (#176)
+- [ ] **R75.6 The intro's finale** (#179)
+
+Pre-existing failure: `tests/tools/pokiDeploy.test.ts` expects an empty Poki
+gameId; `poki.config.mjs` at HEAD carries one.
+
 ## Resume notes
 
 - Dev server: `pnpm dev` (port 2196). Check the served `<title>` ("Chaos Machine") before

@@ -41,7 +41,7 @@ const { t } = useI18n()
 /** One glyph per lesson; the pips run in the order the rooms are crossed. */
 const GLYPH: Readonly<Record<LessonId, GameIconName>> = {
   move: 'mech', jump: 'up', cover: 'crouch', weapons: 'sniper', rocket: 'rocket', supply: 'bolt', blade: 'blade', burn: 'flame',
-  decoy: 'decoy', box: 'box', hook: 'hook', rope: 'rope', beacon: 'siren', salvage: 'scrap', extract: 'play'
+  decoy: 'decoy', box: 'box', hook: 'hook', rope: 'rope', salvage: 'scrap', extract: 'play'
 }
 const ICONS: readonly GameIconName[] = LESSON_IDS.map(id => GLYPH[id])
 

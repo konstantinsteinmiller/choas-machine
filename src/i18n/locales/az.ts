@@ -265,12 +265,11 @@ export default {
       'cover': 'Keçmək üçün bir dəfə çömel',
       'weapons': 'Keçmək üçün üçünü də vur',
       'rocket': 'Mekanı raketatanla məhv et',
-      'supply': 'Təchizat qutusunu götür',
+      'supply': 'Təchizatı götür',
       'blade': 'Hər iki mühafizəçini arxadan vur',
       'burn': 'Cəsədi yandır',
       'decoy': 'Yem at, sonra mühafizəçini arxadan vur',
       'rope': 'Qarşı tərəfə ip at',
-      'beacon': 'Həyəcan postunu söndür',
       'salvage': 'Hurdanı topla'
     }
   },

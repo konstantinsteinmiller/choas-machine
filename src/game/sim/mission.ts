@@ -67,7 +67,7 @@ import { AirshipView } from './airshipView'
 import { AIRSHIP_HALF } from '../models/airship'
 import { TrainingDirector } from './trainingDirector'
 import { DEMO_GAP_S, DOOR_LINES, atShutDoor, demoLength, entryOf, inPit, lessonStuck, roomAt, victimFrame } from './training'
-import { TRAINING_ID, TRAINING_ROOMS, type LessonId } from '../data/fortresses/training'
+import { TRAINING_ID, TRAINING_ROOMS, trainingArmor, type LessonId } from '../data/fortresses/training'
 import { COVER_H } from '../world/fortress'
 import { BASE_LOADOUT, type Loadout } from '../data/upgrades'
 import { camKind, camZone, chooseKillCam, makeKillCamState, type CamCut, type KillInfo } from './killcam'
@@ -589,6 +589,8 @@ export class Mission implements GameMode {
     m.scene.add(m.hookView.group)
     if (fortress.id === TRAINING_ID) {
       m.training = new TrainingDirector(m.scene, fortress, m.garrison)
+      // Three quarters of the armour (#177): the supply room's repair pack mends it.
+      m.armor.hp = trainingArmor(0, m.armor.max)
       // The flamethrower room's guard is already down (#113): its lesson is the burning.
       const room = TRAINING_ROOMS.findIndex(r => r.lesson === 'burn')
       for (const u of m.garrison.units) {
@@ -621,7 +623,7 @@ export class Mission implements GameMode {
     hud.chaos = false
     hud.watched = false
     threats.n = 0
-    vital.armor = 1
+    vital.armor = this.armor.hp / this.armor.max
     vital.hitAge = 9
     mirror('armorLow', false)
     mirror('cine', false)
@@ -3239,10 +3241,15 @@ export class Mission implements GameMode {
     p.boxed = false
     p.crouched = false
     this.cam.yaw = yaw
-    this.armor.hp = this.armor.max
+    this.armor.hp = this.resetArmor()
     this.looting = null
     this.sabotaging = null
     if (this.dragId >= 0) this.dropBody()
+  }
+
+  /** A training reset's armour (#177): three quarters until the supply room is behind the mech, full after. */
+  private resetArmor(): number {
+    return this.training ? trainingArmor(this.training.state.room, this.armor.max) : this.armor.max
   }
 
   private roomCleared(room: number): boolean {
@@ -3377,7 +3384,7 @@ export class Mission implements GameMode {
         p.boxed = false
         p.crouched = false
         this.cam.yaw = yaw
-        this.armor.hp = this.armor.max
+        this.armor.hp = this.resetArmor()
         this.looting = null
         this.sabotaging = null
         if (this.dragId >= 0) this.dropBody()

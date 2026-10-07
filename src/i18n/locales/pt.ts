@@ -265,12 +265,11 @@ export default {
       'cover': 'Agache uma vez para passar',
       'weapons': 'Derrube os três para passar',
       'rocket': 'Destrua o mecha com o lançador',
-      'supply': 'Pegue a caixa de suprimentos',
+      'supply': 'Pegue os suprimentos',
       'blade': 'Ataque os dois guardas pelas costas',
       'burn': 'Queime o corpo',
       'decoy': 'Lance uma isca e ataque o guarda pelas costas',
       'rope': 'Atire uma corda para o outro lado',
-      'beacon': 'Desligue o posto de alarme',
       'salvage': 'Recolha a sucata'
     }
   },

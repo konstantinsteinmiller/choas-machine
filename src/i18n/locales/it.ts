@@ -265,12 +265,11 @@ export default {
       'cover': 'Accovacciati una volta per passare',
       'weapons': 'Abbatti tutti e tre per passare',
       'rocket': 'Distruggi il mech con il lanciarazzi',
-      'supply': 'Prendi la cassa di rifornimenti',
+      'supply': 'Prendi i rifornimenti',
       'blade': 'Colpisci alle spalle entrambe le guardie',
       'burn': 'Brucia il corpo',
       'decoy': "Lancia un'esca, poi colpisci la guardia alle spalle",
       'rope': "Spara una fune dall'altra parte",
-      'beacon': 'Spegni il posto di allarme',
       'salvage': 'Raccogli i rottami'
     }
   },

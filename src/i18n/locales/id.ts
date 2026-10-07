@@ -265,12 +265,11 @@ export default {
       'cover': 'Jongkok sekali untuk lewat',
       'weapons': 'Tumbangkan ketiganya untuk lewat',
       'rocket': 'Hancurkan mech dengan peluncur',
-      'supply': 'Ambil peti persediaan',
+      'supply': 'Ambil persediaannya',
       'blade': 'Tikam kedua penjaga dari belakang',
       'burn': 'Bakar mayatnya',
       'decoy': 'Lempar umpan, lalu tikam penjaga dari belakang',
       'rope': 'Tembakkan tali ke seberang',
-      'beacon': 'Matikan pos alarm',
       'salvage': 'Kumpulkan rongsokan'
     }
   },

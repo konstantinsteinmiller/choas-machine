@@ -265,12 +265,11 @@ export default {
       'cover': 'Guggolj egyszer az átjutáshoz',
       'weapons': 'Ütsd ki mind a hármat az átjutáshoz',
       'rocket': 'Semmisítsd meg a mechet a rakétavetővel',
-      'supply': 'Kapd fel az utánpótlásládát',
+      'supply': 'Kapd fel az utánpótlást',
       'blade': 'Szúrd hátba mindkét őrt',
       'burn': 'Égesd el a holttestet',
       'decoy': 'Dobj egy csalit, aztán szúrd hátba az őrt',
       'rope': 'Lőj át egy kötelet',
-      'beacon': 'Kapcsold le a riasztóállomást',
       'salvage': 'Gyűjtsd össze a hulladékot'
     }
   },

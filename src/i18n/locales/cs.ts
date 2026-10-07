@@ -265,12 +265,11 @@ export default {
       'cover': 'Skrč se jednou a projdeš',
       'weapons': 'Sejmi všechny tři a projdeš',
       'rocket': 'Znič mecha raketometem',
-      'supply': 'Vezmi zásobovací bednu',
+      'supply': 'Vezmi zásoby',
       'blade': 'Bodni do zad oba strážce',
       'burn': 'Spal tělo',
       'decoy': 'Hoď návnadu, pak bodni strážce do zad',
       'rope': 'Přestřel lano na druhou stranu',
-      'beacon': 'Vypni poplašné stanoviště',
       'salvage': 'Seber šrot'
     }
   },

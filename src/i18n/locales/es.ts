@@ -265,12 +265,11 @@ export default {
       'cover': 'Agáchate una vez para pasar',
       'weapons': 'Abate a los tres para pasar',
       'rocket': 'Destruye el mecha con el lanzacohetes',
-      'supply': 'Coge la caja de suministros',
+      'supply': 'Coge los suministros',
       'blade': 'Apuñala por la espalda a los dos guardias',
       'burn': 'Quema el cuerpo',
       'decoy': 'Lanza un señuelo y apuñala al guardia por la espalda',
       'rope': 'Dispara una cuerda al otro lado',
-      'beacon': 'Apaga el puesto de alarma',
       'salvage': 'Recoge la chatarra'
     }
   },
