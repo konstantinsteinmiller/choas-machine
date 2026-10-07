@@ -104,6 +104,9 @@ interface Wreck {
   melt: number
 }
 
+/** CM-07's wreck (#180): its id in the garrison's shatter, below every unit's (0 and up). */
+export const PLAYER_WRECK = -1
+
 const _v = new Vector3()
 const _a = new Vector3()
 const _m = new Matrix4()
@@ -137,13 +140,16 @@ export class Shatter {
    * Returns false for a rig that does not keep its parts.
    */
   break(id: number, rig: Rig, opts: { dirX?: number; dirZ?: number; force?: number; seed?: number; material?: Material } = {}): boolean {
-    const parts = rig.parts
-    if (!parts || parts.length === 0) return false
+    if (!rig.parts || rig.parts.length === 0) return false
     this.clear(id)
     rig.root.updateMatrixWorld(true)
     this.group.updateMatrixWorld(true)
     const inv = rig.mesh.skeleton.boneInverses
     const srcBones = rig.mesh.skeleton.bones
+    // A part shrunk to nothing on its bone (CM-07's holstered weapons, #180)
+    // is not there to fly: it would only take a piece's place.
+    const parts = rig.parts.filter(p => _s.setFromMatrixScale(srcBones[p.bone]!.matrixWorld).x > 0.02)
+    if (parts.length === 0) return false
     // Each part's box in its bone's own space.
     const boxes = parts.map(p => {
       const b = new Box3()

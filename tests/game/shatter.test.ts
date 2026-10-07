@@ -2,11 +2,12 @@
 
 import { describe, expect, it } from 'vitest'
 import { Box3, Vector3, type SkinnedMesh } from 'three'
-import { MELT_S, REST_CLEAR, Shatter, planPieces } from '@/game/fx/shatter'
+import { MELT_S, PLAYER_WRECK, REST_CLEAR, Shatter, planPieces } from '@/game/fx/shatter'
 import { buildDrone, buildEnforcer, buildGoliath, buildRoomba, buildSearchlight, poseDrone, poseEnforcer } from '@/game/models/garrison'
 import { buildRobodog, HOUND_SCALE } from '@/game/models/robodog'
 import { makeGrid, heightAt, type Grid } from '@/game/world/grid'
 import type { Rig } from '@/game/models/kit'
+import { buildMech, poseMech, restPose, MECH_SCALE } from '@/game/models/mech'
 
 const yard = (): Grid => {
   const g = makeGrid(20, 20)
@@ -98,6 +99,37 @@ describe('a machine coming apart', () => {
       s.dispose()
     })
   }
+
+  it('CM-07 comes apart into its own parts too (#180), its holstered weapons left out', () => {
+    const g = yard()
+    const s = new Shatter(g)
+    const rig = buildMech()
+    rig.root.position.set(20, 0, 20)
+    rig.root.scale.setScalar(MECH_SCALE)
+    poseMech(rig, { ...restPose(), weapon: 'sniper', down: 0.95 })
+    rig.root.updateMatrixWorld(true)
+    const before = drawnBox(rig.mesh)
+    expect(PLAYER_WRECK).toBeLessThan(0)
+    expect(s.break(PLAYER_WRECK, rig, { dirX: 0, dirZ: 1, force: 4.2, seed: 0.42 })).toBe(true)
+    const wreck = s.group.children.find(c => (c as SkinnedMesh).isSkinnedMesh && (c as SkinnedMesh).renderOrder === 0) as SkinnedMesh
+    // Where the parts were (the shrunk holstered weapons are not among them, so nothing sits outside the body).
+    const at = drawnBox(wreck)
+    expect(at.min.distanceTo(before.min)).toBeLessThan(0.02)
+    expect(at.max.distanceTo(before.max)).toBeLessThan(0.02)
+    const pieces = s.pieces(PLAYER_WRECK)
+    expect(pieces.length).toBeGreaterThanOrEqual(10)
+    expect(pieces.length).toBeLessThanOrEqual(28)
+    // Fewer than a break that kept the two shrunk weapons as pieces of their own.
+    const holstered = rig.parts.filter(p => p.geo && rig.mesh.skeleton.bones[p.bone]!.getWorldScale(new Vector3()).x < 0.02)
+    expect(holstered.length).toBeGreaterThan(0)
+    for (let i = 0; i < 60 * 9; i++) s.update(1 / 60)
+    for (const p of s.pieces(PLAYER_WRECK)) {
+      expect(p.asleep).toBe(true)
+      expect(p.low).toBeGreaterThanOrEqual(heightAt(g, p.x, p.z) + REST_CLEAR - 1e-3)
+      expect(Math.hypot(p.x - 20, p.z - 20)).toBeLessThan(9)
+    }
+    s.dispose()
+  })
 
   it('the flamethrower melts the whole wreck, wherever its pieces lie', () => {
     const s = new Shatter(yard())

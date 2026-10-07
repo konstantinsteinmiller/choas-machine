@@ -1020,7 +1020,12 @@ drone AI before the new roster and the intro).
   thinnest side, at most 6 cm) and its ring is drawn that much nearer the eye
   (`toon.ts`, `kit.ts`), no extra pass. Props read 0. Pinned by
   `outlineBias.test.ts` over every rig.
-- [ ] **R75.3 CM-07 bursts into its parts** (#180)
+- [x] **R75.3 CM-07 bursts into its parts** (#180): as it hits the ground
+  (kneel + 0.5 s) the mech's own parts break apart through the garrison's
+  `Shatter` (id `PLAYER_WRECK`, pushed along the last blow, hot glow, sparks),
+  in place of the 7 generic plates; the rig is hidden after. Parts shrunk to
+  nothing on their bone (the holstered weapons) are left out of any break.
+  Browser: 27 pieces, framed by the follow camera; `shatter.test.ts`.
 - [ ] **R75.4 Drones that listen and hunt** (#181)
 - [ ] **R75.5 The first fortress's roster** (#176)
 - [ ] **R75.6 The intro's finale** (#179)

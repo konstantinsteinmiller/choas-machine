@@ -22,6 +22,7 @@ import { ringTexture } from '../world/textures'
 import { FloorMarkers, makeBlobShadow } from '../fx/markers'
 import { CombatFx } from '../fx/combatFx'
 import { BulletMarks } from '../fx/bulletMarks'
+import { PLAYER_WRECK } from '../fx/shatter'
 import { buildRopeLines, type RopeLine } from '../fx/ropeLine'
 import type { Rig } from '../models/kit'
 import { muzzleWorld, buildMech, poseMech, restPose, MECH_HEIGHT, MECH_HEIGHT_CROUCH, MECH_SCALE, type MechPose , MECH_KNEEL_S, MECH_DOWN_S } from '../models/mech'
@@ -119,6 +120,8 @@ const PIERCE_MAX = 2
 const PIERCE_KEEP = 0.8
 /** Seconds into going down that WASTED comes up (#150): as the knees give. */
 const WASTED_AT = 0.35
+/** How hard CM-07 comes apart (#180), m/s. */
+const PLAYER_SHATTER_FORCE = 4.2
 /** The flamethrower (#99): how near the body must be, and how long a burn takes. */
 const BURN_REACH = 2.4
 const BURN_S = 2
@@ -873,13 +876,21 @@ export class Mission implements GameMode {
       if (was < 0.2 && this.downT >= 0.2) this.fx.particles.orbBurst(p2.x, p2.y + 1.0, p2.z, PAL.mechEye, 0.7)
       const landAt = MECH_KNEEL_S + 0.5
       if (was < landAt && this.downT >= landAt) {
-        const fx = Math.sin(p2.yaw)
-        const fz = Math.cos(p2.yaw)
-        this.garrisonView.wreckage.burst({
-          x: p2.x + fx * 0.6, y: p2.y + 0.3, z: p2.z + fz * 0.6, hx: 0.3, hy: 0.15, hz: 0.3,
-          count: 7, size: [0.1, 0.22], colors: [PAL.mechArmor, PAL.mechArmorDeep, PAL.mechSuit, PAL.mechCore], force: 3.6, dirX: fx, dirZ: fz
-        })
-        this.shake = Math.max(this.shake, 0.5)
+        // It comes apart into its own parts as it hits the ground (#180),
+        // pushed on the way the last blow came, like any machine.
+        const away = Math.hypot(this.hitDirX, this.hitDirZ)
+        const dirX = away > 1e-3 ? this.hitDirX / away : Math.sin(p2.yaw)
+        const dirZ = away > 1e-3 ? this.hitDirZ / away : Math.cos(p2.yaw)
+        this.wrecked = this.garrisonView.shatter.break(PLAYER_WRECK, this.rig, { dirX, dirZ, force: PLAYER_SHATTER_FORCE, seed: 0.42 })
+        if (this.wrecked) this.rig.root.visible = false
+        else {
+          this.garrisonView.wreckage.burst({
+            x: p2.x + dirX * 0.6, y: p2.y + 0.3, z: p2.z + dirZ * 0.6, hx: 0.3, hy: 0.15, hz: 0.3,
+            count: 7, size: [0.1, 0.22], colors: [PAL.mechArmor, PAL.mechArmorDeep, PAL.mechSuit, PAL.mechCore], force: 3.6, dirX, dirZ
+          })
+        }
+        this.fx.particles.sparks(p2.x, p2.y + 0.8, p2.z, PAL.mechEye, 22, 5, 0.3)
+        this.shake = Math.max(this.shake, 0.7)
         haptic('blast')
         emit('land', { drop: 3 })
       }
@@ -2496,6 +2507,8 @@ export class Mission implements GameMode {
     if (god.on) return
     const p = this.player
     const down = hurtArmor(this.armor, amount)
+    this.hitDirX = p.x - fromX
+    this.hitDirZ = p.z - fromZ
     vital.armor = this.armor.hp / this.armor.max
     vital.hitAngle = angleDelta(this.cam.yaw, headingTo(p.x, p.z, fromX, fromZ))
     vital.hitAge = 0
@@ -3225,6 +3238,11 @@ export class Mission implements GameMode {
 
   /** The squash of the last landing, easing out (#148). */
   private landSquash = 0
+
+  /** The way the last blow on the mech pushed (from the shooter to the mech), and whether it has come apart (#180). */
+  private hitDirX = 0
+  private hitDirZ = 0
+  private wrecked = false
 
   /** Seconds the rocket room's launcher has been out with its target standing. */
   private rocketDryT = 0
@@ -4153,7 +4171,7 @@ export class Mission implements GameMode {
     // The body.
     this.rig.root.position.set(x + this.rideX, y + this.lift, z + this.rideZ)
     this.rig.root.rotation.y = yaw
-    this.rig.root.visible = inside < 0.6
+    this.rig.root.visible = inside < 0.6 && !this.wrecked
     // Folding into the disguise (#111): the mech spins, squats and shrinks
     // into itself while the disguise's pieces fly out of its chest.
     const was = this.morph
