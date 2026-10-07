@@ -184,12 +184,19 @@ export const glow = (hex: string): MeshBasicMaterial => {
 // same material outlines a skinned character, an instanced crate and a static
 // prop alike — and so a rig's outline is ONE extra draw call bound to the same
 // skeleton, never one per body part.
+//
+// A character's parts each carry an `outlineBias` (#178): the part's ring is
+// drawn that much nearer the eye, so it wins over the parts just behind it (an
+// arm swung past the chest, a thigh into the hip) instead of being cut off
+// where they come close. It is sized to the part (a fraction of its thinnest
+// side) so it never darkens the part itself. Props have none (0).
 
 const OUTLINE_VERT = /* glsl */`
 #include <common>
 #include <skinning_pars_vertex>
 #include <fog_pars_vertex>
 uniform float uThickness;
+attribute float outlineBias;
 void main() {
   #include <skinbase_vertex>
   #include <beginnormal_vertex>
@@ -198,6 +205,8 @@ void main() {
   #include <skinning_vertex>
   transformed += normalize(objectNormal) * uThickness;
   #include <project_vertex>
+  mvPosition.xyz -= normalize(mvPosition.xyz) * outlineBias * length(modelViewMatrix[0].xyz);
+  gl_Position = projectionMatrix * mvPosition;
   #include <fog_vertex>
 }
 `
@@ -238,6 +247,8 @@ export const outlineMat = (thickness = 0.03, color: Color = OUTLINE_COLOR, skinn
     side: BackSide,
     fog: true
   })
+  // A geometry without its own bias (props, batches) reads 0, not a stale value.
+  ;(m as ShaderMaterial & { defaultAttributeValues: Record<string, number[]> }).defaultAttributeValues.outlineBias = [0]
   outlineCache.set(key, m)
   return m
 }

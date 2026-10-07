@@ -19,6 +19,22 @@ import type { MeshToonMaterial, MeshBasicMaterial } from 'three'
  * All helpers return indexed geometry WITHOUT uvs, so any mix of them merges.
  */
 
+/**
+ * A part's outline bias (#178): its ring is drawn this much nearer the eye, so
+ * a neighbouring part that comes close behind it (or pokes through) cannot cut
+ * it off. A fraction of the part's thinnest side, so the ring never comes in
+ * front of the part's own face; capped, so a big part's ring does not draw
+ * over a part that truly stands in front of it.
+ */
+export const OUTLINE_BIAS_MAX = 0.06
+export const OUTLINE_BIAS_SHARE = 0.3
+export const outlineBias = (g: BufferGeometry): number => {
+  g.computeBoundingBox()
+  const b = g.boundingBox!
+  const thin = Math.min(b.max.x - b.min.x, b.max.y - b.min.y, b.max.z - b.min.z)
+  return Math.min(OUTLINE_BIAS_MAX, Math.max(0, thin) * OUTLINE_BIAS_SHARE)
+}
+
 export const stripUv = <T extends BufferGeometry>(g: T): T => {
   g.deleteAttribute('uv')
   return g
@@ -439,6 +455,9 @@ export class RigBuilder {
       }
       g.setAttribute('skinIndex', new Uint16BufferAttribute(idx, 4))
       g.setAttribute('skinWeight', new Float32BufferAttribute(w, 4))
+      // How far nearer the eye this part's ring is drawn (#178), in the rig's units.
+      const bias = part.outline ? outlineBias(g) : 0
+      g.setAttribute('outlineBias', new Float32BufferAttribute(new Float32Array(n).fill(bias), 1))
       ;(part.glow ? glowGeos : toonGeos).push(g)
       if (part.outline) outlineGeos.push(g)
     }

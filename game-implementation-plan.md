@@ -1011,7 +1011,15 @@ drone AI before the new roster and the intro).
   The training starts at 75 % armour (`TRAINING_ARMOR`); a reset puts it back
   at that until the supply room is behind the mech, full after, so the repair
   pack mends something. The supply door says "Pick up the supplies" (39 locales).
-- [ ] **R75.2 Outline always on top** (#178)
+- [x] **R75.2 Outline always on top** (#178): measured first (bench close-ups
+  of CM-07 and a guard mid-stride): the outer silhouette was never cut; the
+  breaks were inside the body, where an arm, a pauldron or a thigh comes close
+  to (or pokes through) the part behind it and that part's surface wins the
+  depth test over the ring. So D4's stencil silhouette would have fixed
+  nothing; instead each outlined part carries an `outlineBias` (30 % of its
+  thinnest side, at most 6 cm) and its ring is drawn that much nearer the eye
+  (`toon.ts`, `kit.ts`), no extra pass. Props read 0. Pinned by
+  `outlineBias.test.ts` over every rig.
 - [ ] **R75.3 CM-07 bursts into its parts** (#180)
 - [ ] **R75.4 Drones that listen and hunt** (#181)
 - [ ] **R75.5 The first fortress's roster** (#176)
