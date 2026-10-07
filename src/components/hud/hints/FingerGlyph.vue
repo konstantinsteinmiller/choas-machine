@@ -44,13 +44,14 @@ defineProps<{ mode: 'drag' | 'swipe' | 'hold' | 'release' | 'push' | 'tap' | 'lo
   position: absolute
   inset: 0
   rotate: -90deg
+  // A host may colour and weigh the ring to its control (the bellows' amber, #185).
   circle
     fill: none
-    stroke-width: 2.5
+    stroke-width: var(--ring-width, 2.5)
   .track
-    stroke: rgba(246, 241, 255, 0.3)
+    stroke: var(--ring-track, rgba(246, 241, 255, 0.3))
   .fill
-    stroke: var(--cm-pink)
+    stroke: var(--ring-color, var(--cm-pink))
     stroke-linecap: round
     stroke-dasharray: 106.9
     stroke-dashoffset: 106.9

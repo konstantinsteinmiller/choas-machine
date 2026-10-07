@@ -18,18 +18,20 @@
       div.crucible
         div.molten(:style="{ height: `${melt * 100}%` }")
         GameIcon.ore(name="scrap")
-    //- The bellows: held with a pointer or with Space.
-    FingerGlyph.teach(v-if="!learned" mode="hold")
-    button.bellows(
-      type="button"
-      :aria-label="t('smithy.pump')"
-      data-testid="smith-bellows"
-      @pointerdown.prevent="press(true, $event)"
-      @pointerup.prevent="press(false)"
-      @pointercancel="press(false)"
-      @lostpointercapture="press(false)"
-    )
-      GameIcon(name="flame")
+    //- The bellows: held with a pointer or with Space. The lesson's finger and
+    //- its filling ring sit exactly round the button (#185), sized from it.
+    div.bellows-wrap
+      button.bellows(
+        type="button"
+        :aria-label="t('smithy.pump')"
+        data-testid="smith-bellows"
+        @pointerdown.prevent="press(true, $event)"
+        @pointerup.prevent="press(false)"
+        @pointercancel="press(false)"
+        @lostpointercapture="press(false)"
+      )
+        GameIcon(name="flame")
+      FingerGlyph.teach(v-if="!learned" mode="hold" data-testid="smith-teach")
 </template>
 
 <script setup lang="ts">
@@ -97,16 +99,28 @@ useGameLoop((dt) => {
   user-select: none
   touch-action: none
   +tech-plate(var(--cm-warn), var(--cm-surface), 0.55rem)
-// The lesson: a finger on the control, until the game has been played well once.
-.teach
+// The bellows and the lesson over them share one centre (#185).
+.bellows-wrap
+  --bellows: clamp(3.4rem, 15vmin, 5rem)
+  position: relative
+  display: grid
+  place-items: center
+  width: var(--bellows)
+  height: var(--bellows)
+// The lesson: a finger on the control, its ring round the button with a
+// little air between, until the game has been played well once.
+.bellows-wrap .teach
+  --size: calc(var(--bellows) + 1.3rem)
+  --ring-color: #ffd27a
+  --ring-track: rgba(255, 178, 74, 0.28)
+  --ring-width: 3.4
   position: absolute
+  left: 50%
+  top: 50%
+  translate: -50% -50%
   pointer-events: none
   z-index: 2
-  filter: drop-shadow(0 0.15rem 0.2rem rgba(10, 5, 24, 0.7))
-  // Right on the bellows: the same padding from the edge, its middle on theirs.
-  right: clamp(0.5rem, 2vmin, 0.9rem)
-  top: 50%
-  margin-top: calc(clamp(3rem, 15vmin, 5rem) * -0.35)
+  filter: drop-shadow(0 0 0.35rem rgba(255, 150, 60, 0.75)) drop-shadow(0 0.15rem 0.2rem rgba(10, 5, 24, 0.6))
 .furnace
   position: relative
 .gauge
@@ -183,8 +197,8 @@ useGameLoop((dt) => {
   color: #b9b2e0
   opacity: 0.8
 .bellows
-  width: clamp(3.4rem, 15vmin, 5rem)
-  height: clamp(3.4rem, 15vmin, 5rem)
+  width: var(--bellows)
+  height: var(--bellows)
   border-radius: 50%
   border: var(--cm-edge) solid #ffb14a
   background: radial-gradient(circle at 40% 35%, #ffcf7a, #ff7a2a 70%)
