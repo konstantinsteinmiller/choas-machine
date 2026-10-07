@@ -48,23 +48,34 @@ scrap for itself: melting it into new war machines that patrol the sky.
 ## The scenes
 
 Every scene can be skipped from its first frame (a skip button, or Space held
-for half a second), plays once, and can be replayed from the Command Base.
+for a second and a half, #175), plays once, and can be replayed from the Command Base.
 The gameplay bracket pauses while a scene plays.
 
-### Intro (about 42 s; once, after the training ground, before the first Bastion raid)
+### Intro (about 50 s; once, after the training ground, before the first Bastion raid)
 
-An ability showcase, the music's hero theme under it:
+An ability showcase on a piece of the Bastion, wordless, the music's hero
+theme under it:
 
 1. Over the cloud sea at dusk, the robo dog's jet board skims the clouds with
-   the mech crouched on it; the camera rides alongside.
+   the mech crouched on it; it hops off onto a shelf and the board flies away.
 2. A cliff: the mech throws the hook, is pulled up, rolls over the edge.
-3. A gap between two outcrops: it shoots a rope across and runs it.
-4. A decoy lands by two guards; both turn to it, their backs to the mech.
-5. The rifle: a slow zoom, one headshot on a sentry.
-6. The mini-gun spins up and shreds a drone out of the air.
-7. A rocket into a Goliath's flank; it lurches, smoking.
-8. The perch: the mech stands on the outcrop facing the Bastion, the robo
-   dog folds into its board at its feet. Cut to the game.
+3. It runs to the wall over the yard and throws a decoy down: the yard guard
+   turns to it, his back to the wall.
+4. It shoots a rope across the yard, runs it, and drops from it onto the
+   guard: the kill from above.
+5. Up the ladder onto the wall; the rifle: a slow zoom, one headshot on the
+   sentry on his tower.
+6. The mini-gun spins up and shreds the drone. The base hears it: the wall
+   guard, a Roomba, an Enforcer, the searchlight, the Scrap Hound and the
+   Goliath all come for it, the Warden at the tank.
+7. A rocket into the Goliath; it goes down, smoking.
+8. The hook up the perch tower. The Airship rises out of the clouds and
+   opens up with everything: both turrets, both rocket pods. The mech ducks
+   behind the perch's parapet as it is blown apart round it.
+9. The robo dog's board swoops in low; the mech leaps onto it and they are
+   gone, every round behind them, the Airship turning after them.
+10. A still of the third fortress, the Harbour, for three seconds: what is
+    coming. Cut to the game.
 
 ### Salvage (10 s; after the first clear of Bastion threat I and of threat II, before the rewards)
 

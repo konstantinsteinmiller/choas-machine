@@ -24,9 +24,9 @@ describe('which scene a first clear earns', () => {
     expect(cinemaAfterClear('bastion', 1, false)).toBeNull()
   })
 
-  it('lengths as written: the intro about 42 s (#131: every enemy type, the yard and the rope assassination), the haul 10 s, the falls 12 to 20 s, the outro about 40 s', () => {
-    expect(CINEMA_LENGTH.intro).toBeGreaterThanOrEqual(30)
-    expect(CINEMA_LENGTH.intro).toBeLessThanOrEqual(45)
+  it('lengths as written: the intro about 50 s (#131 every enemy type, the yard and the rope assassination; #179 the Airship, the escape, the still), the haul 10 s, the falls 12 to 20 s, the outro about 40 s', () => {
+    expect(CINEMA_LENGTH.intro).toBeGreaterThanOrEqual(45)
+    expect(CINEMA_LENGTH.intro).toBeLessThanOrEqual(60)
     expect(CINEMA_LENGTH.salvage).toBe(10)
     for (const id of ['fallBastion', 'fallFoundry'] as const) {
       expect(CINEMA_LENGTH[id]).toBeGreaterThanOrEqual(12)
@@ -102,7 +102,7 @@ describe('the intro: nothing flies through the stage (#125)', () => {
     const { heightAt: h } = await import('@/game/world/grid')
     const s = await Cinema.create('intro', undefined, new Texture())
     const dog = (s as unknown as { stage: { dog: { root: { visible: boolean } } } }).stage.dog.root
-    for (let t = 0.5; t < 42; t += 0.1) {
+    for (let t = 0.5; t < CINEMA_LENGTH.intro; t += 0.1) {
       s.seek(t)
       if (!dog.visible) continue
       const d = s.dogAt
@@ -122,6 +122,44 @@ describe('the intro: nothing flies through the stage (#125)', () => {
     expect(dog.visible).toBe(false)
     s.seek(40)
     expect(dog.visible).toBe(false)
+    s.dispose()
+  }, 30000)
+})
+
+describe('the finale of the intro (#179)', () => {
+  type Peek = { stage: { mech: { root: { position: { x: number; y: number; z: number } } }; mp: { crouch: number }; dog: { root: { visible: boolean } }; extra: Record<string, { root: { visible: boolean; position: { x: number; y: number; z: number } } }> } }
+  it('it climbs to the perch (no jump up there), the Airship rises and opens up, it ducks behind the parapet, the dog takes it away, the still of the third fortress closes it', async () => {
+    const { Cinema } = await import('@/game/story/cinema')
+    const { INTRO_STILL_S } = await import('@/game/story/cinemaIds')
+    const { hasLineOfSight } = await import('@/game/world/grid')
+    const s = await Cinema.create('intro', undefined, new Texture())
+    const st = (s as unknown as Peek).stage
+    const m = st.mech.root.position
+    // Up the perch's face, not appearing on top of it: never more than a step a frame.
+    s.seek(33.4)
+    const ship = st.extra.ship!
+    expect(ship.root.visible).toBe(false)
+    let last = { x: m.x, y: m.y, z: m.z }
+    for (let t = 33.5; t < 36; t += 1 / 30) {
+      s.seek(t)
+      expect(Math.hypot(m.x - last.x, m.y - last.y, m.z - last.z), `t ${t.toFixed(2)}`).toBeLessThan(0.6)
+      last = { x: m.x, y: m.y, z: m.z }
+    }
+    expect(m.y).toBeCloseTo(14, 1)
+    s.seek(39.5)
+    expect(ship.root.visible).toBe(true)
+    // Down behind the parapet: the Airship's guns have no line to it.
+    expect(st.mp.crouch).toBeGreaterThan(0.9)
+    const sp = ship.root.position
+    expect(hasLineOfSight(s.grid, sp.x, sp.y - 3, sp.z, m.x, m.y + 0.8, m.z)).toBe(false)
+    // The board is back, and it rides away on it.
+    s.seek(43.8)
+    expect(st.dog.root.visible).toBe(true)
+    expect(Math.hypot(s.dogAt.x - m.x, s.dogAt.z - m.z)).toBeLessThan(0.5)
+    expect(s.dogAt.distanceTo({ x: 74.4, y: 14.7, z: 23.4 } as never)).toBeGreaterThan(2)
+    // The still takes the last seconds.
+    expect(s.stillFrom).toBeCloseTo(CINEMA_LENGTH.intro - INTRO_STILL_S, 6)
+    expect(INTRO_STILL_S).toBe(3)
     s.dispose()
   }, 30000)
 })

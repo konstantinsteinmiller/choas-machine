@@ -1,5 +1,6 @@
 import {
-  BoxGeometry, CylinderGeometry, Group, Mesh, MeshBasicMaterial, PerspectiveCamera, Quaternion, SphereGeometry, Vector3, type Object3D, type Texture
+  BoxGeometry, CylinderGeometry, Group, Matrix4, Mesh, MeshBasicMaterial, OrthographicCamera, PerspectiveCamera, PlaneGeometry, Quaternion, Scene,
+  SphereGeometry, SRGBColorSpace, TextureLoader, Vector3, type Object3D, type Texture
 } from 'three'
 void (null as unknown as Object3D)
 import { newScene, type GameMode } from '../engine/app'
@@ -26,12 +27,14 @@ import {
   MUZZLE, buildDrone, buildEnforcer, buildGoliath, buildGuard, buildRoomba, buildSearchlight, poseDrone, poseEnforcer, poseGoliath, poseGuard, poseRoomba, poseSearchlight, restGuardPose
 } from '../models/garrison'
 import { buildDropship, type Dropship } from '../models/dropship'
+import { AIRSHIP_SOCKETS, TURRET_AT, buildAirship } from '../models/airship'
+import { prependBaseUrl } from '@/utils/function'
 import type { Rig } from '../models/kit'
 import { Particles } from '../fx/particles'
 import { makeFlameMaterial, setFlame } from '../fx/flameCone'
 import { sfx } from '../audio/sfx'
 import type { TrackId } from '../audio/songs'
-import { CINEMA_LENGTH, type CinemaId } from './cinemaIds'
+import { CINEMA_LENGTH, INTRO_STILL_S, type CinemaId } from './cinemaIds'
 
 /**
  * ─── The story's scenes (round 4, #100 #103) ─────────────────────────────────
@@ -141,6 +144,8 @@ interface Stage {
 interface Script {
   theme: ThemeId
   music: TrackId
+  /** A picture the scene ends on, held for its last INTRO_STILL_S (#179); under `public/`. */
+  still?: string
   /** The ground: cells laid out with the fortress builder. */
   stage: (b: FortressBuilder) => void
   cast: (s: Stage, scene: Group) => void
@@ -153,11 +158,56 @@ const tmpC = new Vector3()
 const tmpD = new Vector3()
 const UP = new Vector3(0, 1, 0)
 
-// ─── Intro: the ability showcase (about 35 s) ───────────────────────────────
+// ─── Intro: the ability showcase (about 50 s) ───────────────────────────────
+
+/** The finale (#179): the Airship rises over the perch, opens up with everything, the dog takes the mech away. */
+const SHIP_UP = 35.6
+const DUCK = 37.9
+const FIRE = 38
+const DOG_IN = 41.2
+const LEAP = 42.5
+const AWAY = 43.2
+/** The still of the third fortress takes over here. */
+const STILL_AT = CINEMA_LENGTH.intro - INTRO_STILL_S
+/** Where the mech crouches on the perch, behind its parapet, and the board it leaps onto. */
+const PERCH: V3 = [77.3, 14, 23.4]
+const PICKUP: V3 = [74.4, 14.7, 23.4]
+/** The pods' rockets: when each leaves, and where it lands (the perch's parapet and its east face). */
+const SHIP_ROCKETS: ReadonlyArray<{ at: number; pod: 'podL' | 'podR'; to: V3 }> = [
+  { at: 38.6, pod: 'podL', to: [80.3, 13.2, 21.6] },
+  { at: 39.3, pod: 'podR', to: [79.4, 15.6, 24.6] },
+  { at: 40.0, pod: 'podL', to: [80.3, 15.0, 22.8] },
+  { at: 40.7, pod: 'podR', to: [80.3, 11.8, 25.2] }
+]
+const ROCKET_FLIGHT = 0.7
+const shipInv = new Matrix4()
+
+/** The Airship's turrets swung and pitched onto a point (as `sim/airshipView.ts` does, at once). */
+const aimShip = (ship: Rig, x: number, y: number, z: number): void => {
+  ship.root.updateMatrixWorld(true)
+  shipInv.copy(ship.root.matrixWorld).invert()
+  for (const id of ['F', 'B'] as const) {
+    const local = tmpA.set(x, y, z).applyMatrix4(shipInv)
+    const [tx, ty, tz] = TURRET_AT[id]
+    const dx = local.x - tx
+    const dy = local.y - ty
+    const dz = local.z - tz
+    ship.bones[`turret${id}`]!.rotation.y = Math.atan2(dx, dz)
+    ship.bones[`barrels${id}`]!.rotation.x = Math.max(-1.2, Math.min(1.2, -Math.atan2(dy, Math.hypot(dx, dz))))
+  }
+  ship.root.updateMatrixWorld(true)
+}
+/** The world point at one of the Airship's sockets (a barrel's or a tube's mouth). */
+const shipSocket = (ship: Rig, name: keyof typeof AIRSHIP_SOCKETS, i: number, out: Vector3): Vector3 => {
+  const list = AIRSHIP_SOCKETS[name]
+  const [bone, x, y, z] = list[i % list.length]!
+  return ship.bones[bone]!.localToWorld(out.set(x, y, z))
+}
 
 const INTRO: Script = {
   theme: 'dusk',
   music: 'hero',
+  still: 'images/intro-next-fortress.webp',
   stage: (b) => {
     // West shelf at 0, a cliff up to a plateau (outcrop A), a gap, then a
     // piece of the Bastion (#131): its walls 10 m, a sunken yard 6 m below
@@ -169,6 +219,8 @@ const INTRO: Script = {
     b.ground(22, 6, 29, 17, 4)
     b.ladder(29, 11, 'e')
     b.fill(36, 5, 37, 6, 14).fill(38, 11, 39, 12, 14)
+    // The perch's east edge (#179): a parapet to duck behind when the Airship opens up.
+    b.fill(39, 11, 39, 12, 15.8)
     // The yard: crates, a barrel and a heap to look like the base.
     b.cover(23, 15, 1).cover(27, 7, 1).cover(24, 7, 2)
     b.solid('barrel', 28, 15, 1.0, 0.4)
@@ -192,6 +244,11 @@ const INTRO: Script = {
     s.extra.roomba = roomba
     s.extra.lamp = lamp
     root.add(drone.root, tank.root, enforcer.root, hound.root, roomba.root, lamp.root)
+    // The Airship (#179): the game's own, out of sight until the finale.
+    const ship = buildAirship()
+    ship.root.visible = false
+    s.extra.ship = ship
+    root.add(ship.root)
     // The game's own grappling hook and strung rope (#164): the braided line,
     // the hook's head, the pitons; not glowing tubes of their own.
     const hook = makeGrappleVisual()
@@ -267,7 +324,8 @@ const INTRO: Script = {
       s.once('board', 0.2, () => sfx('dropIn'))
     } else {
       // Its job done, it lifts off the moment the mech is off it and flies
-      // away over the sea (#136): it never sets down anywhere in the scene.
+      // away over the sea (#136): it never sets down anywhere in the scene
+      // (it comes back for the mech in the finale, #179).
       const d = clearOf(track([[5, 12, 0.45, 24], [6.2, 11, 6, 22], [8.5, 0, 20, 4], [13, -60, 42, -60]], t, tmpA), 0.45)
       dp.fold = 1
       dp.thrust = 1
@@ -561,11 +619,11 @@ const INTRO: Script = {
         r.dx = (tx - from.x) / len; r.dy = (11.5 - from.y) / len; r.dz = (43 - from.z) / len
       } else s.rockets.length = 0
     }
-    if (between(t, 28, 35.5)) {
-      const keys: Key[] = [[28, 64, 10, 26], [28.6, 64, 10, 29], [31.2, 64, 10, 29], [35.5, 75, 10, 20]]
+    if (between(t, 28, 34.3)) {
+      const keys: Key[] = [[28, 64, 10, 26], [28.6, 64, 10, 29], [31.2, 64, 10, 29], [34.3, 75.2, 10, 23.4]]
       const p = track(keys, t, tmpA)
       const aiming = between(t, 28.6, 30.2)
-      s.place(s.mech.root, p, aiming ? Math.atan2(tankX - 64, 44 - 29) : t < 28.6 ? 0 : Math.atan2(11, -9))
+      s.place(s.mech.root, p, aiming ? Math.atan2(tankX - 64, 44 - 29) : t < 28.6 ? 0 : Math.atan2(11.2, -5.6))
       mp.speed = Math.min(1, pace(keys, t) / 5)
       mp.stride = t * 8
       mp.aim = aiming ? 1 : 0
@@ -592,11 +650,115 @@ const INTRO: Script = {
       }
     }
 
-    // ── The perch: facing the Bastion, the board folding into a dog at its feet ──
-    if (t >= 35.5) {
-      s.place(s.mech.root, tmpA.set(77.6, 14, 23.4), Math.PI / 2)
-      const back = track([[35.5, 70, 16.5, 21], [40.5, 66, 20, 30]], t, tmpB)
-      s.look(back, tmpC.set(92, 14, 24))
+    // ── Up the perch: the hook again (it used to appear up there) ──
+    if (between(t, 34.3, 35.5)) {
+      const y = 10 + 4 * span(t, 34.6, 35.25)
+      const x = t < 35.25 ? 75.2 : 75.2 + (PERCH[0] - 75.2) * span(t, 35.25, 35.5)
+      s.place(s.mech.root, tmpA.set(x, t < 35.25 ? y : 14, PERCH[2]), Math.PI / 2)
+      mp.climb = t < 35.25 ? 1 : 0
+      mp.climbPhase = y
+      hook.setVisible(t < 35.3)
+      hook.update(tmpB.set(x + 0.4, y + 2, PERCH[2]), tmpC.set(76.1, 14.05, PERCH[2]), Math.PI / 2, { flying: t < 34.6, time: t, progress: span(t, 34.3, 34.6) })
+      s.look(tmpB.set(68.5, 12.5 + (y - 10) * 0.5, 31), tmpC.set(76, y + 1.2, PERCH[2]))
+      s.once('hook2', 34.3, () => sfx('hookThrow'))
+      s.once('bite2', 34.6, () => sfx('hookBite'))
+    }
+
+    // ── The finale (#179): the Airship, the cover, away on the dog ──
+    const ship = s.extra.ship as Rig
+    ship.root.visible = between(t, SHIP_UP, STILL_AT)
+    /** Where the board is at `at` on its way in, its hover by the perch, and its way out. */
+    const boardAt = (at: number, out: Vector3): Vector3 => at < LEAP
+      ? clearOf(track([[DOG_IN, 30, 34, 70], [LEAP - 0.2, PICKUP[0], PICKUP[1], PICKUP[2]]], at, out), 0.45)
+      : clearOf(track([[AWAY, PICKUP[0], PICKUP[1], PICKUP[2]], [44.6, 62, 20, 9], [STILL_AT, 4, 44, -56]], at, out), 0.45)
+    if (ship.root.visible) {
+      const sp = track([[SHIP_UP, 122, -10, 30], [38.4, 107, 21, 25], [AWAY, 104, 23, 24], [STILL_AT, 99, 26, 17]], t, tmpA)
+      ship.root.position.copy(sp)
+      // Facing the perch (it faces +z), and turning after the board once it has gone.
+      ship.root.rotation.set(0.05 * Math.sin(t * 0.7), -Math.PI / 2 - 0.45 * span(t, AWAY, STILL_AT), 0.03 * Math.sin(t * 0.5))
+      for (let i = 0; i < 4; i++) ship.bones[`fan${i}`]!.rotation.z = t * 20 + i
+      // The turrets on the perch, then a beat behind the board: every round there misses.
+      const aim = t < AWAY ? tmpB.set(PERCH[0] + 1.5, 15.2, PERCH[2]) : boardAt(Math.max(AWAY, t - 0.55), tmpB)
+      aimShip(ship, aim.x, aim.y, aim.z)
+      s.once('shipUp', SHIP_UP + 0.2, () => sfx('wake'))
+      if (tick(0.11, FIRE, STILL_AT - 0.5)) {
+        const n = Math.floor(t / 0.11)
+        const turret = n % 2 === 0 ? 'turretF' : 'turretB'
+        const from = shipSocket(ship, turret, n, tmpC)
+        // A round's spread about the aim point, the same every time it plays.
+        const jx = Math.sin(n * 12.9898) * 0.9
+        const jy = Math.sin(n * 78.233) * 0.7
+        const jz = Math.sin(n * 39.425) * 1.6
+        const tx = aim.x + jx
+        const ty = Math.max(aim.y + jy, t < AWAY ? 14.1 : -Infinity)
+        const tz = aim.z + jz
+        shoot(from.x, from.y, from.z, tx, ty, tz, 'minigun')
+        if (n % 2 === 0) sfx('enemyShot', 0.3, 0.55)
+        if (t < AWAY && n % 3 === 0) s.fx.sparks(tx, ty, tz, '#ffd27a', 6, 4, 0.2)
+      }
+      // The pods: four rockets onto the perch, one after another.
+      if (s.cfx) {
+        for (const [i, r] of SHIP_ROCKETS.entries()) {
+          if (!between(t, r.at, r.at + ROCKET_FLIGHT)) continue
+          const from = shipSocket(ship, r.pod, i, tmpC)
+          const k = span(t, r.at, r.at + ROCKET_FLIGHT)
+          const x = from.x + (r.to[0] - from.x) * k
+          const y = from.y + (r.to[1] - from.y) * k
+          const z = from.z + (r.to[2] - from.z) * k
+          const len = Math.hypot(r.to[0] - from.x, r.to[1] - from.y, r.to[2] - from.z) || 1
+          s.rockets.push({ x, y, z, px: x, py: y, pz: z, dx: (r.to[0] - from.x) / len, dy: (r.to[1] - from.y) / len, dz: (r.to[2] - from.z) / len, t: k * ROCKET_FLIGHT })
+        }
+      }
+      for (const [i, r] of SHIP_ROCKETS.entries()) {
+        s.once(`pod${i}`, r.at, () => sfx('rocket', 0.3, 0.8))
+        s.once(`podBoom${i}`, r.at + ROCKET_FLIGHT, () => {
+          sfx('explode')
+          if (s.cfx) s.cfx.explosion(r.to[0], r.to[1], r.to[2], 14)
+          else s.fx.orbBurst(r.to[0], r.to[1], r.to[2], '#ff9a3d', 1.2)
+        })
+      }
+    }
+    /** A blast just went off on the perch: the camera takes the jolt. */
+    const jolt = SHIP_ROCKETS.reduce((j, r) => {
+      const since = t - (r.at + ROCKET_FLIGHT)
+      return since >= 0 && since < 0.35 ? Math.max(j, 1 - since / 0.35) : j
+    }, 0)
+    const shake = (v: Vector3, k: number): Vector3 => v.set(v.x + Math.sin(t * 91) * 0.12 * k, v.y + Math.sin(t * 73) * 0.1 * k, v.z + Math.sin(t * 67) * 0.12 * k)
+    if (between(t, 35.5, LEAP)) {
+      // On the perch, then down behind its parapet the moment the Airship is up.
+      s.place(s.mech.root, tmpA.set(PERCH[0], PERCH[1], PERCH[2]), Math.PI / 2)
+      mp.crouch = smooth(span(t, DUCK, DUCK + 0.25))
+      mp.aimPitch = t < DUCK ? 0.25 * span(t, SHIP_UP, DUCK) : 0
+      if (t < DUCK) s.look(track([[35.5, 70, 16.5, 21], [DUCK, 71.5, 16.2, 19.5]], t, tmpB), tmpC.set(100, 17 + 3 * span(t, SHIP_UP, DUCK), 25))
+      else if (t < 40.3) s.look(shake(tmpB.set(73.9, 16.5, 20.2), jolt), tmpC.set(86, 15.6, 24.8), 50)
+      else s.look(shake(tmpB.set(64, 23, 2), jolt * 0.5), tmpC.set(88, 15, 25))
+    }
+    // The dog: back as the board, low over the perch, and away with the mech on it.
+    s.dog.root.visible = t < 13 || between(t, DOG_IN, STILL_AT)
+    if (between(t, DOG_IN, STILL_AT)) {
+      const p = boardAt(t, tmpA)
+      const q = boardAt(Math.min(STILL_AT, t + 0.1), tmpC)
+      const yaw = t < LEAP - 0.25 ? Math.atan2(q.x - p.x, q.z - p.z) : between(t, LEAP - 0.25, AWAY) ? Math.atan2(62 - PICKUP[0], 9 - PICKUP[2]) : Math.atan2(q.x - p.x, q.z - p.z)
+      dp.fold = 1
+      dp.thrust = 1
+      s.place(s.dog.root, tmpB.set(p.x, p.y + BOARD_HOVER, p.z), yaw)
+      s.once('dogIn', DOG_IN + 0.3, () => sfx('dropIn'))
+      if (between(t, LEAP, AWAY)) {
+        // The leap from behind the parapet onto it.
+        const k = span(t, LEAP, AWAY)
+        const e = smooth(k)
+        s.place(s.mech.root, tmpC.set(PERCH[0] + (p.x - PERCH[0]) * e, PERCH[1] + (p.y + BOARD_HOVER - PERCH[1]) * e + 1.6 * Math.sin(Math.PI * k), PERCH[2]), yaw)
+        mp.air = 1 - Math.abs(2 * k - 1)
+        mp.crouch = 1 - mp.air
+        s.once('leap', LEAP, () => sfx('boardJump'))
+        s.look(tmpB.set(66, 18, 31), tmpD.set(76, 15, 23.4))
+      } else if (t >= AWAY) {
+        s.place(s.mech.root, tmpC.set(p.x, p.y + BOARD_HOVER, p.z), yaw)
+        mp.crouch = 1
+        // Alongside it as it goes, then from behind the Airship as it gets away.
+        if (t < 44.6) s.look(tmpB.set(p.x + 6, p.y + 2.2, p.z + 5), tmpD.set(p.x, p.y + 1, p.z))
+        else s.look(tmpB.set(138, 38, 42), tmpD.copy(p))
+      } else s.look(shake(tmpB.set(64, 23, 2), jolt * 0.5), tmpD.set(84, 15, 25))
     }
     poseMech(s.mech, mp)
     finish?.()
@@ -890,6 +1052,14 @@ export class Cinema implements GameMode {
   private mesh!: FortressMesh
   private root = new Group()
   readonly length: number
+  /**
+   * The picture the scene ends on (#179): drawn over the whole screen for the
+   * scene's last INTRO_STILL_S, faded up from black and pushed in a little.
+   * Null for a scene without one (and in the tests: they have no canvas).
+   */
+  private still: { scene: Scene; camera: OrthographicCamera; quad: Mesh; material: MeshBasicMaterial; aspect: number } | null = null
+  /** When the still takes over (s into the scene), or never. */
+  get stillFrom(): number { return this.script.still ? this.length - INTRO_STILL_S : Infinity }
 
   private constructor(readonly id: CinemaId) {
     this.script = SCRIPTS[id]
@@ -948,7 +1118,22 @@ export class Cinema implements GameMode {
     c.stage = st
     s.cast(st, c.root)
     s.frame(st)
+    if (s.still && !particleMap) c.loadStill(s.still)
     return c
+  }
+
+  /** Load the closing picture; until (unless) it arrives the scene's last frame holds. */
+  private loadStill(src: string): void {
+    new TextureLoader().load(prependBaseUrl(src), (tex) => {
+      tex.colorSpace = SRGBColorSpace
+      const material = new MeshBasicMaterial({ map: tex, toneMapped: false, depthTest: false, depthWrite: false })
+      material.color.setScalar(0)
+      const quad = new Mesh(new PlaneGeometry(2, 2), material)
+      const scene = new Scene()
+      scene.add(quad)
+      const img = tex.image as { width?: number; height?: number }
+      this.still = { scene, camera: new OrthographicCamera(-1, 1, 1, -1, 0, 1), quad, material, aspect: (img.width ?? 16) / (img.height ?? 9) }
+    })
   }
 
   get music(): TrackId { return this.script.music }
@@ -989,10 +1174,29 @@ export class Cinema implements GameMode {
     if (!this.over) this.frame(Math.min(0.1, dt))
     const r = getRenderer()
     r.info.reset()
+    const still = this.still
+    const k = this.stage.t - this.stillFrom
+    if (still && k >= 0) {
+      // Fill the screen with it (cover, never stretched), up from black, pushed in slowly.
+      const el = r.domElement
+      const screen = (el.clientWidth || el.width) / Math.max(1, el.clientHeight || el.height)
+      const push = 1 + 0.05 * Math.min(1, k / INTRO_STILL_S)
+      const sx = screen > still.aspect ? 1 : still.aspect / screen
+      const sy = screen > still.aspect ? screen / still.aspect : 1
+      still.quad.scale.set(sx * push, sy * push, 1)
+      still.material.color.setScalar(smooth(k / 0.4))
+      r.render(still.scene, still.camera)
+      return
+    }
     r.render(this.scene, this.camera)
   }
 
   dispose(): void {
+    if (this.still) {
+      this.still.material.map?.dispose()
+      this.still.material.dispose()
+      this.still.quad.geometry.dispose()
+    }
     this.mesh.dispose()
     this.sky.dispose()
     this.cfx?.dispose()

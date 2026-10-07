@@ -1045,7 +1045,21 @@ drone AI before the new roster and the intro).
   and one between the west lane and the inner ward, clear of the teaching
   corner). Moved, not doubled: the builder's threat IV/V keep one hound and
   one Peashooter. `bastion4.test.ts` pins the roster.
-- [ ] **R75.6 The intro's finale** (#179)
+- [x] **R75.6 The intro's finale** (#179): the intro is 50 s. After the
+  rocket the mech hooks up the perch tower (it used to appear on top of it);
+  the game's own Airship rises out of the clouds and opens up, both turrets
+  (rounds from their sockets) and four pod rockets onto the perch; the mech
+  ducks behind the perch's new parapet (a real 1.8 m block: the cinema draws
+  no prop meshes, so a `solid` stack was invisible); the robo dog's board
+  swoops in, the mech leaps on, they fly off with the Airship's rounds
+  behind them. The last 3 s (`INTRO_STILL_S`) are a still of the Harbour
+  (`public/images/intro-next-fortress.webp`, rendered once from the fortress
+  view at 1920x1080, 109 KB), faded up from black and pushed in, no words.
+  `story.md` tells the intro the code plays (the yard, the rope kill, the
+  base waking, the finale) and the skip hold as 1.5 s. Left as they are (D15):
+  the Warden's escape and the outro still use the small dropship where
+  `story.md` says "airship". `story.test.ts` pins the climb, the cover, the
+  pickup and the still.
 
 Pre-existing failure: `tests/tools/pokiDeploy.test.ts` expects an empty Poki
 gameId; `poki.config.mjs` at HEAD carries one.
