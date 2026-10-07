@@ -1061,8 +1061,12 @@ drone AI before the new roster and the intro).
   `story.md` says "airship". `story.test.ts` pins the climb, the cover, the
   pickup and the still.
 
-Pre-existing failure: `tests/tools/pokiDeploy.test.ts` expects an empty Poki
-gameId; `poki.config.mjs` at HEAD carries one.
+Pre-existing failures: `tests/tools/pokiDeploy.test.ts` expects an empty Poki
+gameId; `poki.config.mjs` at HEAD carries one. The e2e spec "the blade takes
+a guard from behind" times out at its first wait (the blade kill is never
+counted, `game.e2e.ts:167`), the same on 8648370 before the round. The perch
+headshot and the base-layout specs failed once in the full run under load and
+pass on a rerun (flaky, not this round's).
 
 ## Resume notes
 
