@@ -1,5 +1,5 @@
 import { findHoles, CELL, VOID, WALK, cellHeight, findPath, heightAt, roofAt, toCell, type MoveRule } from './grid'
-import type { Fortress } from './fortress'
+import { COLUMN_PROPS, type Fortress } from './fortress'
 
 /**
  * Everything that must hold for a fortress to be playable, checked without a
@@ -90,9 +90,12 @@ export const validateFortress = (f: Fortress): string[] => {
     if (heightAt(g, p.x, p.z) === VOID) { problems.push(`salvage #${i} at ${at(p.x, p.z)} is off the island`); continue }
     if (problems.length === 0 && !reachable(f, MECH, p.x, p.z)) problems.push(`salvage #${i} at ${at(p.x, p.z)} cannot be reached`)
   }
-  // Room under every roof (#96): a standing mech fits under the slab, over whatever is beneath.
+  // Room under every roof (#96): a standing mech fits under the slab, over
+  // whatever is beneath; a column prop (a vent stack) is nobody's floor.
+  const columns = new Set(f.decor.filter(d => COLUMN_PROPS[d.kind] !== undefined).map(d => `${Math.floor(d.x / CELL)},${Math.floor(d.z / CELL)}`))
   for (let cz = 0; cz < g.d; cz++) {
     for (let cx = 0; cx < g.w; cx++) {
+      if (columns.has(`${cx},${cz}`)) continue
       const r = roofAt(g, cx, cz)
       const h = cellHeight(g, cx, cz)
       if (r !== VOID && h !== VOID && r - h < ROOF_ROOM) problems.push(`the roof over ${cx},${cz} is ${(r - h).toFixed(1)} m over the floor`)

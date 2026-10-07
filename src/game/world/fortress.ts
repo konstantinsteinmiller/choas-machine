@@ -1,6 +1,6 @@
 import type { Answers } from '../sim/adapt'
 import type { ThemeId } from '../data/themes'
-import { addBox, addRoof, findHoles, CELL, cellHeight, CellKind, cellKind, cellMid, inGrid, makeGrid, ROOF_HEADROOM, Surf, VOID, type Grid, Shade } from './grid'
+import { addBox, addRoof, findHoles, CELL, cellHeight, CellKind, cellKind, cellMid, inGrid, makeGrid, ROOF_HEADROOM, roofAt, Surf, VOID, type Grid, Shade } from './grid'
 
 /**
  * ─── A fortress, as data ─────────────────────────────────────────────────────
@@ -108,6 +108,16 @@ const PROP_BOXES: Partial<Record<DecorKind, ReadonlyArray<readonly [number, numb
   girder: [[-0.45, 0, -0.1, 0.65, 3.4, 1.05]],
   generator: [[0.36, 1.0, -0.39, 0.64, 2.1, -0.11]]
 }
+
+/**
+ * Props drawn as a column, solid to their full drawn height in the grid: a
+ * vent stack drawn 4.8 m tall stood in the grid as 1.4 m of cover, and the
+ * mech pulled itself up onto it (a bug report with a screenshot). Taller than
+ * any mantle, and a cover cell the hook never bites, it is not climbed.
+ */
+export const COLUMN_PROPS: Partial<Record<DecorKind, number>> = { stack: 4.8 }
+/** Under a roof a column stops this far below it. */
+const COLUMN_ROOF_GAP = 0.3
 
 /** The small piles are worth this share of what their table says (jam build: 30 % less). */
 export const SMALL_PILE = 0.7
@@ -655,7 +665,7 @@ export class FortressBuilder {
   solid(kind: DecorKind, cx: number, cz: number, h: number, rot = 0): this {
     const base = this.heightOf(cx, cz)
     if (base === VOID) throw new Error(`[fortress ${this.id}] ${kind} at ${cx},${cz} is off the island`)
-    this.set(cx, cz, base + h, CellKind.Cover)
+    this.set(cx, cz, base + Math.max(h, COLUMN_PROPS[kind] ?? 0), CellKind.Cover)
     this.grid.surf[cz * this.grid.w + cx] = Surf.Heap
     this.grid.base[cz * this.grid.w + cx] = base
     this.decor.push({ kind, x: cellMid(cx), y: base, z: cellMid(cz), rot })
@@ -752,6 +762,14 @@ export class FortressBuilder {
 
   build(): Fortress {
     if (!this.insertAt) throw new Error(`[fortress ${this.id}] no insertion point`)
+    // A column under a roof stops short of it (still far past any mantle).
+    for (const d of this.decor) {
+      if (COLUMN_PROPS[d.kind] === undefined) continue
+      const cx = Math.floor(d.x / CELL)
+      const cz = Math.floor(d.z / CELL)
+      const roof = roofAt(this.grid, cx, cz)
+      if (roof !== VOID && this.heightOf(cx, cz) > roof - COLUMN_ROOF_GAP) this.set(cx, cz, roof - COLUMN_ROOF_GAP, CellKind.Cover)
+    }
     this.seal()
     if (!this.extractAt) throw new Error(`[fortress ${this.id}] no extraction point`)
     return {
