@@ -1068,6 +1068,19 @@ counted, `game.e2e.ts:167`), the same on 8648370 before the round. The perch
 headshot and the base-layout specs failed once in the full run under load and
 pass on a rerun (flaky, not this round's).
 
+## Round 8: ads (2026-10-07)
+
+- [x] **R76 Ads**: the hidden QA interstitial (`useQaAdTrigger`, which had no
+  caller) is twenty taps on the pause menu's PAUSED title inside 20 s, no
+  counter; it bypasses the pacing gate, seeds the clock and restarts the
+  music. The mission's interstitial now plays at the end of the way out
+  (the board flown off), the run banked first, BEFORE the rewards screen
+  (and any story scene), the music restarted after it filled or not; the
+  training ground has none; a defeat keeps its ad on leaving the defeat
+  screen. Rewarded: the disguises already unlocked by video; the Armory's
+  weapon upgrades can now be paid with a video instead of the scrap
+  (`upgrade` placement, once per Base visit, the film mark), 39 locales.
+
 ## Resume notes
 
 - Dev server: `pnpm dev` (port 2196). Check the served `<title>` ("Chaos Machine") before

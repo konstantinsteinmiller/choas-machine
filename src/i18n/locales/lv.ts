@@ -134,6 +134,7 @@ export default {
   'workshop': {
     'max': 'Maks.',
     'buy': 'Uzlabot: {name}',
+    'watch': 'Noskaties video, lai uzlabotu: {name}',
     'level': '{n}. līmenis no {max}'
   },
   'forge': {

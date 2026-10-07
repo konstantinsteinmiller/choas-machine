@@ -134,6 +134,7 @@ export default {
   'workshop': {
     'max': 'الأقصى',
     'buy': 'ترقية {name}',
+    'watch': 'شاهد فيديو لترقية {name}',
     'level': 'المستوى {n} من {max}'
   },
   'forge': {

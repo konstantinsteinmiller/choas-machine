@@ -134,6 +134,7 @@ export default {
   'workshop': {
     'max': 'Max',
     'buy': '{name} fejlesztése',
+    'watch': 'Nézz videót a(z) {name} fejlesztéséhez',
     'level': '{n}. szint / {max}'
   },
   'forge': {

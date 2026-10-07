@@ -134,6 +134,7 @@ export default {
   'workshop': {
     'max': 'Maks',
     'buy': 'Tingkatkan {name}',
+    'watch': 'Tonton video untuk meningkatkan {name}',
     'level': 'Level {n} dari {max}'
   },
   'forge': {

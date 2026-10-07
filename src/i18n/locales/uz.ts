@@ -134,6 +134,7 @@ export default {
   'workshop': {
     'max': 'Maks.',
     'buy': '{name} yaxshilash',
+    'watch': "{name} yaxshilash uchun video ko'ring",
     'level': '{n}-daraja / {max}'
   },
   'forge': {

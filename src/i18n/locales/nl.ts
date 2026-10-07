@@ -134,6 +134,7 @@ export default {
   'workshop': {
     'max': 'Max',
     'buy': '{name} upgraden',
+    'watch': 'Bekijk een video om {name} te upgraden',
     'level': 'Level {n} van {max}'
   },
   'forge': {

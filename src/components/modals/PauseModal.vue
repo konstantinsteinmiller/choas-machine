@@ -1,5 +1,7 @@
 <template lang="pug">
-  FModal(:model-value="flow.modal === 'pause'" :title="t('pause.title')" @update:model-value="resume")
+  //- Twenty taps on the title inside twenty seconds play an interstitial: QA's
+  //- way to check an ad on the submitted build. No counter, on purpose.
+  FModal(:model-value="flow.modal === 'pause'" :title="t('pause.title')" @update:model-value="resume" @title-tap="registerQaAdTap()")
     //- The system controls live here during a mission: the corner they have in
     //- the Command Base belongs to the move stick.
     div.pause-row
@@ -33,6 +35,7 @@ import FButton from '@/components/atoms/FButton.vue'
 import FMuteButton from '@/components/atoms/FMuteButton.vue'
 import SettingsButton from '@/components/organisms/SettingsButton.vue'
 import { flow, finishTraining } from '@/game/flow'
+import { registerQaAdTap } from '@/use/useQaAdTrigger'
 import { profile } from '@/game/state/profile'
 
 /**

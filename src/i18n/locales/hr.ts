@@ -134,6 +134,7 @@ export default {
   'workshop': {
     'max': 'Maks.',
     'buy': 'Nadogradi: {name}',
+    'watch': 'Pogledaj video za nadogradnju: {name}',
     'level': 'Razina {n} od {max}'
   },
   'forge': {

@@ -15,24 +15,35 @@
           template(v-if="level(id) < TRACK_MAX")
             GameIcon.arrow(name="right")
             span.next {{ value(id, level(id) + 1) }}
-      FButton.buy(
-        v-if="level(id) < TRACK_MAX"
-        type="warning"
-        size="sm"
-        icon="scrap"
-        icon-position="left"
-        :is-disabled="!canBuyTrack(id)"
-        :aria-label="`${t('workshop.buy', { name: t(`track.${id}`) })}: ${fmt(trackCost(level(id)))} ${t('base.scrap')}`"
-        :data-testid="`buy-${id}`"
-        @click="buy(id)"
-      ) {{ fmt(trackCost(level(id))) }}
+      div.pay(v-if="level(id) < TRACK_MAX")
+        //- A weapon upgrade can be paid with a rewarded video instead (the film mark).
+        FButton.video(
+          v-if="videoOffer && TRACKS[id].station === 'armory'"
+          type="success"
+          size="sm"
+          icon="video"
+          icon-only
+          :aria-label="t('workshop.watch', { name: t(`track.${id}`) })"
+          :data-testid="`video-${id}`"
+          @click="watch(id)"
+        )
+        FButton.buy(
+          type="warning"
+          size="sm"
+          icon="scrap"
+          icon-position="left"
+          :is-disabled="!canBuyTrack(id)"
+          :aria-label="`${t('workshop.buy', { name: t(`track.${id}`) })}: ${fmt(trackCost(level(id)))} ${t('base.scrap')}`"
+          :data-testid="`buy-${id}`"
+          @click="buy(id)"
+        ) {{ fmt(trackCost(level(id))) }}
       span.max(v-else)
         GameIcon(name="check")
         | {{ t('workshop.max') }}
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import FButton from '@/components/atoms/FButton.vue'
 import GameIcon from '@/components/icons/GameIcon.vue'
@@ -41,6 +52,7 @@ import { buyTrack, canBuyTrack, trackLevel } from '@/game/state/progress'
 import { sfx } from '@/game/audio/sfx'
 import { haptic } from '@/use/useHaptics'
 import { formatAmount } from '@/utils/formatAmount'
+import { canOffer, offerTick, watchFor } from '@/use/useRewardedOffers'
 
 const props = defineProps<{ station: Station }>()
 const emit = defineEmits<{ (e: 'focus', id: TrackId): void }>()
@@ -67,6 +79,20 @@ const buy = (id: TrackId): void => {
   haptic('reward')
   emit('focus', id)
 }
+/** The video instead of the scrap; the level only once it has played to the end. */
+const watch = async (id: TrackId): Promise<void> => {
+  if (!await watchFor('upgrade', () => { buyTrack(id, true) })) return
+  sfx('buy')
+  haptic('reward')
+  emit('focus', id)
+}
+
+// The offer is re-read each second (the grace and the provider's readiness move on their own).
+const clock = ref(0)
+let timer = 0
+onMounted(() => { timer = window.setInterval(() => { clock.value++ }, 1000) })
+onUnmounted(() => { window.clearInterval(timer) })
+const videoOffer = computed(() => { void clock.value; void offerTick.value; return canOffer('upgrade') })
 </script>
 
 <style scoped lang="sass">
@@ -135,6 +161,11 @@ const buy = (id: TrackId): void => {
   height: 0.9em
 .next
   color: var(--cm-ok)
+// The video and the scrap price side by side, in the row's last column.
+.pay
+  display: flex
+  align-items: center
+  gap: 0.3rem
 .max
   display: inline-flex
   align-items: center

@@ -134,6 +134,7 @@ export default {
   'workshop': {
     'max': '최대',
     'buy': '{name} 강화',
+    'watch': '영상을 보고 {name} 강화',
     'level': '레벨 {n} / {max}'
   },
   'forge': {

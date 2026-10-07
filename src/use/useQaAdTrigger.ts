@@ -1,12 +1,12 @@
 // ─── The hidden QA interstitial tap ─────────────────────────────────────────
 //
-// Twenty taps on the screws (bolts) badge inside thirty seconds request an
-// interstitial — in the hub or in a mission. The badge takes the tap itself
-// (`pointerdown`, above the input surface), so on desktop it works with the
-// mouse free and never captures it.
+// Twenty taps on the pause menu's "PAUSED" title inside twenty seconds request
+// an interstitial, from any mission (the training ground too). The title takes
+// the tap itself (`pointerdown`); the pause menu has already handed the mouse
+// back, so on desktop it never touches the pointer lock.
 //
 // It exists because every portal's interstitial is PACED. The real placement
-// runs only on the result screen's Continue, and `canShowInterstitial` holds a
+// runs only at the end of the way out, before the result screen, and `canShowInterstitial` holds a
 // 121 s gap between ads, so a reviewer checking the things portals grade —
 // does the ad mute the music, does it stop the loop, does the music come back
 // on a no-fill — has to finish a mission for each attempt, on a build where
@@ -18,7 +18,7 @@
 // No counter, no toast, no glyph. A visible affordance is a feature the player
 // can find, and an ad the player can summon is an ad nobody asked for. The tap
 // count and the window ARE the secret, and twenty deliberate taps in thirty
-// seconds is not a shape a run produces by accident: the badge is a readout
+// seconds is not a shape a run produces by accident: the title is a label
 // rather than a control, and the number of times a real session taps it is
 // zero. The failure mode of guessing wrong here is one extra ad, which is why
 // this is allowed to ship rather than being hidden behind `isDebug` — QA runs
@@ -58,7 +58,7 @@ import { resumeMusicAfterAd } from '@/use/useSound'
 /** Taps that open the door… */
 export const QA_AD_TAPS = 20
 /** …and the rolling window they have to land inside, ms. */
-export const QA_AD_WINDOW_MS = 30_000
+export const QA_AD_WINDOW_MS = 20_000
 
 /** Timestamps of the taps still inside the window, oldest first. */
 let taps: number[] = []
@@ -72,7 +72,7 @@ export const __resetQaAdTaps = (): void => {
 }
 
 /**
- * Record one tap on the screws badge, and request an interstitial once
+ * Record one tap on the PAUSED title, and request an interstitial once
  * `QA_AD_TAPS` of them have landed inside `QA_AD_WINDOW_MS`.
  *
  * The window ROLLS rather than being counted from the first tap: a tester who

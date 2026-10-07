@@ -4,7 +4,7 @@ import { hud, setPhase } from './state/hud'
 import { isFreshProfile, markSeen, profile, saveProfile } from './state/profile'
 import { bankDefeat, bankMission, campaignScore, fortressOpen, highestCleared, levelKey, nextOpened, unlockedLevel } from './state/progress'
 import { cinemaAfterClear, seenKey, type CinemaId } from './story/cinemaIds'
-import { currentMusicTrack, setMusicTrack } from '@/use/useSound'
+import { currentMusicTrack, resumeMusicAfterAd, setMusicTrack } from '@/use/useSound'
 import type { TrackId } from './audio/songs'
 import { reportRun } from '@/use/useLeaderboard'
 import { showMidgameAd } from '@/use/useAds'
@@ -211,14 +211,23 @@ export const goBase = async (): Promise<void> => {
   if (factories) await swap('base', factories.base, 'base')
 }
 
-/** The mech is away: bank the run and show what it paid. */
-export const finishMission = (run: MissionResult): void => {
+/**
+ * The mech is away: bank the run, play the mission's interstitial, then show
+ * what it paid. The run is saved first, so a reload during the ad loses
+ * nothing. The ad comes at the end of the way out (the board flown off), and
+ * BEFORE the result screen, never on top of it (portal QA); the scene stays
+ * frozen behind it (`isAdShowing` holds the pause gate). The music and sounds
+ * are cut for it and the music comes back after, whether it played, did not
+ * fill or failed. The training ground has none.
+ */
+export const finishMission = async (run: MissionResult): Promise<void> => {
   flow.run = { ...run }
   const first = (profile.fortresses[levelKey(flow.level, flow.fortress)]?.clears ?? 0) === 0
   flow.result = bankMission(run, flow.level, flow.fortress)
   // What this clear has opened is what comes next (#166): every playtester
   // went back into the fortress they had just taken, the one still picked.
   if (first && !flow.training) flow.next = nextOpened(flow.fortress, flow.level)
+  if (!flow.training) await missionBreak()
   // A first clear may earn a story scene (#103, #100), before the rewards.
   const scene = cinemaAfterClear(flow.fortress, flow.level, first)
   if (scene && !profile.seen.includes(seenKey(scene))) void playCinema(scene).then(() => { flow.modal = 'rewards' })
@@ -248,27 +257,44 @@ const waitForAdGate = async (): Promise<void> => {
   }
 }
 
+/**
+ * The interstitial after a mission: when the shared pacing clock allows one,
+ * and never while another placement's ad is still up. The music is restarted
+ * after it either way (`showMidgameAd` hard-stops it and clears the intent).
+ */
+const missionBreak = async (): Promise<void> => {
+  try {
+    if (canShowInterstitial()) {
+      markInterstitialShown()
+      await showMidgameAd()
+    }
+    await waitForAdGate()
+  } finally {
+    resumeMusicAfterAd()
+  }
+}
+
 /** True from the button until the next scene is up, so a double tap asks for one ad. */
 let leaving = false
 
 /**
- * The way off the rewards screen and the defeat screen: close it, play the
- * interstitial if one is due, and only then go on (to the base, or back onto
- * the perch).
+ * The way off the rewards screen and the defeat screen: close it and go on (to
+ * the base, or back onto the perch). A won mission's ad already played before
+ * its rewards screen (`finishMission`); a lost one plays it here, if one is due.
  *
  * The screen closes FIRST, so an ad never opens on top of a result screen
  * (portal QA). The mission stays frozen behind the ad: `showMidgameAd` raises
  * `isAdShowing` before its first await, which suspends the loop and the
- * audio. Every mission end offers this one break, won or lost; the shared
- * pacing clock (`canShowInterstitial`) decides whether an ad actually runs.
- * There are no rewarded placements in this game.
+ * audio. The shared pacing clock (`canShowInterstitial`) decides whether an
+ * ad actually runs.
  */
 export const leaveResults = async (next: 'base' | 'retry' | 'resume'): Promise<void> => {
   if (leaving) return
   leaving = true
+  const lost = flow.modal !== 'rewards'
   flow.modal = ''
   try {
-    if (canShowInterstitial()) {
+    if (lost && canShowInterstitial()) {
       markInterstitialShown()
       await showMidgameAd()
     }

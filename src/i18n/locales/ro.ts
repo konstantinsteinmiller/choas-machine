@@ -134,6 +134,7 @@ export default {
   'workshop': {
     'max': 'Max',
     'buy': 'Îmbunătățește {name}',
+    'watch': 'Urmărește un videoclip pentru a îmbunătăți {name}',
     'level': 'Nivel {n} din {max}'
   },
   'forge': {

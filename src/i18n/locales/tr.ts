@@ -134,6 +134,7 @@ export default {
   'workshop': {
     'max': 'Maks',
     'buy': '{name} yükselt',
+    'watch': '{name} yükseltmek için video izle',
     'level': 'Seviye {n} / {max}'
   },
   'forge': {

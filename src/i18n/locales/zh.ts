@@ -134,6 +134,7 @@ export default {
   'workshop': {
     'max': '已满级',
     'buy': '升级{name}',
+    'watch': '观看视频以升级{name}',
     'level': '等级 {n}/{max}'
   },
   'forge': {

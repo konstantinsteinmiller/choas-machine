@@ -3,8 +3,10 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 /**
  * Portal QA rule: an interstitial never opens ON TOP of a result screen, and
- * the next scene never starts under an ad. So the way off the rewards and
- * defeat screens closes the screen first, then plays the ad, then moves on.
+ * the next scene never starts under an ad. A won mission's ad plays at the end
+ * of the way out, BEFORE its rewards screen opens (the training ground has
+ * none); the way off the defeat screen closes it first, then plays the ad,
+ * then moves on. The music comes back after the mission's ad, filled or not.
  */
 
 const ad = vi.hoisted(() => ({
@@ -25,6 +27,11 @@ vi.mock('@/use/useAdGate', () => ({
   markInterstitialShown: () => { ad.marked++ }
 }))
 vi.mock('@/use/useLeaderboard', () => ({ reportRun: vi.fn(async () => {}) }))
+const music = vi.hoisted(() => ({ resumed: 0 }))
+vi.mock('@/use/useSound', async (orig) => ({
+  ...(await orig<Record<string, unknown>>()),
+  resumeMusicAfterAd: () => { music.resumed++ }
+}))
 vi.mock('@/game/engine/app', () => ({
   app: { setMode: vi.fn(), setWanted: vi.fn(), setTimeScale: vi.fn() }
 }))
@@ -35,6 +42,7 @@ const setup = async () => {
   ad.shown = 0
   ad.marked = 0
   ad.finish = null
+  music.resumed = 0
   const flowMod = await import('@/game/flow')
   const built: string[] = []
   flowMod.registerModeFactories({
@@ -48,9 +56,42 @@ const tick = (ms = 0): Promise<void> => new Promise(r => setTimeout(r, ms))
 describe('leaving a result screen', () => {
   beforeEach(() => { localStorage.clear() })
 
-  it('closes the screen, then plays the ad, and only then builds the next scene', async () => {
+  it('a won mission: its ad before the rewards screen, with the run already banked; none on leaving that screen', async () => {
+    const { flow, finishMission, leaveResults, built } = await setup()
+    flow.training = false
+    const run = { time: 200, shots: 4, hits: 3, headshots: 2, kills: 3, bladeKills: 1, spotted: 0, bodiesFound: 0, loud: false, salvage: 40, piles: 1 }
+    const done = finishMission(run)
+    await tick()
+    // The ad is up, the rewards screen is not; what the run paid is already saved.
+    expect(ad.shown).toBe(1)
+    expect(ad.marked).toBe(1)
+    expect(flow.modal).toBe('')
+    expect(flow.result).not.toBeNull()
+    expect(music.resumed).toBe(0)
+    ad.finish!()
+    await done
+    expect(flow.modal).toBe('rewards')
+    expect(music.resumed).toBe(1)
+    // Off the rewards screen: no second ad.
+    await leaveResults('base')
+    await tick(20)
+    expect(ad.shown).toBe(1)
+    expect(built).toEqual(['base'])
+  })
+
+  it('a mission ad that does not fill still brings the rewards screen and the music', async () => {
+    const { flow, finishMission } = await setup()
+    flow.training = false
+    ad.due = false
+    await finishMission({ time: 200, shots: 0, hits: 0, headshots: 0, kills: 0, bladeKills: 0, spotted: 0, bodiesFound: 0, loud: false })
+    expect(ad.shown).toBe(0)
+    expect(flow.modal).toBe('rewards')
+    expect(music.resumed).toBe(1)
+  })
+
+  it('a defeat: closes the screen, then plays the ad, and only then builds the next scene', async () => {
     const { flow, leaveResults, built } = await setup()
-    flow.modal = 'rewards'
+    flow.modal = 'defeat'
     const done = leaveResults('base')
     await tick()
     // The screen is gone and the ad is up; nothing else has started.
@@ -80,7 +121,7 @@ describe('leaving a result screen', () => {
   it('with no ad due it goes straight on, and asks for none', async () => {
     const { flow, leaveResults, built } = await setup()
     ad.due = false
-    flow.modal = 'rewards'
+    flow.modal = 'defeat'
     await leaveResults('base')
     await tick(20)
     expect(ad.shown).toBe(0)
@@ -89,7 +130,7 @@ describe('leaving a result screen', () => {
 
   it('a double tap asks for one ad and builds one scene', async () => {
     const { flow, leaveResults, built } = await setup()
-    flow.modal = 'rewards'
+    flow.modal = 'defeat'
     const a = leaveResults('base')
     const b = leaveResults('base')
     await tick()
@@ -121,5 +162,7 @@ describe('leaving a result screen', () => {
     for (const p of files) for (const m of readFileSync(p, 'utf8').matchAll(/(?:watchFor|canOffer)\('([a-z]+)'/g)) asked.add(m[1]!)
     expect([...asked].every(a => (REWARDED_PLACEMENTS as readonly string[]).includes(a))).toBe(true)
     expect(asked.has('wheel')).toBe(true)
+    expect(asked.has('disguise')).toBe(true)
+    expect(asked.has('upgrade')).toBe(true)
   })
 })

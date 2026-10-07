@@ -134,6 +134,7 @@ export default {
   'workshop': {
     'max': 'Maks.',
     'buy': 'Plibonigi: {name}',
+    'watch': 'Spektu videon por plibonigi: {name}',
     'level': 'Nivelo {n} el {max}'
   },
   'forge': {

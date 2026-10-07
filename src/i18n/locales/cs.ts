@@ -134,6 +134,7 @@ export default {
   'workshop': {
     'max': 'Max',
     'buy': 'Vylepšit: {name}',
+    'watch': 'Sledovat video pro vylepšení: {name}',
     'level': 'Úroveň {n} z {max}'
   },
   'forge': {

@@ -2754,7 +2754,7 @@ export class Mission implements GameMode {
       this.dog.root.visible = false
       setPhase('done')
       if (this.training) void finishTraining()
-      else finishMission(this.stats)
+      else void finishMission(this.stats)
       emit('extracted', {})
     }
   }

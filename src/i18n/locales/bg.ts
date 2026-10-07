@@ -134,6 +134,7 @@ export default {
   'workshop': {
     'max': 'Макс',
     'buy': 'Надгради {name}',
+    'watch': 'Гледай видео, за да надградиш {name}',
     'level': 'Ниво {n} от {max}'
   },
   'forge': {

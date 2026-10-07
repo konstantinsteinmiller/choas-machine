@@ -134,6 +134,7 @@ export default {
   'workshop': {
     'max': 'สูงสุด',
     'buy': 'อัปเกรด {name}',
+    'watch': 'ดูวิดีโอเพื่ออัปเกรด {name}',
     'level': 'เลเวล {n} จาก {max}'
   },
   'forge': {

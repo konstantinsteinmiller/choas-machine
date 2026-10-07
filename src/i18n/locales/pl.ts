@@ -134,6 +134,7 @@ export default {
   'workshop': {
     'max': 'Maks.',
     'buy': 'Ulepsz: {name}',
+    'watch': 'Obejrzyj film, aby ulepszyć: {name}',
     'level': 'Poziom {n} z {max}'
   },
   'forge': {

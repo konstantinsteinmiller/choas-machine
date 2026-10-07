@@ -22,7 +22,7 @@ const props = withDefaults(defineProps<Props>(), {
   tabs: () => []
 })
 
-const emit = defineEmits(['update:modelValue', 'update:activeTab'])
+const emit = defineEmits(['update:modelValue', 'update:activeTab', 'titleTap'])
 
 // Root is a <Teleport>, so class/style passed by parents can't auto-inherit and
 // Vue warns about extraneous attrs. Opt out and forward $attrs explicitly.
@@ -146,7 +146,7 @@ onUnmounted(() => {
               :options="tabs"
               @update:model-value="handleTabChange"
             )
-            h2.f-modal__title(v-else-if="title") {{ title }}
+            h2.f-modal__title(v-else-if="title" data-testid="modal-title" @pointerdown="emit('titleTap')") {{ title }}
             span.f-modal__spacer(v-else)
             button.f-modal__close(
               v-if="isClosable"

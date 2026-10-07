@@ -134,6 +134,7 @@ export default {
   'workshop': {
     'max': 'Μέγιστο',
     'buy': 'Αναβάθμιση: {name}',
+    'watch': 'Δες βίντεο για αναβάθμιση: {name}',
     'level': 'Επίπεδο {n} από {max}'
   },
   'forge': {

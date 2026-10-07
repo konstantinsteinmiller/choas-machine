@@ -134,6 +134,7 @@ export default {
   'workshop': {
     'max': 'Tối đa',
     'buy': 'Nâng cấp {name}',
+    'watch': 'Xem video để nâng cấp {name}',
     'level': 'Cấp {n}/{max}'
   },
   'forge': {

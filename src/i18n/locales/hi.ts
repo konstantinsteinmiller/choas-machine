@@ -134,6 +134,7 @@ export default {
   'workshop': {
     'max': 'अधिकतम',
     'buy': '{name} अपग्रेड करें',
+    'watch': '{name} अपग्रेड करने के लिए वीडियो देखें',
     'level': 'लेवल {n}/{max}'
   },
   'forge': {

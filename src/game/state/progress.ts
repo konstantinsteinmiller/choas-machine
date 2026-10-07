@@ -153,11 +153,15 @@ export const canBuyTrack = (id: TrackId): boolean => {
   return l < TRACK_MAX && profile.scrap >= trackCost(l)
 }
 
-/** Pay for a track's next level; it is the player's at once (#75: no smithy). */
-export const buyTrack = (id: TrackId): boolean => {
-  if (!canBuyTrack(id)) return false
+/**
+ * Pay for a track's next level; it is the player's at once (#75: no smithy).
+ * `byVideo`: a rewarded video paid instead of the scrap (only the Armory's
+ * weapon upgrades are offered that way).
+ */
+export const buyTrack = (id: TrackId, byVideo = false): boolean => {
   const l = trackLevel(id)
-  profile.scrap -= trackCost(l)
+  if (byVideo ? l >= TRACK_MAX : !canBuyTrack(id)) return false
+  if (!byVideo) profile.scrap -= trackCost(l)
   profile.arsenal.upgrades[id] = l + 1
   saveProfile()
   return true

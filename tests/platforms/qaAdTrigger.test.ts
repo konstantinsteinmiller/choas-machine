@@ -1,5 +1,5 @@
-// The hidden QA interstitial tap: twenty taps on the screws badge inside thirty
-// seconds request an interstitial.
+// The hidden QA interstitial tap: twenty taps on the pause menu's PAUSED title
+// inside twenty seconds request an interstitial.
 //
 // Every portal paces interstitials at 121 s and only starts that clock on the
 // first request of a session, so the things portals actually grade — the music
@@ -68,7 +68,7 @@ describe('the hidden QA ad trigger', () => {
     const mod = await load()
     // The numbers QA is told: twenty taps, inside thirty seconds.
     expect(mod.QA_AD_TAPS).toBe(20)
-    expect(mod.QA_AD_WINDOW_MS).toBe(30_000)
+    expect(mod.QA_AD_WINDOW_MS).toBe(20_000)
     tap(mod, mod.QA_AD_TAPS - 1, 1000)
     expect(showMidgameAd).not.toHaveBeenCalled()
 

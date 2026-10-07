@@ -134,6 +134,7 @@ export default {
   'workshop': {
     'max': 'Maks.',
     'buy': 'Päivitä: {name}',
+    'watch': 'Katso video päivittääksesi: {name}',
     'level': 'Taso {n}/{max}'
   },
   'forge': {
