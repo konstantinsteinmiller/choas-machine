@@ -2,6 +2,7 @@ import {
   AdditiveBlending, BoxGeometry, BufferGeometry, CircleGeometry, ConeGeometry, CylinderGeometry, DoubleSide, Group, Mesh, MeshBasicMaterial,
   Quaternion, RingGeometry, SphereGeometry, Vector3, type Camera, type Object3D, type Scene, type ShaderMaterial
 } from 'three'
+import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js'
 import { demoPop } from '../state/hud'
 import { CELL, CellKind, cellMid, heightAt, VOID, type Grid } from '../world/grid'
 import type { Fortress } from '../world/fortress'
@@ -87,8 +88,13 @@ export class TrainingDirector {
   /** A projector disc by each room's way in. */
   private discs: Mesh[] = []
   private discMat = new MeshBasicMaterial({ color: GATE_COLOR, transparent: true, opacity: 0.5, blending: AdditiveBlending, depthWrite: false, toneMapped: false, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 })
-  private discGeo = new RingGeometry(0.55, 0.85, 32)
-  private discCoreGeo = new CircleGeometry(0.45, 24)
+  /** The disc's ring and its core in one geometry: one draw a disc (perf, #10 fps on an Adreno 610). */
+  private discGeo = mergeGeometries([new RingGeometry(0.55, 0.85, 32), new CircleGeometry(0.45, 24)])!
+  /** The rooms drawn: the one the mech is in, the one behind and the two ahead (the rest are behind walls). */
+  private cullLo = 0
+  private cullHi = Infinity
+  /** Doorways opened (their gates are gone for good). */
+  private opened: boolean[] = []
   /** The last frame shown, held while the hologram dissolves after its lesson is done. */
   private fade = 0
   private fadeRoom = -1
@@ -98,6 +104,8 @@ export class TrainingDirector {
   private gateGeo: BoxGeometry
   private crawlGateGeo: BoxGeometry
   private barGeo: BoxGeometry
+  private barsGeo: BufferGeometry
+  private crawlBarsGeo: BufferGeometry
   private lastX = 0
   private lastZ = 0
 
@@ -182,7 +190,6 @@ export class TrainingDirector {
       // The disc stands where the hologram starts, by the way in.
       const e = entryOf(i)
       const disc = new Mesh(this.discGeo, this.discMat)
-      disc.add(new Mesh(this.discCoreGeo, this.discMat))
       disc.rotation.x = -Math.PI / 2
       const h = heightAt(fortress.grid, e.x, e.z)
       disc.position.set(e.x, (h === VOID ? 0 : h) + 0.04, e.z)
@@ -195,6 +202,9 @@ export class TrainingDirector {
     this.gateGeo = new BoxGeometry(0.12, 4.2, span)
     this.gateGeo.translate(0, 2.1, 0)
     this.barGeo = new BoxGeometry(0.2, 0.1, span)
+    const bars = (ys: number[]): BufferGeometry => mergeGeometries(ys.map(y => this.barGeo.clone().translate(0, y, 0)))!
+    this.barsGeo = bars([0.6, 1.5, 2.4, 3.3])
+    this.crawlBarsGeo = bars([CRAWL_GAP_H, 2.4, 3.3])
     // The cover room's gate stops short of the floor: a crawl gap (#186).
     this.crawlGateGeo = new BoxGeometry(0.12, 4.2 - CRAWL_GAP_H, span)
     this.crawlGateGeo.translate(0, CRAWL_GAP_H + (4.2 - CRAWL_GAP_H) / 2, 0)
@@ -203,11 +213,8 @@ export class TrainingDirector {
       const crawl = r.lesson === 'cover'
       const g = new Mesh(crawl ? this.crawlGateGeo : this.gateGeo, this.gateMat)
       g.position.set(cellMid(r.door.cx), 0, (cellMid(r.door.cz0) + cellMid(r.door.cz1)) / 2)
-      for (const y of crawl ? [CRAWL_GAP_H, 2.4, 3.3] : [0.6, 1.5, 2.4, 3.3]) {
-        const bar = new Mesh(this.barGeo, this.barMat)
-        bar.position.y = y
-        g.add(bar)
-      }
+      // The bars in one mesh: one draw a gate for them, not one a bar.
+      g.add(new Mesh(crawl ? this.crawlBarsGeo : this.barsGeo, this.barMat))
       this.group.add(g)
       this.gates.push(g)
       if (crawl) this.setCrawl(r.door)
@@ -249,7 +256,7 @@ export class TrainingDirector {
       const r = TRAINING_ROOMS[e.room]!
       const g = this.gates[e.room]
       // The crawl gate stays as it is: its gap is the way through.
-      if (r.door && g && r.lesson !== 'cover') { this.setDoor(r.door, false); g.visible = false }
+      if (r.door && g && r.lesson !== 'cover') { this.setDoor(r.door, false); g.visible = false; this.opened[e.room] = true }
     }
     return ev
   }
@@ -260,9 +267,24 @@ export class TrainingDirector {
       if (k >= i || this.state.done[k]) return
       this.state.done[k] = true
       const g = this.gates[k]
-      if (r.door && g && r.lesson !== 'cover') { this.setDoor(r.door, false); g.visible = false }
+      if (r.door && g && r.lesson !== 'cover') { this.setDoor(r.door, false); g.visible = false; this.opened[k] = true }
     })
     this.state.room = Math.min(this.state.room, i - 1)
+  }
+
+  /**
+   * The rooms to draw (perf): the training ground is one long row of rooms
+   * behind 16 m walls, looked straight down, so frustum culling keeps all of
+   * them. Only the one the mech is in, the one behind and the two ahead
+   * (seen through the glass gates) are drawn; the rest is behind walls.
+   */
+  cullRooms(): { lo: number; hi: number; xMin: number; xMax: number } {
+    const cur = Math.max(0, this.state.room)
+    const lo = Math.max(0, cur - 1)
+    const hi = Math.min(TRAINING_ROOMS.length - 1, cur + 2)
+    this.cullLo = lo
+    this.cullHi = hi
+    return { lo, hi, xMin: (TRAINING_ROOMS[lo]!.x0 - 1) * CELL, xMax: (TRAINING_ROOMS[hi]!.x1 + 2) * CELL }
   }
 
   /** The replay button. */
@@ -320,7 +342,8 @@ export class TrainingDirector {
   update(dt: number, time: number, camera?: Camera): void {
     const t = this.state
     // A projector disc glows while its room's lesson is still to do.
-    this.discs.forEach((d, i) => { d.visible = !t.done[i] })
+    this.discs.forEach((d, i) => { d.visible = !t.done[i] && i >= this.cullLo && i <= this.cullHi })
+    this.gates.forEach((g, i) => { if (g) g.visible = !this.opened[i] && i >= this.cullLo && i <= this.cullHi })
     this.discMat.opacity = 0.4 + 0.15 * Math.sin(time * 5)
     // Done: the figure dissolves where it stood.
     if (t.room >= 0 && t.done[t.room] && this.fadeRoom === t.room) this.fade = Math.max(0, this.fade - dt * 1.4)
@@ -592,7 +615,8 @@ export class TrainingDirector {
     this.flame.geometry.dispose()
     this.discMat.dispose()
     this.discGeo.dispose()
-    this.discCoreGeo.dispose()
+    this.barsGeo.dispose()
+    this.crawlBarsGeo.dispose()
     this.gateMat.dispose()
     this.barMat.dispose()
     this.gateGeo.dispose()

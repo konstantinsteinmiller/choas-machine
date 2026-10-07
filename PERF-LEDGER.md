@@ -313,6 +313,31 @@ Watch: the Bastion grew by a 6-cell ring (60 x 64 to 72 x 76 cells, 1.43x
 the cells to mesh) and gained roofs (each slab run is a ray box); the Foundry
 is a 64 x 64 grid that is mostly one tall block. Neither was profiled.
 
+## 10. Room culling and a weak device's shorter view (2026-10-07) — shipped, counts exact, phone timing unconfirmed
+
+A playtester's Adreno 610 phone (Android 10, DPR 2.625, already the weak
+tier) ran the training's first room at 10 fps. Measured with the draw-call
+probe (`3d-game-optimizations`), weak profile, phone viewport at DPR 2.625:
+
+| Training, first room | GL draws a frame |
+|---|---|
+| before | 230 (chunks 60, gates 59, garrison 33, discs 26, sky 9) |
+| after | 61 (chunks 15, sky 9, garrison 6, gates 6, discs 2) |
+
+- The training ground is one long row of rooms behind 16 m walls, looked
+  straight down: frustum culling kept all of it. Only the room the mech is
+  in, the one behind and the two ahead (seen through the glass gates) are
+  drawn: chunks, gates, discs, defenders (`cullRooms`, `cullView`).
+- A gate was its glass and four bar meshes (5 draws): the bars are one
+  merged geometry (2 draws). A projector disc was a ring and a core (2): one.
+- A weak device (scenery `low`) draws nothing past 110 m (chunks, defenders;
+  not while scoped) and its haze closes in from 40 m to 110 m, so nothing pops.
+  Defenders out of view are not posed either (CPU).
+- Counts are exact (no A/B needed); frame time on the real phone is not yet
+  confirmed. The canvas stays at the display's own ratio (rule 9): the
+  "blurry recording" is not a lowered resolution in the game (nothing lowers
+  it); most likely the recording's own compression.
+
 ## Open
 
 - (Round 5) The shader precompile is now the largest piece of the boot,

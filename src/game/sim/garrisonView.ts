@@ -459,6 +459,8 @@ const SHATTER_FORCE: Partial<Record<PostKind, number>> = {
 export class GarrisonView {
   readonly group = new Group()
   private views: UnitView[] = []
+  /** Whether a unit at (x, z) is in view at all (perf culling, set by the mission each frame); null draws all. */
+  cull: ((x: number, z: number) => boolean) | null = null
   private cones: Mesh
   private conePos: Float32Array
   /** Each cone as last cast, around its unit: x and z from where it stood, y as drawn. */
@@ -1011,7 +1013,9 @@ export class GarrisonView {
       // Not in the base yet: nothing of it is drawn.
       // A light the Engineer has fixed is whole again.
       if (v.wrecked && u.state !== 'dead') { v.wrecked = false; this.shatter.clear(i) }
-      const here = u.state !== 'reserve' && !v.wrecked && !u.hidden
+      // Out of view (another training room behind walls, or past a weak device's
+      // view distance): not drawn, not posed.
+      const here = u.state !== 'reserve' && !v.wrecked && !u.hidden && (!this.cull || this.cull(u.x, u.z))
       v.rig.root.visible = here
       v.shadow.visible = here
       if (!here) {

@@ -23,6 +23,7 @@ import { FloorMarkers, makeBlobShadow } from '../fx/markers'
 import { CombatFx } from '../fx/combatFx'
 import { BulletMarks } from '../fx/bulletMarks'
 import { PLAYER_WRECK } from '../fx/shatter'
+import { sceneQuality } from '../engine/quality'
 import { buildRopeLines, type RopeLine } from '../fx/ropeLine'
 import type { Rig } from '../models/kit'
 import { muzzleWorld, buildMech, poseMech, restPose, MECH_HEIGHT, MECH_HEIGHT_CROUCH, MECH_SCALE, type MechPose , MECH_KNEEL_S, MECH_DOWN_S } from '../models/mech'
@@ -246,6 +247,9 @@ const PIT_CAM_BACK = 2.2
 const PIT_CAM_RATE = 2.5
 /** Seconds near a shut door's wall before its control is put in the player's face (#186 follow-up). */
 const NEAR_DOOR_ARM_S = 3
+/** How far a weak device draws (m), the fog closing in before it; the scope still reaches past it. */
+const WEAK_VIEW_M = 110
+const WEAK_FOG_NEAR_M = 40
 /** How long a shouted line stays over a defender's head. */
 const CALLOUT_S = 2.4
 /** How slow the world runs while a kill-cam holds on its kill. */
@@ -512,6 +516,13 @@ export class Mission implements GameMode {
     const m = new Mission(fortress, input, level, loadout)
     const look = themeOf(fortress.theme)
     m.sky = buildSky(m.scene, m.centre, look.sky, { w: fortress.grid.w * CELL, d: fortress.grid.d * CELL })
+    // A weak device sees less far (perf): the haze closes in, and what is past it is not drawn.
+    m.weakView = sceneQuality() === 'low'
+    const fog = m.scene.fog
+    if (m.weakView && fog && 'near' in fog) {
+      fog.near = Math.min(fog.near, WEAK_FOG_NEAR_M)
+      fog.far = Math.min(fog.far, WEAK_VIEW_M)
+    }
     m.mesh = await buildFortressMesh(fortress, look.mesh, slice, p => onProgress(p * 0.8))
     m.decor = buildDecor(fortress.decor)
     await slice()
@@ -4462,12 +4473,38 @@ export class Mission implements GameMode {
 
   render(alpha: number, dt: number): void {
     this.place(alpha, dt)
+    this.cullView()
     this.sky.update(this.camera.position, this.time)
     runHudTickers(dt)
     const r = getRenderer()
     r.info.reset()
     r.render(this.scene, this.camera)
   }
+
+  /**
+   * What is drawn at all (perf: a weak phone ran the training's first room at
+   * 10 fps on 230 draw calls). The training draws only the rooms round the
+   * mech (the rest are behind walls). On a weak device nothing past
+   * WEAK_VIEW_M is drawn (the fog closes in before it), except through the
+   * scope, which is narrow and must reach a far target.
+   */
+  private cullView(): void {
+    const cam = this.camera.position
+    const far = this.weakView && !hud.scoped ? WEAK_VIEW_M : Infinity
+    const span = this.training?.cullRooms()
+    const xMin = span ? span.xMin : -Infinity
+    const xMax = span ? span.xMax : Infinity
+    for (const c of this.mesh.chunks) {
+      const s = c.geometry.boundingSphere
+      if (!s) continue
+      const inRoom = s.center.x + s.radius >= xMin && s.center.x - s.radius <= xMax
+      c.visible = inRoom && (far === Infinity || Math.hypot(s.center.x - cam.x, s.center.z - cam.z) - s.radius < far)
+    }
+    this.garrisonView.cull = (x, z) => x >= xMin && x <= xMax && (far === Infinity || Math.hypot(x - cam.x, z - cam.z) < far)
+  }
+
+  /** A weak device (the scenery's low tier): a shorter view, the fog closer (perf). */
+  private weakView = false
 
   dispose(): void {
     clearBanner()
