@@ -174,6 +174,9 @@ export const buildFoundry = (level = 1, run = 0, answers: Answers = NO_ANSWERS):
   // The Foreman in the core, by the big pile.
   b.enforcer(26, 9, Math.PI, true)
 
+  // A drone over the east yard from the first raid on (#181).
+  b.drone([[43, 34], [49, 34], [49, 46], [43, 46]], 8)
+
   if (level >= 2) {
     b.grenadier([[22, 21, 3], [29, 21, 3]])
     b.enforcer(26, 42, 0)

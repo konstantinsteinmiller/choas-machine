@@ -157,6 +157,8 @@ export const buildSteelKeep = (run = 0, answers: Answers = NO_ANSWERS): Fortress
   b.searchlight(53, 11, [[47, 16, 1.5], [47, 28, 1], [36, 16, 1.5]])
   b.drone([[16, 16], [47, 16], [47, 47], [16, 47]], 8)
   b.drone([[24, 33], [39, 33], [39, 39], [24, 39]], 9)
+  // A third over the south-east works (#181).
+  b.drone([[30, 44], [44, 44], [44, 50], [30, 50]], 8)
 
   // ── Reinforcements, through both outer gates ──
   b.reserve(26, 53, Math.PI).reserve(27, 53, Math.PI).reserve(36, 10).reserve(37, 10)

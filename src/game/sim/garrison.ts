@@ -83,6 +83,16 @@ export const CAGED_RADIUS = SPOT_RADIUS * 0.6
 export const spotRadius = (u: { watch?: boolean; caged?: boolean }): number => (u.watch ? WATCH_RADIUS : u.caged ? CAGED_RADIUS : SPOT_RADIUS)
 /** Seconds a fully lit, standing mech has before a drone is sure of it. */
 const SPOT_NOTICE_S = 0.9
+/**
+ * A drone's ears (#181): it hears a rifle shot, its round landing and a
+ * teammate going down this far off (a guard hears the shot itself at 4 m),
+ * flies along with any teammate within it who goes to look, and finds a body
+ * this far below and around it, not only in its pool.
+ */
+export const DRONE_HEAR_M = 25
+export const DRONE_BODY_M = 10
+/** How high over whatever lies on its line a hunting drone keeps (m). */
+const DRONE_CLEAR_M = 1.2
 
 /**
  * The meter (round 3, after Odyssey): white below SUSPECT_AT, yellow from
@@ -346,6 +356,12 @@ export interface Unit {
   bodySearch: boolean
   /** A machine that is sure of the mech: seconds into its uplink to the base (#73), 0 when none. */
   uplinkT: number
+  /**
+   * A drone on the hunt (#181): 0 not; 1 flying along with a teammate who went
+   * to look; 2 sent by a shot to where it was fired from, which it knows
+   * exactly: sure of the mech there, it raises the alarm at once.
+   */
+  hunt: number
   /** A fighter with nothing in view: seconds since it last saw the mech (the Goliath's patience, #89). */
   lostT: number
 }
@@ -864,7 +880,7 @@ export const makeGarrison = (f: Fortress, level = 2): Garrison => {
       tagged: false, hidden: false, partner: p.partner ?? -1, chatting: false, poke: false, changeT: 0,
       role: p.role ?? null, shotgun: p.gun === 'shotgun', grenadeT: 0, job: null, jobT: 0, scentT: -1e9,
       rag: null, ragHow: 'shot', ragStruck: false, thud: false, onFire: 0, quietT: 0, peekT: 0,
-      helmet: !!f.answers?.helmets && (p.kind === 'guard' || p.kind === 'sentry'), boxLook: 0, inspect: null, inspectCool: 0, focusT: 0, bodySearch: false, uplinkT: 0, lostT: 0,
+      helmet: !!f.answers?.helmets && (p.kind === 'guard' || p.kind === 'sentry'), boxLook: 0, inspect: null, inspectCool: 0, focusT: 0, bodySearch: false, uplinkT: 0, hunt: 0, lostT: 0,
       jammed: false, shells: 0, overheat: 0, phase2: false, glintT: 0, dashT: 0, dashX: 0, dashZ: 0, dashCool: 2, dashHit: false
     }
   })
@@ -937,7 +953,7 @@ const enter = (u: Unit, state: UnitState): void => {
   // In a fight: afterwards it hunts. Back on its round, the fight is behind
   // it: it may shout (and hunt) again next time.
   if (state === 'combat') u.fought = true
-  if (state === 'patrol') { u.shouted = false; u.fought = false }
+  if (state === 'patrol') { u.shouted = false; u.fought = false; u.hunt = 0 }
 }
 
 // ─── Sight ───────────────────────────────────────────────────────────────────
@@ -1381,10 +1397,19 @@ export const shotPassed = (
     const line = Math.hypot(ox + lx * k - u.x, oy + ly * k - eyeY, oz + lz * k - u.z)
     const impact = Math.hypot(hx - u.x, hz - u.z)
     const heard = Math.hypot(ox - u.x, oz - u.z) <= earshot
-    if (line > NEAR_MISS_M && impact > impactM && !heard) continue
+    // A drone (#181) hears the shot, and where its round lands, far off.
+    const drone = u.kind === 'drone' && (Math.hypot(ox - u.x, oz - u.z) <= DRONE_HEAR_M || impact <= DRONE_HEAR_M)
+    if (line > NEAR_MISS_M && impact > impactM && !heard && !drone) continue
     // A fighter that notices it keeps the hunt hot (#134); nothing distracts it.
     if (u.state === 'combat') { fighters = true; continue }
     if (u.kind === 'goliath') continue
+    if (u.kind === 'drone') {
+      // It works out where the shot was fired from, to the metre, and goes there.
+      droneHunt(gar, u, ox, oz)
+      reached.push(u)
+      n++
+      continue
+    }
     u.focusT = Math.max(u.focusT, FOCUS_S)
     u.detect = Math.max(u.detect, SUSPECT_AT + 0.05)
     u.lured = false
@@ -1484,6 +1509,43 @@ const suspect = (gar: Garrison, u: Unit, x: number, z: number, lured: boolean): 
   enter(u, 'suspicious')
   u.path = []
   gar.events.push({ type: 'suspicious', id: u.id })
+  if (isHuman(u) && !lured) droneAlong(gar, u, x, z)
+}
+
+/**
+ * A teammate went to look (#181): every drone on its round within earshot of
+ * it flies there too, fast, its light on the spot.
+ */
+const droneAlong = (gar: Garrison, mate: Unit, x: number, z: number): void => {
+  if (gar.drill) return
+  for (const d of gar.units) {
+    if (d.kind !== 'drone' || !isAlive(d) || d.state !== 'patrol') continue
+    if (Math.hypot(d.x - mate.x, d.z - mate.z) > DRONE_HEAR_M) continue
+    d.detect = Math.max(d.detect, SUSPECT_AT + 0.05)
+    d.focusT = Math.max(d.focusT, FOCUS_S)
+    suspect(gar, d, x, z, false)
+    d.hunt = Math.max(d.hunt, 1)
+  }
+}
+
+/** A drone sent to where a shot came from (#181), which it knows exactly. */
+const droneHunt = (gar: Garrison, d: Unit, x: number, z: number): void => {
+  d.focusT = Math.max(d.focusT, FOCUS_S)
+  d.detect = Math.max(d.detect, SUSPECT_AT + 0.05)
+  d.lured = false
+  suspect(gar, d, x, z, false)
+  if (!gar.drill) d.hunt = 2
+}
+
+/** The height a drone flies at towards a point: its own, or over whatever stands on the line (#181). */
+const flyHeight = (g: Grid, u: Unit, tx: number, tz: number): number => {
+  const len = Math.hypot(tx - u.x, tz - u.z)
+  let top = -Infinity
+  for (let s = 0; s <= len; s += 0.5) {
+    const h = heightAt(g, u.x + ((tx - u.x) * s) / Math.max(len, 1e-6), u.z + ((tz - u.z) * s) / Math.max(len, 1e-6))
+    if (h > top) top = h
+  }
+  return Math.max(u.altitude, top + DRONE_CLEAR_M)
 }
 
 const patrol = (u: Unit, g: Grid, time: number, dt: number): void => {
@@ -1545,7 +1607,9 @@ const patrol = (u: Unit, g: Grid, time: number, dt: number): void => {
       u.x += (dx / dist) * step
       u.z += (dz / dist) * step
     }
-    u.y += (u.altitude - u.y) * Math.min(1, dt * 2)
+    // Back from a hunt it may be off its line: over whatever stands between (#181).
+    const fly = dist > 2 ? flyHeight(g, u, stop.x, stop.z) : u.altitude
+    u.y += (fly - u.y) * Math.min(1, dt * 2)
     u.speed01 = 0.6
     return
   }
@@ -1599,11 +1663,16 @@ const investigate = (u: Unit, g: Grid, gar: Garrison, dt: number): void => {
       const dx = u.seenX - c.x
       const dz = u.seenZ - c.z
       const dist = Math.hypot(dx, dz)
+      // On the hunt (#181) a drone races there, over whatever is on its line,
+      // and its look starts only once its light is on the spot.
+      const hunting = u.kind === 'drone' && u.hunt > 0
       if (dist > 0.4) {
-        const step = Math.min(dist, SPECS[u.kind].look * dt)
+        const step = Math.min(dist, SPECS[u.kind][hunting ? 'run' : 'look'] * dt)
         moveSpot(u, (dx / dist) * step, (dz / dist) * step)
+        if (hunting) u.t = Math.min(u.t, u.huh + 0.01)
       }
-      if (u.kind === 'drone') turnToward(u, face, dt, 2)
+      if (hunting) u.y += (flyHeight(g, u, u.seenX, u.seenZ) - u.y) * Math.min(1, dt * 2)
+      if (u.kind === 'drone') turnToward(u, face, dt, hunting ? 3 : 2)
       if (u.t > u.huh + (u.lured ? SCAN_LURED_S : SCAN_S)) enter(u, 'search')
       return
     }
@@ -2067,8 +2136,9 @@ export const stepGarrison = (gar: Garrison, g: Grid, target: Target, dt: number)
       const known = gar.units.some(o => o !== u && o.state === 'combat')
       // A hound barks: the guards round it come, beacons or not.
       if (u.kind === 'hound') shout(gar, u, target)
-      if (u.watch) {
-        // The Watchtower (#144): no uplink to wait for; the alarm rings now.
+      if (u.watch || (u.kind === 'drone' && u.hunt === 2)) {
+        // The Watchtower (#144), or a drone that came to where the shot was
+        // fired from (#181): no uplink to wait for; the alarm rings now.
         gar.events.push({ type: 'uplinkDone', id: u.id })
         alarmNow(gar, g, target)
       } else if (uplinks(u)) {
@@ -2130,7 +2200,10 @@ export const stepGarrison = (gar: Garrison, g: Grid, target: Target, dt: number)
         // A body tucked into a container is not there to find.
         if (c.state !== 'dead' || c.found || c.hidden || isLight(c) || c.deadT < c.hold + 0.6) continue
         if (Math.hypot(c.x - u.x, c.z - u.z) > BODY_RANGE) continue
-        if (sight(u, g, { x: c.x, feetY: c.y, z: c.z, height: BODY_HEIGHT }, gar) <= 0) continue
+        if (u.kind === 'drone'
+          // A drone's camera looks down all round it (#181), not only into its pool.
+          ? Math.hypot(c.x - u.x, c.z - u.z) > DRONE_BODY_M || !hasLineOfSight(g, u.x, u.y - 0.2, u.z, c.x, c.y + BODY_HEIGHT * 0.5, c.z)
+          : sight(u, g, { x: c.x, feetY: c.y, z: c.z, height: BODY_HEIGHT }, gar) <= 0) continue
         looking = true
         u.bodyT += dt
         if (u.bodyT >= BODY_NOTICE_S) {
@@ -2510,6 +2583,8 @@ export const noiseAt = (gar: Garrison, target: Target, x: number, z: number, rad
     // A fighter that hears it sends the hunt there (#134).
     if (u.state === 'combat') { stirHunt(gar, x, z); continue }
     heard = true
+    // A drone in earshot of a gun going off goes straight to it (#181).
+    if (u.kind === 'drone' && Math.hypot(u.x - x, u.z - z) <= Math.max(DRONE_HEAR_M, radius)) { droneHunt(gar, u, x, z); continue }
     u.detect = Math.max(u.detect, SUSPECT_AT + 0.05)
     suspect(gar, u, x, z, false)
   }
@@ -2550,6 +2625,15 @@ export const BODY_THUD_M = 8
  */
 const bodyThud = (gar: Garrison, d: Unit): void => {
   for (const u of gar.units) {
+    // A drone hears a teammate go down far off (#181) and comes to look at him, unless it is after the shooter already.
+    if (u.kind === 'drone' && u !== d && isAlive(u) && u.state !== 'combat' && u.hunt < 2 && !gar.drill
+      && Math.hypot(u.x - d.x, u.z - d.z) <= DRONE_HEAR_M) {
+      u.focusT = Math.max(u.focusT, FOCUS_S)
+      u.detect = Math.max(u.detect, SUSPECT_AT + 0.05)
+      suspect(gar, u, d.x, d.z, false)
+      u.hunt = Math.max(u.hunt, 1)
+      continue
+    }
     if (u === d || !isAlive(u) || u.state === 'combat' || u.state === 'dormant' || u.gripped || isLight(u) || u.kind === 'goliath') continue
     if (Math.hypot(u.x - d.x, u.z - d.z) > BODY_THUD_M * (u.kind === 'hound' ? HOUND_EARS : 1)) continue
     if (gar.drill) { u.look = angleDelta(u.yaw, headingTo(u.x, u.z, d.x, d.z)); continue }

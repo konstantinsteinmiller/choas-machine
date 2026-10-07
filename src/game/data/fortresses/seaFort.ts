@@ -140,6 +140,8 @@ export const buildSeaFort = (run = 0, answers: Answers = NO_ANSWERS): Fortress =
   b.searchlight(41, 16, [[32, 20, 1.5], [24, 22, 1], [44, 28, 1.5]])
   b.sentry(53, 10, Math.PI * 1.25).sentry(10, 10, Math.PI * 0.75)
   b.drone([[19, 22], [19, 44], [44, 44], [44, 22]], 9)
+  // A second pair of ears over the south yard (#181).
+  b.drone([[17, 40], [31, 40], [31, 50], [17, 50]], 8)
 
   // ── Reinforcements, through the gates ──
   b.reserve(31, 53, Math.PI).reserve(32, 53, Math.PI).reserve(31, 10).reserve(32, 10)

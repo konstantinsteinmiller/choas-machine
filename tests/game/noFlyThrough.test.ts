@@ -11,7 +11,9 @@ import type { Fortress } from '@/game/world/fortress'
 
 const FORTS: Array<[string, () => Fortress]> = [
   ...[1, 2, 3].map(l => [`the Bastion at threat ${l}`, () => buildBastion(l)] as [string, () => Fortress]),
-  ['the Foundry', () => buildFoundry(1)], ['the Harbour', () => buildHarbour(1)], ['the training ground', buildTrainingGround],
+  ...[1, 2, 3].map(l => [`the Foundry at threat ${l}`, () => buildFoundry(l)] as [string, () => Fortress]),
+  ...[1, 2, 3].map(l => [`the Harbour at threat ${l}`, () => buildHarbour(l)] as [string, () => Fortress]),
+  ['the training ground', buildTrainingGround],
   ...[1, 2, 3].map(l => [`the Spire at threat ${l}`, () => buildSpire(l)] as [string, () => Fortress])
 ]
 

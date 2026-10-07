@@ -145,6 +145,9 @@ export const buildSpire = (level = 1, run = 0, answers: Answers = NO_ANSWERS): F
   b.commander([[21, 21, 3], [34, 21], [34, 34, 3], [21, 34]], 0, { shield: level >= 3 })
   b.searchlight(42, 42, [[30, 40, 1.5], [40, 30, 1.5], [44, 44, 1]])
 
+  // A drone over the west terraces from the first raid on (#181).
+  b.drone([[3, 9], [15, 9], [15, 23], [3, 23]], 10)
+
   if (level >= 2) {
     b.shieldGuard([[28, 14, 2], [36, 14, 2]])
     b.guard(pick([[10, 12, 2], [10, 44, 2]], [[45, 44, 2], [45, 12, 2]]))

@@ -1026,7 +1026,19 @@ drone AI before the new roster and the intro).
   in place of the 7 generic plates; the rig is hidden after. Parts shrunk to
   nothing on their bone (the holstered weapons) are left out of any break.
   Browser: 27 pieces, framed by the follow camera; `shatter.test.ts`.
-- [ ] **R75.4 Drones that listen and hunt** (#181)
+- [x] **R75.4 Drones that listen and hunt** (#181, D6 as answered): a drone
+  hears a rifle shot, where its round lands and a teammate going down within
+  `DRONE_HEAR_M` (25 m; a guard hears the shot at 4 m), takes the shooter's
+  exact spot (not the base's guess) and races there at run pace over whatever
+  is on its line (`flyHeight`); sure of the mech on that hunt (`hunt` 2) it
+  rings the alarm at once, no uplink. It finds bodies within `DRONE_BODY_M`
+  (10 m) all round it, not only in its pool, and calls its teammates
+  (`bodyAlarm`); it flies along with a teammate within 25 m who goes to look
+  (`hunt` 1, the uplink kept). A loud gun sends it straight to the spot. +1
+  drone on every map at every threat level (Bastion I in R75.5); routes found
+  by a clearance search. The no-fly-through test now covers every threat
+  level: the Harbour II/III drone flew through 10 m stacks at 9 m (now 11.5).
+  `droneHunt.test.ts`.
 - [ ] **R75.5 The first fortress's roster** (#176)
 - [ ] **R75.6 The intro's finale** (#179)
 

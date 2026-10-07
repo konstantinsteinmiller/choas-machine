@@ -142,8 +142,12 @@ export const buildHarbour = (level = 1, run = 0, answers: Answers = NO_ANSWERS):
   b.sentry(21, 25, Math.PI)
   b.searchlight(13, 42, [[18, 44, 1.5], [24, 46, 1], [16, 50, 1.5]])
 
+  // A drone over the container stacks from the first raid on (#181).
+  b.drone([[29, 35], [43, 35], [43, 49], [29, 49]], 8)
+
   if (level >= 2) {
-    b.drone([[4, 25], [60, 25], [60, 20], [4, 20]], 9)
+    // Over the 10 m stacks on its line, not through them.
+    b.drone([[4, 25], [60, 25], [60, 20], [4, 20]], 11.5)
     b.grenadier([[26, 34, 3], [34, 34, 3]])
     b.shieldGuard([[41, 19, 2], [42, 8, 2]])
     b.enforcer(34, 46, Math.PI)
