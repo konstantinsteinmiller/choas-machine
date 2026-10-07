@@ -223,15 +223,15 @@ export const canOfferReward = computed(
 const INTERSTITIAL_MIN_GAP_MS = 121_000
 
 /**
- * No interstitial in the first minute after load (Yandex's rule; 61 s for the
- * same clock-skew reason as the gap). A first mission takes longer than that,
- * so in practice the first mission's Continue gets its ad.
+ * No interstitial in the first four minutes after load (the owner's rule,
+ * #182: a player has played at least 240 s before the first one; it also
+ * covers Yandex's 60 s). An ad that is not due is skipped, never queued.
  *
  * Only the midgame ad. The moderation-mandated first-load ad (GameMonetize,
  * `useFirstLoadInterstitial`) is its own path and is untouched — shipping there
  * depends on it.
  */
-export const INTERSTITIAL_AFTER_LOAD_MS = 61_000
+export const INTERSTITIAL_AFTER_LOAD_MS = 240_000
 
 let lastInterstitialAt = 0
 let sessionStartedAt = Date.now()

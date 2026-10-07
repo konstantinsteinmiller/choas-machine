@@ -135,6 +135,9 @@ export default {
     'speed': 'Level 1: a quieter sprint',
     'decoy': 'Level 1: the next decoy is ready sooner'
   },
+  'offer': {
+    'refresh': 'Needs time to refresh, do some missions'
+  },
   'workshop': {
     'max': 'Max',
     'buy': 'Upgrade {name}',
@@ -144,6 +147,7 @@ export default {
   'forge': {
     'tier': 'Tier {n}',
     'build': 'Build',
+    'watch': 'Watch a video to build the next tier of the {name}',
     'top': 'Top tier',
     'lead': 'Every weapon is yours from the start. The Forge makes it hit harder.',
     'gain': 'Next tier: +{n}% damage',

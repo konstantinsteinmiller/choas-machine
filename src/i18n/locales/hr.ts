@@ -131,6 +131,9 @@ export default {
     'speed': 'Razina 1: tiši sprint',
     'decoy': 'Razina 1: sljedeći mamac je spreman prije'
   },
+  'offer': {
+    'refresh': 'Treba vremena za osvježavanje, odradi nekoliko misija'
+  },
   'workshop': {
     'max': 'Maks.',
     'buy': 'Nadogradi: {name}',
@@ -140,6 +143,7 @@ export default {
   'forge': {
     'tier': 'Stupanj {n}',
     'build': 'Izradi',
+    'watch': 'Pogledaj video za izradu sljedećeg stupnja: {name}',
     'top': 'Najviši stupanj',
     'lead': 'Svako oružje tvoje je od početka. Kovačnica ga tjera da udara jače.',
     'gain': 'Sljedeći stupanj: +{n} % štete',

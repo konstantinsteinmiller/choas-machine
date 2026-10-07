@@ -17,15 +17,12 @@
             span.next {{ value(id, level(id) + 1) }}
       div.pay(v-if="level(id) < TRACK_MAX")
         //- A weapon upgrade can be paid with a rewarded video instead (the film mark).
-        FButton.video(
-          v-if="videoOffer && TRACKS[id].station === 'armory'"
-          type="success"
-          size="sm"
-          icon="video"
-          icon-only
-          :aria-label="t('workshop.watch', { name: t(`track.${id}`) })"
-          :data-testid="`video-${id}`"
-          @click="watch(id)"
+        VideoOfferButton(
+          v-if="(videoOffer || videoSpent) && TRACKS[id].station === 'armory'"
+          :label="t('workshop.watch', { name: t(`track.${id}`) })"
+          :testid="`video-${id}`"
+          :spent="!videoOffer"
+          @watch="watch(id)"
         )
         FButton.buy(
           type="warning"
@@ -46,13 +43,14 @@
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import FButton from '@/components/atoms/FButton.vue'
+import VideoOfferButton from '@/components/atoms/VideoOfferButton.vue'
 import GameIcon from '@/components/icons/GameIcon.vue'
 import { TRACKS, TRACK_IDS, TRACK_MAX, VERB_TRACKS, trackCost, trackValue, type Station, type TrackId } from '@/game/data/upgrades'
 import { buyTrack, canBuyTrack, trackLevel } from '@/game/state/progress'
 import { sfx } from '@/game/audio/sfx'
 import { haptic } from '@/use/useHaptics'
 import { formatAmount } from '@/utils/formatAmount'
-import { canOffer, offerTick, watchFor } from '@/use/useRewardedOffers'
+import { canOffer, offerSpent, offerTick, watchFor } from '@/use/useRewardedOffers'
 
 const props = defineProps<{ station: Station }>()
 const emit = defineEmits<{ (e: 'focus', id: TrackId): void }>()
@@ -93,6 +91,7 @@ let timer = 0
 onMounted(() => { timer = window.setInterval(() => { clock.value++ }, 1000) })
 onUnmounted(() => { window.clearInterval(timer) })
 const videoOffer = computed(() => { void clock.value; void offerTick.value; return canOffer('upgrade') })
+const videoSpent = computed(() => { void clock.value; void offerTick.value; return offerSpent('upgrade') })
 </script>
 
 <style scoped lang="sass">

@@ -131,6 +131,9 @@ export default {
     'speed': '1. līmenis: klusāks sprints',
     'decoy': '1. līmenis: nākamā ēsma ir gatava ātrāk'
   },
+  'offer': {
+    'refresh': 'Nepieciešams laiks atjaunošanai, izpildi dažas misijas'
+  },
   'workshop': {
     'max': 'Maks.',
     'buy': 'Uzlabot: {name}',
@@ -140,6 +143,7 @@ export default {
   'forge': {
     'tier': '{n}. pakāpe',
     'build': 'Izgatavot',
+    'watch': 'Noskaties video, lai izgatavotu nākamo pakāpi: {name}',
     'top': 'Augstākā pakāpe',
     'lead': 'Katrs ierocis ir tavs jau no paša sākuma. Kalve liek tam sist stiprāk.',
     'gain': 'Nākamā pakāpe: +{n}% bojājumu',

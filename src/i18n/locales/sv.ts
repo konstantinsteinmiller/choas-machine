@@ -131,6 +131,9 @@ export default {
     'speed': 'Nivå 1: tystare spurt',
     'decoy': 'Nivå 1: nästa lockbete är klart snabbare'
   },
+  'offer': {
+    'refresh': 'Behöver tid för att återställas, ta några uppdrag'
+  },
   'workshop': {
     'max': 'Max',
     'buy': 'Uppgradera {name}',
@@ -140,6 +143,7 @@ export default {
   'forge': {
     'tier': 'Nivå {n}',
     'build': 'Bygg',
+    'watch': 'Titta på en video för att bygga nästa nivå av {name}',
     'top': 'Högsta nivå',
     'lead': 'Alla vapen är dina från start. Smedjan får dem att slå hårdare.',
     'gain': 'Nästa nivå: +{n} % skada',

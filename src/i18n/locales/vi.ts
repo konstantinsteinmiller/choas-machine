@@ -131,6 +131,9 @@ export default {
     'speed': 'Cấp 1: chạy êm hơn',
     'decoy': 'Cấp 1: mồi nhử tiếp theo sẵn sàng sớm hơn'
   },
+  'offer': {
+    'refresh': 'Cần thời gian để làm mới, hãy làm vài nhiệm vụ'
+  },
   'workshop': {
     'max': 'Tối đa',
     'buy': 'Nâng cấp {name}',
@@ -140,6 +143,7 @@ export default {
   'forge': {
     'tier': 'Bậc {n}',
     'build': 'Chế tạo',
+    'watch': 'Xem video để chế tạo bậc tiếp theo của {name}',
     'top': 'Bậc cao nhất',
     'lead': 'Mọi vũ khí đều là của bạn ngay từ đầu. Lò rèn giúp chúng đánh mạnh hơn.',
     'gain': 'Bậc tiếp theo: +{n}% sát thương',

@@ -131,6 +131,9 @@ export default {
     'speed': 'Nivelul 1: sprint mai silențios',
     'decoy': 'Nivelul 1: următoarea momeală este gata mai repede'
   },
+  'offer': {
+    'refresh': 'Are nevoie de timp să se reîmprospăteze, fă câteva misiuni'
+  },
   'workshop': {
     'max': 'Max',
     'buy': 'Îmbunătățește {name}',
@@ -140,6 +143,7 @@ export default {
   'forge': {
     'tier': 'Treapta {n}',
     'build': 'Construiește',
+    'watch': 'Urmărește un videoclip pentru a construi următoarea treaptă a {name}',
     'top': 'Treapta maximă',
     'lead': 'Fiecare armă este a ta de la început. Forja o face să lovească mai tare.',
     'gain': 'Treapta următoare: +{n}% daune',

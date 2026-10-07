@@ -32,16 +32,24 @@
         span.top(v-if="tier(w) >= TIER_MAX")
           GameIcon(name="check")
           | {{ t('forge.top') }}
-        FButton(
-          v-else
-          type="primary"
-          size="sm"
-          icon="forge"
-          :is-disabled="!canForge(w)"
-          :aria-label="`${t('forge.build')}: ${t(`options.actions.weapon${i + 1}`)}`"
-          :data-testid="`forge-build-${w}`"
-          @click="build(w)"
-        ) {{ t('forge.build') }}
+        div.pay(v-else)
+          //- The scrap paid with a rewarded video instead (#182), once the blueprints are in.
+          VideoOfferButton(
+            v-if="(videoOffer || videoSpent) && canForgeByVideo(w)"
+            :label="t('forge.watch', { name: t(`options.actions.weapon${i + 1}`) })"
+            :testid="`forge-video-${w}`"
+            :spent="!videoOffer"
+            @watch="watch(w)"
+          )
+          FButton(
+            type="primary"
+            size="sm"
+            icon="forge"
+            :is-disabled="!canForge(w)"
+            :aria-label="`${t('forge.build')}: ${t(`options.actions.weapon${i + 1}`)}`"
+            :data-testid="`forge-build-${w}`"
+            @click="build(w)"
+          ) {{ t('forge.build') }}
     //- What the Forge is for, and what each sign in a row means (R74).
     FModal(v-model="info" :title="t('forge.infoTitle')" data-testid="forge-info-modal")
       div.info-body
@@ -72,16 +80,18 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import FButton from '@/components/atoms/FButton.vue'
+import VideoOfferButton from '@/components/atoms/VideoOfferButton.vue'
 import FHudButton from '@/components/atoms/FHudButton.vue'
 import FModal from '@/components/molecules/FModal.vue'
 import GameIcon from '@/components/icons/GameIcon.vue'
 import { WEAPON_IDS, type WeaponId } from '@/game/data/ids'
 import { TIER_DAMAGE_STEP, TIER_MAX, tierBlueprints, tierScrap } from '@/game/data/upgrades'
 import { profile } from '@/game/state/profile'
-import { buildTier, canForge } from '@/game/state/progress'
+import { buildTier, canForge, canForgeByVideo } from '@/game/state/progress'
+import { canOffer, offerSpent, offerTick, watchFor } from '@/use/useRewardedOffers'
 import { sfx } from '@/game/audio/sfx'
 import { haptic } from '@/use/useHaptics'
 import { formatAmount } from '@/utils/formatAmount'
@@ -101,6 +111,21 @@ const build = (w: WeaponId): void => {
   haptic('reward')
   emit('focus', w)
 }
+/** The video instead of the scrap; the tier only once it has played to the end. */
+const watch = async (w: WeaponId): Promise<void> => {
+  if (!await watchFor('upgrade', () => { buildTier(w, true) })) return
+  sfx('forgeDone')
+  haptic('reward')
+  emit('focus', w)
+}
+
+// The offer is re-read each second (the grace and the provider's readiness move on their own).
+const clock = ref(0)
+let timer = 0
+onMounted(() => { timer = window.setInterval(() => { clock.value++ }, 1000) })
+onUnmounted(() => { window.clearInterval(timer) })
+const videoOffer = computed(() => { void clock.value; void offerTick.value; return canOffer('upgrade') })
+const videoSpent = computed(() => { void clock.value; void offerTick.value; return offerSpent('upgrade') })
 </script>
 
 <style scoped lang="sass">
@@ -120,6 +145,11 @@ const build = (w: WeaponId): void => {
   line-height: 1.25
 .info
   flex: none
+// The video and the build button side by side.
+.pay
+  display: flex
+  align-items: center
+  gap: 0.3rem
 .gain
   color: var(--cm-ok)
   font-size: var(--cm-fs-xs)

@@ -174,12 +174,21 @@ export const canForge = (w: WeaponId): boolean => {
   return next <= TIER_MAX && profile.arsenal.blueprints[w] >= tierBlueprints(next) && profile.scrap >= tierScrap(next)
 }
 
-/** Build the next tier of a weapon: blueprints and scrap in, the tier out, at once. */
-export const buildTier = (w: WeaponId): boolean => {
-  if (!canForge(w)) return false
+/** A tier whose blueprints are in: a video can pay its scrap (#182). */
+export const canForgeByVideo = (w: WeaponId): boolean => {
+  const next = profile.arsenal.tiers[w] + 1
+  return next <= TIER_MAX && profile.arsenal.blueprints[w] >= tierBlueprints(next)
+}
+
+/**
+ * Build the next tier of a weapon: blueprints and scrap in, the tier out, at
+ * once. `byVideo`: a rewarded video paid the scrap; the blueprints are still due.
+ */
+export const buildTier = (w: WeaponId, byVideo = false): boolean => {
+  if (byVideo ? !canForgeByVideo(w) : !canForge(w)) return false
   const tier = profile.arsenal.tiers[w] + 1
   profile.arsenal.blueprints[w] -= tierBlueprints(tier)
-  profile.scrap -= tierScrap(tier)
+  if (!byVideo) profile.scrap -= tierScrap(tier)
   profile.arsenal.tiers[w] = tier
   saveProfile()
   return true

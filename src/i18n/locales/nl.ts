@@ -131,6 +131,9 @@ export default {
     'speed': 'Niveau 1: stillere sprint',
     'decoy': 'Niveau 1: de volgende lokvogel is sneller klaar'
   },
+  'offer': {
+    'refresh': 'Heeft tijd nodig om te verversen, speel een paar missies'
+  },
   'workshop': {
     'max': 'Max',
     'buy': '{name} upgraden',
@@ -140,6 +143,7 @@ export default {
   'forge': {
     'tier': 'Tier {n}',
     'build': 'Bouwen',
+    'watch': 'Bekijk een video om de volgende tier van {name} te bouwen',
     'top': 'Hoogste tier',
     'lead': 'Elk wapen is vanaf het begin van jou. De Smederij laat het harder slaan.',
     'gain': 'Volgende tier: +{n}% schade',

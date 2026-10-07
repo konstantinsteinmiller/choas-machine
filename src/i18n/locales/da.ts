@@ -131,6 +131,9 @@ export default {
     'speed': 'Niveau 1: en stillere sprint',
     'decoy': 'Niveau 1: den næste lokkedue er klar hurtigere'
   },
+  'offer': {
+    'refresh': 'Skal bruge tid på at nulstille, tag nogle missioner'
+  },
   'workshop': {
     'max': 'Maks',
     'buy': 'Opgradér {name}',
@@ -140,6 +143,7 @@ export default {
   'forge': {
     'tier': 'Trin {n}',
     'build': 'Byg',
+    'watch': 'Se en video for at bygge næste trin af {name}',
     'top': 'Højeste trin',
     'lead': 'Hvert våben er dit fra start. Smedjen får det til at ramme hårdere.',
     'gain': 'Næste trin: +{n} % skade',

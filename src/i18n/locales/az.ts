@@ -131,6 +131,9 @@ export default {
     'speed': 'Səviyyə 1: daha səssiz qaçış',
     'decoy': 'Səviyyə 1: növbəti yem daha tez hazır olur'
   },
+  'offer': {
+    'refresh': 'Yenilənmək üçün vaxt lazımdır, bir neçə missiya yerinə yetir'
+  },
   'workshop': {
     'max': 'Maks',
     'buy': '{name} yüksəlt',
@@ -140,6 +143,7 @@ export default {
   'forge': {
     'tier': 'Pillə {n}',
     'build': 'Qur',
+    'watch': '{name} üçün növbəti pilləni qurmaq üçün video izlə',
     'top': 'Ən yüksək pillə',
     'lead': 'Hər silah əvvəldən səninkidir. Zavod onun zərbəsini gücləndirir.',
     'gain': 'Növbəti pillə: +{n}% zərər',

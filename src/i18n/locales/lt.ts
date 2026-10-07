@@ -131,6 +131,9 @@ export default {
     'speed': '1 lygis: tylesnis sprintas',
     'decoy': '1 lygis: kitas masalas paruoštas greičiau'
   },
+  'offer': {
+    'refresh': 'Reikia laiko atsinaujinti, atlik keletą misijų'
+  },
   'workshop': {
     'max': 'Maks.',
     'buy': 'Patobulinti: {name}',
@@ -140,6 +143,7 @@ export default {
   'forge': {
     'tier': '{n} pakopa',
     'build': 'Gaminti',
+    'watch': 'Žiūrėti vaizdo įrašą, kad pagamintumėte kitą pakopą: {name}',
     'top': 'Aukščiausia pakopa',
     'lead': 'Kiekvienas ginklas tavo nuo pat pradžių. Kalvė priverčia jį smogti stipriau.',
     'gain': 'Kita pakopa: +{n} % žalos',

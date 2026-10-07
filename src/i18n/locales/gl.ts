@@ -131,6 +131,9 @@ export default {
     'speed': 'Nivel 1: esprint máis silandeiro',
     'decoy': 'Nivel 1: o seguinte reclamo está listo antes'
   },
+  'offer': {
+    'refresh': 'Necesita tempo para renovarse, fai algunhas misións'
+  },
   'workshop': {
     'max': 'Máx.',
     'buy': 'Mellorar {name}',
@@ -140,6 +143,7 @@ export default {
   'forge': {
     'tier': 'Nivel {n}',
     'build': 'Fabricar',
+    'watch': 'Ver un vídeo para fabricar o seguinte nivel de {name}',
     'top': 'Nivel máximo',
     'lead': 'Todas as armas son túas desde o principio. A Forxa fai que peguen máis forte.',
     'gain': 'Seguinte nivel: +{n} % de dano',

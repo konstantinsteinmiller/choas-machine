@@ -131,6 +131,9 @@ export default {
     'speed': '1-daraja: jimroq yugurish',
     'decoy': '1-daraja: keyingi yem tezroq tayyor bo\'ladi'
   },
+  'offer': {
+    'refresh': 'Yangilanishi uchun vaqt kerak, bir nechta missiya bajaring'
+  },
   'workshop': {
     'max': 'Maks.',
     'buy': '{name} yaxshilash',
@@ -140,6 +143,7 @@ export default {
   'forge': {
     'tier': '{n}-pog\'ona',
     'build': 'Yasash',
+    'watch': "{name} ning keyingi pog'onasini yasash uchun video ko'ring",
     'top': 'Eng yuqori pog\'ona',
     'lead': 'Har bir qurol boshidan seniki. Temirchilik uni kuchliroq urdiradi.',
     'gain': "Keyingi pog'ona: +{n}% zarar",

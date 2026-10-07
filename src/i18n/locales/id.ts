@@ -131,6 +131,9 @@ export default {
     'speed': 'Level 1: lari lebih senyap',
     'decoy': 'Level 1: umpan berikutnya siap lebih cepat'
   },
+  'offer': {
+    'refresh': 'Butuh waktu untuk menyegar, mainkan beberapa misi'
+  },
   'workshop': {
     'max': 'Maks',
     'buy': 'Tingkatkan {name}',
@@ -140,6 +143,7 @@ export default {
   'forge': {
     'tier': 'Tingkat {n}',
     'build': 'Buat',
+    'watch': 'Tonton video untuk membuat tingkat berikutnya dari {name}',
     'top': 'Tingkat tertinggi',
     'lead': 'Setiap senjata milikmu sejak awal. Tempa membuatnya memukul lebih keras.',
     'gain': 'Tingkat berikutnya: +{n}% damage',

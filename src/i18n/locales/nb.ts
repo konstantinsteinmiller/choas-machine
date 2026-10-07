@@ -131,6 +131,9 @@ export default {
     'speed': 'Nivå 1: stillere sprint',
     'decoy': 'Nivå 1: neste lokkedue er klar raskere'
   },
+  'offer': {
+    'refresh': 'Trenger tid til å fornyes, ta noen oppdrag'
+  },
   'workshop': {
     'max': 'Maks',
     'buy': 'Oppgrader {name}',
@@ -140,6 +143,7 @@ export default {
   'forge': {
     'tier': 'Trinn {n}',
     'build': 'Bygg',
+    'watch': 'Se en video for å bygge neste trinn av {name}',
     'top': 'Høyeste trinn',
     'lead': 'Alle våpen er dine fra start. Smia får dem til å treffe hardere.',
     'gain': 'Neste trinn: +{n} % skade',

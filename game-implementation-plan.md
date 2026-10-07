@@ -1080,6 +1080,13 @@ pass on a rerun (flaky, not this round's).
   screen. Rewarded: the disguises already unlocked by video; the Armory's
   weapon upgrades can now be paid with a video instead of the scrap
   (`upgrade` placement, once per Base visit, the film mark), 39 locales.
+- [x] **R77 Ads, the owner's answers** (#182): no interstitial before 240 s
+  after load (`INTERSTITIAL_AFTER_LOAD_MS`) and none inside the 121 s gap; an
+  ad not due is skipped. The defeat screen keeps its ad. Video upgrades: three
+  per Base visit, shared by the Armory tracks and the Forge tiers (a video
+  pays a tier's scrap, the blueprints are still due); spent, the film button
+  stays, disabled, with "Needs time to refresh, do some missions" on hover or
+  for 4 s after a tap (`VideoOfferButton`), 39 locales.
 
 ## Resume notes
 

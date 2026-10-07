@@ -131,6 +131,9 @@ export default {
     'speed': '等级 1：冲刺更安静',
     'decoy': '等级 1：下一个诱饵更快就绪'
   },
+  'offer': {
+    'refresh': '需要时间刷新，先去完成几个任务吧'
+  },
   'workshop': {
     'max': '已满级',
     'buy': '升级{name}',
@@ -140,6 +143,7 @@ export default {
   'forge': {
     'tier': '第 {n} 阶',
     'build': '制造',
+    'watch': '观看视频以制造{name}的下一阶',
     'top': '最高阶',
     'lead': '每把武器从一开始就归你所有。锻造炉能让它的威力更强。',
     'gain': '下一阶：伤害 +{n}%',

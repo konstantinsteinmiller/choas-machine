@@ -131,6 +131,9 @@ export default {
     'speed': 'Stufe 1: leiseres Sprinten',
     'decoy': 'Stufe 1: der nächste Köder ist früher bereit'
   },
+  'offer': {
+    'refresh': 'Braucht Zeit zum Aufladen, spiel ein paar Missionen'
+  },
   'workshop': {
     'max': 'Max',
     'buy': '{name} verbessern',
@@ -140,6 +143,7 @@ export default {
   'forge': {
     'tier': 'Stufe {n}',
     'build': 'Bauen',
+    'watch': 'Video ansehen, um die nächste Stufe von {name} zu bauen',
     'top': 'Höchste Stufe',
     'lead': 'Jede Waffe gehört dir von Anfang an. Die Schmiede lässt sie härter treffen.',
     'gain': 'Nächste Stufe: +{n}% Schaden',

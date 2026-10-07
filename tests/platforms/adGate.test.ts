@@ -180,12 +180,12 @@ describe('interstitial pacing', () => {
     expect(gate.canShowInterstitial()).toBe(true) // asking alone changes nothing
   })
 
-  it('runs nothing in the first minute after load (Yandex)', async () => {
+  it('runs nothing in the first four minutes after load (#182; covers the first minute Yandex asks for)', async () => {
     vi.useFakeTimers()
     const gate = await loadGate()
     gate.__resetInterstitialClock(0)
-    expect(gate.INTERSTITIAL_AFTER_LOAD_MS).toBe(61_000)
-    vi.advanceTimersByTime(60_000)
+    expect(gate.INTERSTITIAL_AFTER_LOAD_MS).toBe(240_000)
+    vi.advanceTimersByTime(239_000)
     expect(gate.canShowInterstitial()).toBe(false)
     vi.advanceTimersByTime(1_000)
     expect(gate.canShowInterstitial()).toBe(true)

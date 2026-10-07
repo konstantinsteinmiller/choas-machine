@@ -131,6 +131,9 @@ export default {
     'speed': 'Nivelo 1: pli silenta spurto',
     'decoy': 'Nivelo 1: la sekva logaĵo pretas pli frue'
   },
+  'offer': {
+    'refresh': 'Bezonas tempon por refreŝiĝi, plenumu kelkajn misiojn'
+  },
   'workshop': {
     'max': 'Maks.',
     'buy': 'Plibonigi: {name}',
@@ -140,6 +143,7 @@ export default {
   'forge': {
     'tier': 'Grado {n}',
     'build': 'Konstrui',
+    'watch': 'Spektu videon por konstrui la sekvan gradon de {name}',
     'top': 'Plej alta grado',
     'lead': 'Ĉiu armilo estas via de la komenco. La Forĝejo igas ĝin frapi pli forte.',
     'gain': 'Sekva grado: +{n}% damaĝo',

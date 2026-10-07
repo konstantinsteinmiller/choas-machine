@@ -131,6 +131,9 @@ export default {
     'speed': '等級 1：衝刺更安靜',
     'decoy': '等級 1：下一個誘餌更快就緒'
   },
+  'offer': {
+    'refresh': '需要時間重新整理，先去完成幾個任務吧'
+  },
   'workshop': {
     'max': '已滿級',
     'buy': '升級{name}',
@@ -140,6 +143,7 @@ export default {
   'forge': {
     'tier': '第 {n} 階',
     'build': '製造',
+    'watch': '觀看影片以製造{name}的下一階',
     'top': '最高階',
     'lead': '每把武器從一開始就是你的。鍛造爐能讓它的威力更強。',
     'gain': '下一階：傷害 +{n}%',

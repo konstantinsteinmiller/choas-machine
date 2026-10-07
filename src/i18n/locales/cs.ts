@@ -131,6 +131,9 @@ export default {
     'speed': 'Úroveň 1: tišší sprint',
     'decoy': 'Úroveň 1: další návnada je připravena dřív'
   },
+  'offer': {
+    'refresh': 'Potřebuje čas na obnovení, splň pár misí'
+  },
   'workshop': {
     'max': 'Max',
     'buy': 'Vylepšit: {name}',
@@ -140,6 +143,7 @@ export default {
   'forge': {
     'tier': 'Stupeň {n}',
     'build': 'Vyrobit',
+    'watch': 'Sledovat video pro výrobu dalšího stupně: {name}',
     'top': 'Nejvyšší stupeň',
     'lead': 'Každá zbraň je tvoje od začátku. V Kovárně začne zasahovat silněji.',
     'gain': 'Další stupeň: +{n} % poškození',

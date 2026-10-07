@@ -131,6 +131,9 @@ export default {
     'speed': 'Livello 1: scatto più silenzioso',
     'decoy': 'Livello 1: la prossima esca è pronta prima'
   },
+  'offer': {
+    'refresh': 'Ha bisogno di tempo per ricaricarsi, fai qualche missione'
+  },
   'workshop': {
     'max': 'Max',
     'buy': 'Potenzia {name}',
@@ -140,6 +143,7 @@ export default {
   'forge': {
     'tier': 'Grado {n}',
     'build': 'Costruisci',
+    'watch': 'Guarda un video per costruire il grado successivo di {name}',
     'top': 'Grado massimo',
     'lead': "Ogni arma è tua fin dall'inizio. La Fucina la fa colpire più forte.",
     'gain': 'Grado successivo: +{n}% di danno',

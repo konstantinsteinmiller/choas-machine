@@ -131,6 +131,9 @@ export default {
     'speed': 'Niveau 1 : un sprint plus discret',
     'decoy': 'Niveau 1 : le prochain leurre est prêt plus vite'
   },
+  'offer': {
+    'refresh': 'Il faut du temps pour se renouveler, fais quelques missions'
+  },
   'workshop': {
     'max': 'Max',
     'buy': 'Améliorer {name}',
@@ -140,6 +143,7 @@ export default {
   'forge': {
     'tier': 'Rang {n}',
     'build': 'Fabriquer',
+    'watch': 'Regarder une vidéo pour fabriquer le rang suivant de {name}',
     'top': 'Rang maximal',
     'lead': 'Toutes les armes sont à toi dès le départ. La Forge les fait frapper plus fort.',
     'gain': 'Rang suivant : +{n} % de dégâts',

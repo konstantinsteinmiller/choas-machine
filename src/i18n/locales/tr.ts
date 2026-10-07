@@ -131,6 +131,9 @@ export default {
     'speed': 'Seviye 1: daha sessiz koşu',
     'decoy': 'Seviye 1: sonraki yem daha çabuk hazır olur'
   },
+  'offer': {
+    'refresh': 'Yenilenmesi için zaman gerekiyor, birkaç görev yap'
+  },
   'workshop': {
     'max': 'Maks',
     'buy': '{name} yükselt',
@@ -140,6 +143,7 @@ export default {
   'forge': {
     'tier': 'Kademe {n}',
     'build': 'Üret',
+    'watch': '{name} için sonraki kademeyi üretmek için video izle',
     'top': 'En üst kademe',
     'lead': 'Her silah en baştan senin. Demirhane onu daha sert vurdurur.',
     'gain': 'Sonraki kademe: +%{n} hasar',

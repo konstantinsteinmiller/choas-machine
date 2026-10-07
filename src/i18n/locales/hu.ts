@@ -131,6 +131,9 @@ export default {
     'speed': '1. szint: halkabb sprint',
     'decoy': '1. szint: a következő csali hamarabb kész'
   },
+  'offer': {
+    'refresh': 'Időre van szüksége a frissüléshez, teljesíts pár küldetést'
+  },
   'workshop': {
     'max': 'Max',
     'buy': '{name} fejlesztése',
@@ -140,6 +143,7 @@ export default {
   'forge': {
     'tier': '{n}. fokozat',
     'build': 'Építés',
+    'watch': 'Nézz videót a(z) {name} következő fokozatának megépítéséhez',
     'top': 'Legmagasabb fokozat',
     'lead': 'Minden fegyver a tiéd az elejétől fogva. A Kovácsműhely erősebb találatot ad nekik.',
     'gain': 'Következő fokozat: +{n}% sebzés',

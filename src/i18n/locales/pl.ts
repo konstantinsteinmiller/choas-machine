@@ -131,6 +131,9 @@ export default {
     'speed': 'Poziom 1: cichszy sprint',
     'decoy': 'Poziom 1: kolejny wabik jest gotowy szybciej'
   },
+  'offer': {
+    'refresh': 'Potrzebuje czasu na odświeżenie, wykonaj kilka misji'
+  },
   'workshop': {
     'max': 'Maks.',
     'buy': 'Ulepsz: {name}',
@@ -140,6 +143,7 @@ export default {
   'forge': {
     'tier': 'Poziom {n}',
     'build': 'Buduj',
+    'watch': 'Obejrzyj film, aby zbudować następny poziom: {name}',
     'top': 'Najwyższy poziom',
     'lead': 'Każda broń jest twoja od początku. Kuźnia sprawia, że uderza mocniej.',
     'gain': 'Następny poziom: +{n}% obrażeń',

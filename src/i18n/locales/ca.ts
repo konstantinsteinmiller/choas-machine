@@ -131,6 +131,9 @@ export default {
     'speed': 'Nivell 1: esprint més silenciós',
     'decoy': 'Nivell 1: el següent parany està a punt abans'
   },
+  'offer': {
+    'refresh': 'Necessita temps per refrescar-se, fes algunes missions'
+  },
   'workshop': {
     'max': 'Màx',
     'buy': 'Millora {name}',
@@ -140,6 +143,7 @@ export default {
   'forge': {
     'tier': 'Nivell {n}',
     'build': 'Construeix',
+    'watch': 'Mira un vídeo per construir el nivell següent de {name}',
     'top': 'Nivell màxim',
     'lead': 'Totes les armes són teves des del principi. La Farga fa que colpegin més fort.',
     'gain': 'Nivell següent: +{n} % de dany',

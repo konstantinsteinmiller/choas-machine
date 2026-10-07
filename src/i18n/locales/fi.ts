@@ -131,6 +131,9 @@ export default {
     'speed': 'Taso 1: hiljaisempi pikajuoksu',
     'decoy': 'Taso 1: seuraava houkutin on valmis nopeammin'
   },
+  'offer': {
+    'refresh': 'Tarvitsee aikaa latautuakseen, tee muutama tehtävä'
+  },
   'workshop': {
     'max': 'Maks.',
     'buy': 'Päivitä: {name}',
@@ -140,6 +143,7 @@ export default {
   'forge': {
     'tier': 'Luokka {n}',
     'build': 'Rakenna',
+    'watch': 'Katso video ja rakenna seuraava luokka: {name}',
     'top': 'Ylin luokka',
     'lead': 'Jokainen ase on sinun alusta asti. Paja saa sen iskemään kovempaa.',
     'gain': 'Seuraava luokka: +{n} % vahinkoa',
