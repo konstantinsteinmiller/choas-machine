@@ -129,7 +129,9 @@ export const hud = reactive({
     on: false, room: -1, done: 0, total: 0, replay: false, scrapWhy: false,
     goalDown: 0, goalTotal: 0, shout: '' as TrainingShout, shoutSeq: 0,
     /** The control a line is about (#171: a shut door's), drawn beside it as its key or button. */
-    shoutHint: '' as HintId | ''
+    shoutHint: '' as HintId | '',
+    /** The control the player is nudged to use until they do (#186): an arrow on its button, or its key big. */
+    nudge: '' as HintId | ''
   },
   /** 0 … 1 of holding the scope on a unit to tag it. */
   tagging: 0,

@@ -1103,6 +1103,15 @@ pass on a rerun (flaky, not this round's).
   A vent stack (drawn 4.8 m, 1.4 m in the grid) could be mantled: column
   props are solid to their drawn height (`COLUMN_PROPS`), under a roof to
   just below it.
+- [x] **R79** #185: the furnace's hold ring is drawn in the bellows' own
+  wrapper, centred on it and sized from it (0 px off at three viewports),
+  amber with a glow. #186: the training's nudge (`hud.training.nudge`,
+  `TrainingNudge`): once a room's shut door is walked into with its lesson
+  undone, its control is shown until the lesson is done; the weapons room
+  shows the weapon switch from the start until the first switch. Touch: a
+  fat yellow arrow bouncing on the very button (from the side for the
+  right-hand column); keyboard, or a button not on screen: the key (Tab / the
+  wheel for the switch) big in the middle. No new words.
 
 ## Resume notes
 

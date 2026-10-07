@@ -635,6 +635,7 @@ export class Mission implements GameMode {
     hud.training.room = -1
     hud.training.goalTotal = hud.training.goalDown = 0
     hud.training.shout = ''
+    hud.training.nudge = ''
     this.scopeZoom = 0
     mirror('zoom', 1)
     mirror('salvageGot', 0)
@@ -3348,7 +3349,14 @@ export class Mission implements GameMode {
         this.doorSaidT = this.time
         this.trainingShout(say.line as TrainingShout, say.hint)
       }
-    }
+      // The nudge (#186): once the shut door has been walked into, its control
+      // is pointed at until the room's lesson is done; in the weapons room the
+      // weapon switch from the start, until the player has switched once.
+      if (say?.hint && atShutDoor(tr.state, cur, ctx)) this.nudgeArmed = true
+      if (this.arsenal.current !== this.weaponAtEnter) this.switchedHere = true
+      const lesson = TRAINING_ROOMS[cur]!.lesson
+      hud.training.nudge = lesson === 'weapons' && !this.switchedHere ? 'weapon' : this.nudgeArmed && say?.hint ? say.hint : ''
+    } else hud.training.nudge = ''
     for (const e of ev) {
       if (e.type === 'done') {
         haptic('reward')
@@ -3356,6 +3364,11 @@ export class Mission implements GameMode {
       }
       // The rope and flame rooms hand out what their lesson needs, whatever was spent before.
       if (e.type === 'enter') {
+        // A new room: no nudge until its own door is walked into (#186).
+        this.nudgeArmed = false
+        this.weaponAtEnter = this.arsenal.current
+        this.switchedHere = false
+        hud.training.nudge = ''
         const lesson = TRAINING_ROOMS[e.room]!.lesson
         if (lesson === 'rope') this.ropesLeft = Math.max(this.ropesLeft, this.loadout.ropes)
         if (lesson === 'burn') this.fuelLeft = Math.max(this.fuelLeft, this.loadout.fuel)
@@ -3489,6 +3502,11 @@ export class Mission implements GameMode {
 
   /** When a shut lesson door last said what it wants. */
   private doorSaidT = -Infinity
+  /** The room's shut door has been walked into with its lesson undone: its control is nudged (#186). */
+  private nudgeArmed = false
+  /** The weapon in hand on entering the room, and whether it has been switched since (the weapons room's nudge). */
+  private weaponAtEnter: WeaponId = 'sniper'
+  private switchedHere = false
   /** Times the mech has gone into a crouch (the cover room's door, #171). */
   private crouchesDone = 0
 

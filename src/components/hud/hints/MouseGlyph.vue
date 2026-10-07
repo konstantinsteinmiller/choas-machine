@@ -7,10 +7,14 @@
     path.seam(d="M6 22h28M20 4v18")
     g.arrows(v-if="lit === 'move'")
       path(d="M-1 30l-5 4 5 4zM41 30l5 4-5 4z")
+    //- The wheel, rolled (#186: the weapon switch).
+    g(v-if="lit === 'wheel'")
+      rect.wheel(x="17.5" y="8" width="5" height="11" rx="2.5")
+      path.roll(d="M20 -6l-4 5h8zM20 33l-4-5h8z")
 </template>
 
 <script setup lang="ts">
-defineProps<{ lit: 'move' | 'left' | 'right' }>()
+defineProps<{ lit: 'move' | 'left' | 'right' | 'wheel' }>()
 </script>
 
 <style scoped lang="sass">
@@ -32,8 +36,14 @@ defineProps<{ lit: 'move' | 'left' | 'right' }>()
 .left .left, .right .right
   fill: var(--cm-pink)
   animation: mouse-press 0.9s ease-in-out infinite
-.arrows
+.arrows, .roll
   fill: var(--cm-pink)
+.wheel
+  fill: var(--cm-pink)
+  stroke: var(--cm-ink)
+  stroke-width: 1
+.roll
+  animation: mouse-press 0.9s ease-in-out infinite
 .move
   animation: mouse-slide 1.4s ease-in-out infinite
 

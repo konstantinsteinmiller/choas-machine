@@ -13,6 +13,7 @@
     WorldPrompt
     DemoPop
     TrainingShout
+    TrainingNudge(v-if="hud.training.on")
     ControlHints
 
     //- CM-07's unit frame (#145): portrait, health, the weapon in hand, the
@@ -306,6 +307,7 @@ import UplinkRings from '@/components/hud/UplinkRings.vue'
 import WorldPrompt from '@/components/hud/WorldPrompt.vue'
 import DemoPop from '@/components/hud/DemoPop.vue'
 import TrainingShout from '@/components/hud/TrainingShout.vue'
+import TrainingNudge from '@/components/hud/TrainingNudge.vue'
 import GameIcon from '@/components/icons/GameIcon.vue'
 import FHudBadge from '@/components/atoms/FHudBadge.vue'
 import Joystick from '@/components/hud/Joystick.vue'
