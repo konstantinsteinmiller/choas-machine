@@ -49,3 +49,30 @@ describe('the training draws only the rooms round the mech', () => {
     })
   })
 })
+
+describe('the marker points at what the room asks for', () => {
+  it('the burn room: the body, not the door (a playtester was sent to the door); after, the door', async () => {
+    const { killUnit } = await import('@/game/sim/garrison')
+    const { LESSON_IDS } = await import('@/game/data/fortresses/training')
+    const { roomAt, doorOf } = await import('@/game/sim/training')
+    const f = buildTrainingGround()
+    const gar = makeGarrison(f, 1)
+    const d = new TrainingDirector(new Scene(), f, gar) as unknown as TrainingDirector & { state: { room: number; done: boolean[] } }
+    const i = LESSON_IDS.indexOf('burn')
+    const body = gar.units.find(u => roomAt(u.homeX) === i)!
+    killUnit(gar, body.id, body.x, body.z - 1, 'blade')
+    d.state.room = i
+    const w = d.waypoint()!
+    expect(Math.hypot(w.x - body.x, w.z - body.z)).toBeLessThan(0.5)
+    d.state.done[i] = true
+    const door = doorOf(i)!
+    expect(Math.hypot(d.waypoint()!.x - door.x, d.waypoint()!.z - door.z)).toBeLessThan(0.5)
+  })
+
+  it('the decoy room: no marker while its guard is still to take', async () => {
+    const { LESSON_IDS } = await import('@/game/data/fortresses/training')
+    const d = make() as unknown as TrainingDirector & { state: { room: number } }
+    d.state.room = LESSON_IDS.indexOf('decoy')
+    expect(d.waypoint()).toBeNull()
+  })
+})

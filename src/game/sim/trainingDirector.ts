@@ -301,8 +301,9 @@ export class TrainingDirector {
 
   /**
    * Where the marker points: the room's own goal (the door, the top of the
-   * hook wall, the beacon, the pile, the pad), or the open door once the
-   * lesson is done; nothing while a weapons or blade lesson is still to do.
+   * hook wall, the body to burn, the supplies, the pile, the pad), or the open
+   * door once the lesson is done; nothing while a weapons, blade or decoy
+   * lesson is still to do (the guards are the goal, in plain sight).
    */
   waypoint(): { x: number; y: number; z: number } | null {
     const t = this.state
@@ -322,7 +323,17 @@ export class TrainingDirector {
         return !done && p ? at(p.x, p.z, 1.6) : door ? at(door.x, door.z) : null
       }
       case 'extract': return at(this.fortress.extract.x, this.fortress.extract.z, 1.2)
-      case 'weapons': case 'blade': case 'rocket': return done && door ? at(door.x, door.z) : null
+      // The body to burn, not the door (a playtester was sent to the door).
+      case 'burn': {
+        const body = done ? null : this.gar.units.find(u => roomAt(u.homeX) === t.room && u.state === 'dead' && !u.hidden)
+        return body ? at(body.x, body.z, 1.0) : door ? at(door.x, door.z) : null
+      }
+      // The supplies, until something was taken.
+      case 'supply': {
+        const s = done ? null : (this.fortress.supplies ?? []).find(q => roomAt(q.x) === t.room)
+        return s ? at(s.x, s.z, 1.2) : door ? at(door.x, door.z) : null
+      }
+      case 'weapons': case 'blade': case 'rocket': case 'decoy': return done && door ? at(door.x, door.z) : null
       default: return door ? at(door.x, door.z) : null
     }
   }
