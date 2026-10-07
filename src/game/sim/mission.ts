@@ -3355,7 +3355,13 @@ export class Mission implements GameMode {
       if (say?.hint && atShutDoor(tr.state, cur, ctx)) this.nudgeArmed = true
       if (this.arsenal.current !== this.weaponAtEnter) this.switchedHere = true
       const lesson = TRAINING_ROOMS[cur]!.lesson
-      hud.training.nudge = lesson === 'weapons' && !this.switchedHere ? 'weapon' : this.nudgeArmed && say?.hint ? say.hint : ''
+      // The rocket room on touch (#187: a tablet player on Poki never found the
+      // switch): the arrow on the launcher's button from the way in, while it
+      // is not in hand; with it in hand there is nothing to point at.
+      const rocketHeld = this.arsenal.current === 'rocket'
+      hud.training.nudge = lesson === 'weapons' && !this.switchedHere ? 'weapon'
+        : lesson === 'rocket' ? (!rocketHeld && (hud.device === 'touch' || this.nudgeArmed) ? 'rocket' : '')
+          : this.nudgeArmed && say?.hint ? say.hint : ''
     } else hud.training.nudge = ''
     for (const e of ev) {
       if (e.type === 'done') {
