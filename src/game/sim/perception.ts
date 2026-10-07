@@ -106,6 +106,15 @@ export const PERIPHERY = 0.6
 export const SHADOW_SLOW = 1.7
 /** This close, either band fills three times as fast: nobody overlooks a mech at arm's length. */
 export const CLOSE_M = 4
+/**
+ * Up on something (a crate, a platform) and standing, all of it in view: a
+ * silhouette nobody misses (a playtester stood on the cover room's crates in
+ * the sentry's sight for six seconds, unseen). Both bands fill this many
+ * times as fast.
+ */
+export const RAISED_FAST = 3
+/** Feet this much above the viewer's own floor count as up on something. */
+export const RAISED_M = 0.6
 /** A first glance: the first this-many seconds of continuous sight add nothing while the defender is at ease. */
 export const GRACE_S = 0.5
 
@@ -122,6 +131,8 @@ export interface Glimpse {
   shadow: boolean
   /** The meter is already in the yellow band. */
   yellow: boolean
+  /** Standing up on something above the viewer's floor, fully in view (`RAISED_FAST`). */
+  raised?: boolean
 }
 
 /** How fast the meter fills, per second, for one band of width `band`. */
@@ -135,5 +146,6 @@ export const fillRate = (g: Glimpse, band: number): number => {
   if (g.off > PERIPHERY) seconds *= 2
   if (g.shadow) seconds *= SHADOW_SLOW
   if (g.dist < CLOSE_M) seconds /= 3
+  if (g.raised) seconds /= RAISED_FAST
   return (band * g.exposed) / seconds
 }

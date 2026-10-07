@@ -2,7 +2,7 @@ import type { Zone } from './hitscan'
 import { makeRagdoll, ragdollAt, stepRagdoll, strike, type Ragdoll } from './ragdoll'
 import { VOID, canStep, findPath, hasLineOfSight, heightAt, smoothPath, toCell, walkLine, type Grid } from '../world/grid'
 import type { Fortress, PostKind, Waypoint } from '../world/fortress'
-import { exposure, type Viewer, type Seen, fillRate, GRACE_S, CLOSE_M } from './perception'
+import { exposure, type Viewer, type Seen, fillRate, GRACE_S, CLOSE_M, RAISED_M } from './perception'
 import { makeAlert, raiseAlert, pressAlert, stepAlert, ENGAGED_PER_S, BEACON_CAP, ALERT_MAX, type Alert, type AlertCause } from './alert'
 import { angleDelta } from './player'
 import { hashSeed, mulberry32, type Rng } from '../world/rng'
@@ -2096,7 +2096,9 @@ export const stepGarrison = (gar: Garrison, g: Grid, target: Target, dt: number)
       } else {
         const v = viewerOf(u, gar.heightened)
         const off = Math.abs(angleDelta(v.yaw, headingTo(u.x, u.z, target.x, target.z))) / Math.max(0.01, v.halfAngle)
-        rate = fillRate({ dist, range: SPECS[u.kind].range, exposed, crouched: target.crouched, off, shadow: !!target.shadow, yellow }, band)
+        // Standing up on something, all of it in view: a silhouette nobody misses.
+        const raised = !target.crouched && exposed >= 1 && target.y > u.y + RAISED_M
+        rate = fillRate({ dist, range: SPECS[u.kind].range, exposed, crouched: target.crouched, off, shadow: !!target.shadow, yellow, raised }, band)
       }
       // A glance is forgiven: the first moment of sight adds nothing to a
       // unit at ease, unless the mech is right in front of it.
