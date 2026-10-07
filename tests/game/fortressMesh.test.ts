@@ -42,12 +42,16 @@ describe('the fortress mesh', () => {
 
   it('draws every chunk in one material, lights included; the links in the glow', async () => {
     const mesh = await buildFortressMesh(buildProvingGround())
-    const mats = new Set(mesh.group.children.map(c => (c as Mesh).material))
+    // The ropes are the world's own rope (`fx/ropeLine.ts`): one lit mesh and its outline, all of them together.
+    const ropes = mesh.group.getObjectByName('ropeLines')
+    expect(!ropes || ropes.children.length === 2).toBe(true)
+    const level = mesh.group.children.filter(c => c !== ropes)
+    const mats = new Set(level.map(c => (c as Mesh).material))
     // In Node there is no canvas to bake the detail atlas in, so the lit
     // material is the plain vertex-colour one, its own instance because the
     // level is drawn from both sides. One mesh per chunk (#147).
     expect(mats).toEqual(new Set([levelGlowMaterial(() => { throw new Error('no atlas in Node') }), glowVC()]))
-    expect(mesh.group.children.filter(c => (c as Mesh).material !== glowVC())).toHaveLength(mesh.chunks.length)
+    expect(level.filter(c => (c as Mesh).material !== glowVC())).toHaveLength(mesh.chunks.length)
   })
 
   it('carries position, normal and colour for every vertex, with no NaN', async () => {
@@ -141,7 +145,8 @@ describe('the fortress mesh', () => {
 
   it('a whole base is small enough for a phone', async () => {
     const mesh = await buildFortressMesh(buildProvingGround())
-    const total = mesh.group.children.reduce((n, c) => n + tris(c as Mesh), 0)
+    let total = 0
+    mesh.group.traverse(c => { if ((c as Mesh).isMesh && (c as Mesh).renderOrder !== -1) total += tris(c as Mesh) })
     expect(total).toBeLessThan(20_000)
     // Everything in view at once: chunks + their trims + the links.
     expect(mesh.group.children.length).toBeLessThanOrEqual(60)

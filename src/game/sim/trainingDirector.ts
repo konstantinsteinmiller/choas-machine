@@ -1,5 +1,5 @@
 import {
-  AdditiveBlending, BoxGeometry, CircleGeometry, ConeGeometry, CylinderGeometry, DoubleSide, Group, Mesh, MeshBasicMaterial,
+  AdditiveBlending, BoxGeometry, BufferGeometry, CircleGeometry, ConeGeometry, CylinderGeometry, DoubleSide, Group, Mesh, MeshBasicMaterial,
   Quaternion, RingGeometry, SphereGeometry, Vector3, type Camera, type Object3D, type Scene, type ShaderMaterial
 } from 'three'
 import { demoPop } from '../state/hud'
@@ -15,7 +15,9 @@ import { mechGaitRate } from './gait'
 import { buildDisguise, disposeDisguise } from '../models/disguises'
 import { FREE_DISGUISE } from '../models/disguiseIds'
 import { makeHologramMaterial, setHologram } from '../fx/hologram'
-import type { Rig } from '../models/kit'
+import { merge, type Rig } from '../models/kit'
+import { CABLE_R, cableGeometry, hookHeadGeometry } from '../fx/grappleHook'
+import { ropeLineParts } from '../fx/ropeLine'
 import type { Garrison } from './garrison'
 import {
   DEMO_BACKSTAB, currentFrame, demoFrame, victimFrame, doorOf, entryOf, makeTraining, replayDemo, rewindRoom, roomAt, stepTraining,
@@ -59,6 +61,8 @@ export class TrainingDirector {
   private bodyPose = { ...restGuardPose(), deadT: 3, death: 'front' as const }
   private disguise: Group
   private rope: Mesh
+  /** The hologram's rope is built once, where it is first shown. */
+  private ropeBuilt = false
   private hookLine: Mesh
   private hookHead: Mesh
   private flame: Mesh
@@ -111,12 +115,17 @@ export class TrainingDirector {
     this.disguise.traverse((o: Object3D) => { if ((o as Mesh).isMesh) (o as Mesh).material = this.holo })
     this.disguise.visible = false
     this.group.add(this.disguise)
-    this.rope = new Mesh(new CylinderGeometry(0.05, 0.05, 1, 6), this.holo)
+    // The rope and the hook in the hologram's light are the game's own (#164):
+    // the braided line with its pitons and clamps, the hook's head on its cable.
+    // The rope is built where it is first shown (its room's cells).
+    this.rope = new Mesh(new BufferGeometry(), this.holo)
     this.rope.visible = false
     this.group.add(this.rope)
     // The grappling hook's line and its three-pronged head (#117), as the mission draws them.
-    this.hookLine = new Mesh(new CylinderGeometry(0.03, 0.03, 1, 6), this.holo)
-    this.hookHead = new Mesh(new ConeGeometry(0.16, 0.34, 3), this.holo)
+    this.hookLine = new Mesh(cableGeometry(12, 8, 48, CABLE_R * 1.4), this.holo)
+    const head = hookHeadGeometry()
+    this.hookHead = new Mesh(merge([head.lit, head.glow]), this.holo)
+    for (const g of [head.lit, head.glow, ...head.parts]) g.dispose()
     this.hookLine.visible = this.hookHead.visible = false
     this.group.add(this.hookLine, this.hookHead)
     const fg = new ConeGeometry(0.55, 1, 10, 1, true)
@@ -484,12 +493,12 @@ export class TrainingDirector {
     }
     // The rope: from the tower's edge to the platform's, once shot.
     this.rope.visible = f.rope > 0.5
-    if (this.rope.visible) {
-      const a = new Vector3(toX(3.5), ROPE_TOWER_H + 0.06, toZ(7))
-      const b = new Vector3(toX(7.5), ROPE_DECK_H + 0.06, toZ(7))
-      this.rope.position.copy(a).add(b).multiplyScalar(0.5)
-      this.rope.scale.set(1, a.distanceTo(b), 1)
-      this.rope.quaternion.copy(new Quaternion().setFromUnitVectors(new Vector3(0, 1, 0), b.sub(a).normalize()))
+    if (this.rope.visible && !this.ropeBuilt) {
+      this.ropeBuilt = true
+      const parts = ropeLineParts({ ax: toX(3.5), ay: ROPE_TOWER_H + 0.06, az: toZ(7), bx: toX(7.5), by: ROPE_DECK_H + 0.06, bz: toZ(7) })
+      this.rope.geometry.dispose()
+      this.rope.geometry = merge(parts)
+      for (const p of parts) p.dispose()
     }
     // The hook (#117): out of the raised hand to the top of the wall (or of
     // the deck, out of the jump room's gap, #154), and the line the mech is reeled up on.
@@ -499,11 +508,13 @@ export class TrainingDirector {
       const top = new Vector3(f.grip.x, f.grip.y, f.grip.z)
       const end = hand.clone().lerp(top, Math.min(1, f.hook))
       const len = Math.max(0.05, hand.distanceTo(end))
-      this.hookLine.position.copy(hand).add(end).multiplyScalar(0.5)
+      const dir = end.clone().sub(hand).normalize()
+      // The cable runs from its foot (the hand) up its length; the head's nose looks along +z.
+      this.hookLine.position.copy(hand)
       this.hookLine.scale.set(1, len, 1)
-      this.hookLine.quaternion.setFromUnitVectors(new Vector3(0, 1, 0), end.clone().sub(hand).normalize())
+      this.hookLine.quaternion.setFromUnitVectors(new Vector3(0, 1, 0), dir)
       this.hookHead.position.copy(end)
-      this.hookHead.quaternion.copy(this.hookLine.quaternion)
+      this.hookHead.quaternion.setFromUnitVectors(new Vector3(0, 0, 1), dir)
     }
     // The body: down where the guard stood, until the flame takes it.
     this.body.root.visible = f.body > 0.02

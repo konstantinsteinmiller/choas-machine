@@ -13,6 +13,8 @@ import { themeOf, type ThemeId } from '../data/themes'
 import { muzzleWorld, buildMech, poseMech, restPose, type MechPose } from '../models/mech'
 import { BOARD_HOVER, HOUND_SCALE, STRIDE_PER_UNIT, buildRobodog, poseRobodog, restDogPose, type DogPose } from '../models/robodog'
 import { CombatFx } from '../fx/combatFx'
+import { makeGrappleVisual, type GrappleVisual } from '../fx/grappleHook'
+import { buildRopeLines } from '../fx/ropeLine'
 import { SalvageView } from '../world/salvageView'
 import type { Rocket } from '../sim/rockets'
 import type { Decoy } from '../sim/melee'
@@ -127,7 +129,7 @@ interface Stage {
   muzzle: (w: WeaponId, out: Vector3) => Vector3
   /** The floor under (x, z), or −Infinity over nothing. */
   floor: (x: number, z: number) => number
-  extra: Record<string, Rig | Object3D | Dropship | Mesh | Vector3>
+  extra: Record<string, Rig | Object3D | Dropship | Mesh | Vector3 | GrappleVisual>
   /** Moments that have fired (sounds, bursts): once each. */
   fired: Set<string>
   once: (key: string, at: number, f: () => void) => void
@@ -190,13 +192,16 @@ const INTRO: Script = {
     s.extra.roomba = roomba
     s.extra.lamp = lamp
     root.add(drone.root, tank.root, enforcer.root, hound.root, roomba.root, lamp.root)
-    const glow = new MeshBasicMaterial({ color: '#5fe9ff', toneMapped: false })
-    for (const k of ['hookLine', 'rope', 'postA', 'postB']) {
-      const m = new Mesh(new CylinderGeometry(k.startsWith('post') ? 0.08 : 0.04, k.startsWith('post') ? 0.08 : 0.04, 1, 6), glow)
-      m.visible = false
-      s.extra[k] = m
-      root.add(m)
-    }
+    // The game's own grappling hook and strung rope (#164): the braided line,
+    // the hook's head, the pitons; not glowing tubes of their own.
+    const hook = makeGrappleVisual()
+    hook.setVisible(false)
+    s.extra.hook = hook
+    root.add(hook.group)
+    const rope = buildRopeLines([{ ax: 36, ay: 10.06, az: 24, bx: 60, by: 10.06, bz: 24 }])
+    rope.group.visible = false
+    s.extra.rope = rope.group
+    root.add(rope.group)
     // The decoy in flight: the game's emitter orb (it stands up as the game's hologram).
     const ball = new Mesh(new SphereGeometry(0.18, 10, 8), new MeshBasicMaterial({ color: '#5fe9ff', toneMapped: false }))
     const rocket = new Mesh(new SphereGeometry(0.2, 8, 6), new MeshBasicMaterial({ color: '#ffd166', toneMapped: false }))
@@ -269,15 +274,15 @@ const INTRO: Script = {
       s.place(s.dog.root, d.setY(d.y + BOARD_HOVER), Math.atan2(-60 - 12, -60 - 24))
       s.dog.root.visible = t < 13
     }
-    const hook = s.extra.hookLine as Mesh
-    hook.visible = between(t, 5.2, 8.4)
+    const hook = s.extra.hook as GrappleVisual
+    hook.setVisible(between(t, 5.2, 8.4))
     if (between(t, 5, 9)) {
       const y = 10 * span(t, 5.6, 8.2)
       const x = t < 8.4 ? 15.2 : 15.2 + 2.3 * span(t, 8.4, 9)
       s.place(s.mech.root, tmpA.set(x, t < 8.4 ? y : 10, 24), Math.PI / 2)
       mp.climb = t < 8.4 ? 1 : 0
       mp.climbPhase = y
-      s.line(hook, tmpB.set(x + 0.4, y + 2, 24), tmpC.set(16.1, 10.05, 24))
+      hook.update(tmpB.set(x + 0.4, y + 2, 24), tmpC.set(16.1, 10.05, 24), Math.PI / 2, { flying: t < 5.5, time: t, progress: span(t, 5.2, 5.5) })
       s.look(tmpB.set(6, 4 + y * 0.5, 36), tmpC.set(15.5, y + 1.5, 24))
       s.once('hook', 5.2, () => sfx('hookThrow'))
       s.once('bite', 5.5, () => sfx('hookBite'))
@@ -306,14 +311,7 @@ const INTRO: Script = {
       const dc = s.decoys[0] ?? (s.decoys[0] = { x: DECOY[0], y: DECOY[1], z: DECOY[2], yaw: Math.PI * 1.2, t: 0, life: 6, pulse: 0 })
       dc.t = t - 10.9
     } else s.decoys.length = 0
-    const rope = s.extra.rope as Mesh
-    rope.visible = t >= 11.2 && t < 16
-    s.line(rope, tmpA.set(36, 10.06, 24), tmpB.set(60, 10.06, 24))
-    for (const [k, x] of [['postA', 36], ['postB', 60]] as const) {
-      const post = s.extra[k] as Mesh
-      post.visible = rope.visible
-      s.line(post, tmpA.set(x, 10, 24), tmpB.set(x, 10.5, 24))
-    }
+    ;(s.extra.rope as Object3D).visible = t >= 11.2 && t < 16
     s.once('rope', 11.2, () => { sfx('hookThrow'); sfx('hookBite') })
     if (between(t, 11.4, 14.2)) {
       const keys: Key[] = [[11.4, 34.8, 10, 24], [11.8, 36, 10, 24], [14.2, 48.6, 10, 24]]

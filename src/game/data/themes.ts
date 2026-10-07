@@ -37,8 +37,7 @@ const FOUNDRY_MESH: Theme = {
   pad: '#ff9a3d',
   trimWall: '#ff8a3d',
   trimTower: '#ffd166',
-  ladder: '#ffd166',
-  cable: '#ffe0b8'
+  ladder: '#ffd166'
 }
 const EMBER: SkyColors = {
   zenith: '#3b2a6e',
@@ -72,8 +71,7 @@ const HARBOUR_MESH: Theme = {
   pad: '#ffb35c',
   trimWall: '#ffb35c',
   trimTower: '#5fe9d0',
-  ladder: '#5fe9d0',
-  cable: '#ffe6c2'
+  ladder: '#5fe9d0'
 }
 /** The Spire (#144): blued steel terraces with signal-red trims under a deep dusk going to night. */
 const SPIRE_MESH: Theme = {
@@ -94,8 +92,7 @@ const SPIRE_MESH: Theme = {
   pad: '#ff5a4f',
   trimWall: '#ff4f5f',
   trimTower: '#ffd166',
-  ladder: '#ffd166',
-  cable: '#ffd8d0'
+  ladder: '#ffd166'
 }
 const SIGNAL: SkyColors = {
   zenith: '#241f5a',

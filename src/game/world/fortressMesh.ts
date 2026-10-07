@@ -1,5 +1,6 @@
 import { BufferAttribute, BufferGeometry, Color, Float32BufferAttribute, Group, Mesh } from 'three'
-import { CELL, CellKind, ROOF_T, Surf, VOID, cableSpan, cellHeight, cellKind, cellSurf, roofAt, type Grid, Shade } from './grid'
+import { CELL, CellKind, ROOF_T, Surf, VOID, cableEnds, cellHeight, cellKind, cellSurf, roofAt, type Grid, Shade } from './grid'
+import { buildRopeLines } from '../fx/ropeLine'
 import type { Fortress } from './fortress'
 import { levelGlowMaterial, glowVC } from '../models/toon'
 import { merge } from '../models/kit'
@@ -56,7 +57,6 @@ export interface Theme {
   trimWall: string
   trimTower: string
   ladder: string
-  cable: string
 }
 
 /** Gunmetal and rust under the game's own violet dusk, with its two neons. */
@@ -80,8 +80,7 @@ export const SCRAPYARD: Theme = {
   spike: '#3f3870',
   trimWall: '#ff5fb7',
   trimTower: '#5fe9ff',
-  ladder: '#5fe9ff',
-  cable: '#ffd3ee'
+  ladder: '#5fe9ff'
 }
 /** The name the rest of the game has always used for the default look. */
 export const SYNTHWAVE = SCRAPYARD
@@ -240,7 +239,6 @@ interface Palette {
   trimWall: Color
   trimTower: Color
   ladder: Color
-  cable: Color
 }
 
 const palette = (t: Theme): Palette => {
@@ -274,8 +272,7 @@ const palette = (t: Theme): Palette => {
     cliffFoot: c(t.cliffFoot),
     trimWall: c(t.trimWall),
     trimTower: c(t.trimTower),
-    ladder: c(t.ladder),
-    cable: c(t.cable)
+    ladder: c(t.ladder)
   }
 }
 
@@ -637,7 +634,7 @@ const beam = (q: Quads, ax: number, ay: number, az: number, bx: number, by: numb
   }
 }
 
-/** Ladders and cables: the ways up, drawn in the neon they are found by. */
+/** Ladders: the ways up, drawn in the neon they are found by. (The cables are ropes, `fx/ropeLine.ts`.) */
 const buildLinks = (g: Grid, pal: Palette): Quads => {
   const q = new Quads()
   for (const l of g.ladders) {
@@ -656,23 +653,6 @@ const buildLinks = (g: Grid, pal: Palette): Quads => {
     for (let y = foot + 0.4; y < top; y += 0.45) {
       beam(q, fx - sx * half, y, fz - sz * half, fx + sx * half, y, fz + sz * half, 0.035, pal.ladder)
     }
-  }
-  for (const c of g.cables) {
-    const ax = (c.ax + 0.5) * CELL
-    const az = (c.az + 0.5) * CELL
-    const bx = (c.bx + 0.5) * CELL
-    const bz = (c.bz + 0.5) * CELL
-    const ay = cellHeight(g, c.ax, c.az)
-    const by = cellHeight(g, c.bx, c.bz)
-    // From one platform's edge to the other's, an anchor post on each edge.
-    const s = cableSpan(g, c)
-    const ex = ax + (bx - ax) * s.ta
-    const ez = az + (bz - az) * s.ta
-    const fx = ax + (bx - ax) * s.tb
-    const fz = az + (bz - az) * s.tb
-    beam(q, ex, ay + 0.06, ez, fx, by + 0.06, fz, 0.05, pal.cable)
-    beam(q, ex, ay, ez, ex, ay + 0.5, ez, 0.09, pal.cable)
-    beam(q, fx, by, fz, fx, by + 0.5, fz, 0.09, pal.cable)
   }
   return q
 }
@@ -744,12 +724,17 @@ export const buildFortressMesh = async (
     group.add(m)
     geos.push(geo)
   }
+  // The fortress's own ropes: the same braided line and pitons as the rope
+  // gun's (#164), not the pale tube and posts they used to be.
+  const ropes = buildRopeLines(g.cables.map(c => cableEnds(g, c)))
+  group.add(ropes.group)
 
   return {
     group,
     chunks,
     dispose: () => {
       for (const geo of geos) geo.dispose()
+      ropes.dispose()
       group.clear()
     }
   }

@@ -160,6 +160,23 @@ export const heightAt = (g: Grid, x: number, z: number): number => cellHeight(g,
  * fractions of the way from one cell's middle to the other's: the
  * line runs from edge to edge, the mech walks flat to the edge first.
  */
+/**
+ * Where a cable's line is strung (m): from one platform's edge to the
+ * other's, at foot height. The rope the gun shoots and the ropes a fortress
+ * is built with are drawn from these, by one builder (`fx/ropeLine.ts`).
+ */
+export const cableEnds = (g: Grid, c: Cable): { ax: number; ay: number; az: number; bx: number; by: number; bz: number } => {
+  const ax = cellMid(c.ax)
+  const az = cellMid(c.az)
+  const bx = cellMid(c.bx)
+  const bz = cellMid(c.bz)
+  const s = cableSpan(g, c)
+  return {
+    ax: ax + (bx - ax) * s.ta, ay: cellHeight(g, c.ax, c.az) + 0.06, az: az + (bz - az) * s.ta,
+    bx: ax + (bx - ax) * s.tb, by: cellHeight(g, c.bx, c.bz) + 0.06, bz: az + (bz - az) * s.tb
+  }
+}
+
 export const cableSpan = (g: Grid, c: Cable): { ta: number; tb: number } => {
   const ax = cellMid(c.ax)
   const az = cellMid(c.az)
