@@ -158,10 +158,6 @@
 - [x] #138 ✅ Design the itch.io page background(not title logo or anything) for the game jam submission, use similar art style like the game and UI element design, I will log you into itch.io. Keep the page simple, showing off the core assets and coolness of the game. 
 - [x] #139 ✅ Why is CM-07 missing the sniper shot on the surveillance drone drone, instead it could be a nice drone follows shot up until the drone in hit in the red eye (not full up close, so the drone falling apart is shown). If we dont have this yet, add a destroyed state for mechs and machines, which instead of just ragdolling on the ground, break apart in subparts (must look like real subparts of that machine, so someone technically could reassemble the machine.), the melting of that scrap is still possible like before for machines. This should also be visible in the scenematic trailer.
   - Deferred: in the cinematic trailer once it is rebuilt (the drone shot is staged for it; waiting for your go).
-- [ ] #140 Explore co-op multiplayer on CG (different player models will be needed with rewarded ads to unlock them.)
-- [ ] #141 Explore All vs All game mode and 1vs1 ranked matches in a league with  
-  exploding barrels and ammunition in several spaces, tight ammunition budget. 
-  multiplayer on CG
 - [x] #142 ✅ flying fortress Airship for later stages (high quality detail 3d model that is fancy to look at and perfectly synchronized bullet and rocket emission points)
 - [x] #143 ✅ re-balance the ammunition per level/mission/threat level, player must upgrade ammunition stock to get more, 10 sniper shots, 100 mini-gun and 2 rockets, rest must be upgraded and picked up.
 - [x] #144 ✅ One 4th Level with a tower like structure, so the player has to go higher and higher to reach the extraction point. reuse all the available props like exploding barrels, ropes, alarm posts etc. and add 1 new thing like an undestructable spotlight tower that constantly scans the area for threat and immediately rings alarm state if finds you, but the spotlight is very slow and easy to dodge if you dont forget it exists.
@@ -197,13 +193,152 @@
 - [x] #172 ✅ The backstabs have 3 variations now, but still in every one of the a big part of the CM-07 body clips into the killed guard body, fix this and make it look like a real assassination with more fluid movement, currently it feels like the blade almost instantly lands in the body, than the camera watches the scene, better to have the actual swing and head hold animation happen fast, but visible, maybe its also a camera angle thing as the camera cuts to the kill-cam position fast and by then the player is already in the blade in body position. improve that to make it look natural and fluid. Also the sound need to be improved, it feels that the backstab uses blade to metal sounds on killing humans, same for close combat E usage. 
 - [x] #173 ✅ One of the guards in the 3 guards room bursted into pieces(even though he is a human and should fall down as a ragdoll), bursting to pieces can only appear for mechs and machines. 
 - [x] #174 ✅ Now mosts of the backstab animations have the blade or some parts of the hand/arm be clipped with the blade during the animation, that should look better, current version still looks bugged, get inspired by how Assassins Creed does it, do a web-search and use frame by frame references to copy the assassination animations, prevent clipping of any body parts. I saw that CM-07 unnaturally swings his shoulder joint around to make the stab, which is simply not a real assassins kill move, aside from clipping the arm through his own body.
-- [x] #175 ✅ The Intro cutscene is not skippable while the player is in pointerlock, remove pointerlock during cutscenes and readd afterwords for desktop users. Add an additional 1.5 second press on Space to skip a cutscene, show that on the Skip button like the other button labels, but holding it raises a circular progressbar like red dead redemption 2 does it.
-- [ ] #176
+- [x] #175 ✅ The Intro cutscene is not skippable while the player is in pointerlock, remove pointerlock during cutscenes and read afterwords for desktop users. Add an additional 1.5 second press on Space to skip a cutscene, show that on the Skip button like the other button labels, but holding it raises a circular progressbar like red dead redemption 2 does it.
+- [x] #176 ✅ Add a robo dog unit, a roomba unit and 2 more surveillance drones to the first fortress.
+- [x] #177 ✅ remove the Sabotage alarm post tutorial room, it's not essential to the gameplay and player can find this out on his own as its easy to find out. In the ammo room the players tend to walk on the repair pack but nothing happens as they are full, let the player start with 3/4 Hp, so the repair pack works, don't refill hp before the repair kit room on respawns. 
+- [x] #178 ✅ fix the toon outline problems. Currently the toon outline is working with an inverted black shape so it shows a cone around each body part, but some parts are penetrating thes black outline shapes during movement, can you fix this, so the outline border is always rendered on top and not partially cut off. 
+- [x] #179 ✅ Add a flying fortress airship scene to the game, where the airship is firing with all weapons at CM-07 and CM-07 has to duck and go behind a cover, then jumps on his robo dog jet and flies away as the last scene to peak the players interest. Clean up other inconsistencies in the Intro. Show a still image of the 3rd fortress for 3 seconds at the end of the Intro as a peak to what is coming for the player if he continues playing.
+- [x] #180 ✅ The players robot model should also burst to subparts if he gets destroyed like other mechs.
+- [x] #181 ✅ All levels should have more surveillance drones that have a higher radius in which they listen and follow they teammates, so that they can faster spot an intruder, e.g. if the player sniped a guard in a 25 meter radius, the surveillance drone flies to the source location of the shot which it can calculate, if it sees the player there it immediately raises the alarm, so that it should be a priority to take out the surveillance drones as they are the beggest alarming risk. 
+- [x] #182 ✅ clicking 20 times within 20 seconds on the "paused" label in the SettingsMenu triggers an interstitial ad, add interstitial ads after every   mission(not tutorial level) when the player jumps the robo dog and flew     
+  away to extract (on the end of the cutscene), before the result screen     
+  plays (usual sound and music mute during ads and restore after the request  failed or succeeded.). Rewarded ads can be used to unlock the disguise skins, rewarded ads can be used to upgrade a weapon upgrade as an alternative payment to the bolts salvaged, each rewarded ad needs to the     like always indicated with the MovieIcon symbol
+- [x] #183 ✅ The ammo the guards drop is not useful to the player, they should drop 1-2 sniper bullets randomly. In the intro the minigun has no sound when firing, check if in-game the mini-gun has the iconic mini-gun sound, improve the quality of that sound anyways. After the rope kill in the Intro the camera jumps to the ladder usage, better not cut it, and let CM-07 use the grappling hock instead to get up fast.
+- [x] #184 ✅ The intro still does not end on the 3seconds still look at the 3rd fortress.
+- [x] #185 ✅ The circular progressbar around the heat button on the salvage mini-game is not perfectly placed, improve the visual look of it and place it around the heat button perfectly.
+- [ ] #186 Some people simply don't follow the hologram instructions e.g. to crouch, so lets add a fat yellow arrow on the crouch button if they reach the door to the next room and havent crouched yet and it stays with an attention bounce until they crouch, show the keyboard key or mouse key on desktop in the middle of the screen. In the same way show buttons and arrows on buttons for the other rooms where applicable. One player didnt find the weapon switch buttons TAB/Mousewheel scroll(show on mobile too in the 3 guards room that is about killing guards). 
+- [ ] #187
+- [ ] #188
+- [ ] #189
+- [ ] #190
+- [ ] #191
+- [ ] #19
+- [ ] #19
+- [ ] #19
+- [ ] #19
+- [ ] #19
+- [ ] #19
 
 
 ## NOT DEFINED YET: - Night fighting -> Spotlights will be more present.
-## NOT DEFINED YET: - Roboter K9 hunting you. 
+## NOT DEFINED YET: - Roboter K9 hunting you.
 ## NOT DEFINED YET: - Mission briefing per Y messenger (X/Twitter copy/parody).
+
+- [x] #M1 ✅ Explore co-op multiplayer on CG (different player models will be needed with rewarded ads to unlock unique model designs that players want to unlock in order to be unique in a 2 player game.). Research on CG best practices to implement the Coop playstyle and server and service cost requirements, do a web-search if this coop and multiplayer feature actually pays out for developers on CG.
+- [ ] #M2 Explore All vs All game mode and 1vs1 ranked matches in a league with  
+  exploding barrels and ammunition in several spaces, tight ammunition budget.
+  multiplayer on CG
+
+### Mech paint schemes, unlocked by rewarded video (single-player, all portals)
+Findings from #M1 (report: https://claude.ai/artifact/6dxWjsn5kVzdUWqoj3qRKy): CrazyGames' own monetisation guide recommends "exclusive skins that are only unlockable by watching rewarded ads", with a daily cap (about 5) and a "try a locked one for one run" offer. Their ad rules: the reward is clearly optional, the button carries the video icon, there is always another way to get it (scrap), it isn't offered too often, and a timer shows when it comes back. Today there is no mech skin system: `buildMech()` takes no arguments and the colours are baked in. Passing a scheme in is about 1 day; with the picker and the save field, 3–5 days. The schemes are useful whether or not co-op ever ships, and they measure cheaply whether players care about looking unique.
+- [ ] #M3 Paint scheme data and model. Add `src/game/models/paintIds.ts`, laid out like `disguiseIds.ts`: 6–8 scheme ids, `FREE_PAINT` = today's CM-07 colours, a scrap price, and a palette per scheme (body, trim, glow, visor, decal tint). `buildMech(scheme = FREE_PAINT)` must draw today's mech pixel-identically for the default; pin that with a test.
+  - Use the equipped scheme on every player-mech instance (mission, command base, model bench, mech portrait, the destruction burst from #180, holograms). Story cinematics (intro, airship, cutscenes) keep canonical CM-07. Grep every `buildMech` call and pin the list with a test so no instance is missed.
+  - Keep the toon outline (#178) correct for every palette. Check every scheme against the low render tier. Run `blur-probe` on the base screenshots.
+- [ ] #M4 Save field. Add `paint: { owned: PaintId[], equipped: PaintId }` to the save, with a migration (old saves get `[FREE_PAINT]`). Every SaveStrategy and the LocalBackupLayer must carry it. The cloud-save hydration test covers it: an equipped scheme survives a reload on CG and Playgama.
+- [ ] #M5 Paint panel in the command base, next to the DisguisePanel and built the same way. A rotating preview of the mech in the selected scheme, a thumbnail per scheme (baked like `disguiseThumbs.ts`), and on locked ones the film icon plus the scrap price. Equip with one tap. Keyboard and gamepad menu navigation, touch, landscape phone layout. All copy goes through i18n into all 39 locales.
+- [ ] #M6 Rewarded unlock. A locked scheme unlocks permanently by rewarded video, or by scrap where no ad can play and always as the alternative.
+  - The offer is gated on rewarded readiness: the button is disabled with "no video right now" and never hangs. The reward is granted only on a completed view, never on a skip or error. Game audio is muted during the ad and restored on success, failure and skip.
+  - Daily cap of about 5 paint videos. Once spent, the button stays visible but disabled, with the same "needs time to refresh" hover/tap copy as #182, and a timer shows when it comes back.
+  - Optional "try it for one mission" offer: a rewarded video equips a locked scheme for the next mission only and reverts afterwards. It is never granted twice for one view.
+  - Portals without rewarded video offer scrap only. Tests cover each of these paths.
+- [ ] #M7 
+
+### Co-op for two CrazyGames friends (WebRTC, signalled by the Cloudflare Worker)
+Architecture: the host's browser runs the mission (guards, detection, kills, loot) and is authoritative. The guest sends inputs, predicts its own mech, and draws the rest from 15–20 snapshots a second. A Durable Object per room on the existing Worker only introduces the two players: it exchanges the offer, the answer and the ICE candidates. Gameplay goes peer-to-peer, over Cloudflare TURN when a direct path fails. The CrazyGames invite only carries data one way (host → friend), so it can't replace the Worker's handshake. Logged-in CrazyGames players only. An AI wingman takes over a mech whenever its human is gone.
+
+**Ground rules for every #M item below:**
+1. **Single-player is the core game and must not change.** No co-op rule, tuning value or branch may leak into the single-player sim, AI or balance. The single-player tuning tables stay untouched. Co-op has its own balance module (#M11) that the sim receives as a `rules` object, and single-player passes the frozen single-player rules. The deterministic single-player golden replays (#M8) must stay bit-identical after every co-op change.
+2. **Feature flag and build exclusion.** `COOP = import.meta.env.VITE_APP_COOP === 'true' && import.meta.env.VITE_APP_CRAZY_WEB === 'true'` is a single build-time constant. All co-op code lives in `src/coop/` and loads only through `if (COOP) await import(...)`, so with the flag off, or in any non-CrazyGames bundle, Rollup drops it completely: no WebRTC, no Worker room calls, no co-op CSP entries, no co-op i18n chunk.
+3. **No dead ends.** Every co-op screen and state has a visible Leave/Cancel, a timeout and an error message, and ends in the base or a running mission. A player can always leave the session.
+
+- [ ] #M8 Guardrails first (before any co-op code).
+  - Add `VITE_APP_COOP` to `env.d.ts`, the `.env.*.local` files (true only in the CrazyGames one) and `capabilities.ts`. Add a build-audit test: build each non-CG bundle and the CG bundle with `VITE_APP_COOP=false`, then grep the dist for sentinel strings (`RTCPeerConnection`, `/coop/room`, a `__COOP_BUNDLE__` marker). Any hit fails.
+  - Add an import-boundary test: nothing outside `src/coop/` imports from it except the one guarded dynamic import.
+  - Record golden replays: seeded, scripted-input runs of every fortress and the training ground, hashing the sim state every second. Every later co-op item must keep them identical.
+  - Add a runtime kill switch: the CG build asks the Worker `GET /coop/status` before showing any co-op entry point. If the answer is `false`, unreachable or slow (more than 3 s), co-op is hidden for that session and the game works exactly as single-player.
+- [ ] #M9 Multi-player sim, with single-player unchanged. Split `mission.ts` (79 uses of `this.player`, about 350–400 one-player assumptions across 12 files) into `players[]` with per-player state: weapons, armour, hook, backstab, ropes, disguise, paint, ammo. Single-player is `players.length === 1` and its golden replays stay identical.
+  - Seed the four unseeded gameplay random calls (shot spread, backstab variant, kill-cam pick, airship hit rolls) per player. Make the step runnable without rendering.
+  - Keep the camera, kill-cam, backstab staging and HUD local to the viewing player.
+- [ ] #M10 Guard AI with several targets, active only under the co-op rules. Per-target awareness, last-known position and scent trail; each guard locks onto one target; shooting turns are shared. With one target the code must give exactly today's results (the golden replays prove it). Drones, alarm posts, the robo dog and the roomba must treat either player as the intruder. The #134 lose-track rule applies per player, and the alarm calms down only when both players are lost.
+- [ ] #M11 Co-op balance module `src/coop/balance.ts`, kept fully apart from the single-player tables. Covers: guard group sizes and extra patrols per fortress, detection speed with two intruders, player armour, the downed timer, revive time, ammo drops (split or shared), scrap, medal rules and rewards for a co-op run.
+  - Co-op runs never submit to the single-player leaderboard (a separate co-op board or none).
+  - Tune each fortress for two players. Add a test that the single-player rules object is deep-equal to its snapshot.
+- [ ] #M12 Worker signalling: one Durable Object per room, using the WebSocket Hibernation API (`acceptWebSocket`, room state in `serializeAttachment`, little work in the constructor).
+  - **Auth:** the client sends the CrazyGames `getUserToken()` and the Worker verifies the JWT against `https://sdk.crazygames.com/publicKey.json`, cached. Tokens live 1 hour, so the client refreshes before a reconnect. A missing or expired token is rejected with an error code, never a silent hang.
+  - **Rooms:** created only by the host. Capacity 2; a third joiner gets `room_full`. Joining your own room gets `own_room`. The same userId in a second tab replaces the old socket, and the old tab is told `replaced_elsewhere`. The host's socket drop starts a 30 s grace period before the guest gets `host_left`. An idle room is deleted by a DO alarm (about 10 min empty, 3 h hard cap).
+  - **Protocol:** a `protocolVersion` in the hello message, so a build mismatch gives `version_mismatch` ("Your friend has a different game version, both reload"). A message size cap, per-IP and per-user rate limits, a check that every relayed message has the expected shape, and no gameplay data through the Worker. Room ids are unguessable (128-bit) and are the only thing in `inviteParams`.
+  - **TURN:** the Worker issues short-lived Cloudflare Realtime TURN credentials per session and issues new ones on request, because an ICE restart with expired credentials fails.
+  - Add tests for every error code with `wrangler dev` / miniflare. Document the setup in `worker/SETUP.md`.
+- [ ] #M13 WebRTC transport `src/coop/net/`.
+  - **Negotiation:** the perfect-negotiation pattern (the host is impolite, the guest polite, with rollback on glare). Trickle ICE, queueing candidates that arrive before the remote description.
+  - **Channels:** `snap` (`ordered:false, maxRetransmits:0`) for snapshots and inputs, `evt` (reliable, ordered) for kills, loot, detection, downed/revive, chat pings and the session lifecycle.
+  - **Messages:** binary encoding, each under 16 KB, with backpressure through `bufferedAmount` / `bufferedamountlow`. Snapshots are dropped, never queued, when the buffer is full.
+  - **Liveness:** a heartbeat at 4 Hz with RTT measured. `iceConnectionState === 'disconnected'` triggers an ICE restart after about 3 s, without waiting for the about-30 s `failed`. `failed` triggers a fresh negotiation through the Worker. Give up after 30 s total and hand over to #M18.
+  - **Timeouts:** every step has a hard timeout: Worker connect 8 s, offer/answer 10 s, first data-channel open 15 s. Any timeout moves to an error state, never to a spinner without an end.
+  - Close cleanly on `pagehide`/leave: close the channels and the peer connection and send a bye message through the Worker. Add a leak test: no `RTCPeerConnection` is left after leaving.
+  - Mobile backgrounding suspends UDP without telling WebRTC, so a missed heartbeat window (2 s) counts as a connection loss even when ICE still says `connected`.
+  - Interop: Chrome, Firefox and Safari/WebKit, desktop and phone, in every pairing.
+- [ ] #M14 Netcode.
+  - Fixed 1/60 s ticks on both sides; the guest's inputs are stamped with the tick. The host sends snapshots at 15–20 Hz as deltas against the last acknowledged snapshot, with a full snapshot on request.
+  - The guest predicts its own mech and reconciles when the host corrects it, and interpolates everything else about 100 ms behind. Clock and tick sync use the heartbeat RTT.
+  - Lag compensation for the guest's hitscan, melee, backstab, hook and rope kills: the host rewinds the guards to the guest's view tick, up to a 200 ms cap.
+  - Desync detection: a state hash every 2 s. A mismatch triggers a full resync and is logged, never a frozen mission.
+  - Fixed RNG stream ids for co-op. Test with simulated 0–250 ms latency, jitter and 0–10% loss, and the guest must stay playable.
+- [ ] #M15 CrazyGames platform wiring (CG SDK, CG build only).
+  - **Login gate:** `user.getUser()`. A guest who opens co-op, or arrives on a co-op invite link, gets a clear message ("Co-op needs a CrazyGames account so your friend can find you"), a Log in button calling `showAuthPrompt()` (handling `userCancelled` and `showAuthPromptInProgress`) and a Play solo button. Never force a login prompt, and never make login the main button. `addAuthListener` turns co-op on when the player logs in mid-session, and an invite that arrived before login is kept and continued. Logging out reloads the page (CG behaviour), so nothing has to survive it.
+  - **Rooms:** the host calls `game.updateRoom({ roomId, isJoinable: true, inviteParams: { coop: roomId } })` and sets `isJoinable: false` once the guest is in or the mission starts. `game.leftRoom()` is called on every exit path (leave, error, mission end without a rematch, `pagehide`).
+  - **Joining:** read `getInviteParam('coop')` at boot to join from a link. `addJoinRoomListener` handles an invite accepted while already playing; in a mission it asks "Leave this mission to join [name]?" and a yes banks the run first.
+  - **`isInstantMultiplayer`:** the game launches straight into a new private room with the invite UI open (CG requirement).
+  - **Invited newcomers** skip onboarding as CG requires. A compact controls card plus the hologram hints still teach the basics in the first co-op mission, and they get a save profile like any new player.
+  - Show the CG username (and profile picture) above the partner's mech and in the lobby. No free-text chat, so `disableChat` and moderation requirements don't apply. Optional fixed quick pings ("here", "wait", "go") go through i18n.
+  - Declare a lobby size of 2 at upload. `gameplayStart`/`gameplayStop` follow the local player's actual play state.
+- [ ] #M16 Lobby flow and its state machine `src/coop/session.ts`.
+  - States: idle → hosting/joining → connecting → lobby → countdown → in-mission → results → (rematch → lobby | leave → idle). Every state has a Leave and a timeout.
+  - **Host:** a Co-op button in the base (CG plus COOP plus the kill switch on), a waiting screen with the invite button and the room link, the partner card (name, avatar, paint, ready), fortress choice, a ready check and a 3 s countdown that either player can cancel.
+  - **Guest:** a "Joining [name]…" screen with progress steps and Cancel.
+  - **Progress mismatch:** the host picks only fortresses the host has unlocked. The guest may play one they haven't unlocked as the host's guest (shown as "Guest of [name]") without unlocking it.
+  - **Rematch** keeps both players in the room (CG requirement: no bounce back to the CG page).
+  - **Error table**, each entry an i18n string in all 39 locales with a clear next action (Retry, Play solo, Back to base): `not_logged_in`, `room_full`, `room_closed`/expired link, `own_room`, `host_left`, `guest_left`, `version_mismatch`, `replaced_elsewhere`, `worker_unreachable`, `no_direct_path` (NAT/TURN failed), `timeout`, `coop_disabled` (kill switch).
+  - **Tests:** a model-checked test enumerates every (state, event) pair, including errors, timeouts, Leave, `pagehide` and the partner leaving, and asserts that every path ends in the base or a running mission within its timeout.
+- [ ] #M17 Co-op gameplay.
+  - **Partner on screen:** a partner marker (on screen and at the screen edge), a nameplate in their paint, an armour bar in the HUD, and partner sounds positioned in the world.
+  - **Downed and revive:** at 0 armour a mech goes down instead of being destroyed; the partner revives with a hold (timing from #M11). The run fails when both are down, or when the downed timer runs out with the partner not reviving.
+  - **Extraction:** both players must reach the extraction, or one waits with a visible countdown for the other. A player who has already left counts as extracted.
+  - **Loot:** ammo pickups are per player and visible to both, scrap is shared at the end, and every pickup event comes from the host, so nothing is collected twice.
+  - **Pause:** co-op cannot pause the world. The pause menu is an overlay while the mission runs and shows "Your mech holds position", and the partner sees "[name] is in the menu".
+  - **Kill-cam:** it never freezes or slows the shared world. It's local only, or turned off in co-op.
+  - The tab going to the background is treated like a menu, then as a disconnect (#M20).
+- [ ] #M18 Leaving, disconnects and the AI wingman. Every take-over shows a toast plus a "BOT" tag on the nameplate and the partner card, and hands back the same way.
+  - **Leaving:** a player can always leave from the pause menu, with a confirmation. The leaver's run is banked with partial rewards from #M11 and they go back to the base.
+  - **Guest leaves or drops:** the host's game continues and an AI wingman takes the guest's mech at once ("[name] disconnected — AI wingman took over"). If the guest reconnects within 30 s (same room, through the Worker), control returns ("[name] is back").
+  - **Host drops:** the guest sees "Connection to [name] lost, reconnecting…" with a 30 s countdown and a Leave button. If the host doesn't return, the mission ends for the guest with partial rewards and the guest goes back to the base, unless #M19 is built.
+  - **Wingman AI:** follows the human player, takes cover, never triggers alarms on its own, revives the player, and uses the stealth rules from #M10/#M11. It never plays better than a cautious human.
+- [ ] #M19 (optional, after release) Host migration. The host also streams the full sim state, not just what's needed to draw it, to the guest at a low rate (about 1 Hz), so that when the host is lost the guest can promote itself to host with an AI wingman and continue the mission. Without it, #M18's "end with partial rewards" is the behaviour.
+- [ ] #M20 Background tabs and phones. Background tabs stop `requestAnimationFrame` and throttle timers to 1 Hz (Chrome throttles further after 5 min).
+  - **Host's tab hidden:** the host's sim can't run reliably. The guest is told "[name] switched away, the mission is paused" and the shared sim freezes for both, with a 20 s countdown, after which #M18's host-lost path runs. This is the one case where the world pauses.
+  - **Guest's tab hidden:** the guest's mech holds position and the wingman takes over after 5 s.
+  - On a phone, backgrounding kills the UDP path silently, so the heartbeat rule from #M13 applies. Handle the screen locking and incoming calls. iOS Safari may skip `visibilitychange` on quick tab switches, so `pagehide` and `blur` count too.
+- [ ] #M21 Ads in co-op.
+  - **Interstitials:** none during a co-op mission. The end-of-mission interstitial plays only after both players have reached the results, and each player's ad is independent, so the rematch lobby waits for both, with a timeout. The #182 rules (4 minutes after load, 2-minute gap) still apply per player.
+  - **Rewarded video during a mission** (e.g. revive by video, if offered): while one player watches, their mech is handed to the wingman and handed back afterwards, with audio muted and restored as in single-player.
+  - The 20-tap QA interstitial still works in co-op and follows the same hand-over.
+- [ ] #M22 Saves, rewards and trust.
+  - At the end the host sends one reward summary over `evt`; each player banks their own share into their own save through their own SaveStrategy. A guest can't grant themselves rewards beyond the summary.
+  - Stakes are low (no money and no shared leaderboard), so no deeper anti-cheat. Unlock flags gained as a guest don't unlock the guest's own campaign.
+  - Banking must survive a drop at the results screen (it banks on arrival, not on button press).
+- [ ] #M23 Privacy and safety.
+  - Peer-to-peer shows each player's public IP to the other. Only friends who invite each other connect, and there is no public matchmaking. Add an optional "Relay my connection" setting (`iceTransportPolicy: 'relay'`) that hides the IP behind TURN.
+  - No free-text chat, so there is no moderation load. Usernames come only from CG. Nothing user-generated is stored on the Worker except room ids and user ids, for the length of the room's life.
+  - Add `connect-src` entries for the Worker and the TURN hosts only to the CG CSP when COOP is on, with a CSP test.
+- [ ] #M24 Test rig.
+  - A two-browser e2e harness: two Playwright contexts (Chrome × Firefox × WebKit pairings), a fake CG SDK (users, tokens, rooms, invite params), and the Worker under `wrangler dev`.
+  - Network impairment (latency, jitter, loss and a forced TURN-only mode) in the transport layer, plus scripted chaos tests that kill either side, the Worker or the network at every #M16 state and assert the error screen or the AI wingman follows within its timeout.
+  - Mobile emulation. Pointer lock stubbed in every page. Run through the worker-budget wrapper, and stop every server and browser afterwards.
+- [ ] #M25 Release.
+  - Work through the CrazyGames multiplayer checklist (usernames shown, instant multiplayer, rooms kept together between rounds, lobby size declared, guests can still play solo).
+  - Set `VITE_APP_COOP=true` only in the CG env, and confirm the build audit from #M8 passes for every other bundle.
+  - Measure the share of sessions played in co-op, connection success rate (direct, relayed, failed), drop and reconnect rates, and day-7 retention for co-op players against solo players. Keep the kill switch ready for the first week.
+
 
 ## Playtest round 1 (2026-10-02)
 
@@ -278,19 +413,16 @@ missions, rewarded-ad buttons, treasure chests.
   "never seen", "blade only", "under three minutes", "no decoys". Each pays
   extra Data Cores once. Turns a cleared threat level into three more runs.
 
-- [ ] #5 **Ghost of your best run.** A faint mech replays the best run's path
-  and shots on the same level. The save already keeps the best score per
-  level; this adds the route. Self-competition is the cheapest rival there is.
-
-- [ ] #6 **Mech paint and kill-cam trails.** Cosmetics earned by medals, not
-  bought: a paint per fortress mastered, a tracer colour per 50 headshots.
+- [ ] #6 **Mech paint and kill-cam trails.** Cosmetics earned by rewarded ads:
+  a paint per fortress mastered, a tracer colour per 50 headshots.
   Shown in the Chassis Bay and in every kill-cam, which is where a player
   looks hardest.
 
 - [ ] #7 **Two more gadgets.** An EMP dart (silences a drone or a searchlight
   for ten seconds) and a smoke canister (breaks every cone for a moment when
   the alarm goes). Each opens a new answer to the same fortress, which is what
-  makes a stealth level replayable.
+  makes a stealth level replayable. Only unlockable after fortress progress, EMP dart after Fortress 2 is won.
+  smoke cannister after winning fortress 4(maybe not yet implemented). The weapon upgrades and weapon champer upgrades are locked in grey and show the condition to unlock them beside them.
 
 - [ ] #8 **Weapon variants in the Forge.** One alternative per slot (a
   burst-fire marksman rifle, a shotgun arm, a cluster rocket), built from
