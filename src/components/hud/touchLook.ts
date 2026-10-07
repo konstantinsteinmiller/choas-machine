@@ -98,5 +98,5 @@ export const HINT_GESTURE: Readonly<Partial<Record<HintId, 'drag' | 'swipe' | 'h
 /** The touch button each nudged training control is (#186), by its test id; one not on screen falls back to the big glyph. */
 export const NUDGE_BUTTON: Readonly<Partial<Record<HintId, string>>> = {
   crouch: 'btn-crouch', blade: 'btn-strike', burn: 'btn-burn', decoy: 'btn-decoy', rope: 'btn-rope',
-  loot: 'btn-loot', scope: 'btn-zoom', rocket: 'btn-weapon-rocket', weapon: 'btn-weapons'
+  loot: 'btn-loot', scope: 'btn-zoom', rocket: 'btn-weapon-rocket', weapon: 'btn-weapons', grapple: 'btn-grapple'
 }

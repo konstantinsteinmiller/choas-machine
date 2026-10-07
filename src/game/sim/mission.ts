@@ -3376,7 +3376,9 @@ export class Mission implements GameMode {
       // switch): the arrow on the launcher's button from the way in, while it
       // is not in hand; with it in hand there is nothing to point at.
       const rocketHeld = this.arsenal.current === 'rocket'
-      hud.training.nudge = lesson === 'weapons' && !this.switchedHere ? 'weapon'
+      // Down in the jump room's gap: the hook, pointed at (a playtester never found it).
+      hud.training.nudge = lesson === 'jump' && tr.state.pit ? 'grapple'
+        : lesson === 'weapons' && !this.switchedHere ? 'weapon'
         : lesson === 'rocket' ? (!rocketHeld && (hud.device === 'touch' || this.nudgeArmed) ? 'rocket' : '')
           : this.nudgeArmed && say?.hint ? say.hint : ''
     } else hud.training.nudge = ''

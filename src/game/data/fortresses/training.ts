@@ -143,6 +143,9 @@ export const buildTrainingGround = (): Fortress => {
     b.fill(cx, cz, dx, dz, JUMP_DECK_H)
     b.ladder(...at(j, 1, 7), 'e')
     b.ladder(...at(j, 5, 4), 'w').ladder(...at(j, 5, 10), 'w')
+    // Either side of the middle, onto the second deck (a playtester fell in
+    // near the middle and never found the way out): no hook needed.
+    b.ladder(...at(j, 5, 6), 'e').ladder(...at(j, 5, 8), 'e')
   }
 
   // · Crouch and cover: a sentry in the far corner watches the room; a
