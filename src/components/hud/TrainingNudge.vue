@@ -78,10 +78,12 @@ const arrowStyle = computed(() => {
   height: 0
   rotate: var(--angle)
 .shaft
+  // Big and fat (#186 follow-up): it must not be missed.
+  --w: clamp(3.6rem, 16vmin, 6rem)
   position: absolute
-  width: clamp(2.6rem, 11vmin, 4rem)
-  height: clamp(3.4rem, 14.5vmin, 5.3rem)
-  left: calc(clamp(2.6rem, 11vmin, 4rem) * -0.5)
+  width: var(--w)
+  height: calc(var(--w) * 1.33)
+  left: calc(var(--w) * -0.5)
   bottom: 0
   animation: nudge-bounce 0.8s ease-in-out infinite
   svg
@@ -98,8 +100,8 @@ const arrowStyle = computed(() => {
 .centre
   position: absolute
   left: 50%
-  // Between the door's line (28%) and the mech's head.
-  top: 45%
+  // Below the door's line (28%), in the player's face.
+  top: 56%
   translate: -50% -50%
   display: grid
   place-items: center
@@ -109,11 +111,20 @@ const arrowStyle = computed(() => {
   box-shadow: 0 0 0 0.2rem #ffd23f, 0 0 1.4rem rgba(255, 210, 63, 0.6)
   font-size: clamp(1.6rem, 6vmin, 2.6rem)
   animation: nudge-pop 0.9s ease-in-out infinite
+// The key in the player's face (#186 follow-up): their own key, big and fat.
 .glyph
   font-size: inherit
+  :deep(.key-cap)
+    min-width: clamp(4.6rem, 20vmin, 8.5rem)
+    height: clamp(4.6rem, 20vmin, 8.5rem)
+    font-size: clamp(2.4rem, 10vmin, 4.6rem)
+    font-weight: 800
+    --plate-edge: #ffd23f
   :deep(.mouse-glyph)
-    width: 1.6em
-    height: 2.2em
+    width: clamp(3rem, 13vmin, 5rem)
+    height: clamp(4.2rem, 18vmin, 7rem)
+  :deep(.touch-button-glyph), :deep(.finger-glyph)
+    --size: clamp(4.6rem, 20vmin, 8.5rem)
 .weapon-keys
   display: inline-flex
   align-items: center

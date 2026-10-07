@@ -116,9 +116,11 @@ export const DEMOS: Readonly<Record<LessonId, readonly DemoKey[]>> = {
     { t: 3.2, x: 5, z: 7, y: 3.6, air: 1 }, { t: 3.5, x: 5.8, z: 7, y: 2.5, air: 0 }, { t: 4.5, x: 8.4, z: 7, y: 2.5 },
     { t: 4.9, x: 9.3, z: 7, y: 0, air: 1 }, { t: 5.1, air: 0 }, { t: 5.9, x: 10.4, z: 7, y: 0 }
   ],
+  // Crouched all the way, and on through the gap under the gate (#186): it does not stop at it.
   cover: [
     { t: 0, x: 1.5, z: 7, crouch: 0, hint: 'crouch' }, { t: 0.8, x: 1.5, z: 7, crouch: 1 },
-    { t: 5.6, x: 9.4, z: 7.3, crouch: 1 }, { t: 6.6, x: 10.4, z: 7, crouch: 1 }
+    { t: 5.6, x: 9.4, z: 7.3, crouch: 1 }, { t: 6.6, x: 10.4, z: 7, crouch: 1 },
+    { t: 7.4, x: 11.5, z: 7, crouch: 1 }, { t: 8.2, x: 12.6, z: 7, crouch: 1 }
   ],
   weapons: [
     { t: 0, x: 2, z: 7, face: [10, 2], weapon: 'sniper', aim: 0, hint: 'scope' }, { t: 0.7, aim: 1 }, { t: 1.8, aim: 1, hint: 'fire' },
@@ -416,6 +418,18 @@ export const DOOR_LINES: Readonly<Partial<Record<LessonId, { line: string; hint:
   decoy: { line: 'door.decoy', hint: 'decoy' },
   rope: { line: 'door.rope', hint: 'rope' },
   salvage: { line: 'door.salvage', hint: 'loot' }
+}
+
+/**
+ * The mech is close to room `i`'s door wall, anywhere along it, with the
+ * lesson undone (#186 follow-up): players press against the wall beside the
+ * door, not into the doorway, so the nudge cannot wait for the doorway.
+ */
+export const NEAR_DOOR_WALL_M = CELL * 2.2
+export const nearDoorWall = (t: Training, i: number, c: TrainingContext): boolean => {
+  if (i < 0 || t.done[i] || roomAt(c.x) !== i) return false
+  const d = doorOf(i)
+  return !!d && d.x - c.x < NEAR_DOOR_WALL_M && d.x - c.x > -CELL * 0.5
 }
 
 /** The mech is up against room `i`'s shut door, from inside the room. */

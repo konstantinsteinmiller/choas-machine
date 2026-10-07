@@ -3,6 +3,9 @@ import {
   type Cable, type Grid, type Ladder, type MoveRule
 } from '../world/grid'
 import { MECH_EYE, MECH_EYE_CROUCH, MECH_HEIGHT as MECH_HEAD, MECH_RADIUS } from '../models/mech'
+
+/** Room above the floor at (x, z) for a mech standing at `y`: Infinity under the open sky. */
+const headroom = (g: Grid, x: number, z: number, y: number): number => ceilingAt(g, x, z, y) - y
 import { mechGaitRate } from './gait'
 
 /**
@@ -206,6 +209,8 @@ export const stepPlayer = (p: Player, g: Grid, w: Wish, dt: number): PlayerEvent
   p.pyaw = p.yaw
 
   if (w.crouch && (p.mode === 'ground') && !p.boxed) p.crouched = !p.crouched
+  // Under a ceiling lower than the mech (a crawl gap, #186): it stays down.
+  const lowCeiling = p.mode === 'ground' && headroom(g, p.x, p.z, p.y) < MECH_HEAD
   // The hide box: down over a crouched mech, or off again. Raising the
   // weapon, running, or anything but the ground throws it off.
   if (w.box && p.mode === 'ground') p.boxed = !p.boxed
@@ -214,8 +219,9 @@ export const stepPlayer = (p: Player, g: Grid, w: Wish, dt: number): PlayerEvent
   p.box = approach(p.box, p.boxed ? 1 : 0, dt * 7)
   // Sprinting out of a crouch stands the mech up: one intent, one key.
   const wantSprint = !!w.sprint && !w.aiming && p.mode === 'ground' && Math.hypot(w.mx, w.mz) > 0.5
-  if (wantSprint && p.crouched) p.crouched = false
-  p.sprinting = wantSprint
+  if (wantSprint && p.crouched && !lowCeiling) p.crouched = false
+  if (lowCeiling) p.crouched = true
+  p.sprinting = wantSprint && !lowCeiling
   p.sprint = approach(p.sprint, wantSprint ? 1 : 0, dt * 5)
   p.crouch = approach(p.crouch, p.crouched && p.mode === 'ground' ? 1 : 0, dt * 7)
 
@@ -337,7 +343,7 @@ export const stepPlayer = (p: Player, g: Grid, w: Wish, dt: number): PlayerEvent
   }
 
   // The jump (#95): off the ground, standing up, out from under a box.
-  if (w.jump && p.mode === 'ground' && !w.aiming) {
+  if (w.jump && p.mode === 'ground' && !w.aiming && !lowCeiling) {
     p.mode = 'air'
     p.vy = JUMP_V
     p.airFrom = p.y
@@ -350,7 +356,13 @@ export const stepPlayer = (p: Player, g: Grid, w: Wish, dt: number): PlayerEvent
   const stepX = p.vx * dt
   const stepZ = p.vz * dt
   const wanted = Math.hypot(stepX, stepZ)
-  const moved = moveCircle(g, p.x, p.z, p.y, stepX, stepZ, MECH_RADIUS, p.crouched && p.mode === 'ground' ? CAREFUL : FREE)
+  let moved = moveCircle(g, p.x, p.z, p.y, stepX, stepZ, MECH_RADIUS, p.crouched && p.mode === 'ground' ? CAREFUL : FREE)
+  // Standing, it does not go in under a ceiling lower than itself: it bumps its head (#186).
+  if (!p.crouched && p.mode === 'ground' && wanted > 1e-6) {
+    const ax = moved.x + (stepX / wanted) * MECH_RADIUS * 0.8
+    const az = moved.z + (stepZ / wanted) * MECH_RADIUS * 0.8
+    if (headroom(g, ax, az, p.y) < MECH_HEAD && headroom(g, p.x, p.z, p.y) >= MECH_HEAD) moved = { ...moved, x: p.x, z: p.z }
+  }
   const went = Math.hypot(moved.x - p.x, moved.z - p.z)
   p.x = moved.x
   p.z = moved.z

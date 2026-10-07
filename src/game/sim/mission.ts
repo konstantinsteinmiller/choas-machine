@@ -67,7 +67,7 @@ import {
 import { AirshipView } from './airshipView'
 import { AIRSHIP_HALF } from '../models/airship'
 import { TrainingDirector } from './trainingDirector'
-import { DEMO_GAP_S, DOOR_LINES, atShutDoor, demoLength, entryOf, inPit, lessonStuck, roomAt, victimFrame } from './training'
+import { DEMO_GAP_S, DOOR_LINES, atShutDoor, demoLength, entryOf, inPit, lessonStuck, nearDoorWall, roomAt, victimFrame } from './training'
 import { TRAINING_ID, TRAINING_ROOMS, trainingArmor, type LessonId } from '../data/fortresses/training'
 import { COVER_H } from '../world/fortress'
 import { BASE_LOADOUT, type Loadout } from '../data/upgrades'
@@ -244,6 +244,8 @@ const LESSON_OUT_S = 0.7
 const PIT_CAM_UP = 6.5
 const PIT_CAM_BACK = 2.2
 const PIT_CAM_RATE = 2.5
+/** Seconds near a shut door's wall before its control is put in the player's face (#186 follow-up). */
+const NEAR_DOOR_ARM_S = 3
 /** How long a shouted line stays over a defender's head. */
 const CALLOUT_S = 2.4
 /** How slow the world runs while a kill-cam holds on its kill. */
@@ -3345,14 +3347,18 @@ export class Mission implements GameMode {
       }
       // Up against the shut door (#171): what it wants, in a few words, now and then.
       const say = DOOR_LINES[TRAINING_ROOMS[cur]!.lesson]
-      if (say && atShutDoor(tr.state, cur, ctx) && this.time - this.doorSaidT > DOOR_SAY_S) {
+      // Near the door wall anywhere along it for a few seconds counts as at the
+      // door (#186 follow-up: players press against the wall beside the doorway).
+      this.nearDoorT = nearDoorWall(tr.state, cur, ctx) ? this.nearDoorT + dt : 0
+      const atDoor = atShutDoor(tr.state, cur, ctx) || this.nearDoorT >= NEAR_DOOR_ARM_S
+      if (say && atDoor && this.time - this.doorSaidT > DOOR_SAY_S) {
         this.doorSaidT = this.time
         this.trainingShout(say.line as TrainingShout, say.hint)
       }
-      // The nudge (#186): once the shut door has been walked into, its control
+      // The nudge (#186): once the shut door has been reached, its control
       // is pointed at until the room's lesson is done; in the weapons room the
       // weapon switch from the start, until the player has switched once.
-      if (say?.hint && atShutDoor(tr.state, cur, ctx)) this.nudgeArmed = true
+      if (say?.hint && atDoor) this.nudgeArmed = true
       if (this.arsenal.current !== this.weaponAtEnter) this.switchedHere = true
       const lesson = TRAINING_ROOMS[cur]!.lesson
       // The rocket room on touch (#187: a tablet player on Poki never found the
@@ -3372,6 +3378,7 @@ export class Mission implements GameMode {
       if (e.type === 'enter') {
         // A new room: no nudge until its own door is walked into (#186).
         this.nudgeArmed = false
+        this.nearDoorT = 0
         this.weaponAtEnter = this.arsenal.current
         this.switchedHere = false
         hud.training.nudge = ''
@@ -3510,6 +3517,8 @@ export class Mission implements GameMode {
   private doorSaidT = -Infinity
   /** The room's shut door has been walked into with its lesson undone: its control is nudged (#186). */
   private nudgeArmed = false
+  /** Seconds the mech has stood near the door wall (#186 follow-up). */
+  private nearDoorT = 0
   /** The weapon in hand on entering the room, and whether it has been switched since (the weapons room's nudge). */
   private weaponAtEnter: WeaponId = 'sniper'
   private switchedHere = false

@@ -226,14 +226,14 @@ describe('the lessons', () => {
 describe('the demos', () => {
   const f = buildTrainingGround()
 
-  it('every demo stays inside its own room (or goes over the hook wall) and shows at least one control', () => {
+  it('every demo stays inside its own room (or goes over the hook wall, or crawls under the gate of the cover room, #186) and shows at least one control', () => {
     TRAINING_ROOMS.forEach((r, i) => {
       const len = demoLength(r.lesson)
       let hinted = false
       for (let t = 0; t <= len; t += 0.1) {
         const fr = demoFrame(i, t)
         const room = roomAt(fr.x)
-        expect(room === i || (r.lesson === 'hook' && room === i + 1), `${r.lesson} at ${t.toFixed(1)}`).toBe(true)
+        expect(room === i || ((r.lesson === 'hook' || r.lesson === 'cover') && room === i + 1), `${r.lesson} at ${t.toFixed(1)}`).toBe(true)
         expect(heightAt(f.grid, fr.x, fr.z)).not.toBeLessThan(0)
         if (fr.hint) hinted = true
       }

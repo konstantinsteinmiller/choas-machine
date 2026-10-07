@@ -5,7 +5,7 @@ import {
 import { demoPop } from '../state/hud'
 import { CELL, CellKind, cellMid, heightAt, VOID, type Grid } from '../world/grid'
 import type { Fortress } from '../world/fortress'
-import { ROCKET_LEDGE_H, ROCKET_TARGET, ROOM_WALL_H, ROPE_DECK_H, ROPE_TOWER_H, TRAINING_ROOMS } from '../data/fortresses/training'
+import { CRAWL_GAP_H, ROCKET_LEDGE_H, ROCKET_TARGET, ROOM_WALL_H, ROPE_DECK_H, ROPE_TOWER_H, TRAINING_ROOMS } from '../data/fortresses/training'
 import { VARIANTS } from './backstab'
 import { poseBackstabGuard, poseBackstabMech } from './backstabStage'
 import { muzzleWorld, buildMech, poseMech, restPose, type MechPose } from '../models/mech'
@@ -96,6 +96,7 @@ export class TrainingDirector {
   private gateMat = new MeshBasicMaterial({ color: GATE_COLOR, transparent: true, opacity: 0.32, blending: AdditiveBlending, depthWrite: false, side: DoubleSide, toneMapped: false })
   private barMat = new MeshBasicMaterial({ color: GATE_COLOR, transparent: true, opacity: 0.85, blending: AdditiveBlending, depthWrite: false, toneMapped: false })
   private gateGeo: BoxGeometry
+  private crawlGateGeo: BoxGeometry
   private barGeo: BoxGeometry
   private lastX = 0
   private lastZ = 0
@@ -194,20 +195,40 @@ export class TrainingDirector {
     this.gateGeo = new BoxGeometry(0.12, 4.2, span)
     this.gateGeo.translate(0, 2.1, 0)
     this.barGeo = new BoxGeometry(0.2, 0.1, span)
+    // The cover room's gate stops short of the floor: a crawl gap (#186).
+    this.crawlGateGeo = new BoxGeometry(0.12, 4.2 - CRAWL_GAP_H, span)
+    this.crawlGateGeo.translate(0, CRAWL_GAP_H + (4.2 - CRAWL_GAP_H) / 2, 0)
     for (const r of TRAINING_ROOMS) {
       if (!r.door) { this.gates.push(null); continue }
-      const g = new Mesh(this.gateGeo, this.gateMat)
+      const crawl = r.lesson === 'cover'
+      const g = new Mesh(crawl ? this.crawlGateGeo : this.gateGeo, this.gateMat)
       g.position.set(cellMid(r.door.cx), 0, (cellMid(r.door.cz0) + cellMid(r.door.cz1)) / 2)
-      for (const y of [0.6, 1.5, 2.4, 3.3]) {
+      for (const y of crawl ? [CRAWL_GAP_H, 2.4, 3.3] : [0.6, 1.5, 2.4, 3.3]) {
         const bar = new Mesh(this.barGeo, this.barMat)
         bar.position.y = y
         g.add(bar)
       }
       this.group.add(g)
       this.gates.push(g)
-      this.setDoor(r.door, true)
+      if (crawl) this.setCrawl(r.door)
+      else this.setDoor(r.door, true)
     }
     scene.add(this.group)
+  }
+
+  /**
+   * A doorway with a crawl gap (#186): open floor under a ceiling a crouched
+   * mech fits beneath and a standing one does not. It stays: the room's
+   * lesson done or not, the way through is on hands and knees.
+   */
+  private setCrawl(d: { cx: number; cz0: number; cz1: number }): void {
+    const g: Grid = this.fortress.grid
+    for (let cz = d.cz0; cz <= d.cz1; cz++) {
+      const i = cz * g.w + d.cx
+      g.h[i] = 0
+      g.kind[i] = CellKind.Ground
+      g.roof[i] = CRAWL_GAP_H
+    }
   }
 
   /** A doorway shut (a column of wall) or open (ground again). */
@@ -227,7 +248,8 @@ export class TrainingDirector {
       if (e.type !== 'done') continue
       const r = TRAINING_ROOMS[e.room]!
       const g = this.gates[e.room]
-      if (r.door && g) { this.setDoor(r.door, false); g.visible = false }
+      // The crawl gate stays as it is: its gap is the way through.
+      if (r.door && g && r.lesson !== 'cover') { this.setDoor(r.door, false); g.visible = false }
     }
     return ev
   }
@@ -238,7 +260,7 @@ export class TrainingDirector {
       if (k >= i || this.state.done[k]) return
       this.state.done[k] = true
       const g = this.gates[k]
-      if (r.door && g) { this.setDoor(r.door, false); g.visible = false }
+      if (r.door && g && r.lesson !== 'cover') { this.setDoor(r.door, false); g.visible = false }
     })
     this.state.room = Math.min(this.state.room, i - 1)
   }
@@ -574,6 +596,7 @@ export class TrainingDirector {
     this.gateMat.dispose()
     this.barMat.dispose()
     this.gateGeo.dispose()
+    this.crawlGateGeo.dispose()
     this.barGeo.dispose()
   }
 }

@@ -62,6 +62,12 @@ export const JUMP_PIT_COL = 5
  * at 1.73 m; at the old 1.8 m every round met the crate).
  */
 export const COVER_ROOM_H = 1.5
+/**
+ * The cover room's door (#186): a gap under its glass gate only a crouched
+ * mech passes (a standing one, 2 m, bumps its head); the hologram crawls
+ * through it.
+ */
+export const CRAWL_GAP_H = 1.6
 /** The rope room's tower, and the platform a rope from it reaches (#94). */
 export const ROPE_TOWER_H = 4
 export const ROPE_DECK_H = 2
