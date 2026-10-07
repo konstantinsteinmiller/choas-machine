@@ -76,6 +76,8 @@ const BARRELS: ReadonlyArray<readonly [number, number]> = [[44, 40], [38, 12], [
 const SHED_H = 4
 /** A breach in the curtain (#88): rubble a mech pulls itself up onto. */
 const BREACH_H = 1.6
+/** The third drone (#176), between the west lane and the inner ward, in today's cells (after the island grew). */
+const WEST_DRONE: ReadonlyArray<readonly [number, number]> = [[18, 16], [24, 16], [24, 40], [18, 40]]
 /** Always live: the teaching pile and the big one on the keep. */
 const ALWAYS = [0, 8]
 
@@ -189,6 +191,8 @@ export const buildBastion = (level = 1, run = 0, answers: Answers = NO_ANSWERS):
   // The Warden on the keep's roof, inside the cover ring.
   b.commander([[27, 21, 4], [32, 21, 4], [32, 22, 4], [27, 22, 4]], Math.PI, { shield: level >= 4 })
   b.drone([[22, 41], [48, 41], [48, 52], [22, 52]], 8)
+  // A second over the inner ward from the first raid on (#176).
+  b.drone([[20, 16], [41, 16], [41, 35], [20, 35]], 11)
   // A searchlight on the south-east tower, sweeping the south yard.
   b.searchlight(52, 54, [[44, 50, 1.5], [38, 52, 1], [44, 44, 1.5], [33, 50, 1]])
 
@@ -197,17 +201,14 @@ export const buildBastion = (level = 1, run = 0, answers: Answers = NO_ANSWERS):
     // ward, the machines, the keep's own light, and the Engineer.
     b.sentry(52, 9, Math.PI * 0.75).sentry(7, 9, Math.PI * 0.25)
     b.guard(pick([[9, 12, 3], [9, 36, 2], [13, 38]], [[13, 12, 2], [13, 35, 3], [9, 30]]))
-    b.drone([[20, 16], [41, 16], [41, 35], [20, 35]], 11)
     b.enforcer(30, 29, Math.PI, level === 2).enforcer(40, 18, Math.PI * 0.5)
     b.searchlight(29, 25, [[29, 31, 1.2], [22, 30, 1.2], [36, 33, 1.5], [38, 29, 1.2]])
     b.engineer([[31, 45, 3], [46, 45], [46, 34, 2]])
   }
   if (level >= 3) {
-    // The Goliath in the tank park, its back to the north wall; another
-    // light; the Scrap Hound.
+    // The Goliath in the tank park, its back to the north wall; another light.
     b.goliath(29, 11, Math.PI)
     b.searchlight(6, 8, [[12, 14, 1.5], [16, 22, 1], [12, 30, 1.5], [10, 18, 1]])
-    b.hound(pick([[44, 50, 2], [47, 36], [47, 20, 2], [47, 44]], [[10, 38, 2], [10, 14], [16, 12, 2], [16, 30]]))
   }
   if (level >= 4) {
     b.guard([[46, 16, 2], [50, 16], [50, 40, 2], [46, 40]])
@@ -303,9 +304,14 @@ export const buildBastion = (level = 1, run = 0, answers: Answers = NO_ANSWERS):
   // A shield at the main gate from the first raid on: rounds from in front
   // stop on it, so the inner ward cannot be cleared from the perch alone.
   b.shieldGuard(route([[29, 35, 3], [30, 35, 3]]), 0)
+  // From the first raid on (#176): a Peashooter under the arcade, the Scrap
+  // Hound down the east lane (its nose on whoever came over the battery), and
+  // a third drone between the west lane and the inner ward.
+  b.roomba(route([[21, 35, 2], [40, 35, 2]]), Math.PI / 2)
+  b.hound(route([[44, 50, 2], [47, 36], [47, 20, 2], [47, 44]]))
+  b.drone(WEST_DRONE, 9)
   if (level >= 2) {
-    // A Peashooter under the arcade; a grenadier down the east lane.
-    b.roomba(route([[21, 35, 2], [40, 35, 2]]), Math.PI / 2)
+    // A grenadier down the east lane.
     b.grenadier(route([[50, 22, 3], [50, 34, 3]]))
   }
   if (level >= 3) {

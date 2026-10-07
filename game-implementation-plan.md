@@ -1039,7 +1039,12 @@ drone AI before the new roster and the intro).
   by a clearance search. The no-fly-through test now covers every threat
   level: the Harbour II/III drone flew through 10 m stacks at 9 m (now 11.5).
   `droneHunt.test.ts`.
-- [ ] **R75.5 The first fortress's roster** (#176)
+- [x] **R75.5 The first fortress's roster** (#176): the Bastion at threat I
+  has a Peashooter under the arcade, the Scrap Hound down the east lane and
+  three drones (the yard's, the inner ward's from the old threat II block,
+  and one between the west lane and the inner ward, clear of the teaching
+  corner). Moved, not doubled: the builder's threat IV/V keep one hound and
+  one Peashooter. `bastion4.test.ts` pins the roster.
 - [ ] **R75.6 The intro's finale** (#179)
 
 Pre-existing failure: `tests/tools/pokiDeploy.test.ts` expects an empty Poki
