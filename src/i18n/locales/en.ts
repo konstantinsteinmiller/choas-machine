@@ -65,7 +65,8 @@ export default {
     'metres': '{n} m',
     'objective': {
       'salvage': 'Salvage',
-      'extract': 'Reach the extraction pad'
+      'extract': 'Reach the extraction pad',
+      'target': 'Target'
     },
     'haul': 'Salvage {n} of {need}',
     'hide': 'Hide in the box',

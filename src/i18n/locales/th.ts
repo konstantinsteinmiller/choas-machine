@@ -61,7 +61,8 @@ export default {
     'metres': '{n} ม.',
     'objective': {
       'salvage': 'เศษเหล็ก',
-      'extract': 'ไปที่จุดอพยพ'
+      'extract': 'ไปที่จุดอพยพ',
+      'target': 'เป้าหมาย'
     },
     'haul': 'เศษเหล็ก {n} จาก {need}',
     'hide': 'ซ่อนในกล่อง',

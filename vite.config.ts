@@ -830,6 +830,12 @@ export default defineConfig(({ mode, command }) => {
         // 30-tap interstitial is not dev tooling and ships everywhere.)
         // `VITE_QA_TOOLS=true` builds a QA twin that keeps them; the release
         // gates refuse that artifact.
+        // The debug UI bake (HUD drawn into the canvas for canvas-only
+        // recorders such as Poki's playtests): its code ships ONLY with
+        // `VITE_APP_RENDER_UI_BAKE=true`; otherwise the module is a no-op stub.
+        ...(env.VITE_APP_RENDER_UI_BAKE === 'true' ? {} : {
+          '@/game/debug/uiBake': fileURLToPath(new URL('./src/game/debug/uiBake.stub.ts', import.meta.url))
+        }),
         ...Object.fromEntries(Object.entries(devToolAliases(platformPolicy))
           .map(([id, stub]) => [id, fileURLToPath(new URL(`./${stub}`, import.meta.url))])),
         '@': fileURLToPath(new URL('./src', import.meta.url)),

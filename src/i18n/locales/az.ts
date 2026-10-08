@@ -61,7 +61,8 @@ export default {
     'metres': '{n} m',
     'objective': {
       'salvage': 'Hurda',
-      'extract': 'Təxliyə meydançasına çat'
+      'extract': 'Təxliyə meydançasına çat',
+      'target': 'Hədəf'
     },
     'haul': 'Hurda {n} / {need}',
     'hide': 'Qutuda gizlən',

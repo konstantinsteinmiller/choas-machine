@@ -61,7 +61,8 @@ export default {
     'metres': '{n} m',
     'objective': {
       'salvage': 'Bjærgning',
-      'extract': 'Nå evakueringsplatformen'
+      'extract': 'Nå evakueringsplatformen',
+      'target': 'Mål'
     },
     'haul': 'Skrot {n} af {need}',
     'hide': 'Gem dig i kassen',

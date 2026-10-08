@@ -82,6 +82,8 @@ export interface Post {
   dummy?: boolean
   /** Its hit points, in place of its kind's (a training target's). */
   hp?: number
+  /** Its kind's hit points scaled by this (the Sea Fort's softer mechs). */
+  hpScale?: number
   /** A searchlight that is a Watchtower lamp (#144): it cannot be destroyed, sweeps slowly, and rings the alarm the moment it finds the mech. */
   watch?: boolean
   /** A searchlight behind armoured glass in a cage (#163): rounds glance off it, nothing breaks it. */
@@ -701,12 +703,14 @@ export class FortressBuilder {
   }
 
   /**
-   * The rocket lesson's target (#146): an armoured Enforcer that only a blast
-   * hurts, powered down for good, with `hp` hit points.
+   * The rocket lesson's target (#146): an Enforcer powered down for good,
+   * with `hp` hit points. Not armoured: whatever takes it down counts (a
+   * playtester who hooked up beside it and shot it point-blank raged at a
+   * mech the rounds glanced off); the launcher is only the quickest way.
    */
   rocketTarget(cx: number, cz: number, facing: number, hp: number): this {
     this.post('enforcer', [[cx, cz]], facing)
-    Object.assign(this.posts[this.posts.length - 1]!, { armoured: true, dummy: true, hp })
+    Object.assign(this.posts[this.posts.length - 1]!, { dummy: true, hp })
     return this
   }
 

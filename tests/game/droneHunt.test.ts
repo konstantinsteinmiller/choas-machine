@@ -144,7 +144,8 @@ describe('more drones in every fortress (#181)', () => {
     const { buildSpire } = await import('@/game/data/fortresses/spire')
     const drones = (f: { posts: ReadonlyArray<{ kind: string }> }): number => f.posts.filter(p => p.kind === 'drone').length
     // Before #181: Bastion II 1, III 2; Foundry 0/1/2; Harbour 0/1/1; Spire 0/1/1.
-    expect([2, 3].map(l => drones(buildBastion(l)))).toEqual([2, 3])
+    // The Sea Fort (Bastion II) gave its second back: a playtester on a tablet gave up there.
+    expect([2, 3].map(l => drones(buildBastion(l)))).toEqual([1, 3])
     expect([1, 2, 3].map(l => drones(buildFoundry(l)))).toEqual([1, 2, 3])
     expect([1, 2, 3].map(l => drones(buildHarbour(l)))).toEqual([1, 2, 2])
     expect([1, 2, 3].map(l => drones(buildSpire(l)))).toEqual([1, 2, 2])

@@ -69,6 +69,33 @@ describe('the marker points at what the room asks for', () => {
     expect(Math.hypot(d.waypoint()!.x - door.x, d.waypoint()!.z - door.z)).toBeLessThan(0.5)
   })
 
+  it('the weapons room marks its three, the rocket room its mech, the blade room its two; each until it is down', async () => {
+    const { killUnit } = await import('@/game/sim/garrison')
+    const { LESSON_IDS } = await import('@/game/data/fortresses/training')
+    const { roomAt } = await import('@/game/sim/training')
+    const f = buildTrainingGround()
+    const gar = makeGarrison(f, 1)
+    const d = new TrainingDirector(new Scene(), f, gar) as unknown as TrainingDirector & { state: { room: number; done: boolean[] } }
+    for (const [lesson, n] of [['weapons', 3], ['rocket', 1], ['blade', 2]] as const) {
+      const i = LESSON_IDS.indexOf(lesson)
+      d.state.room = i
+      const marks = d.targetMarks()
+      expect(marks, lesson).toHaveLength(n)
+      const units = gar.units.filter(u => roomAt(u.homeX) === i)
+      // Over each one's head.
+      for (const u of units) expect(marks.some(m => Math.hypot(m.x - u.x, m.z - u.z) < 0.1 && m.y > u.y + 1.5), lesson).toBe(true)
+      killUnit(gar, units[0]!.id, units[0]!.x, units[0]!.z - 1, 'blade')
+      expect(d.targetMarks(), lesson).toHaveLength(n - 1)
+      d.state.done[i] = true
+      expect(d.targetMarks(), lesson).toHaveLength(0)
+    }
+    // Not the decoy room's guard (it is to be lured), nor a room without guards.
+    d.state.room = LESSON_IDS.indexOf('decoy')
+    expect(d.targetMarks()).toHaveLength(0)
+    d.state.room = LESSON_IDS.indexOf('move')
+    expect(d.targetMarks()).toHaveLength(0)
+  })
+
   it('the decoy room: no marker while its guard is still to take', async () => {
     const { LESSON_IDS } = await import('@/game/data/fortresses/training')
     const d = make() as unknown as TrainingDirector & { state: { room: number } }

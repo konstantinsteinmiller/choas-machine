@@ -10,19 +10,20 @@ import { HINT_IDS } from '@/game/sim/coach'
 const BUTTONS = Object.keys(BUTTON_LOOK) as TouchButton[]
 
 describe('the buttons\' looks (#160)', () => {
-  it('no two buttons share both a shape and a colour', () => {
-    // The weapon chip takes the colour of the weapon in hand: every one of them counts.
-    const looks = BUTTONS.filter(b => b !== 'weapon').map(b => `${BUTTON_LOOK[b].shape}/${BUTTON_LOOK[b].tone}`)
-    for (const t of Object.values(WEAPON_TONES)) looks.push(`${BUTTON_LOOK.weapon.shape}/${t}`)
-    // Fire and the sniper share the plate: fire is pink, the sniper cyan.
-    expect(new Set(looks).size).toBe(looks.length)
+  it('no two buttons share a picture: each says what it does by itself', () => {
+    // The fire button draws the weapon in hand, the weapon chip too: they are one family.
+    const icons = BUTTONS.filter(b => b !== 'weapon' && b !== 'fire').map(b => BUTTON_LOOK[b].icon)
+    expect(new Set(icons).size).toBe(icons.length)
   })
 
-  it('a shape is a family: the hands round, the gadgets diamond, the body hex, the weapons plate', () => {
+  it('the thumb cluster is round keys with a picture of the mech doing the thing', () => {
+    // A playtester could not tell coloured hexes and diamonds with chevrons apart.
+    for (const b of ['jump', 'crouch', 'sprint', 'decoy', 'hide'] as const) {
+      expect(BUTTON_LOOK[b].shape, b).toBe('round')
+      expect(BUTTON_LOOK[b].icon.startsWith('act-'), b).toBe(true)
+    }
     const fam = (bs: TouchButton[]): string[] => [...new Set(bs.map(b => BUTTON_LOOK[b].shape))]
     expect(fam(['strike', 'loot', 'burn', 'sabotage', 'drag'])).toEqual(['round'])
-    expect(fam(['grapple', 'rope', 'decoy', 'hide'])).toEqual(['diamond'])
-    expect(fam(['jump', 'crouch', 'sprint'])).toEqual(['hex'])
     expect(fam(['fire', 'weapon', 'zoom', 'cancel'])).toEqual(['plate'])
   })
 

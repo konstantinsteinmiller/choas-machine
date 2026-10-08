@@ -61,7 +61,8 @@ export default {
     'metres': '{n}m',
     'objective': {
       'salvage': '고철',
-      'extract': '탈출 지점에 도달하라'
+      'extract': '탈출 지점에 도달하라',
+      'target': '목표'
     },
     'haul': '고철 {n}/{need}',
     'hide': '상자에 숨기',

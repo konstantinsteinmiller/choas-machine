@@ -61,7 +61,8 @@ export default {
     'metres': '{n} m',
     'objective': {
       'salvage': 'スクラップ',
-      'extract': '脱出パッドへ向かえ'
+      'extract': '脱出パッドへ向かえ',
+      'target': '標的'
     },
     'haul': 'スクラップ {n}/{need}',
     'hide': '箱に隠れる',

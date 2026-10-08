@@ -61,7 +61,8 @@ export default {
     'metres': '{n} m',
     'objective': {
       'salvage': 'Rubaĵo',
-      'extract': 'Atingu la evakuan platformon'
+      'extract': 'Atingu la evakuan platformon',
+      'target': 'Celo'
     },
     'haul': 'Rubaĵo {n} el {need}',
     'hide': 'Kaŝiĝi en la kesto',

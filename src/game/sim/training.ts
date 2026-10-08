@@ -235,6 +235,13 @@ export interface TrainingContext {
   crouches?: number
   /** Times the mech's room has been started over (#171: the decoy room's first try wants the blade). */
   tries?: number
+  /**
+   * A rope has an end in the mech's room, wherever it was shot from: the rope
+   * room's lesson is any rope at all (a playtester's rope from the top of the
+   * wall it is entered over, down into the room, did not count: that wall top
+   * is the hook room's, the shot was before the room was entered).
+   */
+  roped?: boolean
 }
 
 export interface Training {
@@ -295,11 +302,11 @@ export const lessonDone = (i: number, c: TrainingContext, b: TrainingContext): b
     case 'decoy': return !!c.cleared && (c.bladeKills > b.bladeKills || (c.tries ?? 0) > 0)
     case 'supply': return c.supplies > b.supplies || (atDoor() && c.stocked)
     case 'burn': return c.burns > b.burns
-    case 'rope': return c.ropes > b.ropes
+    case 'rope': return c.ropes > b.ropes || !!c.roped
     // All three down (#168), whichever way: the hologram shows the drill (a
     // rifle kill, the mini-gun on the other two). The launcher has its own room (#146).
     case 'weapons': return !!c.cleared
-    // The armoured mech on the ledge is down (#146): only a rocket did that.
+    // The mech on the ledge is down (#146), however that was done.
     case 'rocket': return !!c.cleared
     // From behind, and close in from the side: two.
     case 'blade': return c.bladeKills - b.bladeKills >= 2
@@ -321,7 +328,7 @@ export const lessonStuck = (i: number, c: TrainingContext, b: TrainingContext, s
   switch (TRAINING_ROOMS[i]!.lesson) {
     case 'blade': return c.bladeKills - b.bladeKills + s.alive < 2
     case 'burn': return c.burns <= b.burns && (s.bodies === 0 || s.fuel <= 0)
-    case 'rope': return c.ropes <= b.ropes && s.ropes <= 0
+    case 'rope': return c.ropes <= b.ropes && !c.roped && s.ropes <= 0
     // The decoy room's guard shot on the first try (#171): it stands again, and the try starts over.
     case 'decoy': return !!c.cleared && c.bladeKills <= b.bladeKills && (c.tries ?? 0) === 0
     default: return false
@@ -351,7 +358,8 @@ export const rewindRoom = (gar: Garrison, room: number): void => {
     u.z = u.pz = u.homeZ
     u.yaw = u.pyaw = u.homeYaw
     u.look = 0
-    u.state = 'patrol'
+    // A training dummy (the rocket room's mech, a decoy guard given up on) never wakes.
+    u.state = u.dummy ? 'dormant' : 'patrol'
     u.t = 0
     u.detect = 0
     u.sees = false

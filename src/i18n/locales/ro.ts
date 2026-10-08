@@ -61,7 +61,8 @@ export default {
     'metres': '{n} m',
     'objective': {
       'salvage': 'Fier vechi',
-      'extract': 'Ajunge la zona de extracție'
+      'extract': 'Ajunge la zona de extracție',
+      'target': 'Țintă'
     },
     'haul': 'Fier vechi {n} din {need}',
     'hide': 'Ascunde-te în cutie',

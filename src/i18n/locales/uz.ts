@@ -61,7 +61,8 @@ export default {
     'metres': '{n} m',
     'objective': {
       'salvage': 'Temir-tersak',
-      'extract': 'Evakuatsiya maydoniga yeting'
+      'extract': 'Evakuatsiya maydoniga yeting',
+      'target': 'Nishon'
     },
     'haul': 'Temir-tersak {n} / {need}',
     'hide': 'Qutiga yashirinish',

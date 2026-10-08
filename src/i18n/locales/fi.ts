@@ -61,7 +61,8 @@ export default {
     'metres': '{n} m',
     'objective': {
       'salvage': 'Romu',
-      'extract': 'Pääse noutoalustalle'
+      'extract': 'Pääse noutoalustalle',
+      'target': 'Kohde'
     },
     'haul': 'Romua {n}/{need}',
     'hide': 'Piiloudu laatikkoon',

@@ -80,7 +80,7 @@ const keyText = computed(() => {
 <template lang="pug">
   button.f-hud-button(
     type="button"
-    :class="[`tone-${tone}`, `shape-${shape}`, { 'is-active': active, 'is-attention': attention, 'is-disabled': isDisabled }]"
+    :class="[`tone-${tone}`, `shape-${shape}`, { 'is-active': active, 'is-attention': attention, 'is-disabled': isDisabled, 'is-pictogram': icon?.startsWith('act-') }]"
     :aria-label="resolvedAriaLabel"
     :aria-pressed="pressed"
     :disabled="isDisabled"
@@ -177,6 +177,10 @@ const keyText = computed(() => {
 .shape-round .f-hud-button__glyph, .shape-hex .f-hud-button__glyph
   width: 50%
   height: 50%
+// The action pictograms (the mech doing the thing) are scenes: they need the room.
+.is-pictogram .f-hud-button__glyph
+  width: 70%
+  height: 70%
 
 // Switched on: the chip fills with its tone and the glyph goes dark on it.
 .is-active .f-hud-button__body

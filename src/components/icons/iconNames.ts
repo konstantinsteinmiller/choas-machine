@@ -36,7 +36,9 @@ export const GAME_ICON_NAMES = [
   // A rewarded video is always marked with this (CrazyGames' rule, #75)
   'video',
   // The rope gun's line (#94)
-  'rope'
+  'rope',
+  // The touch action pictograms: the mech doing the thing (`actionGlyphs.ts`)
+  'act-jump', 'act-crouch', 'act-stand', 'act-sprint', 'act-hide', 'act-decoy', 'act-swap'
 ] as const
 
 export type GameIconName = (typeof GAME_ICON_NAMES)[number]

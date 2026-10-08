@@ -1,13 +1,14 @@
 <template lang="pug">
   //- Where to go: a marker over the mission's objective (the nearest pile of
   //- salvage, then the extraction pad). On screen it sits on the thing itself; off screen
-  //- it slides to the edge and points.
-  div.objective(ref="el" :class="[hud.objective, { teach }]" role="img" :aria-label="label")
+  //- it slides to the edge and points. In the training a `target` marks a
+  //- guard the lesson is about.
+  div.objective(ref="el" :class="[target ? 'target' : hud.objective, { teach }]" role="img" :aria-label="label")
     //- The lesson: rings go out from it until the first pile is reached.
     div.beacon(v-if="teach")
       span(v-for="i in 2" :key="i" :style="{ '--i': i }")
     div.pin
-      GameIcon(:name="hud.objective === 'extract' ? 'up' : 'scrap'")
+      GameIcon(:name="target ? 'skull' : hud.objective === 'extract' ? 'up' : 'scrap'")
     div.arrow(ref="arrow")
     div.dist(ref="dist")
 </template>
@@ -16,7 +17,7 @@
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import GameIcon from '@/components/icons/GameIcon.vue'
-import { addHudTicker, hud, waypoint } from '@/game/state/hud'
+import { addHudTicker, hud, waypoint as primary, type Waypoint } from '@/game/state/hud'
 import { MARKER_LEGACY } from '@/use/perfVariants'
 
 /**
@@ -24,18 +25,20 @@ import { MARKER_LEGACY } from '@/use/perfVariants'
  * camera does. Only the distance text goes through a string, and only when
  * its whole-metre value changes.
  */
+const props = defineProps<{ mark?: Waypoint; target?: boolean }>()
 const { t } = useI18n()
 const el = ref<HTMLElement | null>(null)
 const arrow = ref<HTMLElement | null>(null)
 const dist = ref<HTMLElement | null>(null)
 /** The "go there" lesson is up: the marker calls attention to itself. */
-const teach = computed(() => hud.hints.some(h => h.id === 'goal'))
-const label = computed(() => t(hud.objective === 'extract' ? 'hud.objective.extract' : 'hud.objective.salvage'))
+const teach = computed(() => !props.target && hud.hints.some(h => h.id === 'goal'))
+const label = computed(() => t(props.target ? 'hud.objective.target' : hud.objective === 'extract' ? 'hud.objective.extract' : 'hud.objective.salvage'))
 let off: (() => void) | null = null
 let sizer: ResizeObserver | null = null
 let unlisten: (() => void) | null = null
 
 onMounted(() => {
+  const waypoint = props.mark ?? primary
   let shown = false
   let lastM = -1
   let edged = false
@@ -118,6 +121,8 @@ onUnmounted(() => {
   color: var(--cm-pink)
   &.extract
     color: var(--cm-ok)
+  &.target
+    color: var(--cm-danger)
 .beacon
   position: absolute
   inset: 0

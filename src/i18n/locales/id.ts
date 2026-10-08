@@ -61,7 +61,8 @@ export default {
     'metres': '{n} m',
     'objective': {
       'salvage': 'Rongsokan',
-      'extract': 'Capai landasan ekstraksi'
+      'extract': 'Capai landasan ekstraksi',
+      'target': 'Target'
     },
     'haul': 'Rongsokan {n} dari {need}',
     'hide': 'Sembunyi di dalam kotak',

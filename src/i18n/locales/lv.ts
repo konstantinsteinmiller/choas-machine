@@ -61,7 +61,8 @@ export default {
     'metres': '{n} m',
     'objective': {
       'salvage': 'Metāllūžņi',
-      'extract': 'Sasniedz evakuācijas laukumu'
+      'extract': 'Sasniedz evakuācijas laukumu',
+      'target': 'Mērķis'
     },
     'haul': 'Lūžņi {n} no {need}',
     'hide': 'Paslēpties kastē',

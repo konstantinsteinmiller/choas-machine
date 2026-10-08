@@ -61,7 +61,8 @@ export default {
     'metres': '{n} m',
     'objective': {
       'salvage': 'Sucata',
-      'extract': 'Chegue à área de extração'
+      'extract': 'Chegue à área de extração',
+      'target': 'Alvo'
     },
     'haul': 'Sucata {n} de {need}',
     'hide': 'Esconder-se na caixa',

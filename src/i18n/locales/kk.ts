@@ -61,7 +61,8 @@ export default {
     'metres': '{n} м',
     'objective': {
       'salvage': 'Сынық',
-      'extract': 'Эвакуация алаңына жетіңіз'
+      'extract': 'Эвакуация алаңына жетіңіз',
+      'target': 'Нысана'
     },
     'haul': 'Сынық {n} / {need}',
     'hide': 'Жәшікке жасырыну',

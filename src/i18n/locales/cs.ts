@@ -61,7 +61,8 @@ export default {
     'metres': '{n} m',
     'objective': {
       'salvage': 'Šrot',
-      'extract': 'Dojdi na evakuační plošinu'
+      'extract': 'Dojdi na evakuační plošinu',
+      'target': 'Cíl'
     },
     'haul': 'Šrot {n} z {need}',
     'hide': 'Schovat se v bedně',

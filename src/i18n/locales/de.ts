@@ -61,7 +61,8 @@ export default {
     'metres': '{n} m',
     'objective': {
       'salvage': 'Bergung',
-      'extract': 'Erreiche die Extraktionsplattform'
+      'extract': 'Erreiche die Extraktionsplattform',
+      'target': 'Ziel'
     },
     'haul': 'Bergegut {n} von {need}',
     'hide': 'In der Kiste verstecken',

@@ -61,7 +61,8 @@ export default {
     'metres': '{n} m',
     'objective': {
       'salvage': 'Chatarra',
-      'extract': 'Chega á plataforma de extracción'
+      'extract': 'Chega á plataforma de extracción',
+      'target': 'Obxectivo'
     },
     'haul': 'Chatarra {n} de {need}',
     'hide': 'Agocharse na caixa',

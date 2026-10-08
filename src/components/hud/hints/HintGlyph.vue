@@ -14,11 +14,16 @@
     KeyCap(v-else :action="HINT_KEYS[hint] ?? 'act'")
   span.hint-glyph(v-else)
     TouchButtonGlyph(v-if="HINT_BUTTON[hint]" :look="lookOf(HINT_BUTTON[hint] ?? 'strike', weapon, hint)")
+    //- Looking round on touch: the look stick itself, small (its knob, its eye).
+    span.stick-glyph(v-else-if="hint === 'look'")
+      span.stick-knob
+        GameIcon.stick-eye(name="eye")
     FingerGlyph.finger(v-else :mode="HINT_GESTURE[hint] ?? 'tap'")
 </template>
 
 <script setup lang="ts">
 import KeyCap from '@/components/hud/hints/KeyCap.vue'
+import GameIcon from '@/components/icons/GameIcon.vue'
 import MouseGlyph from '@/components/hud/hints/MouseGlyph.vue'
 import FingerGlyph from '@/components/hud/hints/FingerGlyph.vue'
 import TouchButtonGlyph from '@/components/hud/hints/TouchButtonGlyph.vue'
@@ -42,4 +47,36 @@ defineProps<{ hint: HintId; device: 'mouse' | 'touch'; weapon: WeaponId }>()
 .mouse
   width: 1.3rem
   height: 1.8rem
+// The look stick's picture (`LookStick.vue`): ring, knob, eye.
+.stick-glyph
+  --size: 2.8rem
+  position: relative
+  display: inline-grid
+  place-items: center
+  width: var(--size)
+  height: var(--size)
+  box-sizing: border-box
+  border-radius: 50%
+  border: 0.14rem solid rgba(77, 232, 255, 0.85)
+  background: radial-gradient(circle, rgba(77, 232, 255, 0.08), rgba(77, 232, 255, 0.28) 70%)
+.stick-knob
+  display: grid
+  place-items: center
+  width: 46%
+  height: 46%
+  border-radius: 50%
+  background: radial-gradient(circle at 38% 32%, var(--cm-cyan-hi), var(--cm-cyan) 60%)
+  animation: stick-wiggle 1.6s ease-in-out infinite
+.stick-eye
+  width: 62%
+  height: 62%
+  color: var(--cm-ink)
+@keyframes stick-wiggle
+  25%
+    translate: 30% 0
+  75%
+    translate: -30% 0
+@media (prefers-reduced-motion: reduce)
+  .stick-knob
+    animation: none
 </style>

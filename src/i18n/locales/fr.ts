@@ -61,7 +61,8 @@ export default {
     'metres': '{n} m',
     'objective': {
       'salvage': 'Récupération',
-      'extract': 'Rejoins la zone d\'extraction'
+      'extract': 'Rejoins la zone d\'extraction',
+      'target': 'Cible'
     },
     'haul': 'Butin {n} sur {need}',
     'hide': 'Se cacher dans la caisse',

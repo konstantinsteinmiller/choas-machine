@@ -61,7 +61,8 @@ export default {
     'metres': '{n} م',
     'objective': {
       'salvage': 'خردة',
-      'extract': 'اصل إلى منصة الإخلاء'
+      'extract': 'اصل إلى منصة الإخلاء',
+      'target': 'هدف'
     },
     'haul': 'خردة {n} من {need}',
     'hide': 'اختبئ في الصندوق',

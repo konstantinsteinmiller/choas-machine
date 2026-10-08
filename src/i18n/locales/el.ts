@@ -61,7 +61,8 @@ export default {
     'metres': '{n} μ.',
     'objective': {
       'salvage': 'Σκραπ',
-      'extract': 'Φτάσε στην πλατφόρμα εκκένωσης'
+      'extract': 'Φτάσε στην πλατφόρμα εκκένωσης',
+      'target': 'Στόχος'
     },
     'haul': 'Σκραπ {n} από {need}',
     'hide': 'Κρύψου στο κουτί',

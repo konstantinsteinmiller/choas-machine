@@ -115,7 +115,8 @@ onUnmounted(() => {
   border-radius: 50%
   background: radial-gradient(circle, rgba(77, 232, 255, 0.05) 0%, rgba(77, 232, 255, 0.16) 70%)
   border: var(--cm-edge) solid rgba(77, 232, 255, 0.5)
-  opacity: 0.6
+  // Half-faded at rest, like its twin on the right (`LookStick.vue`).
+  opacity: 0.5
   transition: opacity 0.15s
   &.hidden
     opacity: 0

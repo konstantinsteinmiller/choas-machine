@@ -61,7 +61,8 @@ export default {
     'metres': '{n} m',
     'objective': {
       'salvage': 'Otpad',
-      'extract': 'Dođi do platforme za evakuaciju'
+      'extract': 'Dođi do platforme za evakuaciju',
+      'target': 'Meta'
     },
     'haul': 'Otpad {n} od {need}',
     'hide': 'Sakrij se u kutiju',

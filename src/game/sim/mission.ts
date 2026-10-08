@@ -8,7 +8,7 @@ import { noSlice, type Slice } from '../engine/slicer'
 import { consumeEdges, type Input } from '../engine/input'
 import { input as sharedInput, inputClock } from '../engine/inputState'
 import { emit, on } from '../bus'
-import { gun, hud, mirror, runHudTickers, setPhase, threats, vital, waypoint, MAX_THREATS, callouts, MAX_CALLOUTS, prompt, bars, MAX_BARS, uplinks, MAX_UPLINKS, quipPop, type PromptKind, type TrainingShout } from '../state/hud'
+import { gun, hud, mirror, runHudTickers, setPhase, threats, vital, waypoint, targetMarks, type Waypoint, MAX_THREATS, callouts, MAX_CALLOUTS, prompt, bars, MAX_BARS, uplinks, MAX_UPLINKS, quipPop, type PromptKind, type TrainingShout } from '../state/hud'
 import { god } from '../state/god'
 import { QUIP_SHOW_S, makeQuips, pickQuip } from './quips'
 import { PathChevrons } from '../fx/pathChevrons'
@@ -2131,6 +2131,7 @@ export class Mission implements GameMode {
     g.cables.push(r.cable)
     this.ropesLeft--
     this.ropesShot++
+    if (this.training) this.ropeRooms.add(roomAt(r.ax)).add(roomAt(r.bx))
     this.ropeAim = null
     // From this platform's edge to the far one's, where the mech walks it,
     // with a piton driven in at each end (#164: the hook's braided line; the
@@ -2878,10 +2879,13 @@ export class Mission implements GameMode {
       const g = this.fortress.grid
       const near: Array<{ u: Unit; d: number }> = []
       for (const u of this.garrison.units) {
-        if (!isAlive(u) || u.state === 'dormant' || u.boss || u.gripped) continue
+        // Every mech has its bar, powered down or not (a playtester could not
+        // tell the rocket room's mech was taking damage at all).
+        const mech = u.kind === 'enforcer' || u.kind === 'goliath'
+        if (!isAlive(u) || (u.state === 'dormant' && !mech) || u.boss || u.gripped) continue
         const d = Math.hypot(u.x - this.player.x, u.z - this.player.z)
         if (d > BAR_FAR_M) continue
-        if (!(u.hp < u.maxHp || u.tagged || u.state === 'combat' || d < BAR_NEAR_M)) continue
+        if (!(mech || u.hp < u.maxHp || u.tagged || u.state === 'combat' || d < BAR_NEAR_M)) continue
         near.push({ u, d })
       }
       near.sort((a, b) => a.d - b.d)
@@ -3031,6 +3035,8 @@ export class Mission implements GameMode {
   /** The training ground's defenders as they started: a room whose lesson can no longer be done is set back to this. */
   private trainingStart: Unit[] = []
   private ropesShot = 0
+  /** The training rooms the ropes shot have an end in. */
+  private ropeRooms = new Set<number>()
   /** The scope's zoom: an index into SCOPE_ZOOMS. */
   private scopeZoom = 0
 
@@ -3329,6 +3335,7 @@ export class Mission implements GameMode {
       x: p.x, y: p.y, z: p.z, bladeKills: this.stats.bladeKills, sniperKills: this.sniperKills, rockets: this.rocketsFired,
       overheats: this.overheats, zooms: this.zooms, sabotaged: this.sabotaged, piles: this.stats.piles,
       supplies: this.suppliesTaken, burns: this.burnsDone, ropes: this.ropesShot,
+      roped: this.ropeRooms.has(Math.max(tr.state.room, roomAt(p.x))),
       // The room the mech is in now (#168): the one it just left must not open this one.
       cleared: this.roomCleared(Math.max(tr.state.room, roomAt(p.x))),
       crouches: this.crouchesDone,
@@ -3398,8 +3405,9 @@ export class Mission implements GameMode {
         const lesson = TRAINING_ROOMS[e.room]!.lesson
         if (lesson === 'rope') this.ropesLeft = Math.max(this.ropesLeft, this.loadout.ropes)
         if (lesson === 'burn') this.fuelLeft = Math.max(this.fuelLeft, this.loadout.fuel)
-        // The launcher's room (#146): both rockets in, whatever was spent before.
-        if (lesson === 'rocket') this.refillRockets()
+        // The launcher's room (#146): both rockets in, whatever was spent
+        // before, and the guns loaded too: the mech goes down to rounds as well.
+        if (lesson === 'rocket') this.refillTraining(e.room)
         // The blade room (#158): held at the way in to watch its lesson first.
         if (lesson === 'blade' && !tr.state.done[e.room] && !this.cine) this.watchLesson(e.room)
         // The supply room (#111): everything is spent (the strip blinks dry), so the crate's refill shows.
@@ -4461,16 +4469,27 @@ export class Mission implements GameMode {
     }
     this.waypointDist = has ? Math.hypot(wx - x, wz - z) : 0
     waypoint.on = show && has && !hud.scoped
-    if (!waypoint.on) return
+    this.camera.updateMatrixWorld()
+    if (waypoint.on) this.toScreen(waypoint, wx, wy, wz, x, z)
+    // The training's guards to take, each with its own marker.
+    const targets = this.training && show && !hud.scoped ? this.training.targetMarks() : []
+    targetMarks.forEach((m, i) => {
+      const tg = targets[i]
+      m.on = !!tg
+      if (tg) this.toScreen(m, tg.x, tg.y, tg.z, x, z)
+    })
+  }
+
+  /** A marker's place on screen for the world point (wx, wy, wz); (x, z) is the mech. */
+  private toScreen(m: Waypoint, wx: number, wy: number, wz: number, x: number, z: number): void {
     const p = this.proj.set(wx, wy, wz)
     // In front of the camera or behind it, before the projection folds that away.
-    this.camera.updateMatrixWorld()
     const behind = p.clone().applyMatrix4(this.camera.matrixWorldInverse).z > 0
     p.project(this.camera)
-    waypoint.x = p.x * 0.5 + 0.5
-    waypoint.y = -p.y * 0.5 + 0.5
-    waypoint.behind = behind
-    waypoint.dist = Math.hypot(wx - x, wz - z)
+    m.x = p.x * 0.5 + 0.5
+    m.y = -p.y * 0.5 + 0.5
+    m.behind = behind
+    m.dist = Math.hypot(wx - x, wz - z)
   }
 
   render(alpha: number, dt: number): void {

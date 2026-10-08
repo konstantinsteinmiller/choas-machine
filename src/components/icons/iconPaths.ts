@@ -1,4 +1,5 @@
 import type { GameIconName } from './iconNames'
+import { ACTION_GLYPHS, type ActionGlyphName } from './actionGlyphs'
 
 /**
  * ─── Glyph geometry ─────────────────────────────────────────────────────────
@@ -455,5 +456,6 @@ export const ICON_PATHS: Record<GameIconName, string[]> = {
     'M5 11A7 7 0 0 1 19 11L19 20.2L16.7 18.3L14.3 20.2L12 18.3L9.7 20.2L7.3 18.3L5 20.2Z',
     'M8 11A1.5 1.5 0 1 0 11 11A1.5 1.5 0 1 0 8 11Z',
     'M13 11A1.5 1.5 0 1 0 16 11A1.5 1.5 0 1 0 13 11Z'
-  ]
+  ],
+  ...(ACTION_GLYPHS as unknown as Record<ActionGlyphName, string[]>)
 }

@@ -177,6 +177,23 @@ describe('the lessons', () => {
     expect(lessonDone(LESSON_IDS.indexOf('rope'), ctx(0, 0, { ropes: 1 }), ctx(0, 0))).toBe(true)
   })
 
+  it('any rope with an end in the rope room opens it: one shot from the wall top it is entered over, down onto the tower', async () => {
+    const { findRopeShot } = await import('@/game/sim/ropes')
+    const i = LESSON_IDS.indexOf('rope')
+    const f = buildTrainingGround()
+    const r = TRAINING_ROOMS[i]!
+    // On the hook room's east wall (its top is the hook room's), looking at the tower's top.
+    const wx = cellMid(r.x0 - 1)
+    const [tx, tz] = roomCell(i, 3, 7)
+    const shot = findRopeShot(f.grid, wx, HOOK_WALL_H, cellMid(tz), cellMid(tx), heightAt(f.grid, cellMid(tx), cellMid(tz)), cellMid(tz), 1)!
+    expect(shot).not.toBeNull()
+    expect(roomAt(shot.ax)).toBe(i - 1)
+    expect(roomAt(shot.bx)).toBe(i)
+    // Shot before the room was entered: the count is in the base, yet the rope is the room's.
+    expect(lessonDone(i, ctx(0, 0, { ropes: 1 }), ctx(0, 0, { ropes: 1 }))).toBe(false)
+    expect(lessonDone(i, ctx(0, 0, { ropes: 1, roped: true }), ctx(0, 0, { ropes: 1 }))).toBe(true)
+  })
+
   it('the jump room gap is a jump wide; the rope room platform is in reach of a rope from the tower', async () => {
     const { findRopeShot } = await import('@/game/sim/ropes')
     const f = buildTrainingGround()

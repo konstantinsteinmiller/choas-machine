@@ -3,6 +3,10 @@ import { getRenderer, resizeRenderer, fovForAspect } from './renderer'
 import { frameStart, frameEnd, phaseStart, phaseEnd } from '@/use/usePerfProbe'
 import { advance, STEP } from './clock'
 import { emit } from '../bus'
+import { drawUiBake, installUiBake } from '@/game/debug/uiBake'
+
+/** The debug UI bake (`src/game/debug/uiBake.ts`): folded out unless the flag is `true`. */
+const UI_BAKE = import.meta.env.VITE_APP_RENDER_UI_BAKE === 'true'
 
 /**
  * ─── The game loop ───────────────────────────────────────────────────────────
@@ -54,6 +58,7 @@ class GameApp {
     const r = getRenderer()
     this.container = container
     container.appendChild(r.domElement)
+    if (UI_BAKE) installUiBake({ canvas: r.domElement, redraw: () => this.renderOnce(), running: () => this.running })
     this.ro?.disconnect()
     this.ro = new ResizeObserver(() => this.resize())
     this.ro.observe(container)
@@ -159,13 +164,20 @@ class GameApp {
       cancelAnimationFrame(this.raf)
       this.raf = 0
       // Draw one last frame so a paused screen is not stale mid-transition.
-      this.mode?.render(0, 0)
+      this.draw(0, 0)
     }
   }
 
   /** Render once without advancing (used while suspended / for thumbnails). */
   renderOnce(): void {
-    this.mode?.render(0, 0)
+    this.draw(0, 0)
+  }
+
+  /** The mode's frame, plus the UI bake over it when that debug flag is on. */
+  private draw(alpha: number, dt: number): void {
+    if (!this.mode) return
+    this.mode.render(alpha, dt)
+    if (UI_BAKE) drawUiBake(getRenderer())
   }
 
   private frame = (now: number): void => {
@@ -185,7 +197,7 @@ class GameApp {
     for (let n = 0; n < tick.steps; n++) mode.update(STEP, n === 0)
     phaseEnd('step')
     phaseStart('draw')
-    mode.render(tick.alpha, dt)
+    this.draw(tick.alpha, dt)
     phaseEnd('draw')
     frameEnd()
   }

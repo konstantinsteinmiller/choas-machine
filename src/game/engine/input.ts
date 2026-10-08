@@ -11,8 +11,12 @@
  *     A faint resting stick always sits low on the left (`joyHome*`, placed
  *     by the HUD): a press on it grabs the stick at its centre, so a player
  *     who never discovers "drag anywhere" still finds the movement control.
- *   • RIGHT side, one gesture decided by what the finger DOES, never at the
- *     press:
+ *   • The LOOK STICK (bottom right, left of the action buttons, placed by the
+ *     HUD as `lookHome*`): a press on it turns the camera at a rate that
+ *     follows how far the stick is pushed, for as long as it is held — the
+ *     mobile shooter's right stick.
+ *   • Anywhere else on the RIGHT side, one gesture decided by what the finger
+ *     DOES, never at the press:
  *       – it travels            → a look drag (the camera turns);
  *       – it lifts quickly      → a tap: the contextual action (`actQueued`);
  *       – it stays put          → after `HOLD_MS` the weapon comes up
@@ -103,6 +107,14 @@ export interface Input {
   joyHomeR: number
   /** The stick's travel in CSS px (half the drawn ring); set by the HUD. */
   joyRadius: number
+  /** The look stick's centre and radius (surface px), set by the HUD; 0 radius = none. */
+  lookHomeX: number
+  lookHomeY: number
+  lookHomeR: number
+  /** The look stick is held, and how far it is pushed (−1 … 1, y down). */
+  lookStickActive: boolean
+  lookStickX: number
+  lookStickY: number
   /** Where the right-side finger is, while it is down (surface px): the HUD
    *  draws the hold ring there. */
   holdX: number
@@ -155,6 +167,7 @@ export const createInput = (): Input => ({
   actQueued: false, grappleQueued: false, jumpQueued: false, ropeQueued: false, burnQueued: false, dragQueued: false, crouchQueued: false, hideQueued: false, decoyQueued: false, reloadQueued: false, weaponQueued: 0, cycleQueued: false, wheelQueued: 0,
   pauseQueued: false, anyPressed: false,
   joyActive: false, joyOriginX: 0, joyOriginY: 0, joyX: 0, joyY: 0, joyHomeX: 0, joyHomeY: 0, joyHomeR: 0, joyRadius: 56,
+  lookHomeX: 0, lookHomeY: 0, lookHomeR: 0, lookStickActive: false, lookStickX: 0, lookStickY: 0,
   holdX: 0, holdY: 0, hold01: 0,
   // A phone never captures the mouse: there, a mouse is a finger.
   touched: false, device: guessDevice(), locked: false, lockRefused: !lockSupported() || touchFirst()
@@ -215,6 +228,16 @@ export const TAP_MAX_MS = 260
 const TAP_MAX_MOVE = 14
 /** A press held this long, having barely moved, raises the weapon. */
 export const HOLD_MS = 220
+/**
+ * The look stick at full push turns the view this many look-drag pixels a
+ * second (× `LOOK_RATE` in `camera.ts`: ~150° a second across, a little less
+ * up and down). The push is eased (`LOOK_STICK_CURVE`) so a small push aims
+ * finely and a full one swings round.
+ */
+const LOOK_STICK_PX_S = 620
+const LOOK_STICK_PITCH = 0.6
+const LOOK_STICK_CURVE = 1.7
+const LOOK_STICK_DEAD = 0.1
 /** A press that travels this far before the hold completes is a look drag. */
 const DRAG_TO_LOOK_MOUSE = 10
 const DRAG_TO_LOOK_TOUCH = 16
@@ -291,6 +314,8 @@ export const attachInput = (surface: HTMLElement, input: Input, opts: InputOptio
   const now = opts.now ?? (() => performance.now())
   let joyId: number | null = null
   let lookId: number | null = null
+  let lookStickId: number | null = null
+  let lastTickAt = -1
   let gStartX = 0
   let gStartY = 0
   let gLastX = 0
@@ -384,8 +409,19 @@ export const attachInput = (surface: HTMLElement, input: Input, opts: InputOptio
       input.actQueued = true
     }
   }
-  /** A finger held still sends no events: the scene's frame drives the hold. */
+  /** A finger held still sends no events: the scene's frame drives the hold (and the look stick). */
   const tick = (): void => {
+    const t = now()
+    const dt = lastTickAt < 0 ? 0 : Math.min(0.05, Math.max(0, (t - lastTickAt) / 1000))
+    lastTickAt = t
+    if (input.lookStickActive && dt > 0) {
+      const m = Math.min(1, Math.hypot(input.lookStickX, input.lookStickY))
+      if (m > LOOK_STICK_DEAD) {
+        const k = Math.pow((m - LOOK_STICK_DEAD) / (1 - LOOK_STICK_DEAD), LOOK_STICK_CURVE) / m
+        input.lookDX += input.lookStickX * k * LOOK_STICK_PX_S * dt
+        input.lookDY += input.lookStickY * k * LOOK_STICK_PX_S * LOOK_STICK_PITCH * dt
+      }
+    }
     if (gesture !== 'pending') return
     const k = (now() - gStartT) / HOLD_MS
     input.hold01 = Math.min(1, Math.max(0, k))
@@ -403,6 +439,16 @@ export const attachInput = (surface: HTMLElement, input: Input, opts: InputOptio
     const r = rect()
     const x = e.clientX - r.left
     const y = e.clientY - r.top
+    // The look stick first: it sits on the right, where a press would
+    // otherwise start the look-or-aim gesture.
+    if (input.lookHomeR > 0 && lookStickId === null && Math.hypot(x - input.lookHomeX, y - input.lookHomeY) <= input.lookHomeR * 1.3) {
+      lookStickId = e.pointerId
+      input.lookStickActive = true
+      lookStickTo(x, y)
+      try { surface.setPointerCapture(e.pointerId) } catch { /* ignore */ }
+      e.preventDefault()
+      return
+    }
     const leftZone = x < r.width * 0.45
     const onHome = input.joyHomeR > 0 && Math.hypot(x - input.joyHomeX, y - input.joyHomeY) <= input.joyHomeR
     if ((leftZone || onHome) && joyId === null) {
@@ -424,6 +470,17 @@ export const attachInput = (surface: HTMLElement, input: Input, opts: InputOptio
     gestureDown(x, y, false)
     try { surface.setPointerCapture(e.pointerId) } catch { /* ignore */ }
     e.preventDefault()
+  }
+
+  /** Push the look stick toward a finger position (surface px); it never drifts from home. */
+  const lookStickTo = (x: number, y: number) => {
+    const R = Math.max(24, input.lookHomeR)
+    let sx = (x - input.lookHomeX) / R
+    let sy = (y - input.lookHomeY) / R
+    const l = Math.hypot(sx, sy)
+    if (l > 1) { sx /= l; sy /= l }
+    input.lookStickX = sx
+    input.lookStickY = sy
   }
 
   /** Point the stick at a finger position (surface px). */
@@ -463,6 +520,11 @@ export const attachInput = (surface: HTMLElement, input: Input, opts: InputOptio
       e.preventDefault()
       return
     }
+    if (e.pointerId === lookStickId) {
+      lookStickTo(x, y)
+      e.preventDefault()
+      return
+    }
     if (e.pointerId === lookId) {
       gestureMove(x, y)
       e.preventDefault()
@@ -471,6 +533,13 @@ export const attachInput = (surface: HTMLElement, input: Input, opts: InputOptio
 
   const onUp = (e: PointerEvent) => {
     if (!asTouch(e)) return
+    if (e.pointerId === lookStickId) {
+      lookStickId = null
+      input.lookStickActive = false
+      input.lookStickX = 0
+      input.lookStickY = 0
+      return
+    }
     if (e.pointerId === joyId) {
       joyId = null
       input.joyActive = false
@@ -680,6 +749,10 @@ export const attachInput = (surface: HTMLElement, input: Input, opts: InputOptio
     input.joyActive = false
     joyId = null
     lookId = null
+    lookStickId = null
+    input.lookStickActive = false
+    input.lookStickX = 0
+    input.lookStickY = 0
     gesture = 'none'
     input.hold01 = 0
   }

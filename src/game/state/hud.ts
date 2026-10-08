@@ -151,6 +151,11 @@ export const hud = reactive({
  * back, `dist` in metres from the mech.
  */
 export const waypoint = { on: false, x: 0.5, y: 0.5, behind: false, dist: 0 }
+export type Waypoint = typeof waypoint
+
+/** The training's targets (the guards a lesson is about), marked the same way. */
+export const MAX_TARGET_MARKS = 4
+export const targetMarks: Waypoint[] = Array.from({ length: MAX_TARGET_MARKS }, () => ({ on: false, x: 0.5, y: 0.5, behind: false, dist: 0 }))
 
 /** What a key does where the mech stands, as the in-world prompt names it (#83). */
 export type PromptKind = '' | 'salvage' | 'strike' | 'assassinate' | 'sabotage' | 'silence' | 'cutPower' | 'jam' | 'grab' | 'drop' | 'hook' | 'rope' | 'burn'

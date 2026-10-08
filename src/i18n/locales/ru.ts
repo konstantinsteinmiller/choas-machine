@@ -61,7 +61,8 @@ export default {
     'metres': '{n} м',
     'objective': {
       'salvage': 'Трофеи',
-      'extract': 'Доберитесь до точки эвакуации'
+      'extract': 'Доберитесь до точки эвакуации',
+      'target': 'Цель'
     },
     'haul': 'Лом {n} из {need}',
     'hide': 'Спрятаться в ящике',

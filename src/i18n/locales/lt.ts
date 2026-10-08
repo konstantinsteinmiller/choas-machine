@@ -61,7 +61,8 @@ export default {
     'metres': '{n} m',
     'objective': {
       'salvage': 'Laužas',
-      'extract': 'Pasiekite evakuacijos aikštelę'
+      'extract': 'Pasiekite evakuacijos aikštelę',
+      'target': 'Taikinys'
     },
     'haul': 'Laužo {n} iš {need}',
     'hide': 'Pasislėpti dėžėje',

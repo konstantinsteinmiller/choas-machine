@@ -16,9 +16,14 @@ import type { Action } from '@/game/engine/keyBindings'
  * very button to press, the way a desktop shows its keycap.
  *
  *   round    the hands on something: backstab, loot, burn, sabotage, drag
- *   diamond  the gadgets: hook, rope, decoy, hide box
- *   hex      the body: jump, crouch, sprint
+ *   diamond  the gadgets: hook, rope
+ *   hex      (none now)
  *   plate    the weapons: fire, the weapon in hand, zoom, cancel
+ *
+ * The thumb cluster's own buttons (jump, crouch, sprint, decoy, hide box) are
+ * ROUND like a mobile shooter's, and say what they do with a picture of the
+ * mech doing it (`actionGlyphs.ts`): a playtester could not tell five
+ * coloured shapes with chevrons in them apart, nor guess what they did.
  */
 
 export type ButtonShape = 'plate' | 'hex' | 'diamond' | 'round'
@@ -42,11 +47,11 @@ export const BUTTON_LOOK: Readonly<Record<TouchButton, ButtonLook>> = {
   drag: { shape: 'round', tone: 'cyan', icon: 'skull' },
   grapple: { shape: 'diamond', tone: 'cyan', icon: 'hook' },
   rope: { shape: 'diamond', tone: 'ok', icon: 'rope' },
-  decoy: { shape: 'diamond', tone: 'pink', icon: 'decoy' },
-  hide: { shape: 'diamond', tone: 'violet', icon: 'box' },
-  jump: { shape: 'hex', tone: 'cyan', icon: 'up' },
-  crouch: { shape: 'hex', tone: 'violet', icon: 'crouch' },
-  sprint: { shape: 'hex', tone: 'warn', icon: 'sprint' },
+  decoy: { shape: 'round', tone: 'pink', icon: 'act-decoy' },
+  hide: { shape: 'round', tone: 'violet', icon: 'act-hide' },
+  jump: { shape: 'round', tone: 'cyan', icon: 'act-jump' },
+  crouch: { shape: 'round', tone: 'ok', icon: 'act-crouch' },
+  sprint: { shape: 'round', tone: 'warn', icon: 'act-sprint' },
   fire: { shape: 'plate', tone: 'pink', icon: 'sniper' },
   weapon: { shape: 'plate', tone: 'cyan', icon: 'sniper' },
   zoom: { shape: 'plate', tone: 'ok', icon: 'scope' },
@@ -98,5 +103,6 @@ export const HINT_GESTURE: Readonly<Partial<Record<HintId, 'drag' | 'swipe' | 'h
 /** The touch button each nudged training control is (#186), by its test id; one not on screen falls back to the big glyph. */
 export const NUDGE_BUTTON: Readonly<Partial<Record<HintId, string>>> = {
   crouch: 'btn-crouch', blade: 'btn-strike', burn: 'btn-burn', decoy: 'btn-decoy', rope: 'btn-rope',
-  loot: 'btn-loot', scope: 'btn-zoom', rocket: 'btn-weapon-rocket', weapon: 'btn-weapons', grapple: 'btn-grapple'
+  loot: 'btn-loot', scope: 'btn-zoom', rocket: 'btn-weapons', weapon: 'btn-weapons', grapple: 'btn-grapple',
+  hide: 'btn-hide', sprint: 'btn-sprint', jump: 'btn-jump', look: 'look-stick'
 }

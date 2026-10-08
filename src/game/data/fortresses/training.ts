@@ -71,9 +71,14 @@ export const CRAWL_GAP_H = 1.6
 /** The rope room's tower, and the platform a rope from it reaches (#94). */
 export const ROPE_TOWER_H = 4
 export const ROPE_DECK_H = 2
-/** The rocket room's ledge (#146), its parapet, and the target's hit points. */
+/**
+ * The rocket room's ledge (#146), its parapet, and the target's hit points.
+ * The parapet is a low lip at the mech's feet (it was 1.2 m: from the floor
+ * no rocket could reach the mech's body, only a blast on the parapet's top
+ * did); now a rocket at its chest from the back half of the room clears it.
+ */
 export const ROCKET_LEDGE_H = 4
-export const ROCKET_PARAPET_H = 5.2
+export const ROCKET_PARAPET_H = 4.3
 export const ROCKET_TARGET_HP = 300
 /** Where the rocket room's target stands (room cells). */
 export const ROCKET_TARGET: readonly [number, number] = [8, 3]
@@ -162,10 +167,10 @@ export const buildTrainingGround = (): Fortress => {
     b.solid('stack', ...at(w, 3, 11), 1.4).solid('stack', ...at(w, 6, 1), 1.4)
   }
 
-  // · The launcher (#146): an armoured mech up on a ledge behind a parapet,
-  //   its head and shoulders over it. Nothing walks up there; rounds and
-  //   the blade glance off it; a rocket into it, or onto the parapet's top
-  //   beside it, takes it. Its blast is what reaches over the cover.
+  // · The launcher (#146): a powered-down mech up on a ledge behind a low
+  //   parapet, all of it but its feet over it. Nothing walks up there (the
+  //   hook does); a rocket into it, or onto the parapet's top beside it,
+  //   takes it, and so do enough rounds.
   {
     const k = room('rocket')
     b.fill(...at(k, 5, 1), ...at(k, 10, 4), ROCKET_LEDGE_H)

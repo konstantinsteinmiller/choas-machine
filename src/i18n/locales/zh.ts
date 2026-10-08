@@ -61,7 +61,8 @@ export default {
     'metres': '{n} 米',
     'objective': {
       'salvage': '废料',
-      'extract': '前往撤离点'
+      'extract': '前往撤离点',
+      'target': '目标'
     },
     'haul': '废料 {n}/{need}',
     'hide': '躲进箱子',

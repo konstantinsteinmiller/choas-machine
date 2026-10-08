@@ -30,6 +30,11 @@ const PALISADE_H = 7
 const WALK_H = 4
 const CORNER_H = 10
 
+/** The second mech's post: the corner farthest from the Foreman at the keep's stairs. */
+export const SECOND_MECH: readonly [number, number] = [18, 15]
+/** The Sea Fort's mechs have this share of their hit points: the second fortress is a softer step up. */
+export const SEA_FORT_MECH_HP = 0.85
+
 /** Salvage: [cx, cz, amount, big?]. */
 const PILES: ReadonlyArray<readonly [number, number, number, boolean?]> = [
   [20, 21, 32], // 0 · in the prison block, under its roof
@@ -118,11 +123,11 @@ export const buildSeaFort = (run = 0, answers: Answers = NO_ANSWERS): Fortress =
   }
 
   // ── The garrison ──
-  const pick = <T>(a: T, z: T): T => (rng() < 0.5 ? a : z)
-  // The walkway: one on each half of the south, one down the west.
+  // The walkway: one on the south-west half. (A playtester on a tablet died
+  // ten times here and gave up: the south-east and the west walkway guards,
+  // the south yard's drone and 15 % of the mechs' hit points are gone, and
+  // the second mech stands in the far corner.)
   b.guard([[15, 49, 2], [28, 49, 2]])
-  b.guard([[35, 50, 2], [48, 49, 2]])
-  b.guard(pick([[13, 16, 2], [14, 46, 2]], [[14, 46, 2], [13, 16, 2]]))
   // The courtyard: a pair at their talk, a round the keep, a grenadier, the engineer.
   b.pair([20, 38], [[24, 38, 2], [24, 44], [18, 44, 2], [18, 38]])
   b.guard([[26, 22, 2], [40, 22], [40, 40, 2], [23, 40], [23, 26]])
@@ -130,23 +135,24 @@ export const buildSeaFort = (run = 0, answers: Answers = NO_ANSWERS): Fortress =
   b.engineer([[36, 44, 3], [46, 44], [46, 32, 2]])
   // The prison's jailer: a Peashooter under the roof.
   b.roomba([[18, 19, 2], [22, 22, 2]], 0)
-  // The Warden on the summit; the Foreman at the keep's stairs, an Enforcer by the north tower.
+  // The Warden on the summit; the Foreman at the keep's stairs, an Enforcer
+  // in the far north-west corner, behind the prison block: woken together,
+  // it has the whole fort to cross before the two stand side by side.
   b.commander([[30, 30, 4], [33, 30, 4], [33, 33, 4], [30, 33, 4]], Math.PI)
   b.enforcer(34, 43, 0, true)
-  b.enforcer(37, 20, Math.PI * 0.5)
+  b.enforcer(SECOND_MECH[0], SECOND_MECH[1], Math.PI * 0.5)
   // Three searchlights, two sentries, a drone over the courtyard.
   b.searchlight(10, 52, [[18, 46, 1.5], [24, 40, 1], [16, 36, 1.5]])
   b.searchlight(53, 53, [[46, 46, 1.5], [40, 40, 1], [46, 34, 1.5]])
   b.searchlight(41, 16, [[32, 20, 1.5], [24, 22, 1], [44, 28, 1.5]])
   b.sentry(53, 10, Math.PI * 1.25).sentry(10, 10, Math.PI * 0.75)
   b.drone([[19, 22], [19, 44], [44, 44], [44, 22]], 9)
-  // A second pair of ears over the south yard (#181).
-  b.drone([[17, 40], [31, 40], [31, 50], [17, 50]], 8)
 
   // ── Reinforcements, through the gates ──
   b.reserve(31, 53, Math.PI).reserve(32, 53, Math.PI).reserve(31, 10).reserve(32, 10)
 
   const f = b.build()
+  for (const p of f.posts) if (p.kind === 'enforcer') p.hpScale = SEA_FORT_MECH_HP
   f.answers = { ...answers }
   return f
 }

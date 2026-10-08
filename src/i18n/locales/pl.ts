@@ -61,7 +61,8 @@ export default {
     'metres': '{n} m',
     'objective': {
       'salvage': 'Złom',
-      'extract': 'Dotrzyj do punktu ewakuacji'
+      'extract': 'Dotrzyj do punktu ewakuacji',
+      'target': 'Cel'
     },
     'haul': 'Złom {n} z {need}',
     'hide': 'Schowaj się w skrzyni',

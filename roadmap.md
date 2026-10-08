@@ -206,9 +206,15 @@
 - [x] #183 ✅ The ammo the guards drop is not useful to the player, they should drop 1-2 sniper bullets randomly. In the intro the minigun has no sound when firing, check if in-game the mini-gun has the iconic mini-gun sound, improve the quality of that sound anyways. After the rope kill in the Intro the camera jumps to the ladder usage, better not cut it, and let CM-07 use the grappling hock instead to get up fast.
 - [x] #184 ✅ The intro still does not end on the 3seconds still look at the 3rd fortress.
 - [x] #185 ✅ The circular progressbar around the heat button on the salvage mini-game is not perfectly placed, improve the visual look of it and place it around the heat button perfectly.
-- [ ] #186 Some people simply don't follow the hologram instructions e.g. to crouch, so lets add a fat yellow arrow on the crouch button if they reach the door to the next room and havent crouched yet and it stays with an attention bounce until they crouch, show the keyboard key or mouse key on desktop in the middle of the screen. In the same way show buttons and arrows on buttons for the other rooms where applicable. One player didnt find the weapon switch buttons TAB/Mousewheel scroll(show on mobile too in the 3 guards room that is about killing guards). 
-- [ ] #187
-- [ ] #188
+- [x] #186 ✅ Some people simply don't follow the hologram instructions e.g. to crouch, so lets add a fat yellow arrow on the crouch button if they reach the door to the next room and havent crouched yet and it stays with an attention bounce until they crouch, show the keyboard key or mouse key on desktop in the middle of the screen. In the same way show buttons and arrows on buttons for the other rooms where applicable. One player didnt find the weapon switch buttons TAB/Mousewheel scroll(show on mobile too in the 3 guards room that is about killing guards). 
+- [x] #187 ✅ It seems the rocket launcher lesson is not clear enough, one playtester on Poki failed to switch weapons on a tablet. Show the yellow arrow to switch to the rocket launcher on tablet/mobile versions, until the rocket launcher is selected.
+- [x] #188 ✅ Almost every player runs up to that door and ignores the crouching          
+  hologram, as if they are retarded, than they try to glitch through the wall  
+  until 2 minutes later they find the Crouch button or key, [Image #9], fix   
+  it, make the A BIG FAT "C"(or their keyboard adjusted variant) key appear   
+  in their face, so they cant ignore it if they stay near the door for more   
+  than 3 seconds (show A BIG FAT YELLOW ARROW over the crouch button with     
+  attention bounce that they cant ignore).
 - [ ] #189
 - [ ] #190
 - [ ] #191
@@ -250,6 +256,7 @@ Architecture: the host's browser runs the mission (guards, detection, kills, loo
 1. **Single-player is the core game and must not change.** No co-op rule, tuning value or branch may leak into the single-player sim, AI or balance. The single-player tuning tables stay untouched. Co-op has its own balance module (#M11) that the sim receives as a `rules` object, and single-player passes the frozen single-player rules. The deterministic single-player golden replays (#M8) must stay bit-identical after every co-op change.
 2. **Feature flag and build exclusion.** `COOP = import.meta.env.VITE_APP_COOP === 'true' && import.meta.env.VITE_APP_CRAZY_WEB === 'true'` is a single build-time constant. All co-op code lives in `src/coop/` and loads only through `if (COOP) await import(...)`, so with the flag off, or in any non-CrazyGames bundle, Rollup drops it completely: no WebRTC, no Worker room calls, no co-op CSP entries, no co-op i18n chunk.
 3. **No dead ends.** Every co-op screen and state has a visible Leave/Cancel, a timeout and an error message, and ends in the base or a running mission. A player can always leave the session.
+4. report reference: https://claude.ai/artifact/6dxWjsn5kVzdUWqoj3qRKy
 
 - [ ] #M8 Guardrails first (before any co-op code).
   - Add `VITE_APP_COOP` to `env.d.ts`, the `.env.*.local` files (true only in the CrazyGames one) and `capabilities.ts`. Add a build-audit test: build each non-CG bundle and the CG bundle with `VITE_APP_COOP=false`, then grep the dist for sentinel strings (`RTCPeerConnection`, `/coop/room`, a `__COOP_BUNDLE__` marker). Any hit fails.
@@ -422,7 +429,7 @@ missions, rewarded-ad buttons, treasure chests.
   for ten seconds) and a smoke canister (breaks every cone for a moment when
   the alarm goes). Each opens a new answer to the same fortress, which is what
   makes a stealth level replayable. Only unlockable after fortress progress, EMP dart after Fortress 2 is won.
-  smoke cannister after winning fortress 4(maybe not yet implemented). The weapon upgrades and weapon champer upgrades are locked in grey and show the condition to unlock them beside them.
+  smoke canister after winning fortress 4(maybe not yet implemented). The weapon upgrades and weapon champer upgrades are locked in grey and show the condition to unlock them beside them.
 
 - [ ] #8 **Weapon variants in the Forge.** One alternative per slot (a
   burst-fire marksman rifle, a shotgun arm, a cluster rocket), built from
@@ -453,32 +460,6 @@ missions, rewarded-ad buttons, treasure chests.
   a trophy from each Commander, the dropship gets its paint. Progress the
   player can see every time the game opens, at no cost to play time.
 
-- [ ] #14 **A hot streak.** Missions won in a row without a defeat raise a
-  scrap multiplier (x1.1 to x1.5), shown on the Deploy button. Losing it is a
-  reason to play one more, carefully. Session length, not day count.
-
-- [ ] #15 **Side operations.** Sixty to ninety seconds each: shoot down five
-  drones from the perch, carry a data core out unseen, escort a decoy. The
-  only source of a second kind of blueprint, so they stay worth doing.
-
-- [ ] #16 **A Forge worth returning to.** Two jobs in the queue instead of
-  one, and the base opens on the Forge when a job finished while the player
-  was away. The timers exist; today nothing tells a returning player that
-  one is done.
-
 - [ ] #17 **Goliath variants as fortress finales.** A walker that climbs
   walls, a gunship that owns the sky. One per fortress, each with its own
   weak point and its own lesson glyph.
-
-- [ ] #18 **A firing range in the base.** Moving targets, a timer, a personal
-  best per weapon. Where a new upgrade is tried out, and where the wordless
-  lessons can be replayed on purpose.
-
-- [ ] #19 **Gamepad, and aim options.** Controller support for the portals
-  that reach TVs and handhelds, an aim-assist slider, a colour-blind palette
-  for the vision cones. Players who cannot play comfortably do not return.
-
-- [ ] #20 **A name and a flag on the board.** A chosen display name and a
-  country flag next to the rank badge, and "you passed N players this week"
-  on the Command Base. The board is the only social surface the game has;
-  make it personal.

@@ -61,7 +61,8 @@ export default {
     'metres': '{n} m',
     'objective': {
       'salvage': 'Ferralla',
-      'extract': 'Arriba a la plataforma d\'extracció'
+      'extract': 'Arriba a la plataforma d\'extracció',
+      'target': 'Objectiu'
     },
     'haul': 'Ferralla {n} de {need}',
     'hide': 'Amagar-se a la caixa',

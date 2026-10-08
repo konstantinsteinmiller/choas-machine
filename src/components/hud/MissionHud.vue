@@ -1,8 +1,9 @@
 <template lang="pug">
-  div.mission-hud
+  div.mission-hud(:class="{ touch: hud.device === 'touch', aiming: hud.aiming }")
     HitFlash
     Reticle
     Joystick
+    LookStick(:attention="teaching('look')")
     AimHold
     ThreatArcs
     SpeechBubbles
@@ -10,6 +11,7 @@
     HealthBars
     UplinkRings
     ObjectiveMarker
+    ObjectiveMarker(v-for="(m, i) in targetMarks" :key="i" :mark="m" target)
     WorldPrompt
     DemoPop
     TrainingShout
@@ -51,12 +53,12 @@
 
     //- The quick quest log (#145): just above the right thumb's column,
     //- wherever that column ends (`questStyle`).
-    div.quest(v-if="!hud.training.on" :style="questStyle")
+    div.quest(v-if="!hud.training.on && !(hud.aiming && hud.device === 'touch')" :style="questStyle")
       QuestLog
 
     //- The blade's offer: big, pink and under the right thumb's reach. A tap
     //- anywhere on the right does the same; this is the picture of it.
-    div.strike(v-if="hud.strike")
+    div.strike.slot-context(v-if="hud.strike")
       FHudButton(
         icon="blade"
         :tone="LOOK.strike.tone"
@@ -69,7 +71,7 @@
       )
 
     //- An alarm beacon within reach, nobody looking: the same tap sabotages it.
-    div.strike.sabotage(v-if="(hud.sabotage || hud.sabotaging > 0) && !hud.strike")
+    div.strike.slot-context.sabotage(v-if="(hud.sabotage || hud.sabotaging > 0) && !hud.strike")
       FHudButton(
         :icon="hud.sabotage === 'generator' || hud.sabotage === 'servo' ? 'bolt' : 'siren'"
         :tone="LOOK.sabotage.tone"
@@ -85,7 +87,7 @@
 
     //- A pile within reach: the same tap that strikes strips it. The ring
     //- fills while the mech works.
-    div.strike.loot(v-if="(hud.loot || hud.looting > 0) && !hud.strike")
+    div.strike.slot-context.loot(v-if="(hud.loot || hud.looting > 0) && !hud.strike")
       FHudButton(
         icon="scrap"
         :tone="LOOK.loot.tone"
@@ -102,7 +104,7 @@
     //- A body within reach: the same tap grabs it; in tow, the tap lets go
     //- (into a container, if one is at hand).
     //- Beside the flame chip when a body could be burned as well (#99: E burns, F drags).
-    div.strike.drag(v-if="hud.drag && !hud.strike && !hud.loot && !hud.sabotage" :class="{ beside: hud.burn }")
+    div.strike.drag(v-if="hud.drag && !hud.strike && !hud.loot && !hud.sabotage" :class="hud.burn ? 'beside slot-context2' : 'slot-context'")
       FHudButton(
         :icon="hud.drag === 'grab' ? 'skull' : 'box'"
         :tone="LOOK.drag.tone"
@@ -116,7 +118,7 @@
 
     //- The hook's offer at the foot of a wall; once it is out, the same
     //- place takes it back (red while somebody up there is wondering).
-    div.strike.grapple(v-if="(hud.grapple || hud.grappling === 'up') && !hud.strike")
+    div.strike.slot-context.grapple(v-if="(hud.grapple || hud.grappling === 'up') && !hud.strike")
       FHudButton(
         :icon="hud.grappling ? 'close' : 'hook'"
         :tone="hud.grappling ? (hud.grappleHeard > 0 ? 'danger' : 'violet') : LOOK.grapple.tone"
@@ -131,7 +133,7 @@
           FHudBadge(v-if="hud.grappling && hud.grappleHeard > 0" tone="warn") {{ hud.grappleHeard }}
 
     //- The flamethrower (#99): a body or a wreck at the mech's feet, to ash.
-    div.strike.burn(v-if="(hud.burn || hud.burning > 0) && !hud.strike && !hud.loot && !hud.sabotage")
+    div.strike.slot-context.burn(v-if="(hud.burn || hud.burning > 0) && !hud.strike && !hud.loot && !hud.sabotage")
       FHudButton(
         icon="flame"
         :tone="LOOK.burn.tone"
@@ -146,7 +148,7 @@
           FHudBadge(v-if="hud.burning > 0" tone="warn") {{ Math.round(hud.burning * 100) }}%
 
     //- The rope gun (#94): somewhere to shoot a line to, from up high.
-    div.strike.rope(v-if="hud.rope && !hud.strike && !hud.loot && !hud.sabotage && !hud.drag")
+    div.strike.slot-context.rope(v-if="hud.rope && !hud.strike && !hud.loot && !hud.sabotage && !hud.drag")
       FHudButton(
         icon="rope"
         :tone="LOOK.rope.tone"
@@ -163,7 +165,7 @@
     //- The right thumb's column, above where it rests.
     div.actions(ref="actionsEl")
       //- On touch, on the scope: a chip that zooms a notch (and round again).
-      FHudButton(
+      FHudButton.slot-zoom(
         v-if="hud.scoped && hud.device === 'touch'"
         icon="scope"
         :tone="LOOK.zoom.tone"
@@ -174,7 +176,7 @@
         template(#badge)
           FHudBadge(tone="cyan") ×{{ hud.zoom }}
       //- On touch, while aiming: a button that fires (letting go of the screen does too).
-      FHudButton(
+      FHudButton.slot-fire(
         v-if="hud.aiming && hud.device === 'touch'"
         :icon="hud.weapon"
         tone="pink"
@@ -182,7 +184,7 @@
         data-testid="btn-fire"
         @click="input.firePressed = true"
       )
-      FHudButton(
+      FHudButton.slot-cancel(
         v-if="hud.aiming && hud.device === 'touch'"
         icon="close"
         :tone="LOOK.cancel.tone"
@@ -194,7 +196,20 @@
       //- chip round it. On touch all three side by side, a switch to tap: the
       //- one in hand big and lit. On a desktop the one in hand, with the wheel
       //- and Tab that turn it; a click fans out the other two.
-      div.weapons(:class="{ spread: spread }")
+      //- On touch one button: the weapon in hand, a tap draws the next.
+      button.weapon-swap.slot-weapon(
+        v-if="hud.device === 'touch'"
+        type="button"
+        :class="[`w-${hud.weapon}`, { 'is-attention': flare || teaching('weapon') || teaching('rocket') }]"
+        :aria-label="t('hud.weapons')"
+        data-testid="btn-weapons"
+        @click="nextWeapon"
+      )
+        WeaponArt.swap-art(:weapon="hud.weapon")
+        GameIcon.swap-glyph(name="act-swap")
+        span.swap-pips
+          span.swap-pip(v-for="w in WEAPON_IDS" :key="w" :class="{ on: w === hud.weapon }")
+      div.weapons(v-else :class="{ spread: spread }")
         template(v-if="spread")
           button.weapon(
             v-for="(w, n) in WEAPON_IDS"
@@ -223,8 +238,8 @@
               rect.lit(x="5" y="3" width="2" height="4" rx="1")
             span.or /
             | {{ cycleKeyText }}
-      FHudButton(
-        icon="decoy"
+      FHudButton.slot-decoy(
+        :icon="LOOK.decoy.icon"
         :tone="LOOK.decoy.tone"
         :attention="teaching('decoy')"
         :is-disabled="hud.decoys <= 0 || hud.mode !== 'ground'"
@@ -238,8 +253,8 @@
         template(#badge v-if="hud.decoyCool > 0")
           FHudBadge(tone="cyan") {{ hud.decoyCool }}
       //- The hide box: down over the mech, and off again.
-      FHudButton(
-        icon="box"
+      FHudButton.slot-hide(
+        :icon="LOOK.hide.icon"
         :tone="LOOK.hide.tone"
         :active="hud.boxed"
         :pressed="hud.boxed"
@@ -253,9 +268,9 @@
       )
       //- A thumb has no Shift key: sprint is a switch here. It lets go by
       //- itself when the stick does.
-      FHudButton(
+      FHudButton.slot-sprint(
         v-if="hud.device === 'touch'"
-        icon="sprint"
+        :icon="LOOK.sprint.icon"
         :tone="LOOK.sprint.tone"
         :active="hud.sprinting || input.sprintHeld"
         :pressed="input.sprintHeld"
@@ -267,9 +282,9 @@
         @click="input.sprintHeld = !input.sprintHeld"
       )
       //- A thumb has no space bar: the jump has its chip (#95).
-      FHudButton(
+      FHudButton.slot-jump(
         v-if="hud.device === 'touch'"
-        icon="up"
+        :icon="LOOK.jump.icon"
         :tone="LOOK.jump.tone"
         :attention="teaching('jump')"
         :is-disabled="hud.mode !== 'ground'"
@@ -278,8 +293,8 @@
         data-testid="btn-jump"
         @click="input.jumpQueued = true"
       )
-      FHudButton(
-        :icon="hud.crouched ? 'stand' : 'crouch'"
+      FHudButton.slot-crouch(
+        :icon="hud.crouched ? 'act-stand' : LOOK.crouch.icon"
         :tone="LOOK.crouch.tone"
         :attention="teaching('crouch')"
         :active="hud.crouched"
@@ -311,6 +326,7 @@ import TrainingNudge from '@/components/hud/TrainingNudge.vue'
 import GameIcon from '@/components/icons/GameIcon.vue'
 import FHudBadge from '@/components/atoms/FHudBadge.vue'
 import Joystick from '@/components/hud/Joystick.vue'
+import LookStick from '@/components/hud/LookStick.vue'
 import AimHold from '@/components/hud/AimHold.vue'
 import ThreatArcs from '@/components/hud/ThreatArcs.vue'
 import ObjectiveMarker from '@/components/hud/ObjectiveMarker.vue'
@@ -324,7 +340,7 @@ import Reticle from '@/components/hud/Reticle.vue'
 import UnitFrame from '@/components/hud/UnitFrame.vue'
 import QuestLog from '@/components/hud/QuestLog.vue'
 import HitFlash from '@/components/hud/HitFlash.vue'
-import { hud } from '@/game/state/hud'
+import { hud, targetMarks } from '@/game/state/hud'
 import { input } from '@/game/engine/inputState'
 import { cancelAim } from '@/game/engine/input'
 import { WEAPON_IDS, type WeaponId } from '@/game/data/ids'
@@ -356,9 +372,12 @@ const placeQuest = (): void => {
   const el = actionsEl.value
   const host = el?.offsetParent as HTMLElement | null
   if (!el || !host) return
+  // On touch it hangs under the pause button instead (the touch layout's CSS).
+  if (hud.device === 'touch') { questStyle.value = {}; return }
   const fromBottom = host.clientHeight - el.offsetTop
   questStyle.value = { bottom: `calc(${fromBottom}px + var(--gap))` }
 }
+watch(() => hud.device, () => { void Promise.resolve().then(placeQuest) })
 onMounted(() => {
   placeQuest()
   if (typeof ResizeObserver !== 'undefined' && actionsEl.value) {
@@ -398,6 +417,12 @@ const offChaos = on('chaos', () => {
 })
 onUnmounted(offChaos)
 let closeTimer = 0
+/** Touch: the weapon button draws the next weapon round. */
+const nextWeapon = (): void => {
+  sfx('uiClick')
+  const n = WEAPON_IDS.indexOf(hud.weapon)
+  input.weaponQueued = (((n + 1) % WEAPON_IDS.length) + 1) as 1 | 2 | 3
+}
 const pick = (n: number): void => {
   sfx('uiClick')
   input.weaponQueued = (n + 1) as 1 | 2 | 3
@@ -639,4 +664,132 @@ onUnmounted(() => window.clearTimeout(closeTimer))
   --cm-chip: clamp(3.2rem, 14vmin, 4.6rem)
   &.beside
     right: calc(var(--cm-safe-right) + var(--cm-chip) * 2 + var(--gap) * 3)
+
+// ─── Touch: the thumb cluster (a mobile shooter's right hand) ────────────────
+//
+// Every action round one corner instead of one tall column (a landscape phone
+// is ~375 px tall: the column ran off the bottom, the crouch button with it).
+// Jump, big, in the corner; crouch, sprint and the hide box on the arc round
+// it; the decoy and the weapon on the next arc; the hands' action (stab,
+// loot, burn …) or, while aiming, the trigger, big, further in where the thumb
+// rests. Positions are in button widths from the jump button's centre (x to
+// the left, y up), worked out so no two buttons touch at any size; the look
+// stick sits left of the cluster (above it in portrait). A gap off every edge.
+=slot($x, $y, $size: var(--btn))
+  position: absolute
+  right: calc(var(--ax) + #{$x} * var(--btn) - #{$size} / 2)
+  bottom: calc(var(--ay) + #{$y} * var(--btn) - #{$size} / 2)
+  width: $size
+  height: $size
+  --cm-chip: #{$size}
+
+.mission-hud.touch
+  --btn: clamp(44px, 13.5vmin, 76px)
+  --big: calc(var(--btn) * 1.32)
+  --edge: clamp(14px, 4.5vmin, 30px)
+  --stick: clamp(5.5rem, 27vmin, 8.5rem)
+  // The jump button's centre, from the right and bottom edges.
+  --ax: calc(var(--cm-safe-right) + var(--edge) + var(--big) / 2)
+  --ay: calc(var(--cm-safe-bottom) + var(--edge) + var(--big) / 2)
+  // The look stick's centre: left of the cluster, level with the move stick
+  // on the left (`Joystick.vue` sits its resting stick 0.95 rings up).
+  --look-x: calc(var(--ax) + 3.5 * var(--btn) + var(--stick) / 2)
+  --look-y: calc(env(safe-area-inset-bottom, 0px) + var(--stick) * 0.95)
+  @media (orientation: portrait)
+    --look-x: calc(var(--ax) + 1.4 * var(--btn))
+    --look-y: calc(var(--ay) + 4.7 * var(--btn) + var(--stick) / 2)
+
+  .actions
+    position: absolute
+    inset: 0
+    display: block
+  .slot-jump
+    +slot(0, 0, var(--big))
+  .slot-crouch
+    +slot(1.5, 0)
+  .slot-sprint
+    +slot(0.96, 1.15)
+  .slot-hide
+    +slot(-0.26, 1.48)
+  .slot-decoy
+    +slot(2.52, 0.92)
+  .slot-weapon
+    +slot(1.13, 2.43)
+  .slot-fire, .slot-context
+    +slot(2.79, 2.51, var(--big))
+  .slot-context2
+    +slot(2.84, 4.05, var(--big))
+    @media (orientation: portrait)
+      +slot(0.5, 3.9, var(--big))
+  .slot-cancel
+    +slot(-0.1, 2.75)
+  .slot-zoom
+    +slot(0, 3.95)
+  // The hands' action is the trigger's place while aiming.
+  &.aiming .strike
+    display: none
+  .strike :deep(.f-hud-button)
+    width: 100%
+    height: 100%
+  // The quest log hangs under the pause button, clear of the cluster.
+  .quest
+    top: calc(var(--cm-safe-top) + var(--cm-chip) + var(--gap))
+    bottom: auto !important
+
+// The weapon on touch: the one in hand, drawn, in a round key of its colour;
+// a tap draws the next (the swap arrows and three pips say so).
+.weapon-swap
+  --wt: var(--cm-cyan)
+  display: grid
+  place-items: center
+  padding: 0
+  border: var(--cm-edge) solid var(--wt)
+  border-radius: 50%
+  background: radial-gradient(circle at 50% 35%, rgba(43, 27, 92, 0.85), rgba(21, 12, 43, 0.85))
+  box-shadow: 0 0 0.5rem color-mix(in srgb, var(--wt) 60%, transparent)
+  cursor: pointer
+  pointer-events: auto
+  touch-action: manipulation
+  -webkit-tap-highlight-color: transparent
+  &.w-minigun
+    --wt: var(--cm-violet)
+  &.w-rocket
+    --wt: var(--cm-danger)
+  &:active
+    filter: brightness(0.9)
+  &.is-attention
+    animation: weapon-call-ring 1.2s ease-in-out infinite
+.swap-art
+  width: 86%
+  height: 50%
+.swap-glyph
+  position: absolute
+  right: -6%
+  top: -6%
+  width: 38%
+  height: 38%
+  padding: 6%
+  box-sizing: border-box
+  border-radius: 50%
+  color: var(--cm-ink)
+  background: var(--wt)
+.swap-pips
+  position: absolute
+  bottom: 12%
+  display: flex
+  gap: 0.18rem
+.swap-pip
+  width: 0.32rem
+  height: 0.32rem
+  border-radius: 50%
+  background: rgba(246, 241, 255, 0.3)
+  &.on
+    background: var(--wt)
+@keyframes weapon-call-ring
+  50%
+    box-shadow: 0 0 0 0.35rem rgba(255, 210, 63, 0.85)
+@media (prefers-reduced-motion: reduce)
+  .weapon-swap.is-attention
+    animation: none
+    box-shadow: 0 0 0 0.3rem rgba(255, 210, 63, 0.85)
 </style>

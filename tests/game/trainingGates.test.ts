@@ -117,9 +117,9 @@ describe('the disguise room\'s lamp (#171)', () => {
   const lamp = gar.units.find(u => u.kind === 'searchlight' && u.caged)!
   const box = room('box')
 
-  it('is 40 % narrower than a searchlight', () => {
-    expect(spotRadius(lamp)).toBeCloseTo(SPOT_RADIUS * 0.6, 6)
-    expect(CAGED_RADIUS).toBeCloseTo(2.7, 6)
+  it('is 40 % narrower than a searchlight, then 15 % narrower again', () => {
+    expect(spotRadius(lamp)).toBeCloseTo(SPOT_RADIUS * 0.6 * 0.85, 6)
+    expect(CAGED_RADIUS).toBeCloseTo(2.295, 6)
   })
 
   it('starts at the far end: a mech sent back to the way in is not stood in its pool again', () => {

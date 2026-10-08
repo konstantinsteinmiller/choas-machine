@@ -77,8 +77,12 @@ export const WATCH_RADIUS = 6.5
 export const WATCH_PACE = 0.35
 /** Held this long in a Watchtower's pool and it is sure: the alarm rings. */
 export const WATCH_SURE_S = 0.35
-/** The disguise room's caged lamp (#171): 40 % narrower, so a mech in its box can get clear once it has passed. */
-export const CAGED_RADIUS = SPOT_RADIUS * 0.6
+/**
+ * The disguise room's caged lamp (#171): 40 % narrower, so a mech in its box
+ * can get clear once it has passed; then 15 % narrower again (the hologram's
+ * box seemed to go through the real lamp's pool, and getting by was hard).
+ */
+export const CAGED_RADIUS = SPOT_RADIUS * 0.6 * 0.85
 /** The pool a light throws on the ground. */
 export const spotRadius = (u: { watch?: boolean; caged?: boolean }): number => (u.watch ? WATCH_RADIUS : u.caged ? CAGED_RADIUS : SPOT_RADIUS)
 /** Seconds a fully lit, standing mech has before a drone is sure of it. */
@@ -872,7 +876,7 @@ export const makeGarrison = (f: Fortress, level = 2): Garrison => {
       yaw: p.facing, pyaw: p.facing, look: 0,
       state: p.reserve ? 'reserve' : mech ? 'dormant' : 'patrol', t: 0, detect: 0, sees: false, seenX: p.x, seenZ: p.z, lured: false, decoyWatch: 0, decoyShot: false,
       route: p.route, wp: p.route.length > 1 ? 1 : 0, wait: p.route[0]?.wait ?? 0,
-      path: [], pathI: 0, repath: 0, bodyT: 0, seenFor: 0, unseenFor: 9, shouted: false, runner: -1, wary: false, hop: 0, fought: false, checkAt: Infinity, checked: false, hp: p.hp ?? Math.round(SPECS[p.kind].hp * threat.hp * (p.boss === 'foreman' ? FOREMAN_HP : 1)), maxHp: p.hp ?? Math.round(SPECS[p.kind].hp * threat.hp * (p.boss === 'foreman' ? FOREMAN_HP : 1)), boss: p.boss ?? null, armoured: !!p.armoured, dummy: !!p.dummy, caged: !!p.caged, watch: !!p.watch, shield: !!p.shield, deadT: 0, fallDir: 1, huh: HUH_S, noise: 0, gripped: false, hold: 0, held: null, death: 'back', hitX: 0, hitZ: 0, found: false,
+      path: [], pathI: 0, repath: 0, bodyT: 0, seenFor: 0, unseenFor: 9, shouted: false, runner: -1, wary: false, hop: 0, fought: false, checkAt: Infinity, checked: false, hp: p.hp ?? Math.round(SPECS[p.kind].hp * threat.hp * (p.boss === 'foreman' ? FOREMAN_HP : 1) * (p.hpScale ?? 1)), maxHp: p.hp ?? Math.round(SPECS[p.kind].hp * threat.hp * (p.boss === 'foreman' ? FOREMAN_HP : 1) * (p.hpScale ?? 1)), boss: p.boss ?? null, armoured: !!p.armoured, dummy: !!p.dummy, caged: !!p.caged, watch: !!p.watch, shield: !!p.shield, deadT: 0, fallDir: 1, huh: HUH_S, noise: 0, gripped: false, hold: 0, held: null, death: 'back', hitX: 0, hitZ: 0, found: false,
       stride: 0, speed01: 0, homeX: p.x, homeZ: p.z, homeYaw: p.facing, altitude: p.altitude,
       spotX: spot.x, spotZ: spot.z,
       seed: (id * 2.399) % (Math.PI * 2),

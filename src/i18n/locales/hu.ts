@@ -61,7 +61,8 @@ export default {
     'metres': '{n} m',
     'objective': {
       'salvage': 'Hulladék',
-      'extract': 'Érj a kimentési platformra'
+      'extract': 'Érj a kimentési platformra',
+      'target': 'Célpont'
     },
     'haul': 'Hulladék: {n}/{need}',
     'hide': 'Elbújni a ládában',

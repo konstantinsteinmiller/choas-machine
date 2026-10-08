@@ -19,7 +19,7 @@ import { makeHologramMaterial, setHologram } from '../fx/hologram'
 import { merge, type Rig } from '../models/kit'
 import { CABLE_R, cableGeometry, hookHeadGeometry } from '../fx/grappleHook'
 import { ropeLineParts } from '../fx/ropeLine'
-import type { Garrison } from './garrison'
+import { SPECS, isAlive, type Garrison } from './garrison'
 import {
   DEMO_BACKSTAB, currentFrame, demoFrame, victimFrame, doorOf, entryOf, makeTraining, replayDemo, rewindRoom, roomAt, stepTraining,
   type DemoFrame, type Training, type TrainingContext, type TrainingEvent
@@ -302,8 +302,9 @@ export class TrainingDirector {
   /**
    * Where the marker points: the room's own goal (the door, the top of the
    * hook wall, the body to burn, the supplies, the pile, the pad), or the open
-   * door once the lesson is done; nothing while a weapons, blade or decoy
-   * lesson is still to do (the guards are the goal, in plain sight).
+   * door once the lesson is done; nothing while a weapons, rocket, blade or
+   * decoy lesson is still to do (the guards are the goal: `targetMarks` marks
+   * them, but for the decoy room's, which is to be lured).
    */
   waypoint(): { x: number; y: number; z: number } | null {
     const t = this.state
@@ -336,6 +337,23 @@ export class TrainingDirector {
       case 'weapons': case 'blade': case 'rocket': case 'decoy': return done && door ? at(door.x, door.z) : null
       default: return door ? at(door.x, door.z) : null
     }
+  }
+
+  /**
+   * The guards a lesson is about, each marked over its head until it is down:
+   * the weapons room's three, the rocket room's mech, the blade room's two
+   * (playtesters did not see that the guards were the goal). Nothing once the
+   * lesson is done; then the door is the waypoint.
+   */
+  targetMarks(): Array<{ x: number; y: number; z: number }> {
+    const t = this.state
+    if (t.room < 0 || t.done[t.room]) return []
+    const lesson = TRAINING_ROOMS[t.room]!.lesson
+    if (lesson !== 'weapons' && lesson !== 'rocket' && lesson !== 'blade') return []
+    return this.gar.units
+      .filter(u => roomAt(u.homeX) === t.room && isAlive(u) && !u.hidden)
+      // Above its health bar (drawn at its height + 0.25), not over it.
+      .map(u => ({ x: u.x, y: u.y + SPECS[u.kind].height + 1.1, z: u.z }))
   }
 
   /** Seen: the room's defenders back at their places, the mech at its door. */

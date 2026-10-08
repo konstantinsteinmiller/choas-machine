@@ -61,7 +61,8 @@ export default {
     'metres': '{n} m',
     'objective': {
       'salvage': 'Berging',
-      'extract': 'Bereik het extractieplatform'
+      'extract': 'Bereik het extractieplatform',
+      'target': 'Doelwit'
     },
     'haul': 'Schroot {n} van {need}',
     'hide': 'Verstoppen in de kist',

@@ -88,11 +88,11 @@ const ICONS: Readonly<Record<HintId, GameIconName>> = {
   jump: 'up', rope: 'rope', burn: 'flame', supply: 'bolt', rocket: 'rocket'
 }
 /** Touch: where on the screen a gesture's finger is drawn. */
-const SPOTS: Readonly<Partial<Record<HintId, 'stick' | 'right'>>> = {
-  move: 'stick', climb: 'stick', cable: 'stick', look: 'right', scope: 'right', fire: 'right', supply: 'stick'
+const SPOTS: Readonly<Partial<Record<HintId, 'stick' | 'right' | 'look'>>> = {
+  move: 'stick', climb: 'stick', cable: 'stick', look: 'look', scope: 'right', fire: 'right', supply: 'stick'
 }
 const FINGER: Readonly<Partial<Record<HintId, 'drag' | 'swipe' | 'hold' | 'release' | 'push' | 'loop'>>> = {
-  move: 'drag', climb: 'push', cable: 'push', look: 'loop', scope: 'hold', fire: 'release', supply: 'push'
+  move: 'drag', climb: 'push', cable: 'push', look: 'drag', scope: 'hold', fire: 'release', supply: 'push'
 }
 /** The sentence a screen reader gets: the glyphs themselves carry no words. */
 const LABELS: Readonly<Record<HintId, string>> = {
@@ -251,6 +251,11 @@ onUnmounted(() => { for (const id of Object.values(timers)) window.clearTimeout(
     left: calc(env(safe-area-inset-left, 0px) + var(--joy-size) * 0.95)
     bottom: calc(env(safe-area-inset-bottom, 0px) + var(--joy-size) * 0.95)
     translate: -50% 50%
+  // Over the look stick (placed by `MissionHud`'s touch layout), which pulses meanwhile.
+  &.look
+    right: var(--look-x)
+    bottom: var(--look-y)
+    translate: 50% 50%
   // The middle of the right half: where the look-and-aim thumb works.
   &.right
     left: 74%

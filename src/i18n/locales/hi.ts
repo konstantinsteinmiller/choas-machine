@@ -61,7 +61,8 @@ export default {
     'metres': '{n} मी',
     'objective': {
       'salvage': 'कबाड़',
-      'extract': 'निकासी पैड तक पहुँचें'
+      'extract': 'निकासी पैड तक पहुँचें',
+      'target': 'लक्ष्य'
     },
     'haul': 'कबाड़ {n} / {need}',
     'hide': 'डिब्बे में छिपें',

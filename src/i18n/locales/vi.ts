@@ -61,7 +61,8 @@ export default {
     'metres': '{n} m',
     'objective': {
       'salvage': 'Phế liệu',
-      'extract': 'Đến bãi triệt thoái'
+      'extract': 'Đến bãi triệt thoái',
+      'target': 'Mục tiêu'
     },
     'haul': 'Phế liệu {n}/{need}',
     'hide': 'Trốn trong thùng',

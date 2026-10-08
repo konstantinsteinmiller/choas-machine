@@ -61,7 +61,8 @@ export default {
     'metres': '{n} m',
     'objective': {
       'salvage': 'Recupero',
-      'extract': 'Raggiungi la piattaforma di estrazione'
+      'extract': 'Raggiungi la piattaforma di estrazione',
+      'target': 'Bersaglio'
     },
     'haul': 'Rottami {n} su {need}',
     'hide': 'Nasconditi nella cassa',
