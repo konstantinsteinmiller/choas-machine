@@ -5,9 +5,10 @@ import { getState, setStates } from '@/use/useGameState'
 import { saveDataVersion } from '@/use/useSaveStatus'
 import {
   SCHEMA_KEY, CLEARED_KEY, MEDALS_KEY, MISSIONS_DONE_KEY, SCRAP_KEY, CORES_KEY, ARSENAL_KEY,
-  FORTRESSES_KEY, FORGE_KEY, LESSONS_KEY, SEEN_KEY, STATS_KEY, HABITS_KEY, COSMETICS_KEY
+  FORTRESSES_KEY, FORGE_KEY, LESSONS_KEY, SEEN_KEY, STATS_KEY, HABITS_KEY, COSMETICS_KEY, PAINT_KEY
 } from '@/keys'
 import { DISGUISE_IDS, FREE_DISGUISE, type DisguiseId } from '../models/disguiseIds'
+import { FREE_PAINT, PAINT_IDS, asPaint, type PaintId } from '../models/paintIds'
 import type { Habits } from '../sim/adapt'
 import { MEDAL_IDS, UNLOCK_IDS, WEAPON_IDS, type InputFamily, type MedalId, type UnlockId, type WeaponId } from '../data/ids'
 
@@ -26,7 +27,7 @@ import { MEDAL_IDS, UNLOCK_IDS, WEAPON_IDS, type InputFamily, type MedalId, type
  */
 
 /** Version of the saved shape. Raise it with a step in `MIGRATIONS`. */
-export const SCHEMA_VERSION = 1
+export const SCHEMA_VERSION = 2
 
 export interface FortressSave {
   /** Times cleared, replays included. */
@@ -35,6 +36,8 @@ export interface FortressSave {
   bestScore: number
   /** Fastest clear in seconds; 0 until cleared. */
   bestTime: number
+  /** Deaths here since the last win here: the rubber band (`data/fortresses/ease.ts`). */
+  deathsSinceWin: number
 }
 
 export interface ArsenalSave {
@@ -54,6 +57,18 @@ export interface ArsenalSave {
 export interface CosmeticsSave {
   owned: DisguiseId[]
   worn: DisguiseId
+}
+
+/**
+ * The mech's paint (#M3, #M4): the schemes owned, the one on, when the day's
+ * paint videos were watched (a rolling day's cap, #M6), and a locked scheme
+ * lent for the next mission by a video (`trial`), until that mission starts.
+ */
+export interface PaintSave {
+  owned: PaintId[]
+  equipped: PaintId
+  videos: number[]
+  trial: PaintId | null
 }
 
 export interface StatsSave {
@@ -79,6 +94,7 @@ export interface Profile {
   /** The last raid's habits, answered by the base in the next (R26). */
   habits: Habits | null
   cosmetics: CosmeticsSave
+  paint: PaintSave
 }
 
 const perWeapon = (n: number): Record<WeaponId, number> =>
@@ -97,7 +113,8 @@ export const defaultProfile = (): Profile => ({
   seen: [],
   stats: { kills: 0, headshots: 0, stealthKills: 0, bladeKills: 0, alerts: 0, deaths: 0, playSeconds: 0 },
   habits: null,
-  cosmetics: { owned: [FREE_DISGUISE], worn: FREE_DISGUISE }
+  cosmetics: { owned: [FREE_DISGUISE], worn: FREE_DISGUISE },
+  paint: { owned: [FREE_PAINT], equipped: FREE_PAINT, videos: [], trial: null }
 })
 
 export const profile = reactive<Profile>(defaultProfile())
@@ -126,7 +143,7 @@ const readFortress = (v: unknown): FortressSave => {
   const m = record(f.medals)
   const medals = noMedals()
   for (const id of MEDAL_IDS) medals[id] = m[id] === true
-  return { clears: int(f.clears, 0), medals, bestScore: int(f.bestScore, 0), bestTime: int(f.bestTime, 0) }
+  return { clears: int(f.clears, 0), medals, bestScore: int(f.bestScore, 0), bestTime: int(f.bestTime, 0), deathsSinceWin: int(f.deathsSinceWin, 0, 0, 99) }
 }
 
 
@@ -150,10 +167,13 @@ const finishOldForge = (v: unknown, a: ArsenalSave): void => {
  * Version 1 is the first shape, so the list is empty.
  */
 type RawFields = Record<string, unknown>
-const MIGRATIONS: Record<number, (raw: RawFields) => void> = {}
+const MIGRATIONS: Record<number, (raw: RawFields) => void> = {
+  // 1 → 2 (#M4): the paint schemes. A save from before them wears CM-07's own.
+  1: (raw) => { raw[PAINT_KEY] ??= { owned: [FREE_PAINT], equipped: FREE_PAINT, videos: [], trial: null } }
+}
 
 const FIELD_KEYS = [
-  SCRAP_KEY, CORES_KEY, MISSIONS_DONE_KEY, ARSENAL_KEY, FORTRESSES_KEY, FORGE_KEY, LESSONS_KEY, SEEN_KEY, STATS_KEY, HABITS_KEY, COSMETICS_KEY
+  SCRAP_KEY, CORES_KEY, MISSIONS_DONE_KEY, ARSENAL_KEY, FORTRESSES_KEY, FORGE_KEY, LESSONS_KEY, SEEN_KEY, STATS_KEY, HABITS_KEY, COSMETICS_KEY, PAINT_KEY
 ] as const
 
 /** Fill the profile from the blob. Tolerates any missing or broken field. */
@@ -207,6 +227,20 @@ export const loadProfile = (): void => {
   if (!owned.includes(FREE_DISGUISE)) owned.unshift(FREE_DISGUISE)
   const worn = owned.includes(c.worn as DisguiseId) ? (c.worn as DisguiseId) : FREE_DISGUISE
   profile.cosmetics = { owned, worn }
+
+  const pt = record(raw[PAINT_KEY])
+  const schemes = Array.isArray(pt.owned) ? PAINT_IDS.filter(id => (pt.owned as unknown[]).includes(id)) : []
+  if (!schemes.includes(FREE_PAINT)) schemes.unshift(FREE_PAINT)
+  const equipped = asPaint(pt.equipped)
+  const videos = Array.isArray(pt.videos) ? pt.videos.filter((v): v is number => typeof v === 'number' && Number.isFinite(v)).slice(-20) : []
+  const trial = pt.trial == null ? null : asPaint(pt.trial)
+  profile.paint = {
+    owned: schemes,
+    equipped: schemes.includes(equipped) ? equipped : FREE_PAINT,
+    videos,
+    // A lent scheme the player has since bought is simply theirs.
+    trial: trial && !schemes.includes(trial) ? trial : null
+  }
 }
 
 // ─── Headline numbers ────────────────────────────────────────────────────────
@@ -221,7 +255,7 @@ export const medalCount = (): number =>
 
 /** The record for a fortress, created on first touch. */
 export const fortressSave = (id: string): FortressSave =>
-  (profile.fortresses[id] ??= { clears: 0, medals: noMedals(), bestScore: 0, bestTime: 0 })
+  (profile.fortresses[id] ??= { clears: 0, medals: noMedals(), bestScore: 0, bestTime: 0, deathsSinceWin: 0 })
 
 /** A new player: nothing cleared, nothing played. Decides the first screen. */
 export const isFreshProfile = (): boolean => profile.missions === 0 && clearedCount() === 0
@@ -247,7 +281,8 @@ export const saveProfile = (): void => {
     [SEEN_KEY]: plain(profile.seen),
     [STATS_KEY]: plain(profile.stats),
     [HABITS_KEY]: profile.habits ? plain(profile.habits) : null,
-    [COSMETICS_KEY]: plain(profile.cosmetics)
+    [COSMETICS_KEY]: plain(profile.cosmetics),
+    [PAINT_KEY]: plain(profile.paint)
   })
 }
 

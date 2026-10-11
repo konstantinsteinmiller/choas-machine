@@ -78,6 +78,18 @@ const clearCell = (g: Grid, b: Barrel): void => {
   g.base[i] = VOID
 }
 
+/** A barrel stands again (the training's barrel room set up again, #198): its cell cover once more. */
+export const restoreBarrel = (g: Grid, b: Barrel): void => {
+  if (b.live) return
+  b.live = true
+  b.fuse = -1
+  const i = b.cz * g.w + b.cx
+  g.base[i] = b.y
+  g.h[i] = b.y + BARREL_H
+  g.kind[i] = CellKind.Cover
+  g.surf[i] = Surf.Heap
+}
+
 /** How much a barrel going up at (x, z) hurts the mech `d` metres away. */
 export const barrelHurt = (d: number): number => (d >= BARREL_RADIUS ? 0 : Math.round(BARREL_HURT * (1 - d / BARREL_RADIUS)))
 

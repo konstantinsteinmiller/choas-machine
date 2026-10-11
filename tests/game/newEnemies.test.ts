@@ -127,10 +127,10 @@ describe('an empty post is filled', () => {
 })
 
 describe('the Bastion', () => {
-  it('has an Engineer from level II and a hound from level III', () => {
+  it("has an Engineer from level II, and a hound at II (the Sea Fort's robo dog, in a guard's place) and III", () => {
     expect(buildBastion(1).posts.some(p => p.role === 'engineer')).toBe(false)
     expect(buildBastion(2).posts.some(p => p.role === 'engineer')).toBe(true)
-    expect(buildBastion(2).posts.some(p => p.kind === 'hound')).toBe(false)
+    expect(buildBastion(2).posts.some(p => p.kind === 'hound')).toBe(true)
     expect(buildBastion(3).posts.some(p => p.kind === 'hound')).toBe(true)
   })
 })

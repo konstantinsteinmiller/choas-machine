@@ -34,7 +34,8 @@ export default {
     'salvage': 'The haul',
     'fallBastion': 'The Bastion falls',
     'fallFoundry': 'The Foundry goes cold',
-    'outro': 'Home'
+    'outro': 'Home',
+    'nextTarget': 'Next target'
   },
   'fortress': {
     'bastion': 'Bastion',
@@ -91,6 +92,7 @@ export default {
   },
   'defeat': {
     'title': 'Mech down',
+    'repair': 'Full repair',
     'retry': 'Try again',
     'resume': 'From the first pile',
     'kept': 'Tech Scrap salvaged'
@@ -195,6 +197,26 @@ export default {
     'unlock': 'Unlock the {name}',
     'watch': 'Watch a video to unlock the {name}'
   },
+  'paint': {
+    'title': 'Paint schemes',
+    'lilac': 'CM-07 Lilac',
+    'crimson': 'Crimson',
+    'arctic': 'Arctic',
+    'jungle': 'Jungle',
+    'gilded': 'Gilded',
+    'midnight': 'Midnight',
+    'tangerine': 'Tangerine',
+    'equip': 'Paint the mech {name}',
+    'equipShort': 'Equip',
+    'equipped': 'Equipped',
+    'unlock': 'Unlock {name}',
+    'watch': 'Watch a video to unlock {name} for good',
+    'try': 'Watch a video to try {name} for one mission',
+    'tryShort': 'Try 1 mission',
+    'lent': 'Yours for the next mission',
+    'noVideo': 'No video right now',
+    'back': 'Back in {time}'
+  },
   'ads': {
     'blockedTitle': 'Ads blocked',
     'blockedBody': 'An ad blocker stopped the video, so there is no reward this time.',
@@ -238,6 +260,7 @@ export default {
     'alarm': '6, 7!',
     'lowHealth': 'Time to tighten my screws!',
     'lowAmmo': 'Almost out of ammo, looking for stones to throw.',
+    'noAmmo': 'Out of ammo.',
     'takedown': 'Shhh. Nap time.',
     'decoy': 'Look, a handsome stranger!',
     'disguise': 'Best toaster in the business.',
@@ -256,6 +279,22 @@ export default {
     'replay': 'Show me again',
     'progress': 'Training: {n} of {total} lessons done',
     'scrapWhy': 'Scrap buys upgrades for your weapons back at the Command Base.',
+    'bladeHint': 'Sneak up to the guards and backstab them, so they don\'t raise the alarm!',
+    'decoyHint': 'Place a decoy to distract the guard, then sneak up and assassinate him!',
+    'roomHint': {
+      'move': 'Walk over to the glowing door to start your training.',
+      'jump': 'Climb the ladder and jump across the gap to the other platform!',
+      'cover': 'Crouch behind the crates so the sentry can\'t see you, then crawl under the gate!',
+      'weapons': 'Take out all three guards: snipe one, then switch to the minigun for the other two!',
+      'rocket': 'Switch to the rocket launcher and blow up the mech on the ledge!',
+      'supply': 'Walk over the crates to refill your ammo and repair your armour.',
+      'burn': 'Burn the body with the flamethrower before anyone finds it!',
+      'box': 'Hide in the box and stand still while the searchlight sweeps over you!',
+      'hook': 'Use the grappling hook to get over the wall!',
+      'rope': 'Use the rope gun to create a rope between the two platforms!',
+      'barrel': 'Shoot the fuel barrel to take out the guards behind the wall!',
+      'extract': 'Walk to the extraction point to finish your training!',
+    },
     'skip': 'Skip training',
     'goal': 'Take down all three',
     'goalProgress': '{n} of {total} down',
@@ -286,6 +325,8 @@ export default {
   'pause': {
     'title': 'PAUSED',
     'resume': 'Resume',
+    'retreat': 'Retreat to base',
+    'retreatSure': 'Leave the raid? Tap again',
     'controls': 'Controls'
   },
   'options': {

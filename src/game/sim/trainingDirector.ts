@@ -2,6 +2,7 @@ import {
   AdditiveBlending, BoxGeometry, BufferGeometry, CircleGeometry, ConeGeometry, CylinderGeometry, DoubleSide, Group, Mesh, MeshBasicMaterial,
   Quaternion, RingGeometry, SphereGeometry, Vector3, type Camera, type Object3D, type Scene, type ShaderMaterial
 } from 'three'
+import { missionPaint } from '../state/paint'
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js'
 import { demoPop } from '../state/hud'
 import { CELL, CellKind, cellMid, heightAt, VOID, type Grid } from '../world/grid'
@@ -9,7 +10,7 @@ import type { Fortress } from '../world/fortress'
 import { CRAWL_GAP_H, ROCKET_LEDGE_H, ROCKET_TARGET, ROOM_WALL_H, ROPE_DECK_H, ROPE_TOWER_H, TRAINING_ROOMS } from '../data/fortresses/training'
 import { VARIANTS } from './backstab'
 import { poseBackstabGuard, poseBackstabMech } from './backstabStage'
-import { muzzleWorld, buildMech, poseMech, restPose, type MechPose } from '../models/mech'
+import { MECH_HEIGHT, lineHandWorld, muzzleWorld, buildMech, poseMech, restPose, type MechPose } from '../models/mech'
 import { buildEnforcer, buildGuard, poseEnforcer, poseGuard, restGuardPose } from '../models/garrison'
 import { Shatter } from '../fx/shatter'
 import { mechGaitRate } from './gait'
@@ -110,7 +111,7 @@ export class TrainingDirector {
   private lastZ = 0
 
   constructor(scene: Scene, private fortress: Fortress, private gar: Garrison) {
-    this.ghost = buildMech()
+    this.ghost = buildMech(missionPaint())
     this.ghost.mesh.material = this.holo
     if (this.ghost.outline) this.ghost.outline.visible = false
     this.ghost.root.visible = false
@@ -145,7 +146,7 @@ export class TrainingDirector {
     this.decoyOrb = new Mesh(new SphereGeometry(0.22, 12, 8), this.holo)
     this.decoyOrb.visible = false
     this.group.add(this.decoyOrb)
-    this.decoyHolo = buildMech()
+    this.decoyHolo = buildMech(missionPaint())
     this.decoyHolo.mesh.material = this.holo
     if (this.decoyHolo.outline) this.decoyHolo.outline.visible = false
     this.decoyHolo.root.visible = false
@@ -417,6 +418,13 @@ export class TrainingDirector {
     s.climbPhase = f.y
     s.air = f.air
     s.cable = f.cable
+    // The hook (#117): thrown with the whole body, then hand over hand up the
+    // line (it hung there stiff in the drop's pose, "as if dead").
+    const hooked = !!f.grip && f.hook > 0.01
+    s.throwHook = hooked && f.hook < 0.99 ? f.hook : 0
+    s.reel = hooked && f.hook >= 0.99 && f.air > 0.05 ? 1 : 0
+    s.reelPhase = f.y * 2.4
+    if (s.reel) s.air = 0
     s.grab = s.draw = s.plunge = 0
     s.stow = 0
     // The backstab (#110): the mech's half as the mission plays it, on the
@@ -449,7 +457,8 @@ export class TrainingDirector {
     if (!camera || !f.press) { demoPop.on = false; if (!f.press) this.lastPress = ''; return }
     const key = `${f.press.hint}@${(this.state.demoT - f.press.t).toFixed(2)}`
     if (key !== this.lastPress) { this.lastPress = key; demoPop.seq++ }
-    const p = this.popV.set(f.x, y + 3, f.z).project(camera)
+    // Just over the hologram's head (it stood a metre higher, easy to miss up there).
+    const p = this.popV.set(f.x, y + MECH_HEIGHT + 0.25, f.z).project(camera)
     demoPop.on = p.z < 1 && Math.abs(p.x) < 1.1 && Math.abs(p.y) < 1.1
     demoPop.x = (p.x + 1) / 2
     demoPop.y = (1 - p.y) / 2
@@ -574,7 +583,7 @@ export class TrainingDirector {
     // the deck, out of the jump room's gap, #154), and the line the mech is reeled up on.
     this.hookLine.visible = this.hookHead.visible = !!f.grip && f.hook > 0.01
     if (this.hookLine.visible && f.grip) {
-      const hand = new Vector3(f.x + Math.sin(f.yaw) * 0.25, y + 2.05, f.z + Math.cos(f.yaw) * 0.25)
+      const hand = lineHandWorld(this.ghost, new Vector3()) ?? new Vector3(f.x + Math.sin(f.yaw) * 0.25, y + 2.05, f.z + Math.cos(f.yaw) * 0.25)
       const top = new Vector3(f.grip.x, f.grip.y, f.grip.z)
       const end = hand.clone().lerp(top, Math.min(1, f.hook))
       const len = Math.max(0.05, hand.distanceTo(end))

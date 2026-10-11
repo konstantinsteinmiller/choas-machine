@@ -59,6 +59,7 @@ export const shotDamage = (weapon: WeaponId, kind: PostKind, zone: Zone, mul = 1
     if (isHuman(kind)) return zone === 'head' ? base * 2 : zone === 'limb' ? base * 0.7 : base
     if (kind === 'commander') return zone === 'armor' ? base * 0.1 : zone === 'head' ? base * 2 : base
     if (kind === 'enforcer') return zone === 'joint' ? base * 3 : zone === 'head' ? base : base * 0.5
+    if (kind === 'goliath') return zone === 'weak' ? base * 1.5 : base * GOLIATH_PLATE_MINIGUN
     return zone === 'weak' ? base * 1.5 : base * 0.1
   }
   // A rocket that hits something directly: the blast below does the rest.
@@ -66,6 +67,15 @@ export const shotDamage = (weapon: WeaponId, kind: PostKind, zone: Zone, mul = 1
 }
 
 export const BLAST_RADIUS = 5.5
+/** A rocket on the Goliath's plate takes this share of its hit points (three end it); in its vents, this. */
+export const GOLIATH_PLATE_SHARE = 0.34
+export const GOLIATH_REAR_SHARE = 0.5
+/**
+ * A mini-gun round on the Goliath's plate: a full belt (100 rounds) takes about
+ * an eighth off it at threat III, so the playtester's two rockets (all a raid
+ * starts with) and three belts are just enough.
+ */
+export const GOLIATH_PLATE_MINIGUN = 0.45
 /** The Goliath's rear: within this of dead astern, a blast gets at the vents. */
 const REAR_ARC = 1.05
 
@@ -105,9 +115,15 @@ export const blast = (
       gar.events.push({ type: 'shieldDown', id: u.id })
     }
     if (u.kind === 'goliath') {
-      // From astern the blast gets into the vents; anywhere else it is plate.
+      // A share of the tank, not of a rocket: three on its plate end it, at
+      // any threat level, two in its vents from astern. (Plate took 35 % of a
+      // flat 400 against 3,450 hit points at threat III: a playtester's two
+      // rockets and three full belts left it standing — "indestructible".)
       const astern = Math.abs(angleDelta(u.yaw + Math.PI, headingTo(u.x, u.z, x, z))) < REAR_ARC
-      if (astern) { amount *= 3; res.weakHit = true } else amount *= 0.35
+      if (astern) res.weakHit = true
+      // A rocket that struck the hull takes the whole share; a blast beside it, less with distance.
+      const near = u.id === direct ? 1 : 1 - 0.75 * (dist / radius)
+      amount = u.maxHp * (astern ? GOLIATH_REAR_SHARE : GOLIATH_PLATE_SHARE) * mul * near
     }
     if (damageUnit(gar, u.id, amount, x, z, 'blast')) res.kills.push(u.id)
     else res.hurt.push(u.id)

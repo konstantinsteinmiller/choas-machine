@@ -30,7 +30,8 @@ export default {
     'salvage': 'A zsákmány',
     'fallBastion': 'Elesik a Bástya',
     'fallFoundry': 'Kihűl az Öntöde',
-    'outro': 'Haza'
+    'outro': 'Haza',
+    'nextTarget': 'Következő célpont'
   },
   'fortress': {
     'bastion': 'Bástya',
@@ -87,6 +88,7 @@ export default {
   },
   'defeat': {
     'title': 'A mech kiesett',
+    'repair': 'Teljes javítás',
     'retry': 'Próbáld újra',
     'resume': 'Az első kupactól',
     'kept': 'Megmentett techhulladék'
@@ -191,6 +193,26 @@ export default {
     'unlock': 'Feloldás: {name}',
     'watch': 'Nézz videót a feloldáshoz: {name}'
   },
+  'paint': {
+    'title': 'Festések',
+    'lilac': 'CM-07 Orgona',
+    'crimson': 'Bíbor',
+    'arctic': 'Sarkvidék',
+    'jungle': 'Dzsungel',
+    'gilded': 'Aranyozott',
+    'midnight': 'Éjfél',
+    'tangerine': 'Mandarin',
+    'equip': 'Robot festése: {name}',
+    'equipShort': 'Felszerel',
+    'equipped': 'Felszerelve',
+    'unlock': 'Feloldás: {name}',
+    'watch': 'Nézz videót a végleges feloldáshoz: {name}',
+    'try': 'Nézz videót, és próbáld ki egy küldetésre: {name}',
+    'tryShort': '1 küldetés próba',
+    'lent': 'Tiéd a következő küldetésre',
+    'noVideo': 'Most nincs videó',
+    'back': 'Újra {time} múlva'
+  },
   'ads': {
     'blockedTitle': 'Reklámok letiltva',
     'blockedBody': 'Egy reklámblokkoló megállította a videót, így most nincs jutalom.',
@@ -234,6 +256,7 @@ export default {
     'alarm': '6, 7!',
     'lowHealth': 'Ideje meghúzni a csavarjaimat!',
     'lowAmmo': 'Majdnem kifogytam a lőszerből, köveket keresek dobáshoz.',
+    'noAmmo': 'Kifogyott a lőszer.',
     'takedown': 'Pssz. Csicsikálás.',
     'decoy': 'Nézd, egy jóképű idegen!',
     'disguise': 'A szakma legjobb kenyérpirítója.',
@@ -252,6 +275,22 @@ export default {
     'replay': 'Mutasd újra',
     'progress': 'Gyakorlás: {total} leckéből {n} kész',
     'scrapWhy': 'A techhulladékból a Parancsnoki bázison fejlesztheted a fegyvereidet.',
+    'bladeHint': 'Lopakodj az őrökhöz, és szúrd hátba őket, hogy ne riasszanak!',
+    'decoyHint': 'Tegyél le egy csalit, hogy elterelje az őr figyelmét, aztán lopakodj oda és iktasd ki!',
+    'roomHint': {
+      'move': 'Sétálj a világító ajtóhoz, hogy elkezdd a kiképzést.',
+      'jump': 'Mássz fel a létrán, és ugord át a szakadékot a másik platformra!',
+      'cover': 'Guggolj le a ládák mögé, hogy az őr ne lásson, aztán kússz át a kapu alatt!',
+      'weapons': 'Iktasd ki mindhárom őrt: egyet szedj le mesterlövészpuskával, aztán válts minigunra a másik kettőhöz!',
+      'rocket': 'Válts rakétavetőre, és robbantsd fel a párkányon álló mechet!',
+      'supply': 'Sétálj át a ládákon, hogy feltöltsd a lőszert és megjavítsd a páncélod.',
+      'burn': 'Égesd el a holttestet a lángszóróval, mielőtt valaki megtalálja!',
+      'box': 'Bújj el a dobozban, és állj mozdulatlanul, amíg a fényszóró végigpásztáz rajtad!',
+      'hook': 'Használd a csáklyát, hogy átjuss a falon!',
+      'rope': 'Használd a kötélvetőt, hogy kötelet feszíts ki a két platform közé!',
+      'barrel': 'Lőj az üzemanyagos hordóra, hogy kiiktasd a fal mögötti őröket!',
+      'extract': 'Menj a kimentési ponthoz, hogy befejezd a kiképzést!',
+    },
     'skip': 'Gyakorlás kihagyása',
     'goal': 'Iktasd ki mind a hármat',
     'goalProgress': '{n}/{total} kiiktatva',
@@ -282,6 +321,8 @@ export default {
   'pause': {
     'title': 'SZÜNET',
     'resume': 'Folytatás',
+    'retreat': 'Visszavonulás a bázisra',
+    'retreatSure': 'Elhagyod a rajtaütést? Koppints újra',
     'controls': 'Irányítás'
   },
   'options': {

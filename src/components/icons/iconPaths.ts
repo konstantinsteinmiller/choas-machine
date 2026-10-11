@@ -350,6 +350,18 @@ export const ICON_PATHS: Record<GameIconName, string[]> = {
     'M10.2 3.6A1.8 1.8 0 1 1 13.8 3.6A1.8 1.8 0 1 1 10.2 3.6Z',
     'M1.8 11.5h2.6v4H1.8ZM19.6 11.5h2.6v4h-2.6Z'
   ],
+  // A spray can (the mech's paint, #M5): the can with a label band punched
+  // through it, its cap and nozzle, and a puff of paint off to the right.
+  'paint': [
+    'M6.6 11.2A2.2 2.2 0 0 1 8.8 9L12.8 9A2.2 2.2 0 0 1 15 11.2L15 19.4A1.6 1.6 0 0 1 13.4 21L8.2 21A1.6 1.6 0 0 1 6.6 19.4Z',
+    'M8.4 13v2.8h4.8V13Z',
+    'M8.9 5.4h3.8v3.6H8.9Z',
+    'M12.7 6.1h2.3v1.8h-2.3Z',
+    'M16.6 7A1.2 1.2 0 1 1 19 7A1.2 1.2 0 1 1 16.6 7Z',
+    'M19.4 4.2A1.1 1.1 0 1 1 21.6 4.2A1.1 1.1 0 1 1 19.4 4.2Z',
+    'M19.6 9.6A1.1 1.1 0 1 1 21.8 9.6A1.1 1.1 0 1 1 19.6 9.6Z',
+    'M17 2.4A0.9 0.9 0 1 1 18.8 2.4A0.9 0.9 0 1 1 17 2.4Z'
+  ],
   // The sniper's reticle: a ring, four ticks and the centre dot.
   'scope': [
     'M4.5 12A7.5 7.5 0 1 1 19.5 12A7.5 7.5 0 1 1 4.5 12Z',

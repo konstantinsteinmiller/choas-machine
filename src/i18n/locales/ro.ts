@@ -30,7 +30,8 @@ export default {
     'salvage': 'Prada',
     'fallBastion': 'Bastionul cade',
     'fallFoundry': 'Turnătoria se răcește',
-    'outro': 'Acasă'
+    'outro': 'Acasă',
+    'nextTarget': 'Următoarea țintă'
   },
   'fortress': {
     'bastion': 'Bastion',
@@ -87,6 +88,7 @@ export default {
   },
   'defeat': {
     'title': 'Mech doborât',
+    'repair': 'Reparație completă',
     'retry': 'Încearcă din nou',
     'resume': 'De la prima grămadă',
     'kept': 'Fier vechi tech salvat'
@@ -191,6 +193,26 @@ export default {
     'unlock': 'Deblochează: {name}',
     'watch': 'Urmărește un videoclip pentru a debloca: {name}'
   },
+  'paint': {
+    'title': 'Vopsele',
+    'lilac': 'CM-07 Liliac',
+    'crimson': 'Carmin',
+    'arctic': 'Arctic',
+    'jungle': 'Junglă',
+    'gilded': 'Aurit',
+    'midnight': 'Miez de noapte',
+    'tangerine': 'Mandarină',
+    'equip': 'Vopsește robotul: {name}',
+    'equipShort': 'Echipează',
+    'equipped': 'Echipat',
+    'unlock': 'Deblochează: {name}',
+    'watch': 'Urmărește un videoclip pentru a debloca definitiv: {name}',
+    'try': 'Urmărește un videoclip pentru a încerca {name} o misiune',
+    'tryShort': 'Încearcă 1 misiune',
+    'lent': 'Al tău pentru misiunea următoare',
+    'noVideo': 'Niciun videoclip acum',
+    'back': 'Din nou în {time}'
+  },
   'ads': {
     'blockedTitle': 'Reclame blocate',
     'blockedBody': 'Un blocant de reclame a oprit videoclipul, deci de data aceasta nu primești recompensă.',
@@ -234,6 +256,7 @@ export default {
     'alarm': '6, 7!',
     'lowHealth': 'E timpul să-mi strâng șuruburile!',
     'lowAmmo': 'Aproape fără muniție, caut pietre de aruncat.',
+    'noAmmo': 'Fără muniție.',
     'takedown': 'Șșș. Nani.',
     'decoy': 'Uite, un străin chipeș!',
     'disguise': 'Cel mai bun prăjitor de pâine din branșă.',
@@ -252,6 +275,22 @@ export default {
     'replay': 'Arată-mi din nou',
     'progress': 'Antrenament: {n} din {total} lecții terminate',
     'scrapWhy': 'Cu fier vechi tech îți îmbunătățești armele la Baza de Comandă.',
+    'bladeHint': 'Furișează-te până la gardieni și înjunghie-i pe la spate, ca să nu dea alarma!',
+    'decoyHint': 'Pune o momeală ca să distragi paznicul, apoi furișează-te și elimină-l!',
+    'roomHint': {
+      'move': 'Mergi la ușa strălucitoare ca să începi antrenamentul.',
+      'jump': 'Urcă pe scară și sari peste gol pe cealaltă platformă!',
+      'cover': 'Ghemuiește-te după lăzi ca santinela să nu te vadă, apoi târăște-te pe sub poartă!',
+      'weapons': 'Elimină toți cei trei paznici: doboară unul cu pușca cu lunetă, apoi treci pe minigun pentru ceilalți doi!',
+      'rocket': 'Treci pe lansatorul de rachete și aruncă în aer mech-ul de pe margine!',
+      'supply': 'Treci peste lăzi ca să-ți reumpli muniția și să-ți repari blindajul.',
+      'burn': 'Arde cadavrul cu aruncătorul de flăcări înainte să-l găsească cineva!',
+      'box': 'Ascunde-te în cutia de carton și stai nemișcat cât timp reflectorul trece peste tine!',
+      'hook': 'Folosește cârligul de agățare ca să treci peste zid!',
+      'rope': 'Folosește pușca cu frânghie ca să întinzi o frânghie între cele două platforme!',
+      'barrel': 'Trage în butoiul de combustibil ca să elimini paznicii din spatele zidului!',
+      'extract': 'Mergi la punctul de extracție ca să termini antrenamentul!',
+    },
     'skip': 'Sari peste antrenament',
     'goal': 'Elimină-i pe toți trei',
     'goalProgress': '{n} din {total} doborâți',
@@ -282,6 +321,8 @@ export default {
   'pause': {
     'title': 'PAUZĂ',
     'resume': 'Continuă',
+    'retreat': 'Retragere la bază',
+    'retreatSure': 'Părăsești raidul? Atinge din nou',
     'controls': 'Comenzi'
   },
   'options': {

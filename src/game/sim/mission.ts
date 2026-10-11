@@ -2,6 +2,7 @@ import {
   PerspectiveCamera, Sprite, SpriteMaterial, AdditiveBlending, Vector3, Mesh, CylinderGeometry, MeshBasicMaterial, DoubleSide, Group,
   BufferAttribute, BufferGeometry, Line, LineBasicMaterial, RingGeometry
 } from 'three'
+import { missionPaint } from '../state/paint'
 import { getRenderer, fovForAspect } from '../engine/renderer'
 import { app, newScene, type GameMode } from '../engine/app'
 import { noSlice, type Slice } from '../engine/slicer'
@@ -26,7 +27,7 @@ import { PLAYER_WRECK } from '../fx/shatter'
 import { sceneQuality } from '../engine/quality'
 import { buildRopeLines, type RopeLine } from '../fx/ropeLine'
 import type { Rig } from '../models/kit'
-import { muzzleWorld, buildMech, poseMech, restPose, MECH_HEIGHT, MECH_HEIGHT_CROUCH, MECH_SCALE, type MechPose , MECH_KNEEL_S, MECH_DOWN_S } from '../models/mech'
+import { lineHandWorld, muzzleWorld, buildMech, poseMech, restPose, MECH_HEIGHT, MECH_HEIGHT_CROUCH, MECH_SCALE, type MechPose , MECH_KNEEL_S, MECH_DOWN_S } from '../models/mech'
 import { PAL } from '../models/palette'
 import { WEAPON_IDS, type WeaponId } from '../data/ids'
 import { haptic } from '@/use/useHaptics'
@@ -35,7 +36,7 @@ import { makePlayer, stepPlayer, eyeHeight, angleDelta, type Player } from './pl
 import { makeCam, lookCam, stepCam, placeCam, stickToWorld, camForward, type Cam } from './camera'
 import { alertSegments } from './alert'
 import {
-  SPECS, SUSPECT_AT, igniteUnit, shieldStruck, stepHeard, sabotageBeacon, searchForShooter, noteChange, tagUnit, cutRig, helmetPops, isAlive, stepFallen, estimateShot, shotPassed, IMPACT_M, UPLINK_S, drainEvents, headingTo, killUnit, damageUnit, makeGarrison, noiseAt, hearAt, wonderAt, voidNoise, stepGarrison, alarmUnit, startleUnit, isLight,
+  SPECS, SUSPECT_AT, igniteUnit, shieldStruck, stepHeard, sabotageBeacon, searchForShooter, noteChange, tagUnit, cutRig, helmetPops, isAlive, stepFallen, estimateShot, shotPassed, IMPACT_M, UPLINK_S, drainEvents, headingTo, killUnit, damageUnit, makeGarrison, noiseAt, hearAt, wonderAt, voidNoise, stepGarrison, alarmUnit, startleUnit, isLight, forgetMech,
   type Garrison, type Target, type Unit, type Change
 } from './garrison'
 import { GarrisonView } from './garrisonView'
@@ -58,7 +59,7 @@ import { fireRocket, stepRockets, type Burst, type Rocket } from './rockets'
 import { blastRagdoll, nearRay, push, ragdollFrom, wake as wakeRagdoll } from './ragdoll'
 import { MARKSMAN_AIM_S, stepFire } from './chaos'
 import { hurtArmor, makeArmor, stepArmor, type Armor } from './armor'
-import { flow, finishMission, failMission, finishTraining } from '../flow'
+import { flow, finishMission, failMission, finishTraining, retreatMission } from '../flow'
 import { BANNER_HOLD, clearBanner, showBanner } from '../state/banner'
 import {
   AIRSHIP_SCRAP, LAMP_R, ROUND_DAMAGE, ROUND_HIT, SHIP_BLAST_R, TURRET_RANGE, UPLINK_S as SHIP_UPLINK_S, ENGINE_HP,
@@ -69,7 +70,7 @@ import { AirshipView } from './airshipView'
 import { AIRSHIP_HALF } from '../models/airship'
 import { TrainingDirector } from './trainingDirector'
 import { DEMO_GAP_S, DOOR_LINES, atShutDoor, demoLength, entryOf, inPit, lessonStuck, nearDoorWall, roomAt, victimFrame } from './training'
-import { TRAINING_ID, TRAINING_ROOMS, trainingArmor, type LessonId } from '../data/fortresses/training'
+import { LESSON_IDS, TRAINING_ID, TRAINING_ROOMS, trainingArmor, type LessonId } from '../data/fortresses/training'
 import { COVER_H } from '../world/fortress'
 import { BASE_LOADOUT, type Loadout } from '../data/upgrades'
 import { camKind, camZone, chooseKillCam, makeKillCamState, type CamCut, type KillInfo } from './killcam'
@@ -83,7 +84,7 @@ import { POUCH_ROUNDS_MAX, POUCH_ROUNDS_MIN, supplyUnderfoot, take, wants, type 
 import { findRopeShot, type RopeShot } from './ropes'
 import { makeFlameMaterial, setFlame } from '../fx/flameCone'
 import { themeOf } from '../data/themes'
-import { BARREL_EARSHOT, BARREL_POWER, BARREL_RADIUS, barrelAt, barrelHurt, ignite, stepBarrels, type Barrel } from './barrels'
+import { BARREL_EARSHOT, BARREL_POWER, BARREL_RADIUS, barrelAt, barrelHurt, ignite, restoreBarrel, stepBarrels, type Barrel } from './barrels'
 import { SupplyView } from '../fx/supplyView'
 import { MUZZLE } from '../models/garrison'
 import { buildBeacon, disposeBeacon, poseBeacon, BEACON_TOP, type BeaconView } from '../models/beacon'
@@ -126,6 +127,8 @@ const PLAYER_SHATTER_FORCE = 4.2
 /** The flamethrower (#99): how near the body must be, and how long a burn takes. */
 const BURN_REACH = 2.4
 const BURN_S = 2
+/** A burn walked away from past this share goes on by itself (#191: players stopped it by accident and had to come back). */
+const BURN_KEEP = 0.35
 /** A jump is heard this near (#95). */
 const JUMP_EARSHOT = 6
 /** The silenced rifle is heard this near its muzzle (#68). */
@@ -166,11 +169,27 @@ const DECOY_PITCH_HIGH = 0.3
 const AIM_ARC_N = 18
 /** How long the mech takes to fold into its disguise, or out of it (#111). */
 const MORPH_S = 0.8
+/** The disguise is gone enough to strike from (its morph, 0 … 1), and how long a strike waits for it. */
+const UNBOX_READY = 0.05
+const UNBOX_WAIT_S = MORPH_S + 0.6
 /** The weapon is ready when the body faces the aim this closely, and the aim pose is this far up. */
 const READY_YAW = 0.16
 const READY_AIM = 0.8
 /** A press waits this long for the mech to turn and bring the weapon up, then lapses. */
 const FIRE_INTENT_S = 0.8
+/** Touch: how far the stick is pushed (0 … 1, eased) before the mech runs by itself. */
+const TOUCH_SPRINT_PUSH = 0.85
+/** The training rooms taught by the hologram alone, and the card that goes with each (see `CoachContext.roomLesson`). */
+const ROOM_CARD: Partial<Record<LessonId, HintId>> = { jump: 'jump', rocket: 'rocket', supply: 'supply', burn: 'burn', rope: 'rope', decoy: 'decoy' }
+/** The training room that introduces a control the coach would otherwise suggest by the situation. */
+const HINT_ROOM: Partial<Record<HintId, LessonId>> = {
+  crouch: 'cover', scope: 'weapons', fire: 'weapons', weapon: 'weapons', rocket: 'rocket', blade: 'blade', burn: 'burn',
+  decoy: 'decoy', hide: 'box', grapple: 'jump', rope: 'rope', loot: 'salvage'
+}
+/** The controls whose room is still ahead of `room` in the training (none of their cards yet). */
+const NOT_YET: ReadonlyArray<ReadonlySet<HintId>> = [-1, ...LESSON_IDS.map((_, i) => i)].map(room =>
+  new Set((Object.keys(HINT_ROOM) as HintId[]).filter(id => LESSON_IDS.indexOf(HINT_ROOM[id]!) > room)))
+const notYetTaught = (room: number): ReadonlySet<HintId> => NOT_YET[Math.max(-1, room) + 1]!
 /** The scope's sway, radians: standing, and steadied in a crouch. */
 const SWAY = 0.0022
 const SWAY_CROUCH = 0.0008
@@ -407,6 +426,12 @@ export class Mission implements GameMode {
   private burning: { id: number; t: number; seen: number; live: boolean } | null = null
   private burnOffer = -1
   private burnChange: Change | null = null
+  /**
+   * Bodies left burning on their own (#191): a burn walked away from once it
+   * was past `BURN_KEEP` goes on without the jet and finishes by itself, its
+   * glow still a thing to notice until it is out.
+   */
+  private afterburns: Array<{ id: number; t: number; change: Change | null }> = []
   private fuelLeft = 0
   private flame!: Mesh
   // Orange-red at the edge, not crimson: added onto the violet dusk a crimson edge turns pink.
@@ -526,10 +551,11 @@ export class Mission implements GameMode {
     m.mesh = await buildFortressMesh(fortress, look.mesh, slice, p => onProgress(p * 0.8))
     m.decor = buildDecor(fortress.decor)
     await slice()
-    m.rig = buildMech()
+    // The player's mech in the player's paint (#M3), a lent scheme on its mission.
+    m.rig = buildMech(missionPaint())
     // The last known position: a ghost of the mech where it was last seen,
     // there while anybody is out looking for it.
-    m.ghost = buildMech()
+    m.ghost = buildMech(missionPaint())
     // One glowing, see-through material for the whole silhouette.
     m.ghostMat = new MeshBasicMaterial({ color: '#bfeaff', transparent: true, opacity: 0.4, blending: AdditiveBlending, depthWrite: false, toneMapped: false })
     m.ghost.mesh.material = m.ghostMat
@@ -542,7 +568,7 @@ export class Mission implements GameMode {
     // The Airship circles the later fortresses (#142).
     if (fortress.airship) m.ship = { a: makeAirship(fortress.grid), v: new AirshipView(m.scene, fortress.grid), rockets: [] }
     await slice()
-    m.fx = new CombatFx()
+    m.fx = new CombatFx(missionPaint())
     m.strikeMark = new Sprite(new SpriteMaterial({
       map: ringTexture(), color: PAL.mechBlade, transparent: true, blending: AdditiveBlending, depthTest: false, depthWrite: false, toneMapped: false
     }))
@@ -556,7 +582,7 @@ export class Mission implements GameMode {
       m.beaconViews.push(v)
     }
     // What comes down over the mech when it hides: the disguise it wears (#97).
-    m.hideBox = buildDisguise(profile.cosmetics.worn)
+    m.hideBox = buildDisguise(profile.cosmetics.worn, missionPaint())
     m.scene.add(m.hideBox)
     m.supplyView = new SupplyView(m.supplies, m.barrels)
     m.scene.add(m.supplyView.group)
@@ -674,6 +700,11 @@ export class Mission implements GameMode {
     this.offCineSkip = on('cineSkip', () => { if (this.cine && this.cine.t > 0.3) this.skipCine() })
     this.offZoom?.()
     this.offZoom = on('zoom', () => this.zoomStep(1, true))
+    this.offRepair?.()
+    this.offRepair = on('fullRepair', () => this.fullRepair())
+    this.offRetreat?.()
+    // The pause menu's retreat (#197): the run so far, for the way home.
+    this.offRetreat = on('retreat', () => { if (hud.phase === 'play' || hud.phase === 'intro') void retreatMission({ ...this.stats }) })
     this.mirrorWeapons()
     // The drop-in: five seconds the first time, three once it has been seen.
     this.cine = { kind: 'intro', t: 0, dur: profile.seen.includes('intro') ? 3.4 : 5, landed: false, jumped: false }
@@ -775,7 +806,9 @@ export class Mission implements GameMode {
           mz: dir.z,
           crouch: i.crouchQueued,
           box: i.hideQueued,
-          sprint: i.sprintHeld,
+          // Touch has no sprint button: a full push of the stick runs, unless
+          // the mech is crouched or under its box (running would stand it up).
+          sprint: i.sprintHeld || (i.device === 'touch' && !p.crouched && !p.boxed && Math.hypot(i.moveX, i.moveY) > TOUCH_SPRINT_PUSH),
           jump: i.jumpQueued,
           aiming: this.weaponUp(),
           aimYaw: this.cam.yaw
@@ -814,7 +847,19 @@ export class Mission implements GameMode {
         this.offer = p.mode === 'cable'
           ? findRopeStrike(this.garrison, this.fortress.grid, p.x, p.y, p.z, this.cam.yaw)
           : findStrike(this.garrison, this.fortress.grid, p.x, p.y, p.z, this.cam.yaw, p.mode === 'ground')
-        if (i.actQueued && this.offer) this.startStrike(this.offer)
+        // Out of the disguise first (it folds away, the mech is seen), then
+        // the kill: a backstab never comes out of a cardboard box.
+        if (i.actQueued && this.offer && !this.strike && (p.boxed || this.morph > UNBOX_READY)) {
+          p.boxed = false
+          this.unboxStrike = { id: this.offer.id, t: 0 }
+        } else if (i.actQueued && this.offer) this.startStrike(this.offer)
+        if (this.unboxStrike && !this.strike) {
+          const q = this.unboxStrike
+          q.t += dt
+          const offer = this.offer?.id === q.id ? this.offer : null
+          if (this.morph <= UNBOX_READY && offer) { this.unboxStrike = null; this.startStrike(offer) }
+          else if (q.t > UNBOX_WAIT_S || (this.morph <= UNBOX_READY && !offer)) this.unboxStrike = null
+        }
         // An alarm beacon within reach while nobody is looking: the act key
         // puts it out of action (Odyssey's trapped brazier).
         this.beaconOffer = p.mode === 'ground' && !this.offer && !this.strike ? this.beaconInReach() : -1
@@ -835,6 +880,17 @@ export class Mission implements GameMode {
         // At a ledge, facing the drop: the hook goes down it (jam build: sneak down onto a guard).
         if (!this.hookSpot && p.mode === 'ground' && !this.strike) this.hookSpot = findRappel(this.fortress.grid, p.x, p.y, p.z, p.yaw)
         this.aimGear()
+        // The training offers the hook only where it is part of the lesson.
+        if (!this.hookAllowed()) { this.hookSpot = null; this.hookAim = null }
+        // Down in the jump room's gap the hook is the lesson's way out: offered
+        // whichever way the mech faces (touch players stood looking along the
+        // gap, the button never came, and the hint card was not a button).
+        if (!this.hookSpot && !this.hookAim && this.training?.state.pit && p.mode === 'ground' && !this.strike) {
+          for (let k = 1; k < 16 && !this.hookSpot; k++) {
+            const turn = Math.ceil(k / 2) * (k % 2 ? 1 : -1) * Math.PI / 8
+            this.hookSpot = findGrapple(this.fortress.grid, p.x, p.y, p.z, p.yaw + turn, this.loadout.hookReach, this.loadout.hookMax)
+          }
+        }
         // At the foot of a wall the hook goes straight up it; otherwise at the wall top the mech looks at.
         const hook = this.hookSpot ?? this.hookAim
         if (i.grappleQueued && hook && !this.strike) this.throwHook(hook)
@@ -878,6 +934,7 @@ export class Mission implements GameMode {
       stepArmor(this.armor, dt)
       this.stepSupplies()
       this.stepBarrels(dt)
+      this.stepAfterburns(dt)
       this.stepCoach(dt)
       vital.armor = this.armor.hp / this.armor.max
       mirror('armorLow', vital.armor < 0.3)
@@ -934,6 +991,7 @@ export class Mission implements GameMode {
     mirror('crouched', p.crouched)
     mirror('sprinting', p.sprinting)
     mirror('aiming', this.weaponUp())
+    mirror('aimHeld', i.aimHeld)
     mirror('mode', p.mode)
     mirror('strike', this.strike ? '' : this.offer?.kind ?? '')
     mirror('grapple', !this.grapple && !!(this.hookSpot ?? this.hookAim) && hud.phase === 'play')
@@ -983,7 +1041,7 @@ export class Mission implements GameMode {
     const i = this.input
     if (this.strike || this.player.mode !== 'ground' || hud.phase !== 'play') return false
     // A press of the trigger brings the weapon up and turns the body to the aim first.
-    return i.aimHeld || this.fireIntent > 0 || (i.fireHeld && i.device === 'mouse' && this.arsenal.current !== 'sniper')
+    return i.aimHeld || this.fireIntent > 0 || (i.fireHeld && this.arsenal.current !== 'sniper')
   }
 
   /** A shot waiting for the weapon to come up; the time a press keeps the weapon wanted. */
@@ -996,7 +1054,19 @@ export class Mission implements GameMode {
    */
   private aimReady(): boolean {
     const p = this.player
-    return p.mode === 'ground' && Math.abs(angleDelta(p.yaw, this.cam.yaw)) < READY_YAW && this.cam.aim >= READY_AIM
+    // A touch shot off the scope (the Shoot button, no aim held) goes from the
+    // hip at the crosshair: the body has to face it, the scope does not come up.
+    const hip = this.input.device === 'touch' && !this.input.aimHeld
+    return p.mode === 'ground' && Math.abs(angleDelta(p.yaw, this.cam.yaw)) < READY_YAW && (hip || this.cam.aim >= READY_AIM)
+  }
+
+  /**
+   * The camera goes to the aim (the sniper's scope): the weapon is up, and on
+   * touch only for a real aim (the scope toggle or a held finger) — a tap of
+   * Shoot must not zoom the view under the player's crosshair.
+   */
+  private viewAims(): boolean {
+    return this.weaponUp() && (this.input.aimHeld || this.input.device !== 'touch')
   }
 
   private stepWeapons(dt: number): void {
@@ -1006,7 +1076,9 @@ export class Mission implements GameMode {
     const t = this.trigger
     // Hands are busy on a ladder, a cable, a ledge, or mid-strike.
     const free = p.mode === 'ground' && !this.strike && this.cine?.kind !== 'lesson'
-    t.touch = i.device === 'touch'
+    // Touch's hold-and-release trigger; the Zoom-in latch and the Shoot button
+    // work the mouse's way instead (aim is aim, the trigger is its own button).
+    t.touch = i.device === 'touch' && !i.aimLatched
     t.aimHeld = free && i.aimHeld
     t.aimReleased = free && i.aimReleased
     // A press is an intent: the body turns and the weapon comes up, and only
@@ -1026,7 +1098,11 @@ export class Mission implements GameMode {
     const was = a.current
     const rounds = stepArsenal(a, t, dt)
     // A trigger pulled on nothing (#145): the dry click, every time.
-    if (a.switching <= 0 && isDry(a) && (t.touch ? t.aimReleased : t.firePressed)) emit('dryFire', {})
+    if (a.switching <= 0 && isDry(a) && (t.firePressed || (t.touch && t.aimReleased))) {
+      emit('dryFire', {})
+      // Out of ammo (#199): CM-07 says so, the strip flashes and shakes (`AmmoStrip`).
+      this.say('noAmmo')
+    }
     if (a.overheated && !this.wasHot) this.overheats++
     this.wasHot = a.overheated
     if (a.current !== was) {
@@ -1402,6 +1478,8 @@ export class Mission implements GameMode {
     }
     if (res.kills.length + res.hurt.length > 0) this.stats.hits++
     for (const id of res.hurt) alarmUnit(this.garrison, id, this.player.x, this.player.z)
+    // A boss the blast hurt has its big bar up, as a round's hit does (rockets never raised it).
+    for (const id of res.hurt) if (this.garrison.units[id]?.boss) this.bossFocus = id
     emit('blast', { x: b.x, y: b.y, z: b.z, weak: res.weakHit })
     haptic('blast')
     // The nearer the blast, the harder the picture shakes.
@@ -1934,6 +2012,19 @@ export class Mission implements GameMode {
   }
 
   /**
+   * The hook is offered here. Everywhere in a mission; in the training only in
+   * the jump room (the way out of its gap, #154) and from the hook room on —
+   * the sneak room's crates offered it, and a playtester was shown the hook
+   * where the lesson was to crouch behind them.
+   */
+  private hookAllowed(): boolean {
+    const room = this.training?.state.room
+    if (room === undefined) return true
+    const lesson = TRAINING_ROOMS[room]?.lesson
+    return lesson === 'jump' || room >= TRAINING_ROOMS.findIndex(r => r.lesson === 'hook')
+  }
+
+  /**
    * What the hook and the rope gun could take along the camera's line (#102,
    * #94): a wall top the hook reaches, a spot below for a rope. Only on the
    * ground, with the hands free and the weapon down.
@@ -1998,7 +2089,8 @@ export class Mission implements GameMode {
       if (d >= bestD) continue
       // A body or a wreck at the mech's feet; or (#148) a living person in
       // front of it, shield or no shield, but never a boss.
-      const dead = u.state === 'dead' && !u.hidden && u.kind !== 'searchlight' && u.deadT >= u.hold + 0.8
+      // (Not one already burning by itself, #191.)
+      const dead = u.state === 'dead' && !u.hidden && u.kind !== 'searchlight' && u.deadT >= u.hold + 0.8 && !this.afterburns.some(f => f.id === u.id)
       const live = isAlive(u) && camKind(u.kind) === 'human' && !u.boss && !u.gripped && u.onFire <= 0
         && Math.abs(angleDelta(p.yaw, headingTo(p.x, p.z, u.x, u.z))) < BURN_LIVE_ARC
       if (dead || live) { bestD = d; best = u.id }
@@ -2059,6 +2151,11 @@ export class Mission implements GameMode {
     p.pz = p.z
     p.pyaw = p.yaw
     if (Math.hypot(this.input.moveX, this.input.moveY) > 0.5 || u.hidden) {
+      // Far enough along: the body goes on burning by itself (#191).
+      if (!b.live && !u.hidden && b.t >= BURN_S * BURN_KEEP) {
+        this.afterburns.push({ id: b.id, t: b.t, change: this.burnChange })
+        this.burnChange = null
+      }
       this.endBurn()
       return
     }
@@ -2089,6 +2186,50 @@ export class Mission implements GameMode {
       this.fx.particles.sparks(hx + (tx - hx) * 0.5, hy + (ty - hy) * 0.5, hz + (tz - hz) * 0.5, '#ffd27a', 2, 2.5, 0.2)
     }
     if (b.t < BURN_S) return
+    this.finishBurn(u)
+    this.endBurn()
+    emit('burn', { beat: 'done' })
+  }
+
+  /** A body left burning by itself (#191): flames on it until it is ash or slag. */
+  private stepAfterburns(dt: number): void {
+    for (let i = this.afterburns.length - 1; i >= 0; i--) {
+      const a = this.afterburns[i]!
+      const u = this.garrison.units[a.id]!
+      // Taken away (dragged off) or already gone: the fire with it.
+      if (u.hidden || this.dragId === a.id) {
+        this.dropChange(a.change)
+        this.afterburns.splice(i, 1)
+        continue
+      }
+      a.t += dt
+      if (Math.floor(a.t / 0.08) !== Math.floor((a.t - dt) / 0.08)) {
+        for (let k = 0; k < 2; k++) {
+          this.fx.particles.emit({
+            x: u.x + (Math.random() - 0.5) * 0.9, y: u.y + 0.2, z: u.z + (Math.random() - 0.5) * 0.9,
+            vx: (Math.random() - 0.5) * 0.6, vy: 2 + Math.random() * 1.4, vz: (Math.random() - 0.5) * 0.6,
+            color: k === 0 ? '#ff9a3d' : '#ff4a2a', size: 0.65, sizeEnd: 0.1, life: 0.5, drag: 0.8
+          })
+        }
+      }
+      if (a.t < BURN_S) continue
+      this.finishBurn(u)
+      this.dropChange(a.change)
+      this.afterburns.splice(i, 1)
+      emit('burn', { beat: 'done' })
+    }
+  }
+
+  /** The glow of a fire that is out: nothing to notice any more (unless somebody already did). */
+  private dropChange(c: Change | null): void {
+    if (c && !c.found) {
+      const k = this.garrison.changes.indexOf(c)
+      if (k >= 0) this.garrison.changes.splice(k, 1)
+    }
+  }
+
+  /** Burnt out: ash for a person, slag (and a few bolts) for a machine. */
+  private finishBurn(u: Unit): void {
     // Gone: ash for a person, slag for a machine; nobody will find it now.
     const human = camKind(u.kind) === 'human'
     u.hidden = true
@@ -2111,8 +2252,6 @@ export class Mission implements GameMode {
     }
     this.burnsDone++
     this.say(human ? 'burnHuman' : 'burnMachine')
-    this.endBurn()
-    emit('burn', { beat: 'done' })
   }
 
   private endBurn(): void {
@@ -2570,6 +2709,11 @@ export class Mission implements GameMode {
     if (this.coach.family !== this.family()) this.newCoach()
     const c = this.coachCtx
     c.playing = !this.cine && !this.strike
+    // The rooms whose lesson only a hologram teaches: their card too, while the door is shut.
+    const tr = this.training?.state
+    const lesson = tr && tr.room >= 0 && !tr.done[tr.room] ? TRAINING_ROOMS[tr.room]!.lesson : ''
+    c.roomLesson = ROOM_CARD[lesson as LessonId] ?? ''
+    c.notYet = tr ? notYetTaught(tr.room) : undefined
     c.walked = p.mode === 'ground' ? Math.hypot(p.x - p.px, p.z - p.pz) : 0
     c.turned = Math.abs(angleDelta(this.lastYaw, this.cam.yaw)) + Math.abs(this.cam.pitch - this.lastPitch)
     this.lastYaw = this.cam.yaw
@@ -2880,9 +3024,11 @@ export class Mission implements GameMode {
       const near: Array<{ u: Unit; d: number }> = []
       for (const u of this.garrison.units) {
         // Every mech has its bar, powered down or not (a playtester could not
-        // tell the rocket room's mech was taking damage at all).
+        // tell the rocket room's mech was taking damage at all). The Goliath
+        // too, boss or not: a playtester emptied two rockets and three belts
+        // into it with no sign of what any of it did.
         const mech = u.kind === 'enforcer' || u.kind === 'goliath'
-        if (!isAlive(u) || (u.state === 'dormant' && !mech) || u.boss || u.gripped) continue
+        if (!isAlive(u) || (u.state === 'dormant' && !mech) || (u.boss && u.kind !== 'goliath') || u.gripped) continue
         const d = Math.hypot(u.x - this.player.x, u.z - this.player.z)
         if (d > BAR_FAR_M) continue
         if (!(mech || u.hp < u.maxHp || u.tagged || u.state === 'combat' || d < BAR_NEAR_M)) continue
@@ -2892,14 +3038,16 @@ export class Mission implements GameMode {
       this.camera.updateMatrixWorld()
       for (const { u } of near) {
         if (n >= MAX_BARS) break
-        const top = u.y + SPECS[u.kind].height + 0.25
+        // The tank's bar sits clear of its antenna, and is drawn big: a guard-sized bar on it was easy to miss.
+        const tank = u.kind === 'goliath'
+        const top = u.y + SPECS[u.kind].height + (tank ? 0.9 : 0.25)
         if (!hasLineOfSight(g, cam.x, cam.y, cam.z, u.x, top, u.z)) continue
         const p = this.proj.set(u.x, top, u.z).project(this.camera)
         if (p.z >= 1 || Math.abs(p.x) > 1.05 || Math.abs(p.y) > 1.05) continue
         bars.x[n] = (p.x + 1) / 2
         bars.y[n] = (1 - p.y) / 2
         bars.frac[n] = Math.max(0, u.hp / u.maxHp)
-        bars.size[n] = Math.max(0.75, Math.min(1.25, 10 / Math.max(1, Math.hypot(u.x - cam.x, top - cam.y, u.z - cam.z))))
+        bars.size[n] = Math.max(0.75, Math.min(1.25, 10 / Math.max(1, Math.hypot(u.x - cam.x, top - cam.y, u.z - cam.z)))) * (tank ? 2 : 1)
         bars.machine[n] = camKind(u.kind) === 'human' ? 0 : 1
         n++
       }
@@ -2994,6 +3142,8 @@ export class Mission implements GameMode {
   private offReplay: (() => void) | null = null
   private offCineSkip: (() => void) | null = null
   private offZoom: (() => void) | null = null
+  private offRepair: (() => void) | null = null
+  private offRetreat: (() => void) | null = null
   /** What the training ground counts: rounds, heat, zoom, beacons. */
   private sniperKills = 0
   private rocketsFired = 0
@@ -3267,6 +3417,11 @@ export class Mission implements GameMode {
   /** Seconds the rocket room's launcher has been out with its target standing. */
   private rocketDryT = 0
 
+  /** A blade asked for from inside the disguise: it waits for the box to fold away, on that target. */
+  private unboxStrike: { id: number; t: number } | null = null
+  /** Cards the training's demo brought back (not the player's own recalls): taken back when it moves on. */
+  private demoRecalled = new Set<HintId>()
+
   /** The mech back at a room's way in, on its feet, whole. */
   private placeAtDoor = (x: number, z: number, yaw: number): void => {
     const p = this.player
@@ -3321,6 +3476,12 @@ export class Mission implements GameMode {
       }
       this.fx.particles.sparks(u.x, u.y + 1, u.z, '#5fe9ff', 18, 2.5, 0.5)
     }
+    // The barrel room's drums (#198) stand again, shimmering in like the guards.
+    for (const b of this.barrels) {
+      if (b.live || roomAt(b.x) !== room) continue
+      restoreBarrel(this.fortress.grid, b)
+      this.fx.particles.sparks(b.x, b.y + 0.8, b.z, '#5fe9ff', 14, 2, 0.5)
+    }
     this.fuelLeft = Math.max(this.fuelLeft, this.loadout.fuel)
     this.ropesLeft = Math.max(this.ropesLeft, this.loadout.ropes)
     emit('lessonRestored', { room })
@@ -3351,7 +3512,8 @@ export class Mission implements GameMode {
         alive: here.filter(u => isAlive(u)).length,
         bodies: here.filter(u => u.state === 'dead' && !u.hidden).length,
         fuel: this.fuelLeft,
-        ropes: this.ropesLeft
+        ropes: this.ropesLeft,
+        barrels: this.barrels.filter(b => b.live && roomAt(b.x) === cur).length
       }
       if (lessonStuck(cur, ctx, tr.state.base, stock)) {
         this.restoreLesson(cur)
@@ -3377,6 +3539,9 @@ export class Mission implements GameMode {
       // is pointed at until the room's lesson is done; in the weapons room the
       // weapon switch from the start, until the player has switched once.
       if (say?.hint && atDoor) this.nudgeArmed = true
+      // The sneak room: its crawl gap wants a crouch; the button bounces as
+      // soon as the mech comes near the door wall, no waiting there first.
+      if (TRAINING_ROOMS[cur]!.lesson === 'cover' && nearDoorWall(tr.state, cur, ctx)) this.nudgeArmed = true
       if (this.arsenal.current !== this.weaponAtEnter) this.switchedHere = true
       const lesson = TRAINING_ROOMS[cur]!.lesson
       // The rocket room on touch (#187: a tablet player on Poki never found the
@@ -3419,9 +3584,20 @@ export class Mission implements GameMode {
       }
     }
     // The demo's control: its glyph pulses while the ghost does it.
+    // Only WHILE it does it: brought back for the demo, it goes again once
+    // the ghost moves on (left recalled, a ladder's or the hook's card stayed
+    // up rooms later for a player who never used them).
     const h = tr.hint()
+    for (const id of this.demoRecalled) {
+      if (id === h) continue
+      this.coach.recalled.delete(id)
+      this.demoRecalled.delete(id)
+    }
     if (h) {
-      this.coach.recalled.add(h)
+      if (!this.coach.recalled.has(h)) {
+        this.coach.recalled.add(h)
+        this.demoRecalled.add(h)
+      }
       this.coach.until[h] = Math.max(this.coach.until[h], this.coach.time + 0.5)
     }
     // Out of ammunition with the room's lesson still to do (#146, #159): a
@@ -3465,6 +3641,8 @@ export class Mission implements GameMode {
     const lesson = room >= 0 ? TRAINING_ROOMS[room]!.lesson : ''
     hud.training.on = true
     if (hud.training.room !== room) hud.training.room = room
+    const watching = this.cine?.kind === 'lesson'
+    if (hud.training.watching !== watching) hud.training.watching = watching
     const done = s.done.filter(Boolean).length
     if (hud.training.done !== done) hud.training.done = done
     hud.training.total = s.done.length
@@ -3494,6 +3672,36 @@ export class Mission implements GameMode {
     return lesson === 'weapons' ? guns : guns && isDry(a, 'rocket')
   }
 
+  /**
+   * Full Repair (#189), paid for on the defeat screen: the mech back up where
+   * it fell, put together again, armour full and every gun loaded; and the
+   * base has forgotten it (`forgetMech`), so a struggling player carries on
+   * without the whole fortress starting over.
+   */
+  private fullRepair(): void {
+    if (hud.phase !== 'dead') return
+    forgetMech(this.garrison)
+    this.flushGarrison()
+    const a = this.arsenal
+    a.sniperMag = SNIPER_MAG
+    a.sniperReserve = Math.max(a.sniperReserve, a.sniperReserveMax)
+    a.minigunBelt = Math.max(a.minigunBelt, a.minigunBeltMax)
+    a.reloading = 0
+    a.heat = 0
+    a.overheated = false
+    this.refillRockets()
+    this.armor.hp = this.armor.max
+    this.armor.down = false
+    this.armor.quiet = 0
+    vital.armor = 1
+    if (this.wrecked) { this.garrisonView.shatter.clear(PLAYER_WRECK); this.wrecked = false }
+    this.rig.root.visible = true
+    this.downT = 0
+    const p = this.player
+    p.vx = p.vz = 0
+    setPhase('play')
+  }
+
   /** Every weapon loaded again, as a training room's reset leaves it (#159); not in the supply room, whose crate does it. */
   private refillTraining(room: number): void {
     if (TRAINING_ROOMS[room]?.lesson === 'supply') return
@@ -3510,8 +3718,9 @@ export class Mission implements GameMode {
   /**
    * The line for a mech seen in a training room and sent back (#155, #163,
    * #165). The decoy room hints at its trick the first time; the second time
-   * it gives up on it: its guard stands like a target (it never wakes again)
-   * and the room is done once it is down, however that is done.
+   * it lets the trick go: the room is done once its guard is down, however
+   * that is done (`training.ts`, `tries`). The guard stays a guard — it was
+   * once put to sleep here, and a playtester walked through its cone unseen.
    */
   private seenLine(room: number, times: number): TrainingShout {
     const lesson = TRAINING_ROOMS[room]?.lesson
@@ -3519,11 +3728,6 @@ export class Mission implements GameMode {
     if (lesson === 'box') return 'reset.box'
     if (lesson !== 'decoy') return 'reset.seen'
     if (times < 2) return this.input.device === 'touch' ? 'reset.decoyTouch' : 'reset.decoy'
-    for (const u of this.garrison.units) {
-      if (roomAt(u.homeX) !== room || !isAlive(u)) continue
-      u.state = 'dormant'
-      u.dummy = true
-    }
     return 'reset.decoyAny'
   }
 
@@ -3609,7 +3813,6 @@ export class Mission implements GameMode {
         this.tagT = 0
       }
     }
-    mirror('tagging', id >= 0 ? Math.min(1, this.tagT / TAG_S) : 0)
   }
 
   /** The body within reach to drag, or the one in tow. */
@@ -4169,7 +4372,7 @@ export class Mission implements GameMode {
     const z = p.pz + (p.z - p.pz) * alpha
     const yaw = p.pyaw + angleDelta(p.pyaw, p.yaw) * alpha
     const playing = hud.phase === 'play'
-    const aiming = playing && this.weaponUp()
+    const aiming = playing && this.viewAims()
 
     // The look: applied here, at the display's rate, and consumed here.
     lookCam(this.cam, i.lookDX, i.lookDY, i.turn, dt, lookSensitivity.value * (hud.scoped ? scopeSensitivity.value : 1), this.camera.fov, this.baseFov)
@@ -4325,6 +4528,15 @@ export class Mission implements GameMode {
     if (airBeat) s.air = airBeat.air
     // Surfing the board: knees bent, weight low.
     if (this.riding) s.crouch = Math.max(s.crouch, 0.35)
+    // The hook: thrown with the whole body, then hand over hand up its line,
+    // the feet on the wall (not the ladder's pose, nor standing stock-still).
+    const hk = this.grapple
+    s.throwHook = hk && !hk.spot.down && hk.phase === 'fly' ? Math.max(0.01, hk.hook) : 0
+    s.reel = hk && !hk.spot.down && hk.phase === 'climb' ? 1 : 0
+    if (s.reel) {
+      s.climb = 0
+      s.reelPhase = p.climbPhase * 0.8
+    }
     poseMech(this.rig, s)
     if (this.burning) this.placeFlame()
     // A blade kill: the body leaned round its hips, the blade arm cocked or
@@ -4398,7 +4610,8 @@ export class Mission implements GameMode {
     this.hookView.setVisible(lineOn)
     if (gr && lineOn) {
       const h = hookAt(gr, this.hookPos)
-      this.handPos.set(x + Math.sin(yaw) * 0.25 * MECH_SCALE, y + this.lift + 2.05 * MECH_SCALE, z + Math.cos(yaw) * 0.25 * MECH_SCALE)
+      // From the hand that holds it, as posed.
+      if (!lineHandWorld(this.rig, this.handPos)) this.handPos.set(x + Math.sin(yaw) * 0.25 * MECH_SCALE, y + this.lift + 2.05 * MECH_SCALE, z + Math.cos(yaw) * 0.25 * MECH_SCALE)
       // In the air while thrown or recalled; a hook set at the lip to go down is already biting.
       const flying = gr.phase === 'drop' || (gr.phase === 'fly' && !gr.spot.down)
       this.hookView.update(this.handPos, h, yaw, { flying, time: this.time, progress: gr.hook })
@@ -4535,6 +4748,8 @@ export class Mission implements GameMode {
     this.offReplay?.()
     this.offCineSkip?.()
     this.offZoom?.()
+    this.offRepair?.()
+    this.offRetreat?.()
     this.mesh.dispose()
     this.decor.dispose()
     this.sky.dispose()

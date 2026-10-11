@@ -4,7 +4,7 @@ import { VOID, cellMid, heightAt } from '@/game/world/grid'
 import { exposure, noticeRate, CROUCH_FACTOR, type Viewer } from '@/game/sim/perception'
 import { ALERT_GAIN, ALERT_MAX, alertSegments, makeAlert, pressAlert, raiseAlert, stepAlert } from '@/game/sim/alert'
 import {
-  SPOT_AHEAD, drainEvents, isUnaware, killUnit, lureTo, makeGarrison, noiseAt, stepGarrison,
+  REACT_S, SPOT_AHEAD, drainEvents, isUnaware, killUnit, lureTo, makeGarrison, noiseAt, stepGarrison,
   type Garrison, type GarrisonEvent, type Target
 } from '@/game/sim/garrison'
 import { buildProvingGround } from '@/game/data/fortresses/proving'
@@ -175,6 +175,8 @@ describe('the garrison', () => {
     for (let t = 0; t < 20 && gar.units[0]!.state !== 'combat'; t += DT) stepGarrison(gar, f.grid, target, DT)
     expect(gar.units[0]!.state).toBe('combat')
     target.visible = false
+    // It saw the mech: once it has taken it in (`REACT_S`) it calls it in, hidden or not.
+    run(gar, f, target, REACT_S + 0.05)
     const level = gar.alert.level
     run(gar, f, target, 3)
     expect(gar.alert.level).toBe(level)
@@ -242,6 +244,28 @@ describe('the garrison', () => {
     expect(Math.hypot(u.x - u.homeX, u.z - u.homeZ)).toBeLessThan(0.5)
   })
 
+  it('a decoy wins over a glimpse: a wondering guard goes to it, and a glimpse on the way does not turn it to the mech', () => {
+    const f = yard().sentry(10, 5, 0).build()
+    const gar = makeGarrison(f)
+    const u = gar.units[0]!
+    // Half-noticed the mech: wondering, walking toward where it was.
+    u.detect = 0.6
+    u.state = 'suspicious'
+    u.seenX = cellMid(4)
+    u.seenZ = cellMid(16)
+    expect(lureTo(gar, f.grid, cellMid(14), 0, cellMid(12), 20)).toBe(1)
+    expect(u.lured).toBe(true)
+    expect(u.detect).toBeLessThan(0.5)
+    // A faint glimpse of the mech, far off and crouched, under the yellow line.
+    u.detect = 0.2
+    const before = { x: u.seenX, z: u.seenZ }
+    stepGarrison(gar, f.grid, mech(10, 18, true), DT)
+    expect(u.sees).toBe(true)
+    expect(u.detect).toBeLessThan(0.5)
+    expect({ x: u.seenX, z: u.seenZ }).toEqual(before)
+    expect(Math.hypot(u.seenX - cellMid(14), u.seenZ - cellMid(12))).toBeLessThan(0.01)
+  })
+
   it('a decoy behind a wall draws nobody', () => {
     const f = yard().sentry(10, 5, 0).wall(6, 8, 14, 8, WALL_H).build()
     const gar = makeGarrison(f)
@@ -299,5 +323,38 @@ describe('the garrison', () => {
     for (const u of gar.units) {
       if (u.route.length > 1) expect(Math.hypot(u.x - u.homeX, u.z - u.homeZ) + u.stride).toBeGreaterThan(1)
     }
+  })
+})
+
+// A guard who has just made the mech out needs a moment (REACT_S) before it
+// can shout "Intruder!" or fire: a backstab inside that moment keeps the base
+// none the wiser.
+describe('no time to react', () => {
+  const spot = () => {
+    // One guard facing the mech; a sentry behind it, its back to all of it: it can only be told.
+    const f = yard().guard([[10, 5]], 0).sentry(10, 1, Math.PI).build()
+    const gar = makeGarrison(f)
+    const target = mech(10, 10)
+    for (let t = 0; t < 20 && gar.units[0]!.state !== 'combat'; t += DT) stepGarrison(gar, f.grid, target, DT)
+    return { f, gar, target, sure: gar.units[0]!, other: gar.units[1]! }
+  }
+
+  it('taken down inside the reaction: no alert, no shout, the other guard none the wiser', () => {
+    const { f, gar, target, sure, other } = spot()
+    expect(sure.reactT).toBeGreaterThan(0)
+    run(gar, f, target, REACT_S * 0.5)
+    killUnit(gar, sure.id, 0, 0)
+    target.visible = false
+    const e = run(gar, f, target, 3)
+    expect(gar.alert.level).toBe(0)
+    expect(types(e)).not.toContain('shout')
+    expect(other.state).not.toBe('combat')
+  })
+
+  it('left alone it calls the mech in once the moment is up', () => {
+    const { f, gar, target } = spot()
+    expect(gar.alert.level).toBe(0)
+    run(gar, f, target, REACT_S + 0.1)
+    expect(gar.alert.level).toBeGreaterThan(0)
   })
 })

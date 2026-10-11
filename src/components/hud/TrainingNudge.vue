@@ -10,10 +10,7 @@
     //- A yellow ring round the very button, so in a packed cluster there is no
     //- doubt which one the arrow means.
     div.ring(v-if="target" :style="ringStyle" data-testid="nudge-ring")
-    div.arrow(v-if="target" :style="arrowStyle" data-testid="nudge-arrow")
-      div.shaft
-        svg(viewBox="0 0 48 64")
-          path(d="M24 62L4 36h12V2h16v34h12z")
+    AttentionArrow(v-if="target" :style="arrowStyle" data-testid="nudge-arrow")
     div.centre(v-else data-testid="nudge-centre")
       HintGlyph.glyph(v-if="hint !== 'weapon' || hud.device !== 'mouse'" :hint="hint" :device="hud.device" :weapon="hud.weapon")
       span.glyph.weapon-keys(v-else)
@@ -29,6 +26,8 @@ import HintGlyph from '@/components/hud/hints/HintGlyph.vue'
 import KeyCap from '@/components/hud/hints/KeyCap.vue'
 import MouseGlyph from '@/components/hud/hints/MouseGlyph.vue'
 import { NUDGE_BUTTON } from '@/components/hud/touchLook'
+import AttentionArrow from '@/components/hud/AttentionArrow.vue'
+import { aimArrow, otherControls } from '@/components/hud/arrowAim'
 
 const hint = computed(() => hud.training.nudge || null)
 
@@ -59,54 +58,8 @@ const ringStyle = computed(() => {
 
 /** The other controls on screen, the arrow must not lie across (re-read with the target). */
 const others = ref<DOMRect[]>([])
-watch(target, () => {
-  const id = hint.value ? NUDGE_BUTTON[hint.value] : undefined
-  others.value = [...document.querySelectorAll('[data-testid^="btn-"], [data-testid="look-stick"]')]
-    .filter(e => e.getAttribute('data-testid') !== id)
-    .map(e => e.getBoundingClientRect())
-    .filter(r => r.width > 0)
-})
-
-/** The shaft's length behind the tip, bounce included (`.shaft`: 1.33 × its width). */
-const shaftWidth = (): number => Math.min(96, Math.max(57.6, 0.16 * Math.min(window.innerWidth, window.innerHeight)))
-
-/**
- * Where the arrow comes from: from the middle of the screen if that way is
- * clear, else the nearest angle that is — the whole arrow on screen, and not
- * lying across any other control (the thumb cluster is packed: from straight
- * left the arrow to crouch lay over the decoy). Its tip stops on the rim.
- */
-const arrowStyle = computed(() => {
-  const r = target.value!
-  const W = window.innerWidth
-  const H = window.innerHeight
-  const cx = r.left + r.width / 2
-  const cy = r.top + r.height / 2
-  const base = Math.atan2(H / 2 - cy, W / 2 - cx)
-  const rim = Math.min(r.width, r.height) / 2 + 4
-  const w = shaftWidth()
-  const len = w * 1.33 + 16
-  const clear = (a: number): boolean => {
-    const ux = Math.cos(a)
-    const uy = Math.sin(a)
-    for (let t = 0; t <= 1.0001; t += 0.1) {
-      const px = cx + ux * (rim + len * t)
-      const py = cy + uy * (rim + len * t)
-      if (px < w / 2 || px > W - w / 2 || py < w / 2 || py > H - w / 2) return false
-      if (t > 0.05 && others.value.some(o => px > o.left - w * 0.3 && px < o.right + w * 0.3 && py > o.top - w * 0.3 && py < o.bottom + w * 0.3)) return false
-    }
-    return true
-  }
-  let from = base
-  for (const d of [0, 15, -15, 30, -30, 45, -45, 60, -60, 75, -75, 90, -90, 120, -120]) {
-    const a = base + (d * Math.PI) / 180
-    if (clear(a)) { from = a; break }
-  }
-  // The arrow is drawn pointing down (+y); turned clockwise by θ it points along -from.
-  const vx = -Math.cos(from)
-  const vy = -Math.sin(from)
-  return { left: `${cx - vx * rim}px`, top: `${cy - vy * rim}px`, '--angle': `${Math.atan2(-vx, vy)}rad` }
-})
+watch(target, () => { others.value = otherControls(hint.value ? NUDGE_BUTTON[hint.value] : undefined) })
+const arrowStyle = computed(() => aimArrow(target.value!, others.value))
 </script>
 
 <style scoped lang="sass">
@@ -115,33 +68,6 @@ const arrowStyle = computed(() => {
   inset: 0
   pointer-events: none
   z-index: 6
-// A point on the button's edge, turned toward the button; the shaft hangs
-// above it with its tip on the point and bounces away and back.
-.arrow
-  position: fixed
-  width: 0
-  height: 0
-  rotate: var(--angle)
-.shaft
-  // Big and fat (#186 follow-up): it must not be missed.
-  --w: clamp(3.6rem, 16vmin, 6rem)
-  position: absolute
-  width: var(--w)
-  height: calc(var(--w) * 1.33)
-  left: calc(var(--w) * -0.5)
-  bottom: 0
-  animation: nudge-bounce 0.8s ease-in-out infinite
-  svg
-    display: block
-    width: 100%
-    height: 100%
-    overflow: visible
-  path
-    fill: #ffd23f
-    stroke: #3a2600
-    stroke-width: 3
-    stroke-linejoin: round
-    filter: drop-shadow(0 0 0.4rem rgba(255, 210, 63, 0.85))
 .ring
   position: fixed
   box-sizing: border-box
@@ -188,11 +114,6 @@ const arrowStyle = computed(() => {
 .or
   color: #ffd23f
   font-weight: 700
-@keyframes nudge-bounce
-  0%, 100%
-    translate: 0 0
-  50%
-    translate: 0 -0.9rem
 // An attention bounce: up and back, never bigger (no control is sized by scale).
 @keyframes nudge-pop
   0%, 100%
@@ -200,6 +121,6 @@ const arrowStyle = computed(() => {
   50%
     translate: -50% calc(-50% - 0.7rem)
 @media (prefers-reduced-motion: reduce)
-  .shaft, .centre, .ring
+  .centre, .ring
     animation: none
 </style>

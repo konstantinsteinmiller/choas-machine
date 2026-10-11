@@ -41,9 +41,54 @@ describe('the buttons\' looks (#160)', () => {
 
   it('the HUD draws each button from the table, not from colours of its own', () => {
     const src = readFileSync('src/components/hud/MissionHud.vue', 'utf8')
-    for (const b of ['strike', 'loot', 'burn', 'sabotage', 'drag', 'grapple', 'rope', 'decoy', 'hide', 'jump', 'crouch', 'sprint'] as const) {
+    for (const b of ['strike', 'loot', 'burn', 'sabotage', 'drag', 'grapple', 'rope', 'decoy', 'hide', 'jump', 'crouch', 'shoot', 'scope'] as const) {
       expect(src, b).toContain(`:shape="LOOK.${b}.shape"`)
       expect(src, b).toContain(`LOOK.${b}.tone`)
     }
+  })
+})
+
+// A body's billboard said E while the burn lesson taught X (both burnt it,
+// but a player reads the screen, not the code): every in-world prompt shows
+// the key of its own button, the one its lesson teaches.
+describe('an in-world prompt shows the key its lesson teaches', () => {
+  it('the burn prompt is the burn key, the hook the hook\'s, a body\'s drag the drag key, the takedowns and piles the act key', async () => {
+    const { promptAction, HINT_KEYS } = await import('@/components/hud/touchLook')
+    expect(promptAction('burn')).toBe('burn')
+    expect(promptAction('burn')).toBe(HINT_KEYS.burn)
+    expect(promptAction('hook')).toBe(HINT_KEYS.grapple)
+    expect(promptAction('rope')).toBe(HINT_KEYS.rope)
+    expect(promptAction('strike')).toBe(HINT_KEYS.blade)
+    expect(promptAction('assassinate')).toBe(HINT_KEYS.blade)
+    expect(promptAction('salvage')).toBe(HINT_KEYS.loot)
+    for (const k of ['sabotage', 'silence', 'cutPower', 'jam'] as const) expect(promptAction(k)).toBe(HINT_KEYS.sabotage)
+    expect(promptAction('grab')).toBe('drag')
+    expect(promptAction('drop')).toBe('drag')
+  })
+
+  it('the billboard takes its key from that table, never a list of its own', async () => {
+    const { readFileSync } = await import('node:fs')
+    const src = readFileSync('src/components/hud/WorldPrompt.vue', 'utf8')
+    expect(src).toContain('promptAction(kind)')
+    expect(src).not.toMatch(/kind === '/)
+  })
+})
+
+// The flame button read E while the card and the billboard said X: every
+// action button on the HUD carries the key of its own action, from the one table.
+describe('every HUD action button is lettered with its own action\'s key', () => {
+  it('btn-<button> shows BUTTON_ACTION[<button>]', async () => {
+    const { BUTTON_ACTION } = await import('@/components/hud/touchLook')
+    const src = readFileSync('src/components/hud/MissionHud.vue', 'utf8')
+    const blocks = src.split(/FHudButton(?:\.[a-z-]+)?\(/).slice(1)
+    let checked = 0
+    for (const b of blocks) {
+      const id = /data-testid="btn-([a-z]+)"/.exec(b.slice(0, 900))?.[1]
+      const key = /:hotkey="kb\('([a-zA-Z0-9]+)'\)"/.exec(b.slice(0, 900))?.[1]
+      if (!id || !key || !(id in BUTTON_ACTION)) continue
+      expect(key, `btn-${id}`).toBe(BUTTON_ACTION[id as keyof typeof BUTTON_ACTION])
+      checked++
+    }
+    expect(checked).toBeGreaterThanOrEqual(9)
   })
 })

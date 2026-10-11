@@ -9,12 +9,16 @@
       //- button, its shape and its colour, while the button itself pulses.
       div.card(
         v-if="hud.device === 'mouse' || HINT_BUTTON[h.id]"
-        :class="{ flash: flashing[h.id], touch: hud.device !== 'mouse' }"
+        :class="{ flash: flashing[h.id], touch: hud.device !== 'mouse', tappable: tappable(h.id) }"
         role="img"
         :aria-label="label(h.id)"
+        @click="press(h.id)"
       )
         div.glyph
-          TouchButtonGlyph(v-if="hud.device !== 'mouse'" :look="lookOf(HINT_BUTTON[h.id] ?? 'strike', hud.weapon, h.id)")
+          template(v-if="hud.device !== 'mouse'")
+            TouchButtonGlyph(:look="lookOf(HINT_BUTTON[h.id] ?? 'strike', hud.weapon, h.id)")
+            //- A keyboard here too (a touchscreen laptop): its shortcut beside the picture.
+            KeyCap.shortcut(v-if="keyboardToo && HINT_KEYS[h.id]" :action="HINT_KEYS[h.id] ?? 'act'")
           template(v-else-if="h.id === 'move'")
             div.wasd
               KeyCap.w(action="forward")
@@ -75,7 +79,8 @@ import KeyCap from '@/components/hud/hints/KeyCap.vue'
 import MouseGlyph from '@/components/hud/hints/MouseGlyph.vue'
 import FingerGlyph from '@/components/hud/hints/FingerGlyph.vue'
 import TouchButtonGlyph from '@/components/hud/hints/TouchButtonGlyph.vue'
-import { HINT_BUTTON, lookOf } from '@/components/hud/touchLook'
+import { HINT_BUTTON, HINT_KEYS, NUDGE_BUTTON, lookOf } from '@/components/hud/touchLook'
+import { keyboardToo } from '@/use/useKeyboardToo'
 import { hud } from '@/game/state/hud'
 import type { HintId } from '@/game/sim/coach'
 
@@ -83,16 +88,17 @@ const { t } = useI18n()
 
 /** What each control is FOR, as a picture beside its key. */
 const ICONS: Readonly<Record<HintId, GameIconName>> = {
-  move: 'mech', look: 'eye', scope: 'scope', fire: 'sniper', crouch: 'crouch', blade: 'blade',
+  move: 'mech', look: 'eye', scope: 'scope', fire: 'sniper', crouch: 'act-crouch', blade: 'blade',
   climb: 'up', cable: 'up', decoy: 'decoy', weapon: 'minigun', sprint: 'sprint', grapple: 'hook', loot: 'scrap', goal: 'mech', hide: 'box', sabotage: 'siren',
   jump: 'up', rope: 'rope', burn: 'flame', supply: 'bolt', rocket: 'rocket'
 }
 /** Touch: where on the screen a gesture's finger is drawn. */
 const SPOTS: Readonly<Partial<Record<HintId, 'stick' | 'right' | 'look'>>> = {
-  move: 'stick', climb: 'stick', cable: 'stick', look: 'look', scope: 'right', fire: 'right', supply: 'stick'
+  // Scope and fire are buttons now (Zoom-in, Shoot): their cards. Sprint is the stick pushed all the way.
+  move: 'stick', climb: 'stick', cable: 'stick', look: 'look', supply: 'stick', sprint: 'stick'
 }
 const FINGER: Readonly<Partial<Record<HintId, 'drag' | 'swipe' | 'hold' | 'release' | 'push' | 'loop'>>> = {
-  move: 'drag', climb: 'push', cable: 'push', look: 'drag', scope: 'hold', fire: 'release', supply: 'push'
+  move: 'drag', climb: 'push', cable: 'push', look: 'drag', supply: 'push', sprint: 'push'
 }
 /** The sentence a screen reader gets: the glyphs themselves carry no words. */
 const LABELS: Readonly<Record<HintId, string>> = {
@@ -133,6 +139,15 @@ watch(() => hud.hints, (list) => {
   }
 })
 onUnmounted(() => { for (const id of Object.values(timers)) window.clearTimeout(id) })
+
+// A touch card looks like the button it teaches, and players tap it: it
+// presses that button when the button is on screen (a tap, not a hold).
+const TAPPED: ReadonlySet<HintId> = new Set<HintId>(['grapple', 'jump', 'crouch', 'decoy', 'hide', 'rope', 'burn', 'loot', 'blade', 'weapon', 'rocket', 'scope'])
+const tappable = (id: HintId): boolean => hud.device !== 'mouse' && TAPPED.has(id)
+const press = (id: HintId): void => {
+  const testid = tappable(id) ? NUDGE_BUTTON[id] : undefined
+  if (testid) document.querySelector<HTMLElement>(`[data-testid="${testid}"]`)?.click()
+}
 </script>
 
 <style scoped lang="sass">
@@ -165,6 +180,8 @@ onUnmounted(() => { for (const id of Object.values(timers)) window.clearTimeout(
   position: absolute
   inset: 0
   pointer-events: none
+  .card.tappable
+    pointer-events: auto
   // Desktop: the cards stack in the bottom-left corner, which a mouse player
   // has free (no stick there), so the middle of the view, where the mech
   // stands and whoever shoots at it, stays clear.
@@ -229,6 +246,10 @@ onUnmounted(() => { for (const id of Object.values(timers)) window.clearTimeout(
   left: 50%
   bottom: calc(var(--cm-safe-bottom) + 16%)
   translate: -50% 0
+  // Portrait stacks the controls higher (the look stick over the cluster, the
+  // scope over the stick): the card stands clear above them.
+  @media (orientation: portrait)
+    bottom: calc(var(--cm-safe-bottom) + 36%)
   padding-bottom: clamp(0.6rem, 2.4vmin, 0.95rem)
 
 // ── Touch spots ──

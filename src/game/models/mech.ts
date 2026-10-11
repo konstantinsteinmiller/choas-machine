@@ -1,6 +1,7 @@
 import { BoxGeometry, CylinderGeometry, Quaternion, Vector3 } from 'three'
 import { RigBuilder, blendPose, cap, ell, pose, nudge, rbox, rcyl, scaleBone, sph, stripUv, torus, type Rig } from './kit'
 import { PAL } from './palette'
+import { FREE_PAINT, PAINTS, type PaintId } from './paintIds'
 import { stanceSweep } from '../sim/gait'
 import { WEAPON_IDS, type WeaponId } from '../data/ids'
 import { MINIGUN_SPIN_AT, MUZZLE, shiftParts, weaponBodyParts, weaponSpinParts } from './weapons'
@@ -236,7 +237,12 @@ export const BLADE_TIP_LOCAL = -0.91
 /** x of the mech's own right (it faces +z, so its right is -x). */
 const RIGHT = -1
 
-export const buildMech = (): Rig => {
+/**
+ * The mech, in a paint scheme (#M3): the player's own wherever it is theirs
+ * (mission, base, portrait, decoy hologram), CM-07's lilac in the story.
+ */
+export const buildMech = (scheme: PaintId = FREE_PAINT): Rig => {
+  const P = PAINTS[scheme]
   const b = new RigBuilder()
   b.bone('hips', null, [0, 1.06, 0])
   b.bone('spine', 'hips', [0, 0.17, 0])
@@ -244,47 +250,47 @@ export const buildMech = (): Rig => {
   b.bone('head', 'chest', [0, 0.66, 0.02])
 
   // ── Torso ──
-  b.part('hips', rbox(0.6, 0.34, 0.42, 0.45, 10, 8), PAL.mechSuit)
-  b.part('spine', rcyl(0.2, 0.26, 0.06, 10), PAL.mechSuitDeep, { p: [0, 0.06, 0] })
-  b.part('chest', rbox(0.86, 0.6, 0.56, 0.4, 12, 10), PAL.mechArmor, { p: [0, 0.3, 0] })
-  b.part('chest', rbox(0.5, 0.24, 0.1, 0.5, 8, 6), PAL.mechArmorHi, { p: [0, 0.4, 0.26] })
-  b.part('chest', sph(0.085, 8, 6), PAL.mechCore, { p: [0, 0.2, 0.27], glow: true, outline: false })
+  b.part('hips', rbox(0.6, 0.34, 0.42, 0.45, 10, 8), P.trim)
+  b.part('spine', rcyl(0.2, 0.26, 0.06, 10), P.trimDeep, { p: [0, 0.06, 0] })
+  b.part('chest', rbox(0.86, 0.6, 0.56, 0.4, 12, 10), P.body, { p: [0, 0.3, 0] })
+  b.part('chest', rbox(0.5, 0.24, 0.1, 0.5, 8, 6), P.bodyHi, { p: [0, 0.4, 0.26] })
+  b.part('chest', sph(0.085, 8, 6), P.glow, { p: [0, 0.2, 0.27], glow: true, outline: false })
   // The pack, with the power line the cyan trims of the base echo.
-  b.part('chest', rbox(0.52, 0.5, 0.26, 0.45, 8, 8), PAL.mechSuit, { p: [0, 0.3, -0.36] })
-  b.part('chest', rbox(0.08, 0.34, 0.04, 0.6, 6, 6), PAL.mechCore, { p: [0, 0.3, -0.5], glow: true, outline: false })
+  b.part('chest', rbox(0.52, 0.5, 0.26, 0.45, 8, 8), P.trim, { p: [0, 0.3, -0.36] })
+  b.part('chest', rbox(0.08, 0.34, 0.04, 0.6, 6, 6), P.glow, { p: [0, 0.3, -0.5], glow: true, outline: false })
   // Round 5 (#147), the finer layer the dropship has: rivets at the chest
   // plate's corners, seams down the chest's flanks, cooling slats either side
   // of the pack's power line.
-  for (const rx of [-0.21, 0.21]) for (const ry of [0.31, 0.49]) b.part('chest', sph(0.022, 6, 4), PAL.mechArmorDeep, { p: [rx, ry, 0.312], outline: false })
-  b.mirror((side) => b.part('chest', rbox(0.022, 0.4, 0.5, 0.5, 4, 6), PAL.mechArmorDeep, { p: [side * 0.428, 0.3, 0], outline: false }))
-  for (const sx of [-0.16, 0.16]) for (const sy of [0.2, 0.3, 0.4]) b.part('chest', rbox(0.13, 0.03, 0.03, 0.4, 4, 2), PAL.mechSuitDeep, { p: [sx, sy, -0.492], outline: false })
+  for (const rx of [-0.21, 0.21]) for (const ry of [0.31, 0.49]) b.part('chest', sph(0.022, 6, 4), P.bodyDeep, { p: [rx, ry, 0.312], outline: false })
+  b.mirror((side) => b.part('chest', rbox(0.022, 0.4, 0.5, 0.5, 4, 6), P.bodyDeep, { p: [side * 0.428, 0.3, 0], outline: false }))
+  for (const sx of [-0.16, 0.16]) for (const sy of [0.2, 0.3, 0.4]) b.part('chest', rbox(0.13, 0.03, 0.03, 0.4, 4, 2), P.trimDeep, { p: [sx, sy, -0.492], outline: false })
 
   // ── Head: a helmet, a visor band, two eyes, an antenna, two ear pods ──
-  b.part('head', rbox(0.52, 0.44, 0.48, 0.42, 12, 10), PAL.mechArmor, { p: [0, 0.2, 0] })
-  b.part('head', rbox(0.44, 0.17, 0.1, 0.5, 8, 6), PAL.mechVisor, { p: [0, 0.2, 0.21] })
+  b.part('head', rbox(0.52, 0.44, 0.48, 0.42, 12, 10), P.body, { p: [0, 0.2, 0] })
+  b.part('head', rbox(0.44, 0.17, 0.1, 0.5, 8, 6), P.visor, { p: [0, 0.2, 0.21] })
   b.mirror((side) => {
-    b.part('head', rbox(0.11, 0.085, 0.04, 0.6, 6, 6), PAL.mechEye, { p: [side * 0.11, 0.2, 0.262], glow: true, outline: false })
-    b.part('head', rcyl(0.075, 0.07, 0.03, 8), PAL.mechCore, { p: [side * 0.275, 0.2, 0], r: [0, 0, Math.PI / 2] })
+    b.part('head', rbox(0.11, 0.085, 0.04, 0.6, 6, 6), P.eye, { p: [side * 0.11, 0.2, 0.262], glow: true, outline: false })
+    b.part('head', rcyl(0.075, 0.07, 0.03, 8), P.glow, { p: [side * 0.275, 0.2, 0], r: [0, 0, Math.PI / 2] })
   })
-  b.part('head', stripUv(new CylinderGeometry(0.018, 0.018, 0.26, 5)), PAL.mechSuit, { p: [0.16, 0.54, -0.06] })
-  b.part('head', sph(0.05, 6, 5), PAL.mechEye, { p: [0.16, 0.69, -0.06], glow: true, outline: false })
+  b.part('head', stripUv(new CylinderGeometry(0.018, 0.018, 0.26, 5)), P.trim, { p: [0.16, 0.54, -0.06] })
+  b.part('head', sph(0.05, 6, 5), P.eye, { p: [0.16, 0.69, -0.06], glow: true, outline: false })
 
   // ── Arms ──
   b.mirror((side, tag) => {
     const x = side * RIGHT
     b.bone(`shoulder${tag}`, 'chest', [x * 0.52, 0.48, 0])
     b.bone(`fore${tag}`, `shoulder${tag}`, [0, -0.42, 0])
-    b.part(`shoulder${tag}`, sph(0.19, 10, 8), PAL.mechArmorDeep)
+    b.part(`shoulder${tag}`, sph(0.19, 10, 8), P.bodyDeep)
     // An armour band round the shoulder ball.
-    b.part(`shoulder${tag}`, torus(0.185, 0.022, 6, 18), PAL.mechArmor, { p: [0, 0.02, 0], r: [0, 0, Math.PI / 2] })
-    b.part(`shoulder${tag}`, cap(0.105, 0.24, 8, 3), PAL.mechSuit, { p: [0, -0.22, 0] })
-    b.part(`fore${tag}`, rbox(0.22, 0.42, 0.24, 0.45, 8, 8), PAL.mechArmor, { p: [0, -0.2, 0] })
-    b.part(`fore${tag}`, sph(0.1, 8, 6), PAL.mechSuitDeep, { p: [0, -0.45, 0] })
+    b.part(`shoulder${tag}`, torus(0.185, 0.022, 6, 18), P.body, { p: [0, 0.02, 0], r: [0, 0, Math.PI / 2] })
+    b.part(`shoulder${tag}`, cap(0.105, 0.24, 8, 3), P.trim, { p: [0, -0.22, 0] })
+    b.part(`fore${tag}`, rbox(0.22, 0.42, 0.24, 0.45, 8, 8), P.body, { p: [0, -0.2, 0] })
+    b.part(`fore${tag}`, sph(0.1, 8, 6), P.trimDeep, { p: [0, -0.45, 0] })
   })
 
   // ── The blade: out of the right forearm, along the arm ──
   b.bone('blade', 'foreR', [0, -0.3, 0.1])
-  b.part('blade', stripUv(new BoxGeometry(0.045, 0.82, 0.13)), PAL.mechBlade, { p: [0, -0.5, 0], glow: true, outline: false })
+  b.part('blade', stripUv(new BoxGeometry(0.045, 0.82, 0.13)), P.blade, { p: [0, -0.5, 0], glow: true, outline: false })
   b.part('blade', stripUv(new BoxGeometry(0.02, 0.86, 0.05)), PAL.glowWhite, { p: [0, -0.5, 0.045], glow: true, outline: false })
 
   // ── The three weapons, in the right hand, barrels along the arm (#167: `models/weapons.ts`) ──
@@ -301,10 +307,10 @@ export const buildMech = (): Rig => {
     b.bone(`thigh${tag}`, 'hips', [x * 0.2, -0.1, 0])
     b.bone(`shin${tag}`, `thigh${tag}`, [0, -0.46, 0])
     b.bone(`foot${tag}`, `shin${tag}`, [0, -0.42, 0])
-    b.part(`thigh${tag}`, cap(0.125, 0.26, 8, 3), PAL.mechSuit, { p: [0, -0.23, 0] })
-    b.part(`shin${tag}`, rbox(0.25, 0.46, 0.3, 0.45, 8, 8), PAL.mechArmor, { p: [0, -0.2, 0] })
-    b.part(`shin${tag}`, ell(0.1, 0.1, 0.08, 8, 6), PAL.mechArmorDeep, { p: [0, 0.0, 0.14] })
-    b.part(`foot${tag}`, rbox(0.27, 0.16, 0.46, 0.45, 8, 6), PAL.mechSuitDeep, { p: [0, 0.0, 0.07] })
+    b.part(`thigh${tag}`, cap(0.125, 0.26, 8, 3), P.trim, { p: [0, -0.23, 0] })
+    b.part(`shin${tag}`, rbox(0.25, 0.46, 0.3, 0.45, 8, 8), P.body, { p: [0, -0.2, 0] })
+    b.part(`shin${tag}`, ell(0.1, 0.1, 0.08, 8, 6), P.bodyDeep, { p: [0, 0.0, 0.14] })
+    b.part(`foot${tag}`, rbox(0.27, 0.16, 0.46, 0.45, 8, 6), P.trimDeep, { p: [0, 0.0, 0.07] })
   })
 
   const rig = b.build({ outline: 0.022 / MECH_SCALE, height: MECH_HEIGHT })
@@ -364,11 +370,21 @@ export interface MechPose {
   brace: number
   /** 0 … 1 the squash of a landing, easing out (#148). */
   land: number
+  /**
+   * The grappling hook thrown: 0 none, else 0 … 1 through the throw (the arm
+   * wound back, whipped up at the wall top, held out on the line after).
+   */
+  throwHook: number
+  /** 0 … 1 on the hook's line: hand over hand up it, the feet walking up the wall. */
+  reel: number
+  /** Advances with the height reeled (hands and feet in turn). */
+  reelPhase: number
 }
 
 export const restPose = (): MechPose => ({
   time: 0, stride: 0, speed: 0, crouch: 0, sprint: 0, aim: 0, aimPitch: 0, weapon: 'sniper', recoil: 0, spin: 0, reload: 0,
-  blade: 0, stab: 0, climb: 0, climbPhase: 0, cable: 0, air: 0, down: 0, loot: 0, boxed: 0, grab: 0, draw: 0, plunge: 0, stow: 0, activate: 0, brace: 0, land: 0
+  blade: 0, stab: 0, climb: 0, climbPhase: 0, cable: 0, air: 0, down: 0, loot: 0, boxed: 0, grab: 0, draw: 0, plunge: 0, stow: 0, activate: 0, brace: 0, land: 0,
+  throwHook: 0, reel: 0, reelPhase: 0
 })
 
 const HIDDEN = 0.001
@@ -453,6 +469,71 @@ const CROUCH_KNEE = 2.65
  * over the rest of the pose: one knee down with a hand on a panel, braced
  * behind the flamethrower, and the squash of a landing.
  */
+/** The left hand's palm, in the forearm's frame: where the hook's line leaves from. */
+const LINE_HAND = new Vector3(0, -0.47, 0.04)
+/** Where the hook's line leaves the hand, in the world (after `poseMech`). */
+export const lineHandWorld = (rig: Rig, out: Vector3): Vector3 | null => {
+  const b = rig.bones.foreL
+  if (!b) return null
+  b.updateWorldMatrix(true, false)
+  return b.localToWorld(out.copy(LINE_HAND))
+}
+
+/**
+ * The grappling hook, alive (a playtester: "stiff, as if it were dead").
+ * The throw: knees give, the free arm swings back, the body winds round, and
+ * the arm whips up at the wall top, the other out for balance, the head up
+ * after the hook; then held out on the line. On the line: both hands up it,
+ * one over the other in turn, the body leaning back off the wall, the feet
+ * walking up its face step by step.
+ */
+const poseMechHook = (rig: Rig, s: MechPose): void => {
+  const th = s.throwHook
+  if (th > 0) {
+    const back = smoothstep(th / 0.3) * (1 - smoothstep((th - 0.3) / 0.25))
+    const whip = smoothstep((th - 0.3) / 0.3)
+    const w = Math.min(1, th / 0.12)
+    // The arm: from wound back and low, whipped up at the top, held out.
+    blendPose(rig, 'shoulderL', lerp(0.7, -2.45, whip) - 0.1 * back, 0, lerp(0.35, -0.1, whip), w)
+    blendPose(rig, 'foreL', lerp(-1.3, -0.12, whip), 0, 0, w)
+    // The other arm out and back for balance, the body turning into the throw.
+    blendPose(rig, 'shoulderR', lerp(-0.5, 0.35, whip), 0, lerp(-0.45, -0.7, whip), w)
+    blendPose(rig, 'foreR', -0.6, 0, 0, w)
+    blendPose(rig, 'chest', lerp(0.12, -0.12, whip), lerp(0.45, -0.25, whip) * w, 0, w)
+    blendPose(rig, 'spine', 0.18 * back - 0.08 * whip, 0, 0, w)
+    blendPose(rig, 'head', lerp(-0.1, -0.55, whip), 0, 0, w)
+    // Knees give in the wind-up and push through the throw.
+    const dip = back * 0.8 + whip * (1 - smoothstep((th - 0.75) / 0.25)) * 0.3
+    for (const [t, k] of [['L', 1], ['R', 0.8]] as const) {
+      blendPose(rig, `thigh${t}`, -0.45 * dip * k, 0, 0, w)
+      blendPose(rig, `shin${t}`, 0.85 * dip * k, 0, 0, w)
+      blendPose(rig, `foot${t}`, -0.4 * dip * k, 0, 0, w)
+    }
+    rig.bones.hips!.position.y -= 0.12 * dip * w
+  }
+  const rl = s.reel
+  if (rl > 0.001) {
+    const ph = s.reelPhase
+    for (const [t, sign] of [['L', 1], ['R', -1]] as const) {
+      // Hand over hand: one reaches up the line as the other pulls down to the chest.
+      const reach = 0.5 + 0.5 * Math.sin(ph + (sign > 0 ? 0 : Math.PI))
+      blendPose(rig, `shoulder${t}`, lerp(-1.75, -2.85, reach), 0, sign * -0.22, rl)
+      blendPose(rig, `fore${t}`, lerp(-1.25, -0.25, reach), 0, 0, rl)
+      // The feet on the wall: a leg steps up as the other pushes straight.
+      const step = 0.5 + 0.5 * Math.sin(ph + (sign > 0 ? Math.PI : 0))
+      blendPose(rig, `thigh${t}`, lerp(-0.7, -1.55, step), 0, sign * 0.08, rl)
+      blendPose(rig, `shin${t}`, lerp(0.35, 1.5, step), 0, 0, rl)
+      blendPose(rig, `foot${t}`, lerp(-0.55, -0.15, step), 0, 0, rl)
+    }
+    // Leaning back off the wall on the line, the head up to the top.
+    const heave = Math.sin(ph * 2) * 0.05
+    blendPose(rig, 'hips', -0.38 + heave, 0, 0, rl)
+    blendPose(rig, 'spine', 0.1, 0, 0, rl)
+    blendPose(rig, 'chest', 0.12, Math.sin(ph) * 0.08, 0, rl)
+    blendPose(rig, 'head', -0.45, 0, 0, rl)
+  }
+}
+
 const poseMechActions = (rig: Rig, s: MechPose): void => {
   const hips = rig.bones.hips!
   const rest = rig.rest.hips!.p.y
@@ -629,7 +710,7 @@ export const poseMech = (rig: Rig, s: MechPose): void => {
 
   // ── What is in the hand ──
   // The gun is put away for a stab, a climb, a cable walk and the hide box.
-  const armed = s.stab > 0 || td > 0 || s.grab > 0 || s.climb > 0.5 || s.cable > 0.5 || s.boxed > 0.5 || s.stow > 0.5 ? null : s.weapon
+  const armed = s.stab > 0 || td > 0 || s.grab > 0 || s.climb > 0.5 || s.cable > 0.5 || s.boxed > 0.5 || s.stow > 0.5 || s.throwHook > 0 || s.reel > 0.5 ? null : s.weapon
   for (const w of ['sniper', 'minigun', 'rocket'] as const) scaleBone(rig, w, w === armed ? 1 : HIDDEN)
   rig.bones.minigunBarrels!.rotation.y = s.spin
   if (s.reload > 0 && armed) {
@@ -651,6 +732,7 @@ export const poseMech = (rig: Rig, s: MechPose): void => {
     pose(rig, 'foreR', -0.6 * s.loot, 0, 0)
   }
   poseMechActions(rig, s)
+  poseMechHook(rig, s)
   // Its lights: steady while it lives, a stutter as it goes, then almost out.
   const lit = s.down <= 0 ? 1 : s.down < MECH_KNEEL_S + 0.5 ? (Math.sin(s.down * 47) > 0 ? 1 : 0.2) : 0.12
   rig.glowMaterial.color.setScalar(lit)

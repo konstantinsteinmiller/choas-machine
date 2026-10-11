@@ -30,6 +30,8 @@ export const BOX_SPEED = 1.6
 export const AIM_SPEED = 2.2
 export const LADDER_SPEED = 3.2
 export const CABLE_SPEED = 3.4
+/** Sprinting along a rope: quicker, still short of a ground sprint (the steps stay on the line). */
+export const CABLE_SPRINT_SPEED = 6.2
 const ACCEL = 14
 const TURN_RATE = 11
 const GRAVITY = 24
@@ -218,7 +220,8 @@ export const stepPlayer = (p: Player, g: Grid, w: Wish, dt: number): PlayerEvent
   if (p.boxed) p.crouched = true
   p.box = approach(p.box, p.boxed ? 1 : 0, dt * 7)
   // Sprinting out of a crouch stands the mech up: one intent, one key.
-  const wantSprint = !!w.sprint && !w.aiming && p.mode === 'ground' && Math.hypot(w.mx, w.mz) > 0.5
+  // On the ground, and along a rope too.
+  const wantSprint = !!w.sprint && !w.aiming && (p.mode === 'ground' || p.mode === 'cable') && Math.hypot(w.mx, w.mz) > 0.5
   if (wantSprint && p.crouched && !lowCeiling) p.crouched = false
   if (lowCeiling) p.crouched = true
   p.sprinting = wantSprint && !lowCeiling
@@ -275,7 +278,7 @@ export const stepPlayer = (p: Player, g: Grid, w: Wish, dt: number): PlayerEvent
       events.push({ type: 'jump' })
       return events
     }
-    const v = (w.mx * ux + w.mz * uz) * CABLE_SPEED
+    const v = (w.mx * ux + w.mz * uz) * (CABLE_SPEED + (CABLE_SPRINT_SPEED - CABLE_SPEED) * p.sprint)
     p.cableT += (v * dt) / e.len
     p.stride += Math.abs(v) * dt * 2.2
     p.speed01 = Math.min(1, Math.abs(v) / CABLE_SPEED)

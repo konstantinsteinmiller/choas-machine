@@ -4,7 +4,7 @@
 
 import { describe, expect, it } from 'vitest'
 import {
-  HOOK_WALL_H, LESSON_IDS, ROOM_WALL_H, TRAINING_ARMOR, TRAINING_ROOMS, buildTrainingGround, roomCell, trainingArmor
+  BARREL_PLINTH, BARREL_PLINTH_H, HOOK_WALL_H, LESSON_IDS, ROOM_WALL_H, TRAINING_ARMOR, TRAINING_ROOMS, buildTrainingGround, roomCell, trainingArmor
 } from '@/game/data/fortresses/training'
 import {
   BLADE_VICTIM, DEMOS, demoFrame, demoLength, doorOf, entryOf, lessonDone, makeTraining, replayDemo, roomAt, stepTraining,
@@ -12,6 +12,7 @@ import {
 } from '@/game/sim/training'
 import { CELL, cellHeight, cellMid, findHoles, findPath, heightAt } from '@/game/world/grid'
 import { GRAPPLE_MAX } from '@/game/sim/grapple'
+import { MANTLE_MAX } from '@/game/sim/player'
 import { validateFortress } from '@/game/world/validate'
 
 const ctx = (x: number, z: number, more: Partial<TrainingContext> = {}): TrainingContext => ({
@@ -66,7 +67,16 @@ describe('the layout', () => {
         const a = entryOf(i)
         const d = doorOf(i)!
         const c = (v: number): number => Math.floor(v / CELL)
-        expect(findPath(f.grid, c(a.x), c(a.z), c(d.x) + 1, c(d.z)).length, r.lesson).toBeGreaterThan(0)
+        // The barrel room (#198): its wall shuts the yard off on foot; the way
+        // on is the plinth: a ladder up its face, or the hook (too tall to mantle).
+        if (r.lesson === 'barrel') {
+          expect(findPath(f.grid, c(a.x), c(a.z), c(d.x) + 1, c(d.z)).length).toBe(0)
+          const [px, pz] = roomCell(i, ...BARREL_PLINTH)
+          expect(cellHeight(f.grid, px, pz)).toBeGreaterThan(BARREL_PLINTH_H)
+          expect(BARREL_PLINTH_H).toBeGreaterThan(MANTLE_MAX)
+          expect(BARREL_PLINTH_H).toBeLessThan(GRAPPLE_MAX)
+          expect(f.grid.ladders).toContainEqual({ cx: px - 1, cz: pz, dx: 1, dz: 0 })
+        } else expect(findPath(f.grid, c(a.x), c(a.z), c(d.x) + 1, c(d.z)).length, r.lesson).toBeGreaterThan(0)
       }
     }
   })
@@ -81,16 +91,16 @@ describe('the layout', () => {
     expect(f.beacons).toHaveLength(0)
     expect(LESSON_IDS).not.toContain('beacon')
     expect(TRAINING_ROOMS[LESSON_IDS.indexOf('rope')]!.door).not.toBeNull()
-    for (const p of f.posts) expect(LESSON_IDS[roomAt(p.x)]).toMatch(/cover|weapons|rocket|blade|burn|decoy|box/)
+    for (const p of f.posts) expect(LESSON_IDS[roomAt(p.x)]).toMatch(/cover|weapons|rocket|blade|burn|decoy|box|barrel/)
   })
 })
 
 describe('the lessons', () => {
   it('a room is entered once; its hologram loops until the lesson is done, and plays from the start on request', () => {
     const t = makeTraining()
-    const e = entryOf(0)
+    const e = entryOf(1)
     const ev = stepTraining(t, ctx(e.x, e.z), 1 / 30)
-    expect(ev).toEqual([{ type: 'enter', room: 0 }])
+    expect(ev).toEqual([{ type: 'enter', room: 1 }])
     let plays = 0
     let was = false
     for (let k = 0; k < 30 * 30; k++) {
@@ -106,13 +116,18 @@ describe('the lessons', () => {
     expect(t.demoT).toBe(0)
   })
 
-  it('walking to the door finishes the first lessons; the demo cannot be asked for after', () => {
+  it('the first room gate opens on walking up to it (#196): its door event fires; walking to a door finishes the next lessons, and the demo cannot be asked for after', () => {
     const t = makeTraining()
-    const e = entryOf(0)
+    expect(t.done[0]).toBe(false)
+    const e0 = entryOf(0)
+    stepTraining(t, ctx(e0.x, e0.z), 1 / 30)
+    const d0 = doorOf(0)!
+    expect(stepTraining(t, ctx(d0.x - CELL * 3, d0.z), 1 / 30)).toContainEqual({ type: 'done', room: 0 })
+    const e = entryOf(1)
     stepTraining(t, ctx(e.x, e.z), 1 / 30)
-    const d = doorOf(0)!
+    const d = doorOf(1)!
     const ev = stepTraining(t, ctx(d.x - CELL, d.z), 1 / 30)
-    expect(ev).toContainEqual({ type: 'done', room: 0 })
+    expect(ev).toContainEqual({ type: 'done', room: 1 })
     expect(replayDemo(t)).toBe(false)
   })
 

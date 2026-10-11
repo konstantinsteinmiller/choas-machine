@@ -30,7 +30,8 @@ export default {
     'salvage': 'De buit',
     'fallBastion': 'Het Bastion valt',
     'fallFoundry': 'De Gieterij koelt af',
-    'outro': 'Naar huis'
+    'outro': 'Naar huis',
+    'nextTarget': 'Volgend doelwit'
   },
   'fortress': {
     'bastion': 'Bastion',
@@ -87,6 +88,7 @@ export default {
   },
   'defeat': {
     'title': 'Mech neergehaald',
+    'repair': 'Volledige reparatie',
     'retry': 'Opnieuw proberen',
     'resume': 'Vanaf de eerste stapel',
     'kept': 'Gered techschroot'
@@ -191,6 +193,26 @@ export default {
     'unlock': 'Ontgrendel: {name}',
     'watch': 'Bekijk een video om te ontgrendelen: {name}'
   },
+  'paint': {
+    'title': 'Lakschema\'s',
+    'lilac': 'CM-07 Lila',
+    'crimson': 'Karmijn',
+    'arctic': 'Arctisch',
+    'jungle': 'Jungle',
+    'gilded': 'Verguld',
+    'midnight': 'Middernacht',
+    'tangerine': 'Mandarijn',
+    'equip': 'Mech lakken: {name}',
+    'equipShort': 'Uitrusten',
+    'equipped': 'Uitgerust',
+    'unlock': 'Ontgrendel: {name}',
+    'watch': 'Bekijk een video om voorgoed te ontgrendelen: {name}',
+    'try': 'Bekijk een video om {name} één missie te proberen',
+    'tryShort': 'Probeer 1 missie',
+    'lent': 'Van jou voor de volgende missie',
+    'noVideo': 'Nu geen video',
+    'back': 'Terug over {time}'
+  },
   'ads': {
     'blockedTitle': 'Advertenties geblokkeerd',
     'blockedBody': 'Een adblocker stopte de video, dus deze keer is er geen beloning.',
@@ -234,6 +256,7 @@ export default {
     'alarm': '6, 7!',
     'lowHealth': 'Tijd om mijn schroeven aan te draaien!',
     'lowAmmo': 'Bijna geen munitie meer, op zoek naar stenen om te gooien.',
+    'noAmmo': 'Munitie op.',
     'takedown': 'Ssst. Dutje doen.',
     'decoy': 'Kijk, een knappe vreemdeling!',
     'disguise': 'Beste broodrooster van het vak.',
@@ -252,6 +275,22 @@ export default {
     'replay': 'Nog eens laten zien',
     'progress': 'Training: {n} van {total} lessen klaar',
     'scrapWhy': 'Met techschroot koop je upgrades voor je wapens in de commandobasis.',
+    'bladeHint': 'Sluip naar de bewakers en steek ze in de rug, zodat ze geen alarm slaan!',
+    'decoyHint': 'Plaats een lokaas om de bewaker af te leiden, sluip er dan naartoe en schakel hem uit!',
+    'roomHint': {
+      'move': 'Loop naar de gloeiende deur om je training te starten.',
+      'jump': 'Klim de ladder op en spring over de kloof naar het andere platform!',
+      'cover': 'Buk achter de kratten zodat de wachtpost je niet ziet en kruip dan onder het hek door!',
+      'weapons': 'Schakel alle drie de bewakers uit: schiet er één neer met het sluipschuttersgeweer en wissel dan naar de minigun voor de andere twee!',
+      'rocket': 'Wissel naar de raketwerper en blaas de mech op de richel op!',
+      'supply': 'Loop over de kratten om je munitie aan te vullen en je pantser te repareren.',
+      'burn': 'Verbrand het lichaam met de vlammenwerper voordat iemand het vindt!',
+      'box': 'Verstop je in de doos en sta stil terwijl het zoeklicht over je heen gaat!',
+      'hook': 'Gebruik de enterhaak om over de muur te komen!',
+      'rope': 'Gebruik het touwkanon om een touw tussen de twee platforms te spannen!',
+      'barrel': 'Schiet op het brandstofvat om de bewakers achter de muur uit te schakelen!',
+      'extract': 'Loop naar het extractiepunt om je training af te ronden!',
+    },
     'skip': 'Training overslaan',
     'goal': 'Schakel alle drie uit',
     'goalProgress': '{n} van {total} uitgeschakeld',
@@ -282,6 +321,8 @@ export default {
   'pause': {
     'title': 'GEPAUZEERD',
     'resume': 'Hervatten',
+    'retreat': 'Terugtrekken naar de basis',
+    'retreatSure': 'De raid verlaten? Tik nog eens',
     'controls': 'Besturing'
   },
   'options': {

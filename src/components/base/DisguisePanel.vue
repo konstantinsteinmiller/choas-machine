@@ -50,7 +50,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref } from 'vue'
+import { computed, onMounted, onUnmounted, ref, watch as watchValue } from 'vue'
 import { useI18n } from 'vue-i18n'
 import FButton from '@/components/atoms/FButton.vue'
 import GameIcon from '@/components/icons/GameIcon.vue'
@@ -92,13 +92,16 @@ const watch = async (id: DisguiseId): Promise<void> => {
 
 /** A picture of each, drawn once (the panel covers the pad the mech stands on). */
 const thumbs = ref<Partial<Record<DisguiseId, string>>>({})
-onMounted(() => {
+// In the paint the mech has on (#M3), drawn again when it changes.
+const bake = (): void => {
   window.setTimeout(() => {
     const out: Partial<Record<DisguiseId, string>> = {}
-    for (const id of DISGUISE_IDS) out[id] = disguiseThumb(id)
+    for (const id of DISGUISE_IDS) out[id] = disguiseThumb(id, profile.paint.equipped)
     thumbs.value = out
   }, 0)
-})
+}
+onMounted(bake)
+watchValue(() => profile.paint.equipped, bake)
 
 const clock = ref(0)
 let timer = 0

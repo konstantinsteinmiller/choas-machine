@@ -1,5 +1,5 @@
 import { CELL, cellMid } from '../world/grid'
-import { HOOK_WALL_H, JUMP_DECK_H, JUMP_PIT_COL, ROCKET_TARGET, TRAINING_ROOMS, type LessonId } from '../data/fortresses/training'
+import { BARREL_PLINTH, HOOK_WALL_H, JUMP_DECK_H, JUMP_PIT_COL, ROCKET_TARGET, TRAINING_ROOMS, type LessonId } from '../data/fortresses/training'
 import type { WeaponId } from '../data/ids'
 import type { HintId } from './coach'
 import { isAlive, type Garrison } from './garrison'
@@ -181,6 +181,11 @@ export const DEMOS: Readonly<Record<LessonId, readonly DemoKey[]>> = {
     { t: 1.6, x: 3.5, z: 7, y: 4, cable: 1 }, { t: 4, x: 7.5, z: 7, y: 2, cable: 1 }, { t: 4.2, cable: 0 },
     { t: 4.8, x: 9.3, z: 7, y: 2 }, { t: 5.2, x: 9.9, z: 7, y: 0, air: 1 }, { t: 5.4, air: 0 }, { t: 6, x: 10.4, z: 7, y: 0 }
   ],
+  // The barrel (#198): the rifle up, the drum on the plinth in the scope, one round.
+  barrel: [
+    { t: 0, x: 1.5, z: 7, weapon: 'sniper', aim: 0 }, { t: 1.2, x: 2.6, z: 7, face: BARREL_PLINTH, hint: 'scope' },
+    { t: 1.8, aim: 1 }, { t: 2.8, aim: 1, hint: 'fire' }, { t: 4.4, aim: 1 }, { t: 5, aim: 0 }
+  ],
   salvage: [
     { t: 0, x: 1.5, z: 7, loot: 0 }, { t: 3, x: 5.4, z: 8.3, hint: 'loot' }, { t: 3.4, face: [6, 9], loot: 1 }, { t: 5.6, loot: 1 }
   ],
@@ -209,7 +214,7 @@ export const inPit = (i: number, x: number, y: number): boolean => {
 /** A demo loops until its lesson is done (#87), with this pause between plays. */
 export const DEMO_GAP_S = 0.9
 /** A glyph pulses this long after its moment in a demo. */
-export const HINT_HOLD_S = 1.6
+export const HINT_HOLD_S = 2.6
 
 /** What the mission reports each step: counts are totals since the raid began. */
 export interface TrainingContext {
@@ -288,9 +293,13 @@ export const entryOf = (i: number): { x: number; z: number } => {
 /** Whether room `i`'s lesson is done, given what was done since it was entered. */
 export const lessonDone = (i: number, c: TrainingContext, b: TrainingContext): boolean => {
   const r = TRAINING_ROOMS[i]!
+  // The first (walking) room's gate opens well before it is reached (#196
+  // follow-up): its lesson is only to walk, a shut door on the very first
+  // steps confused players.
+  const reach = r.lesson === 'move' ? CELL * 3.5 : CELL * 1.6
   const atDoor = (): boolean => {
     const d = doorOf(i)
-    return !!d && Math.abs(c.x - d.x) < CELL * 1.6 && Math.abs(c.z - d.z) < CELL * 1.6
+    return !!d && Math.abs(c.x - d.x) < reach && Math.abs(c.z - d.z) < reach
   }
   switch (r.lesson) {
     case 'move': case 'jump': case 'box': return atDoor()
@@ -311,13 +320,15 @@ export const lessonDone = (i: number, c: TrainingContext, b: TrainingContext): b
     // From behind, and close in from the side: two.
     case 'blade': return c.bladeKills - b.bladeKills >= 2
     case 'hook': return roomAt(c.x) > i
+    // The yard behind the wall cleared (#198): the drum is the way to it.
+    case 'barrel': return !!c.cleared
     case 'salvage': return c.piles > b.piles
     case 'extract': return false
   }
 }
 
 /** What a lesson still has to work with: defenders standing in its room, bodies left to burn, fuel, ropes. */
-export interface LessonStock { alive: number; bodies: number; fuel: number; ropes: number }
+export interface LessonStock { alive: number; bodies: number; fuel: number; ropes: number; barrels?: number }
 
 /**
  * The lesson can no longer be done with what is left in its room: the
@@ -329,6 +340,8 @@ export const lessonStuck = (i: number, c: TrainingContext, b: TrainingContext, s
     case 'blade': return c.bladeKills - b.bladeKills + s.alive < 2
     case 'burn': return c.burns <= b.burns && (s.bodies === 0 || s.fuel <= 0)
     case 'rope': return c.ropes <= b.ropes && !c.roped && s.ropes <= 0
+    // The drums gone up and somebody in the yard still standing (#198).
+    case 'barrel': return s.alive > 0 && s.barrels === 0
     // The decoy room's guard shot on the first try (#171): it stands again, and the try starts over.
     case 'decoy': return !!c.cleared && c.bladeKills <= b.bladeKills && (c.tries ?? 0) === 0
     default: return false
@@ -358,7 +371,7 @@ export const rewindRoom = (gar: Garrison, room: number): void => {
     u.z = u.pz = u.homeZ
     u.yaw = u.pyaw = u.homeYaw
     u.look = 0
-    // A training dummy (the rocket room's mech, a decoy guard given up on) never wakes.
+    // A training dummy (the rocket room's mech) never wakes.
     u.state = u.dummy ? 'dormant' : 'patrol'
     u.t = 0
     u.detect = 0
@@ -482,7 +495,9 @@ export const stepTraining = (t: Training, c: TrainingContext, dt: number): Train
   }
   // The demo: play, pause, play again, until the lesson is done; while the
   // mech is by the projector (or down the gap), and again when it comes back.
-  const near = t.pit || nearProjector(t, c)
+  // The rope room's hologram is up on its tower: it plays wherever the mech
+  // is in the room (a playtester never went near it, and never saw it).
+  const near = t.pit || nearProjector(t, c) || (t.room >= 0 && TRAINING_ROOMS[t.room]!.lesson === 'rope')
   if (t.demoT >= 0) {
     t.demoT += dt
     if (t.demoT > keysLength(activeKeys(t))) { t.demoT = -1; t.gap = DEMO_GAP_S }

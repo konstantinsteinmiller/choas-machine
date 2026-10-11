@@ -30,7 +30,8 @@ export default {
     'salvage': 'El botí',
     'fallBastion': 'El Bastió cau',
     'fallFoundry': 'La Foneria s\'apaga',
-    'outro': 'A casa'
+    'outro': 'A casa',
+    'nextTarget': 'Proper objectiu'
   },
   'fortress': {
     'bastion': 'Bastió',
@@ -87,6 +88,7 @@ export default {
   },
   'defeat': {
     'title': 'Mecha a terra',
+    'repair': 'Reparació completa',
     'retry': 'Torna-ho a provar',
     'resume': 'Des de la primera pila',
     'kept': 'Ferralla tècnica recuperada'
@@ -191,6 +193,26 @@ export default {
     'unlock': 'Desbloqueja: {name}',
     'watch': 'Mira un vídeo per desbloquejar: {name}'
   },
+  'paint': {
+    'title': 'Esquemes de pintura',
+    'lilac': 'CM-07 Lila',
+    'crimson': 'Carmesí',
+    'arctic': 'Àrtic',
+    'jungle': 'Jungla',
+    'gilded': 'Daurat',
+    'midnight': 'Mitjanit',
+    'tangerine': 'Mandarina',
+    'equip': 'Pinta el robot de {name}',
+    'equipShort': 'Equipa',
+    'equipped': 'Equipat',
+    'unlock': 'Desbloqueja: {name}',
+    'watch': 'Mira un vídeo per desbloquejar per sempre: {name}',
+    'try': 'Mira un vídeo per provar {name} durant una missió',
+    'tryShort': 'Prova 1 missió',
+    'lent': 'Teu per a la propera missió',
+    'noVideo': 'Ara no hi ha cap vídeo',
+    'back': 'Torna d\'aquí a {time}'
+  },
   'ads': {
     'blockedTitle': 'Anuncis bloquejats',
     'blockedBody': 'Un bloquejador d\'anuncis ha aturat el vídeo, així que aquesta vegada no hi ha recompensa.',
@@ -234,6 +256,7 @@ export default {
     'alarm': '6, 7!',
     'lowHealth': 'Hora d\'estrènyer-me els cargols!',
     'lowAmmo': 'Gairebé sense munició, busco pedres per llançar.',
+    'noAmmo': 'Sense munició.',
     'takedown': 'Xxxt. Hora de la migdiada.',
     'decoy': 'Mira, un desconegut ben plantat!',
     'disguise': 'La millor torradora del negoci.',
@@ -252,6 +275,22 @@ export default {
     'replay': 'Torna-m\'ho a ensenyar',
     'progress': 'Entrenament: {n} de {total} lliçons fetes',
     'scrapWhy': 'La ferralla tècnica compra millores per a les teves armes a la base de comandament.',
+    'bladeHint': 'Apropa\'t d\'amagat als guàrdies i apunyala\'ls per l\'esquena, perquè no donin l\'alarma!',
+    'decoyHint': 'Col·loca un esquer per distreure el guàrdia, després apropa\'t d\'amagat i elimina\'l!',
+    'roomHint': {
+      'move': 'Ves fins a la porta brillant per començar l\'entrenament.',
+      'jump': 'Puja per l\'escala i salta el buit fins a l\'altra plataforma!',
+      'cover': 'Ajup-te darrere les caixes perquè el sentinella no et vegi i després arrossega\'t per sota la reixa!',
+      'weapons': 'Elimina els tres guàrdies: abat-ne un amb el fusell de precisió i després canvia a la minigun per als altres dos!',
+      'rocket': 'Canvia al llançacoets i fes volar el mech de la cornisa!',
+      'supply': 'Passa per sobre les caixes per recarregar munició i reparar el blindatge.',
+      'burn': 'Crema el cos amb el llançaflames abans que algú el trobi!',
+      'box': 'Amaga\'t a la caixa de cartró i queda\'t quiet mentre el focus et passa per sobre!',
+      'hook': 'Fes servir el ganxo per passar per sobre el mur!',
+      'rope': 'Fes servir el llançacordes per tensar una corda entre les dues plataformes!',
+      'barrel': 'Dispara al barril de combustible per eliminar els guàrdies darrere el mur!',
+      'extract': 'Ves al punt d\'extracció per acabar l\'entrenament!',
+    },
     'skip': 'Ometre l\'entrenament',
     'goal': "Elimina'ls tots tres",
     'goalProgress': '{n} de {total} eliminats',
@@ -282,6 +321,8 @@ export default {
   'pause': {
     'title': 'PAUSA',
     'resume': 'Reprèn',
+    'retreat': 'Retirada a la base',
+    'retreatSure': 'Abandonar l\'atac? Toca de nou',
     'controls': 'Controls'
   },
   'options': {

@@ -1,6 +1,6 @@
 // #126: CM-07 comments now and then, never chatty; unseen it whispers.
 import { describe, expect, it } from 'vitest'
-import { QUIP_GAP_HOT_S, QUIP_GAP_S, QUIP_REPEAT_S, makeQuips, pickQuip } from '@/game/sim/quips'
+import { FEEDBACK_REPEAT_S, QUIP_GAP_HOT_S, QUIP_GAP_S, QUIP_REPEAT_S, makeQuips, pickQuip } from '@/game/sim/quips'
 import { QUIP_IDS, QUIP_SAID, VOICE_LINES } from '@/game/audio/voiceCatalog'
 import en from '@/i18n/locales/en'
 
@@ -35,5 +35,16 @@ describe('CM-07\'s one-liners', () => {
       expect(keys.has(`hero.${id}.loud`)).toBe(QUIP_SAID[id].loud)
       expect(keys.has(`hero.${id}.whisper`)).toBe(QUIP_SAID[id].whisper)
     }
+  })
+})
+
+describe('out of ammo (#199)', () => {
+  it('said on the empty trigger even right after another line, not again within a few seconds, then again', () => {
+    const q = makeQuips()
+    expect(pickQuip(q, 'headshot', 10, true)).not.toBeNull()
+    expect(pickQuip(q, 'noAmmo', 10.5, true)).toEqual({ id: 'noAmmo', whisper: false })
+    expect(pickQuip(q, 'noAmmo', 10.5 + FEEDBACK_REPEAT_S - 0.1, true)).toBeNull()
+    expect(pickQuip(q, 'noAmmo', 10.5 + FEEDBACK_REPEAT_S + 0.1, false)).toEqual({ id: 'noAmmo', whisper: true })
+    expect(en.quip.noAmmo).toBe('Out of ammo.')
   })
 })

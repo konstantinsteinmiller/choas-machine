@@ -14,6 +14,17 @@
         //- From the first stripped pile, with what was stripped still stripped.
         FButton(v-if="flow.checkpoint" type="secondary" size="md" icon="scrap" icon-position="left" data-testid="btn-resume-pile" @click="resume") {{ t('defeat.resume') }}
         FButton(size="lg" icon="replay" data-testid="btn-retry" @click="retry") {{ t('defeat.retry') }}
+        //- Full Repair (#189): a video, and the mech is back up where it fell,
+        //- the base none the wiser. After the free ways on, never bigger (Poki).
+        FButton(
+          v-if="repairOffer"
+          type="success"
+          size="md"
+          icon="video"
+          icon-position="left"
+          data-testid="btn-full-repair"
+          @click="repair"
+        ) {{ t('defeat.repair') }}
 </template>
 
 <script setup lang="ts">
@@ -21,7 +32,9 @@ import { useI18n } from 'vue-i18n'
 import FModal from '@/components/molecules/FModal.vue'
 import FButton from '@/components/atoms/FButton.vue'
 import GameIcon from '@/components/icons/GameIcon.vue'
-import { flow, leaveResults } from '@/game/flow'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
+import { flow, leaveResults, repairAfterDefeat } from '@/game/flow'
+import { canOffer, offerTick } from '@/use/useRewardedOffers'
 import { formatAmount } from '@/utils/formatAmount'
 
 /**
@@ -33,6 +46,14 @@ const fmt = (n: number): string => formatAmount(n, locale.value)
 const retry = (): void => { void leaveResults('retry') }
 const resume = (): void => { void leaveResults('resume') }
 const toBase = (): void => { void leaveResults('base') }
+const repair = (): void => { void repairAfterDefeat() }
+// Re-read each second: a video becomes playable (the grace, the SDK) while the screen is up.
+const clock = ref(0)
+let timer = 0
+onMounted(() => { timer = window.setInterval(() => { clock.value++ }, 1000) })
+onUnmounted(() => window.clearInterval(timer))
+/** Not in the training (its rooms start over by themselves); only where a video can play. */
+const repairOffer = computed(() => { void clock.value; void offerTick.value; return !flow.training && !!flow.run && canOffer('repair') })
 </script>
 
 <style scoped lang="sass">

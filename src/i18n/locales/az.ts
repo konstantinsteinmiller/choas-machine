@@ -30,7 +30,8 @@ export default {
     'salvage': 'Qənimət',
     'fallBastion': 'Bürc düşür',
     'fallFoundry': 'Tökmə zavodu soyuyur',
-    'outro': 'Evə'
+    'outro': 'Evə',
+    'nextTarget': 'Növbəti hədəf'
   },
   'fortress': {
     'bastion': 'Bürc',
@@ -87,6 +88,7 @@ export default {
   },
   'defeat': {
     'title': 'Meka məğlub oldu',
+    'repair': 'Tam təmir',
     'retry': 'Yenidən cəhd et',
     'resume': 'İlk yığından',
     'kept': 'Xilas edilən tex-qırıntı'
@@ -191,6 +193,26 @@ export default {
     'unlock': 'Aç: {name}',
     'watch': 'Açmaq üçün video izlə: {name}'
   },
+  'paint': {
+    'title': 'Boya sxemləri',
+    'lilac': 'CM-07 Yasəmən',
+    'crimson': 'Al qırmızı',
+    'arctic': 'Arktika',
+    'jungle': 'Cəngəllik',
+    'gilded': 'Qızılı',
+    'midnight': 'Gecəyarısı',
+    'tangerine': 'Mandarin',
+    'equip': 'Robotu {name} ilə boya',
+    'equipShort': 'Tax',
+    'equipped': 'Taxılıb',
+    'unlock': 'Aç: {name}',
+    'watch': '{name} birdəfəlik açmaq üçün video izlə',
+    'try': '{name} bir missiya sınamaq üçün video izlə',
+    'tryShort': '1 missiya sına',
+    'lent': 'Növbəti missiya üçün səninki',
+    'noVideo': 'Hazırda video yoxdur',
+    'back': '{time} sonra'
+  },
   'ads': {
     'blockedTitle': 'Reklamlar bloklanıb',
     'blockedBody': 'Reklam bloklayıcı videonu dayandırdı, bu dəfə mükafat yoxdur.',
@@ -234,6 +256,7 @@ export default {
     'alarm': '6, 7!',
     'lowHealth': 'Vintlərimi bərkitmək vaxtıdır!',
     'lowAmmo': 'Sursat qurtarmaq üzrədir, atmağa daş axtarıram.',
+    'noAmmo': 'Sursat bitdi.',
     'takedown': 'Şşş. Yatmaq vaxtı.',
     'decoy': 'Bax, yaraşıqlı bir yad!',
     'disguise': 'Sahənin ən yaxşı tosteri.',
@@ -252,6 +275,22 @@ export default {
     'replay': 'Yenidən göstər',
     'progress': 'Məşq: {total} dərsdən {n} keçildi',
     'scrapWhy': 'Tex-qırıntı ilə bazada silahların üçün təkmilləşdirmələr alırsan.',
+    'bladeHint': 'Mühafizəçilərə gizlicə yaxınlaş və onları arxadan vur ki, həyəcan siqnalı verməsinlər!',
+    'decoyHint': 'Mühafizəçinin diqqətini yayındırmaq üçün yem qoy, sonra gizlicə yaxınlaş və onu aradan qaldır!',
+    'roomHint': {
+      'move': 'Təliminə başlamaq üçün işıq saçan qapıya get.',
+      'jump': 'Nərdivanla qalx və boşluğun üstündən o biri platformaya tullan!',
+      'cover': 'Gözətçi səni görməsin deyə yeşiklərin arxasında əyil, sonra darvazanın altından sürünərək keç!',
+      'weapons': 'Hər üç mühafizəçini zərərsizləşdir: birini snayper tüfəngi ilə vur, sonra qalan ikisi üçün minigana keç!',
+      'rocket': 'Raketatana keç və çıxıntıdakı mexi partlat!',
+      'supply': 'Döyüş sursatını doldurmaq və zirehini təmir etmək üçün yeşiklərin üstündən keç.',
+      'burn': 'Kimsə tapmamış cəsədi alovatanla yandır!',
+      'box': 'Qutuda gizlən və projektor üstündən keçərkən tərpənmədən dur!',
+      'hook': 'Divardan aşmaq üçün qarmaqlı ipdən istifadə et!',
+      'rope': 'İki platforma arasında ip çəkmək üçün ipatandan istifadə et!',
+      'barrel': 'Divarın arxasındakı mühafizəçiləri zərərsizləşdirmək üçün yanacaq çəlləyinə atəş aç!',
+      'extract': 'Təlimini bitirmək üçün təxliyə nöqtəsinə get!',
+    },
     'skip': 'Məşqi keç',
     'goal': 'Hər üçünü zərərsizləşdir',
     'goalProgress': '{n}/{total} yerə sərildi',
@@ -282,6 +321,8 @@ export default {
   'pause': {
     'title': 'FASİLƏ',
     'resume': 'Davam et',
+    'retreat': 'Bazaya geri çəkil',
+    'retreatSure': 'Basqından çıxırsan? Yenidən toxun',
     'controls': 'İdarəetmə'
   },
   'options': {

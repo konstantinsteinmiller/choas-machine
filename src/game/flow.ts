@@ -2,7 +2,10 @@ import { reactive } from 'vue'
 import { app, type GameMode } from './engine/app'
 import { hud, setPhase } from './state/hud'
 import { isFreshProfile, markSeen, profile, saveProfile } from './state/profile'
-import { bankDefeat, bankMission, campaignScore, fortressOpen, highestCleared, levelKey, nextOpened, unlockedLevel } from './state/progress'
+import { bankDefeat, bankMission, bankRetreat, campaignScore, fortressOpen, highestCleared, levelKey, nextOpened, unbankDefeat, unlockedLevel } from './state/progress'
+import { watchFor } from '@/use/useRewardedOffers'
+import { endPaintTrial, startPaintTrial } from './state/paint'
+import { emit as busEmit } from './bus'
 import { cinemaAfterClear, seenKey, type CinemaId } from './story/cinemaIds'
 import { currentMusicTrack, resumeMusicAfterAd, setMusicTrack } from '@/use/useSound'
 import type { TrackId } from './audio/songs'
@@ -149,6 +152,8 @@ export const startMission = async (level: number = flow.level): Promise<void> =>
   flow.next = null
   if (!fortressOpen(flow.fortress)) flow.fortress = 'bastion'
   flow.level = Math.min(unlockedLevel(flow.fortress), Math.max(1, level))
+  // A paint scheme lent by a video is worn on this mission (#M6).
+  startPaintTrial()
   await swap('mission', factories.mission, 'intro')
 }
 
@@ -208,6 +213,8 @@ export const goBase = async (): Promise<void> => {
     flow.fortress = flow.next.fortress
     flow.level = flow.next.level
   }
+  // A lent paint scheme goes back with the mission it was lent for.
+  endPaintTrial()
   if (factories) await swap('base', factories.base, 'base')
 }
 
@@ -242,7 +249,48 @@ export const finishMission = async (run: MissionResult): Promise<void> => {
 export const failMission = (run: MissionResult, checkpoint: Checkpoint | null = null): void => {
   flow.run = { ...run }
   flow.checkpoint = checkpoint
-  flow.kept = bankDefeat(run, flow.level)
+  flow.kept = bankDefeat(run, flow.level, flow.training ? null : flow.fortress)
+}
+
+/**
+ * The pause menu's retreat (#197): the raid given up for the Command Base. It
+ * pays like a defeat (`bankRetreat`), without being one; the way out has the
+ * same paced interstitial as leaving a result screen.
+ */
+export const retreatMission = async (run: MissionResult): Promise<void> => {
+  if (flow.training || leaving) return
+  leaving = true
+  flow.modal = ''
+  flow.run = { ...run }
+  flow.kept = bankRetreat(run, flow.level)
+  flow.checkpoint = null
+  try {
+    if (canShowInterstitial()) {
+      markInterstitialShown()
+      await showMidgameAd()
+    }
+    await waitForAdGate()
+  } finally {
+    leaving = false
+    void goBase()
+  }
+}
+
+/**
+ * The defeat screen's Full Repair (#189), paid for with a rewarded video: the
+ * defeat is taken back and the mission gets the mech back up where it fell
+ * (`Mission`, on the `fullRepair` event). True when it happened.
+ */
+export const repairAfterDefeat = async (): Promise<boolean> => {
+  if (flow.modal !== 'defeat' || !flow.run) return false
+  const run = flow.run
+  return watchFor('repair', () => {
+    unbankDefeat(run, flow.kept, flow.level, flow.training ? null : flow.fortress)
+    flow.kept = 0
+    flow.checkpoint = null
+    flow.modal = ''
+    busEmit('fullRepair', {})
+  })
 }
 
 // ─── Leaving a result screen: the one ad break ───────────────────────────────

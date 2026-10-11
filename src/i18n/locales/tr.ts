@@ -30,7 +30,8 @@ export default {
     'salvage': 'Ganimet',
     'fallBastion': 'Burç düşüyor',
     'fallFoundry': 'Dökümhane soğuyor',
-    'outro': 'Eve'
+    'outro': 'Eve',
+    'nextTarget': 'Sıradaki hedef'
   },
   'fortress': {
     'bastion': 'Burç',
@@ -87,6 +88,7 @@ export default {
   },
   'defeat': {
     'title': 'Mech yenildi',
+    'repair': 'Tam onarım',
     'retry': 'Tekrar dene',
     'resume': 'İlk yığından',
     'kept': 'Kurtarılan Teknik Hurda'
@@ -191,6 +193,26 @@ export default {
     'unlock': 'Kilidi aç: {name}',
     'watch': 'Kilidi açmak için video izle: {name}'
   },
+  'paint': {
+    'title': 'Boya şemaları',
+    'lilac': 'CM-07 Leylak',
+    'crimson': 'Kızıl',
+    'arctic': 'Arktik',
+    'jungle': 'Orman',
+    'gilded': 'Yaldızlı',
+    'midnight': 'Gece Yarısı',
+    'tangerine': 'Mandalina',
+    'equip': 'Robotu boya: {name}',
+    'equipShort': 'Kuşan',
+    'equipped': 'Kuşanıldı',
+    'unlock': 'Kilidi aç: {name}',
+    'watch': 'Kalıcı olarak açmak için video izle: {name}',
+    'try': 'Bir görev denemek için video izle: {name}',
+    'tryShort': '1 görev dene',
+    'lent': 'Sonraki görev için senin',
+    'noVideo': 'Şu an video yok',
+    'back': '{time} sonra'
+  },
   'ads': {
     'blockedTitle': 'Reklamlar engellendi',
     'blockedBody': 'Bir reklam engelleyici videoyu durdurdu, bu yüzden bu sefer ödül yok.',
@@ -234,6 +256,7 @@ export default {
     'alarm': '6, 7!',
     'lowHealth': 'Vidalarımı sıkma vakti!',
     'lowAmmo': 'Mermi bitmek üzere, atacak taş arıyorum.',
+    'noAmmo': 'Mermi bitti.',
     'takedown': 'Şşş. Nini zamanı.',
     'decoy': 'Bak, yakışıklı bir yabancı!',
     'disguise': 'Sektörün en iyi tost makinesi.',
@@ -252,6 +275,22 @@ export default {
     'replay': 'Tekrar göster',
     'progress': 'Eğitim: {total} dersten {n} tanesi bitti',
     'scrapWhy': 'Hurdayla üste silahlarına yükseltme alırsın.',
+    'bladeHint': 'Muhafızlara gizlice yaklaş ve onları sırtından bıçakla, alarm vermesinler!',
+    'decoyHint': 'Muhafızın dikkatini dağıtmak için bir yem koy, sonra gizlice yaklaş ve onu etkisiz hale getir!',
+    'roomHint': {
+      'move': 'Eğitimine başlamak için parlayan kapıya yürü.',
+      'jump': 'Merdivene tırman ve boşluğun üstünden diğer platforma atla!',
+      'cover': 'Nöbetçi seni görmesin diye sandıkların arkasında çömel, sonra kapının altından sürünerek geç!',
+      'weapons': 'Üç muhafızın hepsini indir: birini keskin nişancı tüfeğiyle vur, sonra diğer ikisi için minigun\'a geç!',
+      'rocket': 'Roketatara geç ve çıkıntıdaki mech\'i havaya uçur!',
+      'supply': 'Cephaneni doldurmak ve zırhını onarmak için sandıkların üzerinden yürü.',
+      'burn': 'Biri bulmadan cesedi alev makinesiyle yak!',
+      'box': 'Karton kutuya saklan ve projektör üzerinden geçerken kıpırdama!',
+      'hook': 'Duvarı aşmak için kancalı ipi kullan!',
+      'rope': 'İki platform arasında ip germek için ip tabancasını kullan!',
+      'barrel': 'Duvarın arkasındaki muhafızları indirmek için yakıt varilini vur!',
+      'extract': 'Eğitimini bitirmek için tahliye noktasına yürü!',
+    },
     'skip': 'Eğitimi atla',
     'goal': 'Üçünü de etkisiz hale getir',
     'goalProgress': '{n}/{total} düştü',
@@ -282,6 +321,8 @@ export default {
   'pause': {
     'title': 'DURAKLATILDI',
     'resume': 'Devam et',
+    'retreat': 'Üsse geri çekil',
+    'retreatSure': 'Baskından çıkılsın mı? Tekrar dokun',
     'controls': 'Kontroller'
   },
   'options': {

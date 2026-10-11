@@ -111,6 +111,13 @@ export interface Input {
   lookHomeX: number
   lookHomeY: number
   lookHomeR: number
+  /**
+   * Touch: the weapon was raised by the Zoom-in button, not by a held finger.
+   * It stays up until Zoom-out lowers it — no shot — and it fires only from
+   * the Shoot button (the mouse's trigger model); a finger on the screen
+   * meanwhile only looks.
+   */
+  aimLatched: boolean
   /** The look stick is held, and how far it is pushed (−1 … 1, y down). */
   lookStickActive: boolean
   lookStickX: number
@@ -167,7 +174,7 @@ export const createInput = (): Input => ({
   actQueued: false, grappleQueued: false, jumpQueued: false, ropeQueued: false, burnQueued: false, dragQueued: false, crouchQueued: false, hideQueued: false, decoyQueued: false, reloadQueued: false, weaponQueued: 0, cycleQueued: false, wheelQueued: 0,
   pauseQueued: false, anyPressed: false,
   joyActive: false, joyOriginX: 0, joyOriginY: 0, joyX: 0, joyY: 0, joyHomeX: 0, joyHomeY: 0, joyHomeR: 0, joyRadius: 56,
-  lookHomeX: 0, lookHomeY: 0, lookHomeR: 0, lookStickActive: false, lookStickX: 0, lookStickY: 0,
+  aimLatched: false, lookHomeX: 0, lookHomeY: 0, lookHomeR: 0, lookStickActive: false, lookStickX: 0, lookStickY: 0,
   holdX: 0, holdY: 0, hold01: 0,
   // A phone never captures the mouse: there, a mouse is a finger.
   touched: false, device: guessDevice(), locked: false, lockRefused: !lockSupported() || touchFirst()
@@ -205,6 +212,7 @@ export const consumeEdges = (i: Input): void => {
 
 /** Lower the weapon without the shot (the HUD's cancel chip). */
 export const cancelAim = (i: Input): void => {
+  i.aimLatched = false
   if (!i.aimHeld) return
   i.aimHeld = false
   i.aimCancelled = true
@@ -228,6 +236,14 @@ export const TAP_MAX_MS = 260
 const TAP_MAX_MOVE = 14
 /** A press held this long, having barely moved, raises the weapon. */
 export const HOLD_MS = 220
+/** Touch, the Zoom-in button: raise the weapon and keep it up (see `aimLatched`). */
+export const latchAim = (i: Input): void => {
+  if (i.aimHeld) { i.aimLatched = true; return }
+  i.aimHeld = true
+  i.aimPressed = true
+  i.aimLatched = true
+}
+
 /**
  * The look stick at full push turns the view this many look-drag pixels a
  * second (× `LOOK_RATE` in `camera.ts`: ~150° a second across, a little less
@@ -422,7 +438,11 @@ export const attachInput = (surface: HTMLElement, input: Input, opts: InputOptio
         input.lookDY += input.lookStickY * k * LOOK_STICK_PX_S * LOOK_STICK_PITCH * dt
       }
     }
+    // The weapon came down some other way (a ladder, a strike): the latch goes with it.
+    if (!input.aimHeld) input.aimLatched = false
     if (gesture !== 'pending') return
+    // Already up on the Zoom-in latch: a finger held still is not a new aim (whose release would fire).
+    if (input.aimLatched) return
     const k = (now() - gStartT) / HOLD_MS
     input.hold01 = Math.min(1, Math.max(0, k))
     if (k >= 1) raise()

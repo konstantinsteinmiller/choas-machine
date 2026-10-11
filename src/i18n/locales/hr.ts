@@ -30,7 +30,8 @@ export default {
     'salvage': 'Plijen',
     'fallBastion': 'Bedem pada',
     'fallFoundry': 'Ljevaonica se hladi',
-    'outro': 'Kući'
+    'outro': 'Kući',
+    'nextTarget': 'Sljedeća meta'
   },
   'fortress': {
     'bastion': 'Bedem',
@@ -87,6 +88,7 @@ export default {
   },
   'defeat': {
     'title': 'Mech je pao',
+    'repair': 'Potpuni popravak',
     'retry': 'Pokušaj ponovno',
     'resume': 'Od prve hrpe',
     'kept': 'Spašeni tehno-otpad'
@@ -191,6 +193,26 @@ export default {
     'unlock': 'Otključaj: {name}',
     'watch': 'Pogledaj video za otključavanje: {name}'
   },
+  'paint': {
+    'title': 'Sheme boja',
+    'lilac': 'CM-07 Jorgovan',
+    'crimson': 'Grimiz',
+    'arctic': 'Arktik',
+    'jungle': 'Džungla',
+    'gilded': 'Pozlaćeno',
+    'midnight': 'Ponoć',
+    'tangerine': 'Mandarina',
+    'equip': 'Oboji robota: {name}',
+    'equipShort': 'Opremi',
+    'equipped': 'Opremljeno',
+    'unlock': 'Otključaj: {name}',
+    'watch': 'Pogledaj video za trajno otključavanje: {name}',
+    'try': 'Pogledaj video i isprobaj {name} jednu misiju',
+    'tryShort': 'Probaj 1 misiju',
+    'lent': 'Tvoje za sljedeću misiju',
+    'noVideo': 'Trenutno nema videa',
+    'back': 'Opet za {time}'
+  },
   'ads': {
     'blockedTitle': 'Oglasi blokirani',
     'blockedBody': 'Blokator oglasa zaustavio je video pa ovaj put nema nagrade.',
@@ -234,6 +256,7 @@ export default {
     'alarm': '6, 7!',
     'lowHealth': 'Vrijeme je da zategnem vijke!',
     'lowAmmo': 'Skoro bez municije, tražim kamenje za bacanje.',
+    'noAmmo': 'Nema više municije.',
     'takedown': 'Pssst. Vrijeme za drijemež.',
     'decoy': 'Gle, zgodan neznanac!',
     'disguise': 'Najbolji toster u poslu.',
@@ -252,6 +275,22 @@ export default {
     'replay': 'Pokaži ponovno',
     'progress': 'Trening: završeno {n} od {total} lekcija',
     'scrapWhy': 'Tehno-otpadom u Zapovjednoj bazi nadograđuješ oružje.',
+    'bladeHint': 'Prišuljaj se stražarima i ubodi ih u leđa, da ne dignu uzbunu!',
+    'decoyHint': 'Postavi mamac da odvučeš pažnju stražaru, zatim mu se prišuljaj i eliminiraj ga!',
+    'roomHint': {
+      'move': 'Dođi do svijetlećih vrata da započneš obuku.',
+      'jump': 'Popni se ljestvama i preskoči procjep do druge platforme!',
+      'cover': 'Čučni iza sanduka da te stražar ne vidi, a onda se provuci ispod kapije!',
+      'weapons': 'Eliminiraj sva tri stražara: jednog skini snajperom, a onda prebaci na minigun za druga dva!',
+      'rocket': 'Prebaci na raketni bacač i raznesi mecha na izbočini!',
+      'supply': 'Prijeđi preko sanduka da napuniš streljivo i popraviš oklop.',
+      'burn': 'Spali tijelo bacačem plamena prije nego što ga netko pronađe!',
+      'box': 'Sakrij se u kartonsku kutiju i stoj mirno dok reflektor prelazi preko tebe!',
+      'hook': 'Upotrijebi kuku za penjanje da prijeđeš preko zida!',
+      'rope': 'Upotrijebi pušku za uže da napneš uže između dviju platformi!',
+      'barrel': 'Pucaj u bačvu s gorivom da eliminiraš stražare iza zida!',
+      'extract': 'Dođi do točke izvlačenja da završiš obuku!',
+    },
     'skip': 'Preskoči trening',
     'goal': 'Sredi svu trojicu',
     'goalProgress': '{n} od {total} oboreno',
@@ -282,6 +321,8 @@ export default {
   'pause': {
     'title': 'PAUZA',
     'resume': 'Nastavi',
+    'retreat': 'Povlačenje u bazu',
+    'retreatSure': 'Napustiti napad? Dodirni ponovno',
     'controls': 'Kontrole'
   },
   'options': {

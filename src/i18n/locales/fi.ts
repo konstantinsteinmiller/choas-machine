@@ -30,7 +30,8 @@ export default {
     'salvage': 'Saalis',
     'fallBastion': 'Bastioni kaatuu',
     'fallFoundry': 'Valimo jäähtyy',
-    'outro': 'Kotiin'
+    'outro': 'Kotiin',
+    'nextTarget': 'Seuraava kohde'
   },
   'fortress': {
     'bastion': 'Bastioni',
@@ -87,6 +88,7 @@ export default {
   },
   'defeat': {
     'title': 'Mecha kaatui',
+    'repair': 'Täysi korjaus',
     'retry': 'Yritä uudelleen',
     'resume': 'Ensimmäisestä kasasta',
     'kept': 'Pelastettu teknoromu'
@@ -191,6 +193,26 @@ export default {
     'unlock': 'Avaa: {name}',
     'watch': 'Katso video ja avaa: {name}'
   },
+  'paint': {
+    'title': 'Maalaukset',
+    'lilac': 'CM-07 Syreeni',
+    'crimson': 'Karmiini',
+    'arctic': 'Arktinen',
+    'jungle': 'Viidakko',
+    'gilded': 'Kullattu',
+    'midnight': 'Keskiyö',
+    'tangerine': 'Mandariini',
+    'equip': 'Maalaa robotti: {name}',
+    'equipShort': 'Varusta',
+    'equipped': 'Varustettu',
+    'unlock': 'Avaa: {name}',
+    'watch': 'Katso video ja avaa pysyvästi: {name}',
+    'try': 'Katso video ja kokeile yhden tehtävän ajan: {name}',
+    'tryShort': 'Kokeile 1 tehtävä',
+    'lent': 'Sinun seuraavaan tehtävään',
+    'noVideo': 'Ei videota juuri nyt',
+    'back': 'Taas {time} päästä'
+  },
   'ads': {
     'blockedTitle': 'Mainokset estetty',
     'blockedBody': 'Mainosten esto pysäytti videon, joten palkintoa ei tule tällä kertaa.',
@@ -234,6 +256,7 @@ export default {
     'alarm': '6, 7!',
     'lowHealth': 'Aika kiristää ruuveja!',
     'lowAmmo': 'Ammukset melkein lopussa, etsin kiviä heitettäväksi.',
+    'noAmmo': 'Ammukset loppu.',
     'takedown': 'Shh. Nukkumatti tuli.',
     'decoy': 'Katso, komea muukalainen!',
     'disguise': 'Alan paras leivänpaahdin.',
@@ -252,6 +275,22 @@ export default {
     'replay': 'Näytä uudelleen',
     'progress': 'Harjoitus: {n}/{total} oppituntia tehty',
     'scrapWhy': 'Romulla ostat aseillesi päivityksiä tukikohdassa.',
+    'bladeHint': 'Hiivi vartijoiden luo ja puukota heitä selkään, etteivät he hälytä!',
+    'decoyHint': 'Aseta houkutin harhauttamaan vartijaa, hiivi sitten sen luo ja eliminoi se!',
+    'roomHint': {
+      'move': 'Kävele hehkuvalle ovelle aloittaaksesi koulutuksen.',
+      'jump': 'Kiipeä tikkaita ylös ja hyppää aukon yli toiselle tasanteelle!',
+      'cover': 'Kyykisty laatikoiden taakse, ettei vartija näe sinua, ja ryömi sitten portin ali!',
+      'weapons': 'Hoitele kaikki kolme vartijaa: ammu yksi tarkkuuskiväärillä ja vaihda sitten minigunniin kahta muuta varten!',
+      'rocket': 'Vaihda raketinheittimeen ja räjäytä reunalla oleva mechi!',
+      'supply': 'Kävele laatikoiden yli täydentääksesi ammukset ja korjataksesi panssarisi.',
+      'burn': 'Polta ruumis liekinheittimellä ennen kuin kukaan löytää sen!',
+      'box': 'Piiloudu pahvilaatikkoon ja pysy liikkumatta, kun valonheitin pyyhkäisee ylitsesi!',
+      'hook': 'Käytä kiipeilykoukkua päästäksesi muurin yli!',
+      'rope': 'Luo köysiaseella köysi kahden tasanteen välille!',
+      'barrel': 'Ammu polttoainetynnyriä hoitaaksesi muurin takana olevat vartijat!',
+      'extract': 'Kävele evakuointipisteeseen suorittaaksesi koulutuksen loppuun!',
+    },
     'skip': 'Ohita harjoitus',
     'goal': 'Kaada kaikki kolme',
     'goalProgress': '{n}/{total} kaadettu',
@@ -282,6 +321,8 @@ export default {
   'pause': {
     'title': 'TAUKO',
     'resume': 'Jatka',
+    'retreat': 'Vetäydy tukikohtaan',
+    'retreatSure': 'Poistutaanko hyökkäyksestä? Napauta uudelleen',
     'controls': 'Ohjaimet'
   },
   'options': {

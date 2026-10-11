@@ -198,7 +198,11 @@ const hitUnit = (u: Unit, ox: number, oy: number, oz: number, dx: number, dy: nu
     // The legs below the hips are limbs; the torso above is the body.
     take(rayCylinder(ox, oy, oz, dx, dy, dz, u.x, u.z, BODY_R, u.y + 0.1, u.y + LIMB_TOP), 'limb')
     take(rayCylinder(ox, oy, oz, dx, dy, dz, u.x, u.z, BODY_R, u.y + LIMB_TOP, u.y + 1.3), 'body')
-    take(raySphere(ox, oy, oz, dx, dy, dz, u.x, u.y + HEAD_Y, u.z, HEAD_R), 'head')
+    // The head where it is drawn (posed: walking, wary, aiming); its fixed
+    // place over the feet only where it is not drawn (tests, culled).
+    const hd = u.drawnHead
+    if (hd) take(raySphere(ox, oy, oz, dx, dy, dz, hd.x, hd.y, hd.z, HEAD_R), 'head')
+    else take(raySphere(ox, oy, oz, dx, dy, dz, u.x, u.y + HEAD_Y, u.z, HEAD_R), 'head')
   }
   return bestT < maxT ? bestT : Infinity
 }

@@ -108,9 +108,12 @@ describe('what a hit is worth', () => {
     expect(shotDamage('minigun', 'enforcer', 'joint')).toBe(BASE_DAMAGE.minigun * 3)
     expect(shotDamage('minigun', 'enforcer', 'armor')).toBeLessThan(BASE_DAMAGE.minigun)
   })
-  it('nothing but the vents bothers the Goliath', () => {
+  it("the vents are the Goliath's soft spot; its plate still gives a little", () => {
+    // The plate is no longer next to nothing (a playtest: three full belts and
+    // two rockets left it standing), but the vents stay where a round counts.
     for (const w of ['sniper', 'minigun'] as const) {
-      expect(shotDamage(w, 'goliath', 'armor')).toBeLessThan(shotDamage(w, 'goliath', 'weak') / 5)
+      expect(shotDamage(w, 'goliath', 'armor')).toBeGreaterThan(0)
+      expect(shotDamage(w, 'goliath', 'armor')).toBeLessThan(shotDamage(w, 'goliath', 'weak') / 3)
     }
   })
 
@@ -127,21 +130,25 @@ describe('what a hit is worth', () => {
     expect(far.units[3]!.state).not.toBe('dead')
     expect(BLAST_RADIUS).toBeGreaterThan(4)
   })
-  it('a rocket astern of the Goliath does many times what one on the bow does', () => {
-    const f = yard().goliath(10, 10, 0).build()
-    const bow = makeGarrison(f)
-    const b = blast(bow, f.grid, cellMid(10), 1, cellMid(10) + 3.4, -1)
-    const stern = makeGarrison(f)
-    const s = blast(stern, f.grid, cellMid(10), 1, cellMid(10) - 3.4, -1)
-    expect(b.weakHit).toBe(false)
-    expect(s.weakHit).toBe(true)
-    const lostBow = 3000 - bow.units[0]!.hp
-    const lostStern = 3000 - stern.units[0]!.hp
-    expect(lostStern).toBeGreaterThan(lostBow * 5)
-    // Three rockets in the vents finish it.
-    blast(stern, f.grid, cellMid(10), 1, cellMid(10) - 3.4, -1)
-    blast(stern, f.grid, cellMid(10), 1, cellMid(10) - 3.4, -1)
-    expect(stern.units[0]!.state).toBe('dead')
+  it('the Goliath: three rockets on its plate end it, two in its vents (at any threat level)', () => {
+    // A playtester's two rockets and three full belts left it standing: plate
+    // took 35 % of a flat 400 against 3,450 hit points. A rocket now takes a
+    // share of the tank.
+    for (const level of [1, 3, 5]) {
+      const f = yard().goliath(10, 10, 0).build()
+      const bow = makeGarrison(f, level)
+      const stern = makeGarrison(f, level)
+      const hit = (gar: typeof bow, dz: number) => blast(gar, f.grid, cellMid(10), 1, cellMid(10) + dz, 0)
+      expect(hit(bow, 3.4).weakHit).toBe(false)
+      expect(hit(stern, -3.4).weakHit).toBe(true)
+      expect(stern.units[0]!.maxHp - stern.units[0]!.hp).toBeGreaterThan(bow.units[0]!.maxHp - bow.units[0]!.hp)
+      hit(bow, 3.4)
+      expect(bow.units[0]!.state, `level ${level}: two on the plate`).not.toBe('dead')
+      hit(bow, 3.4)
+      expect(bow.units[0]!.state, `level ${level}: three on the plate`).toBe('dead')
+      hit(stern, -3.4)
+      expect(stern.units[0]!.state, `level ${level}: two in the vents`).toBe('dead')
+    }
   })
 })
 
@@ -324,5 +331,21 @@ describe('the mini-gun waits for the weapon to be on the line (#110)', () => {
     expect(a.spool).toBe(1)
     const now = hold(a, hands({ touch: false, fireHeld: true, ready: true }), 0.3)
     expect(now).toBeGreaterThan(0)
+  })
+})
+
+describe('the Goliath against what a raid carries', () => {
+  it("two rockets on its plate and three full belts end it at threat III (the playtester's fight)", async () => {
+    const { GOLIATH_PLATE_MINIGUN, BASE_DAMAGE } = await import('@/game/sim/damage')
+    const { MINIGUN_BELT } = await import('@/game/sim/weapons')
+    const f = yard().goliath(10, 10, 0).build()
+    const gar = makeGarrison(f, 3)
+    const u = gar.units[0]!
+    blast(gar, f.grid, cellMid(10), 1, cellMid(10) + 3.4, 0)
+    blast(gar, f.grid, cellMid(10), 1, cellMid(10) + 3.4, 0)
+    const belts = 3 * MINIGUN_BELT * BASE_DAMAGE.minigun * GOLIATH_PLATE_MINIGUN
+    expect(u.hp - belts).toBeLessThanOrEqual(0)
+    // …and the rockets are still the tool: two belts alone are not.
+    expect(u.maxHp - 2 * MINIGUN_BELT * BASE_DAMAGE.minigun * GOLIATH_PLATE_MINIGUN).toBeGreaterThan(u.maxHp * 0.7)
   })
 })

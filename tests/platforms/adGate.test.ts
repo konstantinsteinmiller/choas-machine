@@ -230,3 +230,26 @@ describe('interstitial pacing', () => {
     expect(gate.canShowInterstitial()).toBe(true)
   })
 })
+
+// The early-ads grace is for a FIRST-TIME player only (playbook, phase 6): it
+// held for every session, so a returning player opening the disguise shop
+// right after loading saw no video buttons, and a Poki QA pass reported the
+// build as having no rewarded ads.
+describe('the rewarded grace: first-time players only', () => {
+  it('a new player waits the three minutes; a returning one is offered at once', async () => {
+    const gate = await loadGate({ provider: 'poki' })
+    const { profile } = await import('@/game/state/profile')
+    gate.__resetInterstitialClock(0)
+    profile.missions = 0
+    profile.seen = []
+    expect(gate.canOfferVideo()).toBe(false)
+    profile.seen = ['training']
+    expect(gate.canOfferVideo()).toBe(true)
+    profile.seen = []
+    profile.missions = 1
+    expect(gate.canOfferVideo()).toBe(true)
+    profile.missions = 0
+    gate.__resetInterstitialClock(gate.REWARD_GRACE_MS)
+    expect(gate.canOfferVideo()).toBe(true)
+  })
+})

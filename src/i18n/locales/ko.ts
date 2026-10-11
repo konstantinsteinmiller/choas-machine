@@ -30,7 +30,8 @@ export default {
     'salvage': '전리품',
     'fallBastion': '보루가 무너지다',
     'fallFoundry': '용광로가 식다',
-    'outro': '귀환'
+    'outro': '귀환',
+    'nextTarget': '다음 목표'
   },
   'fortress': {
     'bastion': '보루',
@@ -87,6 +88,7 @@ export default {
   },
   'defeat': {
     'title': '메카 파괴',
+    'repair': '완전 수리',
     'retry': '다시 도전',
     'resume': '첫 고철 더미부터',
     'kept': '회수한 테크 스크랩'
@@ -191,6 +193,26 @@ export default {
     'unlock': '잠금 해제: {name}',
     'watch': '영상을 보고 잠금 해제: {name}'
   },
+  'paint': {
+    'title': '도색',
+    'lilac': 'CM-07 라일락',
+    'crimson': '크림슨',
+    'arctic': '아크틱',
+    'jungle': '정글',
+    'gilded': '골드',
+    'midnight': '미드나잇',
+    'tangerine': '탠저린',
+    'equip': '메카를 {name}(으)로 도색',
+    'equipShort': '장착',
+    'equipped': '장착됨',
+    'unlock': '잠금 해제: {name}',
+    'watch': '영상을 보고 영구 잠금 해제: {name}',
+    'try': '영상을 보고 한 임무 동안 체험: {name}',
+    'tryShort': '1회 체험',
+    'lent': '다음 임무에서 사용 가능',
+    'noVideo': '지금은 영상 없음',
+    'back': '{time} 후 다시'
+  },
   'ads': {
     'blockedTitle': '광고 차단됨',
     'blockedBody': '광고 차단기가 영상을 막아서 이번에는 보상이 없습니다.',
@@ -234,6 +256,7 @@ export default {
     'alarm': '6, 7!',
     'lowHealth': '나사 좀 조일 시간이군!',
     'lowAmmo': '탄약이 거의 바닥, 던질 돌 찾는 중.',
+    'noAmmo': '탄약이 떨어졌다.',
     'takedown': '쉿. 낮잠 시간이야.',
     'decoy': '봐, 잘생긴 낯선 이다!',
     'disguise': '업계 최고의 토스터지.',
@@ -252,6 +275,22 @@ export default {
     'replay': '다시 보기',
     'progress': '훈련: {total}개 중 {n}개 완료',
     'scrapWhy': '스크랩으로 지휘 기지에서 무기를 업그레이드할 수 있습니다.',
+    'bladeHint': '경비병에게 몰래 다가가 등을 찔러 경보를 울리지 못하게 하세요!',
+    'decoyHint': '미끼를 놓아 경비병의 주의를 돌린 뒤, 몰래 다가가 처치하세요!',
+    'roomHint': {
+      'move': '빛나는 문으로 걸어가서 훈련을 시작해.',
+      'jump': '사다리를 올라가서 틈을 뛰어넘어 반대편 발판으로 가!',
+      'cover': '보초에게 들키지 않게 상자 뒤에 웅크린 다음, 문 아래로 기어서 지나가!',
+      'weapons': '경비병 셋을 모두 처치해: 하나는 저격하고, 미니건으로 바꿔서 나머지 둘을 처리해!',
+      'rocket': '로켓 런처로 바꿔서 난간 위의 메카를 날려 버려!',
+      'supply': '상자 위를 걸어서 탄약을 보충하고 장갑을 수리해.',
+      'burn': '누가 발견하기 전에 화염방사기로 시체를 태워!',
+      'box': '골판지 상자 안에 숨어서 탐조등이 지나갈 때까지 가만히 있어!',
+      'hook': '그래플링 훅을 써서 벽을 넘어가!',
+      'rope': '로프 건으로 두 발판 사이에 로프를 연결해!',
+      'barrel': '연료통을 쏴서 벽 뒤의 경비병들을 처치해!',
+      'extract': '탈출 지점으로 걸어가서 훈련을 마쳐!',
+    },
     'skip': '훈련 건너뛰기',
     'goal': '셋 모두 제압해',
     'goalProgress': '{total}명 중 {n}명 제압',
@@ -282,6 +321,8 @@ export default {
   'pause': {
     'title': '일시정지',
     'resume': '계속하기',
+    'retreat': '기지로 후퇴',
+    'retreatSure': '습격을 포기할까요? 다시 탭하세요',
     'controls': '조작법'
   },
   'options': {

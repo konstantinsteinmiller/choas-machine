@@ -30,7 +30,8 @@ export default {
     'salvage': '戦利品',
     'fallBastion': '砦、陥落',
     'fallFoundry': '炉の火が消える',
-    'outro': '帰還'
+    'outro': '帰還',
+    'nextTarget': '次の標的'
   },
   'fortress': {
     'bastion': '砦',
@@ -87,6 +88,7 @@ export default {
   },
   'defeat': {
     'title': 'メカ撃破',
+    'repair': '完全修理',
     'retry': 'もう一度',
     'resume': '最初の山から',
     'kept': '回収したテックスクラップ'
@@ -191,6 +193,26 @@ export default {
     'unlock': '{name}を解放',
     'watch': '動画を見て{name}を解放'
   },
+  'paint': {
+    'title': '塗装',
+    'lilac': 'CM-07 ライラック',
+    'crimson': 'クリムゾン',
+    'arctic': 'アークティック',
+    'jungle': 'ジャングル',
+    'gilded': 'ゴールド',
+    'midnight': 'ミッドナイト',
+    'tangerine': 'タンジェリン',
+    'equip': 'メカを{name}に塗装',
+    'equipShort': '装備',
+    'equipped': '装備中',
+    'unlock': '{name}を解放',
+    'watch': '動画を見て{name}を永久に解放',
+    'try': '動画を見て{name}を1ミッション試す',
+    'tryShort': '1回試す',
+    'lent': '次のミッションで使用可能',
+    'noVideo': '現在動画はありません',
+    'back': '{time}後に再開'
+  },
   'ads': {
     'blockedTitle': '広告がブロックされました',
     'blockedBody': '広告ブロッカーが動画を止めたため、今回は報酬がありません。',
@@ -234,6 +256,7 @@ export default {
     'alarm': '6, 7!',
     'lowHealth': 'ネジを締め直す時間だ！',
     'lowAmmo': '弾切れ寸前、投げる石を探すぜ。',
+    'noAmmo': '弾切れだ。',
     'takedown': 'シーッ。おねんねの時間だ。',
     'decoy': '見ろ、イケメンの登場だ！',
     'disguise': '業界一のトースターさ。',
@@ -252,6 +275,22 @@ export default {
     'replay': 'もう一度見る',
     'progress': '訓練：{total}中{n}レッスン完了',
     'scrapWhy': 'スクラップは司令基地で武器の強化に使えます。',
+    'bladeHint': '警備兵に忍び寄り、背後から仕留めよう。警報を鳴らされないように！',
+    'decoyHint': 'デコイで警備兵の気をそらし、忍び寄って仕留めよう！',
+    'roomHint': {
+      'move': '光っているドアまで歩いてトレーニングを始めよう。',
+      'jump': 'ハシゴを登って、隙間を飛び越えて向こうの足場へ渡ろう！',
+      'cover': '見張りに見つからないよう木箱の陰でしゃがみ、ゲートの下をほふく前進でくぐり抜けよう！',
+      'weapons': '警備兵3人を全員倒せ：1人を狙撃したら、ミニガンに持ち替えて残り2人を片付けろ！',
+      'rocket': 'ロケットランチャーに持ち替えて、出っ張りの上のメカを吹き飛ばせ！',
+      'supply': '木箱の上を歩いて弾薬を補給し、装甲を修理しよう。',
+      'burn': '誰かに見つかる前に、火炎放射器で死体を燃やせ！',
+      'box': '段ボール箱に隠れて、サーチライトが通り過ぎるまでじっとしていよう！',
+      'hook': 'グラップリングフックで壁を越えよう！',
+      'rope': 'ロープガンで2つの足場の間にロープを張ろう！',
+      'barrel': '燃料ドラム缶を撃って、壁の向こうの警備兵を倒せ！',
+      'extract': '脱出ポイントまで歩いてトレーニングを完了しよう！',
+    },
     'skip': '訓練をスキップ',
     'goal': '3体すべて倒せ',
     'goalProgress': '{total}体中{n}体撃破',
@@ -282,6 +321,8 @@ export default {
   'pause': {
     'title': 'ポーズ中',
     'resume': '再開',
+    'retreat': '基地へ撤退',
+    'retreatSure': '襲撃をやめる？もう一度タップ',
     'controls': '操作方法'
   },
   'options': {

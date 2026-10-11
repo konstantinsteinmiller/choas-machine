@@ -1,7 +1,8 @@
 <template lang="pug">
   //- What the player has to spend: Tech Scrap and Data Cores.
   div.wallet
-    div.pill.scrap(:title="t('base.scrap')")
+    //- Twenty taps here ask for a rewarded video: QA's back door (`useQaAdTrigger`), silent.
+    div.pill.scrap(:title="t('base.scrap')" @pointerdown="registerQaRewardedTap()")
       GameIcon.glyph(name="scrap")
       span.amount(data-testid="wallet-scrap" :aria-label="`${t('base.scrap')}: ${fmt(profile.scrap)}`") {{ fmt(profile.scrap) }}
     div.pill.cores(:title="t('base.cores')")
@@ -14,6 +15,7 @@ import { useI18n } from 'vue-i18n'
 import GameIcon from '@/components/icons/GameIcon.vue'
 import { profile } from '@/game/state/profile'
 import { formatAmount } from '@/utils/formatAmount'
+import { registerQaRewardedTap } from '@/use/useQaAdTrigger'
 
 const { t, locale } = useI18n()
 const fmt = (n: number): string => formatAmount(n, locale.value)
@@ -27,6 +29,8 @@ const fmt = (n: number): string => formatAmount(n, locale.value)
   justify-content: flex-end
   gap: clamp(0.3rem, 1.4vmin, 0.6rem)
 .pill
+  pointer-events: auto
+  touch-action: manipulation
   display: flex
   align-items: center
   gap: clamp(0.25rem, 1vmin, 0.4rem)

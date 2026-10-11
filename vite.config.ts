@@ -718,7 +718,13 @@ export default defineConfig(({ mode, command }) => {
     cacheDir: process.env.VITE_CACHE_DIR || 'node_modules/.vite',
     base: '/',
     server: {
-      port: 2196
+      port: 2196,
+      // Never watch what is not source: the MCP browsers' live Chrome profiles
+      // (written to non-stop while they run), the builds, the IDE's state. A
+      // watcher crawling those pegged the dev server so it answered nothing.
+      watch: {
+        ignored: ['**/.mcp-browser-profiles/**', '**/dist/**', '**/dist-*/**', '**/.idea/**', '**/art-sheets/**']
+      }
     },
     define: {
       APP_VERSION: JSON.stringify(appVersion),

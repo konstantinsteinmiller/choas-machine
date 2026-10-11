@@ -28,7 +28,7 @@ export const GAME_ICON_NAMES = [
   // Currencies: Tech Scrap (a hex nut), Data Cores (a chip), Blueprints (a sheet)
   'scrap', 'core', 'blueprint', 'gem', 'clock',
   // The mech and its kit
-  'mech', 'sniper', 'minigun', 'rocket', 'blade', 'decoy', 'armor', 'shield', 'bolt', 'heart',
+  'mech', 'paint', 'sniper', 'minigun', 'rocket', 'blade', 'decoy', 'armor', 'shield', 'bolt', 'heart',
   // The unit frame (#145): the chassis' integrity, a magazine running low, one empty
   'chassis', 'ammo-low', 'ammo-out',
   // In the field
@@ -38,7 +38,7 @@ export const GAME_ICON_NAMES = [
   // The rope gun's line (#94)
   'rope',
   // The touch action pictograms: the mech doing the thing (`actionGlyphs.ts`)
-  'act-jump', 'act-crouch', 'act-stand', 'act-sprint', 'act-hide', 'act-decoy', 'act-swap'
+  'act-jump', 'act-crouch', 'act-stand', 'act-sprint', 'act-hide', 'act-decoy', 'act-swap', 'act-fire', 'act-scope', 'act-unscope'
 ] as const
 
 export type GameIconName = (typeof GAME_ICON_NAMES)[number]

@@ -3,6 +3,7 @@ import {
   SphereGeometry, SRGBColorSpace, TextureLoader, Vector3, type Object3D, type Texture
 } from 'three'
 void (null as unknown as Object3D)
+import { FREE_PAINT } from '../models/paintIds'
 import { newScene, type GameMode } from '../engine/app'
 import { getRenderer } from '../engine/renderer'
 import { noSlice, type Slice } from '../engine/slicer'
@@ -11,7 +12,7 @@ import { CELL, VOID, heightAt } from '../world/grid'
 import { buildFortressMesh, type FortressMesh } from '../world/fortressMesh'
 import { buildSky, type Sky } from '../world/sky'
 import { themeOf, type ThemeId } from '../data/themes'
-import { muzzleWorld, buildMech, poseMech, restPose, type MechPose } from '../models/mech'
+import { lineHandWorld, muzzleWorld, buildMech, poseMech, restPose, type MechPose } from '../models/mech'
 import { BOARD_HOVER, HOUND_SCALE, STRIDE_PER_UNIT, buildRobodog, poseRobodog, restDogPose, type DogPose } from '../models/robodog'
 import { CombatFx } from '../fx/combatFx'
 import { makeGrappleVisual, type GrappleVisual } from '../fx/grappleHook'
@@ -20,6 +21,7 @@ import { SalvageView } from '../world/salvageView'
 import type { Rocket } from '../sim/rockets'
 import type { Decoy } from '../sim/melee'
 import { angleDelta } from '../sim/player'
+import { mechGaitRate } from '../sim/gait'
 import { AIR_IMPACT_S, AIR_KNEEL_S, AIR_RIDE_S, airAt, airCam, airMark, planAir } from '../sim/airStrike'
 import { bodySink, placeKillBody } from '../sim/killPose'
 import type { WeaponId } from '../data/ids'
@@ -37,6 +39,8 @@ import { emit } from '../bus'
 import type { TrackId } from '../audio/songs'
 import { CINEMA_LENGTH, INTRO_STILL_S, type CinemaId } from './cinemaIds'
 import { hud } from '../state/hud'
+import { buildFuelBarrel } from '../models/supplies'
+import { glowVC, toonVC } from '../models/toon'
 
 /**
  * ─── The story's scenes (round 4, #100 #103) ─────────────────────────────────
@@ -110,6 +114,62 @@ const INTRO_DIVE_SLOW = 1.3
 /** When it leaves the rope (s into the intro). */
 const DIVE_AT = 14.2
 const tmpCam = { x: 0, y: 0, z: 0, tx: 0, ty: 0, tz: 0, fov: 0 }
+/** The walk cycle's angle per metre walked: feet that keep pace with the ground. */
+const WALK_STRIDE = mechGaitRate(0, 0)
+/** How far along a keyed track it has gone by `t` (m): what its feet have covered. */
+const trackDist = (keys: readonly Key[], t: number): number => {
+  const t0 = keys[0]![0]
+  const end = Math.min(t, keys[keys.length - 1]![0])
+  if (end <= t0) return 0
+  const a = track(keys, t0, new Vector3())
+  const b = new Vector3()
+  let d = 0
+  for (let i = 1; i <= 48; i++) {
+    track(keys, t0 + ((end - t0) * i) / 48, b)
+    d += a.distanceTo(b)
+    a.copy(b)
+  }
+  return d
+}
+/**
+ * A run from `a` to `b` across [t0, t1]: up to speed, a steady pace, eased to
+ * a stop (no mid-way rush). Writes the position; returns metres run and m/s.
+ */
+const runTo = (t: number, t0: number, t1: number, a: V3, b: V3, out: Vector3): { dist: number; speed: number } => {
+  const k = span(t, t0, t1)
+  const ramp = 0.18
+  const v = 1 / (1 - ramp)
+  const f = k < ramp ? (0.5 * v * k * k) / ramp : k < 1 - ramp ? v * (k - ramp / 2) : 1 - (0.5 * v * (1 - k) * (1 - k)) / ramp
+  const dv = k < ramp ? (v * k) / ramp : k < 1 - ramp ? v : (v * (1 - k)) / ramp
+  const len = Math.hypot(b[0] - a[0], b[1] - a[1], b[2] - a[2])
+  out.set(a[0] + (b[0] - a[0]) * f, a[1] + (b[1] - a[1]) * f, a[2] + (b[2] - a[2]) * f)
+  return { dist: len * f, speed: (len * dv) / (t1 - t0) }
+}
+/** A heading `k` of the way from `a` to `b`, eased, the short way round. */
+const turnTo = (a: number, b: number, k: number): number => a + angleDelta(a, b) * smooth(k)
+
+/** A camera: where it is, what it looks at, its field of view. */
+interface Cam { x: number; y: number; z: number; tx: number; ty: number; tz: number; fov: number }
+const camOf = (c: Cam, pos: Vector3, at: Vector3, fov: number): Cam => {
+  c.x = pos.x; c.y = pos.y; c.z = pos.z; c.tx = at.x; c.ty = at.y; c.tz = at.z; c.fov = fov
+  return c
+}
+const camLerp = (out: Cam, a: Cam, b: Cam, k: number): Cam => {
+  out.x = a.x + (b.x - a.x) * k; out.y = a.y + (b.y - a.y) * k; out.z = a.z + (b.z - a.z) * k
+  out.tx = a.tx + (b.tx - a.tx) * k; out.ty = a.ty + (b.ty - a.ty) * k; out.tz = a.tz + (b.tz - a.tz) * k
+  out.fov = a.fov + (b.fov - a.fov) * k
+  return out
+}
+const newCam = (): Cam => ({ x: 0, y: 0, z: 0, tx: 0, ty: 0, tz: 0, fov: 50 })
+/** A cut the director eases over (s): one shot flows into the next instead of jumping. */
+const CUT_BLEND_S = 0.8
+/**
+ * The intro's camera operator: the shots the timeline asks for, with every
+ * jump between them eased into one move (a cut reads as an edit error in a
+ * piece this short), a breath of hand-held drift, and the jolt of a blast.
+ */
+interface Director { want: Cam; prev: Cam | null; shown: Cam; from: Cam | null; k: number }
+const directors = new WeakMap<object, Director>()
 
 /** What every scene works with. */
 interface Stage {
@@ -169,8 +229,28 @@ const FIRE = 38
 const DOG_IN = 41.2
 const LEAP = 42.5
 const AWAY = 43.2
-/** The still of the third fortress takes over here. */
-const STILL_AT = CINEMA_LENGTH.intro - INTRO_STILL_S
+/**
+ * The barrel (#198), cut in after the sentry's rifle shot: a squad in the
+ * yard round a fuel drum, an Enforcer, three guards and a drone; the mech
+ * crouched on the wall above, the rifle up, the scope in on the drum, one
+ * round, and the yard goes up. The rest of the intro runs on after it as it
+ * was written, its clock this much behind the scene's (`INTRO.frame`).
+ */
+export const BARREL_BEAT_AT = 23
+export const BARREL_BEAT_S = 6
+/** The squad is in the yard from here on (the camera is up on the sentry by then). */
+const SQUAD_IN = 19.95
+/** Into the beat: the scope comes up, the round, the blast. */
+const BEAT_SCOPE = 1.7
+const BEAT_SHOT = 3.3
+/** The drum in the yard, its squad round it, and where the mech crouches over them. */
+const DRUM: V3 = [53, 4, 19]
+const SQUAD: ReadonlyArray<{ x: number; z: number }> = [{ x: 51, z: 19.6 }, { x: 54.7, z: 21 }, { x: 54.9, z: 17.1 }]
+const SQUAD_MECH: V3 = [50.6, 4, 22.2]
+const SQUAD_DRONE: V3 = [52, 6.6, 17]
+const HIDE: V3 = [61.3, 10, 20.6]
+/** The still of the third fortress takes over here (on the intro's own clock, behind the scene's by the beat). */
+const STILL_AT = CINEMA_LENGTH.intro - BARREL_BEAT_S - INTRO_STILL_S
 /** Where the mech crouches on the perch, behind its parapet, and the board it leaps onto. */
 const PERCH: V3 = [77.3, 14, 23.4]
 const PICKUP: V3 = [74.4, 14.7, 23.4]
@@ -182,6 +262,15 @@ const SHIP_ROCKETS: ReadonlyArray<{ at: number; pod: 'podL' | 'podR'; to: V3 }> 
   { at: 40.7, pod: 'podR', to: [80.3, 11.8, 25.2] }
 ]
 const ROCKET_FLIGHT = 0.7
+/** The board gets away: the one cut left a cut, out to behind the Airship. */
+const FAR_CUT = 44.6
+const shotCam = newCam()
+const camA = newCam()
+const camB = newCam()
+const camC = newCam()
+const droneAt = new Vector3()
+/** The Goliath creeps along the far wall (x at `at`). */
+const tankAt = (at: number): number => 74 - 4 * smooth(span(at, 18, 25))
 const shipInv = new Matrix4()
 
 /** The Airship's turrets swung and pitched onto a point (as `sim/airshipView.ts` does, at once). */
@@ -204,6 +293,127 @@ const shipSocket = (ship: Rig, name: keyof typeof AIRSHIP_SOCKETS, i: number, ou
   const list = AIRSHIP_SOCKETS[name]
   const [bone, x, y, z] = list[i % list.length]!
   return ship.bones[bone]!.localToWorld(out.set(x, y, z))
+}
+
+/**
+ * The barrel's squad and, during its beat, the mech and the camera (#198).
+ * `beat` is the time into the beat, or -1 outside it (the squad then stands
+ * hidden before it, and lies where the blast left it after).
+ */
+const squadFrame = (s: Stage, t: number, beat: number, shoot: (fx: number, fy: number, fz: number, tx: number, ty: number, tz: number, w: WeaponId) => void): void => {
+  const squad = s.extra.squad as Group
+  // In the yard from when the camera has left it for the sentry: never popping in on screen.
+  squad.visible = t >= SQUAD_IN
+  if (!squad.visible) return
+  const boomAt = BARREL_BEAT_AT + BEAT_SHOT + 0.08
+  const since = t - boomAt
+  const blown = since >= 0
+  ;(s.extra.drum as Group).visible = !blown
+  // Thrown off their feet, out from the drum, and down.
+  const fling = (x: number, z: number, y: number, far: number, out: Vector3): Vector3 => {
+    const k = blown ? smooth(Math.min(1, since / 0.45)) : 0
+    const dx = x - DRUM[0]
+    const dz = z - DRUM[2]
+    const d = Math.hypot(dx, dz) || 1
+    return out.set(x + (dx / d) * far * k, y + (blown ? Math.sin(Math.PI * Math.min(1, since / 0.45)) * 0.9 : 0), z + (dz / d) * far * k)
+  }
+  SQUAD.forEach((q, i) => {
+    const r = s.extra[`sq${i}`] as Rig
+    s.place(r.root, fling(q.x, q.z, DRUM[1], 1.6, tmpA), Math.atan2(DRUM[0] - q.x, DRUM[2] - q.z))
+    poseGuard(r, { ...restGuardPose(), time: t + i, lookYaw: blown ? 0 : Math.sin(t * 0.8 + i * 2) * 0.4, deadT: blown ? Math.max(0.01, since) : 0, death: 'back' })
+  })
+  const em = s.extra.sqMech as Rig
+  s.place(em.root, fling(SQUAD_MECH[0], SQUAD_MECH[2], SQUAD_MECH[1], 0.5, tmpA), Math.atan2(DRUM[0] - SQUAD_MECH[0], DRUM[2] - SQUAD_MECH[2]))
+  poseEnforcer(em, { time: t, stride: 0, speed: 0, power: 1, aimYaw: blown ? 0 : Math.sin(t * 0.5) * 0.3, aimPitch: 0, recoilL: 0, recoilR: 0, deadT: blown ? Math.max(0.01, since) : 0 })
+  const dr = s.extra.sqDrone as Rig
+  const fall = blown ? Math.max(DRUM[1], SQUAD_DRONE[1] - 9 * since * since) : SQUAD_DRONE[1] + Math.sin(t * 1.7) * 0.12
+  s.place(dr.root, tmpA.set(SQUAD_DRONE[0] - (blown ? Math.min(1, since) * 1.2 : 0), fall, SQUAD_DRONE[2] - (blown ? Math.min(1, since) * 0.8 : 0)), Math.PI * 0.4)
+  poseDrone(dr, { time: t, spin: t * 40, pitch: 0.1, roll: 0, eyeYaw: Math.sin(t * 0.9) * 0.5, eyePitch: 0.4, alarm: 0, deadT: blown ? Math.max(0.01, since) : 0, landed: blown && fall <= DRUM[1] + 0.01 })
+  if (blown && since < 3 && Math.floor(t * 8) !== Math.floor((t - s.dt) * 8)) {
+    s.fx.emit({ x: DRUM[0], y: DRUM[1] + 1, z: DRUM[2], vx: 0.2, vy: 1.6, vz: 0, color: '#3a3050', size: 1.2, sizeEnd: 3, life: 2.2, drag: 0.4 })
+  }
+  if (beat < 0) return
+
+  // The mech: crouched at the wall's edge over the yard, the rifle up.
+  const mp = s.mp
+  s.place(s.mech.root, tmpA.set(HIDE[0], HIDE[1], HIDE[2]), Math.atan2(DRUM[0] - HIDE[0], DRUM[2] - HIDE[2]))
+  mp.crouch = 1
+  mp.weapon = 'sniper'
+  mp.aim = beat >= BEAT_SCOPE - 0.5 ? 1 : 0
+  mp.aimPitch = -0.55
+  mp.recoil = between(beat, BEAT_SHOT, BEAT_SHOT + 0.4) ? 1 - span(beat, BEAT_SHOT, BEAT_SHOT + 0.4) : 0
+  mp.speed = 0
+  mp.climb = 0
+  mp.air = 0
+  mp.cable = 0
+  // The camera: the squad from over its shoulder; the scope in on the drum; the blast; back out.
+  // The scope's eye: over the mech's head, a little toward the drum (its arm out of the frame).
+  const toward = Math.atan2(DRUM[0] - HIDE[0], DRUM[2] - HIDE[2])
+  const eye = tmpB.set(HIDE[0] + Math.sin(toward) * 0.7, HIDE[1] + 2.3, HIDE[2] + Math.cos(toward) * 0.7)
+  const aim = tmpC.set(DRUM[0], DRUM[1] + 0.7, DRUM[2])
+  if (beat < BEAT_SCOPE) {
+    const k = smooth(beat / BEAT_SCOPE)
+    // From beside the mech, off its shoulder: the squad and the drum in the clear.
+    s.look(tmpD.set(66.5 - 1.5 * k, 15.6 - 0.6 * k, 16 + 1.2 * k), tmpA.set(DRUM[0] + 1.5 * (1 - k), DRUM[1] + 1.2, DRUM[2] + 0.8), 52)
+  } else if (beat < BEAT_SHOT + 0.25) {
+    const k = smooth(span(beat, BEAT_SCOPE, BEAT_SCOPE + 1.1))
+    s.look(eye, aim, 50 - 38 * k)
+  } else {
+    const k = smooth(span(beat, BEAT_SHOT + 0.25, BARREL_BEAT_S - 0.6))
+    s.look(tmpD.set(eye.x + (67 - eye.x) * k, eye.y + (17 - eye.y) * k, eye.z + (25.5 - eye.z) * k), aim, 12 + 44 * smooth(span(beat, BEAT_SHOT + 0.25, BEAT_SHOT + 0.9)))
+  }
+  s.once('sqScope', BARREL_BEAT_AT + BEAT_SCOPE, () => sfx('scopeIn'))
+  s.once('sqShot', BARREL_BEAT_AT + BEAT_SHOT, () => {
+    sfx('sniper')
+    const n = s.muzzle('sniper', new Vector3())
+    shoot(n.x, n.y, n.z, DRUM[0], DRUM[1] + 0.7, DRUM[2], 'sniper')
+  })
+  s.once('sqBoom', boomAt, () => {
+    sfx('explode')
+    if (s.cfx) s.cfx.explosion(DRUM[0], DRUM[1] + 0.7, DRUM[2], DRUM[1])
+    else s.fx.orbBurst(DRUM[0], DRUM[1] + 0.7, DRUM[2], '#ff9a3d', 1.4)
+    s.fx.sparks(DRUM[0], DRUM[1] + 1, DRUM[2], '#ffd27a', 30, 8, 0.35)
+  })
+}
+
+/**
+ * The shot to show this frame, from the one the timeline asked for (`d.want`).
+ * `hard`: a cut that stays a cut. `jolt` 0 … 1: a blast just went off.
+ */
+const direct = (d: Director, dt: number, t: number, hard: boolean, jolt: number, out: Cam): Cam => {
+  const w = d.want
+  const p = d.prev
+  if (!p || hard) {
+    d.prev = { ...w }
+    d.from = null
+  } else {
+    const jump = Math.hypot(w.x - p.x, w.y - p.y, w.z - p.z)
+    const ax = p.tx - p.x, ay = p.ty - p.y, az = p.tz - p.z
+    const bx = w.tx - w.x, by = w.ty - w.y, bz = w.tz - w.z
+    const cos = (ax * bx + ay * by + az * bz) / (Math.hypot(ax, ay, az) * Math.hypot(bx, by, bz) || 1)
+    const turn = Math.acos(Math.min(1, Math.max(-1, cos)))
+    if (dt > 0 && (jump > 1.2 + 30 * dt || turn > 0.2 + 3 * dt || Math.abs(w.fov - p.fov) > 4 + 60 * dt)) {
+      d.from = { ...d.shown }
+      d.k = 0
+    }
+    Object.assign(p, w)
+  }
+  if (d.from) {
+    d.k += dt / CUT_BLEND_S
+    if (d.k >= 1) d.from = null
+  }
+  if (d.from) camLerp(out, d.from, w, smooth(d.k))
+  else Object.assign(out, w)
+  Object.assign(d.shown, out)
+  // Held by a hand, not a tripod; the tighter the lens, the steadier the hand.
+  const h = out.fov / 50
+  const a = (0.05 + 0.2 * jolt) * h
+  out.x += Math.sin(t * 0.71) * a + Math.sin(t * 83) * 0.12 * jolt * h
+  out.y += Math.sin(t * 0.93 + 1) * a * 0.8 + Math.sin(t * 71) * 0.1 * jolt * h
+  out.z += Math.sin(t * 0.57 + 2) * a + Math.sin(t * 67) * 0.12 * jolt * h
+  out.tx += Math.sin(t * 0.43 + 3) * a * 1.4
+  out.ty += Math.sin(t * 0.61 + 4) * a
+  return out
 }
 
 const INTRO: Script = {
@@ -268,9 +478,35 @@ const INTRO: Script = {
     s.extra.ball = ball
     s.extra.rocket = rocket
     root.add(ball, rocket)
+    // The barrel's squad (#198), in the yard only from its beat on.
+    const squad = new Group()
+    squad.visible = false
+    SQUAD.forEach((_, i) => { const r = buildGuard(); s.extra[`sq${i}`] = r; squad.add(r.root) })
+    const sqMech = buildEnforcer()
+    const sqDrone = buildDrone()
+    s.extra.sqMech = sqMech
+    s.extra.sqDrone = sqDrone
+    const drum = new Group()
+    const dg = buildFuelBarrel()
+    drum.add(new Mesh(dg.lit, toonVC()), new Mesh(dg.glow, glowVC()))
+    drum.position.set(DRUM[0], DRUM[1], DRUM[2])
+    s.extra.drum = drum
+    squad.add(sqMech.root, sqDrone.root, drum)
+    s.extra.squad = squad
+    root.add(squad)
   },
   frame: (s) => {
+    // The barrel's beat (#198): the intro's own clock holds at its start while
+    // the beat plays, and runs that much behind the scene's after it.
+    const real = s.t
+    const beat = real >= BARREL_BEAT_AT && real < BARREL_BEAT_AT + BARREL_BEAT_S ? real - BARREL_BEAT_AT : -1
+    s.t = real < BARREL_BEAT_AT ? real : beat >= 0 ? BARREL_BEAT_AT - 1e-3 : real - BARREL_BEAT_S
     const { t, mp, dp } = s
+    // Every shot asked for this frame goes through the director (`direct`).
+    const dir = directors.get(s) ?? { want: newCam(), prev: null, shown: newCam(), from: null, k: 0 }
+    directors.set(s, dir)
+    const look = s.look
+    s.look = (pos, at, fov = 50) => { camOf(dir.want, pos, at, fov) }
     const g = (i: number): Rig => s.extra[`g${i}`] as Rig
     const drone = s.extra.drone as Rig
     const tank = s.extra.tank as Rig
@@ -335,14 +571,18 @@ const INTRO: Script = {
       s.dog.root.visible = t < 13
     }
     const hook = s.extra.hook as GrappleVisual
-    hook.setVisible(between(t, 5.2, 8.4))
-    if (between(t, 5, 9)) {
-      const y = 10 * span(t, 5.6, 8.2)
-      const x = t < 8.4 ? 15.2 : 15.2 + 2.3 * span(t, 8.4, 9)
-      s.place(s.mech.root, tmpA.set(x, t < 8.4 ? y : 10, 24), Math.PI / 2)
-      mp.climb = t < 8.4 ? 1 : 0
+    hook.setVisible(between(t, 5.2, 7.8))
+    if (between(t, 5, 7.7)) {
+      const y = 10 * span(t, 5.6, 7.5)
+      s.place(s.mech.root, tmpA.set(15.2, y, 24), Math.PI / 2)
+      // Thrown with the whole body, then hand over hand up the line, the feet
+      // walking up the cliff; over the edge on its hands.
+      mp.throwHook = t < 5.6 ? Math.max(0.01, span(t, 4.95, 5.6)) : 0
+      mp.reel = between(t, 5.6, 7.5) ? 1 : 0
+      mp.reelPhase = y * 2.4
+      mp.climb = between(t, 7.5, 7.7) ? 1 : 0
       mp.climbPhase = y
-      hook.update(tmpB.set(x + 0.4, y + 2, 24), tmpC.set(16.1, 10.05, 24), Math.PI / 2, { flying: t < 5.5, time: t, progress: span(t, 5.2, 5.5) })
+      hook.update(lineHandWorld(s.mech, tmpB) ?? tmpB.set(15.6, y + 2, 24), tmpC.set(16.1, 10.05, 24), Math.PI / 2, { flying: t < 5.5, time: t, progress: span(t, 5.2, 5.5) })
       s.look(tmpB.set(6, 4 + y * 0.5, 36), tmpC.set(15.5, y + 1.5, 24))
       s.once('hook', 5.2, () => sfx('hookThrow'))
       s.once('bite', 5.5, () => sfx('hookBite'))
@@ -350,14 +590,18 @@ const INTRO: Script = {
 
     // ── The decoy into the yard, the rope across above it ──
     const DECOY: V3 = [50, 4, 27.4]
-    if (between(t, 9, 11.4)) {
-      const keys: Key[] = [[9, 17.5, 10, 24], [10, 34.8, 10, 24]]
-      const p = track(keys, t, tmpA)
-      s.place(s.mech.root, p, t < 10 ? Math.PI / 2 : Math.atan2(DECOY[0] - 34.8, DECOY[2] - 24))
-      mp.speed = Math.min(1, pace(keys, t) / 5)
-      mp.stride = t * 7
+    if (between(t, 7.7, 11.4)) {
+      // Over the edge and away at a run across the top, to the brink over the yard.
+      const r = runTo(t, 7.7, 10, [15.2, 10, 24], [34.8, 10, 24], tmpA)
+      const p = tmpA
+      s.place(s.mech.root, p, t < 10 ? Math.PI / 2 : turnTo(Math.PI / 2, Math.atan2(DECOY[0] - 34.8, DECOY[2] - 24), span(t, 10, 10.25)))
+      mp.speed = Math.min(1, r.speed / 5)
+      mp.sprint = smooth((r.speed - 5) / 3)
+      mp.stride = r.dist * mechGaitRate(mp.sprint, 0)
       mp.aim = between(t, 10.9, 11.4) ? 1 : 0
-      s.look(tmpB.set(30.5, 14, 19), tmpC.set(48, 5.5, 27))
+      // Tracked alongside the run; it pulls up at the brink and the yard opens below.
+      if (t < 9.6) s.look(tmpB.set(p.x - 6, 13.2, 17.5), tmpC.set(p.x + 4, 10.8, 25))
+      else s.look(tmpB.set(30.5, 14, 19), tmpC.set(48, 5.5, 27))
       s.once('decoy', 10.2, () => sfx('decoy'))
     }
     const ball = s.extra.ball as Mesh
@@ -466,14 +710,16 @@ const INTRO: Script = {
       const face = Math.atan2(60 - from.x, 23 - from.z)
       s.place(s.mech.root, p, t < TOP_AT ? face : Math.PI / 2)
       mp.crouch = t < HOOK_AT ? 1 - span(t, OUT_AT, HOOK_AT) : 0
-      mp.aim = between(t, OUT_AT, BITE_AT) ? 1 : 0
-      mp.aimPitch = 0.35
-      mp.air = between(t, BITE_AT, TOP_AT - 0.35) ? 1 : 0
+      // Up off its knee into the throw, then hauled on the line hand over hand.
+      mp.throwHook = between(t, OUT_AT, BITE_AT + 0.15) ? Math.max(0.01, span(t, OUT_AT, BITE_AT + 0.15)) : 0
+      mp.reel = between(t, BITE_AT + 0.15, TOP_AT - 0.35) ? 1 : 0
+      mp.reelPhase = t * 7
       mp.climb = between(t, TOP_AT - 0.35, TOP_AT) ? 1 : 0
       mp.climbPhase = p.y
+      if (t >= TOP_AT) { mp.speed = 0.8; mp.stride = p.x * WALK_STRIDE }
       hook.setVisible(between(t, HOOK_AT, TOP_AT + 0.1))
       if (t >= HOOK_AT) {
-        hook.update(tmpB.set(p.x + 0.4, p.y + 2, p.z), tmpC.set(60.05, 10.05, 23), face,
+        hook.update(lineHandWorld(s.mech, tmpB) ?? tmpB.set(p.x + 0.4, p.y + 2, p.z), tmpC.set(60.05, 10.05, 23), face,
           { flying: t < BITE_AT, time: t, progress: span(t, HOOK_AT, BITE_AT) })
       }
       s.once('hook3', HOOK_AT, () => sfx('hookThrow'))
@@ -498,19 +744,27 @@ const INTRO: Script = {
     if (t >= 19.8) tmpA.set(73, 14, 11)
     s.place(g(2).root, tmpA, t < 19.8 ? sw.yaw : -Math.PI * 0.8)
     poseGuard(g(2), { ...restGuardPose(), time: t, speed: sw.walking ? 0.4 : 0, stride: t * 4, lookYaw: sentryDead || sw.walking ? 0 : Math.sin(t * 0.7) * 0.6, deadT: sentryDead ? t - SENTRY_DOWN : 0, death: 'back' })
+    // The rifle stays up: after the sentry it sinks low and edges to the wall's
+    // lip over the yard (HIDE), where the barrel's beat finds it, crouched.
+    const toDrum = Math.atan2(DRUM[0] - HIDE[0], DRUM[2] - HIDE[2])
     if (between(t, 19.3, 23)) {
-      const keys: Key[] = [[19.3, 61, 10, 23], [19.8, 62.5, 10, 22.5], [22.4, 62.5, 10, 22.5], [23, 64, 10, 26]]
+      const keys: Key[] = [[19.3, 61, 10, 23], [19.8, 62.5, 10, 22.5], [22.3, 62.5, 10, 22.5], [23, HIDE[0], HIDE[1], HIDE[2]]]
       const p = track(keys, t, tmpA)
-      const scoped = between(t, 19.9, 22.4)
-      s.place(s.mech.root, p, scoped ? Math.atan2(73 - 62.5, 11 - 22.5) : Math.atan2(1.5, 3.5))
+      const scoped = between(t, 19.9, 22.3)
+      const toSentry = Math.atan2(73 - 62.5, 11 - 22.5)
+      const yaw = t < 22.3 ? turnTo(Math.PI / 2, toSentry, span(t, 19.4, 19.95)) : turnTo(toSentry, toDrum, span(t, 22.3, 22.8))
+      s.place(s.mech.root, p, yaw)
+      mp.crouch = smooth(span(t, 22.35, 22.9))
       mp.speed = Math.min(1, pace(keys, t) / 4)
-      mp.stride = t * 6
+      mp.stride = trackDist(keys, t) * mechGaitRate(0, mp.crouch)
       mp.aim = scoped ? 1 : 0
       mp.weapon = 'sniper'
       mp.aimPitch = 0.12
       mp.recoil = between(t, SENTRY_DOWN - 0.1, SENTRY_DOWN + 0.3) ? 1 - span(t, SENTRY_DOWN - 0.1, SENTRY_DOWN + 0.3) : 0
-      if (t < 22.4) s.look(tmpB.set(61.4, 12.6, 24.2), tmpC.set(73, 15.4, 11), 50 - 32 * span(t, 20, 21.5))
-      else s.look(tmpB.set(57, 13, 19), tmpC.set(67, 13, 33))
+      // Through the scope onto the tower, a beat on the fall, then out wide over
+      // the yard (the barrel beat's first shot, eased into by the director).
+      if (t < 22.3) s.look(tmpB.set(61.4, 12.6, 24.2), tmpC.set(73, 15.4 - 0.8 * span(t, 21.9, 22.3), 11), 50 - 32 * span(t, 20, 21.5) + 10 * smooth(span(t, 22, 22.3)))
+      else s.look(tmpB.set(66.5, 15.6, 16), tmpC.set(DRUM[0] + 1.5, DRUM[1] + 1.2, DRUM[2] + 0.8), 52)
       s.once('shot', SENTRY_DOWN - 0.1, () => {
         sfx('sniper')
         const n = s.muzzle('sniper', tmpB)
@@ -520,34 +774,69 @@ const INTRO: Script = {
     }
 
     // ── The drone and the mini-gun; the base hears it ──
+    // Drawn by the blast: it rises over the far wall, its eye red, and is shot
+    // out of the air from the same lip of wall; it falls burning into the yard.
     const DRONE_DOWN = 25.8
     const dd = t >= DRONE_DOWN
-    const da = Math.min(0, t - 23.4) * 0.55
-    const dx0 = 66 + Math.sin(da) * 5
-    const dz0 = 34 + (1 - Math.cos(da)) * 3
-    const dy = dd ? Math.max(10.3, 16 - 18 * (t - DRONE_DOWN) ** 2) : 16 + Math.sin(t * 1.9) * 0.15
-    s.place(drone.root, tmpA.set(dx0, dy, dz0), t < 23.4 ? Math.PI + da * 0.8 : Math.PI)
-    poseDrone(drone, { time: t, spin: t * 40, pitch: t < 23.4 ? 0.18 : 0.1, roll: t < 23.4 ? 0.12 : 0, eyeYaw: 0, eyePitch: 0.5, alarm: t >= 23.4 ? 1 : 0, deadT: dd ? t - DRONE_DOWN : 0, landed: dy <= 10.31 })
-    const MECH_GUN: V3 = [64, 10, 26]
-    if (between(t, 23, 28)) {
-      s.place(s.mech.root, tmpA.set(MECH_GUN[0], 10, MECH_GUN[2]), t < 26.2 ? Math.atan2(66 - 64, 34 - 26) : Math.atan2(6, 12))
-      mp.aim = 1
-      mp.weapon = 'minigun'
+    const droneKeys: Key[] = [[23, 47, 3, 50], [23.7, 47.5, 13, 47.5], [24.4, 54.5, 15, 31]]
+    const hover = (at: number, out: Vector3): Vector3 => {
+      track(droneKeys, at, out)
+      return out.set(out.x + Math.sin(at * 1.3) * 0.3, out.y + Math.sin(at * 1.9) * 0.15, out.z)
+    }
+    const dpos = hover(Math.min(t, DRONE_DOWN), tmpA)
+    const dFloor = s.floor(dpos.x, dpos.z)
+    const since = t - DRONE_DOWN
+    if (dd) dpos.set(dpos.x - 1.4 * Math.min(1, since), Math.max(dFloor + 0.3, dpos.y - 9 * since * since), dpos.z - 0.9 * Math.min(1, since))
+    const dLanded = dd && dpos.y <= dFloor + 0.31
+    drone.root.visible = t >= 23
+    const DRONE_AT = droneAt.copy(dpos)
+    s.place(drone.root, dpos, t < 24.4 ? Math.atan2(54.5 - 47, 31 - 50) : Math.atan2(HIDE[0] - dpos.x, HIDE[2] - dpos.z))
+    poseDrone(drone, { time: t, spin: t * 40, pitch: t < 24.4 ? 0.25 : 0.1, roll: dd && !dLanded ? since * 3 : 0, eyeYaw: 0, eyePitch: 0.5, alarm: t >= 23.4 ? 1 : 0, deadT: dd ? since : 0, landed: dLanded })
+    if (dd && !dLanded && Math.floor(t * 20) !== Math.floor((t - s.dt) * 20)) {
+      s.fx.emit({ x: dpos.x, y: dpos.y, z: dpos.z, vx: 0, vy: 0.6, vz: 0, color: '#3a3050', size: 0.5, sizeEnd: 1.6, life: 1.2, drag: 0.5 })
+    }
+    if (dLanded) {
+      s.once('droneCrash', 0, () => {
+        sfx('explode', 0.2, 0.6)
+        s.fx.sparks(DRONE_AT.x, DRONE_AT.y, DRONE_AT.z, '#ffd27a', 16, 5, 0.3)
+      })
+    }
+    // The stand on the wall's lip: the drone, the tank's shell, the rocket.
+    const SHELL_AT = 27.55
+    const TANK_DOWN = 30
+    const NEAR_MISS: V3 = [63.4, 10.2, 25.2]
+    const toTank = Math.atan2(tankAt(t) - 1.5 - HIDE[0], 43 - HIDE[2])
+    if (between(t, 23, 31.2)) {
+      const toDrone = Math.atan2(DRONE_AT.x - HIDE[0], DRONE_AT.z - HIDE[2])
+      const yaw = t < 26.1 ? turnTo(toDrum, toDrone, span(t, 23, 23.55)) : turnTo(toDrone, toTank, span(t, 26.1, 26.8))
+      s.place(s.mech.root, tmpA.set(HIDE[0], HIDE[1], HIDE[2]), yaw)
+      // Up off its knee as the drone shows; ducked a moment under the shell.
+      const flinch = between(t, SHELL_AT, SHELL_AT + 0.6) ? Math.sin(Math.PI * span(t, SHELL_AT, SHELL_AT + 0.6)) * 0.45 : 0
+      mp.crouch = Math.max(1 - smooth(span(t, 23, 23.45)), flinch)
+      const gun = t < 26.5
+      mp.weapon = gun ? 'minigun' : 'rocket'
       mp.spin = t * 30
-      mp.aimPitch = 0.4
+      mp.aim = gun ? (t >= 23.35 ? 1 : 0) : between(t, 27.9, 30.5) && !flinch ? 1 : 0
+      const dh = Math.hypot(DRONE_AT.x - HIDE[0], DRONE_AT.z - HIDE[2])
+      mp.aimPitch = gun ? Math.atan2(DRONE_AT.y - (HIDE[1] + 2.2), dh) : -0.02
+      mp.recoil = between(t, 29.2, 29.6) ? 1 - span(t, 29.2, 29.6) : 0
       if (tick(0.05, 23.8, DRONE_DOWN)) {
-        const hx = 66 + (Math.random() - 0.5) * 0.8
-        const hy = 16 + (Math.random() - 0.5) * 0.5
-        const hz = 34 + (Math.random() - 0.5) * 0.8
         const n = s.muzzle('minigun', tmpB)
-        shoot(n.x, n.y, n.z, hx, hy, hz, 'minigun')
+        shoot(n.x, n.y, n.z, DRONE_AT.x + (Math.random() - 0.5) * 0.8, DRONE_AT.y + (Math.random() - 0.5) * 0.5, DRONE_AT.z + (Math.random() - 0.5) * 0.8, 'minigun')
       }
-      // Once the base is after it, the camera turns round to what is coming.
-      if (t < 26.2) s.look(tmpB.set(57, 13, 19), tmpC.set(67, 13, 33))
-      else s.look(tmpB.set(58, 13.5, 17), tmpC.set(70, 10.5, 37))
+      // Over its shoulder onto the drone; swung round with it onto the tank as
+      // the base answers; pushed in on the rocket; held on the wreck.
+      const fall = smooth(span(t, DRONE_DOWN, DRONE_DOWN + 0.9))
+      const droneCam = camOf(camA, tmpB.set(67, 14.1, 14.4), tmpC.set(
+        57.5 + (DRONE_AT.x - 57.5) * 0.6, 11.6 + (DRONE_AT.y - 12.5) * 0.6 - 1.5 * fall, 27 + (DRONE_AT.z - 27) * 0.6
+      ), 42 + 6 * fall)
+      const tankCam = camOf(camB, tmpB.set(58.6, 13.4, 15.8), tmpC.set(70, 10.8, 41), 48 - 8 * smooth(span(t, 28.3, 29.4)) + 6 * smooth(span(t, TANK_DOWN, TANK_DOWN + 1)))
+      const cam = camLerp(camC, droneCam, tankCam, smooth(span(t, 26, 27.1)))
+      s.look(tmpB.set(cam.x, cam.y, cam.z), tmpC.set(cam.tx, cam.ty, cam.tz), cam.fov)
       // The gun's own sound (#183): the motor spooling up and the roar while it fires.
       s.once('spin', 23.6, () => sfx('minigun', 0, 0.6))
-      s.once('drone', DRONE_DOWN, () => { sfx('explode'); s.fx.orbBurst(66, 16, 34, '#ffb061', 0.7) })
+      s.once('drone', DRONE_DOWN, () => { sfx('explode'); s.fx.orbBurst(DRONE_AT.x, DRONE_AT.y, DRONE_AT.z, '#ffb061', 0.7) })
+      s.once('swap', 26.5, () => sfx('weapon'))
     }
 
     // On the alarm the defenders aim at the mech where it IS (#136): they see
@@ -571,15 +860,18 @@ const INTRO: Script = {
     }
     // ── The Peashooter: its patrol; on the alarm, rolling in, firing ──
     {
-      const at = round(Math.min(t, ALARM), [64, 10, 3.5], [78, 10, 3.5], 10, tmpA, 0)
+      const at = round(Math.min(t, ALARM), [63, 10, 3.5], [75.5, 10, 3.5], 10, tmpA, 0)
       let yaw = at.yaw
       let speed = at.walking && !alarmed ? 0.6 : 0
       if (alarmed) {
-        const k = span(t, ALARM + 0.5, ALARM + 3)
+        // Round the sentry's tower (x 72 … 76, z 10 … 14), never through it.
         const fx = tmpA.x
-        tmpA.set(fx + (72 - fx) * k, 10, 3.5 + 10 * k)
-        yaw = Math.atan2(tgt.x - tmpA.x, tgt.z - tmpA.z)
-        speed = k > 0 && k < 1 ? 1 : 0
+        const keys: Key[] = [[ALARM + 0.5, fx, 10, 3.5], [ALARM + 1.6, 70.4, 10, 6.5], [ALARM + 3.2, 70.4, 10, 16]]
+        track(keys, t, tmpA)
+        const moving = between(t, ALARM + 0.5, ALARM + 3.2)
+        const ahead = track(keys, Math.min(ALARM + 3.2, t + 0.1), tmpB)
+        yaw = moving && ahead.distanceTo(tmpA) > 0.01 ? Math.atan2(ahead.x - tmpA.x, ahead.z - tmpA.z) : Math.atan2(tgt.x - tmpA.x, tgt.z - tmpA.z)
+        speed = moving ? 1 : 0
       }
       s.place(roomba.root, tmpA, yaw)
       poseRoomba(roomba, { time: t, alarm: alarmed ? 1 : 0, recoil: tick(0.35, ALARM + 3, 34) ? 1 : 0, aimYaw: 0, speed })
@@ -608,9 +900,8 @@ const INTRO: Script = {
       poseSearchlight(lamp, { time: t, yaw: 0, pitch: 0.35, alarm: alarmed ? 1 : 0 })
     }
     // ── The Goliath: creeping on its round, turret sweeping; on the alarm, its cannon ──
-    const TANK_DOWN = 30
     const roll = smooth(span(t, 18, 25))
-    const tankX = 74 - 4 * roll
+    const tankX = tankAt(t)
     s.place(tank.root, tmpA.set(tankX, 10, 44), -Math.PI / 2)
     const toMech = angleDelta(-Math.PI / 2, Math.atan2(tgt.x - tankX, tgt.z - 44))
     const turret = t < ALARM ? Math.sin(t * 0.45) * 0.5 : toMech * smooth(span(t, ALARM, ALARM + 2.2))
@@ -619,12 +910,16 @@ const INTRO: Script = {
     s.once('cannon', 27.2, () => {
       sfx('rocket')
       if (s.cfx) {
-        // The shell misses: it lands behind the mech.
+        // The shell misses, just: it bursts on the wall top a stride short of the mech.
         s.cfx.muzzle(tankX - 2.6, 12.4, 41.8, -0.2, 0, -1, 'rocket')
-        s.cfx.tracer(tankX - 2.6, 12.4, 41.8, 61.5, 10.4, 22.5, 'rocket')
+        s.cfx.tracer(tankX - 2.6, 12.4, 41.8, NEAR_MISS[0], NEAR_MISS[1], NEAR_MISS[2], 'rocket')
       }
     })
-    s.once('shell', 27.55, () => { sfx('explode'); if (s.cfx) s.cfx.explosion(61.5, 10.4, 22.5, 10) })
+    s.once('shell', SHELL_AT, () => {
+      sfx('explode')
+      if (s.cfx) s.cfx.explosion(NEAR_MISS[0], NEAR_MISS[1], NEAR_MISS[2], 10)
+      s.fx.sparks(NEAR_MISS[0], NEAR_MISS[1] + 0.3, NEAR_MISS[2], '#ffd27a', 18, 6, 0.3)
+    })
     // ── The Warden, beside his tank, pointing his men at the mech ──
     {
       s.place(g(3).root, tmpA.set(77.5, 10, 41), alarmed ? Math.atan2(tgt.x - 77.5, tgt.z - 41) : -Math.PI / 2)
@@ -656,18 +951,21 @@ const INTRO: Script = {
         r.dx = (tx - from.x) / len; r.dy = (11.5 - from.y) / len; r.dz = (43 - from.z) / len
       } else s.rockets.length = 0
     }
+    // The rocket goes from the wall's lip (the stand above); then on along the
+    // wall to the perch at a run, the burning tank behind it.
     if (between(t, 28, 34.3)) {
-      const keys: Key[] = [[28, 64, 10, 26], [28.6, 64, 10, 29], [31.2, 64, 10, 29], [34.3, 75.2, 10, 23.4]]
-      const p = track(keys, t, tmpA)
-      const aiming = between(t, 28.6, 30.2)
-      s.place(s.mech.root, p, aiming ? Math.atan2(tankX - 64, 44 - 29) : t < 28.6 ? 0 : Math.atan2(11.2, -5.6))
-      mp.speed = Math.min(1, pace(keys, t) / 5)
-      mp.stride = t * 8
-      mp.aim = aiming ? 1 : 0
-      mp.weapon = 'rocket'
-      mp.recoil = between(t, 29.2, 29.6) ? 1 : 0
-      if (t < 31.2) s.look(tmpB.set(57.5, 15, 24), tmpC.set(70, 11, 43))
-      else s.look(tmpB.set(p.x - 7, 14, p.z + 8), tmpC.set(p.x + 2, 11, p.z))
+      if (t >= 31.2) {
+        const r = runTo(t, 31.2, 34.3, HIDE, [75.2, 10, 23.4], tmpA)
+        const p = tmpA
+        const head = Math.atan2(75.2 - HIDE[0], 23.4 - HIDE[2])
+        s.place(s.mech.root, p, t < 34.1 ? turnTo(toTank, head, span(t, 31.2, 31.6)) : turnTo(head, Math.PI / 2, span(t, 34.1, 34.3)))
+        mp.speed = Math.min(1, r.speed / 5)
+        mp.sprint = smooth((r.speed - 5) / 3)
+        mp.weapon = 'rocket'
+        mp.stride = r.dist * mechGaitRate(mp.sprint, 0)
+        // Beside it as it runs, the wreck burning over its shoulder.
+        s.look(tmpB.set(p.x - 4.5, 13.4, p.z + 7.5), tmpC.set(p.x + 3, 11.2, p.z - 0.5))
+      }
       s.once('rocket', 29.2, () => {
         sfx('rocket')
         const n = s.muzzle('rocket', new Vector3())
@@ -682,9 +980,10 @@ const INTRO: Script = {
         if (s.cfx) s.cfx.explosion(tankX - 1.5, 11.5, 43, 10)
         else { s.fx.orbBurst(tankX - 1.5, 11.5, 43, '#ff9a3d', 1.4); s.fx.sparks(tankX - 1.5, 11.5, 43, '#ffd27a', 30, 8, 0.3) }
       })
-      if (t > TANK_DOWN && Math.floor(t * 8) !== Math.floor((t - s.dt) * 8)) {
-        s.fx.emit({ x: tankX, y: 13, z: 44, vx: 0.3, vy: 1.8, vz: 0, color: '#3a3050', size: 1.4, sizeEnd: 3, life: 2.4, drag: 0.4 })
-      }
+    }
+    // The wreck burns on for the rest of the scene.
+    if (between(t, TANK_DOWN, STILL_AT) && Math.floor(t * 8) !== Math.floor((t - s.dt) * 8)) {
+      s.fx.emit({ x: tankX, y: 13, z: 44, vx: 0.3, vy: 1.8, vz: 0, color: '#3a3050', size: 1.4, sizeEnd: 3, life: 2.4, drag: 0.4 })
     }
 
     // ── Up the perch: the hook again (it used to appear up there) ──
@@ -692,10 +991,14 @@ const INTRO: Script = {
       const y = 10 + 4 * span(t, 34.6, 35.25)
       const x = t < 35.25 ? 75.2 : 75.2 + (PERCH[0] - 75.2) * span(t, 35.25, 35.5)
       s.place(s.mech.root, tmpA.set(x, t < 35.25 ? y : 14, PERCH[2]), Math.PI / 2)
-      mp.climb = t < 35.25 ? 1 : 0
+      mp.throwHook = t < 34.65 ? Math.max(0.01, span(t, 34.15, 34.65)) : 0
+      mp.reel = between(t, 34.65, 35.1) ? 1 : 0
+      mp.reelPhase = y * 2.4
+      mp.climb = between(t, 35.1, 35.25) ? 1 : 0
       mp.climbPhase = y
+      if (t >= 35.25) { mp.speed = 0.7; mp.stride = x * WALK_STRIDE }
       hook.setVisible(t < 35.3)
-      hook.update(tmpB.set(x + 0.4, y + 2, PERCH[2]), tmpC.set(76.1, 14.05, PERCH[2]), Math.PI / 2, { flying: t < 34.6, time: t, progress: span(t, 34.3, 34.6) })
+      hook.update(lineHandWorld(s.mech, tmpB) ?? tmpB.set(x + 0.4, y + 2, PERCH[2]), tmpC.set(76.1, 14.05, PERCH[2]), Math.PI / 2, { flying: t < 34.6, time: t, progress: span(t, 34.3, 34.6) })
       s.look(tmpB.set(68.5, 12.5 + (y - 10) * 0.5, 31), tmpC.set(76, y + 1.2, PERCH[2]))
       s.once('hook2', 34.3, () => sfx('hookThrow'))
       s.once('bite2', 34.6, () => sfx('hookBite'))
@@ -793,7 +1096,7 @@ const INTRO: Script = {
         s.place(s.mech.root, tmpC.set(p.x, p.y + BOARD_HOVER, p.z), yaw)
         mp.crouch = 1
         // Alongside it as it goes, then from behind the Airship as it gets away.
-        if (t < 44.6) s.look(tmpB.set(p.x + 6, p.y + 2.2, p.z + 5), tmpD.set(p.x, p.y + 1, p.z))
+        if (t < FAR_CUT) s.look(tmpB.set(p.x + 6, p.y + 2.2, p.z + 5), tmpD.set(p.x, p.y + 1, p.z))
         else s.look(tmpB.set(138, 38, 42), tmpD.copy(p))
       } else s.look(shake(tmpB.set(64, 23, 2), jolt * 0.5), tmpD.set(84, 15, 25))
     }
@@ -802,6 +1105,19 @@ const INTRO: Script = {
       const spool = t < 23.4 || t > DRONE_DOWN + 1.2 ? 0 : t < DRONE_DOWN ? smooth(span(t, 23.4, 23.8)) : 1 - span(t, DRONE_DOWN, DRONE_DOWN + 1.2)
       emit('cineGun', { spool, firing: between(t, 23.8, DRONE_DOWN) })
     }
+    s.t = real
+    squadFrame(s, real, beat, shoot)
+    // The shot, as the director films it: the blasts on the scene's own clock shake it.
+    s.look = look
+    const blasts: ReadonlyArray<readonly [number, number]> = [
+      [BARREL_BEAT_AT + BEAT_SHOT + 0.08, 1], [DRONE_DOWN + BARREL_BEAT_S, 0.35], [SHELL_AT + BARREL_BEAT_S, 0.8], [TANK_DOWN + BARREL_BEAT_S, 1]
+    ]
+    const blast = blasts.reduce((j, [at, k]) => {
+      const since = real - at
+      return since >= 0 && since < 0.5 ? Math.max(j, k * (1 - since / 0.5)) : j
+    }, 0)
+    const c = direct(dir, s.dt, real, t >= FAR_CUT && t - s.dt < FAR_CUT, blast, shotCam)
+    look(tmpB.set(c.x, c.y, c.z), tmpC.set(c.tx, c.ty, c.tz), c.fov)
     poseMech(s.mech, mp)
     finish?.()
     poseRobodog(s.dog, dp)
@@ -1126,12 +1442,13 @@ export class Cinema implements GameMode {
     c.sky = buildSky(c.scene, new Vector3(40, 0, 24), look.sky, { w: 40 * CELL, d: 24 * CELL })
     c.mesh = await buildFortressMesh(fort, look.mesh, slice)
     c.scene.add(c.mesh.group, c.root)
-    const mech = buildMech()
+    // The story's mech is CM-07, in his own colours, whatever the player wears (#M3).
+    const mech = buildMech(FREE_PAINT)
     const dog = buildRobodog()
     const fx = particleMap ? new Particles(600, particleMap) : new Particles(600)
     c.root.add(mech.root, dog.root, fx.points)
     // The game's combat effects need a canvas for their sprites: none in the tests.
-    const cfx = particleMap ? null : new CombatFx()
+    const cfx = particleMap ? null : new CombatFx(FREE_PAINT)
     if (cfx) c.root.add(cfx.group)
     c.cfx = cfx
     const fired = new Set<string>()
@@ -1229,7 +1546,8 @@ export class Cinema implements GameMode {
       // Fill the screen with it (cover, never stretched), up from black, pushed in slowly.
       const el = r.domElement
       const screen = (el.clientWidth || el.width) / Math.max(1, el.clientHeight || el.height)
-      const push = 1 + 0.05 * Math.min(1, k / INTRO_STILL_S)
+      // A slow push in over the fortress, as through a long lens: it reads as a place to go.
+      const push = 1 + 0.1 * smooth(k / INTRO_STILL_S)
       const sx = screen > still.aspect ? 1 : still.aspect / screen
       const sy = screen > still.aspect ? screen / still.aspect : 1
       still.quad.scale.set(sx * push, sy * push, 1)

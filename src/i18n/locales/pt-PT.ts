@@ -30,7 +30,8 @@ export default {
     'salvage': 'O espólio',
     'fallBastion': 'O Bastião cai',
     'fallFoundry': 'A Fundição arrefece',
-    'outro': 'A casa'
+    'outro': 'A casa',
+    'nextTarget': 'Próximo alvo'
   },
   'fortress': {
     'bastion': 'Bastião',
@@ -87,6 +88,7 @@ export default {
   },
   'defeat': {
     'title': 'Mech destruído',
+    'repair': 'Reparação total',
     'retry': 'Tentar novamente',
     'resume': 'Desde o primeiro monte',
     'kept': 'Sucata Tech recuperada'
@@ -191,6 +193,26 @@ export default {
     'unlock': 'Desbloquear: {name}',
     'watch': 'Ver um vídeo para desbloquear: {name}'
   },
+  'paint': {
+    'title': 'Esquemas de pintura',
+    'lilac': 'CM-07 Lilás',
+    'crimson': 'Carmesim',
+    'arctic': 'Ártico',
+    'jungle': 'Selva',
+    'gilded': 'Dourado',
+    'midnight': 'Meia-noite',
+    'tangerine': 'Tangerina',
+    'equip': 'Pintar o robô: {name}',
+    'equipShort': 'Equipar',
+    'equipped': 'Equipado',
+    'unlock': 'Desbloquear: {name}',
+    'watch': 'Ver um vídeo para desbloquear para sempre: {name}',
+    'try': 'Ver um vídeo para experimentar {name} durante uma missão',
+    'tryShort': 'Testar 1 missão',
+    'lent': 'Teu para a próxima missão',
+    'noVideo': 'Sem vídeo de momento',
+    'back': 'Volta dentro de {time}'
+  },
   'ads': {
     'blockedTitle': 'Anúncios bloqueados',
     'blockedBody': 'Um bloqueador de anúncios impediu o vídeo, por isso não há recompensa desta vez.',
@@ -234,6 +256,7 @@ export default {
     'alarm': '6, 7!',
     'lowHealth': 'Hora de apertar os parafusos!',
     'lowAmmo': 'Quase sem munições, à procura de pedras para atirar.',
+    'noAmmo': 'Sem munições.',
     'takedown': 'Chiu. Hora da sesta.',
     'decoy': 'Olha, um belo desconhecido!',
     'disguise': 'A melhor torradeira do ramo.',
@@ -252,6 +275,22 @@ export default {
     'replay': 'Mostrar outra vez',
     'progress': 'Treino: {n} de {total} lições concluídas',
     'scrapWhy': 'A Sucata Tech compra melhorias para as tuas armas na base de comando.',
+    'bladeHint': 'Aproxima-te furtivamente dos guardas e apunhala-os pelas costas, para que não deem o alarme!',
+    'decoyHint': 'Coloca um engodo para distrair o guarda, depois aproxima-te furtivamente e elimina-o!',
+    'roomHint': {
+      'move': 'Vai até à porta brilhante para começares o teu treino.',
+      'jump': 'Sobe a escada e salta o fosso até à outra plataforma!',
+      'cover': 'Agacha-te atrás dos caixotes para a sentinela não te ver e depois rasteja por baixo do portão!',
+      'weapons': 'Elimina os três guardas: abate um com a espingarda de precisão e depois muda para a minigun para os outros dois!',
+      'rocket': 'Muda para o lança-foguetes e rebenta o mech na saliência!',
+      'supply': 'Passa por cima dos caixotes para reabasteceres as munições e reparares a tua blindagem.',
+      'burn': 'Queima o corpo com o lança-chamas antes que alguém o encontre!',
+      'box': 'Esconde-te na caixa de cartão e fica quieto enquanto o holofote passa por ti!',
+      'hook': 'Usa o gancho para passares por cima do muro!',
+      'rope': 'Usa a arma de corda para criares uma corda entre as duas plataformas!',
+      'barrel': 'Dispara contra o barril de combustível para eliminares os guardas atrás do muro!',
+      'extract': 'Vai até ao ponto de extração para terminares o teu treino!',
+    },
     'skip': 'Saltar treino',
     'goal': 'Elimina os três',
     'goalProgress': '{n} de {total} abatidos',
@@ -282,6 +321,8 @@ export default {
   'pause': {
     'title': 'EM PAUSA',
     'resume': 'Continuar',
+    'retreat': 'Retirar para a base',
+    'retreatSure': 'Abandonar o assalto? Toca outra vez',
     'controls': 'Controlos'
   },
   'options': {

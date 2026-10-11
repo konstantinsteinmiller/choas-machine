@@ -240,6 +240,19 @@ describe('a cable', () => {
     expect(p.y).toBeCloseTo(8)
   })
 
+  it('can be sprinted along: quicker than walking it', () => {
+    const g = span()
+    const walk = makePlayer(cellMid(3), 8, cellMid(5))
+    const dash = makePlayer(cellMid(3), 8, cellMid(5))
+    run(walk, g, wish(1, 0), 0.2)
+    run(dash, g, { ...wish(1, 0), sprint: true }, 0.2)
+    expect(dash.mode).toBe('cable')
+    run(walk, g, wish(1, 0), 1.2)
+    run(dash, g, { ...wish(1, 0), sprint: true }, 1.2)
+    expect(dash.sprinting).toBe(true)
+    expect(dash.cableT).toBeGreaterThan(walk.cableT * 1.4)
+  })
+
   it('is taken from its far end too', () => {
     const g = span()
     const p = makePlayer(cellMid(11), 5, cellMid(5))

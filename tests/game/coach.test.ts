@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import {
-  HINTS, HINT_IDS, LOOK_STEP_RAD, MAX_SHOWN, MOVE_STEP_M, coachHelp, coachUse, hintDone, makeCoach, stepCoach,
+  HINTS, HINT_IDS, RECALLS_MAX, LOOK_STEP_RAD, MAX_SHOWN, MOVE_STEP_M, coachHelp, coachUse, hintDone, makeCoach, stepCoach,
   type Coach, type CoachContext, type HintView
 } from '@/game/sim/coach'
 
@@ -112,7 +112,7 @@ describe('the control coach', () => {
 
   it('a player who stops turning the camera gets its glyph back; one use sends it away', () => {
     const c = taught(...HINT_IDS)
-    expect(ids(run(c, ctx({ walked: 0.05 }), 17))).toEqual([])
+    expect(ids(run(c, ctx({ walked: 0.05 }), 29))).toEqual([])
     expect(ids(run(c, ctx({ walked: 0.05 }), 2))).toEqual(['look'])
     coachUse(c, 'look')
     expect(ids(run(c, ctx({ walked: 0.05, turned: 0.01 }), 2))).toEqual([])
@@ -176,5 +176,29 @@ describe('round 2: the lessons for salvage, the hook and the legs', () => {
     const shown = ids(run(c, ctx({ loot: true, guardNear: true, threat: 0.3 }), 0.5))
     expect(shown[0]).toBe('loot')
     expect(shown.length).toBeLessThanOrEqual(MAX_SHOWN)
+  })
+})
+
+describe('the training does not suggest what it has not taught yet', () => {
+  it('a sentry half-sure in the sneak room: the crouch card, never the disguise (its room is still ahead)', () => {
+    const k = ctx({ threat: 0.4, notYet: new Set(['hide', 'decoy']) })
+    const shown = ids(run(taught('move', 'look', 'crouch'), k, 0.5))
+    expect(shown).not.toContain('hide')
+    // Out of the training (no `notYet`), the same moment suggests it.
+    expect(ids(run(taught('move', 'look', 'crouch'), ctx({ threat: 0.4 }), 0.5))).toContain('hide')
+  })
+})
+
+describe('standing still brings the hand back, but not forever', () => {
+  it('after half a minute idle the move glyph returns, at most twice a session', () => {
+    const c = taught('move', 'look')
+    const idle = ctx({ walked: 0, turned: 0 })
+    for (let n = 0; n < RECALLS_MAX; n++) {
+      expect(ids(run(c, idle, 31))).toContain('move')
+      c.recalled.clear()
+    }
+    expect(c.recalls.move).toBe(RECALLS_MAX)
+    run(c, idle, 31)
+    expect(c.recalled.has('move')).toBe(false)
   })
 })

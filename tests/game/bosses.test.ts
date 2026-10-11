@@ -29,10 +29,11 @@ describe('who the bosses are', () => {
     const warden = (level: number): Unit => makeGarrison(buildBastion(level), level).units.find(u => u.boss === 'warden')!
     expect(warden(3).shield).toBe(false)
     expect(warden(4).shield).toBe(true)
-    // The Foreman is tougher than the Enforcer it was.
-    const g2 = makeGarrison(buildBastion(2), 2)
-    const fore = g2.units.find(u => u.boss === 'foreman')!
-    const plain = g2.units.find(u => u.kind === 'enforcer' && !u.boss)!
+    // The Foreman is tougher than the Enforcer it was (the Sea Fort has no
+    // plain one beside it any more: the same post, built without the title).
+    const f2 = buildBastion(2)
+    const fore = makeGarrison(f2, 2).units.find(u => u.boss === 'foreman')!
+    const plain = makeGarrison({ ...f2, posts: f2.posts.map(p => (p.boss === 'foreman' ? { ...p, boss: undefined } : p)) }, 2).units[fore.id]!
     expect(fore.maxHp).toBeGreaterThan(plain.maxHp)
   })
 })

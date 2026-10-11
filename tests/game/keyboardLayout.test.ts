@@ -104,6 +104,18 @@ describe('layout detection', () => {
     expect(keyLabel('KeyQ')).toBe('A')
   })
 
+  it('a Cyrillic or Greek keyboard keeps the Latin letter printed on the same key; a Dvorak one shows its own', () => {
+    press('KeyE', 'у')
+    press('KeyX', 'ч')
+    expect(keyLabel('KeyE')).toBe('E')
+    expect(keyLabel('KeyX')).toBe('X')
+    press('KeyE', 'ε')
+    expect(keyLabel('KeyE')).toBe('E')
+    // Dvorak: the burn key (physical KeyX) reads the letter printed there.
+    press('KeyX', 'q')
+    expect(keyLabel('KeyX')).toBe('Q')
+  })
+
   it('typing outranks the language guess', () => {
     keyboard.detected = 'azerty'
     keyboard.source = 'language'

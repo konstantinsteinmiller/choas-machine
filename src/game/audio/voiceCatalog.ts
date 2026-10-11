@@ -69,7 +69,7 @@ export const SCENES: ReadonlyArray<{ id: string; title: Both }> = [
  * words are `quip.<id>` (the bubble). The rules of when are `sim/quips.ts`.
  */
 export const QUIP_IDS = [
-  'burnHuman', 'burnMachine', 'headshot', 'alarm', 'lowHealth', 'lowAmmo', 'takedown', 'decoy', 'disguise', 'multiKill', 'allClear', 'extract', 'loot'
+  'burnHuman', 'burnMachine', 'headshot', 'alarm', 'lowHealth', 'lowAmmo', 'noAmmo', 'takedown', 'decoy', 'disguise', 'multiKill', 'allClear', 'extract', 'loot'
 ] as const
 export type QuipId = typeof QUIP_IDS[number]
 
@@ -81,6 +81,7 @@ export const QUIP_SAID: Readonly<Record<QuipId, { loud: boolean; whisper: boolea
   alarm: { loud: true, whisper: false },
   lowHealth: { loud: false, whisper: true },
   lowAmmo: { loud: true, whisper: true },
+  noAmmo: { loud: true, whisper: true },
   takedown: { loud: true, whisper: true },
   decoy: { loud: true, whisper: true },
   disguise: { loud: true, whisper: true },
@@ -98,6 +99,7 @@ const QUIP_WHEN: Readonly<Record<QuipId, Both>> = {
   alarm: ['The alarm is up and everything is chasing it', 'Der Alarm läuft und alles jagt ihn'],
   lowHealth: ['Its armour is nearly gone, nobody has noticed it', 'Seine Panzerung ist fast hin, keiner hat ihn bemerkt'],
   lowAmmo: ['Its gun is nearly empty', 'Seine Waffe ist fast leer'],
+  noAmmo: ['It pulls the trigger and the gun is empty: nothing left to fire (#199)', 'Er drückt ab und die Waffe ist leer: nichts mehr zu schießen (#199)'],
   takedown: ['It has just taken a guard down from behind, silently', 'Er hat gerade eine Wache lautlos von hinten ausgeschaltet'],
   decoy: ['A guard walks over to its hologram decoy', 'Eine Wache geht zu seinem Hologramm-Köder'],
   disguise: ['A guard inspected its disguise and walked away', 'Eine Wache hat seine Tarnung untersucht und ist weitergegangen'],
@@ -112,7 +114,7 @@ const QUIP_HUSH: Both = ['Whispered, close and conspiratorial, still very please
 
 /** Its words run longer than a shout: a breath more than the words take. */
 const QUIP_MAX: Readonly<Record<QuipId, number>> = {
-  burnHuman: 3, burnMachine: 3, headshot: 2.4, alarm: 1.6, lowHealth: 2.4, lowAmmo: 3.6, takedown: 2,
+  burnHuman: 3, burnMachine: 3, headshot: 2.4, alarm: 1.6, lowHealth: 2.4, lowAmmo: 3.6, noAmmo: 1.4, takedown: 2,
   decoy: 2.4, disguise: 2.4, multiKill: 2.2, allClear: 2.4, extract: 2.8, loot: 1.6
 }
 

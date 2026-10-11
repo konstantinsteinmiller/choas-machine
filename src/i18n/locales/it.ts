@@ -30,7 +30,8 @@ export default {
     'salvage': 'Il bottino',
     'fallBastion': 'Il Bastione cade',
     'fallFoundry': 'La Fonderia si spegne',
-    'outro': 'A casa'
+    'outro': 'A casa',
+    'nextTarget': 'Prossimo obiettivo'
   },
   'fortress': {
     'bastion': 'Bastione',
@@ -87,6 +88,7 @@ export default {
   },
   'defeat': {
     'title': 'Mech a terra',
+    'repair': 'Riparazione completa',
     'retry': 'Riprova',
     'resume': 'Dal primo mucchio',
     'kept': 'Rottami tech salvati'
@@ -191,6 +193,26 @@ export default {
     'unlock': 'Sblocca: {name}',
     'watch': 'Guarda un video per sbloccare: {name}'
   },
+  'paint': {
+    'title': 'Verniciature',
+    'lilac': 'CM-07 Lilla',
+    'crimson': 'Cremisi',
+    'arctic': 'Artico',
+    'jungle': 'Giungla',
+    'gilded': 'Dorato',
+    'midnight': 'Mezzanotte',
+    'tangerine': 'Mandarino',
+    'equip': 'Vernicia il mech: {name}',
+    'equipShort': 'Equipaggia',
+    'equipped': 'Equipaggiato',
+    'unlock': 'Sblocca: {name}',
+    'watch': 'Guarda un video per sbloccare per sempre: {name}',
+    'try': 'Guarda un video per provare {name} per una missione',
+    'tryShort': 'Prova 1 missione',
+    'lent': 'Tuo per la prossima missione',
+    'noVideo': 'Nessun video al momento',
+    'back': 'Di nuovo tra {time}'
+  },
   'ads': {
     'blockedTitle': 'Annunci bloccati',
     'blockedBody': 'Un blocco annunci ha fermato il video, quindi stavolta niente ricompensa.',
@@ -234,6 +256,7 @@ export default {
     'alarm': '6, 7!',
     'lowHealth': 'È ora di stringermi i bulloni!',
     'lowAmmo': 'Munizioni quasi finite, cerco sassi da lanciare.',
+    'noAmmo': 'Munizioni finite.',
     'takedown': 'Shhh. A nanna.',
     'decoy': 'Guarda, un bello sconosciuto!',
     'disguise': 'Il miglior tostapane sulla piazza.',
@@ -252,6 +275,22 @@ export default {
     'replay': 'Mostramelo di nuovo',
     'progress': 'Addestramento: {n} lezioni su {total} completate',
     'scrapWhy': 'I rottami tech comprano potenziamenti per le tue armi alla base di comando.',
+    'bladeHint': 'Avvicinati di soppiatto alle guardie e pugnalale alle spalle, così non daranno l\'allarme!',
+    'decoyHint': 'Piazza un\'esca per distrarre la guardia, poi avvicinati di soppiatto ed eliminala!',
+    'roomHint': {
+      'move': 'Raggiungi la porta luminosa per iniziare l\'addestramento.',
+      'jump': 'Sali la scala e salta oltre il vuoto fino all\'altra piattaforma!',
+      'cover': 'Accovacciati dietro le casse così la sentinella non ti vede, poi striscia sotto il cancello!',
+      'weapons': 'Elimina tutte e tre le guardie: abbattine una col fucile di precisione, poi passa alla minigun per le altre due!',
+      'rocket': 'Passa al lanciarazzi e fai saltare in aria il mech sulla sporgenza!',
+      'supply': 'Passa sopra le casse per ricaricare le munizioni e riparare la corazza.',
+      'burn': 'Brucia il corpo con il lanciafiamme prima che qualcuno lo trovi!',
+      'box': 'Nasconditi nello scatolone e resta immobile mentre il riflettore ti passa sopra!',
+      'hook': 'Usa il rampino per superare il muro!',
+      'rope': 'Usa lo spara-corda per tendere una corda tra le due piattaforme!',
+      'barrel': 'Spara al barile di carburante per eliminare le guardie dietro il muro!',
+      'extract': 'Raggiungi il punto di estrazione per completare l\'addestramento!',
+    },
     'skip': 'Salta l\'addestramento',
     'goal': 'Elimina tutti e tre',
     'goalProgress': '{n} su {total} a terra',
@@ -282,6 +321,8 @@ export default {
   'pause': {
     'title': 'IN PAUSA',
     'resume': 'Riprendi',
+    'retreat': 'Ritirata alla base',
+    'retreatSure': 'Lasciare l\'incursione? Tocca di nuovo',
     'controls': 'Comandi'
   },
   'options': {

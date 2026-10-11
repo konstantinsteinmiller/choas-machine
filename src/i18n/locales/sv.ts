@@ -30,7 +30,8 @@ export default {
     'salvage': 'Bytet',
     'fallBastion': 'Bastionen faller',
     'fallFoundry': 'Gjuteriet kallnar',
-    'outro': 'Hem'
+    'outro': 'Hem',
+    'nextTarget': 'Nästa mål'
   },
   'fortress': {
     'bastion': 'Bastionen',
@@ -87,6 +88,7 @@ export default {
   },
   'defeat': {
     'title': 'Mechen är nere',
+    'repair': 'Full reparation',
     'retry': 'Försök igen',
     'resume': 'Från första högen',
     'kept': 'Räddat teknikskrot'
@@ -191,6 +193,26 @@ export default {
     'unlock': 'Lås upp: {name}',
     'watch': 'Titta på en video för att låsa upp: {name}'
   },
+  'paint': {
+    'title': 'Lackeringar',
+    'lilac': 'CM-07 Syren',
+    'crimson': 'Karmosin',
+    'arctic': 'Arktisk',
+    'jungle': 'Djungel',
+    'gilded': 'Förgylld',
+    'midnight': 'Midnatt',
+    'tangerine': 'Mandarin',
+    'equip': 'Lackera mechen {name}',
+    'equipShort': 'Utrusta',
+    'equipped': 'Utrustad',
+    'unlock': 'Lås upp: {name}',
+    'watch': 'Titta på en video för att låsa upp för gott: {name}',
+    'try': 'Titta på en video för att prova {name} ett uppdrag',
+    'tryShort': 'Prova 1 uppdrag',
+    'lent': 'Din nästa uppdrag',
+    'noVideo': 'Ingen video just nu',
+    'back': 'Tillbaka om {time}'
+  },
   'ads': {
     'blockedTitle': 'Annonser blockerade',
     'blockedBody': 'En annonsblockerare stoppade videon, så det blir ingen belöning den här gången.',
@@ -234,6 +256,7 @@ export default {
     'alarm': '6, 7!',
     'lowHealth': 'Dags att dra åt skruvarna!',
     'lowAmmo': 'Nästan slut på ammo, letar stenar att kasta.',
+    'noAmmo': 'Slut på ammo.',
     'takedown': 'Sch. Dags för en tupplur.',
     'decoy': 'Titta, en snygg främling!',
     'disguise': 'Branschens bästa brödrost.',
@@ -252,6 +275,22 @@ export default {
     'replay': 'Visa igen',
     'progress': 'Träning: {n} av {total} lektioner klara',
     'scrapWhy': 'Skrot köper vapenuppgraderingar hemma på basen.',
+    'bladeHint': 'Smyg fram till vakterna och hugg dem i ryggen, så att de inte slår larm!',
+    'decoyHint': 'Placera ett lockbete för att distrahera vakten, smyg sedan fram och ta ut honom!',
+    'roomHint': {
+      'move': 'Gå fram till den lysande dörren för att börja din träning.',
+      'jump': 'Klättra uppför stegen och hoppa över glappet till den andra plattformen!',
+      'cover': 'Huka dig bakom lådorna så att vaktposten inte ser dig, och kryp sedan under grinden!',
+      'weapons': 'Slå ut alla tre vakterna: skjut en med prickskyttegeväret och byt sedan till minigunen för de andra två!',
+      'rocket': 'Byt till raketkastaren och spräng mechen på avsatsen!',
+      'supply': 'Gå över lådorna för att fylla på ammo och reparera ditt pansar.',
+      'burn': 'Bränn kroppen med eldkastaren innan någon hittar den!',
+      'box': 'Göm dig i kartongen och stå still medan strålkastaren sveper över dig!',
+      'hook': 'Använd änterhaken för att ta dig över muren!',
+      'rope': 'Använd repkanonen för att spänna ett rep mellan de två plattformarna!',
+      'barrel': 'Skjut bränslefatet för att slå ut vakterna bakom muren!',
+      'extract': 'Gå till extraktionspunkten för att avsluta din träning!',
+    },
     'skip': 'Hoppa över träningen',
     'goal': 'Slå ut alla tre',
     'goalProgress': '{n} av {total} nere',
@@ -282,6 +321,8 @@ export default {
   'pause': {
     'title': 'PAUSAT',
     'resume': 'Fortsätt',
+    'retreat': 'Retirera till basen',
+    'retreatSure': 'Lämna räden? Tryck igen',
     'controls': 'Kontroller'
   },
   'options': {

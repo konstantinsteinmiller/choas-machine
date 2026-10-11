@@ -115,6 +115,13 @@ const conclude = (layout: Layout, source: Source): void => {
 
 const LETTER = /^\p{L}$/u
 /**
+ * A label worth showing: a Latin letter, or a mark that is no letter at all
+ * (AZERTY's ","). A Cyrillic, Greek, Arabic … letter is not: those keyboards
+ * print the Latin letter on the same key too, and that is the one players
+ * and guides call the key by ("E", not "У").
+ */
+const SHOWABLE = (ch: string): boolean => !LETTER.test(ch) || /^\p{Script=Latin}$/u.test(ch)
+/**
  * Learn from a real key press (the game's own keydown handler calls this):
  * its label, and — from a telltale key — the layout.
  */
@@ -131,7 +138,7 @@ export const observeKey = (e: Pick<KeyboardEvent, 'code' | 'key' | 'ctrlKey' | '
     keyboard.source = 'typed'
     persist()
   } else if (l && RANK[keyboard.source] < RANK.typed) conclude(l, 'typed')
-  if (LETTER.test(e.key)) exact[e.code] = e.key.toUpperCase()
+  if (LETTER.test(e.key) && SHOWABLE(e.key)) exact[e.code] = e.key.toUpperCase()
 }
 
 const LETTERS = Array.from({ length: 26 }, (_, i) => `Key${String.fromCharCode(65 + i)}`)
@@ -153,7 +160,7 @@ export const loadKeyboardLayout = async (): Promise<void> => {
     for (const code of [...LETTERS, 'Semicolon', 'Comma', 'Period']) {
       const k = map.get(code)
       // Only single printable characters; a dead key or a word keeps the default.
-      if (k && [...k].length === 1 && k.trim()) exact[code] = k.toUpperCase()
+      if (k && [...k].length === 1 && k.trim() && SHOWABLE(k)) exact[code] = k.toUpperCase()
     }
     const w = map.get('KeyW') ?? ''
     const y = map.get('KeyY') ?? ''

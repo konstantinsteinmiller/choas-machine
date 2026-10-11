@@ -33,6 +33,7 @@ export type TouchButton =
   | 'grapple' | 'rope' | 'decoy' | 'hide'
   | 'jump' | 'crouch' | 'sprint'
   | 'fire' | 'weapon' | 'zoom' | 'cancel'
+  | 'shoot' | 'scope'
 
 export interface ButtonLook { shape: ButtonShape; tone: ButtonTone; icon: GameIconName }
 
@@ -55,15 +56,19 @@ export const BUTTON_LOOK: Readonly<Record<TouchButton, ButtonLook>> = {
   fire: { shape: 'plate', tone: 'pink', icon: 'sniper' },
   weapon: { shape: 'plate', tone: 'cyan', icon: 'sniper' },
   zoom: { shape: 'plate', tone: 'ok', icon: 'scope' },
-  cancel: { shape: 'plate', tone: 'warn', icon: 'close' }
+  cancel: { shape: 'plate', tone: 'warn', icon: 'close' },
+  // Touch: the trigger beside jump, and the scope's toggle over the move stick
+  // (its reticle to look through; struck through, while up, to come out).
+  shoot: { shape: 'round', tone: 'danger', icon: 'act-fire' },
+  scope: { shape: 'round', tone: 'lilac', icon: 'act-scope' }
 }
 
 /** The button a lesson's control is pressed with on touch; none for a gesture (the stick, a swipe, a hold). */
 export const HINT_BUTTON: Readonly<Partial<Record<HintId, TouchButton>>> = {
   blade: 'strike', loot: 'loot', burn: 'burn', sabotage: 'sabotage',
   grapple: 'grapple', rope: 'rope', decoy: 'decoy', hide: 'hide',
-  jump: 'jump', crouch: 'crouch', sprint: 'sprint',
-  weapon: 'weapon', rocket: 'weapon'
+  jump: 'jump', crouch: 'crouch',
+  weapon: 'weapon', rocket: 'weapon', scope: 'scope', fire: 'shoot'
 }
 
 /** The button an in-world prompt is answered with on touch. */
@@ -71,6 +76,18 @@ export const PROMPT_BUTTON: Readonly<Record<Exclude<PromptKind, ''>, TouchButton
   strike: 'strike', assassinate: 'strike', salvage: 'loot', sabotage: 'sabotage', silence: 'sabotage', cutPower: 'sabotage',
   jam: 'sabotage', hook: 'grapple', rope: 'rope', grab: 'drag', drop: 'drag', burn: 'burn'
 }
+
+/**
+ * The keyboard key of each in-world action button: one table, so a prompt
+ * over a body can never show one key while the lessons teach another (the
+ * body's prompt said E, the burn lesson X). A prompt's key is its button's.
+ */
+export const BUTTON_ACTION: Readonly<Partial<Record<TouchButton, Action>>> = {
+  strike: 'act', loot: 'act', sabotage: 'act', burn: 'burn', drag: 'drag', grapple: 'grapple', rope: 'rope',
+  decoy: 'decoy', hide: 'hide', crouch: 'crouch', jump: 'jump'
+}
+/** The key that does what an in-world prompt offers. */
+export const promptAction = (kind: Exclude<PromptKind, ''>): Action => BUTTON_ACTION[PROMPT_BUTTON[kind]] ?? 'act'
 
 /** A button's look with the picture it shows right now (the weapon in hand, a lesson's weapon). */
 export const lookOf = (b: TouchButton, weapon: WeaponId = 'sniper', hint?: HintId): ButtonLook => {
@@ -97,12 +114,14 @@ export const HINT_MOUSE: Readonly<Partial<Record<HintId, 'move' | 'left' | 'righ
 /** On touch, a control with no button: the gesture that does it (the stick, a swipe, a hold). */
 // Looking round is the endless loop on touch and on a desktop alike (#169).
 export const HINT_GESTURE: Readonly<Partial<Record<HintId, 'drag' | 'swipe' | 'hold' | 'release' | 'push' | 'tap' | 'loop'>>> = {
-  move: 'drag', climb: 'push', cable: 'push', supply: 'push', goal: 'push', look: 'loop', scope: 'hold', fire: 'release'
+  move: 'drag', climb: 'push', cable: 'push', supply: 'push', goal: 'push', look: 'loop', scope: 'hold', fire: 'release',
+  // No sprint button on touch: the stick pushed all the way runs.
+  sprint: 'push'
 }
 
 /** The touch button each nudged training control is (#186), by its test id; one not on screen falls back to the big glyph. */
 export const NUDGE_BUTTON: Readonly<Partial<Record<HintId, string>>> = {
   crouch: 'btn-crouch', blade: 'btn-strike', burn: 'btn-burn', decoy: 'btn-decoy', rope: 'btn-rope',
-  loot: 'btn-loot', scope: 'btn-zoom', rocket: 'btn-weapons', weapon: 'btn-weapons', grapple: 'btn-grapple',
-  hide: 'btn-hide', sprint: 'btn-sprint', jump: 'btn-jump', look: 'look-stick'
+  loot: 'btn-loot', scope: 'btn-scope', rocket: 'btn-weapons', weapon: 'btn-weapons', grapple: 'btn-grapple',
+  hide: 'btn-hide', jump: 'btn-jump', look: 'look-stick', fire: 'btn-shoot'
 }

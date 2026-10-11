@@ -30,7 +30,8 @@ export default {
     'salvage': 'Byttet',
     'fallBastion': 'Bastionen falder',
     'fallFoundry': 'Støberiet køler af',
-    'outro': 'Hjem'
+    'outro': 'Hjem',
+    'nextTarget': 'Næste mål'
   },
   'fortress': {
     'bastion': 'Bastionen',
@@ -87,6 +88,7 @@ export default {
   },
   'defeat': {
     'title': 'Mechen er nede',
+    'repair': 'Fuld reparation',
     'retry': 'Prøv igen',
     'resume': 'Fra den første bunke',
     'kept': 'Reddet teknoskrot'
@@ -191,6 +193,26 @@ export default {
     'unlock': 'Lås op: {name}',
     'watch': 'Se en video for at låse op: {name}'
   },
+  'paint': {
+    'title': 'Malingsskemaer',
+    'lilac': 'CM-07 Lilla',
+    'crimson': 'Karmoisin',
+    'arctic': 'Arktisk',
+    'jungle': 'Jungle',
+    'gilded': 'Forgyldt',
+    'midnight': 'Midnat',
+    'tangerine': 'Mandarin',
+    'equip': 'Mal mechen {name}',
+    'equipShort': 'Udstyr',
+    'equipped': 'Udstyret',
+    'unlock': 'Lås op: {name}',
+    'watch': 'Se en video for at låse op for altid: {name}',
+    'try': 'Se en video for at prøve {name} i én mission',
+    'tryShort': 'Prøv 1 mission',
+    'lent': 'Din i næste mission',
+    'noVideo': 'Ingen video lige nu',
+    'back': 'Tilbage om {time}'
+  },
   'ads': {
     'blockedTitle': 'Reklamer blokeret',
     'blockedBody': 'En reklameblokering stoppede videoen, så der er ingen belønning denne gang.',
@@ -234,6 +256,7 @@ export default {
     'alarm': '6, 7!',
     'lowHealth': 'Tid til at spænde mine skruer!',
     'lowAmmo': 'Næsten løbet tør for ammo, leder efter sten at kaste.',
+    'noAmmo': 'Løbet tør for ammo.',
     'takedown': 'Shh. Sov sødt.',
     'decoy': 'Se, en flot fremmed!',
     'disguise': 'Branchens bedste brødrister.',
@@ -252,6 +275,22 @@ export default {
     'replay': 'Vis mig igen',
     'progress': 'Træning: {n} af {total} lektioner klaret',
     'scrapWhy': 'For skrot køber du våbenopgraderinger hjemme på basen.',
+    'bladeHint': 'Snig dig ind på vagterne og stik dem i ryggen, så de ikke slår alarm!',
+    'decoyHint': 'Placer en lokkedue for at distrahere vagten, snig dig så ind på ham og nedlæg ham!',
+    'roomHint': {
+      'move': 'Gå hen til den lysende dør for at starte din træning.',
+      'jump': 'Klatr op ad stigen og hop over kløften til den anden platform!',
+      'cover': 'Duk dig bag kasserne, så vagtposten ikke kan se dig, og kravl så ind under porten!',
+      'weapons': 'Nedkæmp alle tre vagter: skyd én med snigskytteriflen, og skift så til minigun\'en for de to andre!',
+      'rocket': 'Skift til raketkasteren og spræng mech\'en på afsatsen i luften!',
+      'supply': 'Gå hen over kasserne for at fylde ammunition op og reparere dit panser.',
+      'burn': 'Brænd liget med flammekasteren, før nogen finder det!',
+      'box': 'Gem dig i papkassen, og stå stille, mens søgelyset fejer hen over dig!',
+      'hook': 'Brug entrehagen til at komme over muren!',
+      'rope': 'Brug rebkanonen til at spænde et reb mellem de to platforme!',
+      'barrel': 'Skyd på brændstoftønden for at nedkæmpe vagterne bag muren!',
+      'extract': 'Gå hen til ekstraktionspunktet for at afslutte din træning!',
+    },
     'skip': 'Spring træning over',
     'goal': 'Nedlæg alle tre',
     'goalProgress': '{n} af {total} nede',
@@ -282,6 +321,8 @@ export default {
   'pause': {
     'title': 'PAUSE',
     'resume': 'Fortsæt',
+    'retreat': 'Træk dig tilbage til basen',
+    'retreatSure': 'Forlad angrebet? Tryk igen',
     'controls': 'Styring'
   },
   'options': {

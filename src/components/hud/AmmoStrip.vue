@@ -4,7 +4,7 @@
   //- running dry are two states, told apart without a word: low turns the row
   //- amber with a half-empty magazine pulsing slowly beside it; dry turns it
   //- red, the magazine struck through and blinking fast.
-  div.ammo-strip(:class="[weaponClass, { reloading: hud.reloading, hot: hud.overheated, dry: hud.dry, low: hud.ammoLow && !hud.dry, loss: flash === 'loss', gain: flash === 'gain' }]" data-testid="ammo")
+  div.ammo-strip(:class="[weaponClass, { reloading: hud.reloading, hot: hud.overheated, dry: hud.dry, low: hud.ammoLow && !hud.dry, loss: flash === 'loss', gain: flash === 'gain', empty: emptyPull }]" data-testid="ammo")
     GameIcon.glyph(:name="hud.weapon")
     div.load(v-if="hud.weapon !== 'minigun'")
       div.pips(role="meter" :aria-label="t('hud.ammo')" aria-valuemin="0" :aria-valuemax="capacity" :aria-valuenow="hud.ammo")
@@ -30,6 +30,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
+import { on } from '@/game/bus'
 import { useI18n } from 'vue-i18n'
 import GameIcon from '@/components/icons/GameIcon.vue'
 import { addHudTicker, gun, hud } from '@/game/state/hud'
@@ -64,6 +65,17 @@ watch(() => [hud.ammo, hud.reserve, hud.weapon] as const, () => {
   if (flashTimer) clearTimeout(flashTimer)
   flashTimer = setTimeout(() => { flash.value = ''; plus.value = 0 }, d > 0 ? 900 : 220)
 })
+
+// The trigger pulled on an empty gun (#199): the strip lights up and shakes.
+const emptyPull = ref(false)
+let emptyTimer: ReturnType<typeof setTimeout> | null = null
+const offDry = on('dryFire', () => {
+  emptyPull.value = false
+  if (emptyTimer) clearTimeout(emptyTimer)
+  requestAnimationFrame(() => { emptyPull.value = true })
+  emptyTimer = setTimeout(() => { emptyPull.value = false }, 560)
+})
+onUnmounted(() => { offDry(); if (emptyTimer) clearTimeout(emptyTimer) })
 
 onMounted(() => {
   let last = -1
@@ -221,7 +233,26 @@ onUnmounted(() => { off?.(); if (flashTimer) clearTimeout(flashTimer) })
   50%
     opacity: 0.55
 
+.ammo-strip.empty
+  animation: ammo-empty 0.55s ease-out
+  filter: drop-shadow(0 0 0.6rem rgba(255, 70, 90, 0.95))
+
+@keyframes ammo-empty
+  0%, 100%
+    translate: 0 0
+  10%
+    translate: -0.35rem 0
+    background-color: rgba(255, 60, 80, 0.45)
+  30%
+    translate: 0.3rem 0
+  50%
+    translate: -0.22rem 0
+  70%
+    translate: 0.14rem 0
+  85%
+    translate: -0.06rem 0
+
 @media (prefers-reduced-motion: reduce)
-  .reloading .pip:not(.full), .ammo-strip.dry, .ammo-strip.low .state
+  .reloading .pip:not(.full), .ammo-strip.dry, .ammo-strip.low .state, .ammo-strip.empty
     animation: none
 </style>

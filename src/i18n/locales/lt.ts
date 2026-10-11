@@ -30,7 +30,8 @@ export default {
     'salvage': 'Grobis',
     'fallBastion': 'Bastionas griūva',
     'fallFoundry': 'Liejykla atšąla',
-    'outro': 'Namo'
+    'outro': 'Namo',
+    'nextTarget': 'Kitas taikinys'
   },
   'fortress': {
     'bastion': 'Bastionas',
@@ -87,6 +88,7 @@ export default {
   },
   'defeat': {
     'title': 'Mechas žlugo',
+    'repair': 'Pilnas remontas',
     'retry': 'Bandyti dar kartą',
     'resume': 'Nuo pirmos krūvos',
     'kept': 'Išgelbėtas technikos laužas'
@@ -191,6 +193,26 @@ export default {
     'unlock': 'Atrakinti: {name}',
     'watch': 'Žiūrėti vaizdo įrašą ir atrakinti: {name}'
   },
+  'paint': {
+    'title': 'Dažymo schemos',
+    'lilac': 'CM-07 Alyvinė',
+    'crimson': 'Purpurinė',
+    'arctic': 'Arktinė',
+    'jungle': 'Džiunglių',
+    'gilded': 'Paauksuota',
+    'midnight': 'Vidurnaktis',
+    'tangerine': 'Mandarininė',
+    'equip': 'Nudažyti robotą: {name}',
+    'equipShort': 'Uždėti',
+    'equipped': 'Uždėta',
+    'unlock': 'Atrakinti: {name}',
+    'watch': 'Žiūrėti vaizdo įrašą ir atrakinti visam laikui: {name}',
+    'try': 'Žiūrėti vaizdo įrašą ir išbandyti vienai misijai: {name}',
+    'tryShort': 'Išbandyti 1 misiją',
+    'lent': 'Tavo kitai misijai',
+    'noVideo': 'Šiuo metu vaizdo įrašų nėra',
+    'back': 'Vėl po {time}'
+  },
   'ads': {
     'blockedTitle': 'Skelbimai užblokuoti',
     'blockedBody': 'Skelbimų blokatorius sustabdė vaizdo įrašą, todėl šįkart atlygio nėra.',
@@ -234,6 +256,7 @@ export default {
     'alarm': '6, 7!',
     'lowHealth': 'Laikas prisiveržti varžtus!',
     'lowAmmo': 'Šaudmenys baigiasi, ieškau akmenų mėtyti.',
+    'noAmmo': 'Baigėsi šoviniai.',
     'takedown': 'Ššš. Pogulio metas.',
     'decoy': 'Žiūrėk, gražus nepažįstamasis!',
     'disguise': 'Geriausias skrudintuvas versle.',
@@ -252,6 +275,22 @@ export default {
     'replay': 'Parodyk dar kartą',
     'progress': 'Treniruotė: baigta {n} iš {total} pamokų',
     'scrapWhy': 'Už technikos laužą Vadavietėje patobulinsi ginklus.',
+    'bladeHint': 'Prisėlink prie sargybinių ir dūrk jiems į nugarą, kad nesukeltų aliarmo!',
+    'decoyHint': 'Padėk masalą sargybiniui atitraukti, tada prisėlink ir jį likviduok!',
+    'roomHint': {
+      'move': 'Nueik prie švytinčių durų, kad pradėtum treniruotę.',
+      'jump': 'Užlipk kopėčiomis ir peršok per tarpą į kitą platformą!',
+      'cover': 'Pritūpk už dėžių, kad sargybinis tavęs nematytų, tada pralįsk po vartais!',
+      'weapons': 'Įveik visus tris sargybinius: vieną nušauk snaiperio šautuvu, tada perjunk į minigun kitiems dviem!',
+      'rocket': 'Perjunk į raketsvaidį ir susprogdink mechą ant atbrailos!',
+      'supply': 'Pereik per dėžes, kad papildytum šaudmenis ir sutaisytum šarvus.',
+      'burn': 'Sudegink kūną liepsnosvaidžiu, kol niekas jo nerado!',
+      'box': 'Pasislėpk kartoninėje dėžėje ir stovėk nejudėdamas, kol prožektorius slenka per tave!',
+      'hook': 'Panaudok kabliuką su lynu, kad perliptum per sieną!',
+      'rope': 'Panaudok lyno šautuvą, kad ištemptum lyną tarp dviejų platformų!',
+      'barrel': 'Šauk į kuro statinę, kad įveiktum sargybinius už sienos!',
+      'extract': 'Nueik į evakuacijos tašką, kad baigtum treniruotę!',
+    },
     'skip': 'Praleisti treniruotę',
     'goal': 'Nukauk visus tris',
     'goalProgress': '{n} iš {total} nukauti',
@@ -282,6 +321,8 @@ export default {
   'pause': {
     'title': 'PAUZĖ',
     'resume': 'Tęsti',
+    'retreat': 'Atsitraukti į bazę',
+    'retreatSure': 'Palikti antpuolį? Paliesk dar kartą',
     'controls': 'Valdymas'
   },
   'options': {

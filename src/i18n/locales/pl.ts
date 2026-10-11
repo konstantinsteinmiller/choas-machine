@@ -30,7 +30,8 @@ export default {
     'salvage': 'Łup',
     'fallBastion': 'Bastion upada',
     'fallFoundry': 'Huta stygnie',
-    'outro': 'Do domu'
+    'outro': 'Do domu',
+    'nextTarget': 'Następny cel'
   },
   'fortress': {
     'bastion': 'Bastion',
@@ -87,6 +88,7 @@ export default {
   },
   'defeat': {
     'title': 'Mech padł',
+    'repair': 'Pełna naprawa',
     'retry': 'Spróbuj ponownie',
     'resume': 'Od pierwszej sterty',
     'kept': 'Odzyskany złom techniczny'
@@ -191,6 +193,26 @@ export default {
     'unlock': 'Odblokuj: {name}',
     'watch': 'Obejrzyj film, by odblokować: {name}'
   },
+  'paint': {
+    'title': 'Malowania',
+    'lilac': 'CM-07 Bez',
+    'crimson': 'Karmazyn',
+    'arctic': 'Arktyka',
+    'jungle': 'Dżungla',
+    'gilded': 'Złocony',
+    'midnight': 'Północ',
+    'tangerine': 'Mandarynka',
+    'equip': 'Pomaluj mecha: {name}',
+    'equipShort': 'Załóż',
+    'equipped': 'Założone',
+    'unlock': 'Odblokuj: {name}',
+    'watch': 'Obejrzyj film, by odblokować na stałe: {name}',
+    'try': 'Obejrzyj film, by wypróbować na jedną misję: {name}',
+    'tryShort': 'Wypróbuj 1 misję',
+    'lent': 'Twoje na następną misję',
+    'noVideo': 'Teraz brak filmu',
+    'back': 'Znów za {time}'
+  },
   'ads': {
     'blockedTitle': 'Reklamy zablokowane',
     'blockedBody': 'Bloker reklam zatrzymał film, więc tym razem nie ma nagrody.',
@@ -234,6 +256,7 @@ export default {
     'alarm': '6, 7!',
     'lowHealth': 'Czas dokręcić śrubki!',
     'lowAmmo': 'Prawie bez amunicji, szukam kamieni do rzucania.',
+    'noAmmo': 'Brak amunicji.',
     'takedown': 'Ciii. Czas na drzemkę.',
     'decoy': 'Patrz, przystojny nieznajomy!',
     'disguise': 'Najlepszy toster w branży.',
@@ -252,6 +275,22 @@ export default {
     'replay': 'Pokaż jeszcze raz',
     'progress': 'Trening: ukończono {n} z {total} lekcji',
     'scrapWhy': 'Za złom ulepszysz broń w Bazie Dowodzenia.',
+    'bladeHint': 'Podkradnij się do strażników i dźgnij ich w plecy, żeby nie podnieśli alarmu!',
+    'decoyHint': 'Postaw wabik, żeby odwrócić uwagę strażnika, potem podkradnij się i go zlikwiduj!',
+    'roomHint': {
+      'move': 'Podejdź do świecących drzwi, żeby zacząć trening.',
+      'jump': 'Wejdź po drabinie i przeskocz przepaść na drugą platformę!',
+      'cover': 'Przykucnij za skrzyniami, żeby wartownik cię nie widział, a potem przeczołgaj się pod bramą!',
+      'weapons': 'Zlikwiduj wszystkich trzech strażników: jednego zdejmij z karabinu snajperskiego, potem przełącz na minigun na pozostałych dwóch!',
+      'rocket': 'Przełącz na wyrzutnię rakiet i wysadź mecha na półce skalnej!',
+      'supply': 'Przejdź po skrzyniach, żeby uzupełnić amunicję i naprawić pancerz.',
+      'burn': 'Spal ciało miotaczem ognia, zanim ktoś je znajdzie!',
+      'box': 'Schowaj się w kartonie i stój nieruchomo, gdy reflektor cię omiata!',
+      'hook': 'Użyj haka z liną, żeby przedostać się przez mur!',
+      'rope': 'Użyj wyrzutni liny, żeby rozpiąć linę między dwiema platformami!',
+      'barrel': 'Strzel w beczkę z paliwem, żeby wyeliminować strażników za murem!',
+      'extract': 'Idź do punktu ewakuacji, żeby zakończyć trening!',
+    },
     'skip': 'Pomiń trening',
     'goal': 'Wyeliminuj całą trójkę',
     'goalProgress': '{n} z {total} wyeliminowanych',
@@ -282,6 +321,8 @@ export default {
   'pause': {
     'title': 'PAUZA',
     'resume': 'Wznów',
+    'retreat': 'Odwrót do bazy',
+    'retreatSure': 'Opuścić rajd? Stuknij ponownie',
     'controls': 'Sterowanie'
   },
   'options': {

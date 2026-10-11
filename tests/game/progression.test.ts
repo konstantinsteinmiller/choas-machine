@@ -13,7 +13,7 @@ import {
 import { defaultProfile, profile } from '@/game/state/profile'
 import {
   __setHaul, bankDefeat, bankMission, buildTier, buyTrack, canBuyTrack, canForge, canSpin, currentLoadout, haulToMelt,
-  levelKey, meltHaul, spinWheel, unlockedLevel, wheelOpen
+  deathsSinceWin, levelKey, meltHaul, spinWheel, unlockedLevel, wheelOpen
 } from '@/game/state/progress'
 
 const tiers1 = (): Record<(typeof WEAPON_IDS)[number], number> => ({ sniper: 1, minigun: 1, rocket: 1 })
@@ -367,5 +367,22 @@ describe('the economy, played', () => {
     }
     expect(missions).toBeGreaterThan(15)
     expect(missions).toBeLessThan(45)
+  })
+})
+
+describe('the rubber band\'s count (ease.ts)', () => {
+  beforeEach(reset)
+
+  it('each death at a fortress counts, a win there clears it, the training never counts', () => {
+    bankDefeat(loudRun(), 2, 'foundry')
+    bankDefeat(loudRun(), 2, 'foundry')
+    expect(deathsSinceWin('foundry', 2)).toBe(2)
+    // Another level, another fortress: their own counts.
+    expect(deathsSinceWin('foundry', 1)).toBe(0)
+    expect(deathsSinceWin('bastion', 2)).toBe(0)
+    bankDefeat(loudRun(), 2, null)
+    expect(deathsSinceWin('foundry', 2)).toBe(2)
+    bankMission(ghostRun(), 2, 'foundry')
+    expect(deathsSinceWin('foundry', 2)).toBe(0)
   })
 })

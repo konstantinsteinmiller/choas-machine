@@ -90,7 +90,7 @@ describe('the hologram plays by its projector (#168)', () => {
 describe('a shut door says what it wants (#171)', () => {
   it('every lesson whose door waits on more than walking up to it has a line, in English', () => {
     for (const [k, r] of TRAINING_ROOMS.entries()) {
-      if (!r.door || ['move', 'jump', 'box', 'hook', 'extract'].includes(r.lesson)) continue
+      if (!r.door || ['move', 'jump', 'box', 'hook', 'barrel', 'extract'].includes(r.lesson)) continue
       const say = DOOR_LINES[r.lesson]
       expect(say, r.lesson).toBeTruthy()
       const [, key] = say!.line.split('.')

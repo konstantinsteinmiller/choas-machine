@@ -81,6 +81,9 @@ interface Baked {
   box: Rect
   paint: Rect
   dpr: number
+  /** The viewport it was baked for (rem, vmin and breakpoints follow it). */
+  vw: number
+  vh: number
   /** performance.now() of the bake. */
   at: number
   /** Raster units: what was drawn (source, size, clip), to redraw only on change. */
@@ -107,6 +110,13 @@ type Reason = 'new' | 'content' | 'anim'
 const pending = new Map<Element, { reason: Reason; since: number }>()
 
 let frames = 0
+/** The last window resize, and how long after it new panels bake faster. */
+let resizedAt = -Infinity
+/** The viewport the quads were last placed for. */
+let placedVw = 0
+let placedVh = 0
+const RESIZE_CATCHUP_MS = 3000
+const NEW_AFTER_RESIZE = 12
 let forcedAt = -Infinity
 let forcedGap = FORCE_MS
 let busy = false
@@ -200,7 +210,7 @@ const quadFor = (u: Unit): Baked => {
   mesh.visible = false
   mesh.frustumCulled = false
   layer.add(mesh)
-  b = { kind: u.kind, canvas, ctx, texture, mesh, box: u.box, paint: u.box, dpr: 0, at: 0, key: '' }
+  b = { kind: u.kind, canvas, ctx, texture, mesh, box: u.box, paint: u.box, dpr: 0, vw: 0, vh: 0, at: 0, key: '' }
   baked.set(u.el, b)
   return b
 }
@@ -233,7 +243,8 @@ const resize = (b: Baked, w: number, h: number): void => {
 
 /** Why this unit needs a bake, if it does. */
 const bakeReason = (u: Unit, prev: Baked | undefined, dpr: number): Reason | null => {
-  if (!prev || prev.kind !== u.kind || prev.dpr !== dpr) return 'new'
+  const { vw, vh } = viewport()
+  if (!prev || prev.kind !== u.kind || prev.dpr !== dpr || (prev.kind !== 'raster' && (prev.vw !== vw || prev.vh !== vh))) return 'new'
   if (Math.abs(prev.box.w - u.box.w) > 0.5 || Math.abs(prev.box.h - u.box.h) > 0.5) return 'new'
   const hit = (t: Node) => (u.kind === 'tree' ? u.el.contains(t) : t === u.el || (t.parentNode === u.el && t.nodeType === 3))
   for (const t of touched) if (hit(t)) return 'content'
@@ -266,7 +277,9 @@ const pickBakes = (units: Unit[], dpr: number): Unit[] => {
     if (now - last >= (p.reason === 'anim' ? ANIM_MS : CONTENT_MS)) due.push({ u, since: p.since })
   }
   due.sort((x, y) => x.since - y.since)
-  const out = [...fresh.slice(0, NEW_PER_CYCLE), ...due.slice(0, BAKES_PER_CYCLE).map(d => d.u)]
+  // Just after a resize every panel is stale at once: catch up faster.
+  const newCap = now - resizedAt < RESIZE_CATCHUP_MS ? NEW_AFTER_RESIZE : NEW_PER_CYCLE
+  const out = [...fresh.slice(0, newCap), ...due.slice(0, BAKES_PER_CYCLE).map(d => d.u)]
   for (const u of out) {
     stats.why[pending.get(u.el)!.reason]++
     pending.delete(u.el)
@@ -274,7 +287,7 @@ const pickBakes = (units: Unit[], dpr: number): Unit[] => {
   return out
 }
 
-interface Job { u: Unit; box: Rect; paint: Rect; img: Promise<HTMLImageElement | null> }
+interface Job { u: Unit; box: Rect; paint: Rect; vw: number; vh: number; img: Promise<HTMLImageElement | null> }
 
 /** Serialize one unit and start its decode. */
 const prepare = (u: Unit): Promise<Job | null> => {
@@ -288,7 +301,7 @@ const prepare = (u: Unit): Promise<Job | null> => {
     if (!paint.w || !paint.h) return null
     const url = svgDataUrl(cssFor(u), serializeUnit(u, vw, vh), vw, vh)
     // One unit that will not decode is skipped, not the whole cycle.
-    return { u, paint, box: { ...u.box }, img: decodeSvg(url, vw, vh).catch(() => null) }
+    return { u, paint, box: { ...u.box }, vw, vh, img: decodeSvg(url, vw, vh).catch(() => null) }
   }))
 }
 
@@ -296,6 +309,14 @@ const prepare = (u: Unit): Promise<Job | null> => {
 const finish = async (job: Job, dpr: number): Promise<void> => {
   const img = await job.img
   if (!img || !job.u.el.isConnected) return
+  // Baked for a viewport that has since changed (a resize mid-cycle): its
+  // layout is the old one. Dropped, and baked again for the new one; landed,
+  // it put the scope's ring half a lens off its centre in a playtest.
+  const now = viewport()
+  if (now.vw !== job.vw || now.vh !== job.vh) {
+    pending.set(job.u.el, { reason: 'new', since: performance.now() })
+    return
+  }
   await whenIdle(cost.draw, () => timed('draw', () => {
     const { u, paint } = job
     const b = quadFor(u)
@@ -304,7 +325,7 @@ const finish = async (job: Job, dpr: number): Promise<void> => {
     resize(b, Math.max(1, Math.round(paint.w * dpr)), Math.max(1, Math.round(paint.h * dpr)))
     b.ctx.drawImage(img, paint.x, paint.y, paint.w, paint.h, 0, 0, b.canvas.width, b.canvas.height)
     upload(b)
-    Object.assign(b, { box: job.box, paint, dpr, at: performance.now() })
+    Object.assign(b, { box: job.box, paint, dpr, vw: job.vw, vh: job.vh, at: performance.now() })
     stats.bakes++
   }))
 }
@@ -337,6 +358,8 @@ const rasterize = (u: Unit, dpr: number, vw: number, vh: number): void => {
 /** Put every quad where its unit is now, in paint order; hide the rest. */
 const place = (units: Unit[], dpr: number): void => {
   const { vw, vh } = viewport()
+  placedVw = vw
+  placedVh = vh
   camera.right = vw
   camera.bottom = -vh
   camera.updateProjectionMatrix()
@@ -352,11 +375,18 @@ const place = (units: Unit[], dpr: number): void => {
     if (!b || b.kind !== u.kind || !b.dpr) return
     // Where it is NOW: a unit that only moved is drawn at its new place,
     // snapped to device pixels so its texels map 1:1.
+    // One that also changed size since (a resize, until its fresh bake
+    // lands) is stretched onto its new box: a little soft for a moment, never
+    // out of place.
     const r = u.el.getBoundingClientRect()
-    const x = Math.round((b.paint.x + r.left - b.box.x) * dpr) / dpr
-    const y = Math.round((b.paint.y + r.top - b.box.y) * dpr) / dpr
-    b.mesh.position.set(x + b.paint.w / 2, -(y + b.paint.h / 2), 0)
-    b.mesh.scale.set(b.paint.w, b.paint.h, 1)
+    const sx = b.box.w > 0.5 && r.width > 0.5 ? r.width / b.box.w : 1
+    const sy = b.box.h > 0.5 && r.height > 0.5 ? r.height / b.box.h : 1
+    const w = b.paint.w * sx
+    const h = b.paint.h * sy
+    const x = Math.round((r.left + (b.paint.x - b.box.x) * sx) * dpr) / dpr
+    const y = Math.round((r.top + (b.paint.y - b.box.y) * sy) * dpr) / dpr
+    b.mesh.position.set(x + w / 2, -(y + h / 2), 0)
+    b.mesh.scale.set(w, h, 1)
     b.mesh.renderOrder = i
     b.mesh.visible = true
   })
@@ -379,6 +409,8 @@ const cycle = async (h: UiBakeHost): Promise<void> => {
   // Units gone from the page give back their textures.
   const present = new Set(units.map(u => u.el))
   for (const [el, b] of baked) if (!present.has(el)) drop(el, b)
+  // The window changed: everything goes to its new place now, before the bakes.
+  if (vw !== placedVw || vh !== placedVh) await whenIdle(cost.place, () => timed('place', () => place(units, dpr)))
   for (const el of pending.keys()) if (!present.has(el)) pending.delete(el)
   const todo = pickBakes(units, dpr)
   // What changes from here on belongs to the next cycle.
@@ -425,8 +457,11 @@ export const installUiBake = (h: UiBakeHost): void => {
   new MutationObserver(onMutations).observe(document.body, {
     subtree: true, childList: true, attributes: true, characterData: true, attributeOldValue: true
   })
-  // New size, new rem, new breakpoints: every bake is stale.
-  window.addEventListener('resize', reset)
+  // New size, new rem, new breakpoints: every bake is stale. The old ones stay
+  // up, stretched onto their new boxes, until each is baked again (dropping
+  // them all left the recording without a HUD for seconds), and the next
+  // cycle comes at once.
+  window.addEventListener('resize', () => { resizedAt = performance.now(); frames = MIN_FRAMES })
   // Its own frame counter, so the bake keeps going while the game loop is
   // paused under a modal.
   const tick = () => {

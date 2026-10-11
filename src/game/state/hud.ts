@@ -49,6 +49,8 @@ export const hud = reactive({
   sprinting: false,
   /** The weapon is up. */
   aiming: false,
+  /** The aim is held up (a finger, the mouse, or the touch scope toggle), not just a shot on its way. */
+  aimHeld: false,
   /** The camera is in the mech's head, looking through the scope. */
   scoped: false,
   weapon: 'sniper' as WeaponId,
@@ -127,14 +129,14 @@ export const hud = reactive({
    */
   training: {
     on: false, room: -1, done: 0, total: 0, replay: false, scrapWhy: false,
+    /** The mech is held watching a room's hologram lesson (#158, the backstab room). */
+    watching: false,
     goalDown: 0, goalTotal: 0, shout: '' as TrainingShout, shoutSeq: 0,
     /** The control a line is about (#171: a shut door's), drawn beside it as its key or button. */
     shoutHint: '' as HintId | '',
     /** The control the player is nudged to use until they do (#186): an arrow on its button, or its key big. */
     nudge: '' as HintId | ''
   },
-  /** 0 … 1 of holding the scope on a unit to tag it. */
-  tagging: 0,
   /** A body to grab ('grab'), or one in tow ('drop'). */
   drag: '' as '' | 'grab' | 'drop',
   /** What the in-world prompt offers right now (#83), '' for nothing. */

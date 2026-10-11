@@ -50,7 +50,7 @@
 // `showMidgameAd` flips `isAdShowing`, which ORs into `isGamePaused` and is one
 // of `isGameplayLive`'s inputs, so the portals are told play stopped and told
 // again when it resumes.
-import { showMidgameAd } from '@/use/useAds'
+import { showMidgameAd, showRewardedAd } from '@/use/useAds'
 import { markInterstitialShown } from '@/use/useAdGate'
 import { isAdShowing } from '@/use/useGamePause'
 import { resumeMusicAfterAd } from '@/use/useSound'
@@ -103,6 +103,48 @@ export const registerQaAdTap = (now: number = Date.now()): boolean => {
     .catch((e) => console.warn('[qa-ad] interstitial failed', e))
     .finally(() => {
       inFlight = false
+      resumeMusicAfterAd()
+    })
+  return true
+}
+
+// ─── The hidden QA rewarded tap ──────────────────────────────────────────────
+//
+// Twenty taps on the Command Base's Tech Scrap pill inside the same rolling
+// window request a REWARDED video — the same back door as above, for the
+// format a reviewer otherwise only reaches through a placement's own rules
+// (the early grace, a visit's share, a disguise still to unlock). Silent like
+// the other: no counter, no toast. It grants nothing — it is a test of the
+// ad, its audio and the pause round it, not a way to a reward — and it
+// ships in every build for the same reason the interstitial tap does.
+
+let rewardTaps: number[] = []
+let rewardInFlight = false
+
+/** Test seam: forget every recorded rewarded tap. */
+export const __resetQaRewardTaps = (): void => {
+  rewardTaps = []
+  rewardInFlight = false
+}
+
+/**
+ * Record one tap on the scrap pill, and request a rewarded video once
+ * `QA_AD_TAPS` of them have landed inside `QA_AD_WINDOW_MS`.
+ *
+ * @returns whether this tap fired the ad.
+ */
+export const registerQaRewardedTap = (now: number = Date.now()): boolean => {
+  rewardTaps.push(now)
+  const cutoff = now - QA_AD_WINDOW_MS
+  if (rewardTaps[0]! <= cutoff) rewardTaps = rewardTaps.filter((t) => t > cutoff)
+  if (rewardTaps.length < QA_AD_TAPS) return false
+  rewardTaps = []
+  if (rewardInFlight || isAdShowing.value) return false
+  rewardInFlight = true
+  showRewardedAd()
+    .catch((e) => console.warn('[qa-ad] rewarded failed', e))
+    .finally(() => {
+      rewardInFlight = false
       resumeMusicAfterAd()
     })
   return true

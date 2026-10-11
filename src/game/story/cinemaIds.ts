@@ -6,7 +6,7 @@ export const CINEMA_IDS = ['intro', 'salvage', 'fallBastion', 'fallFoundry', 'ou
 export type CinemaId = (typeof CINEMA_IDS)[number]
 
 export const CINEMA_LENGTH: Readonly<Record<CinemaId, number>> = {
-  intro: 50, salvage: 10, fallBastion: 16, fallFoundry: 16, outro: 40
+  intro: 59, salvage: 10, fallBastion: 16, fallFoundry: 16, outro: 40
 }
 
 /**
@@ -18,9 +18,9 @@ export const SKIP_HOLD_S = 1.5
 
 /**
  * The intro ends on a still of what is coming (#179): the third fortress,
- * held this long.
+ * held this long: long enough to take in where the next fight is.
  */
-export const INTRO_STILL_S = 3
+export const INTRO_STILL_S = 6
 
 /** The `seen` flag a scene sets once it has played. */
 export const seenKey = (id: CinemaId): string => `cine:${id}`

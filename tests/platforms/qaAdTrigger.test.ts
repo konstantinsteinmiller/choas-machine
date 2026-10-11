@@ -14,13 +14,14 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { ref } from 'vue'
 
 const showMidgameAd = vi.fn(() => Promise.resolve())
+const showRewardedAd = vi.fn(() => Promise.resolve(true))
 const markInterstitialShown = vi.fn()
 const resumeMusicAfterAd = vi.fn()
 const adShowing = ref(false)
 
 const load = async () => {
   vi.resetModules()
-  vi.doMock('@/use/useAds', () => ({ showMidgameAd }))
+  vi.doMock('@/use/useAds', () => ({ showMidgameAd, showRewardedAd }))
   vi.doMock('@/use/useAdGate', () => ({ markInterstitialShown }))
   vi.doMock('@/use/useSound', () => ({ resumeMusicAfterAd }))
   vi.doMock('@/use/useGamePause', () => ({ isAdShowing: adShowing }))
@@ -172,5 +173,31 @@ describe('the hidden QA ad trigger', () => {
     expect(showMidgameAd).toHaveBeenCalledTimes(1)
     mod.registerQaAdTap(10_000 + mod.QA_AD_TAPS * 100)
     expect(showMidgameAd).toHaveBeenCalledTimes(2)
+  })
+})
+
+// The rewarded twin (on the base's scrap pill): the same twenty taps in the
+// same rolling window ask for a rewarded video, grant nothing, never stack.
+describe('the hidden QA rewarded tap', () => {
+  beforeEach(() => { showRewardedAd.mockClear(); resumeMusicAfterAd.mockClear(); adShowing.value = false })
+
+  it('nineteen taps do nothing; the twentieth asks for a rewarded video, and the music comes back after', async () => {
+    const mod = await load()
+    mod.__resetQaRewardTaps()
+    for (let i = 0; i < 19; i++) expect(mod.registerQaRewardedTap(1000 + i * 100)).toBe(false)
+    expect(showRewardedAd).not.toHaveBeenCalled()
+    expect(mod.registerQaRewardedTap(1000 + 19 * 100)).toBe(true)
+    expect(showRewardedAd).toHaveBeenCalledTimes(1)
+    await settle()
+    expect(resumeMusicAfterAd).toHaveBeenCalled()
+  })
+
+  it('taps spread over more than the window start over; an ad already up is not stacked', async () => {
+    const mod = await load()
+    mod.__resetQaRewardTaps()
+    for (let i = 0; i < 20; i++) expect(mod.registerQaRewardedTap(i * 2000)).toBe(false)
+    adShowing.value = true
+    for (let i = 0; i < 20; i++) mod.registerQaRewardedTap(100000 + i * 100)
+    expect(showRewardedAd).not.toHaveBeenCalled()
   })
 })

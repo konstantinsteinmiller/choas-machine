@@ -30,7 +30,8 @@ export default {
     'salvage': 'El botín',
     'fallBastion': 'Cae el Bastión',
     'fallFoundry': 'La Fundición se apaga',
-    'outro': 'A casa'
+    'outro': 'A casa',
+    'nextTarget': 'Siguiente objetivo'
   },
   'fortress': {
     'bastion': 'Bastión',
@@ -87,6 +88,7 @@ export default {
   },
   'defeat': {
     'title': 'Mech fuera de combate',
+    'repair': 'Reparación completa',
     'retry': 'Reintentar',
     'resume': 'Desde la primera pila',
     'kept': 'Chatarra tech rescatada'
@@ -191,6 +193,26 @@ export default {
     'unlock': 'Desbloquear: {name}',
     'watch': 'Ver un vídeo para desbloquear: {name}'
   },
+  'paint': {
+    'title': 'Esquemas de pintura',
+    'lilac': 'CM-07 Lila',
+    'crimson': 'Carmesí',
+    'arctic': 'Ártico',
+    'jungle': 'Jungla',
+    'gilded': 'Dorado',
+    'midnight': 'Medianoche',
+    'tangerine': 'Mandarina',
+    'equip': 'Pintar el robot: {name}',
+    'equipShort': 'Equipar',
+    'equipped': 'Equipado',
+    'unlock': 'Desbloquear: {name}',
+    'watch': 'Ver un vídeo para desbloquear para siempre: {name}',
+    'try': 'Ver un vídeo para probar {name} durante una misión',
+    'tryShort': 'Probar 1 misión',
+    'lent': 'Tuyo para la próxima misión',
+    'noVideo': 'Ahora no hay vídeo',
+    'back': 'Vuelve en {time}'
+  },
   'ads': {
     'blockedTitle': 'Anuncios bloqueados',
     'blockedBody': 'Un bloqueador de anuncios detuvo el vídeo, así que esta vez no hay recompensa.',
@@ -234,6 +256,7 @@ export default {
     'alarm': '6, 7!',
     'lowHealth': '¡Hora de apretarme los tornillos!',
     'lowAmmo': 'Casi sin munición, busco piedras para tirar.',
+    'noAmmo': 'Sin munición.',
     'takedown': 'Chsss. A dormir la siesta.',
     'decoy': '¡Mira, un apuesto desconocido!',
     'disguise': 'La mejor tostadora del negocio.',
@@ -252,6 +275,22 @@ export default {
     'replay': 'Muéstramelo otra vez',
     'progress': 'Entrenamiento: {n} de {total} lecciones hechas',
     'scrapWhy': 'La chatarra tech compra mejoras para tus armas en la base de mando.',
+    'bladeHint': '¡Acércate sigilosamente a los guardias y apuñálalos por la espalda para que no den la alarma!',
+    'decoyHint': '¡Coloca un señuelo para distraer al guardia, luego acércate sigilosamente y elimínalo!',
+    'roomHint': {
+      'move': 'Ve hasta la puerta brillante para empezar tu entrenamiento.',
+      'jump': '¡Sube por la escalera y salta el hueco hasta la otra plataforma!',
+      'cover': '¡Agáchate detrás de las cajas para que el centinela no te vea y luego arrástrate bajo la verja!',
+      'weapons': '¡Acaba con los tres guardias: elimina a uno con el rifle de francotirador y luego cambia a la minigun para los otros dos!',
+      'rocket': '¡Cambia al lanzacohetes y vuela el mech de la cornisa!',
+      'supply': 'Pasa por encima de las cajas para recargar munición y reparar tu blindaje.',
+      'burn': '¡Quema el cuerpo con el lanzallamas antes de que alguien lo encuentre!',
+      'box': '¡Escóndete en la caja de cartón y quédate quieto mientras el foco pasa sobre ti!',
+      'hook': '¡Usa el gancho para pasar por encima del muro!',
+      'rope': '¡Usa el lanzacuerdas para tender una cuerda entre las dos plataformas!',
+      'barrel': '¡Dispara al barril de combustible para acabar con los guardias tras el muro!',
+      'extract': '¡Ve al punto de extracción para terminar tu entrenamiento!',
+    },
     'skip': 'Saltar entrenamiento',
     'goal': 'Elimina a los tres',
     'goalProgress': '{n} de {total} eliminados',
@@ -282,6 +321,8 @@ export default {
   'pause': {
     'title': 'PAUSA',
     'resume': 'Reanudar',
+    'retreat': 'Retirarse a la base',
+    'retreatSure': '¿Abandonar el asalto? Toca otra vez',
     'controls': 'Controles'
   },
   'options': {

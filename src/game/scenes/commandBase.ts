@@ -1,6 +1,7 @@
 import {
   Group, InstancedMesh, Matrix4, Mesh, MeshBasicMaterial, PerspectiveCamera, Quaternion, Vector3, type BufferGeometry, type ShaderMaterial
 } from 'three'
+import { FREE_PAINT, type PaintId } from '../models/paintIds'
 import { getRenderer, fovForAspect } from '../engine/renderer'
 import { newScene, type GameMode } from '../engine/app'
 import { noSlice, type Slice } from '../engine/slicer'
@@ -61,6 +62,9 @@ const _p = new Vector3()
 const _q = new Quaternion()
 const _s = new Vector3()
 
+/** What the shelf shows: the disguises owned, in the paint the mech has on (a change re-bakes it). */
+const shelfKeyOf = (): string => `${[...profile.cosmetics.owned].sort().join(',')}|${profile.paint.equipped}`
+
 export class CommandBase implements GameMode {
   scene = newScene()
   camera = new PerspectiveCamera(46, 1, 0.2, 900)
@@ -99,8 +103,14 @@ export class CommandBase implements GameMode {
   present = 0
   /** A disguise being looked at in the Chassis Bay: it stands over the mech (#97); null for none. */
   disguise: DisguiseId | null = null
-  private disguises = new Map<DisguiseId, Group>()
-  private shownDisguise: DisguiseId | null = null
+  /** Each disguise shown so far, by disguise and paint scheme (`toaster:crimson`). */
+  private disguises = new Map<string, Group>()
+  private shownDisguise: string | null = null
+  /** A paint scheme being looked at in the Chassis Bay (#M5): the mech on the pad wears it; null for the one on. */
+  paint: PaintId | null = null
+  /** The mech in each scheme shown so far (built once each), and the one on the pad. */
+  private rigs = new Map<PaintId, Rig>()
+  private shownPaint: PaintId = FREE_PAINT
 
   static async create(slice: Slice = noSlice, onProgress: (p01: number) => void = () => {}): Promise<CommandBase> {
     const b = new CommandBase()
@@ -175,7 +185,9 @@ export class CommandBase implements GameMode {
     onProgress(0.7)
     await slice()
 
-    b.rig = buildMech()
+    b.shownPaint = profile.paint.equipped
+    b.rig = buildMech(b.shownPaint)
+    b.rigs.set(b.shownPaint, b.rig)
     const shadow = makeBlobShadow(0.9)
     shadow.position.y = 0.02
     onProgress(0.85)
@@ -211,11 +223,11 @@ export class CommandBase implements GameMode {
   /** Bake the shelf: what the player owns on its plinths, the rest as holograms. */
   private fillShelf(): void {
     const owned = new Set(profile.cosmetics.owned)
-    this.shelfKey = [...owned].sort().join(',')
+    this.shelfKey = shelfKeyOf()
     for (const g of this.shelfGeos) g.dispose()
     this.shelfGeos = []
     this.shelfGroup.clear()
-    const c = shelfContents(owned)
+    const c = shelfContents(owned, profile.paint.equipped)
     const rims = shelfRimParts(owned)
     const glows = [...c.glow, ...rims.glow]
     // What stands on the shelf, lit and glowing, in two draw calls (rebuilt only when it changes).
@@ -293,13 +305,29 @@ export class CommandBase implements GameMode {
     // A disguise bought while the base is up goes onto its plinth (checked once a second).
     if (t - this.shelfCheck > 1) {
       this.shelfCheck = t
-      if ([...profile.cosmetics.owned].sort().join(',') !== this.shelfKey) this.fillShelf()
+      if (shelfKeyOf() !== this.shelfKey) this.fillShelf()
     }
     this.flyby.update(t)
   }
 
+  /** Put the mech in `id` on the pad (the one looked at, else the one on). */
+  private wearPaint(id: PaintId): void {
+    if (id === this.shownPaint) return
+    let next = this.rigs.get(id)
+    if (!next) {
+      next = buildMech(id)
+      this.rigs.set(id, next)
+      this.scene.add(next.root)
+    }
+    next.root.position.copy(this.rig.root.position)
+    this.rig.root.visible = false
+    this.rig = next
+    this.shownPaint = id
+  }
+
   render(_alpha: number, dt: number): void {
     this.frame(dt)
+    this.wearPaint(this.paint ?? profile.paint.equipped)
     // The mech idles, turning a little on its pad; with a station open it
     // brings the weapon up to be looked at.
     this.rig.root.rotation.y = 0.35 + Math.sin(this.time * 0.25) * 0.3
@@ -312,12 +340,14 @@ export class CommandBase implements GameMode {
     this.ship.group.position.y = SHIP_AT[1] + Math.sin(this.time * 0.8) * 0.12
     this.animateSet()
     // The disguise under the cursor, standing over the mech on the pad.
-    if (this.disguise !== this.shownDisguise) {
+    // In the paint the mech on the pad wears (#M3).
+    const want = this.disguise ? `${this.disguise}:${this.shownPaint}` : null
+    if (want !== this.shownDisguise) {
       if (this.shownDisguise) this.disguises.get(this.shownDisguise)!.visible = false
-      this.shownDisguise = this.disguise
-      if (this.disguise) {
-        let g = this.disguises.get(this.disguise)
-        if (!g) { g = buildDisguise(this.disguise); this.disguises.set(this.disguise, g); this.scene.add(g) }
+      this.shownDisguise = want
+      if (want && this.disguise) {
+        let g = this.disguises.get(want)
+        if (!g) { g = buildDisguise(this.disguise, this.shownPaint); this.disguises.set(want, g); this.scene.add(g) }
         g.visible = true
       }
     }
@@ -340,7 +370,7 @@ export class CommandBase implements GameMode {
     for (const g of [...this.geos, ...this.shelfGeos]) g.dispose()
     for (const m of this.mats) m.dispose()
     this.embers.dispose()
-    for (const rig of [this.rig, this.arm.rig]) {
+    for (const rig of [...this.rigs.values(), this.arm.rig]) {
       rig.mesh.geometry.dispose()
       if (rig.outline && rig.outline.geometry !== rig.mesh.geometry) rig.outline.geometry.dispose()
       rig.material.dispose()

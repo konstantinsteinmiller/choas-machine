@@ -184,10 +184,11 @@ export const stepArsenal = (a: Arsenal, t: Trigger, dt: number): number => {
   }
 
   // The minigun: spool, heat.
-  const hold = a.current === 'minigun' && drawn && (t.touch ? t.aimHeld : t.fireHeld || t.aimHeld)
+  // The Shoot button (fireHeld) works on touch too, beside the hold-and-release aim.
+  const hold = a.current === 'minigun' && drawn && (t.fireHeld || t.aimHeld)
   a.spool = Math.min(1, Math.max(0, a.spool + (hold ? dt / MINIGUN_SPOOL_S : -dt / 0.8)))
   a.spin += a.spool * 34 * dt
-  const firing = a.current === 'minigun' && drawn && a.spool >= 1 && !a.overheated && a.minigunBelt > 0 && (t.touch ? t.aimHeld : t.fireHeld) && t.ready !== false
+  const firing = a.current === 'minigun' && drawn && a.spool >= 1 && !a.overheated && a.minigunBelt > 0 && (t.fireHeld || (t.touch && t.aimHeld)) && t.ready !== false
   if (firing) {
     a.heat = Math.min(1, a.heat + dt / a.heatSeconds)
     if (a.heat >= 1) a.overheated = true
@@ -197,7 +198,7 @@ export const stepArsenal = (a: Arsenal, t: Trigger, dt: number): number => {
   }
 
   if (!drawn) return 0
-  const pull = t.touch ? t.aimReleased : t.firePressed
+  const pull = t.firePressed || (t.touch && t.aimReleased)
   switch (a.current) {
     case 'sniper':
       if (!pull || a.sniperMag <= 0 || a.bolt > 0 || a.reloading > 0) return 0

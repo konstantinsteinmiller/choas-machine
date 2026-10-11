@@ -30,9 +30,7 @@ const PALISADE_H = 7
 const WALK_H = 4
 const CORNER_H = 10
 
-/** The second mech's post: the corner farthest from the Foreman at the keep's stairs. */
-export const SECOND_MECH: readonly [number, number] = [18, 15]
-/** The Sea Fort's mechs have this share of their hit points: the second fortress is a softer step up. */
+/** The Sea Fort's mech (the Foreman) has this share of its hit points: the second fortress is a softer step up. */
 export const SEA_FORT_MECH_HP = 0.85
 
 /** Salvage: [cx, cz, amount, big?]. */
@@ -125,22 +123,21 @@ export const buildSeaFort = (run = 0, answers: Answers = NO_ANSWERS): Fortress =
   // ── The garrison ──
   // The walkway: one on the south-west half. (A playtester on a tablet died
   // ten times here and gave up: the south-east and the west walkway guards,
-  // the south yard's drone and 15 % of the mechs' hit points are gone, and
-  // the second mech stands in the far corner.)
+  // the south yard's drone and 15 % of the Foreman's hit points are gone. A
+  // later playtest: a player who fights in the open had no chance against two
+  // mechs at once — the second Enforcer is gone, and a robo dog walks the
+  // round the keep in place of its guard.)
   b.guard([[15, 49, 2], [28, 49, 2]])
-  // The courtyard: a pair at their talk, a round the keep, a grenadier, the engineer.
+  // The courtyard: a pair at their talk, the robo dog's round the keep, a grenadier, the engineer.
   b.pair([20, 38], [[24, 38, 2], [24, 44], [18, 44, 2], [18, 38]])
-  b.guard([[26, 22, 2], [40, 22], [40, 40, 2], [23, 40], [23, 26]])
+  b.hound([[26, 22, 2], [40, 22], [40, 40, 2], [23, 40], [23, 26]])
   b.grenadier([[44, 27, 3], [44, 40, 3]])
   b.engineer([[36, 44, 3], [46, 44], [46, 32, 2]])
   // The prison's jailer: a Peashooter under the roof.
   b.roomba([[18, 19, 2], [22, 22, 2]], 0)
-  // The Warden on the summit; the Foreman at the keep's stairs, an Enforcer
-  // in the far north-west corner, behind the prison block: woken together,
-  // it has the whole fort to cross before the two stand side by side.
+  // The Warden on the summit; the Foreman at the keep's stairs, the one mech.
   b.commander([[30, 30, 4], [33, 30, 4], [33, 33, 4], [30, 33, 4]], Math.PI)
   b.enforcer(34, 43, 0, true)
-  b.enforcer(SECOND_MECH[0], SECOND_MECH[1], Math.PI * 0.5)
   // Three searchlights, two sentries, a drone over the courtyard.
   b.searchlight(10, 52, [[18, 46, 1.5], [24, 40, 1], [16, 36, 1.5]])
   b.searchlight(53, 53, [[46, 46, 1.5], [40, 40, 1], [46, 34, 1.5]])

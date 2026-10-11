@@ -64,6 +64,10 @@ export const highestCleared = (): number => {
   return n
 }
 
+/** Deaths at this fortress and level since the player last won there (the rubber band). */
+export const deathsSinceWin = (fort: FortressId, level: number): number =>
+  profile.fortresses[levelKey(level, fort)]?.deathsSinceWin ?? 0
+
 /** The numbers the next mission plays with. */
 export const currentLoadout = (): Loadout => loadoutOf(profile.arsenal)
 
@@ -91,6 +95,8 @@ export const bankMission = (r: MissionResult, level: number, fort: FortressId = 
   const k = fortressMeta(fort).pay
   const pay = k === 1 ? raw : { ...raw, scrap: Math.round(raw.scrap * k), haul: Math.round(raw.haul * k) }
   rec.clears++
+  // A win puts the fortress back to full strength (the rubber band, `ease.ts`).
+  rec.deathsSinceWin = 0
   for (const m of MEDAL_IDS) if (pay.medals[m]) rec.medals[m] = true
   rec.bestScore = Math.max(rec.bestScore, pay.score)
   const t = Math.round(r.time)
@@ -108,14 +114,52 @@ export const bankMission = (r: MissionResult, level: number, fort: FortressId = 
 }
 
 /** Bank a defeat: a share of the scrap, and the record of it. Returns the scrap kept. */
-export const bankDefeat = (r: MissionResult, level: number): number => {
+export const bankDefeat = (r: MissionResult, level: number, fort: FortressId | null = FORTRESS_ID): number => {
   const kept = defeatScrap(r, level)
+  // The next attempt here comes a guard and a drone lighter (`ease.ts`); none for the training.
+  if (fort) fortressSave(levelKey(level, fort)).deathsSinceWin++
   profile.scrap += kept
   profile.habits = habitsOf(r)
   profile.stats.deaths++
   addStats(r)
   saveProfile()
   return kept
+}
+
+/**
+ * A retreat from the pause menu (#197): the raid is given up, and pays what a
+ * defeat pays — the share of the scrap salvaged so far, the run's stats — but
+ * it is no death: the rubber band does not count it. Returns the scrap kept.
+ */
+export const bankRetreat = (r: MissionResult, level: number): number => {
+  const kept = defeatScrap(r, level)
+  profile.scrap += kept
+  profile.habits = habitsOf(r)
+  addStats(r)
+  saveProfile()
+  return kept
+}
+
+/**
+ * A Full Repair (#189): the raid goes on, so the defeat it was banked as is
+ * taken back — the scrap kept, the death, the run's stats (they are banked
+ * again, whole, when the raid ends) and the rubber band's count.
+ */
+export const unbankDefeat = (r: MissionResult, kept: number, level: number, fort: FortressId | null = FORTRESS_ID): void => {
+  profile.scrap = Math.max(0, profile.scrap - kept)
+  const s = profile.stats
+  s.deaths = Math.max(0, s.deaths - 1)
+  s.kills = Math.max(0, s.kills - r.kills)
+  s.headshots = Math.max(0, s.headshots - r.headshots)
+  s.bladeKills = Math.max(0, s.bladeKills - r.bladeKills)
+  if (!r.loud) s.stealthKills = Math.max(0, s.stealthKills - r.kills)
+  if (r.loud) s.alerts = Math.max(0, s.alerts - 1)
+  s.playSeconds = Math.max(0, s.playSeconds - Math.round(r.time))
+  if (fort) {
+    const rec = fortressSave(levelKey(level, fort))
+    rec.deathsSinceWin = Math.max(0, rec.deathsSinceWin - 1)
+  }
+  saveProfile()
 }
 
 // ─── The furnace: the haul, melted (#75) ─────────────────────────────────────

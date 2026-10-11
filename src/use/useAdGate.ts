@@ -2,6 +2,7 @@ import { ref, computed } from 'vue'
 import { isCrazyWeb, isWaveDash } from '@/use/useUser'
 import { isCrazyGamesFullRelease } from '@/use/useMatch'
 import { adProviderName, isRewardedReady, showRewardedAd } from '@/use/useAds'
+import { profile } from '@/game/state/profile'
 
 /**
  * ─── Reward gating ──────────────────────────────────────────────────────────
@@ -78,6 +79,14 @@ const isWavedashNoAds = isWaveDash
 /** Builds that must not OFFER a rewarded perk at all — no button, and no free
  *  grant standing in for the video that cannot play. */
 const isRewardOfferSuppressed = isCrazyPreRelease || isWavedashNoAds
+
+/**
+ * This build plays rewarded videos at all (a real provider, offers not
+ * suppressed). A placement on such a build shows its video button even
+ * while no video is ready, disabled and saying so (#M6); on any other
+ * build it shows only its other price.
+ */
+export const hasVideoOffers = isRewardGated && !isRewardOfferSuppressed
 
 // ─── Rewarded rate limit ────────────────────────────────────────────────────
 //
@@ -248,12 +257,18 @@ export const canShowInterstitial = (): boolean => {
 }
 
 /**
- * No rewarded offer in a new session's first three minutes: Poki, CrazyGames
- * and Playgama all ask for an ad-free start (playbook, phase 6); one number
- * for every build keeps it simple (#75).
+ * No rewarded offer in a FIRST-TIME player's first three minutes: Poki,
+ * CrazyGames and Playgama all ask for an ad-free start (playbook, phase 6);
+ * one number for every build keeps it simple (#75).
+ *
+ * Only a first-time player: one who has neither finished a raid nor the
+ * training. It used to hold for every session, so a returning player who
+ * opened the disguise shop right after loading saw no video buttons — and a
+ * Poki QA pass reported the build as having no rewarded ads at all.
  */
 export const REWARD_GRACE_MS = 180_000
-export const rewardGraceOver = (): boolean => Date.now() - sessionStartedAt >= REWARD_GRACE_MS
+const returningPlayer = (): boolean => profile.missions > 0 || profile.seen.includes('training')
+export const rewardGraceOver = (): boolean => returningPlayer() || Date.now() - sessionStartedAt >= REWARD_GRACE_MS
 
 /**
  * May a rewarded video be OFFERED right now: a build with real videos, one

@@ -1,7 +1,8 @@
 import { BufferGeometry, Group } from 'three'
+import { FREE_PAINT, type PaintId } from './paintIds'
 import { cap, ell, paint, rbox, rcone, rcyl, sph, torus, xform, type V3 } from './kit'
 import { buildHideBox } from './hideBox'
-import { assemblePieces, disposePieces } from './pieces'
+import { assemblePieces, disposePieces, paintedAs } from './pieces'
 
 /**
  * ─── The disguises (#97) ─────────────────────────────────────────────────────
@@ -159,8 +160,8 @@ const teddy = (): Group => {
   return assemble('disguise-teddy', lit, glow)
 }
 
-/** Build a disguise's model. The crate is the original hide box. */
-export const buildDisguise = (id: DisguiseId): Group => {
+/** Build a disguise's model, in the mech's paint scheme (#M3). The crate is the original hide box. */
+export const buildDisguise = (id: DisguiseId, scheme: PaintId = FREE_PAINT): Group => paintedAs(scheme, () => {
   switch (id) {
     case 'toaster': return toaster()
     case 'crate': return buildHideBox()
@@ -169,7 +170,7 @@ export const buildDisguise = (id: DisguiseId): Group => {
     case 'bush': return bush()
     case 'teddy': return teddy()
   }
-}
+})
 
 export const disposeDisguise = (g: Group): void => disposePieces(g)
 

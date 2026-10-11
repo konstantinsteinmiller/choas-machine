@@ -30,7 +30,8 @@ export default {
     'salvage': 'Le butin',
     'fallBastion': 'Le Bastion tombe',
     'fallFoundry': 'La Fonderie s\'éteint',
-    'outro': 'À la maison'
+    'outro': 'À la maison',
+    'nextTarget': 'Prochaine cible'
   },
   'fortress': {
     'bastion': 'Bastion',
@@ -87,6 +88,7 @@ export default {
   },
   'defeat': {
     'title': 'Mécha à terre',
+    'repair': 'Réparation complète',
     'retry': 'Réessayer',
     'resume': 'Depuis le premier tas',
     'kept': 'Ferraille tech sauvée'
@@ -191,6 +193,26 @@ export default {
     'unlock': 'Débloquer : {name}',
     'watch': 'Regarder une vidéo pour débloquer : {name}'
   },
+  'paint': {
+    'title': 'Peintures',
+    'lilac': 'CM-07 Lilas',
+    'crimson': 'Cramoisi',
+    'arctic': 'Arctique',
+    'jungle': 'Jungle',
+    'gilded': 'Doré',
+    'midnight': 'Minuit',
+    'tangerine': 'Mandarine',
+    'equip': 'Peindre le mécha : {name}',
+    'equipShort': 'Équiper',
+    'equipped': 'Équipé',
+    'unlock': 'Débloquer : {name}',
+    'watch': 'Regarder une vidéo pour débloquer définitivement : {name}',
+    'try': 'Regarder une vidéo pour essayer {name} le temps d\'une mission',
+    'tryShort': 'Essai 1 mission',
+    'lent': 'À toi pour la prochaine mission',
+    'noVideo': 'Aucune vidéo pour l\'instant',
+    'back': 'De retour dans {time}'
+  },
   'ads': {
     'blockedTitle': 'Publicités bloquées',
     'blockedBody': 'Un bloqueur de publicités a arrêté la vidéo, donc pas de récompense cette fois.',
@@ -234,6 +256,7 @@ export default {
     'alarm': '6, 7!',
     'lowHealth': 'Faut que je resserre mes boulons !',
     'lowAmmo': 'Presque plus de munitions, je cherche des cailloux à lancer.',
+    'noAmmo': 'Plus de munitions.',
     'takedown': 'Chut. Au dodo.',
     'decoy': 'Regarde, un bel inconnu !',
     'disguise': 'Le meilleur grille-pain du métier.',
@@ -252,6 +275,22 @@ export default {
     'replay': 'Remontre-moi',
     'progress': 'Entraînement : {n} leçons sur {total} terminées',
     'scrapWhy': 'La ferraille tech achète des améliorations d\'armes à la base de commandement.',
+    'bladeHint': 'Faufile-toi jusqu\'aux gardes et poignarde-les dans le dos, pour qu\'ils ne donnent pas l\'alerte !',
+    'decoyHint': 'Place un leurre pour distraire le garde, puis approche-toi en douce et élimine-le !',
+    'roomHint': {
+      'move': 'Va jusqu\'à la porte lumineuse pour commencer ton entraînement.',
+      'jump': 'Grimpe à l\'échelle et saute par-dessus le vide jusqu\'à l\'autre plateforme !',
+      'cover': 'Accroupis-toi derrière les caisses pour que la sentinelle ne te voie pas, puis rampe sous la grille !',
+      'weapons': 'Élimine les trois gardes : abats-en un au fusil de sniper, puis passe au minigun pour les deux autres !',
+      'rocket': 'Passe au lance-roquettes et fais exploser le mech sur la corniche !',
+      'supply': 'Marche sur les caisses pour recharger tes munitions et réparer ton blindage.',
+      'burn': 'Brûle le corps au lance-flammes avant que quelqu\'un ne le trouve !',
+      'box': 'Cache-toi dans le carton et ne bouge plus pendant que le projecteur te balaie !',
+      'hook': 'Utilise le grappin pour passer par-dessus le mur !',
+      'rope': 'Utilise le lance-corde pour tendre une corde entre les deux plateformes !',
+      'barrel': 'Tire sur le baril de carburant pour éliminer les gardes derrière le mur !',
+      'extract': 'Va jusqu\'au point d\'extraction pour terminer ton entraînement !',
+    },
     'skip': 'Passer l\'entraînement',
     'goal': 'Neutralise les trois',
     'goalProgress': '{n} sur {total} neutralisés',
@@ -282,6 +321,8 @@ export default {
   'pause': {
     'title': 'PAUSE',
     'resume': 'Reprendre',
+    'retreat': 'Retour à la base',
+    'retreatSure': 'Quitter le raid ? Touche encore',
     'controls': 'Commandes'
   },
   'options': {

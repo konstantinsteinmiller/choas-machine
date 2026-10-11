@@ -203,6 +203,8 @@ export const TONES: Readonly<Record<string, Tone>> = {
   'hero.lowHealth.whisper': 'whisper',
   'hero.lowAmmo.loud': 'cheeky',
   'hero.lowAmmo.whisper': 'whisper',
+  'hero.noAmmo.loud': 'cheeky',
+  'hero.noAmmo.whisper': 'whisper',
   'hero.takedown.loud': 'cheeky',
   'hero.takedown.whisper': 'whisper',
   'hero.decoy.loud': 'cheeky',

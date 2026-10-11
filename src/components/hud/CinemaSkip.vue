@@ -8,7 +8,9 @@
     div.still-frame(v-if="hud.cineStill" data-testid="cinema-still")
       div.still-card
         GameIcon.still-lock(name="lock")
-        span.still-name {{ t(`fortress.${hud.cineStill}`) }}
+        div.still-text
+          span.still-kicker {{ t('cine.nextTarget') }}
+          span.still-name {{ t(`fortress.${hud.cineStill}`) }}
     div.cinema-skip
       HoldSkipButton(:active="hud.phase === 'cinema'" :keys="hud.device === 'mouse'" testid="btn-cinema-skip" @skip="skipCinema")
 </template>
@@ -51,6 +53,15 @@ const { t } = useI18n()
 .still-lock
   width: 1.3em
   height: 1.3em
+  color: #ffb27a
+.still-text
+  display: flex
+  flex-direction: column
+  line-height: 1.1
+.still-kicker
+  font-size: clamp(0.7rem, 2.2vmin, 1rem)
+  letter-spacing: 0.18em
+  text-transform: uppercase
   color: #ffb27a
 .still-name
   font-size: clamp(1.2rem, 4.5vmin, 2.2rem)

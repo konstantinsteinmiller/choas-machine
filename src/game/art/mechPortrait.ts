@@ -2,6 +2,8 @@ import { Color, DirectionalLight, HemisphereLight, PerspectiveCamera, Scene, Vec
 import { getRenderer } from '../engine/renderer'
 import { buildMech, poseMech, restPose } from '../models/mech'
 import { DUSK } from '../world/sky'
+import { missionPaint } from '../state/paint'
+import type { PaintId } from '../models/paintIds'
 import { targetToImage } from './disguiseThumbs'
 
 /**
@@ -12,10 +14,13 @@ import { targetToImage } from './disguiseThumbs'
 /** Pixels a side: the frame shows it up to 4.5rem across, so 216 on a 3x phone. */
 const SIZE = 224
 const FOV = 26
-let cached = ''
+const cache = new Map<PaintId, string>()
 
-export const mechPortrait = (): string => {
-  if (cached) return cached
+/** In the scheme the mech wears on this mission (#M3). */
+export const mechPortrait = (scheme: PaintId = missionPaint()): string => {
+  const hit = cache.get(scheme)
+  if (hit !== undefined) return hit
+  let cached = ''
   try {
     const r = getRenderer()
     const scene = new Scene()
@@ -24,7 +29,7 @@ export const mechPortrait = (): string => {
     const sun = new DirectionalLight(new Color(DUSK.sun), 1.6)
     sun.position.set(0.7, 0.9, 0.8)
     scene.add(sun)
-    const rig = buildMech()
+    const rig = buildMech(scheme)
     poseMech(rig, restPose())
     rig.root.rotation.y = 0.42
     scene.add(rig.root)
@@ -49,6 +54,8 @@ export const mechPortrait = (): string => {
     target.dispose()
     rig.mesh.geometry.dispose()
     rig.outline?.geometry.dispose()
+    rig.material.dispose()
+    rig.glowMaterial.dispose()
     const c = document.createElement('canvas')
     c.width = c.height = SIZE
     const ctx = c.getContext('2d')!
@@ -59,5 +66,6 @@ export const mechPortrait = (): string => {
   } catch {
     cached = ''
   }
+  cache.set(scheme, cached)
   return cached
 }

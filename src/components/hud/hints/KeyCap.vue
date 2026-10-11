@@ -1,6 +1,7 @@
 <template lang="pug">
   //- One key, lettered as it is on THIS player's keyboard.
-  span.key-cap(:class="{ wide: label.length > 1 }") {{ label }}
+  //- Which physical key it means, for the layout playtest (`data-code`).
+  span.key-cap(:class="{ wide: label.length > 1 }" :data-code="code" :data-action="action") {{ label }}
 </template>
 
 <script setup lang="ts">
@@ -10,7 +11,13 @@ import { keyLabel } from '@/game/engine/keyLabels'
 
 /** Either an action (its bound key is shown) or a physical key code. */
 const props = defineProps<{ action?: Action; code?: string }>()
-const label = computed(() => keyLabel(props.code ?? (props.action ? primaryCode(props.action) : '')))
+/**
+ * Tab carries its word beside its arrow: far more players know the key as
+ * "Tab" than by the ⇥ printed on it (the weapons room's "⇥ / wheel" read as a
+ * bare arrow).
+ */
+const code = computed(() => props.code ?? (props.action ? primaryCode(props.action) : ''))
+const label = computed(() => (code.value === 'Tab' ? `${keyLabel(code.value)} Tab` : keyLabel(code.value)))
 </script>
 
 <style scoped lang="sass">

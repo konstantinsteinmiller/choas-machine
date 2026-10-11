@@ -17,6 +17,11 @@ import { poseRagdoll } from '../models/ragdollPose'
 import { DOG_STAND, HOUND_SCALE, buildRobodog, poseRobodog, restDogPose, type DogPose } from '../models/robodog'
 import { angleDelta } from './player'
 import { STEP } from '../engine/clock'
+import { Vector3 } from 'three'
+
+/** The head's centre above its bone (`buildGuard`: the head sphere sits 0.2 up it). */
+const HEAD_ABOVE_BONE = 0.2
+const headPoint = new Vector3()
 import { SPECS, SUSPECT_AT, spotCentre, spotRadius, viewerOf, shieldUp, type Garrison, type Unit , isLight } from './garrison'
 
 /**
@@ -1019,6 +1024,8 @@ export class GarrisonView {
       v.rig.root.visible = here
       v.shadow.visible = here
       if (!here) {
+        // Not drawn: the headshot test falls back to its fixed point.
+        u.drawnHead = null
         if (v.mark) v.mark.visible = false
         if (v.tag) v.tag.visible = false
         if (v.route) v.route.visible = false
@@ -1120,6 +1127,14 @@ export class GarrisonView {
           poseRagdoll(v.rig, u.rag.p, u.rag.q, alpha)
           v.rig.root.scale.setScalar(1)
         } else poseGuard(v.rig, s)
+        // The head as drawn, for the headshot test (`Unit.drawnHead`).
+        const hb = v.rig.bones.head
+        if (hb && !dead) {
+          hb.updateWorldMatrix(true, false)
+          headPoint.set(0, HEAD_ABOVE_BONE, 0).applyMatrix4(hb.matrixWorld)
+          const d = (u.drawnHead ??= { x: 0, y: 0, z: 0 })
+          d.x = headPoint.x; d.y = headPoint.y; d.z = headPoint.z
+        } else u.drawnHead = null
       } else if (v.drone) {
         const s = v.drone
         // The rotors race when it is alarmed.

@@ -9,13 +9,32 @@
     svg.hold-ring(v-if="mode === 'hold' || mode === 'release'" viewBox="0 0 40 40")
       circle.track(cx="20" cy="20" r="17")
       circle.fill(cx="20" cy="20" r="17")
+    //- A mobile game's tutorial hand: shaded skin, a nail on the pointing
+    //- finger, the other three curled with their creases, the thumb, a cuff
+    //- in the game's cyan. The fingertip is the point that does the gesture
+    //- (the same spot the old flat glyph had, so every animation still lands).
     div.tip
-      svg(viewBox="0 0 32 44")
-        path(d="M10 42V20l-3 3a3 3 0 0 1-4-4l7-9V7a5 5 0 0 1 10 0v9l7 2a4 4 0 0 1 3 4v8a12 12 0 0 1-12 12z")
+      svg(viewBox="0 0 64 88")
+        defs
+          linearGradient(:id="`${uid}-skin`" x1="0" y1="0" x2="1" y2="1")
+            stop(offset="0" stop-color="#ffe2cc")
+            stop(offset="0.55" stop-color="#f7b994")
+            stop(offset="1" stop-color="#e08f6b")
+          linearGradient(:id="`${uid}-cuff`" x1="0" y1="0" x2="0" y2="1")
+            stop(offset="0" stop-color="#a8f5ff")
+            stop(offset="1" stop-color="#1fa9cf")
+        path.hand(:fill="`url(#${uid}-skin)`" d="M23.5 46L23.5 11.5A6.5 6.5 0 0 1 36.5 11.5L36.5 33C37 29.5 45 29.5 45.5 34C46 31 53 31 53.5 36C54 33.5 59.5 34.5 59.5 39.5L59.5 56C59.5 66 54 72 47 73.5L47 80L25 80L25 72C17 69 12 62 11 55C10 51 7 45 8.5 41.5C10 38.5 15 39 17.5 42Z")
+        path.crease(d="M37 41Q41 43.5 45.5 41.5M45.5 42.5Q49.5 45 53.5 42.5M53.5 44Q56.5 45.5 59.5 44.5M17.5 42Q21.5 46 21.5 53M30 26.5Q33 27.5 36 26.5")
+        rect.nail(x="26.3" y="6.6" width="7.4" height="7.4" rx="3.6")
+        path.shine(d="M26.6 17V31")
+        rect.cuff(:fill="`url(#${uid}-cuff)`" x="21" y="71.5" width="30" height="12" rx="3")
+        path.cuff-line(d="M24 76.5H48")
 </template>
 
 <script setup lang="ts">
 defineProps<{ mode: 'drag' | 'swipe' | 'hold' | 'release' | 'push' | 'tap' | 'loop' }>()
+// Gradient ids are per glyph: a hidden copy owning a shared id would leave the others unfilled.
+const uid = `fg${Math.random().toString(36).slice(2, 9)}`
 </script>
 
 <style scoped lang="sass">
@@ -35,11 +54,35 @@ defineProps<{ mode: 'drag' | 'swipe' | 'hold' | 'release' | 'push' | 'tap' | 'lo
     display: block
     width: 100%
     height: 100%
-  path
-    fill: var(--cm-text)
-    stroke: var(--cm-ink)
-    stroke-width: 2.4
+    overflow: visible
+    filter: drop-shadow(0 0.18rem 0.12rem rgba(10, 4, 24, 0.55))
+  .hand
+    stroke: #3a1f14
+    stroke-width: 2.6
     stroke-linejoin: round
+  .crease
+    fill: none
+    stroke: #b4644a
+    stroke-width: 1.6
+    stroke-linecap: round
+    opacity: 0.85
+  .nail
+    fill: #fff1ea
+    stroke: #d98c75
+    stroke-width: 1.1
+  .shine
+    fill: none
+    stroke: #fff
+    stroke-width: 2.6
+    stroke-linecap: round
+    opacity: 0.55
+  .cuff
+    stroke: #0d2a3a
+    stroke-width: 2.4
+  .cuff-line
+    stroke: rgba(255, 255, 255, 0.7)
+    stroke-width: 1.4
+    stroke-linecap: round
 .hold-ring
   position: absolute
   inset: 0

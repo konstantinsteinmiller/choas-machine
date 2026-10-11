@@ -50,6 +50,8 @@ export const STATS_KEY = 'cm_stats'
 export const HABITS_KEY = 'cm_habits'
 /** `CosmeticsSave` — the disguises owned and the one worn (#97). */
 export const COSMETICS_KEY = 'cm_cosmetics'
+/** `PaintSave` — the mech's paint schemes owned, the one on, the day's videos and a one-mission trial (#M4). */
+export const PAINT_KEY = 'cm_paint'
 
 // ─── User settings ──────────────────────────────────────────────────────────
 

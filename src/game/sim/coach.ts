@@ -77,8 +77,13 @@ const LINGER_S = 2.5
 export const MOVE_STEP_M = 2.5
 export const LOOK_STEP_RAD = 0.6
 /** Stuck: this long without turning the camera, or without moving. */
-const LOOK_IDLE_S = 18
-const MOVE_IDLE_S = 16
+// Standing still this long brings the thumbs' glyph back, at most RECALLS_MAX
+// times a session: a player watching a hologram or waiting on a guard stands
+// still on purpose, and the hand kept coming back (a playtester asked if it
+// ever went away).
+const LOOK_IDLE_S = 30
+const MOVE_IDLE_S = 30
+export const RECALLS_MAX = 2
 /** The "?" button shows the core set for this long. */
 const HELP_S = 20
 const CORE: readonly HintId[] = ['move', 'look', 'scope', 'crouch', 'weapon']
@@ -102,6 +107,8 @@ export interface Coach {
   until: Record<HintId, number>
   /** A recall is up for these: one more use sends them away again. */
   recalled: Set<HintId>
+  /** How often each thumb's glyph was brought back by standing still. */
+  recalls: { move: number; look: number }
   walked: number
   turned: number
   lookIdle: number
@@ -119,7 +126,7 @@ export const makeCoach = (family: InputFamily, learned: Record<string, number> =
   const counts = zero()
   for (const id of HINT_IDS) counts[id] = Math.min(HINTS[id].goal, Math.max(0, learned[id] ?? 0))
   return {
-    family, counts, flash: zero(), until: zero(), recalled: new Set(), walked: 0, turned: 0,
+    family, counts, flash: zero(), until: zero(), recalled: new Set(), recalls: { move: 0, look: 0 }, walked: 0, turned: 0,
     lookIdle: 0, moveIdle: 0, helpUntil: -1, time: 0, signature: ''
   }
 }
@@ -170,6 +177,19 @@ export const helping = (c: Coach): boolean => c.helpUntil >= 0
 export interface CoachContext {
   /** The player has control (not a cutscene, not a menu). */
   playing: boolean
+  /**
+   * The training room the mech is in teaches this control and its door is
+   * still shut: its card shows from the moment the room is entered until the
+   * lesson is done, learned before or not (a playtester stood in the rope room
+   * with nothing telling them what opens its door).
+   */
+  roomLesson?: HintId | ''
+  /**
+   * Controls the training has not come to yet: no situational card for them
+   * (a sentry's suspicion in the sneak room showed the disguise, two rooms
+   * before the disguise is taught and before its button is on screen).
+   */
+  notYet?: ReadonlySet<HintId>
   /** Metres walked and radians of camera turned since the last step. */
   walked: number
   turned: number
@@ -218,8 +238,8 @@ export const stepCoach = (c: Coach, ctx: CoachContext, dt: number): HintView[] |
     while (c.walked >= MOVE_STEP_M) { c.walked -= MOVE_STEP_M; coachUse(c, 'move') }
     while (c.turned >= LOOK_STEP_RAD) { c.turned -= LOOK_STEP_RAD; coachUse(c, 'look') }
     // Stuck? Bring the thumbs' glyphs back.
-    if (c.lookIdle > LOOK_IDLE_S && hintDone(c, 'look')) { c.recalled.add('look'); c.lookIdle = 0 }
-    if (c.moveIdle > MOVE_IDLE_S && hintDone(c, 'move') && !ctx.aiming) { c.recalled.add('move'); c.moveIdle = 0 }
+    if (c.lookIdle > LOOK_IDLE_S && hintDone(c, 'look') && c.recalls.look < RECALLS_MAX) { c.recalled.add('look'); c.recalls.look++; c.lookIdle = 0 }
+    if (c.moveIdle > MOVE_IDLE_S && hintDone(c, 'move') && !ctx.aiming && c.recalls.move < RECALLS_MAX) { c.recalled.add('move'); c.recalls.move++; c.moveIdle = 0 }
   }
   if (c.helpUntil >= 0 && c.time > c.helpUntil) {
     c.helpUntil = -1
@@ -260,11 +280,14 @@ export const stepCoach = (c: Coach, ctx: CoachContext, dt: number): HintView[] |
   const shown: HintId[] = []
   if (ctx.playing) {
     for (const id of HINT_IDS) {
-      const live = c.recalled.has(id) || (!hintDone(c, id) && wanted[id])
+      const live = c.recalled.has(id) || id === ctx.roomLesson || (!hintDone(c, id) && wanted[id] && !ctx.notYet?.has(id))
       if (live) c.until[id] = Math.max(c.until[id], c.time + LINGER_S)
       if (c.until[id] > c.time && (live || c.flash[id] > 0 || !hintDone(c, id))) shown.push(id)
     }
-    shown.sort((a, b) => HINTS[b].priority - HINTS[a].priority || HINT_IDS.indexOf(a) - HINT_IDS.indexOf(b))
+    // The room's own lesson card first: it is what the room is for (the decoy
+    // room's card lost its place to crouch and move).
+    const rank = (id: HintId): number => (id === ctx.roomLesson ? 1e3 : 0) + HINTS[id].priority
+    shown.sort((a, b) => rank(b) - rank(a) || HINT_IDS.indexOf(a) - HINT_IDS.indexOf(b))
     shown.length = Math.min(shown.length, c.helpUntil >= 0 ? CORE.length : MAX_SHOWN)
   }
 

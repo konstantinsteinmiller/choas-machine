@@ -1,6 +1,7 @@
 import { ref } from 'vue'
 import { profile } from '@/game/state/profile'
 import { canOfferVideo, claimReward } from '@/use/useAdGate'
+import { logPaintVideo, paintVideosLeft } from '@/game/state/paint'
 
 /**
  * ─── The game's rewarded placements (#75, #97) ───────────────────────────────
@@ -13,13 +14,18 @@ import { canOfferVideo, claimReward } from '@/use/useAdGate'
  *    paid with a video instead of its Tech Scrap; three per visit to the
  *    Command Base (#182), shared by both, so the scrap the raids bring stays
  *    the way up and the video a lift. Spent, the button stays, disabled, and
- *    says it needs time to refresh (`offerSpent`).
+ *    says it needs time to refresh (`offerSpent`);
+ *  - `repair`: the defeat screen's Full Repair (#189) — back up where the mech
+ *    fell, armour and every gun full, the base none the wiser;
+ *  - `paint`: a mech paint scheme unlocked for good, or lent for the next
+ *    mission (#M6); five in a rolling day, counted in the save
+ *    (`state/paint.ts`). Spent, the button stays, disabled, with a timer.
  * An offer is only made when a video can actually play (`canOfferVideo`); on a
  * build without videos the placement shows its other price (Data Cores, scrap)
  * and never a free grant. The reward is granted only when the video finished,
  * by the caller's `grant`, which saves.
  */
-export const REWARDED_PLACEMENTS = ['wheel', 'disguise', 'upgrade'] as const
+export const REWARDED_PLACEMENTS = ['wheel', 'disguise', 'upgrade', 'repair', 'paint'] as const
 export type RewardedPlacement = (typeof REWARDED_PLACEMENTS)[number]
 
 const WHEEL_PER_SESSION = 3
@@ -41,6 +47,7 @@ export const canOffer = (p: RewardedPlacement): boolean => {
   if (!canOfferVideo()) return false
   if (p === 'wheel') return wheelSession < WHEEL_PER_SESSION && wheelVisit !== profile.missions
   if (p === 'upgrade') return upgradesLeft() > 0
+  if (p === 'paint') return paintVideosLeft() > 0
   return true
 }
 
@@ -50,7 +57,9 @@ export const canOffer = (p: RewardedPlacement): boolean => {
  */
 export const offerSpent = (p: RewardedPlacement): boolean => {
   void offerTick.value
-  return p === 'upgrade' && canOfferVideo() && upgradesLeft() <= 0
+  if (!canOfferVideo()) return false
+  if (p === 'paint') return paintVideosLeft() <= 0
+  return p === 'upgrade' && upgradesLeft() <= 0
 }
 
 /** Play the video; `grant` runs only if it finished. True when it was granted. */
@@ -62,6 +71,7 @@ export const watchFor = async (p: RewardedPlacement, grant: () => void): Promise
     if (upgradeVisit !== profile.missions) { upgradeVisit = profile.missions; upgradeUsed = 0 }
     upgradeUsed++
   }
+  if (ok && p === 'paint') logPaintVideo()
   offerTick.value++
   return ok
 }

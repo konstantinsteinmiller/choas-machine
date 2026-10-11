@@ -74,21 +74,23 @@ describe('#60: a guard that lives through a round', () => {
 
 describe('R20: suppressing fire', () => {
   it('a defender that has just opened up mostly misses; once settled it hits as before', () => {
+    // Ten fresh fights, each a guard making the mech out and firing at it for
+    // a while: the opening shots against the settled ones, summed.
     const fight = (): { early: number; late: number; shotsEarly: number; shotsLate: number } => {
-      const f = yard().sentry(10, 5, 0).build()
-      const gar = makeGarrison(f, 1)
-      const t = mech(10, 11)
       let early = 0, late = 0, shotsEarly = 0, shotsLate = 0
-      for (let s = 0; s < 40; s += DT) {
-        stepGarrison(gar, f.grid, t, DT)
-        stepFire(gar, f.grid, t, DT)
-        for (const e of drainEvents(gar) as GarrisonEvent[]) {
-          if (e.type !== 'fire') continue
-          const u = gar.units[e.id]!
-          if (u.aimT < SUPPRESS_S) { shotsEarly++; if (e.damage > 0) early++ } else { shotsLate++; if (e.damage > 0) late++ }
+      for (let rep = 0; rep < 10; rep++) {
+        const f = yard().sentry(10, 5, 0).build()
+        const gar = makeGarrison(f, 1)
+        const t = mech(10, 11)
+        for (let s = 0; s < 14; s += DT) {
+          stepGarrison(gar, f.grid, t, DT)
+          stepFire(gar, f.grid, t, DT)
+          for (const e of drainEvents(gar) as GarrisonEvent[]) {
+            if (e.type !== 'fire') continue
+            const u = gar.units[e.id]!
+            if (u.aimT < SUPPRESS_S) { shotsEarly++; if (e.damage > 0) early++ } else { shotsLate++; if (e.damage > 0) late++ }
+          }
         }
-        // Break line now and then, so it opens up again and again.
-        t.visible = (s % 8) < 6
       }
       return { early, late, shotsEarly, shotsLate }
     }

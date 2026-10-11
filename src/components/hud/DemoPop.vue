@@ -33,8 +33,11 @@ onMounted(() => {
     }
     if (demoPop.seq !== seq.value) { seq.value = demoPop.seq; hint.value = demoPop.hint as HintId }
     if (!shown) return
-    e.style.left = `${(demoPop.x * 100).toFixed(2)}%`
-    e.style.top = `${(demoPop.y * 100).toFixed(2)}%`
+    // Kept on screen (#192): on a short landscape phone the hologram's head
+    // projects near the top edge, and the pop (which hangs above that point)
+    // rose off the screen — touch players never saw a press.
+    e.style.left = `clamp(2.5rem, ${(demoPop.x * 100).toFixed(2)}%, calc(100% - 2.5rem))`
+    e.style.top = `clamp(calc(var(--cm-safe-top, 0px) + 4.5rem), ${(demoPop.y * 100).toFixed(2)}%, 100%)`
   })
 })
 onUnmounted(() => off?.())
@@ -56,23 +59,25 @@ onUnmounted(() => off?.())
   min-height: 2.2rem
   padding: 0.25rem
   color: var(--cm-cyan, #5fe9ff)
-  animation: demo-pop 1.6s ease-out forwards
+  // As long as the hologram holds its press (`HINT_HOLD_S`).
+  animation: demo-pop 2.6s ease-out forwards
   +tech-plate(var(--cm-cyan), linear-gradient(180deg, rgba(43, 27, 92, 0.75), rgba(10, 5, 24, 0.65)), 0.45rem, var(--cm-edge))
 // On touch the copy of the button is the chip itself, rising and fading the same way.
 .touch
-  animation: demo-pop 1.6s ease-out forwards
+  animation: demo-pop 2.6s ease-out forwards
 .icon
   width: 1.5rem
   height: 1.5rem
+// A short rise that stays by the head: drifting far up it was easy to miss.
 @keyframes demo-pop
   0%
-    transform: translateY(0.6rem)
+    transform: translateY(0.3rem)
     opacity: 0
-  12%
+  8%
     opacity: 1
-  70%
+  80%
     opacity: 1
   100%
-    transform: translateY(-2.4rem)
+    transform: translateY(-0.9rem)
     opacity: 0
 </style>

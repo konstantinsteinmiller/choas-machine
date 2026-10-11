@@ -184,6 +184,14 @@ export const threatOf = (level: number): Threat => THREATS[Math.min(THREATS.leng
 export interface Unit {
   id: number
   kind: PostKind
+  /**
+   * Where the guard's head is DRAWN right now (its centre, world metres),
+   * written by the view after posing it; null where it is not drawn. The
+   * headshot test uses it (`hitscan.ts`): the walking, wary and aiming poses
+   * move the head up to ~0.26 m off a fixed point over the feet, and a round
+   * through the drawn helmet flew past the fixed sphere.
+   */
+  drawnHead?: { x: number; y: number; z: number } | null
   x: number
   /** Feet (walkers) or body (drones). */
   y: number
@@ -248,6 +256,12 @@ export interface Unit {
   found: boolean
   /** It has shouted once already; the beacon it is running to (−1 none). */
   shouted: boolean
+  /**
+   * Seconds left of its reaction (`REACT_S`): a guard just sure of the mech
+   * turns on it alone, and only then shouts. Until this runs out it neither
+   * calls the base nor fires; taken down in the meantime, nobody hears of it.
+   */
+  reactT: number
   /** Back on its round after a hunt: it looks wider and further for the rest of the raid. */
   wary: boolean
   /** It has been in a fight since it last walked its round: losing the mech, it hunts. */
@@ -876,7 +890,7 @@ export const makeGarrison = (f: Fortress, level = 2): Garrison => {
       yaw: p.facing, pyaw: p.facing, look: 0,
       state: p.reserve ? 'reserve' : mech ? 'dormant' : 'patrol', t: 0, detect: 0, sees: false, seenX: p.x, seenZ: p.z, lured: false, decoyWatch: 0, decoyShot: false,
       route: p.route, wp: p.route.length > 1 ? 1 : 0, wait: p.route[0]?.wait ?? 0,
-      path: [], pathI: 0, repath: 0, bodyT: 0, seenFor: 0, unseenFor: 9, shouted: false, runner: -1, wary: false, hop: 0, fought: false, checkAt: Infinity, checked: false, hp: p.hp ?? Math.round(SPECS[p.kind].hp * threat.hp * (p.boss === 'foreman' ? FOREMAN_HP : 1) * (p.hpScale ?? 1)), maxHp: p.hp ?? Math.round(SPECS[p.kind].hp * threat.hp * (p.boss === 'foreman' ? FOREMAN_HP : 1) * (p.hpScale ?? 1)), boss: p.boss ?? null, armoured: !!p.armoured, dummy: !!p.dummy, caged: !!p.caged, watch: !!p.watch, shield: !!p.shield, deadT: 0, fallDir: 1, huh: HUH_S, noise: 0, gripped: false, hold: 0, held: null, death: 'back', hitX: 0, hitZ: 0, found: false,
+      path: [], pathI: 0, repath: 0, bodyT: 0, seenFor: 0, unseenFor: 9, shouted: false, reactT: 0, runner: -1, wary: false, hop: 0, fought: false, checkAt: Infinity, checked: false, hp: p.hp ?? Math.round(SPECS[p.kind].hp * threat.hp * (p.boss === 'foreman' ? FOREMAN_HP : 1) * (p.hpScale ?? 1)), maxHp: p.hp ?? Math.round(SPECS[p.kind].hp * threat.hp * (p.boss === 'foreman' ? FOREMAN_HP : 1) * (p.hpScale ?? 1)), boss: p.boss ?? null, armoured: !!p.armoured, dummy: !!p.dummy, caged: !!p.caged, watch: !!p.watch, shield: !!p.shield, deadT: 0, fallDir: 1, huh: HUH_S, noise: 0, gripped: false, hold: 0, held: null, death: 'back', hitX: 0, hitZ: 0, found: false,
       stride: 0, speed01: 0, homeX: p.x, homeZ: p.z, homeYaw: p.facing, altitude: p.altitude,
       spotX: spot.x, spotZ: spot.z,
       seed: (id * 2.399) % (Math.PI * 2),
@@ -1229,6 +1243,32 @@ const ringSlot = (u: Unit, gar: Garrison, target: Target, radius: number): { x: 
   return { x: target.x + Math.sin(a) * radius, z: target.z + Math.cos(a) * radius }
 }
 
+/**
+ * A guard who has just made the mech out has this long before it can do
+ * anything about it but look: it turns on the mech, and only after this does
+ * it shout "Intruder!" to the guards and machines round it (the alert, the
+ * runner for the beacon) or fire. A backstab inside this window leaves the
+ * base none the wiser — the guard had no time to react.
+ */
+export const REACT_S = 0.75
+
+/** The sure one tells the base: the alert, the guards round it, a runner for the beacon. */
+const callOut = (gar: Garrison, g: Grid, u: Unit, target: Target): void => {
+  // The first to be sure raises the alarm; one more pair of eyes on a
+  // mech the base already knows about adds little.
+  const known = gar.units.some(o => o !== u && o.state === 'combat' && o.reactT <= 0)
+  if (gar.beacons.length === 0) {
+    if (!known) raise(gar, 'seen', target)
+    else if (pressAlert(gar.alert, SECOND_WITNESS)) goChaos(gar, target)
+  } else {
+    // Odyssey's fort: the sure one shouts, and somebody runs to light a
+    // beacon. Until one is lit the fight stays where it is.
+    if (!known) raise(gar, 'seen', target)
+    shout(gar, u, target)
+    sendRunner(gar, g)
+  }
+}
+
 /** A sure guard shouts: the guards near it join the fight at once. */
 const shout = (gar: Garrison, u: Unit, target: Target): void => {
   if (u.shouted || gar.drill) return
@@ -1470,6 +1510,47 @@ const standDown = (gar: Garrison): void => {
   gar.calmT = SEARCH_HOT_S
   gar.leader = -1
   gar.heightened = true
+  gar.events.push({ type: 'standDown' })
+}
+
+/**
+ * The player paid for a Full Repair after going down (#189): the base forgets
+ * the mech entirely — no alert, no lit or lighting beacon, nobody hunting,
+ * searching, wary or curious. Every defender left alive goes back to its round
+ * as if the mech had never been seen; the dead stay dead.
+ */
+export const forgetMech = (gar: Garrison): void => {
+  gar.alert.level = 0
+  gar.alert.chaos = false
+  gar.alert.quiet = 999
+  for (const b of gar.beacons) if (b.state === 'lit' || b.state === 'lighting') { b.state = 'ready'; b.lit = 0 }
+  if (gar.runner >= 0) stopRunner(gar)
+  gar.runnerWait = 0
+  gar.calmT = 0
+  gar.leader = -1
+  gar.heightened = false
+  gar.lkp.t = -1e9
+  gar.shooters.clear()
+  for (const o of gar.units) {
+    if (!isAlive(o) || o.state === 'dormant' || o.state === 'reserve') continue
+    o.detect = 0
+    o.sees = false
+    o.seenFor = 0
+    o.unseenFor = 9
+    o.uplinkT = 0
+    o.reactT = 0
+    o.path = []
+    o.hop = 0
+    o.lured = false
+    o.wary = false
+    o.hunt = 0
+    o.burst = 0
+    o.fireT = 0
+    o.aimT = 0
+    o.decoyWatch = 0
+    o.look = 0
+    enter(o, 'patrol')
+  }
   gar.events.push({ type: 'standDown' })
 }
 
@@ -2013,7 +2094,7 @@ export const stepGarrison = (gar: Garrison, g: Grid, target: Target, dt: number)
   }
   if (gar.runnerWait > 0) gar.runnerWait -= dt
   // A search after a fight sends a runner too, but not while the base thinks the intruder gone (#134).
-  if (gar.beacons.length > 0 && gar.runner < 0 && gar.runnerWait <= 0 && gar.units.some(o => isAlive(o) && (o.state === 'combat' || (gar.calmT <= 0 && o.state !== 'patrol' && o.fought)) && !isLight(o))) sendRunner(gar, g)
+  if (gar.beacons.length > 0 && gar.runner < 0 && gar.runnerWait <= 0 && gar.units.some(o => isAlive(o) && o.reactT <= 0 && (o.state === 'combat' || (gar.calmT <= 0 && o.state !== 'patrol' && o.fought)) && !isLight(o))) sendRunner(gar, g)
   const seen: Seen = { x: target.x, feetY: target.y, z: target.z, height: target.height }
   // The mech's trail, for the hounds.
   if (target.visible && (gar.scentT -= dt) <= 0) {
@@ -2114,8 +2195,12 @@ export const stepGarrison = (gar: Garrison, g: Grid, target: Target, dt: number)
       // The Watchtower (#144) does not wonder: a moment in its pool and it is sure.
       // Nor the disguise lesson's caged lamp (#163): no running through its pool.
       if ((u.watch || u.caged) && u.seenFor >= WATCH_SURE_S) u.detect = 1
-      u.seenX = target.x
-      u.seenZ = target.z
+      // On its way to a decoy, a glimpse does not send it elsewhere: only a
+      // real look (the yellow line, below) turns it from the decoy to the mech.
+      if (!u.lured || u.detect >= SUSPECT_AT) {
+        u.seenX = target.x
+        u.seenZ = target.z
+      }
       gar.lkp.x = target.x
       gar.lkp.y = target.y
       gar.lkp.z = target.z
@@ -2130,6 +2215,13 @@ export const stepGarrison = (gar: Garrison, g: Grid, target: Target, dt: number)
       }
     }
 
+    // ── Its reaction: the shout comes once it has taken the mech in ──
+    if (u.reactT > 0) {
+      // Grabbed from behind (or down, or calmed) before it could: nobody hears of it.
+      if (u.gripped || u.held || u.state !== 'combat') u.reactT = 0
+      else if ((u.reactT -= dt) <= 0) { u.reactT = 0; callOut(gar, g, u, target) }
+    }
+
     // ── What it makes of it ──
     if (u.state !== 'combat' && u.detect >= 1) {
       enter(u, 'combat')
@@ -2137,9 +2229,6 @@ export const stepGarrison = (gar: Garrison, g: Grid, target: Target, dt: number)
       u.path = []
       u.repath = 0
       gar.events.push({ type: 'spotted', id: u.id })
-      // The first to be sure raises the alarm; one more pair of eyes on a
-      // mech the base already knows about adds little.
-      const known = gar.units.some(o => o !== u && o.state === 'combat')
       // A hound barks: the guards round it come, beacons or not.
       if (u.kind === 'hound') shout(gar, u, target)
       if (u.watch || (u.kind === 'drone' && u.hunt === 2)) {
@@ -2152,16 +2241,10 @@ export const stepGarrison = (gar: Garrison, g: Grid, target: Target, dt: number)
         // fills while it keeps the mech in view; it is the player's moment.
         u.uplinkT = 0.0001
         gar.events.push({ type: 'uplink', id: u.id })
-      } else if (gar.beacons.length === 0) {
-        if (!known) raise(gar, 'seen', target)
-        else if (pressAlert(gar.alert, SECOND_WITNESS)) goChaos(gar, target)
-      } else {
-        // Odyssey's fort: the sure one shouts, and somebody runs to light a
-        // beacon. Until one is lit the fight stays where it is.
-        if (!known) raise(gar, 'seen', target)
-        shout(gar, u, target)
-        sendRunner(gar, g)
-      }
+      } else if (isHuman(u) && !gar.drill) {
+        // A person: a moment to take it in before it can shout (`REACT_S`).
+        u.reactT = REACT_S
+      } else callOut(gar, g, u, target)
       if (gar.leader < 0 && isHuman(u)) gar.leader = u.id
     } else if (u.state === 'patrol' && u.detect >= SUSPECT_AT) {
       suspect(gar, u, u.seenX, u.seenZ, false)
@@ -2268,7 +2351,7 @@ export const stepGarrison = (gar: Garrison, g: Grid, target: Target, dt: number)
         if (u.runner >= 0) { runToBeacon(u, g, gar, target, dt); break }
         if (u.uplinkT > 0) stepUplink(u, gar, g, target, dt)
         fight(u, g, gar, target, dt)
-        if (u.sees) watched = true
+        if (u.sees && u.reactT <= 0) watched = true
         // Out of sight long enough, and not in full alert: it lets go.
         if (!u.sees && !gar.alert.chaos) u.detect = Math.max(0.5, u.detect - 0.12 * dt)
         break
@@ -2782,12 +2865,15 @@ export const lureTo = (gar: Garrison, g: Grid, x: number, y: number, z: number, 
   let n = 0
   for (const u of gar.units) {
     if (!isAlive(u) || !lurable(u) || u.state === 'combat') continue
-    if (u.state === 'suspicious' && !u.lured) continue
+    // A guard wondering about a glimpse of the mech goes to the decoy instead
+    // (it is the louder thing, and it is the decoy's whole job); its meter
+    // drops under the line, or the glimpse would turn it straight back.
     // Stood at it, or done watching it and looking about: one look per decoy (#171).
     if (u.decoyWatch > 0) continue
     if (u.lured && u.state === 'search' && Math.hypot(u.seenX - x, u.seenZ - z) < 1.5) continue
     if (Math.hypot(u.x - x, u.z - z) > radius) continue
     if (!hasLineOfSight(g, u.x, u.y + SPECS[u.kind].eye, u.z, x, y + 1.2, z)) continue
+    u.detect = Math.min(u.detect, SUSPECT_AT - 0.1)
     suspect(gar, u, x, z, true)
     n++
   }

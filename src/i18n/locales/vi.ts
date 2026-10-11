@@ -30,7 +30,8 @@ export default {
     'salvage': 'Chiến lợi phẩm',
     'fallBastion': 'Thành trì thất thủ',
     'fallFoundry': 'Lò đúc nguội lạnh',
-    'outro': 'Về nhà'
+    'outro': 'Về nhà',
+    'nextTarget': 'Mục tiêu tiếp theo'
   },
   'fortress': {
     'bastion': 'Thành Trì',
@@ -87,6 +88,7 @@ export default {
   },
   'defeat': {
     'title': 'Mech gục ngã',
+    'repair': 'Sửa chữa toàn bộ',
     'retry': 'Thử lại',
     'resume': 'Từ đống đầu tiên',
     'kept': 'Phế liệu công nghệ thu hồi'
@@ -191,6 +193,26 @@ export default {
     'unlock': 'Mở khóa: {name}',
     'watch': 'Xem video để mở khóa: {name}'
   },
+  'paint': {
+    'title': 'Màu sơn',
+    'lilac': 'CM-07 Tử đinh hương',
+    'crimson': 'Đỏ thẫm',
+    'arctic': 'Băng giá',
+    'jungle': 'Rừng rậm',
+    'gilded': 'Mạ vàng',
+    'midnight': 'Nửa đêm',
+    'tangerine': 'Quýt',
+    'equip': 'Sơn mech màu {name}',
+    'equipShort': 'Trang bị',
+    'equipped': 'Đã trang bị',
+    'unlock': 'Mở khóa: {name}',
+    'watch': 'Xem video để mở khóa vĩnh viễn: {name}',
+    'try': 'Xem video để thử {name} trong một nhiệm vụ',
+    'tryShort': 'Thử 1 nhiệm vụ',
+    'lent': 'Của bạn trong nhiệm vụ tới',
+    'noVideo': 'Hiện chưa có video',
+    'back': 'Quay lại sau {time}'
+  },
   'ads': {
     'blockedTitle': 'Quảng cáo bị chặn',
     'blockedBody': 'Trình chặn quảng cáo đã dừng video nên lần này không có phần thưởng.',
@@ -234,6 +256,7 @@ export default {
     'alarm': '6, 7!',
     'lowHealth': 'Đến lúc siết ốc lại rồi!',
     'lowAmmo': 'Sắp hết đạn, đi tìm đá để ném đây.',
+    'noAmmo': 'Hết đạn rồi.',
     'takedown': 'Suỵt. Ngủ ngoan nào.',
     'decoy': 'Nhìn kìa, một người lạ đẹp trai!',
     'disguise': 'Máy nướng bánh mì xịn nhất nghề.',
@@ -252,6 +275,22 @@ export default {
     'replay': 'Xem lại',
     'progress': 'Huấn luyện: xong {n}/{total} bài',
     'scrapWhy': 'Phế liệu dùng để nâng cấp vũ khí tại Căn cứ chỉ huy.',
+    'bladeHint': 'Lẻn đến gần lính gác và đâm sau lưng chúng, để chúng không báo động!',
+    'decoyHint': 'Đặt mồi nhử để đánh lạc hướng lính gác, rồi lẻn đến gần và hạ gục hắn!',
+    'roomHint': {
+      'move': 'Đi tới cánh cửa phát sáng để bắt đầu huấn luyện.',
+      'jump': 'Leo lên thang và nhảy qua khe hở sang bệ bên kia!',
+      'cover': 'Cúi người sau các thùng hàng để lính gác không thấy bạn, rồi bò qua dưới cổng!',
+      'weapons': 'Hạ cả ba lính gác: bắn tỉa một tên, rồi đổi sang minigun cho hai tên còn lại!',
+      'rocket': 'Đổi sang súng phóng tên lửa và cho nổ tung con mech trên gờ đá!',
+      'supply': 'Đi qua các thùng hàng để nạp lại đạn và sửa giáp.',
+      'burn': 'Thiêu xác bằng súng phun lửa trước khi có người phát hiện!',
+      'box': 'Trốn trong thùng các-tông và đứng yên khi đèn pha quét qua bạn!',
+      'hook': 'Dùng móc leo để vượt qua bức tường!',
+      'rope': 'Dùng súng bắn dây để tạo một sợi dây giữa hai bệ!',
+      'barrel': 'Bắn thùng nhiên liệu để hạ bọn lính gác sau bức tường!',
+      'extract': 'Đi tới điểm rút lui để hoàn thành huấn luyện!',
+    },
     'skip': 'Bỏ qua huấn luyện',
     'goal': 'Hạ gục cả ba',
     'goalProgress': 'Đã hạ {n}/{total}',
@@ -282,6 +321,8 @@ export default {
   'pause': {
     'title': 'TẠM DỪNG',
     'resume': 'Tiếp tục',
+    'retreat': 'Rút về căn cứ',
+    'retreatSure': 'Bỏ cuộc đột kích? Chạm lần nữa',
     'controls': 'Điều khiển'
   },
   'options': {

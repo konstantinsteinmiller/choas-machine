@@ -126,7 +126,7 @@ describe('loading a damaged or partial save', () => {
     expect(P.profile.arsenal.unlocks).toEqual(['decoy'])
     expect(P.profile.arsenal.upgrades).toEqual({ a: 2 })
     expect(P.profile.fortresses.f01).toEqual({
-      clears: 2, medals: { ghost: false, marksman: false, swift: true }, bestScore: 0, bestTime: 0
+      clears: 2, medals: { ghost: false, marksman: false, swift: true }, bestScore: 0, bestTime: 0, deathsSinceWin: 0
     })
     expect(P.profile.fortresses.f02!.clears).toBe(0)
     expect(P.profile.lessons).toEqual({ touch: {}, desk: {} })

@@ -14,6 +14,8 @@
     KeyCap(v-else :action="HINT_KEYS[hint] ?? 'act'")
   span.hint-glyph(v-else)
     TouchButtonGlyph(v-if="HINT_BUTTON[hint]" :look="lookOf(HINT_BUTTON[hint] ?? 'strike', weapon, hint)")
+    //- A keyboard here too (a touchscreen laptop): its shortcut beside the picture.
+    KeyCap(v-if="HINT_BUTTON[hint] && keyboardToo && HINT_KEYS[hint]" :action="HINT_KEYS[hint] ?? 'act'")
     //- Looking round on touch: the look stick itself, small (its knob, its eye).
     span.stick-glyph(v-else-if="hint === 'look'")
       span.stick-knob
@@ -28,6 +30,7 @@ import MouseGlyph from '@/components/hud/hints/MouseGlyph.vue'
 import FingerGlyph from '@/components/hud/hints/FingerGlyph.vue'
 import TouchButtonGlyph from '@/components/hud/hints/TouchButtonGlyph.vue'
 import { HINT_BUTTON, HINT_GESTURE, HINT_KEYS, HINT_MOUSE as MOUSE, lookOf } from '@/components/hud/touchLook'
+import { keyboardToo } from '@/use/useKeyboardToo'
 import type { HintId } from '@/game/sim/coach'
 import type { WeaponId } from '@/game/data/ids'
 

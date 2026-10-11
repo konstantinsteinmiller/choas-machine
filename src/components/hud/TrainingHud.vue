@@ -18,6 +18,9 @@
       data-testid="btn-demo"
       @click="replay"
     )
+    //- What the room's lesson wants, in words, under the replay (#193: the
+    //- backstab room first; every room has one now).
+    p.hint(v-if="roomHint" :data-testid="roomHint.id") {{ t(roomHint.key) }}
     p.why(v-if="hud.training.scrapWhy") {{ t('training.scrapWhy') }}
     //- The weapons room's goal (#153): its three targets, ticked as each goes down.
     div.goal(v-if="hud.training.goalTotal" data-testid="training-goal")
@@ -28,6 +31,7 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import GameIcon from '@/components/icons/GameIcon.vue'
 import FHudButton from '@/components/atoms/FHudButton.vue'
@@ -40,12 +44,28 @@ const { t } = useI18n()
 
 /** One glyph per lesson; the pips run in the order the rooms are crossed. */
 const GLYPH: Readonly<Record<LessonId, GameIconName>> = {
-  move: 'mech', jump: 'up', cover: 'crouch', weapons: 'sniper', rocket: 'rocket', supply: 'bolt', blade: 'blade', burn: 'flame',
-  decoy: 'decoy', box: 'box', hook: 'hook', rope: 'rope', salvage: 'scrap', extract: 'play'
+  move: 'mech', jump: 'up', cover: 'act-crouch', weapons: 'sniper', rocket: 'rocket', supply: 'bolt', blade: 'blade', burn: 'flame',
+  decoy: 'decoy', box: 'box', hook: 'hook', rope: 'rope', salvage: 'scrap', barrel: 'warning', extract: 'play'
 }
 const ICONS: readonly GameIconName[] = LESSON_IDS.map(id => GLYPH[id])
 
 const replay = (): void => emit('trainingReplay', {})
+/** In the backstab room, its lesson not yet done (and not being watched). */
+/** Each room's hint; the salvage room says why scrap matters instead (`scrapWhy`). */
+const HINT_KEY: Readonly<Partial<Record<LessonId, string>>> = {
+  move: 'training.roomHint.move', jump: 'training.roomHint.jump', cover: 'training.roomHint.cover',
+  weapons: 'training.roomHint.weapons', rocket: 'training.roomHint.rocket', supply: 'training.roomHint.supply',
+  blade: 'training.bladeHint', burn: 'training.roomHint.burn', decoy: 'training.decoyHint', box: 'training.roomHint.box',
+  hook: 'training.roomHint.hook', rope: 'training.roomHint.rope', barrel: 'training.roomHint.barrel', extract: 'training.roomHint.extract'
+}
+/** The room the mech is in, its lesson not done yet (and not being watched, #158). */
+const roomHint = computed(() => {
+  const i = hud.training.room
+  const lesson = LESSON_IDS[i]
+  if (!lesson || hud.training.done > i || hud.training.watching) return null
+  const key = HINT_KEY[lesson]
+  return key ? { key, id: `${lesson}-hint` } : null
+})
 </script>
 
 <style scoped lang="sass">
@@ -108,7 +128,7 @@ const replay = (): void => emit('trainingReplay', {})
     height: 85%
   &.down
     color: var(--cm-ok, #7dffb0)
-.why
+.why, .hint
   max-width: min(26rem, 80vw)
   margin: 0
   padding: 0.35em 0.8em

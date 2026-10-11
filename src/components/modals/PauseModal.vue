@@ -19,11 +19,22 @@
     template(#footer)
       //- The training ground, once finished before, can be left for the first raid.
       FButton(v-if="flow.training && profile.seen.includes('training')" type="ghost" size="md" icon="skip-forward" data-testid="btn-skip-training" @click="skip") {{ t('training.skip') }}
+      //- A raid (#197): back to the Command Base. Two taps — a stray one beside
+      //- Resume must not throw the raid away.
+      FButton(
+        v-if="!flow.training"
+        :type="retreatArmed ? 'warning' : 'ghost'"
+        size="md"
+        icon="home"
+        icon-position="left"
+        data-testid="btn-retreat"
+        @click="retreat"
+      ) {{ retreatArmed ? t('pause.retreatSure') : t('pause.retreat') }}
       FButton(size="lg" icon="play" data-testid="btn-resume" @click="resume") {{ t('pause.resume') }}
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import FSelect from '@/components/atoms/FSelect.vue'
 import useUser from '@/use/useUser'
@@ -35,6 +46,7 @@ import FButton from '@/components/atoms/FButton.vue'
 import FMuteButton from '@/components/atoms/FMuteButton.vue'
 import SettingsButton from '@/components/organisms/SettingsButton.vue'
 import { flow, finishTraining } from '@/game/flow'
+import { emit as busEmit } from '@/game/bus'
 import { registerQaAdTap } from '@/use/useQaAdTrigger'
 import { profile } from '@/game/state/profile'
 
@@ -60,6 +72,15 @@ const resume = (): void => {
 const skip = (): void => {
   flow.modal = ''
   void finishTraining()
+}
+
+// The retreat (#197): the first tap arms it, the second leaves; it disarms with the menu.
+const retreatArmed = ref(false)
+watch(() => flow.modal, () => { retreatArmed.value = false })
+const retreat = (): void => {
+  if (!retreatArmed.value) { retreatArmed.value = true; return }
+  retreatArmed.value = false
+  busEmit('retreat', {})
 }
 </script>
 

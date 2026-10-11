@@ -1,4 +1,5 @@
 import { Matrix4, Quaternion, Vector3, type BufferGeometry, type Mesh } from 'three'
+import { FREE_PAINT, type PaintId } from './paintIds'
 import { rbox, rcyl, sph, torus, type V3 } from './kit'
 import { glowVC } from './toon'
 import { PAL } from './palette'
@@ -97,10 +98,10 @@ const _s = new Vector3()
 const _up = new Vector3(0, 1, 0)
 
 /** One disguise, baked into niche `i`: its lit and glowing pieces if owned, its shape for a hologram if not. */
-export const nicheModel = (id: DisguiseId, i: number, owned: boolean): ShelfContents => {
+export const nicheModel = (id: DisguiseId, i: number, owned: boolean, scheme: PaintId = FREE_PAINT): ShelfContents => {
   const out: ShelfContents = { lit: [], glow: [], holo: [] }
   const shine = glowVC()
-  const g = buildDisguise(id)
+  const g = buildDisguise(id, scheme)
   morphDisguise(g, 1)
   g.updateMatrixWorld(true)
   const [x, y, z] = nicheAt(i)
@@ -129,10 +130,11 @@ export const nicheModel = (id: DisguiseId, i: number, owned: boolean): ShelfCont
 }
 
 /** Bake every disguise into its niche: whole for an owned one, a hologram's shape for a locked one. */
-export const shelfContents = (owned: ReadonlySet<DisguiseId>): ShelfContents => {
+/** `scheme`: the paint the mech wears; its disguises on the shelf wear it too. */
+export const shelfContents = (owned: ReadonlySet<DisguiseId>, scheme: PaintId = FREE_PAINT): ShelfContents => {
   const out: ShelfContents = { lit: [], glow: [], holo: [] }
   DISGUISE_IDS.forEach((id, i) => {
-    const m = nicheModel(id, i, owned.has(id))
+    const m = nicheModel(id, i, owned.has(id), scheme)
     out.lit.push(...m.lit)
     out.glow.push(...m.glow)
     out.holo.push(...m.holo)

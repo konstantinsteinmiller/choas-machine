@@ -18,7 +18,7 @@ export const TRAINING_ID = 'training'
 
 /** The lessons, one per room, in the order they are crossed. */
 export const LESSON_IDS = [
-  'move', 'jump', 'cover', 'weapons', 'rocket', 'supply', 'blade', 'burn', 'decoy', 'box', 'hook', 'rope', 'salvage', 'extract'
+  'move', 'jump', 'cover', 'weapons', 'rocket', 'supply', 'blade', 'burn', 'decoy', 'box', 'hook', 'rope', 'salvage', 'barrel', 'extract'
 ] as const
 export type LessonId = (typeof LESSON_IDS)[number]
 
@@ -84,6 +84,20 @@ export const ROCKET_TARGET_HP = 300
 export const ROCKET_TARGET: readonly [number, number] = [8, 3]
 /** The disguise room's corridor (#163): its two rows, the doorway's. */
 export const BOX_LANE: readonly [number, number] = [6, 7]
+/**
+ * The barrel room (#198): a wall across it no mech sees over, the guards
+ * behind it out of sight. In the wall, a plinth, and on it a fuel drum the
+ * mech does see; a second drum stands among the guards. One round into the
+ * first: both go up, and so does the yard. The plinth is the way on: a
+ * ladder up its face (ladders are known by now; a mantle up it was not what
+ * players expected), or the hook (it is tall enough to be hooked).
+ */
+export const BARREL_WALL_X = 6
+export const BARREL_PLINTH: readonly [number, number] = [BARREL_WALL_X, 7]
+export const BARREL_PLINTH_H = 3.5
+export const BARREL_HIDDEN: readonly [number, number] = [BARREL_WALL_X + 1, 7]
+/** The yard's guards (room cells), round the hidden drum; none in sight of the way in. */
+export const BARREL_GUARDS: ReadonlyArray<readonly [number, number]> = [[8, 7], [7, 6], [7, 8], [8, 6], [8, 8]]
 /** The doorways: the middle two rows of a room. */
 const DOOR_Z0 = OZ + 6
 const DOOR_Z1 = OZ + 7
@@ -225,6 +239,15 @@ export const buildTrainingGround = (): Fortress => {
     const [cx, cz] = at(r, 8, 5)
     const [dx, dz] = at(r, 9, 9)
     b.fill(cx, cz, dx, dz, ROPE_DECK_H)
+  }
+  // · The barrel (#198): the wall, the plinth in it with its drum, the yard.
+  {
+    const k = room('barrel')
+    b.fill(...at(k, BARREL_WALL_X, 1), ...at(k, BARREL_WALL_X, 12), ROOM_WALL_H)
+    b.fill(...at(k, ...BARREL_PLINTH), ...at(k, ...BARREL_PLINTH), BARREL_PLINTH_H)
+    b.ladder(...at(k, BARREL_PLINTH[0] - 1, BARREL_PLINTH[1]), 'e')
+    b.fuel(...at(k, ...BARREL_PLINTH)).fuel(...at(k, ...BARREL_HIDDEN))
+    for (const [gx, gz] of BARREL_GUARDS) b.guard([at(k, gx, gz)], Math.atan2(BARREL_HIDDEN[0] - gx, BARREL_HIDDEN[1] - gz))
   }
   // · Salvage: a pile to strip.
   b.salvage(...at(room('salvage'), 6, 9), 30)

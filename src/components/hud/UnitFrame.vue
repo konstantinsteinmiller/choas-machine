@@ -147,6 +147,8 @@ onMounted(() => { face.value = mechPortrait() })
   &.s3
     --plate-fill: linear-gradient(var(--cm-danger), var(--cm-danger))
     color: #fff
+    // Raised: a slow red throb, so the badge reads as an alarm going off.
+    animation: alarm-lit 1.1s ease-in-out infinite
 .alarm-fill
   position: absolute
   left: 0
@@ -159,7 +161,14 @@ onMounted(() => { face.value = mechPortrait() })
 @keyframes siren-blink
   50%
     opacity: 0.25
+// A glow, not a box-shadow: the plate's cut would clip a shadow.
+@keyframes alarm-lit
+  0%, 100%
+    filter: none
+  50%
+    // Toward pure red (the badge is a pinkish red), deeper, glowing: not lighter.
+    filter: hue-rotate(10deg) saturate(1.6) brightness(1.08) drop-shadow(0 0 0.45rem rgba(255, 30, 40, 0.9))
 @media (prefers-reduced-motion: reduce)
-  .alarm.s1 :deep(svg)
+  .alarm.s1 :deep(svg), .alarm.s3
     animation: none
 </style>

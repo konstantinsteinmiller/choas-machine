@@ -16,6 +16,7 @@
     DemoPop
     TrainingShout
     TrainingNudge(v-if="hud.training.on")
+    RevealArrow
     ControlHints
 
     //- CM-07's unit frame (#145): portrait, health, the weapon in hand, the
@@ -53,7 +54,7 @@
 
     //- The quick quest log (#145): just above the right thumb's column,
     //- wherever that column ends (`questStyle`).
-    div.quest(v-if="!hud.training.on && !(hud.aiming && hud.device === 'touch')" :style="questStyle")
+    div.quest(v-if="!hud.training.on" :style="questStyle")
       QuestLog
 
     //- The blade's offer: big, pink and under the right thumb's reach. A tap
@@ -138,7 +139,7 @@
         icon="flame"
         :tone="LOOK.burn.tone"
         :attention="hud.burning === 0"
-        :hotkey="kb('act')"
+        :hotkey="kb('burn')"
         :aria-label="t('hud.burn')"
         :shape="LOOK.burn.shape"
         data-testid="btn-burn"
@@ -162,35 +163,40 @@
         template(#badge)
           FHudBadge(tone="cyan") {{ hud.ropes }}
 
+    //- Touch: the scope's toggle, over the move stick. Its reticle raises
+    //- the weapon and keeps it up (no finger has to stay down); up, it shows
+    //- the reticle struck through, and lowers it again: nothing fired, the
+    //- stealth kept. Shooting is the Shoot button, scoped or from the hip.
+    div.zoom-pad(v-if="hud.device === 'touch' && hud.phase === 'play' && revealed('scope')")
+      FHudButton(
+        :icon="hud.aimHeld ? 'act-unscope' : LOOK.scope.icon"
+        :tone="hud.aimHeld ? 'cyan' : LOOK.scope.tone"
+        :shape="LOOK.scope.shape"
+        :active="hud.aimHeld"
+        :pressed="hud.aimHeld"
+        :attention="teaching('scope')"
+        :is-disabled="hud.mode !== 'ground' && !hud.aimHeld"
+        :aria-label="hud.aimHeld ? t('hud.cancel') : t('hud.zoom')"
+        data-testid="btn-scope"
+        @click="toggleScope"
+      )
     //- The right thumb's column, above where it rests.
     div.actions(ref="actionsEl")
-      //- On touch, on the scope: a chip that zooms a notch (and round again).
-      FHudButton.slot-zoom(
-        v-if="hud.scoped && hud.device === 'touch'"
-        icon="scope"
-        :tone="LOOK.zoom.tone"
-        :aria-label="t('hud.zoom')"
-        data-testid="btn-zoom"
-        @click="busEmit('zoom', {})"
-      )
-        template(#badge)
-          FHudBadge(tone="cyan") ×{{ hud.zoom }}
-      //- On touch, while aiming: a button that fires (letting go of the screen does too).
-      FHudButton.slot-fire(
-        v-if="hud.aiming && hud.device === 'touch'"
-        :icon="hud.weapon"
-        tone="pink"
+      //- Touch: the trigger, big, beside jump. Held, the mini-gun keeps
+      //- firing; off the scope it fires from the hip, as a mouse click does.
+      FHudButton.slot-shoot(
+        v-if="hud.device === 'touch' && revealed('shoot')"
+        :icon="LOOK.shoot.icon"
+        :tone="LOOK.shoot.tone"
+        :shape="LOOK.shoot.shape"
+        :attention="teaching('fire')"
+        :is-disabled="hud.mode !== 'ground'"
         :aria-label="t('hint.fire')"
-        data-testid="btn-fire"
-        @click="input.firePressed = true"
-      )
-      FHudButton.slot-cancel(
-        v-if="hud.aiming && hud.device === 'touch'"
-        icon="close"
-        :tone="LOOK.cancel.tone"
-        :aria-label="t('hud.cancel')"
-        data-testid="btn-cancel"
-        @click="cancelAim(input)"
+        data-testid="btn-shoot"
+        @pointerdown="fireDown"
+        @pointerup="fireUp"
+        @pointercancel="fireUp"
+        @lostpointercapture="fireUp"
       )
       //- The weapons (#161): each one drawn side on, in its colour, with no
       //- chip round it. On touch all three side by side, a switch to tap: the
@@ -198,7 +204,7 @@
       //- and Tab that turn it; a click fans out the other two.
       //- On touch one button: the weapon in hand, a tap draws the next.
       button.weapon-swap.slot-weapon(
-        v-if="hud.device === 'touch'"
+        v-if="hud.device === 'touch' && revealed('weapon')"
         type="button"
         :class="[`w-${hud.weapon}`, { 'is-attention': flare || teaching('weapon') || teaching('rocket') }]"
         :aria-label="t('hud.weapons')"
@@ -209,7 +215,7 @@
         GameIcon.swap-glyph(name="act-swap")
         span.swap-pips
           span.swap-pip(v-for="w in WEAPON_IDS" :key="w" :class="{ on: w === hud.weapon }")
-      div.weapons(v-else :class="{ spread: spread }")
+      div.weapons(v-else-if="hud.device !== 'touch'" :class="{ spread: spread }")
         template(v-if="spread")
           button.weapon(
             v-for="(w, n) in WEAPON_IDS"
@@ -222,7 +228,7 @@
             @click="pick(n)"
           )
             WeaponArt(:weapon="w")
-            span.key(v-if="hud.device === 'mouse'" aria-hidden="true") {{ weaponKeyText(n) }}
+            span.key(v-if="hud.device === 'mouse'" aria-hidden="true" :data-code="primaryCode(WEAPON_KEYS[n] ?? 'cycle')" :data-action="WEAPON_KEYS[n] ?? 'cycle'") {{ weaponKeyText(n) }}
         button.weapon.held(
           v-else
           type="button"
@@ -232,13 +238,17 @@
           @click="wheelOpen = true"
         )
           WeaponArt(:weapon="hud.weapon")
-          span.key.wide(v-if="hud.device === 'mouse'" aria-hidden="true")
+          span.key.wide(v-if="hud.device === 'mouse'" aria-hidden="true" :data-code="primaryCode('cycle')" data-action="cycle")
             svg.wheel(viewBox="0 0 12 16")
               rect(x="1" y="1" width="10" height="14" rx="5")
               rect.lit(x="5" y="3" width="2" height="4" rx="1")
             span.or /
             | {{ cycleKeyText }}
+      //- The situational three — sneak, disguise, decoy — in a row up in the
+      //- top right, under the pause button; the thumb's corner keeps only
+      //- jump, the trigger and the weapon switch round the look stick.
       FHudButton.slot-decoy(
+        v-if="revealed('decoy')"
         :icon="LOOK.decoy.icon"
         :tone="LOOK.decoy.tone"
         :attention="teaching('decoy')"
@@ -254,6 +264,7 @@
           FHudBadge(tone="cyan") {{ hud.decoyCool }}
       //- The hide box: down over the mech, and off again.
       FHudButton.slot-hide(
+        v-if="revealed('hide')"
         :icon="LOOK.hide.icon"
         :tone="LOOK.hide.tone"
         :active="hud.boxed"
@@ -265,21 +276,6 @@
         :shape="LOOK.hide.shape"
         data-testid="btn-hide"
         @click="input.hideQueued = true"
-      )
-      //- A thumb has no Shift key: sprint is a switch here. It lets go by
-      //- itself when the stick does.
-      FHudButton.slot-sprint(
-        v-if="hud.device === 'touch'"
-        :icon="LOOK.sprint.icon"
-        :tone="LOOK.sprint.tone"
-        :active="hud.sprinting || input.sprintHeld"
-        :pressed="input.sprintHeld"
-        :is-disabled="hud.mode !== 'ground'"
-        :attention="teaching('sprint')"
-        :aria-label="t('hud.sprint')"
-        :shape="LOOK.sprint.shape"
-        data-testid="btn-sprint"
-        @click="input.sprintHeld = !input.sprintHeld"
       )
       //- A thumb has no space bar: the jump has its chip (#95).
       FHudButton.slot-jump(
@@ -294,6 +290,7 @@
         @click="input.jumpQueued = true"
       )
       FHudButton.slot-crouch(
+        v-if="revealed('crouch')"
         :icon="hud.crouched ? 'act-stand' : LOOK.crouch.icon"
         :tone="LOOK.crouch.tone"
         :attention="teaching('crouch')"
@@ -327,6 +324,8 @@ import GameIcon from '@/components/icons/GameIcon.vue'
 import FHudBadge from '@/components/atoms/FHudBadge.vue'
 import Joystick from '@/components/hud/Joystick.vue'
 import LookStick from '@/components/hud/LookStick.vue'
+import RevealArrow from '@/components/hud/RevealArrow.vue'
+import { revealed } from '@/components/hud/touchReveal'
 import AimHold from '@/components/hud/AimHold.vue'
 import ThreatArcs from '@/components/hud/ThreatArcs.vue'
 import ObjectiveMarker from '@/components/hud/ObjectiveMarker.vue'
@@ -342,7 +341,7 @@ import QuestLog from '@/components/hud/QuestLog.vue'
 import HitFlash from '@/components/hud/HitFlash.vue'
 import { hud, targetMarks } from '@/game/state/hud'
 import { input } from '@/game/engine/inputState'
-import { cancelAim } from '@/game/engine/input'
+import { cancelAim, latchAim } from '@/game/engine/input'
 import { WEAPON_IDS, type WeaponId } from '@/game/data/ids'
 import type { HintId } from '@/game/sim/coach'
 
@@ -360,7 +359,8 @@ const { t } = useI18n()
 /** On a desktop every chip shows the key that works it (the mouse is captured, so the chip cannot be clicked, #82). */
 const kb = (a: Action): Action | undefined => (hud.device === 'mouse' ? a : undefined)
 const WEAPON_KEYS: readonly Action[] = ['weapon1', 'weapon2', 'weapon3']
-const teaching = (id: HintId): boolean => hud.device === 'touch' && hud.hints.some(h => h.id === id)
+// A lesson card for it, or the training's nudge pointing at it (#186): the button bounces.
+const teaching = (id: HintId): boolean => hud.device === 'touch' && (hud.hints.some(h => h.id === id) || hud.training.nudge === id)
 
 // ── The quest log sits on the action column (#145) ──
 // The column's height changes with the device and with what is on offer, so
@@ -417,6 +417,19 @@ const offChaos = on('chaos', () => {
 })
 onUnmounted(offChaos)
 let closeTimer = 0
+/** Touch, the scope's toggle: up and kept up, or down again without a shot. */
+const toggleScope = (): void => {
+  if (input.aimHeld) cancelAim(input)
+  else latchAim(input)
+}
+/** Touch, Shoot: pressed is a shot (and the trigger held, for the mini-gun). */
+const fireDown = (e: PointerEvent): void => {
+  if (hud.mode !== 'ground') return
+  try { (e.currentTarget as Element).setPointerCapture(e.pointerId) } catch { /* ignore */ }
+  input.firePressed = true
+  input.fireHeld = true
+}
+const fireUp = (): void => { input.fireHeld = false }
 /** Touch: the weapon button draws the next weapon round. */
 const nextWeapon = (): void => {
   sfx('uiClick')
@@ -691,50 +704,68 @@ onUnmounted(() => window.clearTimeout(closeTimer))
   // The jump button's centre, from the right and bottom edges.
   --ax: calc(var(--cm-safe-right) + var(--edge) + var(--big) / 2)
   --ay: calc(var(--cm-safe-bottom) + var(--edge) + var(--big) / 2)
-  // The look stick's centre: left of the cluster, level with the move stick
-  // on the left (`Joystick.vue` sits its resting stick 0.95 rings up).
-  --look-x: calc(var(--ax) + 3.5 * var(--btn) + var(--stick) / 2)
-  --look-y: calc(env(safe-area-inset-bottom, 0px) + var(--stick) * 0.95)
-  @media (orientation: portrait)
-    --look-x: calc(var(--ax) + 1.4 * var(--btn))
-    --look-y: calc(var(--ay) + 4.7 * var(--btn) + var(--stick) / 2)
+  // The look stick's centre (#194): over the trigger, left of the weapon
+  // switch — in the thumb's arc, where it rests between camera and trigger.
+  --look-x: calc(var(--ax) + 1.55 * var(--btn))
+  --look-y: calc(var(--ay) + 0.81 * var(--btn) + var(--stick) / 2)
 
   .actions
     position: absolute
     inset: 0
     display: block
+  // The thumb's corner (the playtester's sketch): jump, the trigger beside
+  // it, the weapon switch above jump and the look stick above the trigger —
+  // so the camera turns while the stick walks — and the hands' action (stab,
+  // loot, burn …) beside the trigger.
   .slot-jump
     +slot(0, 0, var(--big))
-  .slot-crouch
-    +slot(1.5, 0)
-  .slot-sprint
-    +slot(0.96, 1.15)
-  .slot-hide
-    +slot(-0.26, 1.48)
-  .slot-decoy
-    +slot(2.52, 0.92)
+  .slot-shoot
+    +slot(1.55, 0, var(--big))
   .slot-weapon
-    +slot(1.13, 2.43)
-  .slot-fire, .slot-context
-    +slot(2.79, 2.51, var(--big))
-  .slot-context2
-    +slot(2.84, 4.05, var(--big))
+    +slot(-0.1, 1.5)
+  // The hands' action left of the trigger (above the look stick upright, the
+  // move stick being in the way down there).
+  .slot-context
+    +slot(3.05, 0.2, var(--big))
     @media (orientation: portrait)
-      +slot(0.5, 3.9, var(--big))
-  .slot-cancel
-    +slot(-0.1, 2.75)
-  .slot-zoom
-    +slot(0, 3.95)
-  // The hands' action is the trigger's place while aiming.
-  &.aiming .strike
-    display: none
+      +slot(1.55, 3.9, var(--big))
+  .slot-context2
+    +slot(3.6, 1.8, var(--big))
+    @media (orientation: portrait)
+      +slot(-0.15, 3, var(--big))
+  // The situational three, a row under the pause button: sneak nearest the edge.
+  .slot-crouch, .slot-hide, .slot-decoy
+    position: absolute
+    top: calc(var(--cm-safe-top) + var(--cm-chip) + var(--gap))
+    width: var(--btn)
+    height: var(--btn)
+    --cm-chip: var(--btn)
+  .slot-crouch
+    right: var(--cm-safe-right)
+  .slot-hide
+    right: calc(var(--cm-safe-right) + var(--btn) + var(--gap))
+  .slot-decoy
+    right: calc(var(--cm-safe-right) + (var(--btn) + var(--gap)) * 2)
   .strike :deep(.f-hud-button)
     width: 100%
     height: 100%
-  // The quest log hangs under the pause button, clear of the cluster.
+  // The quest log hangs under the situational row, clear of the cluster.
   .quest
-    top: calc(var(--cm-safe-top) + var(--cm-chip) + var(--gap))
+    top: calc(var(--cm-safe-top) + var(--cm-chip) + var(--btn) + var(--gap) * 2)
     bottom: auto !important
+
+  // The scope's toggle, up and to the right of the move stick's ring
+  // (`Joystick.vue`: its centre 0.95 rings in from the corner): off the
+  // diagonal, it clears the room's objective card above the stick.
+  .zoom-pad
+    --pad-d: calc((var(--stick) + var(--btn)) / 2 + var(--gap))
+    position: absolute
+    left: calc(env(safe-area-inset-left, 0px) + var(--stick) * 0.95 + var(--pad-d) * 0.71)
+    bottom: calc(env(safe-area-inset-bottom, 0px) + var(--stick) * 0.95 + var(--pad-d) * 0.71)
+    translate: -50% 50%
+    display: flex
+    gap: calc(var(--btn) * 0.25)
+    --cm-chip: var(--btn)
 
 // The weapon on touch: the one in hand, drawn, in a round key of its colour;
 // a tap draws the next (the swap arrows and three pips say so).

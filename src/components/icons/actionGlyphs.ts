@@ -59,6 +59,15 @@ const cap = (x1: number, y1: number, x2: number, y2: number, w: number): string 
   return wind(pts)
 }
 
+const circle = (cx: number, cy: number, r: number): Pt[] => {
+  const pts: Pt[] = []
+  for (let i = 0; i < 24; i++) {
+    const t = (Math.PI * 2 * i) / 24
+    pts.push([cx + Math.cos(t) * r, cy + Math.sin(t) * r])
+  }
+  return pts
+}
+
 const ellipse = (cx: number, cy: number, rx: number, ry: number): string => {
   const pts: Pt[] = []
   for (let i = 0; i < 20; i++) {
@@ -90,27 +99,37 @@ const chevron = (cx: number, cy: number, dir: 1 | -1, s = 1): string =>
     [cx + 3 * s, cy - 3.4 * s * dir], [cx, cy - 0.4 * s * dir], [cx - 3 * s, cy - 3.4 * s * dir])
 
 export const ACTION_GLYPHS = {
-  /** Jump: the mech in the air, arms up, legs tucked; dust lines under it, the ground below. */
+  /**
+   * Jump (#195): a gap jump — the mech mid-leap from one ledge to the next,
+   * stretched out over spikes, its arc dashed in on either side.
+   */
   'act-jump': [
-    ...head(9.5, 0.8),
-    poly([8.4, 6.2], [15.6, 6.2], [14.6, 11.8], [9.4, 11.8]),
-    cap(8.6, 7, 5.6, 3, 2.2),
-    cap(15.4, 7, 18.4, 3, 2.2),
-    cap(10.4, 11.8, 8.2, 14.6, 2.6), cap(8.2, 14.6, 9.8, 17.2, 2.4),
-    cap(13.6, 11.8, 15.8, 14.6, 2.6), cap(15.8, 14.6, 14.2, 17.2, 2.4),
-    cap(8.6, 19.2, 8.6, 20.2, 1.2), cap(12, 18.9, 12, 20.4, 1.2), cap(15.4, 19.2, 15.4, 20.2, 1.2),
-    cap(3.5, 22.4, 20.5, 22.4, 1.3)
+    ...head(12.6, 2.4, 0.8),
+    poly([11.4, 6.6], [16.2, 7.1], [15, 11.6], [10.9, 11]),
+    cap(15.8, 7.8, 18.8, 6.2, 1.8),
+    cap(11.6, 7.9, 8.8, 9.6, 1.8),
+    cap(14.3, 11.3, 17.4, 13, 2.2), cap(17.4, 13, 18.8, 14.8, 2),
+    cap(11.8, 11.2, 9.2, 13.2, 2.2), cap(9.2, 13.2, 7.2, 12.2, 2),
+    rect(0.4, 16.6, 7.2, 23.2, 0.6), rect(1.4, 18.2, 6.2, 18.9, 0, true),
+    rect(16.8, 16.6, 23.6, 23.2, 0.6), rect(17.8, 18.2, 22.6, 18.9, 0, true),
+    poly([7.6, 23.2], [9.1, 19.6], [10.6, 23.2]), poly([10.6, 23.2], [12, 19.2], [13.4, 23.2]), poly([13.4, 23.2], [14.9, 19.6], [16.4, 23.2]),
+    cap(3.4, 14.4, 4.4, 12.8, 1.1), cap(5.4, 11.4, 6.6, 10.2, 1.1),
+    cap(20, 10.6, 20.9, 11.9, 1.1), cap(21.5, 13.2, 22, 14.6, 1.1)
   ],
-  /** Crouch: the mech down on its heels behind a low wall, a chevron pointing down above the wall. */
+  /**
+   * Sneak (crouch): the cartoon sneak everyone knows — the mech hunched
+   * forward on tiptoe, hands up, creeping, a trail of soft footprints behind
+   * it. (It was crouched behind a low wall, and at button size the wall read
+   * as a shield.)
+   */
   'act-crouch': [
-    ...head(5.6, 6.6),
-    poly([5, 11.8], [11.4, 11.4], [12, 16.2], [6, 16.8]),
-    cap(11, 12.4, 14.2, 14.6, 2.2),
-    cap(8, 16.6, 12.2, 17.4, 2.6), cap(12.2, 17.4, 11.4, 21.6, 2.4),
-    cap(6.8, 16.8, 4.4, 19.8, 2.6), cap(4.4, 19.8, 7.6, 21.6, 2.2),
-    rect(15.4, 12, 21.6, 22, 0.8),
-    rect(16.6, 14.6, 20.4, 15.4, 0, true),
-    chevron(18.5, 6.4, 1, 0.9)
+    ...head(14.6, 5.8, 0.88),
+    poly([7.6, 10.4], [14.8, 9.2], [13.8, 14.8], [7.4, 14.6]),
+    cap(14.2, 10.4, 17.4, 13.4, 2.1), cap(17.4, 13.4, 19.8, 11, 1.8),
+    cap(11.2, 11.6, 13.8, 15.6, 2), cap(13.8, 15.6, 16.6, 14.6, 1.7),
+    cap(12.2, 14.6, 16.6, 16.8, 2.7), cap(16.6, 16.8, 16, 20.8, 2.4), cap(16, 21, 18.8, 21.2, 1.8),
+    cap(9, 14.6, 10.6, 18.6, 2.7), cap(10.6, 18.6, 6.6, 21.2, 2.3),
+    ellipse(1.8, 21.4, 1.2, 0.65), ellipse(3.8, 23.2, 1.2, 0.65)
   ],
   /** Stand up: the mech upright, a chevron pointing up beside it. */
   'act-stand': [
@@ -146,6 +165,28 @@ export const ACTION_GLYPHS = {
     ...standing(12, 1.6, 0.86),
     cap(2.4, 2.2, 2.4, 3.6, 1.1), cap(1.7, 2.9, 3.1, 2.9, 1.1),
     cap(21.6, 7.4, 21.6, 8.8, 1.1), cap(20.9, 8.1, 22.3, 8.1, 1.1)
+  ],
+  /** Shoot: a round leaving the barrel, speed lines streaming behind it. */
+  'act-fire': [
+    rect(4.2, 8.4, 6.2, 15.6, 0.4),
+    rect(6.6, 9.2, 13.6, 14.8, 0.5),
+    poly([13.6, 9.2], [16.4, 9.6], [18.8, 10.6], [20.4, 12], [18.8, 13.4], [16.4, 14.4], [13.6, 14.8]),
+    rect(8.4, 10.6, 12.6, 11.4, 0, true),
+    cap(2, 5.2, 9.6, 5.2, 1.5), cap(4.6, 18.8, 11.8, 18.8, 1.5),
+    cap(21.2, 6.2, 22.6, 4.6, 1.3), cap(21.2, 17.8, 22.6, 19.4, 1.3), cap(22.2, 12, 23.4, 12, 1.3)
+  ],
+  /** The sniper's scope, to look through: its reticle, the cross with its mil dots. */
+  'act-scope': [
+    ellipse(12, 12, 10.2, 10.2), wind(circle(12, 12, 8.3), true),
+    cap(12, 3.6, 12, 9.4, 1.5), cap(12, 14.6, 12, 20.4, 1.5), cap(3.6, 12, 9.4, 12, 1.5), cap(14.6, 12, 20.4, 12, 1.5),
+    ellipse(12, 12, 1.2, 1.2),
+    ellipse(12, 6.6, 0.8, 0.8), ellipse(17.4, 12, 0.8, 0.8)
+  ],
+  /** Out of the scope: the reticle struck through — the weapon comes down, nothing fired. */
+  'act-unscope': [
+    ellipse(12, 12, 10.2, 10.2), wind(circle(12, 12, 8.3), true),
+    cap(12, 3.6, 12, 8.4, 1.5), cap(12, 15.6, 12, 20.4, 1.5), cap(3.6, 12, 8.4, 12, 1.5), cap(15.6, 12, 20.4, 12, 1.5),
+    cap(5.4, 18.6, 18.6, 5.4, 2.6)
   ],
   /** Swap weapon: two arrows chasing each other round. */
   'act-swap': [

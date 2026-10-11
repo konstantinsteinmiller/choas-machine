@@ -30,7 +30,8 @@ export default {
     'salvage': 'La akiraĵo',
     'fallBastion': 'La Bastiono falas',
     'fallFoundry': 'La Fandejo malvarmiĝas',
-    'outro': 'Hejmen'
+    'outro': 'Hejmen',
+    'nextTarget': 'Sekva celo'
   },
   'fortress': {
     'bastion': 'Bastiono',
@@ -87,6 +88,7 @@ export default {
   },
   'defeat': {
     'title': 'Meĥo falis',
+    'repair': 'Plena riparo',
     'retry': 'Reprovu',
     'resume': 'De la unua amaso',
     'kept': 'Savitaj teknorestaĵoj'
@@ -191,6 +193,26 @@ export default {
     'unlock': 'Malŝlosi: {name}',
     'watch': 'Spektu videon por malŝlosi: {name}'
   },
+  'paint': {
+    'title': 'Farboskemoj',
+    'lilac': 'CM-07 Siringa',
+    'crimson': 'Karmezina',
+    'arctic': 'Arkta',
+    'jungle': 'Ĝangala',
+    'gilded': 'Orumita',
+    'midnight': 'Noktomeza',
+    'tangerine': 'Mandarina',
+    'equip': 'Farbi la meĥon: {name}',
+    'equipShort': 'Ekipi',
+    'equipped': 'Ekipita',
+    'unlock': 'Malŝlosi: {name}',
+    'watch': 'Spektu videon por malŝlosi por ĉiam: {name}',
+    'try': 'Spektu videon por provi {name} dum unu misio',
+    'tryShort': 'Provi 1 mision',
+    'lent': 'Via por la sekva misio',
+    'noVideo': 'Neniu video nun',
+    'back': 'Denove post {time}'
+  },
   'ads': {
     'blockedTitle': 'Reklamoj blokitaj',
     'blockedBody': 'Reklambloko haltigis la videon, do ĉi-foje ne estas rekompenco.',
@@ -234,6 +256,7 @@ export default {
     'alarm': '6, 7!',
     'lowHealth': 'Tempas streĉi miajn ŝraŭbojn!',
     'lowAmmo': 'Preskaŭ sen municio, mi serĉas ŝtonojn por ĵeti.',
+    'noAmmo': 'Sen municio.',
     'takedown': 'Ŝŝ. Dormotempo.',
     'decoy': 'Rigardu, bela fremdulo!',
     'disguise': 'La plej bona panrostilo en la branĉo.',
@@ -252,6 +275,22 @@ export default {
     'replay': 'Montru denove',
     'progress': 'Trejnado: {n} el {total} lecionoj faritaj',
     'scrapWhy': 'Teknorestaĵoj aĉetas plibonigojn por viaj armiloj en la komandobazo.',
+    'bladeHint': 'Ŝteliru al la gardistoj kaj ponardu ilin de malantaŭe, por ke ili ne levu alarmon!',
+    'decoyHint': 'Metu logilon por distri la gardiston, poste ŝteliru al li kaj murdu lin!',
+    'roomHint': {
+      'move': 'Iru al la brilanta pordo por komenci vian trejnadon.',
+      'jump': 'Grimpu la ŝtupetaron kaj saltu trans la breĉon al la alia platformo!',
+      'cover': 'Kaŭru malantaŭ la kestoj, por ke la gardostaranto ne vidu vin, poste rampu sub la pordego!',
+      'weapons': 'Forigu ĉiujn tri gardistojn: kaŝpafu unu, poste ŝanĝu al la minigun por la aliaj du!',
+      'rocket': 'Ŝanĝu al la raketĵetilo kaj eksplodigu la meĥon sur la kornico!',
+      'supply': 'Iru trans la kestojn por replenigi vian municion kaj ripari vian kirason.',
+      'burn': 'Bruligu la korpon per la flamĵetilo antaŭ ol iu trovos ĝin!',
+      'box': 'Kaŝu vin en la kartona skatolo kaj staru senmove dum la serĉlumo balaas super vi!',
+      'hook': 'Uzu la kroĉhokon por transiri la muron!',
+      'rope': 'Uzu la ŝnurpafilon por krei ŝnuron inter la du platformoj!',
+      'barrel': 'Pafu la fuelbarelon por forigi la gardistojn malantaŭ la muro!',
+      'extract': 'Iru al la evakuejo por fini vian trejnadon!',
+    },
     'skip': 'Preterpasi trejnadon',
     'goal': 'Neŭtraligu ĉiujn tri',
     'goalProgress': '{n} el {total} faligitaj',
@@ -282,6 +321,8 @@ export default {
   'pause': {
     'title': 'PAŬZITA',
     'resume': 'Daŭrigi',
+    'retreat': 'Retiriĝi al la bazo',
+    'retreatSure': 'Ĉu forlasi la atakon? Tuŝu denove',
     'controls': 'Regiloj'
   },
   'options': {

@@ -91,7 +91,7 @@ const keyText = computed(() => {
       slot
     span.f-hud-button__badge(v-if="$slots.badge")
       slot(name="badge")
-    span.f-hud-button__key(v-if="keyText" aria-hidden="true" :class="{ wide: keyText.length > 1 || wheel }")
+    span.f-hud-button__key(v-if="keyText" aria-hidden="true" :data-code="hotkey ? primaryCode(hotkey) : undefined" :data-action="hotkey" :class="{ wide: keyText.length > 1 || wheel }")
       template(v-if="wheel")
         svg.f-hud-button__wheel(viewBox="0 0 12 16")
           rect(x="1" y="1" width="10" height="14" rx="5")

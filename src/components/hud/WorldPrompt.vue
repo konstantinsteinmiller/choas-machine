@@ -6,7 +6,10 @@
     div.chip(v-for="k in kinds" :key="k" :class="`k-${k}`" :style="{ '--plate-edge': toneVar(BUTTON_LOOK[PROMPT_BUTTON[k]].tone) }")
       KeyCap.key(v-if="hud.device === 'mouse'" :action="keyFor(k)")
       //- On touch (#160): the button that does it, in its own shape and colour.
-      TouchButtonGlyph.button(v-else :look="lookOf(PROMPT_BUTTON[k], hud.weapon)")
+      template(v-else)
+        TouchButtonGlyph.button(:look="lookOf(PROMPT_BUTTON[k], hud.weapon)")
+        //- A keyboard here too (a touchscreen laptop): its shortcut beside the picture.
+        KeyCap.key(v-if="keyboardToo" :action="keyFor(k)")
       span.label {{ t(`prompt.${k}`) }}
 </template>
 
@@ -15,14 +18,14 @@ import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import KeyCap from '@/components/hud/hints/KeyCap.vue'
 import TouchButtonGlyph from '@/components/hud/hints/TouchButtonGlyph.vue'
-import { BUTTON_LOOK, PROMPT_BUTTON, lookOf, toneVar } from '@/components/hud/touchLook'
+import { BUTTON_LOOK, PROMPT_BUTTON, lookOf, promptAction, toneVar } from '@/components/hud/touchLook'
 import { addHudTicker, hud, prompt, type PromptKind } from '@/game/state/hud'
+import { keyboardToo } from '@/use/useKeyboardToo'
 import type { Action } from '@/game/engine/keyBindings'
 
 const { t } = useI18n()
-/** The key that does what the prompt offers: the hook, a rope, a body to drag, else the act key (E). */
-const keyFor = (kind: PromptKind): Action =>
-  kind === 'hook' ? 'grapple' : kind === 'rope' ? 'rope' : kind === 'grab' || kind === 'drop' ? 'drag' : 'act'
+/** The key that does what the prompt offers: its touch button's (`touchLook.ts`), the one the lessons teach. */
+const keyFor = (kind: Exclude<PromptKind, ''>): Action => promptAction(kind)
 const el = ref<HTMLElement | null>(null)
 /** What is on offer here: one key, or two (the hook and the rope). */
 const kinds = computed<Array<Exclude<PromptKind, ''>>>(() => [hud.prompt, hud.prompt2].filter((k): k is Exclude<PromptKind, ''> => !!k))

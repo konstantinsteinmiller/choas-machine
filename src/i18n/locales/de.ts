@@ -30,7 +30,8 @@ export default {
     'salvage': 'Die Beute',
     'fallBastion': 'Die Bastion fällt',
     'fallFoundry': 'Die Gießerei erkaltet',
-    'outro': 'Heimflug'
+    'outro': 'Heimflug',
+    'nextTarget': 'Nächstes Ziel'
   },
   'fortress': {
     'bastion': 'Bastion',
@@ -87,6 +88,7 @@ export default {
   },
   'defeat': {
     'title': 'Mech außer Gefecht',
+    'repair': 'Volle Reparatur',
     'retry': 'Nochmal versuchen',
     'resume': 'Ab dem ersten Haufen',
     'kept': 'Geretteter Techschrott'
@@ -191,6 +193,26 @@ export default {
     'unlock': 'Freischalten: {name}',
     'watch': 'Video ansehen und freischalten: {name}'
   },
+  'paint': {
+    'title': 'Lackierungen',
+    'lilac': 'CM-07 Flieder',
+    'crimson': 'Karmesin',
+    'arctic': 'Arktis',
+    'jungle': 'Dschungel',
+    'gilded': 'Vergoldet',
+    'midnight': 'Mitternacht',
+    'tangerine': 'Mandarine',
+    'equip': 'Mech lackieren: {name}',
+    'equipShort': 'Anlegen',
+    'equipped': 'Ausgerüstet',
+    'unlock': 'Freischalten: {name}',
+    'watch': 'Video ansehen und dauerhaft freischalten: {name}',
+    'try': 'Video ansehen und {name} eine Mission lang testen',
+    'tryShort': '1 Mission testen',
+    'lent': 'Gehört dir für die nächste Mission',
+    'noVideo': 'Gerade kein Video',
+    'back': 'Wieder in {time}'
+  },
   'ads': {
     'blockedTitle': 'Werbung blockiert',
     'blockedBody': 'Ein Werbeblocker hat das Video gestoppt, deshalb gibt es diesmal keine Belohnung.',
@@ -234,6 +256,7 @@ export default {
     'alarm': '6, 7!',
     'lowHealth': 'Zeit, meine Schrauben nachzuziehen!',
     'lowAmmo': 'Munition fast alle – ich such mir Steine zum Werfen.',
+    'noAmmo': 'Keine Munition mehr.',
     'takedown': 'Pssst. Heia machen.',
     'decoy': 'Schau mal, ein hübscher Fremder!',
     'disguise': 'Der beste Toaster der Branche.',
@@ -252,6 +275,22 @@ export default {
     'replay': 'Nochmal zeigen',
     'progress': 'Training: {n} von {total} Lektionen geschafft',
     'scrapWhy': 'Mit Techschrott verbesserst du deine Waffen in der Kommandobasis.',
+    'bladeHint': 'Schleich dich an die Wachen heran und erledige sie von hinten, damit sie keinen Alarm auslösen!',
+    'decoyHint': 'Wirf einen Köder, um die Wache abzulenken, dann schleich dich an und schalte sie aus!',
+    'roomHint': {
+      'move': 'Geh zur leuchtenden Tür, um dein Training zu starten.',
+      'jump': 'Kletter die Leiter hoch und spring über die Lücke zur anderen Plattform!',
+      'cover': 'Duck dich hinter die Kisten, damit dich der Wachposten nicht sieht, und kriech dann unter dem Tor durch!',
+      'weapons': 'Schalte alle drei Wachen aus: Erledige eine mit dem Scharfschützengewehr und wechsle dann zur Minigun für die anderen zwei!',
+      'rocket': 'Wechsle zum Raketenwerfer und spreng den Mech auf dem Vorsprung!',
+      'supply': 'Lauf über die Kisten, um Munition aufzufüllen und deine Panzerung zu reparieren.',
+      'burn': 'Verbrenn die Leiche mit dem Flammenwerfer, bevor sie jemand findet!',
+      'box': 'Versteck dich im Karton und halt still, während der Suchscheinwerfer über dich streicht!',
+      'hook': 'Nimm den Enterhaken, um über die Mauer zu kommen!',
+      'rope': 'Spann mit der Seilkanone ein Seil zwischen den beiden Plattformen!',
+      'barrel': 'Schieß auf das Treibstofffass, um die Wachen hinter der Mauer auszuschalten!',
+      'extract': 'Geh zum Extraktionspunkt, um dein Training abzuschließen!',
+    },
     'skip': 'Training überspringen',
     'goal': 'Schalte alle drei aus',
     'goalProgress': '{n} von {total} ausgeschaltet',
@@ -282,6 +321,8 @@ export default {
   'pause': {
     'title': 'PAUSIERT',
     'resume': 'Fortsetzen',
+    'retreat': 'Rückzug zur Basis',
+    'retreatSure': 'Einsatz abbrechen? Nochmal tippen',
     'controls': 'Steuerung'
   },
   'options': {

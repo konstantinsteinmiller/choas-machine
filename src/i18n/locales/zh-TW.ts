@@ -30,7 +30,8 @@ export default {
     'salvage': '戰利品',
     'fallBastion': '堡壘陷落',
     'fallFoundry': '熔爐熄滅',
-    'outro': '回家'
+    'outro': '回家',
+    'nextTarget': '下一個目標'
   },
   'fortress': {
     'bastion': '堡壘',
@@ -87,6 +88,7 @@ export default {
   },
   'defeat': {
     'title': '機甲倒下了',
+    'repair': '完全修復',
     'retry': '再試一次',
     'resume': '從第一堆開始',
     'kept': '回收的科技廢料'
@@ -191,6 +193,26 @@ export default {
     'unlock': '解鎖：{name}',
     'watch': '觀看影片以解鎖：{name}'
   },
+  'paint': {
+    'title': '塗裝',
+    'lilac': 'CM-07 丁香紫',
+    'crimson': '緋紅',
+    'arctic': '極地',
+    'jungle': '叢林',
+    'gilded': '鎏金',
+    'midnight': '午夜',
+    'tangerine': '橘橙',
+    'equip': '為機甲塗裝：{name}',
+    'equipShort': '裝備',
+    'equipped': '已裝備',
+    'unlock': '解鎖：{name}',
+    'watch': '觀看影片以永久解鎖：{name}',
+    'try': '觀看影片以試用{name}一場任務',
+    'tryShort': '試用1場',
+    'lent': '下一場任務歸你',
+    'noVideo': '目前沒有影片',
+    'back': '{time}後再來'
+  },
   'ads': {
     'blockedTitle': '廣告已被封鎖',
     'blockedBody': '廣告攔截器中止了影片，所以這次沒有獎勵。',
@@ -234,6 +256,7 @@ export default {
     'alarm': '6, 7!',
     'lowHealth': '該鎖緊螺絲了！',
     'lowAmmo': '彈藥快沒了，找石頭來丟。',
+    'noAmmo': '沒子彈了。',
     'takedown': '噓，睡覺時間到。',
     'decoy': '看，一位帥氣的陌生人！',
     'disguise': '業界最強烤麵包機。',
@@ -252,6 +275,22 @@ export default {
     'replay': '再示範一次',
     'progress': '訓練：已完成 {n}/{total} 課',
     'scrapWhy': '廢料可在指揮基地升級你的武器。',
+    'bladeHint': '悄悄接近守衛並從背後刺殺他們，別讓他們拉響警報！',
+    'decoyHint': '放置誘餌引開守衛的注意，然後悄悄接近並刺殺他！',
+    'roomHint': {
+      'move': '走到發光的門那裡，開始你的訓練。',
+      'jump': '爬上梯子，跳過缺口到對面的平台！',
+      'cover': '蹲在箱子後面別讓哨兵看見，然後從大門下面爬過去！',
+      'weapons': '幹掉全部三名守衛：狙掉一個，然後切換到加特林機槍解決另外兩個！',
+      'rocket': '切換到火箭筒，炸掉岩架上的機甲！',
+      'supply': '從箱子上走過，補充彈藥並修復裝甲。',
+      'burn': '趁沒人發現，用火焰噴射器燒掉屍體！',
+      'box': '躲進紙箱，探照燈掃過時站著別動！',
+      'hook': '用抓鉤翻過牆！',
+      'rope': '用繩索槍在兩個平台之間拉一條繩索！',
+      'barrel': '射擊油桶，幹掉牆後的守衛！',
+      'extract': '走到撤離點，完成訓練！',
+    },
     'skip': '跳過訓練',
     'goal': '幹掉全部三個',
     'goalProgress': '已擊倒 {n}/{total}',
@@ -282,6 +321,8 @@ export default {
   'pause': {
     'title': '已暫停',
     'resume': '繼續',
+    'retreat': '撤退回基地',
+    'retreatSure': '放棄突襲？再點一次',
     'controls': '操作說明'
   },
   'options': {

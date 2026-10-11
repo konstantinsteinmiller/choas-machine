@@ -30,7 +30,8 @@ export default {
     'salvage': 'Hasil rampasan',
     'fallBastion': 'Bastion jatuh',
     'fallFoundry': 'Pengecoran mendingin',
-    'outro': 'Pulang'
+    'outro': 'Pulang',
+    'nextTarget': 'Target berikutnya'
   },
   'fortress': {
     'bastion': 'Bastion',
@@ -87,6 +88,7 @@ export default {
   },
   'defeat': {
     'title': 'Mech tumbang',
+    'repair': 'Perbaikan penuh',
     'retry': 'Coba lagi',
     'resume': 'Dari tumpukan pertama',
     'kept': 'Rongsok Teknologi terselamatkan'
@@ -191,6 +193,26 @@ export default {
     'unlock': 'Buka: {name}',
     'watch': 'Tonton video untuk membuka: {name}'
   },
+  'paint': {
+    'title': 'Skema cat',
+    'lilac': 'CM-07 Lilak',
+    'crimson': 'Merah Tua',
+    'arctic': 'Arktik',
+    'jungle': 'Rimba',
+    'gilded': 'Bersepuh Emas',
+    'midnight': 'Tengah Malam',
+    'tangerine': 'Jeruk',
+    'equip': 'Cat mech dengan {name}',
+    'equipShort': 'Pasang',
+    'equipped': 'Terpasang',
+    'unlock': 'Buka: {name}',
+    'watch': 'Tonton video untuk membuka selamanya: {name}',
+    'try': 'Tonton video untuk mencoba {name} selama satu misi',
+    'tryShort': 'Coba 1 misi',
+    'lent': 'Milikmu untuk misi berikutnya',
+    'noVideo': 'Tidak ada video saat ini',
+    'back': 'Kembali dalam {time}'
+  },
   'ads': {
     'blockedTitle': 'Iklan diblokir',
     'blockedBody': 'Pemblokir iklan menghentikan video, jadi kali ini tidak ada hadiah.',
@@ -234,6 +256,7 @@ export default {
     'alarm': '6, 7!',
     'lowHealth': 'Saatnya mengencangkan bautku!',
     'lowAmmo': 'Amunisi hampir habis, cari batu buat dilempar.',
+    'noAmmo': 'Amunisi habis.',
     'takedown': 'Ssst. Waktunya bobo.',
     'decoy': 'Lihat, orang asing yang tampan!',
     'disguise': 'Pemanggang roti terbaik di bisnis ini.',
@@ -252,6 +275,22 @@ export default {
     'replay': 'Tunjukkan lagi',
     'progress': 'Latihan: {n} dari {total} pelajaran selesai',
     'scrapWhy': 'Rongsokan membeli peningkatan senjatamu di Markas Komando.',
+    'bladeHint': 'Mengendaplah ke para penjaga dan tikam mereka dari belakang, agar mereka tidak membunyikan alarm!',
+    'decoyHint': 'Pasang umpan untuk mengalihkan penjaga, lalu mengendap mendekat dan habisi dia!',
+    'roomHint': {
+      'move': 'Jalan ke pintu yang menyala untuk memulai latihanmu.',
+      'jump': 'Naiki tangga dan lompati celah ke platform seberang!',
+      'cover': 'Merunduk di balik peti supaya penjaga tidak melihatmu, lalu merangkak di bawah gerbang!',
+      'weapons': 'Habisi ketiga penjaga: tembak satu dengan senapan sniper, lalu ganti ke minigun untuk dua lainnya!',
+      'rocket': 'Ganti ke peluncur roket dan ledakkan mech di tepian!',
+      'supply': 'Jalan di atas peti untuk mengisi ulang amunisi dan memperbaiki armormu.',
+      'burn': 'Bakar mayatnya dengan pelontar api sebelum ada yang menemukannya!',
+      'box': 'Sembunyi di dalam kardus dan diam saat lampu sorot menyapu dirimu!',
+      'hook': 'Gunakan grappling hook untuk melewati tembok!',
+      'rope': 'Gunakan penembak tali untuk membuat tali di antara kedua platform!',
+      'barrel': 'Tembak tong bahan bakar untuk menghabisi penjaga di balik tembok!',
+      'extract': 'Jalan ke titik ekstraksi untuk menyelesaikan latihanmu!',
+    },
     'skip': 'Lewati latihan',
     'goal': 'Lumpuhkan ketiganya',
     'goalProgress': '{n} dari {total} tumbang',
@@ -282,6 +321,8 @@ export default {
   'pause': {
     'title': 'JEDA',
     'resume': 'Lanjutkan',
+    'retreat': 'Mundur ke markas',
+    'retreatSure': 'Tinggalkan serangan? Ketuk lagi',
     'controls': 'Kontrol'
   },
   'options': {

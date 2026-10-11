@@ -1,6 +1,7 @@
 import {
   CanvasTexture, Color, ConeGeometry, Group, Mesh, MeshBasicMaterial, Quaternion, Sprite, SpriteMaterial, SRGBColorSpace, Vector3
 } from 'three'
+import { FREE_PAINT, type PaintId } from '../models/paintIds'
 import { Particles } from './particles'
 import { ShockRings } from './markers'
 import type { WeaponId } from '../data/ids'
@@ -96,7 +97,8 @@ export class CombatFx {
   private xrayT = 0
   private xrayTex = xrayTexture()
 
-  constructor() {
+  /** `paint`: the scheme the decoy's hologram is a light-copy of (the player's; CM-07's own in the story). */
+  constructor(private paint: PaintId = FREE_PAINT) {
     this.rocketGeo.rotateX(Math.PI / 2)
     // The round the kill-cam follows: a rocket's cone, drawn small and hot.
     this.bullet = new Mesh(this.rocketGeo, new MeshBasicMaterial({ color: new Color('#bff9ff'), toneMapped: false }))
@@ -334,7 +336,7 @@ export class CombatFx {
   private hologram(i: number): Hologram {
     let h = this.holograms[i]
     if (!h) {
-      const rig = buildMech()
+      const rig = buildMech(this.paint)
       // The same mech, as light: see-through, tinted, no outline.
       rig.material.transparent = true
       rig.material.opacity = 0.5

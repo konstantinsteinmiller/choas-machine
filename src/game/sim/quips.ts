@@ -17,6 +17,12 @@ export const QUIP_REPEAT_S = 60
 export const QUIP_SHOW_S = 2.8
 
 const HOT: ReadonlySet<QuipId> = new Set(['headshot', 'burnHuman', 'burnMachine'])
+/**
+ * Feedback, not a quip (#199): the trigger pulled on an empty gun. Said
+ * whatever was said just before, only not again within FEEDBACK_REPEAT_S.
+ */
+const FEEDBACK: ReadonlySet<QuipId> = new Set(['noAmmo'])
+export const FEEDBACK_REPEAT_S = 5
 
 export interface Quips {
   /** When the last line was said, and which. */
@@ -36,8 +42,12 @@ export const pickQuip = (s: Quips, id: QuipId, now: number, spotted: boolean): {
   const whisper = !spotted
   if (whisper ? !QUIP_SAID[id].whisper : !QUIP_SAID[id].loud) return null
   const gap = HOT.has(id) && s.lastId !== id ? QUIP_GAP_HOT_S : QUIP_GAP_S
-  if (now - s.last < gap) return null
-  if (now - (s.by[id] ?? -1e9) < QUIP_REPEAT_S) return null
+  if (FEEDBACK.has(id)) {
+    if (now - (s.by[id] ?? -1e9) < FEEDBACK_REPEAT_S) return null
+  } else {
+    if (now - s.last < gap) return null
+    if (now - (s.by[id] ?? -1e9) < QUIP_REPEAT_S) return null
+  }
   s.last = now
   s.lastId = id
   s.by[id] = now

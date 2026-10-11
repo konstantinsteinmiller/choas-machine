@@ -1,7 +1,7 @@
 import { Box3, BufferGeometry, Color, CylinderGeometry, Euler, Group, Mesh, Quaternion, SphereGeometry, SRGBColorSpace, Vector3 } from 'three'
 import { paint } from './kit'
 import { glowVC, toonVC } from './toon'
-import { PAL } from './palette'
+import { FREE_PAINT, PAINTS, type MechPalette, type PaintId } from './paintIds'
 
 /**
  * ─── A disguise built from the mech's own parts (round 4, #111) ──────────────
@@ -12,7 +12,19 @@ import { PAL } from './palette'
  * suit, cyan core and pink eyes, and `morphDisguise` flies the pieces out of
  * the mech's chest into place one after another, tumbling, with a little
  * overshoot as each locks in; backwards, they fold away into it again.
+ *
+ * The mech's own colours are its paint scheme's (#M3): a Crimson mech folds
+ * into a crimson toaster. `paintedAs` sets the scheme for one build.
  */
+
+/** The scheme the disguise being built takes its tones from (`paintedAs`). */
+let tones: MechPalette = PAINTS[FREE_PAINT]
+/** Build something from pieces in a paint scheme's colours. */
+export const paintedAs = <T>(scheme: PaintId, build: () => T): T => {
+  const was = tones
+  tones = PAINTS[scheme]
+  try { return build() } finally { tones = was }
+}
 
 interface Piece {
   mesh: Mesh
@@ -46,12 +58,12 @@ const tmp = new Color()
  */
 const mechTone = (geo: BufferGeometry, small: boolean): string => {
   const c = geo.attributes.color
-  if (!c) return PAL.mechArmor
+  if (!c) return tones.body
   tmp.setRGB(c.getX(0), c.getY(0), c.getZ(0))
   const hsl = { h: 0, s: 0, l: 0 }
   tmp.getHSL(hsl, SRGBColorSpace)
-  if (small && hsl.s > 0.55 && hsl.l > 0.35 && hsl.l < 0.8) return PAL.mechEye
-  return hsl.l > 0.78 ? PAL.mechArmorHi : hsl.l > 0.55 ? PAL.mechArmor : hsl.l > 0.36 ? PAL.mechArmorDeep : hsl.l > 0.2 ? PAL.mechSuit : PAL.mechSuitDeep
+  if (small && hsl.s > 0.55 && hsl.l > 0.35 && hsl.l < 0.8) return tones.eye
+  return hsl.l > 0.78 ? tones.bodyHi : hsl.l > 0.55 ? tones.body : hsl.l > 0.36 ? tones.bodyDeep : hsl.l > 0.2 ? tones.trim : tones.trimDeep
 }
 
 /**
@@ -72,7 +84,7 @@ export const assemblePieces = (name: string, lit: BufferGeometry[], glow: Buffer
     const size = box.getSize(new Vector3())
     const small = size.x * size.y * size.z < 0.06
     // Glowing pieces: two little ones side by side are eyes (pink); the rest the core's cyan.
-    const tone = glowing ? (small && size.x < 0.45 ? PAL.mechEye : PAL.mechCore) : mechTone(geo, small)
+    const tone = glowing ? (small && size.x < 0.45 ? tones.eye : tones.glow) : mechTone(geo, small)
     paint(geo, tone)
     geo.translate(-mid.x, -mid.y, -mid.z)
     const mesh = new Mesh(geo, glowing ? shine : toon)
@@ -95,8 +107,8 @@ export const assemblePieces = (name: string, lit: BufferGeometry[], glow: Buffer
     if (ax >= b.min.x && ax <= b.max.x && az >= b.min.z && az <= b.max.z) top = Math.max(top, b.max.y)
   }
   if (top === 0) top = all.max.y
-  const mast = paint(new CylinderGeometry(0.035, 0.035, 0.5, 6).translate(ax, top + 0.2, az), PAL.mechSuit)
-  const tip = paint(new SphereGeometry(0.075, 8, 6).translate(ax, top + 0.48, az), PAL.mechEye)
+  const mast = paint(new CylinderGeometry(0.035, 0.035, 0.5, 6).translate(ax, top + 0.2, az), tones.trim)
+  const tip = paint(new SphereGeometry(0.075, 8, 6).translate(ax, top + 0.48, az), tones.eye)
   lit.push(mast)
   lit.forEach((g, i) => add(g, false, i))
   glow.forEach((g, i) => add(g, true, lit.length + i))

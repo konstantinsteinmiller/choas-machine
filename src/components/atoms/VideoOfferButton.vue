@@ -15,12 +15,12 @@
       icon="video"
       icon-only
       :is-disabled="spent"
-      :aria-label="spent ? t('offer.refresh') : label"
+      :aria-label="spent ? (note ?? t('offer.refresh')) : label"
       :aria-describedby="spent && tip ? tipId : undefined"
       :data-testid="testid"
       @click="emit('watch')"
     )
-    span.tip(v-if="spent && tip" :id="tipId" role="tooltip" data-testid="video-refresh-tip") {{ t('offer.refresh') }}
+    span.tip(v-if="spent && tip" :id="tipId" role="tooltip" data-testid="video-refresh-tip") {{ note ?? t('offer.refresh') }}
 </template>
 
 <script setup lang="ts">
@@ -28,7 +28,8 @@ import { onUnmounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import FButton from '@/components/atoms/FButton.vue'
 
-const props = defineProps<{ label: string; testid?: string; spent?: boolean }>()
+/** `note`: why it is disabled, where that is not the visit's share spent (no video ready, #M6). */
+const props = defineProps<{ label: string; testid?: string; spent?: boolean; note?: string }>()
 const emit = defineEmits<{ (e: 'watch'): void }>()
 const { t } = useI18n()
 

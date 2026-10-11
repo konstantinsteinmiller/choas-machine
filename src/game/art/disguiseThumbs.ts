@@ -1,4 +1,5 @@
 import { Box3, Color, DirectionalLight, HemisphereLight, PerspectiveCamera, Scene, Sphere, Vector3, WebGLRenderTarget } from 'three'
+import { FREE_PAINT, type PaintId } from '../models/paintIds'
 import { getRenderer } from '../engine/renderer'
 import { buildDisguise, disposeDisguise, type DisguiseId } from '../models/disguises'
 import { DUSK } from '../world/sky'
@@ -14,7 +15,7 @@ const SIZE = 256
 const FOV = 32
 /** The camera looks down at it a little, from in front and to its left. */
 const VIEW = new Vector3(0, 1.25, 6.4).normalize()
-const cache = new Map<DisguiseId, string>()
+const cache = new Map<string, string>()
 
 const toSRGB = (c: number): number => (c < 0.0031308 ? c * 12.92 : 1.055 * Math.pow(c, 1 / 2.4) - 0.055)
 
@@ -40,8 +41,10 @@ export const targetToImage = (px: Uint8Array, size: number): Uint8ClampedArray =
   return out
 }
 
-export const disguiseThumb = (id: DisguiseId): string => {
-  const hit = cache.get(id)
+/** In the paint the mech wears (#M3): a crimson mech's toaster is crimson. */
+export const disguiseThumb = (id: DisguiseId, scheme: PaintId = FREE_PAINT): string => {
+  const key = `${id}:${scheme}`
+  const hit = cache.get(key)
   if (hit) return hit
   let url = ''
   try {
@@ -52,7 +55,7 @@ export const disguiseThumb = (id: DisguiseId): string => {
     const sun = new DirectionalLight(new Color(DUSK.sun), 1.5)
     sun.position.set(0.55, 1, 0.35)
     scene.add(sun)
-    const g = buildDisguise(id)
+    const g = buildDisguise(id, scheme)
     g.visible = true
     g.rotation.y = -0.55
     scene.add(g)
@@ -85,6 +88,6 @@ export const disguiseThumb = (id: DisguiseId): string => {
   } catch {
     url = ''
   }
-  cache.set(id, url)
+  cache.set(key, url)
   return url
 }

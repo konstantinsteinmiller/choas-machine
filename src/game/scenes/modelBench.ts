@@ -1,4 +1,6 @@
 import { CircleGeometry, Mesh, PerspectiveCamera, Vector3 } from 'three'
+import { asPaint } from '../models/paintIds'
+import { profile } from '../state/profile'
 import { buildRobodog, poseRobodog, DOG_STAND, BOARD_HOVER } from '../models/robodog'
 import { getRenderer } from '../engine/renderer'
 import { newScene, type GameMode } from '../engine/app'
@@ -49,6 +51,8 @@ export class ModelBench implements GameMode {
     const which = q.get('m') ?? 'all'
     const poseName = q.get('pose') ?? 'walk'
     const weapon = (q.get('weapon') ?? 'sniper') as WeaponId
+    // `paint=crimson`: the mech in a paint scheme (#M3); by default the one the player has on.
+    const paint = q.has('paint') ? asPaint(q.get('paint')) : profile.paint.equipped
     this.frozen = q.has('t') ? Number(q.get('t')) : null
     const [az, el, dist] = (q.get('view') ?? '').split(',').map(Number)
     this.sky = buildSky(this.scene, this.centre)
@@ -77,7 +81,7 @@ export class ModelBench implements GameMode {
       return p
     }
     if (all || which === 'mech') {
-      const rig = buildMech()
+      const rig = buildMech(paint)
       add(rig, 0, (t) => poseMech(rig, mechPose(t)))
     }
     if (all || which === 'robodog') {
@@ -95,7 +99,7 @@ export class ModelBench implements GameMode {
       // stands at the middle facing +z; the mech is placed by the kill itself.
       const v = (BACKSTAB_VARIANTS as readonly string[]).includes(q.get('v') ?? '') ? q.get('v') as BackstabVariant : 'neck'
       const loop = VARIANTS[v].release + 1.6
-      const mech = buildMech()
+      const mech = buildMech(paint)
       const guard = buildGuard(false)
       add(mech, 0, (t) => {
         poseBackstabMech(mech, { ...restPose(), time: t, weapon }, v, t % loop, 0, 0, 0, 0)

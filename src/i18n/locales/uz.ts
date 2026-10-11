@@ -30,7 +30,8 @@ export default {
     'salvage': 'O\'lja',
     'fallBastion': 'Bastion quladi',
     'fallFoundry': 'Quyma zavodi sovimoqda',
-    'outro': 'Uyga'
+    'outro': 'Uyga',
+    'nextTarget': 'Keyingi nishon'
   },
   'fortress': {
     'bastion': 'Bastion',
@@ -87,6 +88,7 @@ export default {
   },
   'defeat': {
     'title': 'Mech yiqildi',
+    'repair': 'To‘liq ta’mir',
     'retry': 'Qayta urinish',
     'resume': 'Birinchi uyumdan',
     'kept': 'Saqlab qolingan tex-parchalar'
@@ -191,6 +193,26 @@ export default {
     'unlock': 'Ochish: {name}',
     'watch': 'Ochish uchun video ko\'ring: {name}'
   },
+  'paint': {
+    'title': 'Boʻyoq sxemalari',
+    'lilac': 'CM-07 Nastarin',
+    'crimson': 'Qirmizi',
+    'arctic': 'Arktika',
+    'jungle': 'Changalzor',
+    'gilded': 'Zarhal',
+    'midnight': 'Yarim tun',
+    'tangerine': 'Mandarin',
+    'equip': 'Robotni boʻyash: {name}',
+    'equipShort': 'Taqish',
+    'equipped': 'Taqilgan',
+    'unlock': 'Ochish: {name}',
+    'watch': 'Butunlay ochish uchun video ko\'ring: {name}',
+    'try': 'Bir missiya sinab koʻrish uchun video ko\'ring: {name}',
+    'tryShort': '1 missiya sinash',
+    'lent': 'Keyingi missiya uchun sizniki',
+    'noVideo': 'Hozir video yoʻq',
+    'back': '{time} dan keyin'
+  },
   'ads': {
     'blockedTitle': 'Reklamalar bloklandi',
     'blockedBody': 'Reklama blokeri videoni to\'xtatdi, shuning uchun bu safar mukofot yo\'q.',
@@ -234,6 +256,7 @@ export default {
     'alarm': '6, 7!',
     'lowHealth': 'Vintlarimni tortib qoʻyish vaqti!',
     'lowAmmo': 'Oʻq tugay deb qoldi, otishga tosh qidiryapman.',
+    'noAmmo': 'O‘q-dori tugadi.',
     'takedown': 'Shsh. Uxlash vaqti.',
     'decoy': 'Qara, kelishgan notanish!',
     'disguise': 'Sohadagi eng zoʻr toster.',
@@ -252,6 +275,22 @@ export default {
     'replay': 'Yana ko\'rsatish',
     'progress': 'Mashq: {total} darsdan {n} tasi tugadi',
     'scrapWhy': 'Tex-parchalar evaziga bazada qurollaringizni yaxshilaysiz.',
+    'bladeHint': 'Soqchilarga sezdirmay yaqinlash va ularni orqadan pichoqla, toki ular signal bermasin!',
+    'decoyHint': 'Soqchining diqqatini chalg‘itish uchun aldoqchi qo‘y, keyin sezdirmay yaqinlash va uni yo‘q qil!',
+    'roomHint': {
+      'move': 'Mashg\'ulotni boshlash uchun nur sochayotgan eshik oldiga bor.',
+      'jump': 'Narvondan chiqib, bo\'shliqdan sakrab, narigi platformaga o\'t!',
+      'cover': 'Qorovul seni ko\'rmasligi uchun yashiklar ortida engash, keyin darvoza ostidan emaklab o\'t!',
+      'weapons': 'Uchala qorovulni ham yo\'q qil: birini snayper miltig\'idan ur, keyin qolgan ikkitasi uchun minigunga o\'t!',
+      'rocket': 'Raketa otgichga o\'t va chekkadagi mexni portlat!',
+      'supply': 'O\'q-dorini to\'ldirish va zirhingni tuzatish uchun yashiklar ustidan yur.',
+      'burn': 'Hech kim topib olmasidan oldin jasadni olov otgich bilan yondir!',
+      'box': 'Karton qutiga yashirin va projektor ustingdan o\'tayotganda qimirlamay tur!',
+      'hook': 'Devordan oshib o\'tish uchun ilgakli arqondan foydalan!',
+      'rope': 'Ikki platforma orasida arqon tortish uchun arqon otgichdan foydalan!',
+      'barrel': 'Devor ortidagi qorovullarni yo\'q qilish uchun yoqilg\'i bochkasiga o\'q uz!',
+      'extract': 'Mashg\'ulotni tugatish uchun evakuatsiya nuqtasiga bor!',
+    },
     'skip': 'Mashqni o\'tkazib yuborish',
     'goal': 'Uchalasini ham zararsizlantir',
     'goalProgress': '{n}/{total} yiqildi',
@@ -282,6 +321,8 @@ export default {
   'pause': {
     'title': 'PAUZA',
     'resume': 'Davom etish',
+    'retreat': 'Bazaga chekinish',
+    'retreatSure': 'Hujumni tark etasizmi? Yana bosing',
     'controls': 'Boshqaruv'
   },
   'options': {

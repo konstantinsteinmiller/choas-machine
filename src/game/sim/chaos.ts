@@ -113,6 +113,8 @@ export const stepFire = (gar: Garrison, g: Grid, target: Target, dt: number): vo
     if (!isAlive(u) || u.state !== 'combat' || u.power < 1) continue
     if (u.kind === 'goliath') { stepCannon(u, gar, g, target, dt); continue }
     if (u.glintT > 0 || u.dashT > 0) { u.burst = 0; continue }
+    // Still taking the mech in (`REACT_S`): no shot yet — a gunshot would tell the base.
+    if (u.reactT > 0) { u.burst = 0; u.aimT = 0; continue }
     // A shield guard fires only while he looks out over his shield (#151).
     if (shieldUp(u)) { u.burst = 0; u.fireT = Math.max(u.fireT, 0.25); u.aimT = 0; continue }
     if (u.role === 'grenadier') stepGrenade(u, gar, g, target, dt)

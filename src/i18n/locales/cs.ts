@@ -30,7 +30,8 @@ export default {
     'salvage': 'Kořist',
     'fallBastion': 'Bašta padá',
     'fallFoundry': 'Slévárna chladne',
-    'outro': 'Domů'
+    'outro': 'Domů',
+    'nextTarget': 'Další cíl'
   },
   'fortress': {
     'bastion': 'Bašta',
@@ -87,6 +88,7 @@ export default {
   },
   'defeat': {
     'title': 'Mech je venku',
+    'repair': 'Úplná oprava',
     'retry': 'Zkusit znovu',
     'resume': 'Od první hromady',
     'kept': 'Zachráněný techno šrot'
@@ -191,6 +193,26 @@ export default {
     'unlock': 'Odemknout: {name}',
     'watch': 'Odemknout sledováním videa: {name}'
   },
+  'paint': {
+    'title': 'Barevná schémata',
+    'lilac': 'CM-07 Šeřík',
+    'crimson': 'Karmín',
+    'arctic': 'Arktida',
+    'jungle': 'Džungle',
+    'gilded': 'Zlacený',
+    'midnight': 'Půlnoc',
+    'tangerine': 'Mandarinka',
+    'equip': 'Nabarvit robota: {name}',
+    'equipShort': 'Nasadit',
+    'equipped': 'Nasazeno',
+    'unlock': 'Odemknout: {name}',
+    'watch': 'Odemknout natrvalo sledováním videa: {name}',
+    'try': 'Vyzkoušet na jednu misi sledováním videa: {name}',
+    'tryShort': 'Zkusit 1 misi',
+    'lent': 'Tvoje na příští misi',
+    'noVideo': 'Teď žádné video',
+    'back': 'Znovu za {time}'
+  },
   'ads': {
     'blockedTitle': 'Reklamy zablokovány',
     'blockedBody': 'Blokování reklam zastavilo video, takže tentokrát nebude odměna.',
@@ -234,6 +256,7 @@ export default {
     'alarm': '6, 7!',
     'lowHealth': 'Čas utáhnout si šroubky!',
     'lowAmmo': 'Skoro bez munice, hledám kameny na házení.',
+    'noAmmo': 'Došla munice.',
     'takedown': 'Pšš. Čas na šlofíka.',
     'decoy': 'Hele, fešný cizinec!',
     'disguise': 'Nejlepší topinkovač v branži.',
@@ -252,6 +275,22 @@ export default {
     'replay': 'Ukaž znovu',
     'progress': 'Výcvik: hotovo {n} z {total} lekcí',
     'scrapWhy': 'Za techno šrot si na Velitelské základně vylepšíš zbraně.',
+    'bladeHint': 'Připliž se ke strážím a bodni je do zad, ať nespustí poplach!',
+    'decoyHint': 'Polož návnadu, aby odvedla pozornost strážného, pak se připliž a zlikviduj ho!',
+    'roomHint': {
+      'move': 'Dojdi ke svítícím dveřím a začni trénink.',
+      'jump': 'Vylez po žebříku a přeskoč mezeru na druhou plošinu!',
+      'cover': 'Skrč se za bednami, aby tě hlídka neviděla, a pak se proplaz pod branou!',
+      'weapons': 'Vyřiď všechny tři strážné: jednoho sundej odstřelovačkou, pak přepni na minigun na zbylé dva!',
+      'rocket': 'Přepni na raketomet a vyhoď do vzduchu mecha na římse!',
+      'supply': 'Přejdi přes bedny, doplň munici a oprav si pancíř.',
+      'burn': 'Spal tělo plamenometem, než ho někdo najde!',
+      'box': 'Schovej se v krabici a stůj bez hnutí, zatímco tě přejíždí světlomet!',
+      'hook': 'Použij hák s lanem a dostaň se přes zeď!',
+      'rope': 'Použij lanomet a natáhni lano mezi oběma plošinami!',
+      'barrel': 'Střel do barelu s palivem a vyřiď strážné za zdí!',
+      'extract': 'Dojdi na místo evakuace a dokonči trénink!',
+    },
     'skip': 'Přeskočit výcvik',
     'goal': 'Vyřaď všechny tři',
     'goalProgress': '{n} z {total} vyřazeno',
@@ -282,6 +321,8 @@ export default {
   'pause': {
     'title': 'PAUZA',
     'resume': 'Pokračovat',
+    'retreat': 'Ústup na základnu',
+    'retreatSure': 'Opustit nájezd? Klepni znovu',
     'controls': 'Ovládání'
   },
   'options': {

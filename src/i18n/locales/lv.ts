@@ -30,7 +30,8 @@ export default {
     'salvage': 'Loms',
     'fallBastion': 'Bastions krīt',
     'fallFoundry': 'Lietuve atdziest',
-    'outro': 'Mājup'
+    'outro': 'Mājup',
+    'nextTarget': 'Nākamais mērķis'
   },
   'fortress': {
     'bastion': 'Bastions',
@@ -87,6 +88,7 @@ export default {
   },
   'defeat': {
     'title': 'Mehs ir ticis',
+    'repair': 'Pilns remonts',
     'retry': 'Mēģināt vēlreiz',
     'resume': 'No pirmās kaudzes',
     'kept': 'Izglābti tehnikas lūžņi'
@@ -191,6 +193,26 @@ export default {
     'unlock': 'Atbloķēt: {name}',
     'watch': 'Noskaties video un atbloķē: {name}'
   },
+  'paint': {
+    'title': 'Krāsojumi',
+    'lilac': 'CM-07 Ceriņš',
+    'crimson': 'Karmīns',
+    'arctic': 'Arktika',
+    'jungle': 'Džungļi',
+    'gilded': 'Apzeltīts',
+    'midnight': 'Pusnakts',
+    'tangerine': 'Mandarīns',
+    'equip': 'Nokrāso mehu: {name}',
+    'equipShort': 'Uzlikt',
+    'equipped': 'Uzlikts',
+    'unlock': 'Atbloķēt: {name}',
+    'watch': 'Noskaties video un atbloķē uz visiem laikiem: {name}',
+    'try': 'Noskaties video un izmēģini vienai misijai: {name}',
+    'tryShort': 'Izmēģināt 1 misiju',
+    'lent': 'Tavs nākamajai misijai',
+    'noVideo': 'Pašlaik nav video',
+    'back': 'Atkal pēc {time}'
+  },
   'ads': {
     'blockedTitle': 'Reklāmas bloķētas',
     'blockedBody': 'Reklāmu bloķētājs apturēja video, tāpēc šoreiz balvas nav.',
@@ -234,6 +256,7 @@ export default {
     'alarm': '6, 7!',
     'lowHealth': 'Laiks pievilkt skrūves!',
     'lowAmmo': 'Munīcija gandrīz beigusies, meklēju akmeņus mešanai.',
+    'noAmmo': 'Munīcija beigusies.',
     'takedown': 'Šš. Diendusas laiks.',
     'decoy': 'Skaties, glīts svešinieks!',
     'disguise': 'Labākais tosteris biznesā.',
@@ -252,6 +275,22 @@ export default {
     'replay': 'Parādi vēlreiz',
     'progress': 'Treniņš: pabeigtas {n} no {total} nodarbībām',
     'scrapWhy': 'Par lūžņiem bāzē var uzlabot ieročus.',
+    'bladeHint': 'Pielavies pie sargiem un iedur tiem mugurā, lai viņi neceltu trauksmi!',
+    'decoyHint': 'Noliec mānekli, lai novērstu sarga uzmanību, tad pielavies un likvidē viņu!',
+    'roomHint': {
+      'move': 'Ej pie mirdzošajām durvīm, lai sāktu treniņu.',
+      'jump': 'Uzkāp pa kāpnēm un pārlec pāri spraugai uz otru platformu!',
+      'cover': 'Pietupies aiz kastēm, lai sargs tevi neredz, tad palien zem vārtiem!',
+      'weapons': 'Likvidē visus trīs sargus: vienu nošauj ar snaipera šauteni, tad pārslēdzies uz minigun pārējiem diviem!',
+      'rocket': 'Pārslēdzies uz raķešmetēju un uzspridzini mehu uz dzegas!',
+      'supply': 'Pārej pāri kastēm, lai papildinātu munīciju un salabotu bruņas.',
+      'burn': 'Sadedzini ķermeni ar liesmmetēju, pirms kāds to atrod!',
+      'box': 'Paslēpies kartona kastē un stāvi nekustīgi, kamēr prožektors slīd pāri tev!',
+      'hook': 'Izmanto kāsi ar virvi, lai tiktu pāri sienai!',
+      'rope': 'Izmanto virves šauteni, lai izveidotu virvi starp abām platformām!',
+      'barrel': 'Šauj degvielas mucā, lai likvidētu sargus aiz sienas!',
+      'extract': 'Ej uz evakuācijas punktu, lai pabeigtu treniņu!',
+    },
     'skip': 'Izlaist treniņu',
     'goal': 'Neitralizē visus trīs',
     'goalProgress': '{n} no {total} pieveikti',
@@ -282,6 +321,8 @@ export default {
   'pause': {
     'title': 'PAUZE',
     'resume': 'Turpināt',
+    'retreat': 'Atkāpties uz bāzi',
+    'retreatSure': 'Pamest uzbrukumu? Pieskaries vēlreiz',
     'controls': 'Vadība'
   },
   'options': {

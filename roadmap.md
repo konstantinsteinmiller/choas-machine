@@ -215,15 +215,28 @@
   in their face, so they cant ignore it if they stay near the door for more   
   than 3 seconds (show A BIG FAT YELLOW ARROW over the crouch button with     
   attention bounce that they cant ignore).
-- [ ] #189
-- [ ] #190
-- [ ] #191
-- [ ] #19
-- [ ] #19
-- [ ] #19
-- [ ] #19
-- [ ] #19
-- [ ] #19
+- [x] #189 ✅ The player should be able to continue the game on death with full ammo restock and full hp bar and all remaining enemies reset their alarm and cautious state if the player dies and activates the rewarded ad ("MovieIcon Full Repair"), so that players that are struggeling can continue without a full fortress enemies reset.
+- [x] #190 ✅ why does the Poki build not have any rewarded ad buttons, I though we added
+  the rewarded ad unlock for each other disguise in the shop[Image #23] (on   
+  Poki QA screenshotted). Ads seem to be disabled on Poki, nobody can acquire new disguise skins with rewarded ads
+- [x] #191 ✅ If the player cancels the burn corpses after 35% is done, it automatically completes the burn down while the player can continue moving, otherwise players often cancel the burning of corpses and have to come back to start it again as they canceled it accidentally.
+- [x] #192 ✅ In the mobile/tablet version no button presses are shown over the holograms head in the tutorial rooms, fix that.
+- [x] #193 ✅ In the backstab tutorial room the player needs to sneak behind the enemies, but the button is in the upper row, show the technically ornamented yellow arrow with attention bounce on the sneak button after the backstab hologram cutscene has played, so the player sees he has to sneak again to not get spotted, also print a hint label below the retry button: "Sneak up to the guards and backstab them, so they don't raise the alarm!",
+- [x] #194 ✅ The joystick for the camera movement is still a bit far left on the touch device layout, move it above the shoot button and left of the weapon switch button.
+- [x] #195 ✅ Improve the jump button design, it should read like a gap jump in detailed drawn art.
+- [x] #196 ✅ The first room is a bit confusing, open the first door of the tutorial level from the start.  (Fix: the gate opens as the player walks up to it, ~7 m out; the first version marked the room done but never removed the gate.)
+- [x] #197 ✅ Player should be able to retreat to the base after the tutorial level is done and he is in a mission, currently only doable on death, but should be doable in the pause menu
+- [x] #198 ✅ Add a last tutorial room, where the player has to shoot an explosion barrel to eliminate 5 guards standing around it and the player has no direct line of sight to each of the five guards, but the explosion barrel, so he experiences that a good barrel shot can be a devastating support tool. Show this off in the Intro too, with a Mech and 3 guards and a surveillance drone standing around an explosion drone and CM-07 zooms in from a hidden spot with his sniper and detonates the barrel with one shot and everything dies from the explosion. 
+- [x] #199 ✅ There is bad player feedback, if the player has e.g. no rocket ammo or other ammo left. Not only should the ammo bar light up and shake, but also CM-07 should have a text and VO saying: "Out of ammo."
+- [ ] #200
+- [ ] #20
+- [ ] #20
+- [ ] #20
+- [ ] #20
+- [ ] #20
+- [ ] #20
+- [ ] #20
+- [ ] #20
 
 
 ## NOT DEFINED YET: - Night fighting -> Spotlights will be more present.
@@ -237,12 +250,12 @@
 
 ### Mech paint schemes, unlocked by rewarded video (single-player, all portals)
 Findings from #M1 (report: https://claude.ai/artifact/6dxWjsn5kVzdUWqoj3qRKy): CrazyGames' own monetisation guide recommends "exclusive skins that are only unlockable by watching rewarded ads", with a daily cap (about 5) and a "try a locked one for one run" offer. Their ad rules: the reward is clearly optional, the button carries the video icon, there is always another way to get it (scrap), it isn't offered too often, and a timer shows when it comes back. Today there is no mech skin system: `buildMech()` takes no arguments and the colours are baked in. Passing a scheme in is about 1 day; with the picker and the save field, 3–5 days. The schemes are useful whether or not co-op ever ships, and they measure cheaply whether players care about looking unique.
-- [ ] #M3 Paint scheme data and model. Add `src/game/models/paintIds.ts`, laid out like `disguiseIds.ts`: 6–8 scheme ids, `FREE_PAINT` = today's CM-07 colours, a scrap price, and a palette per scheme (body, trim, glow, visor, decal tint). `buildMech(scheme = FREE_PAINT)` must draw today's mech pixel-identically for the default; pin that with a test.
+- [x] #M3 ✅ Paint scheme data and model. Add `src/game/models/paintIds.ts`, laid out like `disguiseIds.ts`: 6–8 scheme ids, `FREE_PAINT` = today's CM-07 colours, a scrap price, and a palette per scheme (body, trim, glow, visor, decal tint). `buildMech(scheme = FREE_PAINT)` must draw today's mech pixel-identically for the default; pin that with a test.
   - Use the equipped scheme on every player-mech instance (mission, command base, model bench, mech portrait, the destruction burst from #180, holograms). Story cinematics (intro, airship, cutscenes) keep canonical CM-07. Grep every `buildMech` call and pin the list with a test so no instance is missed.
   - Keep the toon outline (#178) correct for every palette. Check every scheme against the low render tier. Run `blur-probe` on the base screenshots.
-- [ ] #M4 Save field. Add `paint: { owned: PaintId[], equipped: PaintId }` to the save, with a migration (old saves get `[FREE_PAINT]`). Every SaveStrategy and the LocalBackupLayer must carry it. The cloud-save hydration test covers it: an equipped scheme survives a reload on CG and Playgama.
-- [ ] #M5 Paint panel in the command base, next to the DisguisePanel and built the same way. A rotating preview of the mech in the selected scheme, a thumbnail per scheme (baked like `disguiseThumbs.ts`), and on locked ones the film icon plus the scrap price. Equip with one tap. Keyboard and gamepad menu navigation, touch, landscape phone layout. All copy goes through i18n into all 39 locales.
-- [ ] #M6 Rewarded unlock. A locked scheme unlocks permanently by rewarded video, or by scrap where no ad can play and always as the alternative.
+- [x] #M4 ✅ Save field. Add `paint: { owned: PaintId[], equipped: PaintId }` to the save, with a migration (old saves get `[FREE_PAINT]`). Every SaveStrategy and the LocalBackupLayer must carry it. The cloud-save hydration test covers it: an equipped scheme survives a reload on CG and Playgama.
+- [x] #M5 ✅ Paint panel in the command base, next to the DisguisePanel and built the same way. A rotating preview of the mech in the selected scheme, a thumbnail per scheme (baked like `disguiseThumbs.ts`), and on locked ones the film icon plus the scrap price. Equip with one tap. Keyboard and gamepad menu navigation, touch, landscape phone layout. All copy goes through i18n into all 39 locales.
+- [x] #M6 ✅ Rewarded unlock. A locked scheme unlocks permanently by rewarded video, or by scrap where no ad can play and always as the alternative.
   - The offer is gated on rewarded readiness: the button is disabled with "no video right now" and never hangs. The reward is granted only on a completed view, never on a skip or error. Game audio is muted during the ad and restored on success, failure and skip.
   - Daily cap of about 5 paint videos. Once spent, the button stays visible but disabled, with the same "needs time to refresh" hover/tap copy as #182, and a timer shows when it comes back.
   - Optional "try it for one mission" offer: a rewarded video equips a locked scheme for the next mission only and reverts afterwards. It is never granted twice for one view.

@@ -90,6 +90,10 @@ export interface GameEvents {
   /** The training ground: a lesson done; the demo asked for again; seen and sent back. */
   lessonDone: { room: number }
   trainingReplay: Record<string, never>
+  /** The pause menu's retreat (#197): the mission hands its run to `retreatMission`. */
+  retreat: Record<string, never>
+  /** The defeat screen's Full Repair was paid for (#189): the mission gets the mech back up. */
+  fullRepair: Record<string, never>
   /** The cutscene's skip button, or Space held (#175): the mission's drop-in or its way out ends. */
   cineSkip: Record<string, never>
   trainingReset: Record<string, never>

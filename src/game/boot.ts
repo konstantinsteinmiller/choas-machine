@@ -12,7 +12,8 @@ import { isFortressId, loadFortress } from './data/fortresses/registry'
 import type { GameMode } from './engine/app'
 import { registerModeFactories, createBootMode, flow } from './flow'
 import { CommandBase } from './scenes/commandBase'
-import { currentLoadout } from './state/progress'
+import { currentLoadout, deathsSinceWin } from './state/progress'
+import { easeFortress } from './data/fortresses/ease'
 import { initProfile, profile } from './state/profile'
 import { installSynth, loadSfxOverrides } from './audio/synth'
 import { installGameSounds } from './audio/gameSounds'
@@ -147,7 +148,9 @@ registerModeFactories({
     const training = fortParam === 'training' || (flow.training && !isFortressId(fortParam) && !proving)
     // DEV ONLY: `?fort=foundry` (or any fortress id) raids that fortress.
     if (isFortressId(fortParam)) flow.fortress = fortParam
-    const fortress = training ? buildTrainingGround() : proving ? buildProvingGround() : await loadFortress(flow.fortress, level, profile.missions, answersTo(profile.habits))
+    // A fortress that keeps killing the player comes back thinner (`ease.ts`), until they win there.
+    const fortress = training ? buildTrainingGround() : proving ? buildProvingGround()
+      : easeFortress(await loadFortress(flow.fortress, level, profile.missions, answersTo(profile.habits)), deathsSinceWin(flow.fortress, level))
     if (view) return FortressView.create(fortress, view, createSlicer(12), onProgress)
     return Mission.create(fortress, input, createSlicer(12), onProgress, level, currentLoadout())
   },
