@@ -59,6 +59,8 @@ export default {
     'grappleRecall': 'Recollir el ganxo',
     'cancel': 'Baixar l\'arma',
     'capture': 'Clica per continuar',
+    'tapToStart': 'Toca per començar',
+    'clickToStart': 'Clica per començar',
     'metres': '{n} m',
     'objective': {
       'salvage': 'Ferralla',
@@ -81,6 +83,7 @@ export default {
     'loot': 'Desmuntar la ferralla',
     'ammoLow': 'Queda poca munició',
     'ammoOut': 'Sense munició',
+    'noAmmo': 'Sense munició!',
     'questLog': 'Objectius',
     'quest': {
       'extract': 'Extracció'
@@ -279,13 +282,14 @@ export default {
     'decoyHint': 'Col·loca un esquer per distreure el guàrdia, després apropa\'t d\'amagat i elimina\'l!',
     'roomHint': {
       'move': 'Ves fins a la porta brillant per començar l\'entrenament.',
-      'jump': 'Puja per l\'escala i salta el buit fins a l\'altra plataforma!',
-      'cover': 'Ajup-te darrere les caixes perquè el sentinella no et vegi i després arrossega\'t per sota la reixa!',
-      'weapons': 'Elimina els tres guàrdies: abat-ne un amb el fusell de precisió i després canvia a la minigun per als altres dos!',
-      'rocket': 'Canvia al llançacoets i fes volar el mech de la cornisa!',
+      'jump': 'Puja per l\'escala i salta el buit fins a l\'altra plataforma! Córrer i saltar fa soroll i els guàrdies propers el senten.',
+      'cover': 'Ajup-te darrere les caixes perquè el sentinella no et vegi i després arrossega\'t per sota la reixa! Només el pas ajupit és silenciós: els guàrdies et senten caminar de prop.',
+      'weapons': 'Elimina els tres guàrdies: abat-ne un amb el fusell de precisió i després canvia a la minigun per als altres dos! Els trets fan soroll: tots els guàrdies dels voltants senten la minigun.',
+      'rocket': 'Canvia al llançacoets i fes volar el mech de la cornisa! Els coets fan molt de soroll: tots els guàrdies senten l\'explosió.',
+      'hide': 'Dispara al guàrdia i després allunya\'t del lloc des d\'on has disparat i amaga\'t: el dron vola cap a on ha sortit el tret!',
       'supply': 'Passa per sobre les caixes per recarregar munició i reparar el blindatge.',
       'burn': 'Crema el cos amb el llançaflames abans que algú el trobi!',
-      'box': 'Amaga\'t a la caixa de cartró i queda\'t quiet mentre el focus et passa per sobre!',
+      'box': 'Disfressa\'t! El focus no et fa cas mentre estàs quiet, però et detecta tan bon punt et mous.',
       'hook': 'Fes servir el ganxo per passar per sobre el mur!',
       'rope': 'Fes servir el llançacordes per tensar una corda entre les dues plataformes!',
       'barrel': 'Dispara al barril de combustible per eliminar els guàrdies darrere el mur!',
@@ -304,12 +308,14 @@ export default {
       'box': "Disfressa't perquè no et vegin",
       'decoy': "Fes servir un parany [{key}] i ataca per l'esquena quan es distregui",
       'decoyTouch': "Fes servir un parany i ataca per l'esquena quan es distregui",
-      'decoyAny': "T'han tornat a veure. Elimina el guàrdia com vulguis."
+      'decoyAny': "T'han tornat a veure. Elimina el guàrdia com vulguis.",
+      'hide': 'Amaga\'t després de disparar: mou-te a un altre lloc o l\'enemic trobarà des d\'on has disparat.'
     },
     'door': {
       'cover': 'Ajup-te una vegada per passar',
       'weapons': 'Abat-los tots tres per passar',
       'rocket': 'Destrueix el mecha amb el llançacohets',
+      'hide': 'Dispara al guàrdia i amaga\'t del dron',
       'supply': 'Agafa els subministraments',
       'blade': "Ataca per l'esquena els dos guàrdies",
       'burn': 'Crema el cos',

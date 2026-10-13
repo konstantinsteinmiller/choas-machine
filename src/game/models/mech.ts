@@ -145,6 +145,23 @@ const _vg = new Vector3()
 const _vf2 = new Vector3()
 
 /**
+ * Either hand's palm onto a point in the world, fully on: the shoulder turns
+ * and the elbow bends so the palm is there (`aimArm`). Called after
+ * `poseMech` and after the rig is placed. The decoy's juggler catches and
+ * throws with it (`fx/decoyHologram.ts`).
+ */
+export const reachHand = (rig: Rig, side: 'L' | 'R', at: { x: number; y: number; z: number }): void => {
+  const sh = rig.bones[`shoulder${side}`]
+  if (!sh) return
+  rig.root.updateMatrixWorld(true)
+  sh.getWorldPosition(_vs)
+  _vb.set(at.x - _vs.x, at.y - _vs.y, at.z - _vs.z)
+  const reach = _vb.length()
+  if (reach < 1e-4) return
+  aimArm(rig, side, _vd.copy(_vb).multiplyScalar(1 / reach), 1, reach, HAND_LOCAL)
+}
+
+/**
  * An arm along the world direction `dir` (unit), blended in by `w`: the
  * shoulder turns so the line from it to `tip` (a point in the forearm's frame:
  * the blade's point, the palm) points that way, and with `reach` (m, world)

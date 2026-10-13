@@ -288,7 +288,15 @@ const RECIPES: Record<SfxName, (pan: number, g: number) => void> = {
   reloadDone: (_p, g) => arp([72, 79], 0.05, 'p12', 0.11 * g, 0.06),
   scopeIn: (_p, g) => tone({ wave: 'sine', f0: 420, f1: 1250, dur: 0.16, vol: 0.07 * g }),
   scopeOut: (_p, g) => tone({ wave: 'sine', f0: 1100, f1: 420, dur: 0.12, vol: 0.06 * g }),
-  dry: (_p, g) => tone({ wave: 'p12', f0: 1300, dur: 0.03, vol: 0.09 * g }),
+  // The trigger pulled on nothing (#202): the hammer clicks, the slide clacks
+  // on an empty chamber, and a short low buzz says "out of stock".
+  dry: (_p, g) => {
+    tone({ wave: 'p12', f0: 1600, f1: 1100, dur: 0.025, vol: 0.16 * g })
+    burst({ dur: 0.03, vol: 0.12 * g, type: 'bandpass', f0: 3400, q: 3 })
+    tone({ wave: 'p25', f0: 720, f1: 470, dur: 0.04, vol: 0.14 * g, at: 0.075 })
+    burst({ dur: 0.045, vol: 0.1 * g, type: 'bandpass', f0: 1700, q: 2.5, at: 0.075 })
+    tone({ wave: 'saw', f0: 118, f1: 96, dur: 0.2, vol: 0.09 * g, at: 0.14, vib: 5, vibRate: 28 })
+  },
   // Running low (#145): two soft, falling ticks, a warning and not an alarm.
   ammoLow: (_p, g) => {
     tone({ wave: 'p25', f0: 980, dur: 0.045, vol: 0.06 * g })

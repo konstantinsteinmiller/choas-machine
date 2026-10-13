@@ -1,4 +1,4 @@
-import { reactive } from 'vue'
+import { reactive, watch } from 'vue'
 import { app, type GameMode } from './engine/app'
 import { hud, setPhase } from './state/hud'
 import { isFreshProfile, markSeen, profile, saveProfile } from './state/profile'
@@ -6,7 +6,7 @@ import { bankDefeat, bankMission, bankRetreat, campaignScore, fortressOpen, high
 import { watchFor } from '@/use/useRewardedOffers'
 import { endPaintTrial, startPaintTrial } from './state/paint'
 import { emit as busEmit } from './bus'
-import { cinemaAfterClear, seenKey, type CinemaId } from './story/cinemaIds'
+import { cinemaAfterClear, seenKey, type CinemaId, type CinemaPart } from './story/cinemaIds'
 import { currentMusicTrack, resumeMusicAfterAd, setMusicTrack } from '@/use/useSound'
 import type { TrackId } from './audio/songs'
 import { reportRun } from '@/use/useLeaderboard'
@@ -65,7 +65,11 @@ export const flow = reactive({
   /** The mission being built (or played) is the training ground. */
   training: false,
   /** The story scene playing over everything (#100), or null. */
-  cinema: null as CinemaId | null
+  cinema: null as CinemaId | null,
+  /** A story scene is being built to play over the scene that is up: nothing scripted starts under it. */
+  cinemaPending: false,
+  /** "Tap to start" is up before the first story scene: its sound may only start on a gesture. */
+  tapGate: false
 })
 
 export interface Checkpoint {
@@ -87,7 +91,7 @@ interface Factories {
   mission: ModeFactory
   base: ModeFactory
   /** A story scene (#100), built quickly, pushed over whatever is up. */
-  cinema?: (id: CinemaId) => Promise<CinemaMode>
+  cinema?: (id: CinemaId, part?: CinemaPart) => Promise<CinemaMode | null>
   /** Warm a freshly built mode (shader compile) before it is shown. */
   prepare?: (mode: GameMode) => Promise<void>
 }
@@ -173,9 +177,34 @@ let playing: CinemaMode | null = null
  * mode, the phase `cinema` (the HUD steps aside, the gameplay bracket closes),
  * its own music; then everything as it was. Marks it seen.
  */
-export const playCinema = async (id: CinemaId): Promise<void> => {
-  if (!factories?.cinema || playing) return
-  const mode = await factories.cinema(id)
+/** Resolves the "tap to start" gate, if it is up. */
+let tapped: (() => void) | null = null
+
+/** The player's first tap, click or key on "tap to start" (`TapToStart.vue`): a gesture, so the audio may start. */
+export const tapToStart = (): void => {
+  flow.tapGate = false
+  const go = tapped
+  tapped = null
+  go?.()
+}
+
+export const playCinema = async (id: CinemaId, part: CinemaPart = 'whole', opts: { tap?: boolean } = {}): Promise<void> => {
+  if (!factories?.cinema || playing || flow.cinemaPending) return
+  flow.cinemaPending = true
+  let mode: CinemaMode | null
+  try {
+    mode = await factories.cinema(id, part)
+    // Built behind the boot loader (the intro before the training): it starts once the loader has gone.
+    if (mode && flow.curtain) await new Promise<void>((resolve) => { const stop = watch(() => flow.curtain, (c) => { if (!c) { stop(); resolve() } }) })
+    // Before a game's very first scene, "tap to start": a browser lets sound
+    // play only after a gesture, and the intro opens on its score.
+    if (mode && opts.tap) {
+      await new Promise<void>((resolve) => { tapped = resolve; flow.tapGate = true })
+    }
+  } finally {
+    flow.cinemaPending = false
+  }
+  if (!mode) return
   const phase = hud.phase
   const track = currentMusicTrack()
   playing = mode
@@ -189,20 +218,36 @@ export const playCinema = async (id: CinemaId): Promise<void> => {
   app.popMode()
   setPhase(phase)
   setMusicTrack(track)
-  markSeen(seenKey(id))
+  markSeen(seenKey(id, part))
+  // The whole scene has shown its still too.
+  if (part === 'whole') markSeen(seenKey(id, 'still'))
 }
 
 /** The skip button, or Space held. */
 export const skipCinema = (): void => { playing?.skip() }
 
-/** The training ground is done (or skipped): the intro, the first time (#100), then straight on into the first raid. */
+/**
+ * A new player's first scene: the intro plays BEFORE the training ground, so
+ * the moves the rooms teach have been seen once (rope, backstab, barrel) and
+ * nobody walks into the first room cold. It stops short of its closing still
+ * of the next fortress: that comes after the training (`finishTraining`).
+ * Called once the boot's scene is up.
+ */
+export const introBeforeTraining = async (): Promise<void> => {
+  if (flow.training && flow.screen === 'mission' && !profile.seen.includes(seenKey('intro'))) await playCinema('intro', 'scene', { tap: true })
+}
+
+/** The training ground is done (or skipped): the intro, if it never played (an older profile), then straight on into the first raid. */
 export const finishTraining = async (): Promise<void> => {
   if (!profile.seen.includes('training')) {
     profile.seen.push('training')
     saveProfile()
   }
   flow.training = false
+  // The intro played before the training, all but its last shot: the next
+  // fortress is shown once the training is done, on the way to the first raid.
   if (!profile.seen.includes(seenKey('intro'))) await playCinema('intro')
+  else if (!profile.seen.includes(seenKey('intro', 'still'))) await playCinema('intro', 'still')
   await startMission(1)
 }
 

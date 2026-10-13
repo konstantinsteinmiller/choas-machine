@@ -184,17 +184,32 @@ const ladderHere = (g: Grid, p: Player, mx: number, mz: number): { l: Ladder; to
   return null
 }
 
-/** A cable the mech would step onto by walking this way from here, if any. */
+/** How near the end of a cable's line the mech steps onto it: back along it, and out past its end. */
+const CABLE_REACH = 0.45
+const CABLE_OVER = 0.5
+const CABLE_SIDE = 0.7
+/** Off the line's end, this far onto the platform: firm ground under the whole body. */
+const CABLE_OFF = 0.3
+
+/**
+ * A cable the mech would step onto by walking this way from here, if any:
+ * at the end of its line (where the rope is strung, its piton's edge), not
+ * anywhere in the cell it is anchored to (#201: the mech balanced its way
+ * across the platform long before it reached the rope).
+ */
 const cableHere = (g: Grid, p: Player, mx: number, mz: number): { c: Cable; t: number } | null => {
-  const cx = toCell(p.x)
-  const cz = toCell(p.z)
   for (const c of g.cables) {
     const e = cableEnds(g, c)
     const ux = (e.bx - e.ax) / e.len
     const uz = (e.bz - e.az) / e.len
+    const along = (p.x - e.ax) * ux + (p.z - e.az) * uz
+    if (Math.abs((p.x - e.ax) * uz - (p.z - e.az) * ux) > CABLE_SIDE) continue
+    const s = cableSpan(g, c)
     const toward = mx * ux + mz * uz
-    if (c.ax === cx && c.az === cz && toward > 0.6 && Math.abs(p.y - e.ay) < 0.3) return { c, t: 0 }
-    if (c.bx === cx && c.bz === cz && toward < -0.6 && Math.abs(p.y - e.by) < 0.3) return { c, t: 1 }
+    const a = s.ta * e.len
+    const b = s.tb * e.len
+    if (toward > 0.6 && Math.abs(p.y - e.ay) < 0.3 && along > a - CABLE_REACH && along < a + CABLE_OVER) return { c, t: s.ta }
+    if (toward < -0.6 && Math.abs(p.y - e.by) < 0.3 && along < b + CABLE_REACH && along > b - CABLE_OVER) return { c, t: s.tb }
   }
   return null
 }
@@ -283,12 +298,18 @@ export const stepPlayer = (p: Player, g: Grid, w: Wish, dt: number): PlayerEvent
     p.stride += Math.abs(v) * dt * 2.2
     p.speed01 = Math.min(1, Math.abs(v) / CABLE_SPEED)
     if (Math.abs(v) > 0.05) p.yaw += angleDelta(p.yaw, Math.atan2(ux * Math.sign(v), uz * Math.sign(v))) * Math.min(1, dt * TURN_RATE)
-    const t = Math.min(1, Math.max(0, p.cableT))
+    // Only along the line itself, edge to edge (#201): past either end the
+    // mech steps off onto the platform and walks on.
+    const s = cableSpan(g, p.cable)
+    const t = Math.min(s.tb, Math.max(s.ta, p.cableT))
     p.x = e.ax + (e.bx - e.ax) * t
     p.z = e.az + (e.bz - e.az) * t
-    // Flat to the platform's edge, then down (or up) the line to the other's.
-    p.y = cableY(e.ay, e.by, cableSpan(g, p.cable), t)
-    if (p.cableT >= 1 || p.cableT <= 0) {
+    p.y = cableY(e.ay, e.by, s, t)
+    if (p.cableT > s.tb || p.cableT < s.ta) {
+      const off = p.cableT > s.tb ? Math.min(1, s.tb + CABLE_OFF / e.len) : Math.max(0, s.ta - CABLE_OFF / e.len)
+      p.x = e.ax + (e.bx - e.ax) * off
+      p.z = e.az + (e.bz - e.az) * off
+      p.y = p.cableT > s.tb ? e.by : e.ay
       p.mode = 'ground'
       p.cable = null
     }
@@ -338,6 +359,10 @@ export const stepPlayer = (p: Player, g: Grid, w: Wish, dt: number): PlayerEvent
       p.mode = 'cable'
       p.cable = cable.c
       p.cableT = cable.t
+      // Onto the line's end, where the rope is.
+      const e = cableEnds(g, cable.c)
+      p.x = e.ax + (e.bx - e.ax) * cable.t
+      p.z = e.az + (e.bz - e.az) * cable.t
       p.vx = p.vz = 0
       p.crouched = false
       events.push({ type: 'cable' })

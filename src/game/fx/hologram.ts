@@ -36,6 +36,7 @@ void main() {
 const FRAG = /* glsl */`
 uniform float uTime;
 uniform float uFade;
+uniform float uFill;
 uniform vec3 uColor;
 varying vec3 vWorld;
 varying float vRim;
@@ -49,16 +50,21 @@ void main() {
   // The dissolve: cells of the figure blink out as uFade goes to 0.
   float cell = hash(floor(vWorld.x * 9.0) * 7.1 + floor(vWorld.y * 9.0) * 13.3 + floor(vWorld.z * 9.0) * 3.7);
   if (cell > uFade) discard;
-  float a = (0.16 + 0.55 * pow(vRim, 1.6)) * lines * flick + sweep * 0.25;
+  float a = (0.16 + uFill + 0.55 * pow(vRim, 1.6)) * lines * flick + sweep * 0.25;
   gl_FragColor = vec4(uColor * a * 1.6, a) * uFade;
 }
 `
 
-/** A hologram material; `skinned` for a rig's skinned mesh. */
-export const makeHologramMaterial = (color = '#5fe9ff'): ShaderMaterial => new ShaderMaterial({
+/**
+ * A hologram material (a rig's skinned mesh too). `fill`: light added across
+ * the whole figure, not only at its silhouette, for one that has to read from
+ * across a bright yard (the decoy, its balls); 0 for the lessons' ghosts.
+ */
+export const makeHologramMaterial = (color = '#5fe9ff', fill = 0): ShaderMaterial => new ShaderMaterial({
   uniforms: {
     uTime: { value: 0 },
     uFade: { value: 1 },
+    uFill: { value: fill },
     uColor: { value: new Color(color) }
   },
   vertexShader: VERT,

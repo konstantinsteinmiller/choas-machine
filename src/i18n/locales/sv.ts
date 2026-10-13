@@ -59,6 +59,8 @@ export default {
     'grappleRecall': 'Dra in haken',
     'cancel': 'Sänk vapnet',
     'capture': 'Klicka för att fortsätta',
+    'tapToStart': 'Tryck för att starta',
+    'clickToStart': 'Klicka för att starta',
     'metres': '{n} m',
     'objective': {
       'salvage': 'Bärgning',
@@ -81,6 +83,7 @@ export default {
     'loot': 'Plocka isär skrotet',
     'ammoLow': 'Ammunitionen tar slut',
     'ammoOut': 'Slut på ammunition',
+    'noAmmo': 'Slut på ammo!',
     'questLog': 'Mål',
     'quest': {
       'extract': 'Evakuering'
@@ -279,13 +282,14 @@ export default {
     'decoyHint': 'Placera ett lockbete för att distrahera vakten, smyg sedan fram och ta ut honom!',
     'roomHint': {
       'move': 'Gå fram till den lysande dörren för att börja din träning.',
-      'jump': 'Klättra uppför stegen och hoppa över glappet till den andra plattformen!',
-      'cover': 'Huka dig bakom lådorna så att vaktposten inte ser dig, och kryp sedan under grinden!',
-      'weapons': 'Slå ut alla tre vakterna: skjut en med prickskyttegeväret och byt sedan till minigunen för de andra två!',
-      'rocket': 'Byt till raketkastaren och spräng mechen på avsatsen!',
+      'jump': 'Klättra uppför stegen och hoppa över glappet till den andra plattformen! Spring och hopp låter, och vakter i närheten hör det.',
+      'cover': 'Huka dig bakom lådorna så att vaktposten inte ser dig, och kryp sedan under grinden! Bara hukade steg är ljudlösa: vakterna hör dig gå nära.',
+      'weapons': 'Slå ut alla tre vakterna: skjut en med prickskyttegeväret och byt sedan till minigunen för de andra två! Skott låter: minigunen hörs av alla vakter runt omkring.',
+      'rocket': 'Byt till raketkastaren och spräng mechen på avsatsen! Raketer är högljudda: alla vakter hör explosionen.',
+      'hide': 'Skjut vakten, gå sedan bort från din skjutplats och göm dig: drönaren flyger dit skottet kom ifrån!',
       'supply': 'Gå över lådorna för att fylla på ammo och reparera ditt pansar.',
       'burn': 'Bränn kroppen med eldkastaren innan någon hittar den!',
-      'box': 'Göm dig i kartongen och stå still medan strålkastaren sveper över dig!',
+      'box': 'Ta på dig förklädnaden! Strålkastaren ignorerar dig så länge du står still, men upptäcker dig så fort du rör dig.',
       'hook': 'Använd änterhaken för att ta dig över muren!',
       'rope': 'Använd repkanonen för att spänna ett rep mellan de två plattformarna!',
       'barrel': 'Skjut bränslefatet för att slå ut vakterna bakom muren!',
@@ -304,12 +308,14 @@ export default {
       'box': 'Förklä dig så att du inte blir upptäckt',
       'decoy': 'Använd ett lockbete [{key}], hugg i ryggen när vakten är distraherad',
       'decoyTouch': 'Använd ett lockbete, hugg i ryggen när vakten är distraherad',
-      'decoyAny': 'Upptäckt igen. Ta ut vakten hur du vill.'
+      'decoyAny': 'Upptäckt igen. Ta ut vakten hur du vill.',
+      'hide': 'Göm dig efter skottet: flytta dig någon annanstans, annars hittar fienden var du sköt ifrån.'
     },
     'door': {
       'cover': 'Huka dig en gång för att komma förbi',
       'weapons': 'Ta ner alla tre för att komma förbi',
       'rocket': 'Förstör mechen med raketkastaren',
+      'hide': 'Skjut vakten och göm dig för drönaren',
       'supply': 'Ta förnödenheterna',
       'blade': 'Hugg båda vakterna i ryggen',
       'burn': 'Bränn kroppen',

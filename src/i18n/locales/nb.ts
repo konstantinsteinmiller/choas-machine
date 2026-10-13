@@ -59,6 +59,8 @@ export default {
     'grappleRecall': 'Trekk inn kroken',
     'cancel': 'Senk våpenet',
     'capture': 'Klikk for å fortsette',
+    'tapToStart': 'Trykk for å starte',
+    'clickToStart': 'Klikk for å starte',
     'metres': '{n} m',
     'objective': {
       'salvage': 'Berging',
@@ -81,6 +83,7 @@ export default {
     'loot': 'Ta fra hverandre skrapet',
     'ammoLow': 'Lite ammunisjon igjen',
     'ammoOut': 'Tom for ammunisjon',
+    'noAmmo': 'Tom for ammo!',
     'questLog': 'Mål',
     'quest': {
       'extract': 'Evakuering'
@@ -279,13 +282,14 @@ export default {
     'decoyHint': 'Plasser et lokkemiddel for å distrahere vakten, snik deg så innpå og ta ham ut!',
     'roomHint': {
       'move': 'Gå bort til den glødende døra for å starte treningen.',
-      'jump': 'Klatre opp stigen og hopp over gapet til den andre plattformen!',
-      'cover': 'Huk deg bak kassene så vaktposten ikke ser deg, og kryp så under porten!',
-      'weapons': 'Ta ut alle tre vaktene: skyt én med snikskytterrifla, og bytt så til minigunen for de to andre!',
-      'rocket': 'Bytt til rakettkasteren og spreng mechen på avsatsen!',
+      'jump': 'Klatre opp stigen og hopp over gapet til den andre plattformen! Løping og hopping lager lyd som vakter i nærheten hører.',
+      'cover': 'Huk deg bak kassene så vaktposten ikke ser deg, og kryp så under porten! Bare hukende skritt er lydløse: vaktene hører deg gå tett innpå.',
+      'weapons': 'Ta ut alle tre vaktene: skyt én med snikskytterrifla, og bytt så til minigunen for de to andre! Skudd lager lyd: minigunen hører alle vaktene rundt.',
+      'rocket': 'Bytt til rakettkasteren og spreng mechen på avsatsen! Raketter er høylytte: alle vakter hører eksplosjonen.',
+      'hide': 'Skyt vakten, flytt deg så bort fra skytestedet og gjem deg: dronen flyr dit skuddet kom fra!',
       'supply': 'Gå over kassene for å fylle opp ammunisjonen og reparere panseret ditt.',
       'burn': 'Brenn liket med flammekasteren før noen finner det!',
-      'box': 'Gjem deg i pappeska og stå stille mens lyskasteren sveiper over deg!',
+      'box': 'Ta på deg forkledningen! Lyskasteren overser deg mens du står stille, men oppdager deg straks du beveger deg.',
       'hook': 'Bruk entrehaken for å komme deg over muren!',
       'rope': 'Bruk taupistolen til å spenne et tau mellom de to plattformene!',
       'barrel': 'Skyt drivstofftønna for å ta ut vaktene bak muren!',
@@ -304,12 +308,14 @@ export default {
       'box': 'Forkle deg, så du ikke blir oppdaget',
       'decoy': 'Bruk en lokkedue [{key}], stikk i ryggen når vakten er distrahert',
       'decoyTouch': 'Bruk en lokkedue, stikk i ryggen når vakten er distrahert',
-      'decoyAny': 'Oppdaget igjen. Ta ut vakten akkurat som du vil.'
+      'decoyAny': 'Oppdaget igjen. Ta ut vakten akkurat som du vil.',
+      'hide': 'Gjem deg etter at du har skutt: flytt deg et annet sted, ellers finner fienden ut hvor du skjøt fra.'
     },
     'door': {
       'cover': 'Huk deg én gang for å komme forbi',
       'weapons': 'Ta ned alle tre for å komme forbi',
       'rocket': 'Ødelegg mechen med rakettkasteren',
+      'hide': 'Skyt vakten, og gjem deg for dronen',
       'supply': 'Ta forsyningene',
       'blade': 'Stikk begge vaktene i ryggen',
       'burn': 'Brenn liket',

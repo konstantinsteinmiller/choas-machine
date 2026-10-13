@@ -445,14 +445,32 @@ const freezeAnimations = (map: Map<Element, Element>): void => {
   }
 }
 
+/**
+ * An element's untransformed border-box size, to the fraction of a pixel.
+ * `offsetWidth` rounds: a bubble whose words just fit ("Uau, que brilho!")
+ * came out 0.4px narrower in the copy, wrapped to two lines and spilled out of
+ * its one-line box.
+ */
+export const layoutSize = (el: HTMLElement): { w: number; h: number } => {
+  const cs = getComputedStyle(el)
+  let w = parseFloat(cs.width)
+  let h = parseFloat(cs.height)
+  if (!Number.isFinite(w) || !Number.isFinite(h)) return { w: el.offsetWidth, h: el.offsetHeight }
+  if (cs.boxSizing !== 'border-box') {
+    const px = (p: string): number => parseFloat(cs.getPropertyValue(p)) || 0
+    w += px('padding-left') + px('padding-right') + px('border-left-width') + px('border-right-width')
+    h += px('padding-top') + px('padding-bottom') + px('border-top-width') + px('border-bottom-width')
+  }
+  return { w, h }
+}
+
 /** Pin a unit's clone where the unit is on screen, its own translation folded in. */
 const pin = (clone: HTMLElement, u: Unit): void => {
   const s = clone.style
   const set = (p: string, v: string) => s.setProperty(p, v, 'important')
   const el = u.el
   const html = el instanceof HTMLElement
-  const w = html ? el.offsetWidth : u.box.w
-  const h = html ? el.offsetHeight : u.box.h
+  const { w, h } = html ? layoutSize(el) : u.box
   // Rotation and scale about the centre leave the centre where it is: the
   // layout box goes centred on the box's centre, with only the linear part
   // of its transform (its translation is already in where the box is).

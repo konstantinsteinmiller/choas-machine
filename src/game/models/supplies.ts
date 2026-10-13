@@ -1,5 +1,6 @@
 import type { BufferGeometry } from 'three'
 import { cap, merge, paint, rbox, rcyl, sph, torus, xform, type V3 } from './kit'
+import { crestFaces, crestRims } from './blastCrest'
 
 /**
  * ─── What lies about in a fortress (#76, #78, #101) ──────────────────────────
@@ -86,9 +87,11 @@ export const buildAmmoPouch = (): { lit: BufferGeometry; glow: BufferGeometry } 
 /**
  * An exploding barrel (#78): a red fuel drum standing on a low steel pallet
  * (it stands clear of the ground), two ribs, a yellow-and-black hazard band,
- * a filler cap, a flame sign that glows.
+ * a filler cap, a flame sign that glows, and a blast crest on each of its
+ * four sides (`models/blastCrest.ts`): the crests' edges are in the lit part,
+ * their painted faces are `crest`, drawn with `crestMaterial()`.
  */
-export const buildFuelBarrel = (): { lit: BufferGeometry; glow: BufferGeometry } => {
+export const fuelBarrelParts = (): { lit: BufferGeometry[]; glow: BufferGeometry[]; crest: BufferGeometry } => {
   const RED = '#d8344a'
   const RED_DARK = '#9c1f33'
   const PALLET = '#4a4482'
@@ -109,9 +112,33 @@ export const buildFuelBarrel = (): { lit: BufferGeometry; glow: BufferGeometry }
     const a = (i / N) * Math.PI * 2
     lit.push(part(rbox(0.21, 0.16, 0.03, 0.2, 2, 2), i % 2 ? '#241848' : '#ffd23f', [Math.sin(a) * 0.41, 0.13 + 0.55, Math.cos(a) * 0.41], [0, a, 0]))
   }
+  // The crests' edges: the plates' dark brass, so they read as metal.
+  lit.push(paint(crestRims(), '#7a4e12'))
   const glow: BufferGeometry[] = [
-    // A flame sign on the front, above the band.
-    part(rbox(0.16, 0.2, 0.02, 0.5, 3, 3), '#ffb061', [0, 0.13 + 0.86, 0.41])
+    // A flame sign on the front, above the crest.
+    part(rbox(0.16, 0.2, 0.02, 0.5, 3, 3), '#ffb061', [0, 0.13 + 0.9, 0.41])
   ]
-  return done(lit, glow)
+  return { lit, glow, crest: crestFaces() }
+}
+
+export const buildFuelBarrel = (): { lit: BufferGeometry; glow: BufferGeometry; crest: BufferGeometry } => {
+  const p = fuelBarrelParts()
+  return { ...done(p.lit, p.glow), crest: p.crest }
+}
+
+/**
+ * The same barrel as one plain shape (position and normal only), crests and
+ * all, for the training room's hologram drum (#198): it shows the shields the
+ * real one carries. Origin at the bottom middle.
+ */
+export const fuelBarrelShape = (): BufferGeometry => {
+  const p = fuelBarrelParts()
+  const geos = [...p.lit, ...p.glow, p.crest]
+  for (const g of geos) {
+    g.deleteAttribute('color')
+    g.deleteAttribute('uv')
+  }
+  const out = merge(geos)
+  for (const g of geos) g.dispose()
+  return out
 }

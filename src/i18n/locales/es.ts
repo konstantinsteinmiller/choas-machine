@@ -59,6 +59,8 @@ export default {
     'grappleRecall': 'Recoger el gancho',
     'cancel': 'Bajar arma',
     'capture': 'Haz clic para continuar',
+    'tapToStart': 'Toca para empezar',
+    'clickToStart': 'Haz clic para empezar',
     'metres': '{n} m',
     'objective': {
       'salvage': 'Chatarra',
@@ -81,6 +83,7 @@ export default {
     'loot': 'Desguazar la chatarra',
     'ammoLow': 'Queda poca munición',
     'ammoOut': 'Sin munición',
+    'noAmmo': '¡Sin munición!',
     'questLog': 'Objetivos',
     'quest': {
       'extract': 'Extracción'
@@ -279,13 +282,14 @@ export default {
     'decoyHint': '¡Coloca un señuelo para distraer al guardia, luego acércate sigilosamente y elimínalo!',
     'roomHint': {
       'move': 'Ve hasta la puerta brillante para empezar tu entrenamiento.',
-      'jump': '¡Sube por la escalera y salta el hueco hasta la otra plataforma!',
-      'cover': '¡Agáchate detrás de las cajas para que el centinela no te vea y luego arrástrate bajo la verja!',
-      'weapons': '¡Acaba con los tres guardias: elimina a uno con el rifle de francotirador y luego cambia a la minigun para los otros dos!',
-      'rocket': '¡Cambia al lanzacohetes y vuela el mech de la cornisa!',
+      'jump': '¡Sube por la escalera y salta el hueco hasta la otra plataforma! Correr y saltar hace ruido que oyen los guardias cercanos.',
+      'cover': '¡Agáchate detrás de las cajas para que el centinela no te vea y luego arrástrate bajo la verja! Solo el paso agachado es silencioso: los guardias te oyen caminar de cerca.',
+      'weapons': '¡Acaba con los tres guardias: elimina a uno con el rifle de francotirador y luego cambia a la minigun para los otros dos! Los disparos hacen ruido: todos los guardias de alrededor oyen la minigun.',
+      'rocket': '¡Cambia al lanzacohetes y vuela el mech de la cornisa! Los cohetes son ruidosos: todos los guardias oyen la explosión.',
+      'hide': '¡Dispara al guardia, luego aléjate de tu posición de tiro y escóndete: el dron vuela hasta donde salió el disparo!',
       'supply': 'Pasa por encima de las cajas para recargar munición y reparar tu blindaje.',
       'burn': '¡Quema el cuerpo con el lanzallamas antes de que alguien lo encuentre!',
-      'box': '¡Escóndete en la caja de cartón y quédate quieto mientras el foco pasa sobre ti!',
+      'box': '¡Disfrázate! El foco te ignora mientras estés quieto, pero te detecta en cuanto te mueves.',
       'hook': '¡Usa el gancho para pasar por encima del muro!',
       'rope': '¡Usa el lanzacuerdas para tender una cuerda entre las dos plataformas!',
       'barrel': '¡Dispara al barril de combustible para acabar con los guardias tras el muro!',
@@ -304,12 +308,14 @@ export default {
       'box': 'Disfrázate para que no te vean',
       'decoy': 'Usa un señuelo [{key}] y apuñala por la espalda cuando se distraiga',
       'decoyTouch': 'Usa un señuelo y apuñala por la espalda cuando se distraiga',
-      'decoyAny': 'Te han vuelto a ver. Acaba con el guardia como quieras.'
+      'decoyAny': 'Te han vuelto a ver. Acaba con el guardia como quieras.',
+      'hide': 'Escóndete después de disparar: muévete a otro sitio o el enemigo encontrará desde dónde disparaste.'
     },
     'door': {
       'cover': 'Agáchate una vez para pasar',
       'weapons': 'Abate a los tres para pasar',
       'rocket': 'Destruye el mecha con el lanzacohetes',
+      'hide': 'Dispara al guardia y escóndete del dron',
       'supply': 'Coge los suministros',
       'blade': 'Apuñala por la espalda a los dos guardias',
       'burn': 'Quema el cuerpo',

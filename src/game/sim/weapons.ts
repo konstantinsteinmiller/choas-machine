@@ -19,11 +19,12 @@ import { WEAPON_IDS, type WeaponId } from '../data/ids'
 export const SNIPER_MAG = 5
 /**
  * Rounds carried for the rifle besides the magazine, and the mini-gun's belt,
- * as the factory fits them. Round 5 (#143): a tight factory stock (10 rifle
- * rounds in all, 100 on the belt, 2 rockets); the rest is upgraded at the
- * Armory or picked up in the fortress.
+ * as the factory fits them. Round 5 (#143): a tight factory stock (100 on
+ * the belt, 2 rockets); the rest is upgraded at the Armory or picked up in
+ * the fortress. The rifle: a playtest found 10 rounds in all too few to
+ * learn on, so 15 (a magazine and 10 spare).
  */
-export const SNIPER_RESERVE = 5
+export const SNIPER_RESERVE = 10
 export const MINIGUN_BELT = 100
 export const SNIPER_BOLT_S = 0.85
 export const SNIPER_RELOAD_S = 1.9

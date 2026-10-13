@@ -18,7 +18,7 @@ export const TRAINING_ID = 'training'
 
 /** The lessons, one per room, in the order they are crossed. */
 export const LESSON_IDS = [
-  'move', 'jump', 'cover', 'weapons', 'rocket', 'supply', 'blade', 'burn', 'decoy', 'box', 'hook', 'rope', 'salvage', 'barrel', 'extract'
+  'move', 'jump', 'cover', 'weapons', 'rocket', 'hide', 'supply', 'blade', 'burn', 'decoy', 'box', 'hook', 'rope', 'salvage', 'barrel', 'extract'
 ] as const
 export type LessonId = (typeof LESSON_IDS)[number]
 
@@ -76,12 +76,39 @@ export const ROPE_DECK_H = 2
  * The parapet is a low lip at the mech's feet (it was 1.2 m: from the floor
  * no rocket could reach the mech's body, only a blast on the parapet's top
  * did); now a rocket at its chest from the back half of the room clears it.
+ * The ledge is low (a playtester never found the mech up at 4 m): an easy
+ * shot from the way in, still too high to climb onto.
  */
-export const ROCKET_LEDGE_H = 4
-export const ROCKET_PARAPET_H = 4.3
+export const ROCKET_LEDGE_H = 2.5
+export const ROCKET_PARAPET_H = 2.75
 export const ROCKET_TARGET_HP = 300
 /** Where the rocket room's target stands (room cells). */
 export const ROCKET_TARGET: readonly [number, number] = [8, 3]
+/**
+ * Where the hologram's own mech stands on the ledge (room cells): beside the
+ * real one, nearer the way in, so its rocket's hit is not lost in the real
+ * mech's body (the owner: "put the hologram mech a bit aside").
+ */
+export const ROCKET_HOLO: readonly [number, number] = [6.4, 2.4]
+/**
+ * The shoot-and-hide room: no playtester understood that a shot gives away
+ * where it came from, and the guards go there. A sentry with its back to the
+ * room to shoot; a surveillance drone on a short beat along the south wall
+ * (armoured: it is to be dodged, not shot) that flies to wherever a shot came
+ * from and sweeps its light there; a low wall of crates a few metres off the
+ * way in to get behind before it arrives. All in room cells.
+ */
+export const HIDE_TARGET: readonly [number, number] = [9, 2]
+export const HIDE_DRONE: ReadonlyArray<readonly [number, number]> = [[5, 11], [9, 11]]
+export const HIDE_DRONE_ALT = 6
+/**
+ * The crates (a row along x from here), and the place behind them the marker
+ * shows once the shot is fired: ahead and to the left of the way in, where
+ * the camera there sees them (to the right, the doorway hides the room).
+ */
+export const HIDE_COVER: readonly [number, number] = [3, 5]
+export const HIDE_COVER_LEN = 3
+export const HIDE_SPOT: readonly [number, number] = [4, 3.6]
 /** The disguise room's corridor (#163): its two rows, the doorway's. */
 export const BOX_LANE: readonly [number, number] = [6, 7]
 /**
@@ -192,6 +219,16 @@ export const buildTrainingGround = (): Fortress => {
     b.fill(...at(k, 5, 1), ...at(k, 5, 4), ROCKET_PARAPET_H)
     b.rocketTarget(...at(k, ROCKET_TARGET[0], ROCKET_TARGET[1]), 0, ROCKET_TARGET_HP)
     b.solid('stack', ...at(k, 2, 11), 1.4)
+  }
+
+  // · Shoot, then hide: the sentry to take (facing the north wall), the drone
+  //   on its beat by the south wall that comes to look where the shot came
+  //   from, the crates to be behind by then.
+  {
+    const k = room('hide')
+    b.sentry(...at(k, ...HIDE_TARGET), Math.PI)
+    b.drone(HIDE_DRONE.map(([x, z]) => [...at(k, x, z), 1.5] as const), HIDE_DRONE_ALT, true)
+    b.cover(...at(k, ...HIDE_COVER), HIDE_COVER_LEN, 'x', COVER_ROOM_H)
   }
 
   // · Supplies (#76): the rounds just spent are not coming back by

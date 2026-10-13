@@ -120,7 +120,7 @@ describe('the schemes and the model (#M3)', () => {
     expect(calls.sort()).toEqual([
       'game/art/mechPortrait.ts: scheme',
       'game/art/paintThumbs.ts: scheme',
-      'game/fx/combatFx.ts: this.paint',
+      'game/fx/decoyHologram.ts: paint',
       'game/scenes/commandBase.ts: b.shownPaint',
       'game/scenes/commandBase.ts: id',
       'game/scenes/modelBench.ts: paint',
@@ -128,12 +128,14 @@ describe('the schemes and the model (#M3)', () => {
       'game/sim/mission.ts: missionPaint()',
       'game/sim/mission.ts: missionPaint()',
       'game/sim/trainingDirector.ts: missionPaint()',
-      'game/sim/trainingDirector.ts: missionPaint()',
       'game/story/cinema.ts: FREE_PAINT'
     ])
     // The mission's combat effects (the decoy's hologram) in the player's paint, the story's in CM-07's.
     expect(readFileSync(join(__dirname, '../../src/game/sim/mission.ts'), 'utf8')).toContain('new CombatFx(missionPaint())')
     expect(readFileSync(join(__dirname, '../../src/game/story/cinema.ts'), 'utf8')).toContain('new CombatFx(FREE_PAINT)')
+    // The decoy (CM-07 juggling, `decoyHologram.ts`) is built in the scheme it is handed: CombatFx's, the training demo's the player's.
+    expect(readFileSync(join(__dirname, '../../src/game/fx/combatFx.ts'), 'utf8')).toContain('new DecoyHologram(this.paint)')
+    expect(readFileSync(join(__dirname, '../../src/game/sim/trainingDirector.ts'), 'utf8')).toContain('new DecoyHologram(missionPaint())')
   })
 })
 

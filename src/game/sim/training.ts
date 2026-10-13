@@ -1,6 +1,9 @@
 import { CELL, cellMid } from '../world/grid'
-import { BARREL_PLINTH, HOOK_WALL_H, JUMP_DECK_H, JUMP_PIT_COL, ROCKET_TARGET, TRAINING_ROOMS, type LessonId } from '../data/fortresses/training'
+import {
+  HIDE_DRONE, HIDE_DRONE_ALT, HIDE_SPOT, HIDE_TARGET, HOOK_WALL_H, JUMP_DECK_H, JUMP_PIT_COL, ROCKET_HOLO, TRAINING_ROOMS, type LessonId
+} from '../data/fortresses/training'
 import type { WeaponId } from '../data/ids'
+import type { HumanDeath } from '../models/garrison'
 import type { HintId } from './coach'
 import { isAlive, type Garrison } from './garrison'
 import { VARIANTS, guardToWorld, type BackstabVariant } from './backstab'
@@ -93,6 +96,17 @@ const DECOY_GUARD: readonly [number, number] = [7.6, 3.9]
 const DECOY_BEHIND = behind(DECOY_GUARD, DECOY_AT)
 const DECOY_AFTER = behind(DECOY_GUARD, DECOY_AT, 1)
 
+/** The hide room's firing spot (room cells), where the demo's ghost shoots from; and its hologram sentry, beside the real one. */
+export const HIDE_FIRE: readonly [number, number] = [5, 7]
+const HIDE_HOLO_TARGET: readonly [number, number] = [HIDE_TARGET[0] - 1.2, HIDE_TARGET[1]]
+
+/**
+ * The barrel room's hologram drum (room cells): out in front of the real one,
+ * well short of the wall, ahead and to the left of the way in (where the
+ * camera at the projector sees it; to the right the doorway hides it).
+ */
+export const DEMO_DRUM: readonly [number, number] = [4, 4.6]
+
 /** A hologram guard a lesson's takedown is played on: where it stands (room cells), facing what; missing values carry over. */
 export interface VictimKey { t: number; x?: number; z?: number; face?: readonly [number, number] }
 export const VICTIMS: Readonly<Partial<Record<LessonId, readonly VictimKey[]>>> = {
@@ -128,12 +142,23 @@ export const DEMOS: Readonly<Record<LessonId, readonly DemoKey[]>> = {
     { t: 0, x: 2, z: 7, face: [10, 2], weapon: 'sniper', aim: 0, hint: 'scope' }, { t: 0.7, aim: 1 }, { t: 1.8, aim: 1, hint: 'fire' },
     { t: 2.6, aim: 0, weapon: 'minigun', face: [8.5, 11], hint: 'weapon' }, { t: 3.2, aim: 1, hint: 'fire' }, { t: 5.6, aim: 1 }
   ],
-  // The launcher (#146): 3 draws it, up it comes, and the rocket leaves its
-  // nose for the mech on the ledge, which comes apart.
+  // The launcher (#146): 3 draws it, up it comes (aimed up at the ledge), and
+  // the rocket leaves its nose for the hologram's mech beside the real one,
+  // which comes apart. The ghost stands ahead and to the left of the way in,
+  // clear of the doorway's edge, so the player sees it aim up and fire.
   rocket: [
-    { t: 0, x: 1.5, z: 7.5, face: ROCKET_TARGET, weapon: 'sniper', aim: 0 },
-    { t: 0.9, x: 3, z: 8, face: ROCKET_TARGET, hint: 'rocket' }, { t: 1.2, weapon: 'rocket' }, { t: 1.7, aim: 1 },
-    { t: 2.3, aim: 1, hint: 'fire', rocket: ROCKET_TARGET }, { t: 4.4, aim: 1 }, { t: 5, aim: 0 }
+    { t: 0, x: 1.5, z: 7.5, face: ROCKET_HOLO, weapon: 'sniper', aim: 0 },
+    { t: 0.9, x: 2.6, z: 5.4, face: ROCKET_HOLO, hint: 'rocket' }, { t: 1.2, weapon: 'rocket' }, { t: 1.7, aim: 1 },
+    { t: 2.3, aim: 1, hint: 'fire', rocket: ROCKET_HOLO }, { t: 4.4, aim: 1 }, { t: 5, aim: 0 }
+  ],
+  // Shoot, then hide: from the firing spot, one round into the sentry; the
+  // moment it is fired, away at a run, crouched, behind the crates, and kept
+  // down there while the drone comes to the empty spot and sweeps it.
+  hide: [
+    { t: 0, x: 1.5, z: 7, weapon: 'sniper', aim: 0 }, { t: 1.2, x: HIDE_FIRE[0], z: HIDE_FIRE[1], face: HIDE_HOLO_TARGET, hint: 'scope' },
+    { t: 1.7, aim: 1 }, { t: 2.6, aim: 1, hint: 'fire' }, { t: 2.85, aim: 0, crouch: 0 },
+    { t: 3.1, x: HIDE_FIRE[0] - 0.2, z: HIDE_FIRE[1] - 0.3, crouch: 1, hint: 'crouch' }, { t: 4.1, x: HIDE_SPOT[0], z: HIDE_SPOT[1], crouch: 1, face: HIDE_FIRE },
+    { t: 10.6, crouch: 1 }, { t: 11.2, crouch: 0 }
   ],
   // Over the crate: it is the mech's.
   supply: [{ t: 0, x: 1.5, z: 7, hint: 'supply' }, { t: 2.4, x: 5, z: 7 }, { t: 2.8, x: 5, z: 7 }, { t: 4.6, x: 10.4, z: 7 }],
@@ -181,15 +206,112 @@ export const DEMOS: Readonly<Record<LessonId, readonly DemoKey[]>> = {
     { t: 1.6, x: 3.5, z: 7, y: 4, cable: 1 }, { t: 4, x: 7.5, z: 7, y: 2, cable: 1 }, { t: 4.2, cable: 0 },
     { t: 4.8, x: 9.3, z: 7, y: 2 }, { t: 5.2, x: 9.9, z: 7, y: 0, air: 1 }, { t: 5.4, air: 0 }, { t: 6, x: 10.4, z: 7, y: 0 }
   ],
-  // The barrel (#198): the rifle up, the drum on the plinth in the scope, one round.
+  // The barrel (#198): a hologram drum out in front of the real one, its
+  // guards round it; the rifle up, one round, and the lot of them go up with it.
   barrel: [
-    { t: 0, x: 1.5, z: 7, weapon: 'sniper', aim: 0 }, { t: 1.2, x: 2.6, z: 7, face: BARREL_PLINTH, hint: 'scope' },
-    { t: 1.8, aim: 1 }, { t: 2.8, aim: 1, hint: 'fire' }, { t: 4.4, aim: 1 }, { t: 5, aim: 0 }
+    { t: 0, x: 1.5, z: 7, weapon: 'sniper', aim: 0 }, { t: 1.1, x: 2.4, z: 7.4, face: DEMO_DRUM, hint: 'scope' },
+    { t: 1.7, aim: 1 }, { t: 2.7, aim: 1, hint: 'fire' }, { t: 6, aim: 1 }, { t: 6.6, aim: 0 }
   ],
   salvage: [
     { t: 0, x: 1.5, z: 7, loot: 0 }, { t: 3, x: 5.4, z: 8.3, hint: 'loot' }, { t: 3.4, face: [6, 9], loot: 1 }, { t: 5.6, loot: 1 }
   ],
   extract: [{ t: 0, x: 1.5, z: 7, hint: 'goal' }, { t: 3.5, x: 6, z: 7 }]
+}
+
+/**
+ * ─── The demos' rounds and their targets ─────────────────────────────────────
+ *
+ * A playtester saw the weapons room's hologram guards fall with nothing to
+ * say why. Every round a demo fires is drawn now: out of the ghost's muzzle
+ * at `t`, flying `fly` seconds into its target, and the target goes down only
+ * when the round that takes it lands (`targetDies`). The barrel room's round
+ * goes into a hologram drum, and the drum's blast takes its guards.
+ */
+
+/** A hologram guard a demo's rounds take: where it stands (room cells), its heading, how it falls; thrown by a blast, how much further (m) and how high (m). */
+export interface DemoTarget { at: readonly [number, number]; yaw: number; death: HumanDeath; fling?: number; lift?: number }
+
+/** One round: fired at `t`, at target `target` (or at the lesson's drum), landing `y` metres up it after `fly` seconds. */
+export interface DemoShot { t: number; weapon: WeaponId; target: number | 'drum'; y: number; fly: number }
+
+/** The drum is hit, and goes up this long after (a spark, then the bang). */
+export const DRUM_FUSE_S = 0.06
+/** The blast reaches a guard this long after it goes up, per metre. */
+const BLAST_S_PER_M = 0.012
+
+/** The hide room's demo round is fired here. */
+const HIDE_SHOT_T = 2.6
+
+/** A guard round the drum, facing it. */
+const round = (x: number, z: number, fling: number, lift: number): DemoTarget =>
+  ({ at: [x, z], yaw: Math.atan2(DEMO_DRUM[0] - x, DEMO_DRUM[1] - z), death: 'thrown', fling, lift })
+
+export const DEMO_TARGETS: Readonly<Partial<Record<LessonId, readonly DemoTarget[]>>> = {
+  // The sentry the rifle takes, the two the minigun cuts down.
+  weapons: [
+    { at: [10, 2], yaw: Math.PI, death: 'back' }, { at: [8, 11], yaw: 0, death: 'front' }, { at: [9, 11], yaw: 0, death: 'back' }
+  ],
+  // Five round the drum, a gap toward the ghost for its round; thrown furthest
+  // where the room has the length (the wall and the ladder are close east).
+  hide: [{ at: HIDE_HOLO_TARGET, yaw: Math.PI, death: 'front' }],
+  barrel: [round(4.08, 5.5, 0, 1.3), round(4.23, 3.73, 1, 1.4), round(3.48, 3.86, 0.8, 1.9), round(3.15, 4.29, 0.8, 1.2), round(3.15, 4.91, 0.6, 1.6)]
+}
+
+/** The minigun's burst: `n` rounds, one every `every` s from `t0`, into target `target`. */
+const burst = (t0: number, n: number, every: number, target: number): DemoShot[] =>
+  Array.from({ length: n }, (_, k) => ({ t: t0 + k * every, weapon: 'minigun' as const, target, y: 1.05 + ((k * 7) % 5) * 0.12, fly: 0.11 }))
+
+export const DEMO_SHOTS: Readonly<Partial<Record<LessonId, readonly DemoShot[]>>> = {
+  // One bright round into the sentry, then the minigun's stream on the two.
+  weapons: [{ t: 1.8, weapon: 'sniper', target: 0, y: 1.45, fly: 0.09 }, ...burst(3.35, 9, 0.07, 1), ...burst(4.02, 7, 0.07, 2)],
+  barrel: [{ t: 2.7, weapon: 'sniper', target: 'drum', y: 0.7, fly: 0.1 }],
+  hide: [{ t: HIDE_SHOT_T, weapon: 'sniper', target: 0, y: 1.45, fly: 0.1 }]
+}
+
+/** When the lesson's drum goes up (−1 none): its round lands, and a beat after. */
+export const drumBlast = (lesson: LessonId): number => {
+  const s = DEMO_SHOTS[lesson]?.find(q => q.target === 'drum')
+  return s ? s.t + s.fly + DRUM_FUSE_S : -1
+}
+
+/** When a demo's target goes down: the last round into it lands, or the drum's blast reaches it. */
+export const targetDies = (lesson: LessonId, k: number): number => {
+  let t = -1
+  for (const s of DEMO_SHOTS[lesson] ?? []) if (s.target === k) t = Math.max(t, s.t + s.fly)
+  const blast = drumBlast(lesson)
+  const tg = DEMO_TARGETS[lesson]?.[k]
+  if (blast >= 0 && tg) t = Math.max(t, blast + Math.hypot(tg.at[0] - DEMO_DRUM[0], tg.at[1] - DEMO_DRUM[1]) * CELL * BLAST_S_PER_M)
+  return t
+}
+
+/**
+ * The hide room's hologram drone: on its beat by the south wall; the shot
+ * heard, it flies to the firing spot (the ghost long gone), sweeps its light
+ * round the empty spot, and goes back. Room cells; `sweep` 0 … 1 is how wide
+ * its light circles.
+ */
+export interface DroneKey { t: number; x: number; z: number; sweep: number }
+export const HIDE_DRONE_KEYS: readonly DroneKey[] = [
+  { t: 0, x: HIDE_DRONE[0]![0] + 1, z: HIDE_DRONE[0]![1], sweep: 0 },
+  { t: HIDE_SHOT_T + 0.3, x: HIDE_DRONE[1]![0] - 1, z: HIDE_DRONE[1]![1], sweep: 0 },
+  { t: 6.4, x: HIDE_FIRE[0], z: HIDE_FIRE[1], sweep: 0 },
+  { t: 6.8, x: HIDE_FIRE[0], z: HIDE_FIRE[1], sweep: 1 },
+  { t: 9.2, x: HIDE_FIRE[0], z: HIDE_FIRE[1], sweep: 1 },
+  { t: 9.5, x: HIDE_FIRE[0], z: HIDE_FIRE[1], sweep: 0 },
+  { t: 11.2, x: HIDE_DRONE[0]![0] + 1, z: HIDE_DRONE[0]![1], sweep: 0 }
+]
+/** The hologram drone's height over the floor (m). */
+export const HIDE_DRONE_Y = HIDE_DRONE_ALT
+
+/** Where the hide room's hologram drone is at `time` (room cells), and how wide its light sweeps. */
+export const droneAt = (time: number): { x: number; z: number; sweep: number } => {
+  const k = HIDE_DRONE_KEYS
+  let a = k[0]!
+  let b = k[0]!
+  for (let i = 0; i < k.length; i++) if (k[i]!.t <= time) { a = k[i]!; b = k[Math.min(i + 1, k.length - 1)]! }
+  const f = b === a ? 0 : Math.min(1, Math.max(0, (time - a.t) / Math.max(1e-3, b.t - a.t)))
+  const e = f * f * (3 - 2 * f)
+  return { x: a.x + (b.x - a.x) * e, z: a.z + (b.z - a.z) * e, sweep: a.sweep + (b.sweep - a.sweep) * f }
 }
 
 /**
@@ -241,6 +363,14 @@ export interface TrainingContext {
   /** Times the mech's room has been started over (#171: the decoy room's first try wants the blade). */
   tries?: number
   /**
+   * The hide room: its sentry is down; a drone in it has gone to look where a
+   * shot came from since the room was last set up (`hunted`); and one is
+   * still on that hunt (flying there, or sweeping the spot).
+   */
+  shotDown?: boolean
+  hunted?: boolean
+  searching?: boolean
+  /**
    * A rope has an end in the mech's room, wherever it was shot from: the rope
    * room's lesson is any rope at all (a playtester's rope from the top of the
    * wall it is entered over, down into the room, did not count: that wall top
@@ -265,12 +395,14 @@ export interface Training {
   /** Down in the jump room's gap (#154): the way-out demo plays instead, this many rows from its own. */
   pit: boolean
   pitZ: number
+  /** The disguise room's alarm post is going off: seconds left before the room starts over (−1 not). */
+  alarmT: number
 }
 
 export type TrainingEvent = { type: 'enter'; room: number } | { type: 'done'; room: number }
 
 export const makeTraining = (): Training => ({
-  room: -1, done: TRAINING_ROOMS.map(() => false), base: null, demoT: -1, demoLeft: 0, gap: 0, resets: 0, roomResets: TRAINING_ROOMS.map(() => 0), pit: false, pitZ: 0
+  room: -1, done: TRAINING_ROOMS.map(() => false), base: null, demoT: -1, demoLeft: 0, gap: 0, resets: 0, roomResets: TRAINING_ROOMS.map(() => 0), pit: false, pitZ: 0, alarmT: -1
 })
 
 /** The room a point is in (by its column); −1 west of the first. */
@@ -322,13 +454,17 @@ export const lessonDone = (i: number, c: TrainingContext, b: TrainingContext): b
     case 'hook': return roomAt(c.x) > i
     // The yard behind the wall cleared (#198): the drum is the way to it.
     case 'barrel': return !!c.cleared
+    // The sentry shot, and the drone that came to where the shot was fired
+    // from gave up there without finding the mech (being found starts the
+    // room over: `stepTraining` in the mission).
+    case 'hide': return !!c.shotDown && !!c.hunted && !c.searching
     case 'salvage': return c.piles > b.piles
     case 'extract': return false
   }
 }
 
-/** What a lesson still has to work with: defenders standing in its room, bodies left to burn, fuel, ropes. */
-export interface LessonStock { alive: number; bodies: number; fuel: number; ropes: number; barrels?: number }
+/** What a lesson still has to work with: defenders standing in its room, bodies left to burn, fuel, ropes; the hide room's drones. */
+export interface LessonStock { alive: number; bodies: number; fuel: number; ropes: number; barrels?: number; drones?: number }
 
 /**
  * The lesson can no longer be done with what is left in its room: the
@@ -342,6 +478,9 @@ export const lessonStuck = (i: number, c: TrainingContext, b: TrainingContext, s
     case 'rope': return c.ropes <= b.ropes && !c.roped && s.ropes <= 0
     // The drums gone up and somebody in the yard still standing (#198).
     case 'barrel': return s.alive > 0 && s.barrels === 0
+    // The sentry down with no drone sent to look (the blade, a room started
+    // over after the mech was found), or the drone itself brought down.
+    case 'hide': return (!!c.shotDown && !c.hunted && !c.searching) || s.drones === 0
     // The decoy room's guard shot on the first try (#171): it stands again, and the try starts over.
     case 'decoy': return !!c.cleared && c.bladeKills <= b.bladeKills && (c.tries ?? 0) === 0
     default: return false
@@ -388,6 +527,7 @@ export const rewindRoom = (gar: Garrison, room: number): void => {
     u.fought = false
     u.runner = -1
     u.burst = 0
+    u.hunt = 0
     u.fireT = 0
     u.aimT = 0
     u.noise = 0
@@ -397,6 +537,30 @@ export const rewindRoom = (gar: Garrison, room: number): void => {
   gar.alert.chaos = false
   gar.lkp.t = -1e9
   gar.runner = -1
+}
+
+/**
+ * Caught (the owner: the room started over under the player before they saw
+ * why, scoped in, still in the box). Seen in any room, the mech is held where
+ * it stands for CAUGHT_S, out of its scope and its disguise, the guard that
+ * has it shouting: time to take in what happened. Then the room starts over.
+ * In the disguise room the alarm post by the way out goes off as well, the
+ * room in red, for BOX_ALARM_S.
+ */
+export const CAUGHT_S = 2
+export const BOX_ALARM_S = 3
+export type AlarmStep = 'off' | 'start' | 'ring' | 'reset'
+/** Advance the caught beat a step: `seen`, a defender has the mech. 'reset' (or 'off' while seen, outside the rooms): start the room over now. */
+export const stepAlarm = (t: Training, seen: boolean, dt: number): AlarmStep => {
+  if (t.alarmT < 0) {
+    if (!seen || t.room < 0) return 'off'
+    t.alarmT = TRAINING_ROOMS[t.room]!.lesson === 'box' ? BOX_ALARM_S : CAUGHT_S
+    return 'start'
+  }
+  t.alarmT -= dt
+  if (t.alarmT > 0) return 'ring'
+  t.alarmT = -1
+  return 'reset'
 }
 
 /** Play the room's demo from the start (the button). Not once the lesson is done. */
@@ -435,6 +599,7 @@ export const DOOR_LINES: Readonly<Partial<Record<LessonId, { line: string; hint:
   cover: { line: 'door.cover', hint: 'crouch' },
   weapons: { line: 'door.weapons', hint: 'scope' },
   rocket: { line: 'door.rocket', hint: 'rocket' },
+  hide: { line: 'door.hide', hint: 'fire' },
   supply: { line: 'door.supply', hint: 'supply' },
   blade: { line: 'door.blade', hint: 'blade' },
   burn: { line: 'door.burn', hint: 'burn' },
@@ -470,6 +635,7 @@ export const stepTraining = (t: Training, c: TrainingContext, dt: number): Train
     t.room = here
     t.base = { ...c }
     out.push({ type: 'enter', room: here })
+    t.alarmT = -1
     if (!t.done[here]) startDemo(t)
     else t.demoT = -1
     // A lesson is judged on the next step, by what is done in the room: never by the step that walked in.

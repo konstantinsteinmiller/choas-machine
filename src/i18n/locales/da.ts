@@ -59,6 +59,8 @@ export default {
     'grappleRecall': 'Træk krogen ind',
     'cancel': 'Sænk våbnet',
     'capture': 'Klik for at fortsætte',
+    'tapToStart': 'Tryk for at starte',
+    'clickToStart': 'Klik for at starte',
     'metres': '{n} m',
     'objective': {
       'salvage': 'Bjærgning',
@@ -81,6 +83,7 @@ export default {
     'loot': 'Skil skrottet ad',
     'ammoLow': 'Ammunitionen er ved at slippe op',
     'ammoOut': 'Ingen ammunition',
+    'noAmmo': 'Ingen ammo!',
     'questLog': 'Mål',
     'quest': {
       'extract': 'Evakuering'
@@ -279,13 +282,14 @@ export default {
     'decoyHint': 'Placer en lokkedue for at distrahere vagten, snig dig så ind på ham og nedlæg ham!',
     'roomHint': {
       'move': 'Gå hen til den lysende dør for at starte din træning.',
-      'jump': 'Klatr op ad stigen og hop over kløften til den anden platform!',
-      'cover': 'Duk dig bag kasserne, så vagtposten ikke kan se dig, og kravl så ind under porten!',
-      'weapons': 'Nedkæmp alle tre vagter: skyd én med snigskytteriflen, og skift så til minigun\'en for de to andre!',
-      'rocket': 'Skift til raketkasteren og spræng mech\'en på afsatsen i luften!',
+      'jump': 'Klatr op ad stigen og hop over kløften til den anden platform! Løb og hop larmer, og vagter i nærheden hører det.',
+      'cover': 'Duk dig bag kasserne, så vagtposten ikke kan se dig, og kravl så ind under porten! Kun dukkede skridt er lydløse: vagterne hører dig gå tæt på.',
+      'weapons': 'Nedkæmp alle tre vagter: skyd én med snigskytteriflen, og skift så til minigun\'en for de to andre! Skud larmer: alle vagter omkring hører minigun\'en.',
+      'rocket': 'Skift til raketkasteren og spræng mech\'en på afsatsen i luften! Raketter larmer: alle vagter hører eksplosionen.',
+      'hide': 'Skyd vagten, flyt dig så væk fra dit skydested og gem dig: dronen flyver hen, hvor skuddet kom fra!',
       'supply': 'Gå hen over kasserne for at fylde ammunition op og reparere dit panser.',
       'burn': 'Brænd liget med flammekasteren, før nogen finder det!',
-      'box': 'Gem dig i papkassen, og stå stille, mens søgelyset fejer hen over dig!',
+      'box': 'Tag din forklædning på! Søgelyset ignorerer dig, mens du står stille, men opdager dig, så snart du bevæger dig.',
       'hook': 'Brug entrehagen til at komme over muren!',
       'rope': 'Brug rebkanonen til at spænde et reb mellem de to platforme!',
       'barrel': 'Skyd på brændstoftønden for at nedkæmpe vagterne bag muren!',
@@ -304,12 +308,14 @@ export default {
       'box': 'Forklæd dig, så du ikke bliver opdaget',
       'decoy': 'Brug en lokkedue [{key}], stik i ryggen, når de er distraheret',
       'decoyTouch': 'Brug en lokkedue, stik i ryggen, når de er distraheret',
-      'decoyAny': 'Opdaget igen. Nedlæg vagten, som du vil.'
+      'decoyAny': 'Opdaget igen. Nedlæg vagten, som du vil.',
+      'hide': 'Gem dig efter skuddet: flyt dig et andet sted hen, ellers finder fjenden stedet, du skød fra.'
     },
     'door': {
       'cover': 'Dukke dig én gang for at komme forbi',
       'weapons': 'Tag alle tre ned for at komme forbi',
       'rocket': 'Ødelæg mechen med raketkasteren',
+      'hide': 'Skyd vagten, og gem dig for dronen',
       'supply': 'Tag forsyningerne',
       'blade': 'Stik begge vagter i ryggen',
       'burn': 'Brænd liget',

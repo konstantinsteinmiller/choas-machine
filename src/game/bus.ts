@@ -97,6 +97,8 @@ export interface GameEvents {
   /** The cutscene's skip button, or Space held (#175): the mission's drop-in or its way out ends. */
   cineSkip: Record<string, never>
   trainingReset: Record<string, never>
+  /** The disguise room's alarm post goes off (a drill: no real alarm). */
+  trainingAlarm: Record<string, never>
   /** CM-07 says a line (#126), whispered when unseen. */
   quip: { id: string; whisper: boolean }
   /** A training room set up again: its lesson could no longer be done. */

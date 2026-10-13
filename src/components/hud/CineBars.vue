@@ -11,7 +11,7 @@
       div.hold(v-if="cutscene")
         HoldSkipButton(:active="cutscene" :keys="hud.device === 'mouse'" testid="btn-cine-skip" @skip="busEmit('cineSkip', {})")
       //- A kill-cam: any press skips; this is the picture of that.
-      div.skip(v-else-if="hud.phase !== 'cinema'" role="img" :aria-label="t('ui.skip')")
+      div.skip(v-else-if="hud.phase !== 'cinema' && !flow.cinemaPending" role="img" :aria-label="t('ui.skip')")
         GameIcon(name="skip-forward")
 </template>
 
@@ -25,8 +25,8 @@ import { flow } from '@/game/flow'
 import { emit as busEmit } from '@/game/bus'
 
 const { t } = useI18n()
-/** A mission's own cutscene (the drop-in, the way out), not a kill-cam. */
-const cutscene = computed(() => flow.screen === 'mission' && !flow.curtain && !flow.loading && (hud.phase === 'intro' || hud.phase === 'outro'))
+/** A mission's own cutscene (the drop-in, the way out), not a kill-cam; not while a story scene is still to play over it ("tap to start", the intro being built). */
+const cutscene = computed(() => flow.screen === 'mission' && !flow.curtain && !flow.loading && !flow.cinemaPending && (hud.phase === 'intro' || hud.phase === 'outro'))
 const active = computed(() =>
   hud.phase === 'cinema' ||
   (flow.screen === 'mission' && !flow.curtain && !flow.loading && (hud.cine || hud.phase === 'intro' || hud.phase === 'outro'))

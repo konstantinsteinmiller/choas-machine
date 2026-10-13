@@ -225,7 +225,9 @@ describe('a cable', () => {
     runUntil(p, g, wish(1, 0), q => q.mode === 'ground')
     expect(p.mode).toBe('ground')
     expect(p.y).toBeCloseTo(5)
-    expect(p.x).toBeCloseTo(cellMid(11))
+    // Off at the end of the line, just onto the platform (#201), not walked on to the cell's middle.
+    expect(p.x).toBeGreaterThan(cellMid(11) - CELL / 2)
+    expect(p.x).toBeLessThan(cellMid(11) - CELL / 2 + 0.5)
   })
 
   it('can be walked back, and stood on', () => {

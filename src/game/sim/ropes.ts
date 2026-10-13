@@ -1,4 +1,4 @@
-import { CellKind, VOID, cellHeight, cellKind, hasLineOfSight, inGrid, toCell, type Cable, type Grid } from '../world/grid'
+import { CellKind, VOID, cableSpan, cellHeight, cellKind, hasLineOfSight, inGrid, toCell, type Cable, type Grid } from '../world/grid'
 
 /**
  * ─── The rope gun (#94) ──────────────────────────────────────────────────────
@@ -21,6 +21,8 @@ const ROPE_RISE = 0.5
  */
 export const ROPE_UP_RANGE = 10
 export const ROPE_UP_RISE = 6
+/** The steepest a strung line may be, rise over run from end to end. */
+const ROPE_STEEPEST = 2.5
 
 export interface RopeShot {
   cable: Cable
@@ -82,5 +84,9 @@ export const findRopeShot = (g: Grid, x: number, y: number, z: number, hitX: num
   const bz = (bcz + 0.5) * 2
   // Clear the whole way, a body's height over the line.
   if (!hasLineOfSight(g, ax, ah + 1.0, az, bx, bh + 1.0, bz)) return null
-  return { cable: { ax: acx, az: acz, bx: bcx, bz: bcz }, ax, ay: ah, az, bx, by: bh, bz }
+  const cable = { ax: acx, az: acz, bx: bcx, bz: bcz }
+  // Never a line that drops (or climbs) like a wall (#201): one the mech could not walk.
+  const s = cableSpan(g, cable)
+  if (Math.abs(bh - ah) > ROPE_STEEPEST * Math.hypot(bx - ax, bz - az) * (s.tb - s.ta)) return null
+  return { cable, ax, ay: ah, az, bx, by: bh, bz }
 }

@@ -17,6 +17,9 @@
     //- Nothing left in the weapon in hand (#145): the struck-through magazine
     //- where the round would go, so a pull on nothing explains itself.
     GameIcon.dry-mark(v-if="hud.dry && !hud.scoped" name="ammo-out")
+    //- Every pull on nothing (#202): a cartoon "No ammo!" pops up under the
+    //- aim point with a wobble, then fades. Keyed, so a new pull replays it.
+    span.no-ammo(v-if="dryPop" :key="drySeq" data-testid="no-ammo") {{ t('hud.noAmmo') }}
     //- A round that landed on someone, and a round that ended someone.
     div.hitmark(:class="{ show: hitFlash, kill: killFlash, glance: glanceFlash }")
       i
@@ -29,6 +32,7 @@
 
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { addHudTicker, gun, hud } from '@/game/state/hud'
 import { on } from '@/game/bus'
 import GameIcon from '@/components/icons/GameIcon.vue'
@@ -44,6 +48,12 @@ const hitFlash = ref(false)
 const killFlash = ref(false)
 const glanceFlash = ref(false)
 let hitTimer = 0
+const { t } = useI18n()
+/** The "No ammo!" pop (#202): shown for one wobble after each dry pull. */
+const dryPop = ref(false)
+const drySeq = ref(0)
+let dryTimer = 0
+const NO_AMMO_POP_MS = 900
 const offs: Array<() => void> = []
 
 const flash = (kill: boolean, glance = false): void => {
@@ -58,6 +68,12 @@ onMounted(() => {
   offs.push(on('hit', () => flash(false)))
   offs.push(on('glance', () => flash(false, true)))
   offs.push(on('kill', (e) => { if (e.by !== 'blade') flash(true) }))
+  offs.push(on('dryFire', () => {
+    dryPop.value = true
+    drySeq.value++
+    window.clearTimeout(dryTimer)
+    dryTimer = window.setTimeout(() => { dryPop.value = false }, NO_AMMO_POP_MS)
+  }))
   let last = -1
   let lastLoad = -1
   offs.push(addHudTicker(() => {
@@ -81,6 +97,7 @@ onMounted(() => {
 })
 onUnmounted(() => {
   window.clearTimeout(hitTimer)
+  window.clearTimeout(dryTimer)
   for (const off of offs) off()
 })
 </script>
@@ -290,7 +307,52 @@ onUnmounted(() => {
 @keyframes dry-mark
   50%
     opacity: 0.4
+// "No ammo!" (#202): a chunky sticker caption, the HUD's cartoon outline,
+// squashed in, wobbling, then gone.
+.no-ammo
+  position: absolute
+  left: 50%
+  top: 50%
+  translate: -50% 1.6rem
+  white-space: nowrap
+  padding: 0.12em 0.6em 0.18em
+  border: var(--cm-edge) solid var(--cm-ink)
+  border-radius: 999px
+  background: var(--cm-danger)
+  color: var(--cm-text)
+  font-size: var(--cm-fs-m)
+  font-weight: 700
+  letter-spacing: 0.02em
+  text-shadow: var(--cm-text-outline)
+  box-shadow: 0 0.16em 0 var(--cm-danger-deep), 0 0.3em 0.6em rgba(21, 12, 43, 0.55)
+  animation: no-ammo 0.9s cubic-bezier(.3, 1.4, .5, 1) forwards
+@keyframes no-ammo
+  0%
+    transform: scaleX(0.2) scaleY(0.2) rotate(0deg)
+    opacity: 0
+  14%
+    transform: scaleX(1.25) scaleY(0.8) rotate(-6deg)
+    opacity: 1
+  26%
+    transform: scaleX(0.88) scaleY(1.14) rotate(5deg)
+  38%
+    transform: scaleX(1.06) scaleY(0.95) rotate(-3deg)
+  50%
+    transform: scaleX(1) scaleY(1) rotate(1.5deg)
+  72%
+    transform: scaleX(1) scaleY(1) rotate(0deg)
+    opacity: 1
+  100%
+    transform: scaleX(0.94) scaleY(0.94) translateY(-0.4rem)
+    opacity: 0
+@keyframes no-ammo-fade
+  0%, 70%
+    opacity: 1
+  100%
+    opacity: 0
 @media (prefers-reduced-motion: reduce)
   .dry-mark
     animation: none
+  .no-ammo
+    animation: no-ammo-fade 0.9s linear forwards
 </style>

@@ -59,6 +59,8 @@ export default {
     'grappleRecall': 'Atitraukti kablį',
     'cancel': 'Nuleisti ginklą',
     'capture': 'Spustelėk ir tęsk',
+    'tapToStart': 'Bakstelėk ir pradėk',
+    'clickToStart': 'Spustelėk ir pradėk',
     'metres': '{n} m',
     'objective': {
       'salvage': 'Laužas',
@@ -81,6 +83,7 @@ export default {
     'loot': 'Išardyti laužą',
     'ammoLow': 'Baigiasi amunicija',
     'ammoOut': 'Nebėra amunicijos',
+    'noAmmo': 'Nėra šovinių!',
     'questLog': 'Užduotys',
     'quest': {
       'extract': 'Evakuacija'
@@ -279,13 +282,14 @@ export default {
     'decoyHint': 'Padėk masalą sargybiniui atitraukti, tada prisėlink ir jį likviduok!',
     'roomHint': {
       'move': 'Nueik prie švytinčių durų, kad pradėtum treniruotę.',
-      'jump': 'Užlipk kopėčiomis ir peršok per tarpą į kitą platformą!',
-      'cover': 'Pritūpk už dėžių, kad sargybinis tavęs nematytų, tada pralįsk po vartais!',
-      'weapons': 'Įveik visus tris sargybinius: vieną nušauk snaiperio šautuvu, tada perjunk į minigun kitiems dviem!',
-      'rocket': 'Perjunk į raketsvaidį ir susprogdink mechą ant atbrailos!',
+      'jump': 'Užlipk kopėčiomis ir peršok per tarpą į kitą platformą! Bėgimas ir šuoliai kelia triukšmą, kurį girdi netoliese esantys sargybiniai.',
+      'cover': 'Pritūpk už dėžių, kad sargybinis tavęs nematytų, tada pralįsk po vartais! Tylus tik žingsnis pritūpus: sargybiniai išgirsta, kai eini arti.',
+      'weapons': 'Įveik visus tris sargybinius: vieną nušauk snaiperio šautuvu, tada perjunk į minigun kitiems dviem! Šūviai kelia triukšmą: minigun girdi kiekvienas sargybinis aplink.',
+      'rocket': 'Perjunk į raketsvaidį ir susprogdink mechą ant atbrailos! Raketos garsios: sprogimą girdi kiekvienas sargybinis.',
+      'hide': 'Nušauk sargybinį, tada pasitrauk iš šaudymo vietos ir pasislėpk: dronas skrenda ten, iš kur buvo iššauta!',
       'supply': 'Pereik per dėžes, kad papildytum šaudmenis ir sutaisytum šarvus.',
       'burn': 'Sudegink kūną liepsnosvaidžiu, kol niekas jo nerado!',
-      'box': 'Pasislėpk kartoninėje dėžėje ir stovėk nejudėdamas, kol prožektorius slenka per tave!',
+      'box': 'Persirenk! Prožektorius tavęs nepaiso, kol stovi nejudėdamas, bet pastebi vos tik pajudi.',
       'hook': 'Panaudok kabliuką su lynu, kad perliptum per sieną!',
       'rope': 'Panaudok lyno šautuvą, kad ištemptum lyną tarp dviejų platformų!',
       'barrel': 'Šauk į kuro statinę, kad įveiktum sargybinius už sienos!',
@@ -304,12 +308,14 @@ export default {
       'box': 'Persirenk, kad tavęs nepastebėtų',
       'decoy': 'Panaudok masalą [{key}], smok į nugarą, kai jis išsiblaškys',
       'decoyTouch': 'Panaudok masalą, smok į nugarą, kai jis išsiblaškys',
-      'decoyAny': 'Vėl pastebėjo. Įveik sargybinį kaip tik nori.'
+      'decoyAny': 'Vėl pastebėjo. Įveik sargybinį kaip tik nori.',
+      'hide': 'Iššovęs pasislėpk: pereik kitur, kitaip priešas ras, iš kur šovei.'
     },
     'door': {
       'cover': 'Pritūpk kartą, kad praeitum',
       'weapons': 'Pakirsk visus tris, kad praeitum',
       'rocket': 'Sunaikink mechą granatsvaidžiu',
+      'hide': 'Nušauk sargybinį, tada slėpkis nuo drono',
       'supply': 'Pagriebk atsargas',
       'blade': 'Smok į nugarą abiem sargybiniams',
       'burn': 'Sudegink kūną',

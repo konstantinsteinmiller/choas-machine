@@ -59,6 +59,8 @@ export default {
     'grappleRecall': 'Stáhnout hák',
     'cancel': 'Spustit zbraň',
     'capture': 'Klikni a pokračuj',
+    'tapToStart': 'Klepni a začni',
+    'clickToStart': 'Klikni a začni',
     'metres': '{n} m',
     'objective': {
       'salvage': 'Šrot',
@@ -81,6 +83,7 @@ export default {
     'loot': 'Rozebrat šrot',
     'ammoLow': 'Dochází munice',
     'ammoOut': 'Došla munice',
+    'noAmmo': 'Žádná munice!',
     'questLog': 'Úkoly',
     'quest': {
       'extract': 'Evakuace'
@@ -279,13 +282,14 @@ export default {
     'decoyHint': 'Polož návnadu, aby odvedla pozornost strážného, pak se připliž a zlikviduj ho!',
     'roomHint': {
       'move': 'Dojdi ke svítícím dveřím a začni trénink.',
-      'jump': 'Vylez po žebříku a přeskoč mezeru na druhou plošinu!',
-      'cover': 'Skrč se za bednami, aby tě hlídka neviděla, a pak se proplaz pod branou!',
-      'weapons': 'Vyřiď všechny tři strážné: jednoho sundej odstřelovačkou, pak přepni na minigun na zbylé dva!',
-      'rocket': 'Přepni na raketomet a vyhoď do vzduchu mecha na římse!',
+      'jump': 'Vylez po žebříku a přeskoč mezeru na druhou plošinu! Běh a skoky dělají hluk, který blízcí strážní slyší.',
+      'cover': 'Skrč se za bednami, aby tě hlídka neviděla, a pak se proplaz pod branou! Tichý je jen krok v podřepu: strážní tě zblízka uslyší jít.',
+      'weapons': 'Vyřiď všechny tři strážné: jednoho sundej odstřelovačkou, pak přepni na minigun na zbylé dva! Výstřely dělají hluk: minigun slyší každý strážný v okolí.',
+      'rocket': 'Přepni na raketomet a vyhoď do vzduchu mecha na římse! Rakety jsou hlasité: výbuch slyší každý strážný.',
+      'hide': 'Zastřel strážného, pak se vzdal od místa, odkud jsi střílel, a schovej se: dron letí tam, odkud výstřel přišel!',
       'supply': 'Přejdi přes bedny, doplň munici a oprav si pancíř.',
       'burn': 'Spal tělo plamenometem, než ho někdo najde!',
-      'box': 'Schovej se v krabici a stůj bez hnutí, zatímco tě přejíždí světlomet!',
+      'box': 'Převleč se! Světlomet si tě nevšímá, dokud stojíš bez hnutí, ale jakmile se pohneš, odhalí tě.',
       'hook': 'Použij hák s lanem a dostaň se přes zeď!',
       'rope': 'Použij lanomet a natáhni lano mezi oběma plošinami!',
       'barrel': 'Střel do barelu s palivem a vyřiď strážné za zdí!',
@@ -304,12 +308,14 @@ export default {
       'box': 'Převlékni se, ať tě neodhalí',
       'decoy': 'Použij návnadu [{key}], bodni do zad, až se rozptýlí',
       'decoyTouch': 'Použij návnadu, bodni do zad, až se rozptýlí',
-      'decoyAny': 'Zase odhalen. Zneškodni strážce, jak chceš.'
+      'decoyAny': 'Zase odhalen. Zneškodni strážce, jak chceš.',
+      'hide': 'Po výstřelu se schovej: přesuň se jinam, jinak nepřítel najde místo, odkud jsi střílel.'
     },
     'door': {
       'cover': 'Skrč se jednou a projdeš',
       'weapons': 'Sejmi všechny tři a projdeš',
       'rocket': 'Znič mecha raketometem',
+      'hide': 'Zastřel strážného a schovej se před dronem',
       'supply': 'Vezmi zásoby',
       'blade': 'Bodni do zad oba strážce',
       'burn': 'Spal tělo',

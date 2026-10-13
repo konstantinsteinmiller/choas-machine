@@ -63,6 +63,8 @@ export default {
     'grappleRecall': 'Recall the hook',
     'cancel': 'Lower weapon',
     'capture': 'Click to continue',
+    'tapToStart': 'Tap to start',
+    'clickToStart': 'Click to start',
     'metres': '{n} m',
     'objective': {
       'salvage': 'Salvage',
@@ -85,6 +87,7 @@ export default {
     'loot': 'Strip the salvage',
     'ammoLow': 'Running low on ammunition',
     'ammoOut': 'Out of ammunition',
+    'noAmmo': 'No ammo!',
     'questLog': 'Objectives',
     'quest': {
       'extract': 'Extract'
@@ -283,13 +286,14 @@ export default {
     'decoyHint': 'Place a decoy to distract the guard, then sneak up and assassinate him!',
     'roomHint': {
       'move': 'Walk over to the glowing door to start your training.',
-      'jump': 'Climb the ladder and jump across the gap to the other platform!',
-      'cover': 'Crouch behind the crates so the sentry can\'t see you, then crawl under the gate!',
-      'weapons': 'Take out all three guards: snipe one, then switch to the minigun for the other two!',
-      'rocket': 'Switch to the rocket launcher and blow up the mech on the ledge!',
+      'jump': 'Climb the ladder and jump across the gap to the other platform! Running and jumping make noise that nearby guards hear.',
+      'cover': 'Crouch behind the crates so the sentry can\'t see you, then crawl under the gate! Only a crouched step is silent: guards hear you walk up close.',
+      'weapons': 'Take out all three guards: snipe one, then switch to the minigun for the other two! Shots make noise: the minigun is heard by every guard around.',
+      'rocket': 'Switch to the rocket launcher and blow up the mech on the ledge! Rockets are loud: every guard hears the blast.',
+      'hide': 'Shoot the guard, then get away from your firing spot and hide: the drone flies to where the shot came from!',
       'supply': 'Walk over the crates to refill your ammo and repair your armour.',
       'burn': 'Burn the body with the flamethrower before anyone finds it!',
-      'box': 'Hide in the box and stand still while the searchlight sweeps over you!',
+      'box': 'Put on your disguise! The searchlight ignores you while you stand still, but spots you the moment you move.',
       'hook': 'Use the grappling hook to get over the wall!',
       'rope': 'Use the rope gun to create a rope between the two platforms!',
       'barrel': 'Shoot the fuel barrel to take out the guards behind the wall!',
@@ -308,12 +312,14 @@ export default {
       'box': 'Disguise yourself, to not get spotted',
       'decoy': 'Use a decoy [{key}], backstab when distracted',
       'decoyTouch': 'Use a decoy, backstab when distracted',
-      'decoyAny': 'Seen again. Take the guard down any way you like.'
+      'decoyAny': 'Seen again. Take the guard down any way you like.',
+      'hide': 'Hide after shooting: move somewhere else, or the enemy finds where you shot from.'
     },
     'door': {
       'cover': 'Crouch once to pass',
       'weapons': 'Take down all three to pass',
       'rocket': 'Destroy the mech with the launcher',
+      'hide': 'Shoot the guard, then hide from the drone',
       'supply': 'Pick up the supplies',
       'blade': 'Backstab both guards',
       'burn': 'Burn the body',

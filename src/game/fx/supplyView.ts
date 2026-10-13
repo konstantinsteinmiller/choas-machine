@@ -3,11 +3,13 @@ import { buildAmmoCrate, buildAmmoPouch, buildFuelBarrel, buildRepairKit } from 
 import { glowVC, toonVC, toonVCInstanced } from '../models/toon'
 import type { Supply, SupplyKind } from '../sim/supplies'
 import type { Barrel } from '../sim/barrels'
+import { crestMaterial } from '../models/blastCrest'
 
 /**
  * ─── Supplies and barrels, drawn ─────────────────────────────────────────────
  *
- * Two instanced draws per kind (lit and glowing). A kit and a pouch turn and
+ * Two instanced draws per kind (lit and glowing), and a third for the
+ * barrels' blast crests (one shared texture). A kit and a pouch turn and
  * bob a little so they read as things to pick up; a crate and a barrel stand
  * still. Taken or blown up: scaled to nothing.
  */
@@ -17,18 +19,21 @@ const MAX_POUCHES = 24
 interface Kind {
   lit: InstancedMesh
   glow: InstancedMesh
+  /** The barrel's crests (the emblem's faces), moved with the drum. */
+  crest?: InstancedMesh
   geos: BufferGeometry[]
 }
 
-const make = (built: { lit: BufferGeometry; glow: BufferGeometry }, n: number, litMat: Material, glowMat: Material): Kind => {
+const make = (built: { lit: BufferGeometry; glow: BufferGeometry; crest?: BufferGeometry }, n: number, litMat: Material, glowMat: Material): Kind => {
   const lit = new InstancedMesh(built.lit, litMat, Math.max(1, n))
   const glow = new InstancedMesh(built.glow, glowMat, Math.max(1, n))
-  for (const m of [lit, glow]) {
+  const crest = built.crest ? new InstancedMesh(built.crest, crestMaterial(), Math.max(1, n)) : undefined
+  for (const m of crest ? [lit, glow, crest] : [lit, glow]) {
     m.instanceMatrix.setUsage(DynamicDrawUsage)
     m.count = 0
     m.frustumCulled = false
   }
-  return { lit, glow, geos: [built.lit, built.glow] }
+  return { lit, glow, crest, geos: built.crest ? [built.lit, built.glow, built.crest] : [built.lit, built.glow] }
 }
 
 const _m = new Matrix4()
@@ -65,7 +70,10 @@ export class SupplyView {
       pouch: make(buildAmmoPouch(), MAX_POUCHES, lit, glow),
       barrel: make(buildFuelBarrel(), barrels.length, lit, glow)
     }
-    for (const k of Object.values(this.kinds)) this.group.add(k.lit, k.glow)
+    for (const k of Object.values(this.kinds)) {
+      this.group.add(k.lit, k.glow)
+      if (k.crest) this.group.add(k.crest)
+    }
   }
 
   /** Write every instance for this frame. */
@@ -93,6 +101,7 @@ export class SupplyView {
       _m.compose(_p, _q, _s)
       this.kinds.barrel.lit.setMatrixAt(i, _m)
       this.kinds.barrel.glow.setMatrixAt(i, _m)
+      this.kinds.barrel.crest!.setMatrixAt(i, _m)
       n.barrel = i + 1
     }
     for (const [key, k] of Object.entries(this.kinds) as Array<[SupplyKind | 'barrel', Kind]>) {
@@ -100,6 +109,10 @@ export class SupplyView {
       k.glow.count = n[key]
       k.lit.instanceMatrix.needsUpdate = true
       k.glow.instanceMatrix.needsUpdate = true
+      if (k.crest) {
+        k.crest.count = n[key]
+        k.crest.instanceMatrix.needsUpdate = true
+      }
     }
   }
 
@@ -146,6 +159,8 @@ export class SupplyView {
       for (const g of k.geos) g.dispose()
       k.lit.dispose()
       k.glow.dispose()
+      // The crests' material and texture are shared by every barrel: kept.
+      k.crest?.dispose()
     }
   }
 }

@@ -91,7 +91,7 @@ describe('the layout', () => {
     expect(f.beacons).toHaveLength(0)
     expect(LESSON_IDS).not.toContain('beacon')
     expect(TRAINING_ROOMS[LESSON_IDS.indexOf('rope')]!.door).not.toBeNull()
-    for (const p of f.posts) expect(LESSON_IDS[roomAt(p.x)]).toMatch(/cover|weapons|rocket|blade|burn|decoy|box|barrel/)
+    for (const p of f.posts) expect(LESSON_IDS[roomAt(p.x)]).toMatch(/cover|weapons|rocket|hide|blade|burn|decoy|box|barrel/)
   })
 })
 

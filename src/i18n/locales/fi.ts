@@ -59,6 +59,8 @@ export default {
     'grappleRecall': 'Vedä koukku takaisin',
     'cancel': 'Laske ase',
     'capture': 'Jatka klikkaamalla',
+    'tapToStart': 'Aloita napauttamalla',
+    'clickToStart': 'Aloita klikkaamalla',
     'metres': '{n} m',
     'objective': {
       'salvage': 'Romu',
@@ -81,6 +83,7 @@ export default {
     'loot': 'Pura romu',
     'ammoLow': 'Ammukset vähissä',
     'ammoOut': 'Ammukset lopussa',
+    'noAmmo': 'Ei ammuksia!',
     'questLog': 'Tehtävät',
     'quest': {
       'extract': 'Nouto'
@@ -279,13 +282,14 @@ export default {
     'decoyHint': 'Aseta houkutin harhauttamaan vartijaa, hiivi sitten sen luo ja eliminoi se!',
     'roomHint': {
       'move': 'Kävele hehkuvalle ovelle aloittaaksesi koulutuksen.',
-      'jump': 'Kiipeä tikkaita ylös ja hyppää aukon yli toiselle tasanteelle!',
-      'cover': 'Kyykisty laatikoiden taakse, ettei vartija näe sinua, ja ryömi sitten portin ali!',
-      'weapons': 'Hoitele kaikki kolme vartijaa: ammu yksi tarkkuuskiväärillä ja vaihda sitten minigunniin kahta muuta varten!',
-      'rocket': 'Vaihda raketinheittimeen ja räjäytä reunalla oleva mechi!',
+      'jump': 'Kiipeä tikkaita ylös ja hyppää aukon yli toiselle tasanteelle! Juokseminen ja hyppiminen pitävät ääntä, jonka lähellä olevat vartijat kuulevat.',
+      'cover': 'Kyykisty laatikoiden taakse, ettei vartija näe sinua, ja ryömi sitten portin ali! Vain kyykyssä liikkuminen on äänetöntä: vartijat kuulevat askeleesi läheltä.',
+      'weapons': 'Hoitele kaikki kolme vartijaa: ammu yksi tarkkuuskiväärillä ja vaihda sitten minigunniin kahta muuta varten! Laukaukset pitävät ääntä: minigunin kuulee jokainen lähistön vartija.',
+      'rocket': 'Vaihda raketinheittimeen ja räjäytä reunalla oleva mechi! Raketit ovat äänekkäitä: jokainen vartija kuulee räjähdyksen.',
+      'hide': 'Ammu vartija, siirry sitten pois ampumapaikaltasi ja piiloudu: drooni lentää sinne, mistä laukaus tuli!',
       'supply': 'Kävele laatikoiden yli täydentääksesi ammukset ja korjataksesi panssarisi.',
       'burn': 'Polta ruumis liekinheittimellä ennen kuin kukaan löytää sen!',
-      'box': 'Piiloudu pahvilaatikkoon ja pysy liikkumatta, kun valonheitin pyyhkäisee ylitsesi!',
+      'box': 'Pukeudu valepukuun! Valonheitin ei välitä sinusta, kun pysyt paikallasi, mutta huomaa sinut heti kun liikahdat.',
       'hook': 'Käytä kiipeilykoukkua päästäksesi muurin yli!',
       'rope': 'Luo köysiaseella köysi kahden tasanteen välille!',
       'barrel': 'Ammu polttoainetynnyriä hoitaaksesi muurin takana olevat vartijat!',
@@ -304,12 +308,14 @@ export default {
       'box': 'Naamioidu, ettei sinua huomata',
       'decoy': 'Käytä houkutinta [{key}], iske selkään, kun vartija on harhautettu',
       'decoyTouch': 'Käytä houkutinta, iske selkään, kun vartija on harhautettu',
-      'decoyAny': 'Huomattu taas. Kaada vartija miten haluat.'
+      'decoyAny': 'Huomattu taas. Kaada vartija miten haluat.',
+      'hide': 'Piiloudu ampumisen jälkeen: siirry muualle, tai vihollinen löytää paikan, josta ammuit.'
     },
     'door': {
       'cover': 'Kyyristy kerran päästäksesi läpi',
       'weapons': 'Kaada kaikki kolme päästäksesi läpi',
       'rocket': 'Tuhoa mekki raketinheittimellä',
+      'hide': 'Ammu vartija ja piiloudu droonilta',
       'supply': 'Nappaa tarvikkeet',
       'blade': 'Iske molemmat vartijat selkään',
       'burn': 'Polta ruumis',

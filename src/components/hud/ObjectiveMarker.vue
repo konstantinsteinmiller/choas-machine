@@ -19,6 +19,7 @@ import { useI18n } from 'vue-i18n'
 import GameIcon from '@/components/icons/GameIcon.vue'
 import { addHudTicker, hud, waypoint as primary, type Waypoint } from '@/game/state/hud'
 import { MARKER_LEGACY } from '@/use/perfVariants'
+import { markerSpot, type MarkerSpot } from './markerEdge'
 
 /**
  * Written straight to the DOM by a HUD ticker: it moves every frame the
@@ -42,6 +43,7 @@ onMounted(() => {
   let shown = false
   let lastM = -1
   let edged = false
+  const place: MarkerSpot = { x: 0, y: 0, edge: false, angle: 0 }
   // The host's size, measured when it CHANGES. Reading `clientWidth` in the
   // ticker forced a layout on every frame, right after the other tickers had
   // written their styles: 8 % of a throttled CPU (PERF-LEDGER.md, entry 1).
@@ -71,26 +73,14 @@ onMounted(() => {
     }
     if (!shown) return
     if (MARKER_LEGACY) measure()
-    // Keep it clear of the HUD's corners.
-    const m = Math.min(w, h) * 0.13
-    let x = waypoint.x * w
-    let y = waypoint.y * h
-    const edge = waypoint.behind || x < m || x > w - m || y < m || y > h - m
-    if (edge) {
-      // Along the line from the screen's centre toward where it is.
-      let dx = x - w / 2
-      let dy = y - h / 2
-      if (waypoint.behind) { dx = -dx; dy = Math.abs(dy) + h }
-      const k = Math.min((w / 2 - m) / Math.max(1e-3, Math.abs(dx)), (h / 2 - m) / Math.max(1e-3, Math.abs(dy)))
-      x = w / 2 + dx * k
-      y = h / 2 + dy * k
-      a.style.rotate = `${Math.atan2(dy, dx)}rad`
-    }
+    const spot = markerSpot(waypoint.x, waypoint.y, waypoint.behind, w, h, place)
+    const edge = spot.edge
+    if (edge) a.style.rotate = `${spot.angle}rad`
     if (edge !== edged) {
       edged = edge
       a.style.opacity = edge ? '1' : '0'
     }
-    e.style.transform = `translate(${x.toFixed(1)}px, ${y.toFixed(1)}px)`
+    e.style.transform = `translate(${spot.x.toFixed(1)}px, ${spot.y.toFixed(1)}px)`
     const metres = Math.round(waypoint.dist)
     if (metres !== lastM) {
       lastM = metres
@@ -157,10 +147,11 @@ onUnmounted(() => {
   :deep(svg)
     width: 58%
     height: 58%
-// A chevron on the ring's edge, turned to point off screen.
+// A chevron on the ring's edge, turned to point off screen; it nudges that
+// way, so an objective off to the side is noticed.
 .arrow
   position: absolute
-  inset: calc(var(--size) * -0.42)
+  inset: calc(var(--size) * -0.5)
   opacity: 0
   &::after
     content: ''
@@ -170,9 +161,19 @@ onUnmounted(() => {
     width: 0
     height: 0
     translate: 0 -50%
-    border-left: calc(var(--size) * 0.3) solid currentColor
-    border-top: calc(var(--size) * 0.22) solid transparent
-    border-bottom: calc(var(--size) * 0.22) solid transparent
+    border-left: calc(var(--size) * 0.42) solid currentColor
+    border-top: calc(var(--size) * 0.3) solid transparent
+    border-bottom: calc(var(--size) * 0.3) solid transparent
+    filter: drop-shadow(0 0 0.15rem rgba(0, 0, 0, 0.6))
+    animation: nudge 0.8s ease-in-out infinite alternate
+@keyframes nudge
+  from
+    right: 0
+  to
+    right: calc(var(--size) * -0.2)
+@media (prefers-reduced-motion: reduce)
+  .arrow::after
+    animation: none
 .dist
   position: absolute
   top: 100%

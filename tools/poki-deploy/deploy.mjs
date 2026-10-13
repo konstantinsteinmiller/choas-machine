@@ -17,6 +17,7 @@
 //   pnpm deploy:poki --skip-build       upload the zip that is already there
 //   pnpm deploy:poki --skip-qa          upload, stop before the Inspector
 //   pnpm deploy:poki --skip-qa-testing  upload, then tick EVERY Inspector QA box without a test
+//   pnpm deploy:poki-quick              the same (the script for it)
 //                                       pass: for a re-upload when nothing QA checks has changed
 //                                       and the last full pass was clean (gets it to playtests)
 //   pnpm deploy:poki --qa-only          QA the newest version already in P4D

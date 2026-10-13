@@ -59,6 +59,8 @@ export default {
     'grappleRecall': 'Retiri la hokon',
     'cancel': 'Mallevi armilon',
     'capture': 'Alklaku por daŭrigi',
+    'tapToStart': 'Tuŝu por komenci',
+    'clickToStart': 'Alklaku por komenci',
     'metres': '{n} m',
     'objective': {
       'salvage': 'Rubaĵo',
@@ -81,6 +83,7 @@ export default {
     'loot': 'Malmunti la rubaĵon',
     'ammoLow': 'Municio preskaŭ elĉerpita',
     'ammoOut': 'Municio elĉerpita',
+    'noAmmo': 'Sen municio!',
     'questLog': 'Celoj',
     'quest': {
       'extract': 'Evakuo'
@@ -279,13 +282,14 @@ export default {
     'decoyHint': 'Metu logilon por distri la gardiston, poste ŝteliru al li kaj murdu lin!',
     'roomHint': {
       'move': 'Iru al la brilanta pordo por komenci vian trejnadon.',
-      'jump': 'Grimpu la ŝtupetaron kaj saltu trans la breĉon al la alia platformo!',
-      'cover': 'Kaŭru malantaŭ la kestoj, por ke la gardostaranto ne vidu vin, poste rampu sub la pordego!',
-      'weapons': 'Forigu ĉiujn tri gardistojn: kaŝpafu unu, poste ŝanĝu al la minigun por la aliaj du!',
-      'rocket': 'Ŝanĝu al la raketĵetilo kaj eksplodigu la meĥon sur la kornico!',
+      'jump': 'Grimpu la ŝtupetaron kaj saltu trans la breĉon al la alia platformo! Kurado kaj saltado bruas, kaj proksimaj gardistoj aŭdas tion.',
+      'cover': 'Kaŭru malantaŭ la kestoj, por ke la gardostaranto ne vidu vin, poste rampu sub la pordego! Nur kaŭra paŝo estas silenta: gardistoj aŭdas vin marŝi proksime.',
+      'weapons': 'Forigu ĉiujn tri gardistojn: kaŝpafu unu, poste ŝanĝu al la minigun por la aliaj du! Pafoj bruas: ĉiu gardisto ĉirkaŭe aŭdas la minigun.',
+      'rocket': 'Ŝanĝu al la raketĵetilo kaj eksplodigu la meĥon sur la kornico! Raketoj estas laŭtaj: ĉiu gardisto aŭdas la eksplodon.',
+      'hide': 'Pafu la gardiston, poste foriru de via pafloko kaj kaŝu vin: la drono flugas tien, de kie venis la pafo!',
       'supply': 'Iru trans la kestojn por replenigi vian municion kaj ripari vian kirason.',
       'burn': 'Bruligu la korpon per la flamĵetilo antaŭ ol iu trovos ĝin!',
-      'box': 'Kaŝu vin en la kartona skatolo kaj staru senmove dum la serĉlumo balaas super vi!',
+      'box': 'Surmetu vian alivestiĝon! La serĉlumo ignoras vin dum vi staras senmove, sed rimarkas vin tuj kiam vi moviĝas.',
       'hook': 'Uzu la kroĉhokon por transiri la muron!',
       'rope': 'Uzu la ŝnurpafilon por krei ŝnuron inter la du platformoj!',
       'barrel': 'Pafu la fuelbarelon por forigi la gardistojn malantaŭ la muro!',
@@ -304,12 +308,14 @@ export default {
       'box': 'Alivestu vin por ne esti vidita',
       'decoy': 'Uzu logilon [{key}], ataku de malantaŭe kiam li distriĝas',
       'decoyTouch': 'Uzu logilon, ataku de malantaŭe kiam li distriĝas',
-      'decoyAny': 'Vidita denove. Venku la gardiston kiel ajn vi volas.'
+      'decoyAny': 'Vidita denove. Venku la gardiston kiel ajn vi volas.',
+      'hide': 'Kaŝu vin post pafado: iru aliloken, aŭ la malamiko trovos, de kie vi pafis.'
     },
     'door': {
       'cover': 'Kaŝkaŭru unufoje por pasi',
       'weapons': 'Faligu ĉiujn tri por pasi',
       'rocket': 'Detruu la meĥon per la lanĉilo',
+      'hide': 'Pafu la gardiston, poste kaŝu vin de la drono',
       'supply': 'Prenu la provizojn',
       'blade': 'Ataku ambaŭ gardistojn de malantaŭe',
       'burn': 'Bruligu la korpon',

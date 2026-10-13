@@ -131,7 +131,7 @@ export const BASE_LOADOUT: Readonly<Loadout> = {
   coolRate: 0.4,
   blastRadius: 5.5,
   rockets: 2,
-  rifleReserve: 5,
+  rifleReserve: 10,
   belt: 100,
   armor: 100,
   speed: 1,

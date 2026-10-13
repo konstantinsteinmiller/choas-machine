@@ -93,6 +93,10 @@ export interface OpenOptions {
   brandNew?: boolean
   /** Query string, e.g. `?level=3`. */
   query?: string
+  /** The browser's language (default `en-US`). */
+  locale?: string
+  /** More to run in the page before the game's own code, every load (after the pointer-lock stand-in). */
+  init?: { script: (arg: never) => void; arg?: unknown }
 }
 
 /** Open the game in a fresh context. Does not wait for anything. */
@@ -106,11 +110,12 @@ export const openGame = async (opts: OpenOptions = {}): Promise<Game> => {
     deviceScaleFactor: 1,
     hasTouch: touch,
     isMobile: touch,
-    locale: 'en-US',
+    locale: opts.locale ?? 'en-US',
     ...(touch ? { userAgent: PHONE_UA } : {})
   })
   const page = await context.newPage()
   await page.addInitScript(NO_POINTER_LOCK)
+  if (opts.init) await page.addInitScript(opts.init.script as (arg: unknown) => void, opts.init.arg)
   // A new player who has been through the training ground lands in the Bastion.
   const save = opts.save ?? (opts.brandNew ? undefined : NEW_AFTER_TRAINING)
   if (save) {

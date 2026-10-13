@@ -59,6 +59,8 @@ export default {
     'grappleRecall': 'Tarik kembali kait',
     'cancel': 'Turunkan senjata',
     'capture': 'Klik untuk lanjut',
+    'tapToStart': 'Ketuk untuk mulai',
+    'clickToStart': 'Klik untuk mulai',
     'metres': '{n} m',
     'objective': {
       'salvage': 'Rongsokan',
@@ -81,6 +83,7 @@ export default {
     'loot': 'Bongkar rongsokan',
     'ammoLow': 'Amunisi hampir habis',
     'ammoOut': 'Amunisi habis',
+    'noAmmo': 'Amunisi habis!',
     'questLog': 'Tujuan',
     'quest': {
       'extract': 'Ekstraksi'
@@ -279,13 +282,14 @@ export default {
     'decoyHint': 'Pasang umpan untuk mengalihkan penjaga, lalu mengendap mendekat dan habisi dia!',
     'roomHint': {
       'move': 'Jalan ke pintu yang menyala untuk memulai latihanmu.',
-      'jump': 'Naiki tangga dan lompati celah ke platform seberang!',
-      'cover': 'Merunduk di balik peti supaya penjaga tidak melihatmu, lalu merangkak di bawah gerbang!',
-      'weapons': 'Habisi ketiga penjaga: tembak satu dengan senapan sniper, lalu ganti ke minigun untuk dua lainnya!',
-      'rocket': 'Ganti ke peluncur roket dan ledakkan mech di tepian!',
+      'jump': 'Naiki tangga dan lompati celah ke platform seberang! Berlari dan melompat menimbulkan suara yang didengar penjaga di dekatmu.',
+      'cover': 'Merunduk di balik peti supaya penjaga tidak melihatmu, lalu merangkak di bawah gerbang! Hanya langkah merunduk yang senyap: penjaga mendengarmu berjalan dari dekat.',
+      'weapons': 'Habisi ketiga penjaga: tembak satu dengan senapan sniper, lalu ganti ke minigun untuk dua lainnya! Tembakan menimbulkan suara: minigun terdengar oleh semua penjaga di sekitar.',
+      'rocket': 'Ganti ke peluncur roket dan ledakkan mech di tepian! Roket itu bising: semua penjaga mendengar ledakannya.',
+      'hide': 'Tembak penjaganya, lalu menjauh dari posisi tembakmu dan bersembunyi: drone terbang ke tempat asal tembakan!',
       'supply': 'Jalan di atas peti untuk mengisi ulang amunisi dan memperbaiki armormu.',
       'burn': 'Bakar mayatnya dengan pelontar api sebelum ada yang menemukannya!',
-      'box': 'Sembunyi di dalam kardus dan diam saat lampu sorot menyapu dirimu!',
+      'box': 'Pakai penyamaranmu! Lampu sorot mengabaikanmu selama kamu diam, tapi langsung melihatmu begitu kamu bergerak.',
       'hook': 'Gunakan grappling hook untuk melewati tembok!',
       'rope': 'Gunakan penembak tali untuk membuat tali di antara kedua platform!',
       'barrel': 'Tembak tong bahan bakar untuk menghabisi penjaga di balik tembok!',
@@ -304,12 +308,14 @@ export default {
       'box': 'Menyamarlah agar tidak ketahuan',
       'decoy': 'Pakai umpan [{key}], tikam dari belakang saat dia lengah',
       'decoyTouch': 'Pakai umpan, tikam dari belakang saat dia lengah',
-      'decoyAny': 'Ketahuan lagi. Lumpuhkan penjaga dengan cara apa pun.'
+      'decoyAny': 'Ketahuan lagi. Lumpuhkan penjaga dengan cara apa pun.',
+      'hide': 'Bersembunyilah setelah menembak: pindah ke tempat lain, atau musuh akan menemukan dari mana kamu menembak.'
     },
     'door': {
       'cover': 'Jongkok sekali untuk lewat',
       'weapons': 'Tumbangkan ketiganya untuk lewat',
       'rocket': 'Hancurkan mech dengan peluncur',
+      'hide': 'Tembak penjaganya, lalu sembunyi dari drone',
       'supply': 'Ambil persediaannya',
       'blade': 'Tikam kedua penjaga dari belakang',
       'burn': 'Bakar mayatnya',

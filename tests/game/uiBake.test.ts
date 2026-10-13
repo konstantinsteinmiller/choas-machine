@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import {
-  cssUrls, objectFit, rewriteHtmlSelectors, selectorKeys, styleWithoutPosition, unicodeRanges
+  cssUrls, layoutSize, objectFit, rewriteHtmlSelectors, selectorKeys, styleWithoutPosition, unicodeRanges
 } from '@/game/debug/domRaster'
 import * as real from '@/game/debug/uiBake'
 import * as stub from '@/game/debug/uiBake.stub'
@@ -73,5 +73,35 @@ describe('UI bake: images drawn straight from the page', () => {
 
   it('fill stretches', () => {
     expect(objectFit('fill', 7, 9, box).dst).toEqual(box)
+  })
+})
+
+// "Uau, que brilho!" spilled out of CM-07's bubble in the bake: the copy was
+// pinned at offsetWidth, rounded down by 0.4px, and its words wrapped to a
+// second line inside a one-line box. A copy takes the box to the fraction.
+describe('UI bake: a copy is pinned at its exact size', () => {
+  const fakeEl = (style: Record<string, string>, offset = { w: 0, h: 0 }): HTMLElement => {
+    const cs = { ...style, getPropertyValue: (p: string) => style[p] ?? '' }
+    ;(globalThis as { getComputedStyle?: unknown }).getComputedStyle = () => cs
+    return { offsetWidth: offset.w, offsetHeight: offset.h } as HTMLElement
+  }
+
+  it('a border-box keeps its fractional width and height', () => {
+    expect(layoutSize(fakeEl({ width: '240.34px', height: '31.6px', boxSizing: 'border-box' }, { w: 240, h: 32 }))).toEqual({ w: 240.34, h: 31.6 })
+  })
+
+  it('a content-box adds its padding and border, still unrounded', () => {
+    const el = fakeEl({
+      width: '200.4px', height: '20.2px', boxSizing: 'content-box',
+      'padding-left': '12.8px', 'padding-right': '12.8px', 'padding-top': '5.6px', 'padding-bottom': '5.6px',
+      'border-left-width': '2px', 'border-right-width': '2px', 'border-top-width': '2px', 'border-bottom-width': '2px'
+    })
+    const s = layoutSize(el)
+    expect(s.w).toBeCloseTo(230, 5)
+    expect(s.h).toBeCloseTo(35.4, 5)
+  })
+
+  it('an element with no used size (inline, auto) falls back to its offset box', () => {
+    expect(layoutSize(fakeEl({ width: 'auto', height: 'auto', boxSizing: 'content-box' }, { w: 57, h: 18 }))).toEqual({ w: 57, h: 18 })
   })
 })

@@ -59,6 +59,8 @@ export default {
     'grappleRecall': 'Haken einholen',
     'cancel': 'Waffe senken',
     'capture': 'Klicken zum Fortsetzen',
+    'tapToStart': 'Tippen zum Starten',
+    'clickToStart': 'Klicken zum Starten',
     'metres': '{n} m',
     'objective': {
       'salvage': 'Bergung',
@@ -81,6 +83,7 @@ export default {
     'loot': 'Bergegut ausschlachten',
     'ammoLow': 'Munition wird knapp',
     'ammoOut': 'Keine Munition mehr',
+    'noAmmo': 'Keine Munition!',
     'questLog': 'Ziele',
     'quest': {
       'extract': 'Extraktion'
@@ -279,13 +282,14 @@ export default {
     'decoyHint': 'Wirf einen Köder, um die Wache abzulenken, dann schleich dich an und schalte sie aus!',
     'roomHint': {
       'move': 'Geh zur leuchtenden Tür, um dein Training zu starten.',
-      'jump': 'Kletter die Leiter hoch und spring über die Lücke zur anderen Plattform!',
-      'cover': 'Duck dich hinter die Kisten, damit dich der Wachposten nicht sieht, und kriech dann unter dem Tor durch!',
-      'weapons': 'Schalte alle drei Wachen aus: Erledige eine mit dem Scharfschützengewehr und wechsle dann zur Minigun für die anderen zwei!',
-      'rocket': 'Wechsle zum Raketenwerfer und spreng den Mech auf dem Vorsprung!',
+      'jump': 'Kletter die Leiter hoch und spring über die Lücke zur anderen Plattform! Rennen und Springen machen Lärm, den Wachen in der Nähe hören.',
+      'cover': 'Duck dich hinter die Kisten, damit dich der Wachposten nicht sieht, und kriech dann unter dem Tor durch! Nur geduckt bist du lautlos: Gehst du nah heran, hören dich die Wachen.',
+      'weapons': 'Schalte alle drei Wachen aus: Erledige eine mit dem Scharfschützengewehr und wechsle dann zur Minigun für die anderen zwei! Schüsse machen Lärm: Die Minigun hört jede Wache in der Umgebung.',
+      'rocket': 'Wechsle zum Raketenwerfer und spreng den Mech auf dem Vorsprung! Raketen sind laut: Jede Wache hört die Explosion.',
+      'hide': 'Erschieß die Wache, dann weg von deiner Schussposition und versteck dich: Die Drohne fliegt dorthin, woher der Schuss kam!',
       'supply': 'Lauf über die Kisten, um Munition aufzufüllen und deine Panzerung zu reparieren.',
       'burn': 'Verbrenn die Leiche mit dem Flammenwerfer, bevor sie jemand findet!',
-      'box': 'Versteck dich im Karton und halt still, während der Suchscheinwerfer über dich streicht!',
+      'box': 'Verkleide dich! Der Suchscheinwerfer ignoriert dich, solange du stillhältst, aber entdeckt dich, sobald du dich bewegst.',
       'hook': 'Nimm den Enterhaken, um über die Mauer zu kommen!',
       'rope': 'Spann mit der Seilkanone ein Seil zwischen den beiden Plattformen!',
       'barrel': 'Schieß auf das Treibstofffass, um die Wachen hinter der Mauer auszuschalten!',
@@ -304,12 +308,14 @@ export default {
       'box': 'Tarn dich, damit dich keiner entdeckt',
       'decoy': 'Nutz einen Köder [{key}], stich von hinten zu, wenn er abgelenkt ist',
       'decoyTouch': 'Nutz einen Köder, stich von hinten zu, wenn er abgelenkt ist',
-      'decoyAny': 'Wieder entdeckt. Schalte die Wache aus, wie du willst.'
+      'decoyAny': 'Wieder entdeckt. Schalte die Wache aus, wie du willst.',
+      'hide': 'Versteck dich nach dem Schuss: Wechsle den Ort, sonst findet der Feind, wo du geschossen hast.'
     },
     'door': {
       'cover': 'Duck dich einmal, um durchzukommen',
       'weapons': 'Schalt alle drei aus, um durchzukommen',
       'rocket': 'Zerstör den Mech mit dem Raketenwerfer',
+      'hide': 'Erschieß die Wache, dann versteck dich vor der Drohne',
       'supply': 'Schnapp dir die Vorräte',
       'blade': 'Stich beide Wachen von hinten nieder',
       'burn': 'Verbrenn die Leiche',

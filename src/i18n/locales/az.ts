@@ -59,6 +59,8 @@ export default {
     'grappleRecall': 'Qarmağı geri çək',
     'cancel': 'Silahı endir',
     'capture': 'Davam üçün kliklə',
+    'tapToStart': 'Başlamaq üçün toxun',
+    'clickToStart': 'Başlamaq üçün kliklə',
     'metres': '{n} m',
     'objective': {
       'salvage': 'Hurda',
@@ -81,6 +83,7 @@ export default {
     'loot': 'Hurdanı sök',
     'ammoLow': 'Sursat azalır',
     'ammoOut': 'Sursat bitdi',
+    'noAmmo': 'Sursat yoxdur!',
     'questLog': 'Tapşırıqlar',
     'quest': {
       'extract': 'Təxliyə'
@@ -279,13 +282,14 @@ export default {
     'decoyHint': 'Mühafizəçinin diqqətini yayındırmaq üçün yem qoy, sonra gizlicə yaxınlaş və onu aradan qaldır!',
     'roomHint': {
       'move': 'Təliminə başlamaq üçün işıq saçan qapıya get.',
-      'jump': 'Nərdivanla qalx və boşluğun üstündən o biri platformaya tullan!',
-      'cover': 'Gözətçi səni görməsin deyə yeşiklərin arxasında əyil, sonra darvazanın altından sürünərək keç!',
-      'weapons': 'Hər üç mühafizəçini zərərsizləşdir: birini snayper tüfəngi ilə vur, sonra qalan ikisi üçün minigana keç!',
-      'rocket': 'Raketatana keç və çıxıntıdakı mexi partlat!',
+      'jump': 'Nərdivanla qalx və boşluğun üstündən o biri platformaya tullan! Qaçmaq və tullanmaq səs salır, yaxındakı mühafizəçilər bunu eşidir.',
+      'cover': 'Gözətçi səni görməsin deyə yeşiklərin arxasında əyil, sonra darvazanın altından sürünərək keç! Yalnız əyilərək atılan addım səssizdir: yaxından yeriyəndə mühafizəçilər səni eşidir.',
+      'weapons': 'Hər üç mühafizəçini zərərsizləşdir: birini snayper tüfəngi ilə vur, sonra qalan ikisi üçün minigana keç! Atəş səs salır: miniganı ətrafdakı bütün mühafizəçilər eşidir.',
+      'rocket': 'Raketatana keç və çıxıntıdakı mexi partlat! Raketlər gurultuludur: partlayışı bütün mühafizəçilər eşidir.',
+      'hide': 'Gözətçini vur, sonra atəş açdığın yerdən uzaqlaş və gizlən: dron atəşin gəldiyi yerə uçur!',
       'supply': 'Döyüş sursatını doldurmaq və zirehini təmir etmək üçün yeşiklərin üstündən keç.',
       'burn': 'Kimsə tapmamış cəsədi alovatanla yandır!',
-      'box': 'Qutuda gizlən və projektor üstündən keçərkən tərpənmədən dur!',
+      'box': 'Maskanı geyin! Tərpənmədən durduqca projektor sənə məhəl qoymur, amma hərəkət etdiyin an səni görür.',
       'hook': 'Divardan aşmaq üçün qarmaqlı ipdən istifadə et!',
       'rope': 'İki platforma arasında ip çəkmək üçün ipatandan istifadə et!',
       'barrel': 'Divarın arxasındakı mühafizəçiləri zərərsizləşdirmək üçün yanacaq çəlləyinə atəş aç!',
@@ -304,12 +308,14 @@ export default {
       'box': 'Görünməmək üçün maskalan',
       'decoy': 'Yem istifadə et [{key}], diqqəti yayınanda arxadan vur',
       'decoyTouch': 'Yem istifadə et, diqqəti yayınanda arxadan vur',
-      'decoyAny': 'Səni yenə gördülər. Mühafizəçini istədiyin kimi aradan qaldır.'
+      'decoyAny': 'Səni yenə gördülər. Mühafizəçini istədiyin kimi aradan qaldır.',
+      'hide': 'Atəşdən sonra gizlən: başqa yerə keç, yoxsa düşmən atəş açdığın yeri tapacaq.'
     },
     'door': {
       'cover': 'Keçmək üçün bir dəfə çömel',
       'weapons': 'Keçmək üçün üçünü də vur',
       'rocket': 'Mekanı raketatanla məhv et',
+      'hide': 'Gözətçini vur, sonra drondan gizlən',
       'supply': 'Təchizatı götür',
       'blade': 'Hər iki mühafizəçini arxadan vur',
       'burn': 'Cəsədi yandır',

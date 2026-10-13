@@ -59,6 +59,8 @@ export default {
     'grappleRecall': 'Thu móc về',
     'cancel': 'Hạ vũ khí',
     'capture': 'Nhấn để tiếp tục',
+    'tapToStart': 'Chạm để bắt đầu',
+    'clickToStart': 'Nhấn để bắt đầu',
     'metres': '{n} m',
     'objective': {
       'salvage': 'Phế liệu',
@@ -81,6 +83,7 @@ export default {
     'loot': 'Tháo phế liệu',
     'ammoLow': 'Sắp hết đạn',
     'ammoOut': 'Hết đạn',
+    'noAmmo': 'Hết đạn!',
     'questLog': 'Mục tiêu',
     'quest': {
       'extract': 'Triệt thoái'
@@ -279,13 +282,14 @@ export default {
     'decoyHint': 'Đặt mồi nhử để đánh lạc hướng lính gác, rồi lẻn đến gần và hạ gục hắn!',
     'roomHint': {
       'move': 'Đi tới cánh cửa phát sáng để bắt đầu huấn luyện.',
-      'jump': 'Leo lên thang và nhảy qua khe hở sang bệ bên kia!',
-      'cover': 'Cúi người sau các thùng hàng để lính gác không thấy bạn, rồi bò qua dưới cổng!',
-      'weapons': 'Hạ cả ba lính gác: bắn tỉa một tên, rồi đổi sang minigun cho hai tên còn lại!',
-      'rocket': 'Đổi sang súng phóng tên lửa và cho nổ tung con mech trên gờ đá!',
+      'jump': 'Leo lên thang và nhảy qua khe hở sang bệ bên kia! Chạy và nhảy gây tiếng động mà lính gác gần đó nghe thấy.',
+      'cover': 'Cúi người sau các thùng hàng để lính gác không thấy bạn, rồi bò qua dưới cổng! Chỉ bước đi khi cúi người mới im lặng: lính gác nghe thấy bạn đi lại gần.',
+      'weapons': 'Hạ cả ba lính gác: bắn tỉa một tên, rồi đổi sang minigun cho hai tên còn lại! Tiếng súng gây ồn: mọi lính gác xung quanh đều nghe thấy minigun.',
+      'rocket': 'Đổi sang súng phóng tên lửa và cho nổ tung con mech trên gờ đá! Tên lửa rất ồn: mọi lính gác đều nghe thấy vụ nổ.',
+      'hide': 'Bắn tên lính gác, rồi rời khỏi chỗ bắn và ẩn nấp: drone sẽ bay tới nơi phát ra phát súng!',
       'supply': 'Đi qua các thùng hàng để nạp lại đạn và sửa giáp.',
       'burn': 'Thiêu xác bằng súng phun lửa trước khi có người phát hiện!',
-      'box': 'Trốn trong thùng các-tông và đứng yên khi đèn pha quét qua bạn!',
+      'box': 'Hãy cải trang! Đèn pha sẽ bỏ qua bạn khi bạn đứng yên, nhưng phát hiện ngay khi bạn di chuyển.',
       'hook': 'Dùng móc leo để vượt qua bức tường!',
       'rope': 'Dùng súng bắn dây để tạo một sợi dây giữa hai bệ!',
       'barrel': 'Bắn thùng nhiên liệu để hạ bọn lính gác sau bức tường!',
@@ -304,12 +308,14 @@ export default {
       'box': 'Hãy cải trang để không bị phát hiện',
       'decoy': 'Dùng mồi nhử [{key}], đâm sau lưng khi địch mất tập trung',
       'decoyTouch': 'Dùng mồi nhử, đâm sau lưng khi địch mất tập trung',
-      'decoyAny': 'Lại bị lộ. Hạ gục lính gác theo cách nào cũng được.'
+      'decoyAny': 'Lại bị lộ. Hạ gục lính gác theo cách nào cũng được.',
+      'hide': 'Bắn xong thì ẩn nấp: hãy di chuyển chỗ khác, nếu không kẻ địch sẽ tìm ra nơi bạn đã bắn.'
     },
     'door': {
       'cover': 'Cúi xuống một lần để qua',
       'weapons': 'Hạ cả ba để qua',
       'rocket': 'Phá hủy mech bằng súng phóng',
+      'hide': 'Bắn lính gác, rồi trốn khỏi drone',
       'supply': 'Lấy đồ tiếp tế',
       'blade': 'Đâm sau lưng cả hai lính gác',
       'burn': 'Đốt xác',

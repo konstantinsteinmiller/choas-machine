@@ -59,6 +59,8 @@ export default {
     'grappleRecall': 'Atsaukt āķi',
     'cancel': 'Nolaist ieroci',
     'capture': 'Klikšķini, lai turpinātu',
+    'tapToStart': 'Pieskaries, lai sāktu',
+    'clickToStart': 'Klikšķini, lai sāktu',
     'metres': '{n} m',
     'objective': {
       'salvage': 'Metāllūžņi',
@@ -81,6 +83,7 @@ export default {
     'loot': 'Izjaukt lūžņus',
     'ammoLow': 'Munīcija beidzas',
     'ammoOut': 'Munīcija beigusies',
+    'noAmmo': 'Nav munīcijas!',
     'questLog': 'Uzdevumi',
     'quest': {
       'extract': 'Evakuācija'
@@ -279,13 +282,14 @@ export default {
     'decoyHint': 'Noliec mānekli, lai novērstu sarga uzmanību, tad pielavies un likvidē viņu!',
     'roomHint': {
       'move': 'Ej pie mirdzošajām durvīm, lai sāktu treniņu.',
-      'jump': 'Uzkāp pa kāpnēm un pārlec pāri spraugai uz otru platformu!',
-      'cover': 'Pietupies aiz kastēm, lai sargs tevi neredz, tad palien zem vārtiem!',
-      'weapons': 'Likvidē visus trīs sargus: vienu nošauj ar snaipera šauteni, tad pārslēdzies uz minigun pārējiem diviem!',
-      'rocket': 'Pārslēdzies uz raķešmetēju un uzspridzini mehu uz dzegas!',
+      'jump': 'Uzkāp pa kāpnēm un pārlec pāri spraugai uz otru platformu! Skriešana un lēkšana rada troksni, ko dzird tuvumā esošie sargi.',
+      'cover': 'Pietupies aiz kastēm, lai sargs tevi neredz, tad palien zem vārtiem! Kluss ir tikai solis pietupienā: sargi dzird, ja ej tuvu.',
+      'weapons': 'Likvidē visus trīs sargus: vienu nošauj ar snaipera šauteni, tad pārslēdzies uz minigun pārējiem diviem! Šāvieni rada troksni: minigun dzird katrs sargs apkārt.',
+      'rocket': 'Pārslēdzies uz raķešmetēju un uzspridzini mehu uz dzegas! Raķetes ir skaļas: sprādzienu dzird katrs sargs.',
+      'hide': 'Nošauj sargu, tad pazūdi no šaušanas vietas un paslēpies: drons lido uz vietu, no kurienes nāca šāviens!',
       'supply': 'Pārej pāri kastēm, lai papildinātu munīciju un salabotu bruņas.',
       'burn': 'Sadedzini ķermeni ar liesmmetēju, pirms kāds to atrod!',
-      'box': 'Paslēpies kartona kastē un stāvi nekustīgi, kamēr prožektors slīd pāri tev!',
+      'box': 'Pārģērbies! Prožektors tevi ignorē, kamēr stāvi nekustīgi, bet pamana, tiklīdz pakusties.',
       'hook': 'Izmanto kāsi ar virvi, lai tiktu pāri sienai!',
       'rope': 'Izmanto virves šauteni, lai izveidotu virvi starp abām platformām!',
       'barrel': 'Šauj degvielas mucā, lai likvidētu sargus aiz sienas!',
@@ -304,12 +308,14 @@ export default {
       'box': 'Pārģērbies, lai tevi nepamanītu',
       'decoy': 'Izmanto ēsmu [{key}], dur mugurā, kad viņš ir novērsies',
       'decoyTouch': 'Izmanto ēsmu, dur mugurā, kad viņš ir novērsies',
-      'decoyAny': 'Tevi atkal pamanīja. Novāc sargu, kā vien vēlies.'
+      'decoyAny': 'Tevi atkal pamanīja. Novāc sargu, kā vien vēlies.',
+      'hide': 'Pēc šāviena paslēpies: pārvietojies citur, citādi ienaidnieks atradīs, no kurienes tu šāvi.'
     },
     'door': {
       'cover': 'Pietupies vienreiz, lai tiktu cauri',
       'weapons': 'Notriec visus trīs, lai tiktu cauri',
       'rocket': 'Iznīcini mehu ar granātmetēju',
+      'hide': 'Nošauj sargu, tad slēpies no drona',
       'supply': 'Paķer apgādi',
       'blade': 'Dur mugurā abiem sargiem',
       'burn': 'Sadedzini līķi',

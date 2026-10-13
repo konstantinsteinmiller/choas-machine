@@ -59,6 +59,8 @@ export default {
     'grappleRecall': 'Ilgakni qaytarish',
     'cancel': 'Qurolni tushirish',
     'capture': 'Davom etish uchun bosing',
+    'tapToStart': 'Boshlash uchun bosing',
+    'clickToStart': 'Boshlash uchun bosing',
     'metres': '{n} m',
     'objective': {
       'salvage': 'Temir-tersak',
@@ -81,6 +83,7 @@ export default {
     'loot': 'Temir-tersakni qismlarga ajratish',
     'ammoLow': "O'q-dorilar tugayapti",
     'ammoOut': "O'q-dorilar tugadi",
+    'noAmmo': 'O‘q yo‘q!',
     'questLog': 'Vazifalar',
     'quest': {
       'extract': 'Evakuatsiya'
@@ -279,13 +282,14 @@ export default {
     'decoyHint': 'Soqchining diqqatini chalg‘itish uchun aldoqchi qo‘y, keyin sezdirmay yaqinlash va uni yo‘q qil!',
     'roomHint': {
       'move': 'Mashg\'ulotni boshlash uchun nur sochayotgan eshik oldiga bor.',
-      'jump': 'Narvondan chiqib, bo\'shliqdan sakrab, narigi platformaga o\'t!',
-      'cover': 'Qorovul seni ko\'rmasligi uchun yashiklar ortida engash, keyin darvoza ostidan emaklab o\'t!',
-      'weapons': 'Uchala qorovulni ham yo\'q qil: birini snayper miltig\'idan ur, keyin qolgan ikkitasi uchun minigunga o\'t!',
-      'rocket': 'Raketa otgichga o\'t va chekkadagi mexni portlat!',
+      'jump': 'Narvondan chiqib, bo\'shliqdan sakrab, narigi platformaga o\'t! Yugurish va sakrash shovqin chiqaradi, yaqindagi qorovullar uni eshitadi.',
+      'cover': 'Qorovul seni ko\'rmasligi uchun yashiklar ortida engash, keyin darvoza ostidan emaklab o\'t! Faqat engashib bosilgan qadam sassiz: yaqinda yursang, qorovullar eshitadi.',
+      'weapons': 'Uchala qorovulni ham yo\'q qil: birini snayper miltig\'idan ur, keyin qolgan ikkitasi uchun minigunga o\'t! O\'q uzish shovqin chiqaradi: minigunni atrofdagi har bir qorovul eshitadi.',
+      'rocket': 'Raketa otgichga o\'t va chekkadagi mexni portlat! Raketalar baland ovozli: portlashni har bir qorovul eshitadi.',
+      'hide': 'Qo\'riqchini ot, keyin o\'q uzgan joyingdan uzoqlash va yashirin: dron o\'q kelgan joyga uchib keladi!',
       'supply': 'O\'q-dorini to\'ldirish va zirhingni tuzatish uchun yashiklar ustidan yur.',
       'burn': 'Hech kim topib olmasidan oldin jasadni olov otgich bilan yondir!',
-      'box': 'Karton qutiga yashirin va projektor ustingdan o\'tayotganda qimirlamay tur!',
+      'box': 'Niqobingni kiy! Qimirlamay tursang, projektor seni e\'tiborsiz qoldiradi, lekin qimirlashing bilanoq seni payqaydi.',
       'hook': 'Devordan oshib o\'tish uchun ilgakli arqondan foydalan!',
       'rope': 'Ikki platforma orasida arqon tortish uchun arqon otgichdan foydalan!',
       'barrel': 'Devor ortidagi qorovullarni yo\'q qilish uchun yoqilg\'i bochkasiga o\'q uz!',
@@ -304,12 +308,14 @@ export default {
       'box': "Ko'rinmaslik uchun niqoblan",
       'decoy': "Yem ishlat [{key}], chalg'iganda orqadan ur",
       'decoyTouch': "Yem ishlat, chalg'iganda orqadan ur",
-      'decoyAny': "Seni yana ko'rishdi. Qo'riqchini xohlagan usulda yo'q qil."
+      'decoyAny': "Seni yana ko'rishdi. Qo'riqchini xohlagan usulda yo'q qil.",
+      'hide': 'O\'q uzgandan keyin yashirin: boshqa joyga o\'t, aks holda dushman qayerdan otganingni topadi.'
     },
     'door': {
       'cover': "O'tish uchun bir marta cho'kkala",
       'weapons': "O'tish uchun uchalasini ham yiq",
       'rocket': "Mexni granatomyot bilan yo'q qil",
+      'hide': 'Qo\'riqchini ot, keyin drondan yashirin',
       'supply': "Ta'minotni ol",
       'blade': 'Ikkala qorovulni ham orqadan ur',
       'burn': 'Jasadni yoq',

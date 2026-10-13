@@ -20,7 +20,11 @@
     )
     //- What the room's lesson wants, in words, under the replay (#193: the
     //- backstab room first; every room has one now).
-    p.hint(v-if="roomHint" :data-testid="roomHint.id") {{ t(roomHint.key) }}
+    p.hint(v-if="roomHint" :data-testid="roomHint.id")
+      //- The key it is done with, as this keyboard has it printed (a playtester
+      //- read "place a decoy" and had no idea which key that was).
+      KeyCap.hint-key(v-if="roomHint.action && hud.device === 'mouse'" :action="roomHint.action")
+      span {{ t(roomHint.key) }}
     p.why(v-if="hud.training.scrapWhy") {{ t('training.scrapWhy') }}
     //- The weapons room's goal (#153): its three targets, ticked as each goes down.
     div.goal(v-if="hud.training.goalTotal" data-testid="training-goal")
@@ -34,6 +38,8 @@
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import GameIcon from '@/components/icons/GameIcon.vue'
+import KeyCap from '@/components/hud/hints/KeyCap.vue'
+import type { Action } from '@/game/engine/keyBindings'
 import FHudButton from '@/components/atoms/FHudButton.vue'
 import { hud } from '@/game/state/hud'
 import { emit } from '@/game/bus'
@@ -44,7 +50,7 @@ const { t } = useI18n()
 
 /** One glyph per lesson; the pips run in the order the rooms are crossed. */
 const GLYPH: Readonly<Record<LessonId, GameIconName>> = {
-  move: 'mech', jump: 'up', cover: 'act-crouch', weapons: 'sniper', rocket: 'rocket', supply: 'bolt', blade: 'blade', burn: 'flame',
+  move: 'mech', jump: 'up', cover: 'act-crouch', weapons: 'sniper', rocket: 'rocket', hide: 'drone', supply: 'bolt', blade: 'blade', burn: 'flame',
   decoy: 'decoy', box: 'box', hook: 'hook', rope: 'rope', salvage: 'scrap', barrel: 'warning', extract: 'play'
 }
 const ICONS: readonly GameIconName[] = LESSON_IDS.map(id => GLYPH[id])
@@ -54,9 +60,13 @@ const replay = (): void => emit('trainingReplay', {})
 /** Each room's hint; the salvage room says why scrap matters instead (`scrapWhy`). */
 const HINT_KEY: Readonly<Partial<Record<LessonId, string>>> = {
   move: 'training.roomHint.move', jump: 'training.roomHint.jump', cover: 'training.roomHint.cover',
-  weapons: 'training.roomHint.weapons', rocket: 'training.roomHint.rocket', supply: 'training.roomHint.supply',
+  weapons: 'training.roomHint.weapons', rocket: 'training.roomHint.rocket', hide: 'training.roomHint.hide', supply: 'training.roomHint.supply',
   blade: 'training.bladeHint', burn: 'training.roomHint.burn', decoy: 'training.decoyHint', box: 'training.roomHint.box',
   hook: 'training.roomHint.hook', rope: 'training.roomHint.rope', barrel: 'training.roomHint.barrel', extract: 'training.roomHint.extract'
+}
+/** The rooms whose hint names one thing to do, and the key that does it (on a keyboard). */
+const HINT_ACTION: Readonly<Partial<Record<LessonId, Action>>> = {
+  cover: 'crouch', jump: 'jump', burn: 'burn', decoy: 'decoy', box: 'hide', hook: 'grapple', rope: 'rope'
 }
 /** The room the mech is in, its lesson not done yet (and not being watched, #158). */
 const roomHint = computed(() => {
@@ -64,7 +74,7 @@ const roomHint = computed(() => {
   const lesson = LESSON_IDS[i]
   if (!lesson || hud.training.done > i || hud.training.watching) return null
   const key = HINT_KEY[lesson]
-  return key ? { key, id: `${lesson}-hint` } : null
+  return key ? { key, id: `${lesson}-hint`, action: HINT_ACTION[lesson] } : null
 })
 </script>
 
@@ -82,6 +92,16 @@ const roomHint = computed(() => {
   display: flex
   flex-wrap: wrap
   max-width: min(22rem, calc(100vw - 2 * var(--cm-safe-left)))
+  // Under the unit frame's width on a landscape phone, in one row: the hint
+  // sits beside it, top centre, and a second row pushed the goal onto the aim button.
+  @media (orientation: landscape) and (max-height: 500px)
+    max-width: 12.5rem
+    flex-wrap: nowrap
+    gap: 0.1rem
+    padding: 0.2em 0.3em
+    .pip
+      width: 0.62rem
+      height: 0.62rem
   gap: clamp(0.15rem, 0.8vmin, 0.35rem)
   padding: 0.25em 0.5em
 .pip
@@ -128,6 +148,9 @@ const roomHint = computed(() => {
     height: 85%
   &.down
     color: var(--cm-ok, #7dffb0)
+.hint-key
+  margin-inline-end: 0.45em
+  vertical-align: middle
 .why, .hint
   max-width: min(26rem, 80vw)
   margin: 0
@@ -137,4 +160,19 @@ const roomHint = computed(() => {
   text-align: start
   text-shadow: var(--cm-text-outline)
   +tech-plate(var(--cm-violet), tech-fill(var(--cm-violet), 14%), 0.5rem)
+.hint
+  // Half the old width on a phone (80vw): a long lesson stretched across most of the screen.
+  // Never under 9.5rem, so a narrow portrait screen still fits a few words a line.
+  max-width: max(9.5rem, min(20rem, 40vw))
+  // A landscape phone has room for two lines over the aim button, and a
+  // lesson with its noise sentence takes four in Greek: the hint goes up to
+  // the top centre there, between the unit frame and the buttons on the right.
+  @media (orientation: landscape) and (max-height: 500px)
+    position: fixed
+    top: var(--cm-safe-top)
+    left: 50%
+    translate: -50% 0
+    width: max-content
+    max-width: min(46vw, calc(100vw - 27rem))
+    z-index: 2
 </style>

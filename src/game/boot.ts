@@ -156,7 +156,10 @@ registerModeFactories({
   },
   base: (onProgress) => CommandBase.create(createSlicer(12), onProgress),
   // The story's scenes load on demand: their code is its own chunk.
-  cinema: async (id) => (await import('./story/cinema')).Cinema.create(id, createSlicer(12)),
+  cinema: async (id, part = 'whole') => {
+    const m = await import('./story/cinema')
+    return part === 'still' ? m.CinemaStill.create(id) : m.Cinema.create(id, createSlicer(12), undefined, part)
+  },
   prepare: (mode) => precompile(mode)
 })
 

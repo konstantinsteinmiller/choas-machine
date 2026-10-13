@@ -156,11 +156,6 @@ export const cellMid = (c: number): number => (c + 0.5) * CELL
 export const heightAt = (g: Grid, x: number, z: number): number => cellHeight(g, toCell(x), toCell(z))
 
 /**
- * Where a cable leaves its first end's platform and reaches its second's, as
- * fractions of the way from one cell's middle to the other's: the
- * line runs from edge to edge, the mech walks flat to the edge first.
- */
-/**
  * Where a cable's line is strung (m): from one platform's edge to the
  * other's, at foot height. The rope the gun shoots and the ropes a fortress
  * is built with are drawn from these, by one builder (`fx/ropeLine.ts`).
@@ -177,7 +172,31 @@ export const cableEnds = (g: Grid, c: Cable): { ax: number; ay: number; az: numb
   }
 }
 
+/**
+ * Where a cable leaves its first end's platform and reaches its second's, as
+ * fractions of the way from one cell's middle to the other's: the line is
+ * strung from edge to edge, and the mech is on it only between the two.
+ *
+ * A steep line's LOW end runs out from the foot of the wall toward its own
+ * cell, as far as the line still clears everything (#201): a rope shot from a
+ * platform down to the ground lands where it was aimed, not at the wall's
+ * foot, with a long flat "rope walk" across the ground where no rope was.
+ * Worked out once per cable (the line is strung once and stays as strung).
+ */
 export const cableSpan = (g: Grid, c: Cable): { ta: number; tb: number } => {
+  const known = spans.get(c)
+  if (known && known.g === g) return known.s
+  const s = spanOf(g, c)
+  spans.set(c, { g, s })
+  return s
+}
+
+const spans = new WeakMap<Cable, { g: Grid; s: { ta: number; tb: number } }>()
+
+/** Steeper than this (rise over run, edge to edge), the low end runs out. */
+const CABLE_STEEP = 1
+
+const spanOf = (g: Grid, c: Cable): { ta: number; tb: number } => {
   const ax = cellMid(c.ax)
   const az = cellMid(c.az)
   const bx = cellMid(c.bx)
@@ -191,7 +210,19 @@ export const cableSpan = (g: Grid, c: Cable): { ta: number; tb: number } => {
   while (ta < 1 && on(ta + 1 / n, ay)) ta += 1 / n
   let tb = 1
   while (tb > ta && on(tb - 1 / n, by)) tb -= 1 / n
-  return { ta: Math.min(ta, tb), tb }
+  ta = Math.min(ta, tb)
+  if (Math.abs(ay - by) > CABLE_STEEP * Math.max(1e-6, (tb - ta) * len)) {
+    // The line itself and a body on it, a little over the line.
+    const clear = (t0: number, t1: number): boolean => [0.1, 1.2].every(up =>
+      hasLineOfSight(g, ax + (bx - ax) * t0, ay + up, az + (bz - az) * t0, ax + (bx - ax) * t1, by + up, az + (bz - az) * t1))
+    const step = Math.max(1, Math.round(0.25 / (len / n))) / n
+    if (by < ay) {
+      for (let t = 1; t > tb; t -= step) if (clear(ta, t)) { tb = t; break }
+    } else {
+      for (let t = 0; t < ta; t += step) if (clear(t, tb)) { ta = t; break }
+    }
+  }
+  return { ta, tb }
 }
 
 /** A cable's height at fraction `t` of the way: flat over each platform, straight from edge to edge. */
@@ -400,10 +431,12 @@ export interface RayHit {
  * A cell is a solid column from far below up to its top, so within the span
  * the ray spends over a cell it is blocked wherever it is under that top: at
  * the entry if it comes in below it (a wall face), or part-way if it sinks to
- * the top inside the cell (a roof or the ground). VOID cells block nothing.
+ * the top inside the cell (a roof or the ground). VOID cells block nothing,
+ * nor does a cell no higher than `see` (the floor a target stands on: see
+ * `hasLineOfSight`).
  */
 export const raycast = (
-  g: Grid, ox: number, oy: number, oz: number, dx: number, dy: number, dz: number, maxDist: number
+  g: Grid, ox: number, oy: number, oz: number, dx: number, dy: number, dz: number, maxDist: number, see = -Infinity
 ): RayHit => {
   let cx = toCell(ox)
   let cz = toCell(oz)
@@ -435,7 +468,7 @@ export const raycast = (
         if (t >= 0 && t < bt) { bt = t; bnx = _n[0]!; bny = _n[1]!; bnz = _n[2]! }
       }
     }
-    if (top !== VOID) {
+    if (top !== VOID && top > see) {
       const y0 = oy + dy * t0
       if (y0 < top - 1e-9) {
         // Under the top on entry: the cell's side (or the start is inside it).
@@ -469,9 +502,15 @@ export const raycast = (
   return { hit: false, t: maxDist, nx: 0, ny: 0, nz: 0 }
 }
 
-/** Is there a clear straight line between two points? */
+/**
+ * Is there a clear straight line between two points? With `floor`, the ground
+ * at or below that height blocks nothing: a defender facing a mech up on a
+ * platform sees it, not the platform's lip (a mech three metres back from a
+ * ledge was hidden from a guard right under it, cone and all). Walls, crates
+ * and cover rising above that floor still hide it.
+ */
 export const hasLineOfSight = (
-  g: Grid, ax: number, ay: number, az: number, bx: number, by: number, bz: number
+  g: Grid, ax: number, ay: number, az: number, bx: number, by: number, bz: number, floor = -Infinity
 ): boolean => {
   const dx = bx - ax
   const dy = by - ay
@@ -479,7 +518,7 @@ export const hasLineOfSight = (
   const len = Math.hypot(dx, dy, dz)
   if (len < 1e-6) return true
   // Stop a hair short of the target, which stands ON a surface.
-  return !raycast(g, ax, ay, az, dx / len, dy / len, dz / len, len - 0.02).hit
+  return !raycast(g, ax, ay, az, dx / len, dy / len, dz / len, len - 0.02, floor === -Infinity ? floor : floor + 0.05).hit
 }
 
 // ─── Paths for patrols ───────────────────────────────────────────────────────

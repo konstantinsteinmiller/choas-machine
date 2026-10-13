@@ -6,8 +6,7 @@ import { Particles } from './particles'
 import { ShockRings } from './markers'
 import type { WeaponId } from '../data/ids'
 import type { PostKind } from '../world/fortress'
-import type { Rig } from '../models/kit'
-import { buildMech, poseMech, restPose, type MechPose } from '../models/mech'
+import { DecoyHologram } from './decoyHologram'
 import { PAL } from '../models/palette'
 import type { Rocket } from '../sim/rockets'
 import type { Decoy } from '../sim/melee'
@@ -25,8 +24,6 @@ const TRACER: Readonly<Record<WeaponId, string>> = { sniper: '#7ff4ff', minigun:
 const FORWARD = new Vector3(0, 0, 1)
 const _v = new Vector3()
 const _q = new Quaternion()
-
-interface Hologram { rig: Rig; pose: MechPose; used: boolean }
 
 /**
  * The x-ray plate of a headshot (GDD 2.3), as a cartoon: a skull in cold
@@ -90,7 +87,8 @@ export class CombatFx {
   private rocketGeo = new ConeGeometry(0.11, 0.7, 8)
   private rocketMat = new MeshBasicMaterial({ color: new Color('#fff1c9'), toneMapped: false })
   private rocketPool: Mesh[] = []
-  private holograms: Hologram[] = []
+  /** The decoys' holograms (CM-07 juggling, `decoyHologram.ts`), pooled: one per decoy standing. */
+  private holograms: DecoyHologram[] = []
   private time = 0
   private bullet: Mesh
   private xray: Sprite
@@ -333,22 +331,12 @@ export class CombatFx {
     this.rings.spawn(x, y + 0.08, z, 2.2, PAL.glowCyan, 0.45)
   }
 
-  private hologram(i: number): Hologram {
+  private hologram(i: number): DecoyHologram {
     let h = this.holograms[i]
     if (!h) {
-      const rig = buildMech(this.paint)
-      // The same mech, as light: see-through, tinted, no outline.
-      rig.material.transparent = true
-      rig.material.opacity = 0.5
-      rig.material.depthWrite = false
-      rig.material.color.set('#8ff6ff')
-      rig.material.emissive.set('#2aa8c8')
-      rig.glowMaterial.transparent = true
-      rig.glowMaterial.opacity = 0.8
-      if (rig.outline) rig.outline.visible = false
-      rig.root.visible = false
-      this.group.add(rig.root)
-      h = { rig, pose: restPose(), used: false }
+      h = new DecoyHologram(this.paint)
+      h.root.visible = false
+      this.group.add(h.root)
       this.holograms[i] = h
     }
     return h
@@ -392,20 +380,16 @@ export class CombatFx {
 
     for (let i = 0; i < Math.max(decoys.length, this.holograms.length); i++) {
       const d = decoys[i]
-      if (!d) { const h = this.holograms[i]; if (h) h.rig.root.visible = false; continue }
+      if (!d) { const h = this.holograms[i]; if (h) h.root.visible = false; continue }
       const h = this.hologram(i)
-      h.rig.root.visible = true
-      h.rig.root.position.set(d.x, d.y, d.z)
-      h.rig.root.rotation.y = d.yaw
-      // It flickers like a bad signal, more as it runs out.
+      h.root.visible = true
+      h.root.position.set(d.x, d.y, d.z)
+      h.root.rotation.y = d.yaw
+      // It juggles (the thing a guard cannot ignore), and flickers like a bad
+      // signal, more as it runs out: the hologram's dissolve.
       const left = 1 - d.t / d.life
-      const flick = Math.sin(this.time * 31) > 0.86 - (1 - left) * 0.5 ? 0.25 : 1
-      h.rig.material.opacity = (0.32 + 0.2 * Math.sin(this.time * 6)) * flick * Math.min(1, d.t * 5) * Math.min(1, left * 6 + 0.2)
-      h.pose.time = this.time
-      // It waves: the thing a guard cannot ignore.
-      h.pose.aim = 0
-      h.pose.cable = 0.35 + 0.25 * Math.sin(this.time * 5)
-      poseMech(h.rig, h.pose)
+      const flick = Math.sin(this.time * 31) > 0.86 - (1 - left) * 0.5 ? 0.35 : 1
+      h.update(this.time, d.t, flick * Math.min(1, d.t * 5) * Math.min(1, left * 6 + 0.2))
       if (Math.random() < dt * 5) p.emit({ x: d.x + (Math.random() - 0.5) * 0.9, y: d.y + Math.random() * 2.3, z: d.z + (Math.random() - 0.5) * 0.9, vy: 0.8, color: PAL.glowCyan, size: 0.12, sizeEnd: 0.02, life: 0.5 })
     }
 
@@ -421,10 +405,7 @@ export class CombatFx {
     ;(this.bullet.material as MeshBasicMaterial).dispose()
     this.xray.material.dispose()
     this.xrayTex.dispose()
-    for (const h of this.holograms) {
-      h.rig.mesh.geometry.dispose()
-      h.rig.material.dispose()
-      h.rig.glowMaterial.dispose()
-    }
+    for (const h of this.holograms) h.dispose()
+    this.holograms.length = 0
   }
 }

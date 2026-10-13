@@ -59,6 +59,8 @@ export default {
     'grappleRecall': 'Csáklya vissza',
     'cancel': 'Fegyver le',
     'capture': 'Kattints a folytatáshoz',
+    'tapToStart': 'Koppints az indításhoz',
+    'clickToStart': 'Kattints az indításhoz',
     'metres': '{n} m',
     'objective': {
       'salvage': 'Hulladék',
@@ -81,6 +83,7 @@ export default {
     'loot': 'Hulladék szétszedése',
     'ammoLow': 'Fogyóban a lőszer',
     'ammoOut': 'Elfogyott a lőszer',
+    'noAmmo': 'Nincs lőszer!',
     'questLog': 'Célok',
     'quest': {
       'extract': 'Kimentés'
@@ -279,13 +282,14 @@ export default {
     'decoyHint': 'Tegyél le egy csalit, hogy elterelje az őr figyelmét, aztán lopakodj oda és iktasd ki!',
     'roomHint': {
       'move': 'Sétálj a világító ajtóhoz, hogy elkezdd a kiképzést.',
-      'jump': 'Mássz fel a létrán, és ugord át a szakadékot a másik platformra!',
-      'cover': 'Guggolj le a ládák mögé, hogy az őr ne lásson, aztán kússz át a kapu alatt!',
-      'weapons': 'Iktasd ki mindhárom őrt: egyet szedj le mesterlövészpuskával, aztán válts minigunra a másik kettőhöz!',
-      'rocket': 'Válts rakétavetőre, és robbantsd fel a párkányon álló mechet!',
+      'jump': 'Mássz fel a létrán, és ugord át a szakadékot a másik platformra! A futás és az ugrás zajt csap, amit a közeli őrök meghallanak.',
+      'cover': 'Guggolj le a ládák mögé, hogy az őr ne lásson, aztán kússz át a kapu alatt! Csak a guggolva tett lépés néma: az őrök közelről meghallják, ha sétálsz.',
+      'weapons': 'Iktasd ki mindhárom őrt: egyet szedj le mesterlövészpuskával, aztán válts minigunra a másik kettőhöz! A lövések zajt csapnak: a minigunt minden őr hallja a környéken.',
+      'rocket': 'Válts rakétavetőre, és robbantsd fel a párkányon álló mechet! A rakéták hangosak: a robbanást minden őr hallja.',
+      'hide': 'Lődd le az őrt, aztán menj el a lőállásodból, és bújj el: a drón oda repül, ahonnan a lövés jött!',
       'supply': 'Sétálj át a ládákon, hogy feltöltsd a lőszert és megjavítsd a páncélod.',
       'burn': 'Égesd el a holttestet a lángszóróval, mielőtt valaki megtalálja!',
-      'box': 'Bújj el a dobozban, és állj mozdulatlanul, amíg a fényszóró végigpásztáz rajtad!',
+      'box': 'Öltsd magadra az álcádat! A fényszóró nem törődik veled, amíg mozdulatlan vagy, de amint megmozdulsz, észrevesz.',
       'hook': 'Használd a csáklyát, hogy átjuss a falon!',
       'rope': 'Használd a kötélvetőt, hogy kötelet feszíts ki a két platform közé!',
       'barrel': 'Lőj az üzemanyagos hordóra, hogy kiiktasd a fal mögötti őröket!',
@@ -304,12 +308,14 @@ export default {
       'box': 'Álcázd magad, hogy ne vegyenek észre',
       'decoy': 'Használj csalit [{key}], szúrd hátba, amikor elterelted a figyelmét',
       'decoyTouch': 'Használj csalit, szúrd hátba, amikor elterelted a figyelmét',
-      'decoyAny': 'Megint észrevettek. Intézd el az őrt, ahogy akarod.'
+      'decoyAny': 'Megint észrevettek. Intézd el az őrt, ahogy akarod.',
+      'hide': 'Lövés után bújj el: menj máshová, különben az ellenség megtalálja, honnan lőttél.'
     },
     'door': {
       'cover': 'Guggolj egyszer az átjutáshoz',
       'weapons': 'Ütsd ki mind a hármat az átjutáshoz',
       'rocket': 'Semmisítsd meg a mechet a rakétavetővel',
+      'hide': 'Lődd le az őrt, aztán bújj el a drón elől',
       'supply': 'Kapd fel az utánpótlást',
       'blade': 'Szúrd hátba mindkét őrt',
       'burn': 'Égesd el a holttestet',

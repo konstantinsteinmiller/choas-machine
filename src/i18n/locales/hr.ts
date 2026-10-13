@@ -59,6 +59,8 @@ export default {
     'grappleRecall': 'Povuci kuku',
     'cancel': 'Spusti oružje',
     'capture': 'Klikni za nastavak',
+    'tapToStart': 'Dodirni za početak',
+    'clickToStart': 'Klikni za početak',
     'metres': '{n} m',
     'objective': {
       'salvage': 'Otpad',
@@ -81,6 +83,7 @@ export default {
     'loot': 'Rastavi otpad',
     'ammoLow': 'Streljivo je pri kraju',
     'ammoOut': 'Nema streljiva',
+    'noAmmo': 'Nema municije!',
     'questLog': 'Ciljevi',
     'quest': {
       'extract': 'Evakuacija'
@@ -279,13 +282,14 @@ export default {
     'decoyHint': 'Postavi mamac da odvučeš pažnju stražaru, zatim mu se prišuljaj i eliminiraj ga!',
     'roomHint': {
       'move': 'Dođi do svijetlećih vrata da započneš obuku.',
-      'jump': 'Popni se ljestvama i preskoči procjep do druge platforme!',
-      'cover': 'Čučni iza sanduka da te stražar ne vidi, a onda se provuci ispod kapije!',
-      'weapons': 'Eliminiraj sva tri stražara: jednog skini snajperom, a onda prebaci na minigun za druga dva!',
-      'rocket': 'Prebaci na raketni bacač i raznesi mecha na izbočini!',
+      'jump': 'Popni se ljestvama i preskoči procjep do druge platforme! Trčanje i skakanje stvaraju buku koju čuju obližnji stražari.',
+      'cover': 'Čučni iza sanduka da te stražar ne vidi, a onda se provuci ispod kapije! Tih je samo čučeći korak: stražari te čuju kad hodaš blizu.',
+      'weapons': 'Eliminiraj sva tri stražara: jednog skini snajperom, a onda prebaci na minigun za druga dva! Pucnji stvaraju buku: minigun čuje svaki stražar u blizini.',
+      'rocket': 'Prebaci na raketni bacač i raznesi mecha na izbočini! Rakete su glasne: eksploziju čuje svaki stražar.',
+      'hide': 'Upucaj stražara, zatim se makni s mjesta s kojeg si pucao i sakrij se: dron leti onamo odakle je došao pucanj!',
       'supply': 'Prijeđi preko sanduka da napuniš streljivo i popraviš oklop.',
       'burn': 'Spali tijelo bacačem plamena prije nego što ga netko pronađe!',
-      'box': 'Sakrij se u kartonsku kutiju i stoj mirno dok reflektor prelazi preko tebe!',
+      'box': 'Prerušti se! Reflektor te ignorira dok stojiš mirno, ali te otkrije čim se pomakneš.',
       'hook': 'Upotrijebi kuku za penjanje da prijeđeš preko zida!',
       'rope': 'Upotrijebi pušku za uže da napneš uže između dviju platformi!',
       'barrel': 'Pucaj u bačvu s gorivom da eliminiraš stražare iza zida!',
@@ -304,12 +308,14 @@ export default {
       'box': 'Preruši se da te ne primijete',
       'decoy': 'Iskoristi mamac [{key}], ubodi u leđa kad mu odvučeš pažnju',
       'decoyTouch': 'Iskoristi mamac, ubodi u leđa kad mu odvučeš pažnju',
-      'decoyAny': 'Opet primijećen. Sredi stražara kako god želiš.'
+      'decoyAny': 'Opet primijećen. Sredi stražara kako god želiš.',
+      'hide': 'Sakrij se nakon pucanja: premjesti se drugamo ili će neprijatelj pronaći odakle si pucao.'
     },
     'door': {
       'cover': 'Čučni jednom da prođeš',
       'weapons': 'Obori sva tri da prođeš',
       'rocket': 'Uništi meha bacačem',
+      'hide': 'Upucaj stražara, zatim se sakrij od drona',
       'supply': 'Uzmi zalihe',
       'blade': 'Ubodi oba čuvara u leđa',
       'burn': 'Spali tijelo',

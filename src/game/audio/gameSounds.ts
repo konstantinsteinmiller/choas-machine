@@ -139,6 +139,8 @@ export const installGameSounds = (): void => {
   on('uplink', () => sfx('uplink'))
   on('uplinkLost', () => sfx('alertDown'))
   on('uplinkDone', () => sfx('alarm'))
+  // The disguise room's alarm post (a drill): the siren, and nothing else of an alarm.
+  on('trainingAlarm', () => sfx('alarm'))
   on('body', () => sfx('body'))
   on('alert', ({ segments, prev }) => {
     // The fifth segment is the alarm's, below.

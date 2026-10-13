@@ -22,8 +22,16 @@ export const SKIP_HOLD_S = 1.5
  */
 export const INTRO_STILL_S = 6
 
-/** The `seen` flag a scene sets once it has played. */
-export const seenKey = (id: CinemaId): string => `cine:${id}`
+/**
+ * How much of a scene plays: all of it; the scene without the still it ends
+ * on; or that still alone. A new player's intro plays before the training
+ * ground without its still of the next fortress, which comes once the
+ * training is done (`flow.ts`).
+ */
+export type CinemaPart = 'whole' | 'scene' | 'still'
+
+/** The `seen` flag a scene (or its closing still alone) sets once it has played. */
+export const seenKey = (id: CinemaId, part: CinemaPart = 'whole'): string => (part === 'still' ? `cine:${id}:still` : `cine:${id}`)
 
 /**
  * Which scene a banked extraction earns, if any: the haul after the first

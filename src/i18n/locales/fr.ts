@@ -59,6 +59,8 @@ export default {
     'grappleRecall': 'Rappeler le grappin',
     'cancel': 'Baisser l\'arme',
     'capture': 'Cliquez pour continuer',
+    'tapToStart': 'Touchez pour commencer',
+    'clickToStart': 'Cliquez pour commencer',
     'metres': '{n} m',
     'objective': {
       'salvage': 'Récupération',
@@ -81,6 +83,7 @@ export default {
     'loot': 'Récupérer le butin',
     'ammoLow': 'Munitions presque épuisées',
     'ammoOut': 'Plus de munitions',
+    'noAmmo': 'Plus de munitions !',
     'questLog': 'Objectifs',
     'quest': {
       'extract': 'Extraction'
@@ -279,13 +282,14 @@ export default {
     'decoyHint': 'Place un leurre pour distraire le garde, puis approche-toi en douce et élimine-le !',
     'roomHint': {
       'move': 'Va jusqu\'à la porte lumineuse pour commencer ton entraînement.',
-      'jump': 'Grimpe à l\'échelle et saute par-dessus le vide jusqu\'à l\'autre plateforme !',
-      'cover': 'Accroupis-toi derrière les caisses pour que la sentinelle ne te voie pas, puis rampe sous la grille !',
-      'weapons': 'Élimine les trois gardes : abats-en un au fusil de sniper, puis passe au minigun pour les deux autres !',
-      'rocket': 'Passe au lance-roquettes et fais exploser le mech sur la corniche !',
+      'jump': 'Grimpe à l\'échelle et saute par-dessus le vide jusqu\'à l\'autre plateforme ! Courir et sauter fait du bruit que les gardes proches entendent.',
+      'cover': 'Accroupis-toi derrière les caisses pour que la sentinelle ne te voie pas, puis rampe sous la grille ! Seul un pas accroupi est silencieux : les gardes t\'entendent marcher de près.',
+      'weapons': 'Élimine les trois gardes : abats-en un au fusil de sniper, puis passe au minigun pour les deux autres ! Les tirs font du bruit : tous les gardes alentour entendent le minigun.',
+      'rocket': 'Passe au lance-roquettes et fais exploser le mech sur la corniche ! Les roquettes sont bruyantes : tous les gardes entendent l\'explosion.',
+      'hide': 'Abats le garde, puis éloigne-toi de ta position de tir et cache-toi : le drone vole là d\'où est parti le tir !',
       'supply': 'Marche sur les caisses pour recharger tes munitions et réparer ton blindage.',
       'burn': 'Brûle le corps au lance-flammes avant que quelqu\'un ne le trouve !',
-      'box': 'Cache-toi dans le carton et ne bouge plus pendant que le projecteur te balaie !',
+      'box': 'Déguise-toi ! Le projecteur t\'ignore tant que tu restes immobile, mais te repère dès que tu bouges.',
       'hook': 'Utilise le grappin pour passer par-dessus le mur !',
       'rope': 'Utilise le lance-corde pour tendre une corde entre les deux plateformes !',
       'barrel': 'Tire sur le baril de carburant pour éliminer les gardes derrière le mur !',
@@ -304,12 +308,14 @@ export default {
       'box': 'Déguise-toi pour ne pas être repéré',
       'decoy': 'Utilise un leurre [{key}], frappe dans le dos quand il est distrait',
       'decoyTouch': 'Utilise un leurre, frappe dans le dos quand il est distrait',
-      'decoyAny': 'Encore repéré. Élimine le garde comme tu veux.'
+      'decoyAny': 'Encore repéré. Élimine le garde comme tu veux.',
+      'hide': 'Cache-toi après avoir tiré : change de place, sinon l\'ennemi trouvera d\'où tu as tiré.'
     },
     'door': {
       'cover': 'Accroupis-toi une fois pour passer',
       'weapons': 'Abats les trois pour passer',
       'rocket': 'Détruis le mécha avec le lance-roquettes',
+      'hide': 'Abats le garde, puis cache-toi du drone',
       'supply': 'Récupère le ravitaillement',
       'blade': 'Frappe les deux gardes dans le dos',
       'burn': 'Brûle le corps',

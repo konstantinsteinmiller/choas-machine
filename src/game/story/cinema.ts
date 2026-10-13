@@ -1,5 +1,5 @@
 import {
-  BoxGeometry, CylinderGeometry, Group, Matrix4, Mesh, MeshBasicMaterial, OrthographicCamera, PerspectiveCamera, PlaneGeometry, Quaternion, Scene,
+  BoxGeometry, Color, CylinderGeometry, Group, Matrix4, Mesh, MeshBasicMaterial, OrthographicCamera, PerspectiveCamera, PlaneGeometry, Quaternion, Scene,
   SphereGeometry, SRGBColorSpace, TextureLoader, Vector3, type Object3D, type Texture
 } from 'three'
 void (null as unknown as Object3D)
@@ -37,9 +37,10 @@ import { makeFlameMaterial, setFlame } from '../fx/flameCone'
 import { sfx } from '../audio/sfx'
 import { emit } from '../bus'
 import type { TrackId } from '../audio/songs'
-import { CINEMA_LENGTH, INTRO_STILL_S, type CinemaId } from './cinemaIds'
+import { CINEMA_LENGTH, INTRO_STILL_S, type CinemaId, type CinemaPart } from './cinemaIds'
 import { hud } from '../state/hud'
 import { buildFuelBarrel } from '../models/supplies'
+import { crestMaterial } from '../models/blastCrest'
 import { glowVC, toonVC } from '../models/toon'
 
 /**
@@ -488,7 +489,7 @@ const INTRO: Script = {
     s.extra.sqDrone = sqDrone
     const drum = new Group()
     const dg = buildFuelBarrel()
-    drum.add(new Mesh(dg.lit, toonVC()), new Mesh(dg.glow, glowVC()))
+    drum.add(new Mesh(dg.lit, toonVC()), new Mesh(dg.glow, glowVC()), new Mesh(dg.crest, crestMaterial()))
     drum.position.set(DRUM[0], DRUM[1], DRUM[2])
     s.extra.drum = drum
     squad.add(sqMech.root, sqDrone.root, drum)
@@ -610,7 +611,7 @@ const INTRO: Script = {
       const k = span(t, 10.2, 10.9)
       s.place(ball, tmpA.set(35.4 + (DECOY[0] - 35.4) * k, 12 + (DECOY[1] - 12) * k + Math.sin(k * Math.PI) * 3.5, 24 + (DECOY[2] - 24) * k))
     }
-    // The game's own hologram, waving where it landed, until the guard is down
+    // The game's own hologram, juggling where it landed, until the guard is down
     // (gone before the camera leaves the kill: it passes where it stood).
     if (between(t, 10.9, 15.4)) {
       const dc = s.decoys[0] ?? (s.decoys[0] = { x: DECOY[0], y: DECOY[1], z: DECOY[2], yaw: Math.PI * 1.2, t: 0, life: 6, pulse: 0 })
@@ -1417,17 +1418,21 @@ export class Cinema implements GameMode {
    */
   private still: { scene: Scene; camera: OrthographicCamera; quad: Mesh; material: MeshBasicMaterial; aspect: number } | null = null
   /** When the still takes over (s into the scene), or never. */
-  get stillFrom(): number { return this.script.still ? this.length - INTRO_STILL_S : Infinity }
+  get stillFrom(): number { return this.script.still && this.part === 'whole' ? this.length - INTRO_STILL_S : Infinity }
 
-  private constructor(readonly id: CinemaId) {
+  private constructor(readonly id: CinemaId, readonly part: 'whole' | 'scene') {
     this.script = SCRIPTS[id]
-    this.length = CINEMA_LENGTH[id]
+    // Without its still, the scene ends where the still would take over.
+    this.length = CINEMA_LENGTH[id] - (part === 'scene' && this.script.still ? INTRO_STILL_S : 0)
     this.done = new Promise((r) => { this.finish = r })
   }
 
-  /** `particleMap`: the sparks' sprite (the tests pass a plain texture: there is no canvas there). */
-  static async create(id: CinemaId, slice: Slice = noSlice, particleMap?: Texture): Promise<Cinema> {
-    const c = new Cinema(id)
+  /**
+   * `particleMap`: the sparks' sprite (the tests pass a plain texture: there is no canvas there).
+   * `part`: the whole scene, or the scene without its closing still (`CinemaStill` plays that alone).
+   */
+  static async create(id: CinemaId, slice: Slice = noSlice, particleMap?: Texture, part: 'whole' | 'scene' = 'whole'): Promise<Cinema> {
+    const c = new Cinema(id, part)
     const s = c.script
     const look = themeOf(s.theme)
     const b = new FortressBuilder(`cinema-${id}`, 40, 24)
@@ -1477,7 +1482,7 @@ export class Cinema implements GameMode {
     c.stage = st
     s.cast(st, c.root)
     s.frame(st)
-    if (s.still && !particleMap) c.loadStill(s.still.src)
+    if (s.still && !particleMap && part === 'whole') c.loadStill(s.still.src)
     return c
   }
 
@@ -1571,5 +1576,92 @@ export class Cinema implements GameMode {
       const m = o as Mesh
       if (m.geometry) m.geometry.dispose()
     })
+  }
+}
+
+/**
+ * A scene's closing still on its own (the intro's next fortress, after the
+ * training ground): faded up from black, pushed in slowly, framed by the HUD
+ * as what is coming, for INTRO_STILL_S. Black until the picture has loaded.
+ */
+export class CinemaStill implements GameMode {
+  readonly scene = newScene()
+  readonly camera = new PerspectiveCamera(50, 1, 0.1, 10)
+  readonly done: Promise<void>
+  readonly music: TrackId
+  private finish!: () => void
+  private over = false
+  private t = 0
+  private readonly fortress: 'bastion' | 'foundry' | 'harbour' | 'spire'
+  private shot: { scene: Scene; camera: OrthographicCamera; quad: Mesh; material: MeshBasicMaterial; aspect: number } | null = null
+
+  private constructor(script: Script) {
+    this.music = script.music
+    this.fortress = script.still!.fortress
+    this.scene.background = new Color(0x000000)
+    this.done = new Promise((r) => { this.finish = r })
+  }
+
+  /** Null for a scene that ends on no still. */
+  static create(id: CinemaId): CinemaStill | null {
+    const script = SCRIPTS[id]
+    if (!script.still) return null
+    const c = new CinemaStill(script)
+    new TextureLoader().load(prependBaseUrl(script.still.src), (tex) => {
+      tex.colorSpace = SRGBColorSpace
+      const material = new MeshBasicMaterial({ map: tex, toneMapped: false, depthTest: false, depthWrite: false })
+      material.color.setScalar(0)
+      const quad = new Mesh(new PlaneGeometry(2, 2), material)
+      const scene = new Scene()
+      scene.add(quad)
+      const img = tex.image as { width?: number; height?: number }
+      c.shot = { scene, camera: new OrthographicCamera(-1, 1, 1, -1, 0, 1), quad, material, aspect: (img.width ?? 16) / (img.height ?? 9) }
+    }, undefined, () => c.end())
+    return c
+  }
+
+  get time(): number { return this.t }
+
+  update(): void {}
+
+  skip(): void { this.end() }
+
+  private end(): void {
+    if (this.over) return
+    this.over = true
+    hud.cineStill = ''
+    this.finish()
+  }
+
+  render(_alpha: number, dt: number): void {
+    const r = getRenderer()
+    r.info.reset()
+    const shot = this.shot
+    // Its clock starts once there is something to see.
+    if (shot && !this.over) {
+      this.t = Math.min(INTRO_STILL_S, this.t + Math.min(0.1, dt))
+      if (this.t >= INTRO_STILL_S) this.end()
+    }
+    const want = shot && !this.over ? this.fortress : ''
+    if (hud.cineStill !== want) hud.cineStill = want
+    if (!shot) {
+      r.render(this.scene, this.camera)
+      return
+    }
+    const el = r.domElement
+    const screen = (el.clientWidth || el.width) / Math.max(1, el.clientHeight || el.height)
+    const push = 1 + 0.1 * smooth(this.t / INTRO_STILL_S)
+    const sx = screen > shot.aspect ? 1 : shot.aspect / screen
+    const sy = screen > shot.aspect ? screen / shot.aspect : 1
+    shot.quad.scale.set(sx * push, sy * push, 1)
+    shot.material.color.setScalar(smooth(this.t / 0.4))
+    r.render(shot.scene, shot.camera)
+  }
+
+  dispose(): void {
+    if (!this.shot) return
+    this.shot.material.map?.dispose()
+    this.shot.material.dispose()
+    this.shot.quad.geometry.dispose()
   }
 }

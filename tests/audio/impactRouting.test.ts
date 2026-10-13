@@ -97,4 +97,10 @@ describe('flesh or metal', () => {
     emit('incoming', { id: 0, kind: 'guard', hit: false })
     expect(played).toEqual(['enemyShot', 'tink', 'enemyShot', 'whizz'])
   })
+
+  it('a pull on an empty weapon: the dry "out of stock" click, every pull (#202)', () => {
+    emit('dryFire', {})
+    emit('dryFire', {})
+    expect(played).toEqual(['dry', 'dry'])
+  })
 })

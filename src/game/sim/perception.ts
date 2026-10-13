@@ -57,9 +57,11 @@ export const exposure = (g: Grid, v: Viewer, t: Seen): number => {
     const cos = (dx * fx + dz * fz) / dist
     if (cos < Math.cos(v.halfAngle)) return 0
   }
+  // Facing it is enough, at any height: the floor it stands on hides nothing
+  // (only what rises above that floor does).
   let seen = 0
-  if (hasLineOfSight(g, v.x, v.y, v.z, t.x, t.feetY + t.height * 0.97, t.z)) seen += 0.5
-  if (hasLineOfSight(g, v.x, v.y, v.z, t.x, t.feetY + t.height * 0.5, t.z)) seen += 0.5
+  if (hasLineOfSight(g, v.x, v.y, v.z, t.x, t.feetY + t.height * 0.97, t.z, t.feetY)) seen += 0.5
+  if (hasLineOfSight(g, v.x, v.y, v.z, t.x, t.feetY + t.height * 0.5, t.z, t.feetY)) seen += 0.5
   return seen
 }
 

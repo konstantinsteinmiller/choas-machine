@@ -59,6 +59,8 @@ export default {
     'grappleRecall': 'Retrage cârligul',
     'cancel': 'Coboară arma',
     'capture': 'Click pentru a continua',
+    'tapToStart': 'Atinge pentru a începe',
+    'clickToStart': 'Click pentru a începe',
     'metres': '{n} m',
     'objective': {
       'salvage': 'Fier vechi',
@@ -81,6 +83,7 @@ export default {
     'loot': 'Dezmembrează fierul vechi',
     'ammoLow': 'Muniția e pe terminate',
     'ammoOut': 'Fără muniție',
+    'noAmmo': 'Fără muniție!',
     'questLog': 'Obiective',
     'quest': {
       'extract': 'Extracție'
@@ -279,13 +282,14 @@ export default {
     'decoyHint': 'Pune o momeală ca să distragi paznicul, apoi furișează-te și elimină-l!',
     'roomHint': {
       'move': 'Mergi la ușa strălucitoare ca să începi antrenamentul.',
-      'jump': 'Urcă pe scară și sari peste gol pe cealaltă platformă!',
-      'cover': 'Ghemuiește-te după lăzi ca santinela să nu te vadă, apoi târăște-te pe sub poartă!',
-      'weapons': 'Elimină toți cei trei paznici: doboară unul cu pușca cu lunetă, apoi treci pe minigun pentru ceilalți doi!',
-      'rocket': 'Treci pe lansatorul de rachete și aruncă în aer mech-ul de pe margine!',
+      'jump': 'Urcă pe scară și sari peste gol pe cealaltă platformă! Alergatul și săriturile fac zgomot pe care paznicii din apropiere îl aud.',
+      'cover': 'Ghemuiește-te după lăzi ca santinela să nu te vadă, apoi târăște-te pe sub poartă! Doar pasul ghemuit e silențios: paznicii te aud când mergi aproape.',
+      'weapons': 'Elimină toți cei trei paznici: doboară unul cu pușca cu lunetă, apoi treci pe minigun pentru ceilalți doi! Focurile fac zgomot: minigunul îl aude orice paznic din jur.',
+      'rocket': 'Treci pe lansatorul de rachete și aruncă în aer mech-ul de pe margine! Rachetele sunt zgomotoase: orice paznic aude explozia.',
+      'hide': 'Împușcă paznicul, apoi pleacă de la locul de unde ai tras și ascunde-te: drona zboară acolo de unde a venit focul!',
       'supply': 'Treci peste lăzi ca să-ți reumpli muniția și să-ți repari blindajul.',
       'burn': 'Arde cadavrul cu aruncătorul de flăcări înainte să-l găsească cineva!',
-      'box': 'Ascunde-te în cutia de carton și stai nemișcat cât timp reflectorul trece peste tine!',
+      'box': 'Deghizează-te! Reflectorul te ignoră cât timp stai nemișcat, dar te observă imediat ce te miști.',
       'hook': 'Folosește cârligul de agățare ca să treci peste zid!',
       'rope': 'Folosește pușca cu frânghie ca să întinzi o frânghie între cele două platforme!',
       'barrel': 'Trage în butoiul de combustibil ca să elimini paznicii din spatele zidului!',
@@ -304,12 +308,14 @@ export default {
       'box': 'Deghizează-te, ca să nu fii văzut',
       'decoy': 'Folosește o momeală [{key}], lovește pe la spate când e distras',
       'decoyTouch': 'Folosește o momeală, lovește pe la spate când e distras',
-      'decoyAny': 'Ai fost văzut din nou. Doboară paznicul cum vrei.'
+      'decoyAny': 'Ai fost văzut din nou. Doboară paznicul cum vrei.',
+      'hide': 'Ascunde-te după ce tragi: mută-te în altă parte, altfel inamicul găsește locul de unde ai tras.'
     },
     'door': {
       'cover': 'Ghemuiește-te o dată ca să treci',
       'weapons': 'Doboară-le pe toate trei ca să treci',
       'rocket': 'Distruge mechul cu lansatorul',
+      'hide': 'Împușcă paznicul, apoi ascunde-te de dronă',
       'supply': 'Ia proviziile',
       'blade': 'Lovește pe la spate ambii paznici',
       'burn': 'Arde cadavrul',

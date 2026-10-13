@@ -59,6 +59,8 @@ export default {
     'grappleRecall': 'Richiama il rampino',
     'cancel': 'Abbassa l\'arma',
     'capture': 'Clicca per continuare',
+    'tapToStart': 'Tocca per iniziare',
+    'clickToStart': 'Clicca per iniziare',
     'metres': '{n} m',
     'objective': {
       'salvage': 'Recupero',
@@ -81,6 +83,7 @@ export default {
     'loot': 'Smonta i rottami',
     'ammoLow': 'Munizioni in esaurimento',
     'ammoOut': 'Munizioni esaurite',
+    'noAmmo': 'Niente munizioni!',
     'questLog': 'Obiettivi',
     'quest': {
       'extract': 'Estrazione'
@@ -279,13 +282,14 @@ export default {
     'decoyHint': 'Piazza un\'esca per distrarre la guardia, poi avvicinati di soppiatto ed eliminala!',
     'roomHint': {
       'move': 'Raggiungi la porta luminosa per iniziare l\'addestramento.',
-      'jump': 'Sali la scala e salta oltre il vuoto fino all\'altra piattaforma!',
-      'cover': 'Accovacciati dietro le casse così la sentinella non ti vede, poi striscia sotto il cancello!',
-      'weapons': 'Elimina tutte e tre le guardie: abbattine una col fucile di precisione, poi passa alla minigun per le altre due!',
-      'rocket': 'Passa al lanciarazzi e fai saltare in aria il mech sulla sporgenza!',
+      'jump': 'Sali la scala e salta oltre il vuoto fino all\'altra piattaforma! Correre e saltare fa rumore e le guardie vicine lo sentono.',
+      'cover': 'Accovacciati dietro le casse così la sentinella non ti vede, poi striscia sotto il cancello! Solo il passo accovacciato è silenzioso: le guardie ti sentono camminare da vicino.',
+      'weapons': 'Elimina tutte e tre le guardie: abbattine una col fucile di precisione, poi passa alla minigun per le altre due! Gli spari fanno rumore: la minigun la sente ogni guardia nei dintorni.',
+      'rocket': 'Passa al lanciarazzi e fai saltare in aria il mech sulla sporgenza! I razzi sono rumorosi: ogni guardia sente l\'esplosione.',
+      'hide': 'Spara alla guardia, poi allontanati dalla tua posizione di tiro e nasconditi: il drone vola dove è partito il colpo!',
       'supply': 'Passa sopra le casse per ricaricare le munizioni e riparare la corazza.',
       'burn': 'Brucia il corpo con il lanciafiamme prima che qualcuno lo trovi!',
-      'box': 'Nasconditi nello scatolone e resta immobile mentre il riflettore ti passa sopra!',
+      'box': 'Travestiti! Il riflettore ti ignora finché resti immobile, ma ti scopre appena ti muovi.',
       'hook': 'Usa il rampino per superare il muro!',
       'rope': 'Usa lo spara-corda per tendere una corda tra le due piattaforme!',
       'barrel': 'Spara al barile di carburante per eliminare le guardie dietro il muro!',
@@ -304,12 +308,14 @@ export default {
       'box': 'Travestiti per non farti vedere',
       'decoy': "Usa un'esca [{key}], colpisci alle spalle quando è distratto",
       'decoyTouch': "Usa un'esca, colpisci alle spalle quando è distratto",
-      'decoyAny': 'Visto di nuovo. Elimina la guardia come preferisci.'
+      'decoyAny': 'Visto di nuovo. Elimina la guardia come preferisci.',
+      'hide': 'Nasconditi dopo aver sparato: spostati altrove, o il nemico troverà da dove hai sparato.'
     },
     'door': {
       'cover': 'Accovacciati una volta per passare',
       'weapons': 'Abbatti tutti e tre per passare',
       'rocket': 'Distruggi il mech con il lanciarazzi',
+      'hide': 'Spara alla guardia, poi nasconditi dal drone',
       'supply': 'Prendi i rifornimenti',
       'blade': 'Colpisci alle spalle entrambe le guardie',
       'burn': 'Brucia il corpo',

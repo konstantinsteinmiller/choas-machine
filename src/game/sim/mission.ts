@@ -36,7 +36,7 @@ import { makePlayer, stepPlayer, eyeHeight, angleDelta, type Player } from './pl
 import { makeCam, lookCam, stepCam, placeCam, stickToWorld, camForward, type Cam } from './camera'
 import { alertSegments } from './alert'
 import {
-  SPECS, SUSPECT_AT, igniteUnit, shieldStruck, stepHeard, sabotageBeacon, searchForShooter, noteChange, tagUnit, cutRig, helmetPops, isAlive, stepFallen, estimateShot, shotPassed, IMPACT_M, UPLINK_S, drainEvents, headingTo, killUnit, damageUnit, makeGarrison, noiseAt, hearAt, wonderAt, voidNoise, stepGarrison, alarmUnit, startleUnit, isLight, forgetMech,
+  SPECS, SUSPECT_AT, igniteUnit, shieldStruck, stepHeard, sabotageBeacon, searchForShooter, noteChange, tagUnit, cutRig, helmetPops, isAlive, stepFallen, estimateShot, heat, shotPassed, IMPACT_M, UPLINK_S, drainEvents, headingTo, killUnit, damageUnit, makeGarrison, noiseAt, hearAt, wonderAt, voidNoise, stepGarrison, alarmUnit, startleUnit, isLight, forgetMech,
   type Garrison, type Target, type Unit, type Change
 } from './garrison'
 import { GarrisonView } from './garrisonView'
@@ -69,11 +69,12 @@ import {
 import { AirshipView } from './airshipView'
 import { AIRSHIP_HALF } from '../models/airship'
 import { TrainingDirector } from './trainingDirector'
-import { DEMO_GAP_S, DOOR_LINES, atShutDoor, demoLength, entryOf, inPit, lessonStuck, nearDoorWall, roomAt, victimFrame } from './training'
+import { DEMO_GAP_S, DOOR_LINES, atShutDoor, demoLength, entryOf, inPit, lessonStuck, nearDoorWall, roomAt, stepAlarm, victimFrame } from './training'
 import { LESSON_IDS, TRAINING_ID, TRAINING_ROOMS, trainingArmor, type LessonId } from '../data/fortresses/training'
 import { COVER_H } from '../world/fortress'
 import { BASE_LOADOUT, type Loadout } from '../data/upgrades'
 import { camKind, camZone, chooseKillCam, makeKillCamState, type CamCut, type KillInfo } from './killcam'
+import { barRank, isMachine } from './healthBars'
 import {
   DROP_LANDED, INTRO_CAM_DIST, blendPose, smooth, bulletAt, bulletCam, bulletFlightS, dropHeight, introCam, lessonCam, liftHeight, makeCinePose, orbitCam, outroCam,
   type CinePose
@@ -133,6 +134,8 @@ const BURN_KEEP = 0.35
 const JUMP_EARSHOT = 6
 /** The silenced rifle is heard this near its muzzle (#68). */
 const RIFLE_EARSHOT_M = 4
+/** The minigun is heard this far by those it is not already alarming (`goLoud` tells the whole base outside a full alert). */
+const LOUD_EARSHOT_M = 30
 /** From the shoulder point `aimLine` traces from out to each weapon's muzzle (m). */
 /** Cover this near the barrel's mouth takes the round, whatever the reticle is on (m). */
 const JAMMED_M = 0.6
@@ -273,9 +276,6 @@ const WEAK_FOG_NEAR_M = 40
 const CALLOUT_S = 2.4
 /** How slow the world runs while a kill-cam holds on its kill. */
 const KILLCAM_SLOW = 0.16
-/** Health bars (#74): within this, a defender shows one when near, hurt, tagged or fighting; this near, always. */
-const BAR_FAR_M = 40
-const BAR_NEAR_M = 25
 /** Kill-cam seconds the round is still seen flying on out of the target (#77). */
 const EXIT_S = 0.3
 /** A short bullet cam joins the round this far into its flight; a boss's orbit lasts this long. */
@@ -469,6 +469,8 @@ export class Mission implements GameMode {
   private smokeT = 0
   /** The boss whose bar is up: the last one hit. */
   private bossFocus = -1
+  /** The machines the mech has struck: their bars stay up while they live (`healthBars.ts`). */
+  private struck = new Set<number>()
   /** How far above its feet the mech is drawn (the drop, the lift). */
   private lift = 0
   /** Seconds until the Goliath answers the Commander's death; < 0 when not armed. */
@@ -630,7 +632,7 @@ export class Mission implements GameMode {
     m.hookView = makeGrappleVisual()
     m.scene.add(m.hookView.group)
     if (fortress.id === TRAINING_ID) {
-      m.training = new TrainingDirector(m.scene, fortress, m.garrison)
+      m.training = new TrainingDirector(m.scene, fortress, m.garrison, m.fx)
       // Three quarters of the armour (#177): the supply room's repair pack mends it.
       m.armor.hp = trainingArmor(0, m.armor.max)
       // The flamethrower room's guard is already down (#113): its lesson is the burning.
@@ -785,8 +787,9 @@ export class Mission implements GameMode {
       this.stats.time += dt
       if (this.strike) {
         this.stepStrike(dt)
-      } else if (this.cine?.kind === 'lesson') {
-        // Held while the lesson plays (#158): it stands and watches.
+      } else if (this.cine?.kind === 'lesson' || this.caught()) {
+        // Held while the lesson plays (#158): it stands and watches. Caught
+        // in a training room: it stands where it was seen until the room starts over.
         p.vx = p.vz = 0
         p.speed01 = 0
         consumeEdges(i)
@@ -1037,9 +1040,14 @@ export class Mission implements GameMode {
    * The weapon is up: the aim is held, or (with a mouse) the trigger of a
    * weapon that is fired from the hip is.
    */
+  /** Caught in a training room: held for the beat before the room starts over (`stepAlarm`). */
+  private caught(): boolean {
+    return !!this.training && this.training.state.alarmT > 0
+  }
+
   private weaponUp(): boolean {
     const i = this.input
-    if (this.strike || this.player.mode !== 'ground' || hud.phase !== 'play') return false
+    if (this.strike || this.player.mode !== 'ground' || hud.phase !== 'play' || this.caught()) return false
     // A press of the trigger brings the weapon up and turns the body to the aim first.
     return i.aimHeld || this.fireIntent > 0 || (i.fireHeld && this.arsenal.current !== 'sniper')
   }
@@ -1075,7 +1083,7 @@ export class Mission implements GameMode {
     const p = this.player
     const t = this.trigger
     // Hands are busy on a ladder, a cable, a ledge, or mid-strike.
-    const free = p.mode === 'ground' && !this.strike && this.cine?.kind !== 'lesson'
+    const free = p.mode === 'ground' && !this.strike && this.cine?.kind !== 'lesson' && !this.caught()
     // Touch's hold-and-release trigger; the Zoom-in latch and the Shoot button
     // work the mouse's way instead (aim is aim, the trigger is its own button).
     t.touch = i.device === 'touch' && !i.aimLatched
@@ -1265,6 +1273,8 @@ export class Mission implements GameMode {
     emit('shot', { weapon: w })
     this.watchAmmo()
     this.shake = Math.max(this.shake, w === 'sniper' ? 0.35 : w === 'rocket' ? 0.5 : 0.12)
+    // Where it fired from is the hunt's hot spot (`hotSpot`); the rifle's goes through `estimateShot`.
+    if (w !== 'sniper') heat(gar, this.player.x, this.player.z)
 
     if (w === 'rocket') {
       // A rocket is a body of its own: it leaves the tube's mouth for the mark.
@@ -1287,10 +1297,13 @@ export class Mission implements GameMode {
     // A rifle round is quiet, not unnoticed (#68, #70): whoever it lands near,
     // or passes close to, turns to where the base guesses it came from.
     const p0 = this.player
-    const from = w === 'sniper' ? estimateShot(gar, p0.x, p0.y, p0.z, h.x, h.z) : null
+    // The minigun's rounds too: whoever they fly past or land by turns to it,
+    // and it is no secret where they came from.
+    const from = w === 'sniper' ? estimateShot(gar, p0.x, p0.y, p0.z, h.x, h.z) : w === 'minigun' ? { x: p0.x, y: p0.y, z: p0.z } : null
     if (from) {
       const hitId = h.kind === 'unit' ? h.unit : -1
-      shotPassed(gar, this.target, from, ox, oy, oz, h.x, h.y, h.z, h.kind === 'world' ? Math.max(IMPACT_M, this.loadout.missEarshot) : IMPACT_M, RIFLE_EARSHOT_M, hitId, h.kind === 'world' ? 'miss' : null)
+      const earshot = w === 'sniper' || gar.drill ? RIFLE_EARSHOT_M : LOUD_EARSHOT_M
+      shotPassed(gar, this.target, from, ox, oy, oz, h.x, h.y, h.z, h.kind === 'world' ? Math.max(IMPACT_M, this.loadout.missEarshot) : IMPACT_M, earshot, hitId, h.kind === 'world' ? 'miss' : null)
     }
     // Minigun rounds into a body on the ground keep shoving it (#64).
     if (w === 'minigun') {
@@ -1304,6 +1317,7 @@ export class Mission implements GameMode {
       const u = gar.units[h.unit]!
       // A shield guard struck, on the shield or not: up it goes (#151).
       shieldStruck(gar, u.id)
+      this.markStruck(u.id)
       const soft = u.kind === 'guard' || u.kind === 'sentry' || u.kind === 'commander'
       this.stats.hits++
       const head = h.zone === 'head' && soft
@@ -1367,8 +1381,8 @@ export class Mission implements GameMode {
           // It knows it was shot, and about where from (#70); the loud weapons give the place away.
           const at = from ?? { x: this.player.x, z: this.player.z }
           alarmUnit(gar, u.id, at.x, at.z)
-          // A guard who took a round and lives: those near it go to look for the shooter (#60).
-          if (w === 'sniper') searchForShooter(gar, u.id, at.x, at.z)
+          // A guard who took a round and lives: those near it go to look for the shooter (#60), whatever the gun.
+          searchForShooter(gar, u.id, at.x, at.z)
         }
       }
       // A rifle round goes through a person and on (#152).
@@ -1428,6 +1442,7 @@ export class Mission implements GameMode {
     const head = next.zone === 'head' && soft
     this.fx.impact(next.x, next.y, next.z, next.nx, next.ny, next.nz, soft, 'sniper')
     shieldStruck(gar, v.id)
+    this.markStruck(v.id)
     const dmg = shotDamage('sniper', v.kind, next.zone, this.loadout.damage.sniper, v.maxHp) * PIERCE_KEEP ** (depth + 1)
     this.stats.hits++
     if (head) this.stats.headshots++
@@ -1477,7 +1492,7 @@ export class Mission implements GameMode {
       if (d.rag && d.state === 'dead' && !d.hidden && d.deadT >= d.hold) blastRagdoll(d.rag, b.x, b.y, b.z, this.loadout.blastRadius * 1.3, 1 / 60)
     }
     if (res.kills.length + res.hurt.length > 0) this.stats.hits++
-    for (const id of res.hurt) alarmUnit(this.garrison, id, this.player.x, this.player.z)
+    for (const id of res.hurt) { alarmUnit(this.garrison, id, this.player.x, this.player.z); this.markStruck(id) }
     // A boss the blast hurt has its big bar up, as a round's hit does (rockets never raised it).
     for (const id of res.hurt) if (this.garrison.units[id]?.boss) this.bossFocus = id
     emit('blast', { x: b.x, y: b.y, z: b.z, weak: res.weakHit })
@@ -2389,7 +2404,8 @@ export class Mission implements GameMode {
     t.brush = (sh & Shade.Brush) !== 0 && p.crouched && !p.sprinting
     mirror('concealed', t.brush ? 2 : t.shadow ? 1 : 0)
     stepGarrison(this.garrison, this.fortress.grid, t, dt)
-    stepFire(this.garrison, this.fortress.grid, t, dt)
+    // Caught on the training ground: held for a moment to see it, not shot down while held.
+    if (!this.caught()) stepFire(this.garrison, this.fortress.grid, t, dt)
     this.flushGarrison()
   }
 
@@ -2883,6 +2899,7 @@ export class Mission implements GameMode {
     this.killBy = 'sniper'
     this.killHead = c.head
     emit('hit', { id: u.id, weapon: 'sniper', zone: c.head ? 'head' : 'body' })
+    this.markStruck(c.id)
     damageUnit(gar, c.id, c.damage, c.ox, c.oz)
     // ...and on, into whoever stands behind (#152): no second camera for that.
     const cl = Math.hypot(c.hx - c.ox, c.hy - c.oy, c.hz - c.oz) || 1
@@ -3012,29 +3029,31 @@ export class Mission implements GameMode {
     uplinks.n = n
   }
 
+  /** A machine the mech hit (or blew, or burned): its bar is up from now on. */
+  private markStruck(id: number): void {
+    const u = this.garrison.units[id]
+    if (u && isMachine(u)) this.struck.add(id)
+  }
+
   /**
    * Health bars over heads (#74): the nearest defenders that are hurt, tagged,
-   * fighting or near, and that the camera can see. Bosses have the big bar.
+   * fighting or near, every machine the mech struck or the alarm is up for
+   * (`healthBars.ts`), and that the camera can see. Bosses have the big bar.
    */
   private writeBars(show: boolean): void {
     let n = 0
     if (show && !hud.scoped) {
       const cam = this.camera.position
       const g = this.fortress.grid
-      const near: Array<{ u: Unit; d: number }> = []
+      const alarm = this.garrison.alert.chaos
+      const near: Array<{ u: Unit; d: number; rank: number }> = []
       for (const u of this.garrison.units) {
-        // Every mech has its bar, powered down or not (a playtester could not
-        // tell the rocket room's mech was taking damage at all). The Goliath
-        // too, boss or not: a playtester emptied two rockets and three belts
-        // into it with no sign of what any of it did.
-        const mech = u.kind === 'enforcer' || u.kind === 'goliath'
-        if (!isAlive(u) || (u.state === 'dormant' && !mech) || (u.boss && u.kind !== 'goliath') || u.gripped) continue
         const d = Math.hypot(u.x - this.player.x, u.z - this.player.z)
-        if (d > BAR_FAR_M) continue
-        if (!(mech || u.hp < u.maxHp || u.tagged || u.state === 'combat' || d < BAR_NEAR_M)) continue
-        near.push({ u, d })
+        const rank = barRank(u, d, alarm, this.struck)
+        if (rank >= 0) near.push({ u, d, rank })
       }
-      near.sort((a, b) => a.d - b.d)
+      // The machine being shot at first: eight nearer guards never crowd it out.
+      near.sort((a, b) => a.rank - b.rank || a.d - b.d)
       this.camera.updateMatrixWorld()
       for (const { u } of near) {
         if (n >= MAX_BARS) break
@@ -3501,6 +3520,7 @@ export class Mission implements GameMode {
       cleared: this.roomCleared(Math.max(tr.state.room, roomAt(p.x))),
       crouches: this.crouchesDone,
       tries: tr.state.roomResets[Math.max(0, tr.state.room, roomAt(p.x))] ?? 0,
+      ...this.hideWatch(Math.max(tr.state.room, roomAt(p.x))),
       stocked: this.supplies.every(s => s.taken || !wants(s, this.arsenal, this.armor, this.loadout.rockets))
     }
     const ev = tr.step(ctx, dt)
@@ -3513,10 +3533,12 @@ export class Mission implements GameMode {
         bodies: here.filter(u => u.state === 'dead' && !u.hidden).length,
         fuel: this.fuelLeft,
         ropes: this.ropesLeft,
-        barrels: this.barrels.filter(b => b.live && roomAt(b.x) === cur).length
+        barrels: this.barrels.filter(b => b.live && roomAt(b.x) === cur).length,
+        drones: here.filter(u => u.kind === 'drone' && isAlive(u)).length
       }
       if (lessonStuck(cur, ctx, tr.state.base, stock)) {
         this.restoreLesson(cur)
+        this.hideHunted = false
         // The decoy room's guard shot on the first try (#171): back to the door, told how.
         if (TRAINING_ROOMS[cur]!.lesson === 'decoy') {
           tr.resetRoom(this.placeAtDoor)
@@ -3566,6 +3588,7 @@ export class Mission implements GameMode {
         this.nearDoorT = 0
         this.weaponAtEnter = this.arsenal.current
         this.switchedHere = false
+        this.hideHunted = false
         hud.training.nudge = ''
         const lesson = TRAINING_ROOMS[e.room]!.lesson
         if (lesson === 'rope') this.ropesLeft = Math.max(this.ropesLeft, this.loadout.ropes)
@@ -3613,8 +3636,26 @@ export class Mission implements GameMode {
         emit('trainingReset', {})
       }
     }
-    // Seen: back to the room's door, the room as it was.
-    if (this.garrison.units.some(u => u.state === 'combat' && u.state as string !== 'dead')) {
+    // Seen: back to the room's door, the room as it was. In the disguise
+    // room the alarm post goes off first, for a few seconds (`stepAlarm`).
+    const seen = this.garrison.units.some(u => u.state === 'combat' && u.state as string !== 'dead')
+    const alarm = stepAlarm(tr.state, seen, dt)
+    const boxRoom = tr.state.room >= 0 && TRAINING_ROOMS[tr.state.room]!.lesson === 'box'
+    tr.alarm(tr.state.alarmT > 0 && boxRoom)
+    if (alarm === 'start') {
+      // Caught: out of the scope and the disguise at once, nothing in hand, held (`caught`).
+      p.boxed = false
+      this.decoyAiming = false
+      this.fireIntent = 0
+      this.pendingRounds = 0
+      this.input.aimLatched = false
+      this.looting = null
+      this.sabotaging = null
+      if (this.dragId >= 0) this.dropBody()
+      if (boxRoom) emit('trainingAlarm', {})
+      this.trainingShout(this.seenLine(tr.state.room, (tr.state.roomResets[tr.state.room] ?? 0) + 1))
+    }
+    if (alarm === 'reset' || (alarm === 'off' && seen)) {
       tr.resetRoom((x, z, yaw) => {
         p.x = p.px = x
         p.z = p.pz = z
@@ -3632,8 +3673,10 @@ export class Mission implements GameMode {
       })
       // A reset always hands the ammunition back (#159).
       this.refillTraining(tr.state.room)
-      // Why (#155, #163, #165): what would have kept it unseen here.
-      this.trainingShout(this.seenLine(tr.state.room, tr.state.roomResets[tr.state.room] ?? 1))
+      // Why (#155, #163, #165): what would have kept it unseen here (said already as the alarm went off).
+      if (alarm !== 'reset') this.trainingShout(this.seenLine(tr.state.room, tr.state.roomResets[tr.state.room] ?? 1))
+      // The hide room: the drone sent back to its beat, the sentry stood up again (`lessonStuck`).
+      this.hideHunted = false
       emit('trainingReset', {})
     }
     const s = tr.state
@@ -3726,6 +3769,8 @@ export class Mission implements GameMode {
     const lesson = TRAINING_ROOMS[room]?.lesson
     if (lesson === 'cover') return 'reset.cover'
     if (lesson === 'box') return 'reset.box'
+    // Found where the shot came from: that is the lesson, said plainly.
+    if (lesson === 'hide') return this.hideHunted ? 'reset.hide' : 'reset.seen'
     if (lesson !== 'decoy') return 'reset.seen'
     if (times < 2) return this.input.device === 'touch' ? 'reset.decoyTouch' : 'reset.decoy'
     return 'reset.decoyAny'
@@ -3736,6 +3781,27 @@ export class Mission implements GameMode {
     hud.training.shout = key
     hud.training.shoutHint = hint ?? ''
     hud.training.shoutSeq++
+  }
+
+  /** The hide room's drone has gone to look where a shot came from, since the room was last set up. */
+  private hideHunted = false
+
+  /**
+   * The hide room's lesson, as `lessonDone` reads it: its sentry down, its
+   * drone sent to where the shot came from (once is enough: it stays so until
+   * the room is set up again), and whether it is still there, looking.
+   */
+  private hideWatch(room: number): { shotDown?: boolean; hunted?: boolean; searching?: boolean } {
+    if (TRAINING_ROOMS[room]?.lesson !== 'hide') return {}
+    const here = this.garrison.units.filter(u => roomAt(u.homeX) === room)
+    const drones = here.filter(u => u.kind === 'drone' && isAlive(u))
+    const marks = here.filter(u => u.kind !== 'drone')
+    if (drones.some(u => u.hunt > 0)) this.hideHunted = true
+    return {
+      shotDown: marks.length > 0 && marks.every(u => !isAlive(u)),
+      hunted: this.hideHunted,
+      searching: drones.some(u => u.state === 'suspicious' || u.state === 'combat')
+    }
   }
 
   /** When a shut lesson door last said what it wants. */
@@ -4192,7 +4258,7 @@ export class Mission implements GameMode {
     const out = this.cinePose
     const f = this.fortress
     // Nothing scripted plays under the loader or the veil.
-    if (!flow.curtain && !flow.loading) c.t += dt
+    if (!flow.curtain && !flow.loading && !flow.cinemaPending) c.t += dt
     const k = Math.min(1, c.t / c.dur)
     if (c.kind === 'intro') {
       const py = heightAt(f.grid, f.insert.x, f.insert.z)

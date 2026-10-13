@@ -59,6 +59,8 @@ export default {
     'grappleRecall': 'Zwiń hak',
     'cancel': 'Opuść broń',
     'capture': 'Kliknij, aby kontynuować',
+    'tapToStart': 'Dotknij, aby zacząć',
+    'clickToStart': 'Kliknij, aby zacząć',
     'metres': '{n} m',
     'objective': {
       'salvage': 'Złom',
@@ -81,6 +83,7 @@ export default {
     'loot': 'Rozbierz złom',
     'ammoLow': 'Kończy się amunicja',
     'ammoOut': 'Brak amunicji',
+    'noAmmo': 'Brak amunicji!',
     'questLog': 'Cele',
     'quest': {
       'extract': 'Ewakuacja'
@@ -279,13 +282,14 @@ export default {
     'decoyHint': 'Postaw wabik, żeby odwrócić uwagę strażnika, potem podkradnij się i go zlikwiduj!',
     'roomHint': {
       'move': 'Podejdź do świecących drzwi, żeby zacząć trening.',
-      'jump': 'Wejdź po drabinie i przeskocz przepaść na drugą platformę!',
-      'cover': 'Przykucnij za skrzyniami, żeby wartownik cię nie widział, a potem przeczołgaj się pod bramą!',
-      'weapons': 'Zlikwiduj wszystkich trzech strażników: jednego zdejmij z karabinu snajperskiego, potem przełącz na minigun na pozostałych dwóch!',
-      'rocket': 'Przełącz na wyrzutnię rakiet i wysadź mecha na półce skalnej!',
+      'jump': 'Wejdź po drabinie i przeskocz przepaść na drugą platformę! Bieganie i skakanie robią hałas, który słyszą pobliscy strażnicy.',
+      'cover': 'Przykucnij za skrzyniami, żeby wartownik cię nie widział, a potem przeczołgaj się pod bramą! Bezgłośny jest tylko krok w przykucu: strażnicy słyszą, jak idziesz blisko.',
+      'weapons': 'Zlikwiduj wszystkich trzech strażników: jednego zdejmij z karabinu snajperskiego, potem przełącz na minigun na pozostałych dwóch! Strzały robią hałas: minigun słyszy każdy strażnik w okolicy.',
+      'rocket': 'Przełącz na wyrzutnię rakiet i wysadź mecha na półce skalnej! Rakiety są głośne: wybuch słyszy każdy strażnik.',
+      'hide': 'Zastrzel strażnika, potem odejdź z miejsca, z którego strzelałeś, i się schowaj: dron leci tam, skąd padł strzał!',
       'supply': 'Przejdź po skrzyniach, żeby uzupełnić amunicję i naprawić pancerz.',
       'burn': 'Spal ciało miotaczem ognia, zanim ktoś je znajdzie!',
-      'box': 'Schowaj się w kartonie i stój nieruchomo, gdy reflektor cię omiata!',
+      'box': 'Przebierz się! Reflektor ignoruje cię, dopóki stoisz nieruchomo, ale wykrywa cię, gdy tylko się ruszysz.',
       'hook': 'Użyj haka z liną, żeby przedostać się przez mur!',
       'rope': 'Użyj wyrzutni liny, żeby rozpiąć linę między dwiema platformami!',
       'barrel': 'Strzel w beczkę z paliwem, żeby wyeliminować strażników za murem!',
@@ -304,12 +308,14 @@ export default {
       'box': 'Przebierz się, żeby cię nie wykryli',
       'decoy': 'Użyj wabika [{key}], atakuj od tyłu, gdy się rozproszy',
       'decoyTouch': 'Użyj wabika, atakuj od tyłu, gdy się rozproszy',
-      'decoyAny': 'Znowu cię wykryto. Załatw strażnika, jak chcesz.'
+      'decoyAny': 'Znowu cię wykryto. Załatw strażnika, jak chcesz.',
+      'hide': 'Po strzale się schowaj: przenieś się gdzie indziej, bo wróg znajdzie miejsce, z którego strzelałeś.'
     },
     'door': {
       'cover': 'Kucnij raz, żeby przejść',
       'weapons': 'Powal wszystkie trzy, żeby przejść',
       'rocket': 'Zniszcz mecha wyrzutnią',
+      'hide': 'Zastrzel strażnika, potem schowaj się przed dronem',
       'supply': 'Zabierz zaopatrzenie',
       'blade': 'Zaatakuj od tyłu obu strażników',
       'burn': 'Spal ciało',

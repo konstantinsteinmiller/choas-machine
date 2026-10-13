@@ -38,8 +38,25 @@ describe('rapid-fire sounds', () => {
 
   it('keeps the gaps short enough to still read as a burst', () => {
     for (const [name, gap] of Object.entries(SFX_MIN_GAP_MS)) {
+      // The dry click is no burst: it is held to one per trigger pull (#202, below).
+      if (name === 'dry') continue
       expect(gap, name).toBeGreaterThanOrEqual(40)
       expect(gap, name).toBeLessThanOrEqual(100)
     }
+  })
+
+  it('clicks dry once per pull, never a rattle from a hammered trigger (#202)', () => {
+    const gap = SFX_MIN_GAP_MS.dry!
+    expect(gap).toBeGreaterThanOrEqual(150)
+    expect(gap).toBeLessThanOrEqual(300)
+    // Ten taps a second for a second: one click per gap at most.
+    for (let i = 0; i < 10; i++) { sfx('dry'); now += 100 }
+    expect(played.length).toBeLessThanOrEqual(Math.ceil(1000 / gap))
+    expect(played.length).toBeGreaterThanOrEqual(3)
+    // A deliberate second pull after a beat clicks again.
+    played.length = 0
+    now += gap
+    sfx('dry')
+    expect(played).toEqual(['dry'])
   })
 })

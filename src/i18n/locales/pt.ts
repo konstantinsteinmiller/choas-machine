@@ -59,6 +59,8 @@ export default {
     'grappleRecall': 'Recolher o gancho',
     'cancel': 'Baixar arma',
     'capture': 'Clique para continuar',
+    'tapToStart': 'Toque para começar',
+    'clickToStart': 'Clique para começar',
     'metres': '{n} m',
     'objective': {
       'salvage': 'Sucata',
@@ -81,6 +83,7 @@ export default {
     'loot': 'Desmontar a sucata',
     'ammoLow': 'Munição acabando',
     'ammoOut': 'Sem munição',
+    'noAmmo': 'Sem munição!',
     'questLog': 'Objetivos',
     'quest': {
       'extract': 'Extração'
@@ -279,13 +282,14 @@ export default {
     'decoyHint': 'Coloque um chamariz para distrair o guarda, depois chegue de fininho e elimine-o!',
     'roomHint': {
       'move': 'Vá até a porta brilhante para começar seu treinamento.',
-      'jump': 'Suba a escada e pule o vão até a outra plataforma!',
-      'cover': 'Agache atrás das caixas para a sentinela não te ver e depois rasteje por baixo do portão!',
-      'weapons': 'Elimine os três guardas: abata um com o rifle de precisão e depois troque para a minigun para os outros dois!',
-      'rocket': 'Troque para o lança-foguetes e exploda o mech na beirada!',
+      'jump': 'Suba a escada e pule o vão até a outra plataforma! Correr e pular faz barulho que os guardas próximos ouvem.',
+      'cover': 'Agache atrás das caixas para a sentinela não te ver e depois rasteje por baixo do portão! Só o passo agachado é silencioso: os guardas ouvem você andar de perto.',
+      'weapons': 'Elimine os três guardas: abata um com o rifle de precisão e depois troque para a minigun para os outros dois! Os tiros fazem barulho: todos os guardas por perto ouvem a minigun.',
+      'rocket': 'Troque para o lança-foguetes e exploda o mech na beirada! Os foguetes são barulhentos: todos os guardas ouvem a explosão.',
+      'hide': 'Atire no guarda, depois saia da sua posição de tiro e se esconda: o drone voa até onde o tiro saiu!',
       'supply': 'Passe por cima das caixas para recarregar a munição e consertar sua blindagem.',
       'burn': 'Queime o corpo com o lança-chamas antes que alguém o encontre!',
-      'box': 'Esconda-se na caixa de papelão e fique parado enquanto o holofote passa por você!',
+      'box': 'Use seu disfarce! O holofote ignora você enquanto estiver parado, mas te detecta assim que você se mexe.',
       'hook': 'Use o gancho para passar por cima do muro!',
       'rope': 'Use a arma de corda para criar uma corda entre as duas plataformas!',
       'barrel': 'Atire no barril de combustível para eliminar os guardas atrás do muro!',
@@ -304,12 +308,14 @@ export default {
       'box': 'Disfarce-se para não ser visto',
       'decoy': 'Use uma isca [{key}] e ataque pelas costas quando ele se distrair',
       'decoyTouch': 'Use uma isca e ataque pelas costas quando ele se distrair',
-      'decoyAny': 'Visto de novo. Derrube o guarda do jeito que quiser.'
+      'decoyAny': 'Visto de novo. Derrube o guarda do jeito que quiser.',
+      'hide': 'Esconda-se depois de atirar: mude de lugar, ou o inimigo descobre de onde você atirou.'
     },
     'door': {
       'cover': 'Agache uma vez para passar',
       'weapons': 'Derrube os três para passar',
       'rocket': 'Destrua o mecha com o lançador',
+      'hide': 'Atire no guarda e se esconda do drone',
       'supply': 'Pegue os suprimentos',
       'blade': 'Ataque os dois guardas pelas costas',
       'burn': 'Queime o corpo',

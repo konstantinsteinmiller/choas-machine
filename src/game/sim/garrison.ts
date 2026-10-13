@@ -355,6 +355,12 @@ export interface Unit {
   inspect: { phase: 'approach' | 'stare' | 'back' | 'shot'; t: number } | null
   /** Seconds before it gives a disguise another look. */
   inspectCool: number
+  /** Where it watched the mech put its disguise on (`seesThrough`); null when it did not. */
+  boxSaw: { x: number; z: number } | null
+  /** Seconds it still turns to where a round that struck it came from, before anything else (`STRUCK_TURN_S`). */
+  struckT: number
+  /** Seconds since it last had the mech itself in view, disguise or not (`LOST_TRACK_S`). */
+  eyesOffT: number
   /** The Foreman: its servo jammed on its pad (slow to wake, slow to turn, soft at the joints). */
   jammed: boolean
   /** The Goliath: shells since it last cooled, and seconds of overheat left (its vents open). */
@@ -401,6 +407,10 @@ export interface Garrison {
   threat: Threat
   /** Counts noises, so each has a token of its own (`wonderAt`). */
   noiseSeq: number
+  /** The mech was in a disguise last step: the step it puts one on is the one to have been watched. */
+  boxWas: boolean
+  /** Where the mech last fired from or was last made out for sure, and when: where a hunt looks hardest (`hotSpot`). */
+  hot: { x: number; z: number; t: number }
   /** Where the mech was last seen by anyone, and when (garrison time): the base shares it. */
   lkp: { x: number; y: number; z: number; t: number }
   /**
@@ -507,6 +517,28 @@ const INSPECT_BACK = 1.6
 const INSPECT_BACK_S = 1.1
 export const INSPECT_DAMAGE = 12
 const INSPECT_COOL_S = 30
+/**
+ * A disguise is no disguise (#111) to one who sees the mech for what it is:
+ *  - a defender in the fight with it that has not lost it from view for
+ *    LOST_TRACK_S (the box hides nothing from eyes already on it: a mech that
+ *    fired rockets from its toaster sat out the reload in it, unshot);
+ *  - a defender that WATCHED it go on (in sight then, or lost from sight
+ *    under LOST_TRACK_S before), until it is BOX_KNOW_M from where that was:
+ *    a mech that got away unseen and changed round a corner fools it again;
+ *  - a defender on the hunt, when the box stands within HOT_M of where the
+ *    mech was last seen or last fired from, under HOT_S ago: a toaster that
+ *    was not there when the shots came is no toaster;
+ *  - anyone right on top of it, under BOX_BUMP_M (walking into it).
+ */
+export const LOST_TRACK_S = 2
+export const BOX_KNOW_M = 4
+export const BOX_BUMP_M = 1.6
+export const HOT_M = 7
+export const HOT_S = 40
+/** Searching round that hot spot, a defender's meter fills this many times as fast: hanging about where it fired gets the mech found. */
+export const HOT_GAIN = 2
+/** Struck by a round, a defender turns to where it came from for up to this long before it does anything else. */
+export const STRUCK_TURN_S = 2
 /** A box checker looks this long at a still box this near before it pokes it. */
 export const BOX_CHECK_M = 9
 export const BOX_CHECK_S = 2.5
@@ -898,7 +930,7 @@ export const makeGarrison = (f: Fortress, level = 2): Garrison => {
       tagged: false, hidden: false, partner: p.partner ?? -1, chatting: false, poke: false, changeT: 0,
       role: p.role ?? null, shotgun: p.gun === 'shotgun', grenadeT: 0, job: null, jobT: 0, scentT: -1e9,
       rag: null, ragHow: 'shot', ragStruck: false, thud: false, onFire: 0, quietT: 0, peekT: 0,
-      helmet: !!f.answers?.helmets && (p.kind === 'guard' || p.kind === 'sentry'), boxLook: 0, inspect: null, inspectCool: 0, focusT: 0, bodySearch: false, uplinkT: 0, hunt: 0, lostT: 0,
+      helmet: !!f.answers?.helmets && (p.kind === 'guard' || p.kind === 'sentry'), boxLook: 0, inspect: null, inspectCool: 0, boxSaw: null, struckT: 0, eyesOffT: 1e9, focusT: 0, bodySearch: false, uplinkT: 0, hunt: 0, lostT: 0,
       jammed: false, shells: 0, overheat: 0, phase2: false, glintT: 0, dashT: 0, dashX: 0, dashZ: 0, dashCool: 2, dashHit: false
     }
   })
@@ -908,7 +940,7 @@ export const makeGarrison = (f: Fortress, level = 2): Garrison => {
     ...(f.generators ?? []).map(gn => ({ kind: 'generator' as const, ...gn, unit: -1, cut: false })),
     ...units.filter(u => u.boss === 'foreman').map(u => ({ kind: 'servo' as const, x: u.x, y: u.y, z: u.z, unit: u.id, cut: false }))
   ]
-  return { units, alert: makeAlert(), time: 0, events: [], rng: mulberry32(hashSeed(f.id)), wave: 0, chaosT: 0, lures: [], threat, noiseSeq: 0, beacons, runner: -1, runnerWait: 0, calmT: 0, chaosAt: -1e9, lkp: { x: 0, y: 0, z: 0, t: -1e9 }, shotSpot: { x: 0, z: 0, n: 0, t: -1e9 }, bodiesFound: 0, heightened: false, shooters: new Set(), tokenT: 0, leader: -1, changes: [], scent: [], scentT: 0, unreachable: new Set(), drill: false, rigs, boxCheck: !!f.answers?.boxCheck }
+  return { units, alert: makeAlert(), time: 0, events: [], rng: mulberry32(hashSeed(f.id)), wave: 0, chaosT: 0, lures: [], threat, noiseSeq: 0, beacons, runner: -1, runnerWait: 0, calmT: 0, chaosAt: -1e9, boxWas: false, hot: { x: 0, z: 0, t: -1e9 }, lkp: { x: 0, y: 0, z: 0, t: -1e9 }, shotSpot: { x: 0, z: 0, n: 0, t: -1e9 }, bodiesFound: 0, heightened: false, shooters: new Set(), tokenT: 0, leader: -1, changes: [], scent: [], scentT: 0, unreachable: new Set(), drill: false, rigs, boxCheck: !!f.answers?.boxCheck }
 }
 
 // ─── Getting about ───────────────────────────────────────────────────────────
@@ -1012,6 +1044,29 @@ const moveSpot = (u: Unit, dx: number, dz: number): void => {
     u.x += dx
     u.z += dz
   }
+}
+
+/** On the hunt: something has it looking (not at ease on its round). */
+const onHunt = (u: Unit): boolean => u.state === 'suspicious' || u.state === 'search' || u.state === 'combat' || u.focusT > 0
+
+/** Near where the mech last fired from or was last made out for sure, lately (`HOT_M`, `HOT_S`). */
+export const hotSpot = (gar: Garrison, x: number, z: number): boolean =>
+  gar.time - gar.hot.t < HOT_S && Math.hypot(x - gar.hot.x, z - gar.hot.z) < HOT_M
+
+/** The mech fired from here (any gun; the rifle also through `estimateShot`): a box put on here is no box to the hunt. */
+export const heat = (gar: Garrison, x: number, z: number): void => {
+  gar.hot.x = x
+  gar.hot.z = z
+  gar.hot.t = gar.time
+}
+
+/** Whether a defender that has the still disguise in view knows it for the mech (see `LOST_TRACK_S`). */
+export const seesThrough = (gar: Garrison, u: Unit, target: Target): boolean => {
+  if (isLight(u)) return false
+  if (Math.hypot(target.x - u.x, target.z - u.z) < BOX_BUMP_M) return true
+  if (u.state === 'combat' && u.eyesOffT < LOST_TRACK_S) return true
+  if (u.boxSaw && Math.hypot(target.x - u.boxSaw.x, target.z - u.boxSaw.z) < BOX_KNOW_M) return true
+  return onHunt(u) && hotSpot(gar, target.x, target.z)
 }
 
 /** How much of something a unit can see: 0, 0.5 or 1. */
@@ -1407,6 +1462,7 @@ export const estimateShot = (gar: Garrison, sx: number, sy: number, sz: number, 
   if (Math.hypot(sx - s.x, sz - s.z) < SHOT_SPOT_M && gar.time - s.t < SHOT_SPOT_S) s.n++
   else { s.n = 1; s.x = sx; s.z = sz }
   s.t = gar.time
+  heat(gar, sx, sz)
   const far = Math.hypot(sx - hx, sz - hz)
   const err = s.n >= 3 ? 0 : Math.min(SHOT_ERR_MAX, Math.max(SHOT_ERR_MIN, far * SHOT_ERR_SHARE)) / s.n
   const a = gar.rng() * Math.PI * 2
@@ -1619,7 +1675,9 @@ const droneHunt = (gar: Garrison, d: Unit, x: number, z: number): void => {
   d.detect = Math.max(d.detect, SUSPECT_AT + 0.05)
   d.lured = false
   suspect(gar, d, x, z, false)
-  if (!gar.drill) d.hunt = 2
+  // On the training drill it races there all the same (the hide room's
+  // lesson), but finding the mech rings no alarm.
+  d.hunt = gar.drill ? 1 : 2
 }
 
 /** The height a drone flies at towards a point: its own, or over whatever stands on the line (#181). */
@@ -1927,6 +1985,18 @@ const fight = (u: Unit, g: Grid, gar: Garrison, target: Target, dt: number): voi
     }
     return
   }
+  // Shot at from where it is not looking: first it turns to look there (a
+  // guard on a tower, hit by a minigun from below, never looked round: it
+  // had no way down to run to the spot, and gave the fight up).
+  if (u.struckT > 0) {
+    const want = headingTo(u.x, u.z, u.seenX, u.seenZ)
+    if (Math.abs(angleDelta(u.yaw, want)) > 0.25) {
+      u.path = []
+      stand(u)
+      turnToward(u, want, dt, turn)
+      return
+    }
+  }
   // Lost it: run to where the base last saw it (what anyone saw, shouted
   // round). Nobody knows where it is now; at the spot, they search.
   if ((u.repath -= dt) <= 0 && gar.lkp.t > -1e8 && (u.seenX !== gar.lkp.x || u.seenZ !== gar.lkp.z)) {
@@ -2113,6 +2183,13 @@ export const stepGarrison = (gar: Garrison, g: Grid, target: Target, dt: number)
   }
   let calm = true
   let watched = false
+  // The disguise goes on: whoever has the mech in view, or just lost it, saw it happen.
+  if (!!target.box !== gar.boxWas) {
+    gar.boxWas = !!target.box
+    for (const u of gar.units) {
+      u.boxSaw = gar.boxWas && isAlive(u) && !isLight(u) && (u.sees || (u.eyesOffT < LOST_TRACK_S && u.detect > 0.05)) ? { x: target.x, z: target.z } : null
+    }
+  }
 
   for (const u of gar.units) {
     u.px = u.x
@@ -2121,6 +2198,7 @@ export const stepGarrison = (gar: Garrison, g: Grid, target: Target, dt: number)
     u.pyaw = u.yaw
     u.t += dt
     if (u.focusT > 0) u.focusT = Math.max(0, u.focusT - dt)
+    if (u.struckT > 0) u.struckT = Math.max(0, u.struckT - dt)
     if (u.state === 'dead') {
       stepDead(u, g, dt)
       // The body hits the ground: a thud and a clatter whoever is near hears (#108).
@@ -2146,15 +2224,20 @@ export const stepGarrison = (gar: Garrison, g: Grid, target: Target, dt: number)
     if (u.inspectCool > 0) u.inspectCool -= dt
     // In a thicket, crouched: nobody sees it but from right on top of it (Odyssey's bushes).
     if (target.brush && Math.hypot(target.x - u.x, target.z - u.z) > BRUSH_SEEN_M) exposed = 0
-    // The disguise (#111). Moving, it is an intruder for anyone who sees it.
-    if (target.box === 'creep' && exposed > 0) {
+    // Its eyes on the mech itself, whatever it is dressed as.
+    u.eyesOffT = exposed > 0 ? 0 : u.eyesOffT + dt
+    // The disguise (#111). Moving, it is an intruder for anyone who sees it;
+    // still, for anyone who knows it for the mech (`seesThrough`).
+    const through = target.box === 'still' && exposed > 0 && seesThrough(gar, u, target)
+    if ((target.box === 'creep' && exposed > 0) || through) {
       u.detect = 1
       u.seenX = target.x
       u.seenZ = target.z
+      u.inspect = null
     }
     // Still, it is a toaster (or a crate…): never noticed for what it is, but
     // walked close to, it gets a puzzled look and a test round.
-    if (target.box === 'still') {
+    if (target.box === 'still' && !through) {
       const near = Math.hypot(target.x - u.x, target.z - u.z)
       const reach = gar.boxCheck ? BOX_CHECK_M : INSPECT_M
       if (exposed > 0 && near < reach && !u.inspect && u.inspectCool <= 0 && u.state !== 'combat' && !isLight(u) && !!gunOfKind(u)) {
@@ -2191,7 +2274,9 @@ export const stepGarrison = (gar: Garrison, g: Grid, target: Target, dt: number)
       // Sharper senses once it has been looking: a fresh white fill is quicker.
       // The yellow band is not: the player gets a fair moment to duck out.
       const wary = !yellow && (u.state === 'suspicious' || u.state === 'search') ? WARY_GAIN : 1
-      if (!grace) u.detect = Math.min(1, u.detect + rate * wary * gar.threat.notice * dt)
+      // Hunting round where the mech was seen or fired from: it is found there quicker.
+      const hot = !isLight(u) && onHunt(u) && hotSpot(gar, target.x, target.z) ? HOT_GAIN : 1
+      if (!grace) u.detect = Math.min(1, u.detect + rate * wary * hot * gar.threat.notice * dt)
       // The Watchtower (#144) does not wonder: a moment in its pool and it is sure.
       // Nor the disguise lesson's caged lamp (#163): no running through its pool.
       if ((u.watch || u.caged) && u.seenFor >= WATCH_SURE_S) u.detect = 1
@@ -2225,6 +2310,7 @@ export const stepGarrison = (gar: Garrison, g: Grid, target: Target, dt: number)
     // ── What it makes of it ──
     if (u.state !== 'combat' && u.detect >= 1) {
       enter(u, 'combat')
+      heat(gar, target.x, target.z)
       u.lured = false
       u.path = []
       u.repath = 0
@@ -2504,7 +2590,24 @@ export const killUnit = (gar: Garrison, id: number, fromX: number, fromZ: number
  */
 export const alarmUnit = (gar: Garrison, id: number, fromX: number, fromZ: number): void => {
   const u = gar.units[id]
-  if (!u || !isAlive(u) || u.state === 'combat' || gar.drill) return
+  if (!u || !isAlive(u)) return
+  // Already fighting: it turns to where that came from (a playtester's
+  // minigun hit a guard on a tower that never looked round).
+  if (u.state === 'combat') {
+    u.seenX = fromX
+    u.seenZ = fromZ
+    u.focusT = Math.max(u.focusT, FOCUS_S)
+    u.struckT = STRUCK_TURN_S
+    return
+  }
+  // The training drill keeps the alarm off, not the guard's eyes: it turns to the shooter and goes to look.
+  if (gar.drill) {
+    if (u.state === 'dormant') return
+    u.detect = Math.max(u.detect, SUSPECT_AT + 0.05)
+    u.focusT = Math.max(u.focusT, FOCUS_S)
+    suspect(gar, u, fromX, fromZ, false)
+    return
+  }
   // A machine that is hit wakes up.
   if (u.state === 'dormant') { wake(gar, u, fromX, fromZ); return }
   u.detect = 1
@@ -2514,6 +2617,7 @@ export const alarmUnit = (gar: Garrison, id: number, fromX: number, fromZ: numbe
   u.path = []
   u.repath = 0
   u.focusT = Math.max(u.focusT, FOCUS_S)
+  u.struckT = STRUCK_TURN_S
   enter(u, 'combat')
   gar.events.push({ type: 'spotted', id })
   // The base has somewhere to look now: a stale sighting must not win (#70).
@@ -2522,6 +2626,12 @@ export const alarmUnit = (gar: Garrison, id: number, fromX: number, fromZ: numbe
   gar.lkp.t = gar.time
   const target: Target = { x: fromX, y: 0, z: fromZ, height: 0, crouched: false, visible: false }
   raise(gar, 'seen', target)
+  // And it tells the others, as one that saw the mech does: a person shouts
+  // once it has taken it in (`REACT_S`), a machine calls it in (#73).
+  if (uplinks(u)) {
+    u.uplinkT = 0.0001
+    gar.events.push({ type: 'uplink', id })
+  } else if (isHuman(u)) u.reactT = REACT_S
 }
 
 /**

@@ -6,9 +6,10 @@
     LookStick(:attention="teaching('look')")
     AimHold
     ThreatArcs
+    //- Under what is said: a bar must never sit over a line of speech.
+    HealthBars
     SpeechBubbles
     QuipBubble
-    HealthBars
     UplinkRings
     ObjectiveMarker
     ObjectiveMarker(v-for="(m, i) in targetMarks" :key="i" :mark="m" target)

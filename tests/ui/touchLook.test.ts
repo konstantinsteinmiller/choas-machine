@@ -92,3 +92,16 @@ describe('every HUD action button is lettered with its own action\'s key', () =>
     expect(checked).toBeGreaterThanOrEqual(9)
   })
 })
+
+// A machine's bar sat over CM-07's line under the alarm ("…gibt's nichts" half
+// hidden): the bars are painted under every bubble of speech.
+describe('speech is drawn over the health bars', () => {
+  it('HealthBars comes before SpeechBubbles and QuipBubble in the HUD', () => {
+    const src = readFileSync('src/components/hud/MissionHud.vue', 'utf8')
+    const lines = src.split('\n')
+    const at = (n: string): number => lines.findIndex(l => l.trim() === n)
+    expect(at('HealthBars')).toBeGreaterThan(0)
+    expect(at('HealthBars')).toBeLessThan(at('SpeechBubbles'))
+    expect(at('HealthBars')).toBeLessThan(at('QuipBubble'))
+  })
+})

@@ -1,6 +1,6 @@
 {
   "name": "chaos-machine",
-  "version": "0.7.8",
+  "version": "0.8.8",
   "private": true,
   "type": "module",
   "scripts": {
@@ -26,6 +26,7 @@
     "build:yandex": "vite build --mode yandex --base=./ && node scripts/pack-zip.mjs yandex",
     "build:poki": "vite build --mode poki --base=./ && node tools/poki-deploy/pack.mjs",
     "deploy:poki": "node tools/poki-deploy/deploy.mjs",
+    "deploy:poki-quick": "node tools/poki-deploy/deploy.mjs --skip-qa-testing",
     "deploy:playgama": "node tools/playgama-deploy/deploy.mjs",
     "build-github-main": "vite build --base=/chaos-machine/ --outDir=dist",
     "build-github-develop": "vite build --base=/chaos-machine/develop/ --outDir=dist/develop",

@@ -26,6 +26,7 @@
       GameIcon.relock-glyph(name="play")
     //- WASTED and LEVEL CLEARED (#150): over the HUD, under every modal.
     BigBanner(v-if="flow.screen === 'mission'")
+    TapToStart
     LoadingVeil
     PauseModal(@resume="onResume")
     DefeatModal
@@ -44,7 +45,8 @@ import { loadKeyboardLayout } from '@/game/engine/keyLabels'
 import { actionForCode } from '@/game/engine/keyBindings'
 import { adoptBootMode } from '@/game/boot'
 import CinemaSkip from '@/components/hud/CinemaSkip.vue'
-import { flow } from '@/game/flow'
+import TapToStart from '@/components/hud/TapToStart.vue'
+import { flow, introBeforeTraining } from '@/game/flow'
 import { hud } from '@/game/state/hud'
 import { emit as busEmit } from '@/game/bus'
 import { profile } from '@/game/state/profile'
@@ -154,6 +156,8 @@ onMounted(async () => {
   // The loader's prepared first scene. The scene never builds its own copy
   // while the loader is still priming (see `adoptBootMode`).
   app.setMode(await adoptBootMode())
+  // A new player sees the intro first, then drops into the training ground.
+  void introBeforeTraining()
 })
 
 watch(isGamePaused, (p) => app.setSuspended(p))

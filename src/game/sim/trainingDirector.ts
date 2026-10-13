@@ -1,31 +1,40 @@
 import {
-  AdditiveBlending, BoxGeometry, BufferGeometry, CircleGeometry, ConeGeometry, CylinderGeometry, DoubleSide, Group, Mesh, MeshBasicMaterial,
-  Quaternion, RingGeometry, SphereGeometry, Vector3, type Camera, type Object3D, type Scene, type ShaderMaterial
+  AdditiveBlending, BoxGeometry, BufferGeometry, CircleGeometry, ConeGeometry, CylinderGeometry, DataTexture, DoubleSide, Group, Mesh, MeshBasicMaterial,
+  PlaneGeometry, Quaternion, RingGeometry, SphereGeometry, Vector3, type Camera, type Object3D, type Scene, type ShaderMaterial
 } from 'three'
+import { buildBeacon, disposeBeacon, poseBeacon, type BeaconView } from '../models/beacon'
 import { missionPaint } from '../state/paint'
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js'
 import { demoPop } from '../state/hud'
 import { CELL, CellKind, cellMid, heightAt, VOID, type Grid } from '../world/grid'
 import type { Fortress } from '../world/fortress'
-import { CRAWL_GAP_H, ROCKET_LEDGE_H, ROCKET_TARGET, ROOM_WALL_H, ROPE_DECK_H, ROPE_TOWER_H, TRAINING_ROOMS } from '../data/fortresses/training'
+import {
+  BARREL_PLINTH, CRAWL_GAP_H, HIDE_SPOT, ROCKET_HOLO, ROCKET_LEDGE_H, ROOM_WALL_H, ROPE_DECK_H, ROPE_TOWER_H, TRAINING_ROOMS, roomCell, type LessonId
+} from '../data/fortresses/training'
 import { VARIANTS } from './backstab'
 import { poseBackstabGuard, poseBackstabMech } from './backstabStage'
 import { MECH_HEIGHT, lineHandWorld, muzzleWorld, buildMech, poseMech, restPose, type MechPose } from '../models/mech'
-import { buildEnforcer, buildGuard, poseEnforcer, poseGuard, restGuardPose } from '../models/garrison'
+import { buildDrone, buildEnforcer, buildGuard, poseDrone, poseEnforcer, poseGuard, restGuardPose } from '../models/garrison'
 import { Shatter } from '../fx/shatter'
 import { mechGaitRate } from './gait'
 import { buildDisguise, disposeDisguise } from '../models/disguises'
 import { FREE_DISGUISE } from '../models/disguiseIds'
 import { makeHologramMaterial, setHologram } from '../fx/hologram'
+import { DecoyHologram } from '../fx/decoyHologram'
 import { merge, type Rig } from '../models/kit'
 import { CABLE_R, cableGeometry, hookHeadGeometry } from '../fx/grappleHook'
 import { ropeLineParts } from '../fx/ropeLine'
 import { SPECS, isAlive, type Garrison } from './garrison'
+import { BARREL_RADIUS } from './barrels'
+import { fuelBarrelShape } from '../models/supplies'
+import type { Particles } from '../fx/particles'
+import type { ShockRings } from '../fx/markers'
 import {
-  DEMO_BACKSTAB, currentFrame, demoFrame, victimFrame, doorOf, entryOf, makeTraining, replayDemo, rewindRoom, roomAt, stepTraining,
-  type DemoFrame, type Training, type TrainingContext, type TrainingEvent
+  DEMO_BACKSTAB, DEMO_DRUM, DEMO_SHOTS, DEMO_TARGETS, HIDE_DRONE_Y, currentFrame, droneAt, demoFrame, drumBlast, victimFrame, doorOf, entryOf, makeTraining, replayDemo,
+  rewindRoom, roomAt, stepTraining, targetDies, type DemoFrame, type DemoShot, type Training, type TrainingContext, type TrainingEvent
 } from './training'
 import type { HintId } from './coach'
+import type { WeaponId } from '../data/ids'
 
 /**
  * ─── The training ground, on screen ──────────────────────────────────────────
@@ -51,6 +60,24 @@ const DECOY_FLY_S = 0.55
 const ROCKET_FLY_S = 0.45
 /** The hologram mech's id in the training director's own shatter. */
 const HOLO_WRECK = 0
+/** The demos' light: the hologram's cyan, its hot core, and a cold blue for the blast's body. */
+const HOLO_HOT = '#e9fdff'
+const HOLO_DEEP = '#6f8dff'
+/** A round's bolt of light, long for the rifle, short for the minigun's stream (m). */
+const BOLT_LEN: Readonly<Record<WeaponId, number>> = { sniper: 3.2, minigun: 1.1, rocket: 0.6 }
+/** The hide room's hologram drone: its light pool's radius on the floor, and how far it circles over the spot (m). */
+const DRONE_POOL_M = 2.2
+const DRONE_SWEEP_M = 1.6
+/** The rocket room's mech is hit this high over its feet (its chest). */
+const ROCKET_CHEST_Y = 1.9
+/** About where the ghost's gun is over its feet, aimed: the pitch's pivot. */
+const MUZZLE_Y = 1.7
+/** Thrown by the drum's blast: up and over, this long (s), as the guard's 'thrown' fall is. */
+const FLING_S = 0.75
+/** How far the guard's own 'thrown' fall carries its body, behind it (m): `poseGuard`. */
+export const THROWN_M = 2.2
+/** The combat effects the demos borrow: the mission's sparks and shock rings (one draw for every spark). */
+export interface DemoFx { particles: Particles; rings: ShockRings }
 
 export class TrainingDirector {
   readonly state: Training = makeTraining()
@@ -70,16 +97,44 @@ export class TrainingDirector {
   private flame: Mesh
   /** The decoy lesson's decoy (#114): an orb in flight, then a hologram of the mech where it lands. */
   private decoyOrb: Mesh
-  private decoyHolo: Rig
+  private decoyHolo: DecoyHologram
   private lastPress = ''
   private popV = new Vector3()
   /** The blade room's hologram guard, taken from behind on every loop (#110). */
   private victim: Rig
   private victimPose = restGuardPose()
-  /** The weapons room's targets, in the same light: they fall to the demo's rounds (#109). */
-  private targets: Array<{ rig: Rig; at: readonly [number, number]; yaw: number; dies: number; death: 'back' | 'front' | 'thrown' }> = []
-  /** The weapons room's rounds (#168), drawn as a streak from the muzzle. */
-  private streak: Mesh
+  /** The demos' hologram guards that the rounds take (the weapons room's three, the drum's five), shared: one room plays at a time. */
+  private guards: Rig[] = []
+  /** The rounds in flight (#168), pooled: a bolt of light out of the ghost's muzzle. */
+  private bolts: Mesh[] = []
+  private boltGeo: CylinderGeometry
+  private boltMat = new MeshBasicMaterial({ color: HOLO_HOT, transparent: true, blending: AdditiveBlending, depthWrite: false, toneMapped: false })
+  /** The barrel room's hologram drum, and its blast's fireball. */
+  private drum: Mesh
+  private blastBall: Mesh
+  private blastMat = new MeshBasicMaterial({ color: GATE_COLOR, transparent: true, opacity: 0, blending: AdditiveBlending, depthWrite: false, toneMapped: false })
+  /** The hide room's hologram drone and the cone of its light. */
+  private holoDrone: Rig
+  private droneCone: Mesh
+  private droneV = new Vector3()
+  private droneDir = new Vector3()
+  private downV = new Vector3(0, -1, 0)
+  /**
+   * The disguise room's alarm post (by the way out): it goes off when the
+   * searchlight catches the mech, the room washed in red (a vignette over the
+   * view), for `BOX_ALARM_S` before the room starts over. A drill: nothing of
+   * the base's real alarm is raised.
+   */
+  private alarmPost: BeaconView
+  private alarmWash: Mesh
+  private alarmOn = false
+  private alarmRoom = -1
+  private washV = new Vector3()
+  /** The demo's clock the frame before: what came due in between goes off now (a muzzle flash, a hit, a blast). */
+  private lastT = -1
+  private fromV = new Vector3()
+  private toV = new Vector3()
+  private upV = new Vector3(0, 1, 0)
   /** The rocket room's hologram (#146): the armoured mech on the ledge, the rocket, and the mech in pieces. */
   private holoMech: Rig
   private rocketMesh: Group
@@ -110,7 +165,8 @@ export class TrainingDirector {
   private lastX = 0
   private lastZ = 0
 
-  constructor(scene: Scene, private fortress: Fortress, private gar: Garrison) {
+  /** `fx`: the mission's sparks and rings, for the demos' flashes and blasts (none in a bare test scene). */
+  constructor(scene: Scene, private fortress: Fortress, private gar: Garrison, private fx?: DemoFx) {
     this.ghost = buildMech(missionPaint())
     this.ghost.mesh.material = this.holo
     if (this.ghost.outline) this.ghost.outline.visible = false
@@ -146,9 +202,8 @@ export class TrainingDirector {
     this.decoyOrb = new Mesh(new SphereGeometry(0.22, 12, 8), this.holo)
     this.decoyOrb.visible = false
     this.group.add(this.decoyOrb)
-    this.decoyHolo = buildMech(missionPaint())
-    this.decoyHolo.mesh.material = this.holo
-    if (this.decoyHolo.outline) this.decoyHolo.outline.visible = false
+    // The game's own decoy: CM-07 in light, juggling (`fx/decoyHologram.ts`).
+    this.decoyHolo = new DecoyHologram(missionPaint())
     this.decoyHolo.root.visible = false
     this.group.add(this.decoyHolo.root)
     this.victim = buildGuard()
@@ -171,21 +226,63 @@ export class TrainingDirector {
     this.rocketMesh.add(tube, nose)
     this.rocketMesh.visible = false
     this.group.add(this.rocketMesh)
-    // The weapons room's rounds (#168): a streak of light from the ghost's muzzle to each target as it falls.
-    this.streak = new Mesh(new CylinderGeometry(0.025, 0.025, 1, 6, 1, true), this.holo)
-    this.streak.geometry.translate(0, 0.5, 0)
-    this.streak.visible = false
-    this.group.add(this.streak)
+    // The rounds (#168): a bolt of light from the ghost's muzzle, one geometry
+    // (its foot at the origin, a metre up +y) for the whole pool.
+    this.boltGeo = new CylinderGeometry(0.035, 0.035, 1, 6, 1, true)
+    this.boltGeo.translate(0, 0.5, 0)
+    for (let k = 0; k < 6; k++) {
+      const b = new Mesh(this.boltGeo, this.boltMat)
+      b.visible = false
+      b.renderOrder = 3
+      this.group.add(b)
+      this.bolts.push(b)
+    }
+    // The barrel room's drum: the real one's shape, crests and all, in the hologram's light (its middle at the origin).
+    this.drum = new Mesh(fuelBarrelShape().translate(0, -0.55, 0), this.holo)
+    this.drum.visible = false
+    this.group.add(this.drum)
+    this.blastBall = new Mesh(new SphereGeometry(1, 16, 10), this.blastMat)
+    this.blastBall.visible = false
+    this.group.add(this.blastBall)
     this.shatter = new Shatter(fortress.grid)
     this.group.add(this.shatter.group)
-    // The sentry the rifle takes, the two the minigun cuts down (as the demo's keys time them).
-    for (const [at, yaw, dies, death] of [[[10, 2], Math.PI, 1.85, 'back'], [[8, 11], 0, 4.1, 'front'], [[9, 11], 0, 4.4, 'back']] as const) {
+    // The hide room's drone, and its light: an open cone (no base: nothing to lie on the floor).
+    this.holoDrone = buildDrone()
+    this.holoDrone.mesh.material = this.holo
+    if (this.holoDrone.outline) this.holoDrone.outline.visible = false
+    this.holoDrone.root.visible = false
+    this.group.add(this.holoDrone.root)
+    const cone = new ConeGeometry(DRONE_POOL_M, 1, 20, 1, true)
+    cone.translate(0, -0.5, 0)
+    this.droneCone = new Mesh(cone, this.holo)
+    this.droneCone.visible = false
+    this.group.add(this.droneCone)
+    // The disguise room's alarm post, at the far end by the way out, facing back down the corridor.
+    this.alarmPost = buildBeacon()
+    this.alarmRoom = TRAINING_ROOMS.findIndex(r => r.lesson === 'box')
+    const box = TRAINING_ROOMS[this.alarmRoom]
+    if (box) {
+      this.alarmPost.group.position.set((box.x0 + ALARM_POST[0] - 1) * CELL + CELL / 2, 0, (box.z0 + ALARM_POST[1] - 1) * CELL + CELL / 2)
+      this.alarmPost.group.rotation.y = -Math.PI / 2
+    }
+    this.alarmPost.group.visible = false
+    this.group.add(this.alarmPost.group)
+    this.alarmWash = new Mesh(new PlaneGeometry(4, 4), new MeshBasicMaterial({
+      map: vignette(), color: ALARM_RED, transparent: true, opacity: 0, blending: AdditiveBlending, depthTest: false, depthWrite: false, toneMapped: false
+    }))
+    this.alarmWash.renderOrder = 60
+    this.alarmWash.frustumCulled = false
+    this.alarmWash.visible = false
+    this.group.add(this.alarmWash)
+    // The guards the demos' rounds take, as many as the busiest demo has.
+    const n = Math.max(...Object.values(DEMO_TARGETS).map(l => l.length))
+    for (let k = 0; k < n; k++) {
       const rig = buildGuard()
       rig.mesh.material = this.holo
       if (rig.outline) rig.outline.visible = false
       rig.root.visible = false
       this.group.add(rig.root)
-      this.targets.push({ rig, at, yaw, dies, death })
+      this.guards.push(rig)
     }
     TRAINING_ROOMS.forEach((r, i) => {
       // The disc stands where the hologram starts, by the way in.
@@ -288,6 +385,11 @@ export class TrainingDirector {
     return { lo, hi, xMin: (TRAINING_ROOMS[lo]!.x0 - 1) * CELL, xMax: (TRAINING_ROOMS[hi]!.x1 + 2) * CELL }
   }
 
+  /** The disguise room's alarm post going off, or quiet again (the mission's `stepAlarm`). */
+  alarm(on: boolean): void {
+    this.alarmOn = on
+  }
+
   /** The replay button. */
   replay(): boolean {
     return replayDemo(this.state)
@@ -302,9 +404,11 @@ export class TrainingDirector {
 
   /**
    * Where the marker points: the room's own goal (the door, the top of the
-   * hook wall, the body to burn, the supplies, the pile, the pad), or the open
-   * door once the lesson is done; nothing while a weapons, rocket, blade or
-   * decoy lesson is still to do (the guards are the goal: `targetMarks` marks
+   * hook wall, the body to burn, the supplies, the pile, the pad, the drum on
+   * the plinth until it has gone up), or the open
+   * door once the lesson is done; the rocket room's mech (the objective
+   * marker, with its edge arrow: a playtester never found the mech); nothing
+   * while a weapons, blade or decoy lesson is still to do (the guards are the goal: `targetMarks` marks
    * them, but for the decoy room's, which is to be lured).
    */
   waypoint(): { x: number; y: number; z: number } | null {
@@ -335,14 +439,34 @@ export class TrainingDirector {
         const s = done ? null : (this.fortress.supplies ?? []).find(q => roomAt(q.x) === t.room)
         return s ? at(s.x, s.z, 1.2) : door ? at(door.x, door.z) : null
       }
-      case 'weapons': case 'blade': case 'rocket': case 'decoy': return done && door ? at(door.x, door.z) : null
+      // The drum on the plinth, until it has gone up (its cell is bare floor then; a room set up again stands it back).
+      case 'barrel': {
+        const [cx, cz] = roomCell(t.room, ...BARREL_PLINTH)
+        const live = !done && g.base[cz * g.w + cx] !== VOID
+        return live ? at(cellMid(cx), cellMid(cz), 1.0) : door ? at(door.x, door.z) : null
+      }
+      // The mech on the ledge, until it is down (a playtester never found it up there).
+      case 'rocket': {
+        const mech = done ? null : this.gar.units.find(u => roomAt(u.homeX) === t.room && isAlive(u))
+        return mech ? { x: mech.x, y: mech.y + SPECS[mech.kind].height + 0.4, z: mech.z } : door ? at(door.x, door.z) : null
+      }
+      // The sentry to shoot; once it is down, the crates to be behind before the drone comes.
+      case 'hide': {
+        if (done) return door ? at(door.x, door.z) : null
+        const mark = this.gar.units.find(u => roomAt(u.homeX) === t.room && u.kind !== 'drone' && isAlive(u))
+        if (mark) return { x: mark.x, y: mark.y + SPECS[mark.kind].height + 0.9, z: mark.z }
+        const [cx, cz] = roomCell(t.room, 1, 1)
+        return at(cellMid(cx) + (HIDE_SPOT[0] - 1) * CELL, cellMid(cz) + (HIDE_SPOT[1] - 1) * CELL, 1.0)
+      }
+      case 'weapons': case 'blade': case 'decoy': return done && door ? at(door.x, door.z) : null
       default: return door ? at(door.x, door.z) : null
     }
   }
 
   /**
    * The guards a lesson is about, each marked over its head until it is down:
-   * the weapons room's three, the rocket room's mech, the blade room's two
+   * the weapons room's three, the blade room's two (the rocket room's mech
+   * has the objective marker itself, `waypoint`)
    * (playtesters did not see that the guards were the goal). Nothing once the
    * lesson is done; then the door is the waypoint.
    */
@@ -350,7 +474,7 @@ export class TrainingDirector {
     const t = this.state
     if (t.room < 0 || t.done[t.room]) return []
     const lesson = TRAINING_ROOMS[t.room]!.lesson
-    if (lesson !== 'weapons' && lesson !== 'rocket' && lesson !== 'blade') return []
+    if (lesson !== 'weapons' && lesson !== 'blade') return []
     return this.gar.units
       .filter(u => roomAt(u.homeX) === t.room && isAlive(u) && !u.hidden)
       // Above its health bar (drawn at its height + 0.25), not over it.
@@ -371,6 +495,7 @@ export class TrainingDirector {
   /** Pose the hologram for this frame (`camera`: where its button presses pop up on screen, #114). */
   update(dt: number, time: number, camera?: Camera): void {
     const t = this.state
+    this.soundAlarm(time, camera)
     // A projector disc glows while its room's lesson is still to do.
     this.discs.forEach((d, i) => { d.visible = !t.done[i] && i >= this.cullLo && i <= this.cullHi })
     this.gates.forEach((g, i) => { if (g) g.visible = !this.opened[i] && i >= this.cullLo && i <= this.cullHi })
@@ -386,14 +511,20 @@ export class TrainingDirector {
       demoPop.on = false
       this.decoyOrb.visible = this.decoyHolo.root.visible = false
       this.body.root.visible = this.disguise.visible = this.rope.visible = this.flame.visible = false
-      for (const tg of this.targets) tg.rig.root.visible = false
+      for (const rig of this.guards) rig.root.visible = false
+      for (const b of this.bolts) b.visible = false
       this.victim.root.visible = false
-      this.holoMech.root.visible = this.rocketMesh.visible = this.streak.visible = false
+      this.holoMech.root.visible = this.rocketMesh.visible = this.drum.visible = this.blastBall.visible = false
+      this.holoDrone.root.visible = this.droneCone.visible = false
+      this.lastT = -1
       if (this.broken) { this.shatter.clear(HOLO_WRECK); this.broken = false }
       return
     }
-    if (!playing) return
+    if (!playing) { this.lastT = -1; return }
     const f = currentFrame(t)
+    const lesson = TRAINING_ROOMS[t.room]!.lesson
+    // A new loop (or the replay button): nothing of the last one is still due.
+    if (this.lastT > t.demoT) this.lastT = -1
     const floor = heightAt(this.fortress.grid, f.x, f.z)
     const base = floor === VOID ? 0 : floor
     // A climb or a jump: the hologram rises above the floor it starts on.
@@ -427,6 +558,14 @@ export class TrainingDirector {
     if (s.reel) s.air = 0
     s.grab = s.draw = s.plunge = 0
     s.stow = 0
+    // The gun up (or down) along the line to what it is aimed at: the
+    // launcher at the mech up on its ledge, a rifle at its mark.
+    const mark = f.aim > 0.01 ? this.aimMark(t.room, lesson, t.demoT) : null
+    s.aimPitch = mark ? Math.atan2(mark.y - (y + MUZZLE_Y), Math.max(0.5, Math.hypot(mark.x - f.x, mark.z - f.z))) : 0
+    // Each round kicks the gun back; the minigun's barrels spin through its burst.
+    const shot = lastShot(DEMO_SHOTS[lesson], t.demoT)
+    s.recoil = shot ? Math.max(0, 1 - (t.demoT - shot.t) / 0.18) : 0
+    if (shot && shot.weapon === 'minigun' && t.demoT - shot.t < 0.4) s.spin += dt * 38
     // The backstab (#110): the mech's half as the mission plays it, on the
     // hologram guard where it stands.
     const vf = f.td >= 0 && f.td < VARIANTS[DEMO_BACKSTAB].end ? victimFrame(t.room, t.demoT) : null
@@ -443,7 +582,10 @@ export class TrainingDirector {
       this.disguise.rotation.y = f.yaw
     }
     this.props(t.room, f, y, time)
+    this.rounds(t.room, lesson, time)
+    this.flyDrone(t.room, lesson, time)
     this.fireRocket(t.room, f, time, dt)
+    this.lastT = t.demoT
     this.pops(f, y, camera)
     this.throwDecoy(f, y, time)
     this.gateMat.opacity = 0.26 + 0.08 * Math.sin(time * 3)
@@ -478,13 +620,12 @@ export class TrainingDirector {
       this.decoyOrb.position.set(hx + (d.x - hx) * k, y + 1.6 + Math.sin(k * Math.PI) * 2.5 - 1.2 * k, hz + (d.z - hz) * k)
       return
     }
-    // Standing where it fell, facing back the way it came, breathing.
+    // Standing where it fell, facing back the way it came, juggling.
     const r = this.decoyHolo.root
     r.position.set(d.x, 0, d.z)
     r.rotation.y = f.yaw + Math.PI
-    const grow = Math.min(1, (d.t - DECOY_FLY_S) / 0.25)
-    r.scale.setScalar(grow * (1 + Math.sin(time * 6) * 0.02))
-    poseMech(this.decoyHolo, { ...restPose(), time })
+    r.scale.setScalar(Math.max(0.01, Math.min(1, (d.t - DECOY_FLY_S) / 0.25)))
+    this.decoyHolo.update(time, d.t - DECOY_FLY_S, this.fade)
   }
 
   /**
@@ -500,8 +641,8 @@ export class TrainingDirector {
     // A new loop: the mech whole again.
     if (this.broken && (!here || !hit)) { this.shatter.clear(HOLO_WRECK); this.broken = false }
     this.shatter.update(dt)
-    const tx = (r.x0 + ROCKET_TARGET[0] - 1) * CELL + CELL / 2
-    const tz = (r.z0 + ROCKET_TARGET[1] - 1) * CELL + CELL / 2
+    const tx = (r.x0 + ROCKET_HOLO[0] - 1) * CELL + CELL / 2
+    const tz = (r.z0 + ROCKET_HOLO[1] - 1) * CELL + CELL / 2
     this.holoMech.root.visible = here && !hit
     if (this.holoMech.root.visible) {
       this.holoMech.root.position.set(tx, ROCKET_LEDGE_H, tz)
@@ -512,11 +653,17 @@ export class TrainingDirector {
     if (this.rocketMesh.visible && rk) {
       // From the hole in the ghost's tube as it is posed now (#167).
       const from = muzzleWorld(this.ghost, 'rocket', this.muzzleV) ?? this.muzzleV.copy(this.ghost.root.position)
-      const to = new Vector3(tx, ROCKET_LEDGE_H + 1.9, tz)
+      const to = new Vector3(tx, ROCKET_LEDGE_H + ROCKET_CHEST_Y, tz)
       const k = Math.min(1, rk.t / ROCKET_FLY_S)
       this.rocketMesh.position.copy(from).lerp(to, k)
       this.rocketMesh.lookAt(to)
+      // Its trail: puffs of light it leaves hanging behind it.
+      const p = this.fx?.particles
+      const q = this.rocketMesh.position
+      p?.emit({ x: q.x, y: q.y, z: q.z, vx: (Math.random() - 0.5) * 0.6, vy: 0.3, vz: (Math.random() - 0.5) * 0.6, color: GATE_COLOR, size: 0.2, sizeEnd: 0.6, life: 0.45, drag: 2 })
     }
+    // It lands (this frame): the blast, where the mech stands.
+    if (here && rk && rk.t >= ROCKET_FLY_S && rk.t - (this.state.demoT - Math.max(0, this.lastT)) < ROCKET_FLY_S) this.blast(tx, ROCKET_LEDGE_H + 1.6, tz, ROCKET_LEDGE_H, 0.75)
     if (here && hit && !this.broken) {
       this.holoMech.root.visible = true
       this.holoMech.root.updateMatrixWorld(true)
@@ -525,7 +672,231 @@ export class TrainingDirector {
     }
   }
 
-  /** The lesson's props: the rope it shoots, the body it burns and the flame, the targets that fall. */
+  /** The alarm post: ready (a low red glow) while its room is drawn; going off, its beam turns and the view pulses red. */
+  private soundAlarm(time: number, camera?: Camera): void {
+    const shown = this.alarmRoom >= this.cullLo && this.alarmRoom <= this.cullHi
+    const on = this.alarmOn && shown
+    this.alarmPost.group.visible = shown
+    if (shown) poseBeacon(this.alarmPost, on ? 'lit' : 'ready', 1, time)
+    // Flashing: the dome on and off as the siren wails.
+    if (on && Math.sin(time * 14) < 0) this.alarmPost.lampMat.color.set('#55202c')
+    this.alarmWash.visible = on && !!camera
+    if (!this.alarmWash.visible || !camera) return
+    // Just in front of the camera, square to it: the whole view, its edges reddest.
+    const fwd = this.washV.set(0, 0, -1).applyQuaternion(camera.quaternion)
+    this.alarmWash.position.copy(camera.position).addScaledVector(fwd, 0.5)
+    this.alarmWash.quaternion.copy(camera.quaternion)
+    ;(this.alarmWash.material as MeshBasicMaterial).opacity = 0.55 + 0.35 * Math.sin(time * 7)
+  }
+
+  /**
+   * The hide room's drone: on its beat, then, the shot heard, to the
+   * firing spot the ghost has already left; its light circles the empty spot
+   * and it flies back. Its light is a cone from it to the floor.
+   */
+  private flyDrone(room: number, lesson: LessonId, time: number): void {
+    const on = lesson === 'hide' && !this.state.pit
+    this.holoDrone.root.visible = this.droneCone.visible = on
+    if (!on) return
+    const r = TRAINING_ROOMS[room]!
+    const d = droneAt(this.state.demoT)
+    const x = (r.x0 + d.x - 1) * CELL + CELL / 2
+    const z = (r.z0 + d.z - 1) * CELL + CELL / 2
+    const root = this.holoDrone.root
+    const was = this.droneV.copy(root.position)
+    root.position.set(x, HIDE_DRONE_Y, z)
+    const moved = Math.hypot(x - was.x, z - was.z)
+    if (moved > 1e-3) root.rotation.y = Math.atan2(x - was.x, z - was.z)
+    poseDrone(this.holoDrone, { time, spin: time * 40, pitch: Math.min(0.35, moved * 6), roll: 0, eyeYaw: 0, eyePitch: 0.5, alarm: d.sweep, deadT: 0, landed: false })
+    // The light: straight down on its beat, round in circles over the spot.
+    const a = time * 2.4
+    const fx = x + Math.sin(a) * DRONE_SWEEP_M * d.sweep
+    const fz = z + Math.cos(a) * DRONE_SWEEP_M * d.sweep
+    const tip = this.droneV.set(x, HIDE_DRONE_Y - 0.3, z)
+    const dir = this.droneDir.set(fx - tip.x, -tip.y, fz - tip.z)
+    const len = dir.length()
+    this.droneCone.position.copy(tip)
+    this.droneCone.scale.set(1, len, 1)
+    this.droneCone.quaternion.setFromUnitVectors(this.downV, dir.normalize())
+  }
+
+  /** What the ghost's gun is aimed at, `time` into room `room`'s demo (metres): the rocket room's mech, the round in flight or the next. */
+  private aimMark(room: number, lesson: LessonId, time: number): { x: number; y: number; z: number } | null {
+    const r = TRAINING_ROOMS[room]!
+    const toX = (v: number): number => (r.x0 + v - 1) * CELL + CELL / 2
+    const toZ = (v: number): number => (r.z0 + v - 1) * CELL + CELL / 2
+    if (lesson === 'rocket') return { x: toX(ROCKET_HOLO[0]), y: ROCKET_LEDGE_H + ROCKET_CHEST_Y, z: toZ(ROCKET_HOLO[1]) }
+    const shots = DEMO_SHOTS[lesson]
+    if (!shots?.length) return null
+    // The round now (or last) fired, or the first still to come.
+    const q = lastShot(shots, time) ?? shots[0]!
+    const at = q.target === 'drum' ? DEMO_DRUM : DEMO_TARGETS[lesson]?.[q.target]?.at
+    return at ? { x: toX(at[0]), y: q.y, z: toZ(at[1]) } : null
+  }
+
+  /**
+   * The demo's rounds and what they take (#168 follow-up: guards fell with
+   * nothing to say why). Each round flies out of the ghost's muzzle as a bolt
+   * of light, with a flash at the muzzle; where it lands, a burst of light, and
+   * only then does its guard go down. The rifle's leaves its line hanging, the
+   * minigun's are a stream. The barrel room's round goes into a hologram drum
+   * among five guards: a spark, the blast, and all five thrown off their feet.
+   */
+  private rounds(room: number, lesson: LessonId, time: number): void {
+    const now = this.state.demoT
+    const was = this.lastT
+    const targets = DEMO_TARGETS[lesson] ?? []
+    const shots = DEMO_SHOTS[lesson] ?? []
+    const r = TRAINING_ROOMS[room]!
+    const toX = (v: number): number => (r.x0 + v - 1) * CELL + CELL / 2
+    const toZ = (v: number): number => (r.z0 + v - 1) * CELL + CELL / 2
+    const p = this.fx?.particles
+    // The guards: standing round, until what takes them lands.
+    const blast = drumBlast(lesson)
+    this.guards.forEach((rig, k) => {
+      const tg = targets[k]
+      rig.root.visible = !!tg
+      if (!tg) return
+      const down = now - targetDies(lesson, k)
+      let x = toX(tg.at[0])
+      let z = toZ(tg.at[1])
+      let y = 0
+      // Thrown by the blast: further out along the way its fall carries it, and higher.
+      if (tg.fling !== undefined && down > 0) {
+        const f = Math.min(1, down / FLING_S)
+        const out = tg.fling * (1 - (1 - f) * (1 - f))
+        x -= Math.sin(tg.yaw) * out
+        z -= Math.cos(tg.yaw) * out
+        y = (tg.lift ?? 0) * Math.sin(f * Math.PI)
+      }
+      rig.root.position.set(x, y, z)
+      rig.root.rotation.y = tg.yaw
+      // Round the drum they stand easy, looking about; struck, the fall the target has.
+      const easy = blast >= 0 && down <= 0
+      poseGuard(rig, {
+        ...restGuardPose(), time: time + tg.at[0], seed: (k * 0.37) % 1, lookYaw: easy ? Math.sin(time * 0.9 + k * 1.7) * 0.4 : 0,
+        deadT: down > 0 ? Math.max(1e-3, down) : 0, death: tg.death
+      })
+    })
+    // The drum: whole until the blast; hit, it flares for the beat before.
+    this.drum.visible = blast >= 0 && now < blast
+    const dx = toX(DEMO_DRUM[0])
+    const dz = toZ(DEMO_DRUM[1])
+    if (this.drum.visible) {
+      const hit = shots.find(q => q.target === 'drum')!
+      const lit = now >= hit.t + hit.fly
+      this.drum.position.set(dx, 0.55, dz)
+      // It breathes, so the eye finds it among the guards.
+      this.drum.scale.setScalar(lit ? 1.12 + 0.06 * Math.sin(time * 80) : 1 + 0.04 * Math.sin(time * 5))
+    }
+    if (blast >= 0 && was < blast && now >= blast) this.blast(dx, 0.9, dz, 0, 1)
+    // The fireball's shell: out to the blast's reach and gone.
+    const ball = blast >= 0 ? (now - blast) / 0.45 : -1
+    this.blastBall.visible = ball >= 0 && ball < 1
+    if (this.blastBall.visible) {
+      this.blastBall.position.set(dx, 0.6, dz)
+      this.blastBall.scale.setScalar(0.4 + BARREL_RADIUS * 0.85 * (1 - (1 - ball) * (1 - ball)))
+      this.blastMat.opacity = 0.3 * (1 - ball) * (1 - ball) * this.fade
+    }
+    // The rounds in flight, out of the ghost's muzzle as it is posed now.
+    let used = 0
+    for (const q of shots) {
+      const age = now - q.t
+      if (age < 0) continue
+      const landed = age >= q.fly
+      if (landed && was >= q.t + q.fly) continue
+      const tg = q.target === 'drum' ? DEMO_DRUM : targets[q.target]?.at
+      if (!tg) continue
+      const from = muzzleWorld(this.ghost, q.weapon, this.fromV) ?? this.fromV.copy(this.ghost.root.position).setY(1.7)
+      const to = this.toV.set(toX(tg[0]), q.y, toZ(tg[1]))
+      const len = Math.max(0.1, from.distanceTo(to))
+      const ux = (to.x - from.x) / len
+      const uy = (to.y - from.y) / len
+      const uz = (to.z - from.z) / len
+      // Fired this frame: the flash at the muzzle.
+      if (p && was < q.t) {
+        p.flash(from.x, from.y, from.z, '#ffffff', q.weapon === 'sniper' ? 0.7 : 0.4, 0.06)
+        p.flash(from.x, from.y, from.z, GATE_COLOR, q.weapon === 'sniper' ? 1.3 : 0.75, 0.12)
+      }
+      if (!landed) {
+        const b = this.bolts[used++]
+        if (!b) continue
+        // A bolt its own length, its head where the round is now.
+        const head = len * (age / q.fly)
+        const bl = Math.max(0.05, Math.min(BOLT_LEN[q.weapon], head))
+        b.position.set(from.x + ux * (head - bl), from.y + uy * (head - bl), from.z + uz * (head - bl))
+        const w = q.weapon === 'sniper' ? 2.2 : 1.6
+        b.scale.set(w, bl, w)
+        b.quaternion.setFromUnitVectors(this.upV, this.toV.set(ux, uy, uz))
+        b.visible = true
+        // A glow at its head: a thin bolt alone is lost across the room.
+        p?.emit({ x: from.x + ux * head, y: from.y + uy * head, z: from.z + uz * head, color: HOLO_HOT, size: q.weapon === 'sniper' ? 0.55 : 0.4, sizeEnd: 0.1, life: 0.1 })
+        continue
+      }
+      // Landed this frame: the burst where it went in, and the rifle's line left hanging.
+      if (!p) continue
+      const big = q.weapon === 'sniper'
+      p.flash(to.x, to.y, to.z, '#ffffff', big ? 1.1 : 0.5, 0.08)
+      p.flash(to.x, to.y, to.z, GATE_COLOR, big ? 2 : 0.9, 0.18)
+      for (let k = 0; k < (big ? 18 : 5); k++) {
+        const sp = 2 + Math.random() * (big ? 7 : 4)
+        p.emit({
+          x: to.x, y: to.y, z: to.z, vx: ux * sp + (Math.random() - 0.5) * 4, vy: Math.random() * 4, vz: uz * sp + (Math.random() - 0.5) * 4,
+          color: k % 3 ? GATE_COLOR : HOLO_HOT, size: 0.16, sizeEnd: 0.03, life: 0.3 + Math.random() * 0.3, gravity: 8, drag: 1.5
+        })
+      }
+      if (big) {
+        const n = Math.min(40, Math.max(8, Math.floor(len / 0.7)))
+        for (let k = 1; k <= n; k++) {
+          const d = (k / n) * len
+          p.emit({ x: from.x + ux * d, y: from.y + uy * d, z: from.z + uz * d, color: k % 2 ? GATE_COLOR : HOLO_HOT, size: 0.18, sizeEnd: 0.03, life: 0.35 + (k / n) * 0.35 })
+        }
+      }
+    }
+    for (let k = used; k < this.bolts.length; k++) this.bolts[k]!.visible = false
+  }
+
+  /**
+   * A blast in the hologram's light (the drum, the rocket): a white-hot core,
+   * the cyan fireball swelling round it, light thrown out and falling, and
+   * shock rings racing over the floor. `size` 1 is the drum's.
+   */
+  private blast(x: number, y: number, z: number, floor: number, size: number): void {
+    const fx = this.fx
+    if (!fx) return
+    const p = fx.particles
+    p.flash(x, y, z, '#ffffff', 6 * size, 0.12)
+    p.flash(x, y, z, GATE_COLOR, 9 * size, 0.3)
+    p.flash(x, y, z, HOLO_DEEP, 11 * size, 0.45)
+    for (let k = 0; k < 48 * size; k++) {
+      const a = Math.random() * Math.PI * 2
+      const e = Math.random() * Math.PI * 0.5
+      const sp = (4 + Math.random() * 12) * size
+      p.emit({
+        x, y, z, vx: Math.cos(a) * Math.cos(e) * sp, vy: Math.sin(e) * sp + 2, vz: Math.sin(a) * Math.cos(e) * sp,
+        color: k % 3 === 0 ? '#ffffff' : k % 3 === 1 ? GATE_COLOR : HOLO_DEEP,
+        size: 0.35 + Math.random() * 0.45, sizeEnd: 0.05, life: 0.5 + Math.random() * 0.5, gravity: 10, drag: 1.4
+      })
+    }
+    // The drum's shards: heavier, up and out, and down again.
+    for (let k = 0; k < 14 * size; k++) {
+      const a = (k / 14) * Math.PI * 2
+      p.emit({ x, y, z, vx: Math.cos(a) * (3 + Math.random() * 4), vy: 6 + Math.random() * 5, vz: Math.sin(a) * (3 + Math.random() * 4), color: HOLO_HOT, size: 0.26, sizeEnd: 0.12, life: 1.1, gravity: 16, drag: 0.4 })
+    }
+    // The fireball's body: slow puffs that swell and fade.
+    for (let k = 0; k < 12 * size; k++) {
+      const a = Math.random() * Math.PI * 2
+      const d = Math.random() * 1.6 * size
+      p.emit({
+        x: x + Math.cos(a) * d, y: y + Math.random(), z: z + Math.sin(a) * d, vx: Math.cos(a) * 1.5, vy: 1.5 + Math.random() * 2.5, vz: Math.sin(a) * 1.5,
+        color: k % 2 ? GATE_COLOR : HOLO_DEEP, size: 1.6 * size, sizeEnd: 3.8 * size, life: 0.6 + Math.random() * 0.4, drag: 1.2
+      })
+    }
+    fx.rings.spawn(x, floor + 0.08, z, (BARREL_RADIUS + 1.5) * size, GATE_COLOR, 0.55)
+    fx.rings.spawn(x, floor + 0.1, z, 3.6 * size, '#ffffff', 0.35)
+  }
+
+  /** The lesson's props: the rope it shoots, the body it burns and the flame. */
   private props(room: number, f: DemoFrame, y: number, time: number): void {
     const r = TRAINING_ROOMS[room]!
     const toX = (v: number): number => (r.x0 + v - 1) * CELL + CELL / 2
@@ -547,28 +918,6 @@ export class TrainingDirector {
       g.lookYaw = puzzled ? Math.sin(time * 1.7) * 0.35 : 0
       this.victim.root.rotation.y = f.td >= 0 ? poseBackstabGuard(g, DEMO_BACKSTAB, f.td, vf.yaw) : vf.yaw
       poseGuard(this.victim, g)
-    }
-    this.streak.visible = false
-    for (const [k, tg] of this.targets.entries()) {
-      tg.rig.root.visible = r.lesson === 'weapons'
-      if (!tg.rig.root.visible) continue
-      tg.rig.root.position.set(toX(tg.at[0]), 0, toZ(tg.at[1]))
-      tg.rig.root.rotation.y = tg.yaw
-      const down = dt >= tg.dies
-      poseGuard(tg.rig, { ...restGuardPose(), time: time + tg.at[0], deadT: down ? Math.max(1e-3, dt - tg.dies) : 0, death: tg.death })
-      // The round that takes it (#168): the rifle's one streak, the mini-gun's
-      // flicker of them through its burst; out of the ghost's own muzzle.
-      const lead = dt - (tg.dies - (k === 0 ? 0.12 : 0.55))
-      const on = lead > 0 && dt < tg.dies && (k === 0 || Math.floor(time * 24) % 2 === 0)
-      if (on && !this.streak.visible) {
-        const from = muzzleWorld(this.ghost, f.weapon, this.muzzleV) ?? this.muzzleV.copy(this.ghost.root.position)
-        const to = new Vector3(toX(tg.at[0]), 1.35, toZ(tg.at[1]))
-        const len = from.distanceTo(to)
-        this.streak.position.copy(from)
-        this.streak.scale.set(1, len, 1)
-        this.streak.quaternion.setFromUnitVectors(new Vector3(0, 1, 0), to.sub(from).normalize())
-        this.streak.visible = true
-      }
     }
     // The rope: from the tower's edge to the platform's, once shot.
     this.rope.visible = f.rope > 0.5
@@ -620,7 +969,15 @@ export class TrainingDirector {
   }
 
   dispose(): void {
-    this.streak.geometry.dispose()
+    disposeBeacon(this.alarmPost)
+    this.alarmWash.geometry.dispose()
+    ;(this.alarmWash.material as MeshBasicMaterial).map?.dispose()
+    ;(this.alarmWash.material as MeshBasicMaterial).dispose()
+    this.boltGeo.dispose()
+    this.boltMat.dispose()
+    this.drum.geometry.dispose()
+    this.blastBall.geometry.dispose()
+    this.blastMat.dispose()
     this.ghost.mesh.geometry.dispose()
     this.ghost.outline?.geometry.dispose()
     this.ghost.material.dispose()
@@ -632,15 +989,17 @@ export class TrainingDirector {
     this.body.glowMaterial.dispose()
     disposeDisguise(this.disguise)
     this.decoyOrb.geometry.dispose()
-    this.decoyHolo.mesh.geometry.dispose()
-    this.decoyHolo.outline?.geometry.dispose()
-    this.decoyHolo.material.dispose()
-    this.decoyHolo.glowMaterial.dispose()
+    this.decoyHolo.dispose()
     this.victim.mesh.geometry.dispose()
     this.victim.outline?.geometry.dispose()
     this.victim.material.dispose()
     this.victim.glowMaterial.dispose()
-    for (const tg of this.targets) { tg.rig.mesh.geometry.dispose(); tg.rig.outline?.geometry.dispose(); tg.rig.material.dispose(); tg.rig.glowMaterial.dispose() }
+    for (const rig of this.guards) { rig.mesh.geometry.dispose(); rig.outline?.geometry.dispose(); rig.material.dispose(); rig.glowMaterial.dispose() }
+    this.holoDrone.mesh.geometry.dispose()
+    this.holoDrone.outline?.geometry.dispose()
+    this.holoDrone.material.dispose()
+    this.holoDrone.glowMaterial.dispose()
+    this.droneCone.geometry.dispose()
     this.holoMech.mesh.geometry.dispose()
     this.holoMech.outline?.geometry.dispose()
     this.holoMech.material.dispose()
@@ -661,4 +1020,35 @@ export class TrainingDirector {
     this.crawlGateGeo.dispose()
     this.barGeo.dispose()
   }
+}
+
+/** The disguise room's alarm post (room cells): at the corridor's far mouth, its north edge, in sight all down the corridor and clear of the walk to the way out. */
+const ALARM_POST: readonly [number, number] = [10, 5.6]
+const ALARM_RED = '#ff2a4a'
+
+/** A red vignette for the alarm's wash: clear in the middle, full at the edges (built in code: no canvas). */
+const vignette = (): DataTexture => {
+  const n = 64
+  const px = new Uint8Array(n * n * 4)
+  for (let y = 0; y < n; y++) {
+    for (let x = 0; x < n; x++) {
+      const dx = (x + 0.5) / n - 0.5
+      const dy = (y + 0.5) / n - 0.5
+      const r = Math.min(1, Math.hypot(dx, dy) / 0.5)
+      const a = Math.round(255 * (0.25 + 0.75 * r * r))
+      const i = (y * n + x) * 4
+      px[i] = px[i + 1] = px[i + 2] = a
+      px[i + 3] = 255
+    }
+  }
+  const t = new DataTexture(px, n, n)
+  t.needsUpdate = true
+  return t
+}
+
+/** The last round a demo has fired by `time`, if any (the gun's kick). */
+const lastShot = (shots: readonly DemoShot[] | undefined, time: number): DemoShot | null => {
+  let out: DemoShot | null = null
+  for (const q of shots ?? []) if (q.t <= time && (!out || q.t > out.t)) out = q
+  return out
 }

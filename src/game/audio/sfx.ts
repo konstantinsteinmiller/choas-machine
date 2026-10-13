@@ -65,7 +65,10 @@ export const SFX_MIN_GAP_MS: Partial<Record<SfxName, number>> = {
   ricochet: 60,
   enemyShot: 50,
   whizz: 80,
-  step: 60
+  step: 60,
+  // Not a burst: a hammered trigger or a touch player tapping on nothing hears
+  // the empty click once per pull at most, never a rattle (#202).
+  dry: 220
 }
 
 const lastAt = new Map<SfxName, number>()

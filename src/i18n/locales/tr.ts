@@ -59,6 +59,8 @@ export default {
     'grappleRecall': 'Kancayı geri çek',
     'cancel': 'Silahı indir',
     'capture': 'Devam için tıkla',
+    'tapToStart': 'Başlamak için dokun',
+    'clickToStart': 'Başlamak için tıkla',
     'metres': '{n} m',
     'objective': {
       'salvage': 'Hurda',
@@ -81,6 +83,7 @@ export default {
     'loot': 'Hurdayı sök',
     'ammoLow': 'Cephane azalıyor',
     'ammoOut': 'Cephane bitti',
+    'noAmmo': 'Mermi yok!',
     'questLog': 'Görevler',
     'quest': {
       'extract': 'Tahliye'
@@ -279,13 +282,14 @@ export default {
     'decoyHint': 'Muhafızın dikkatini dağıtmak için bir yem koy, sonra gizlice yaklaş ve onu etkisiz hale getir!',
     'roomHint': {
       'move': 'Eğitimine başlamak için parlayan kapıya yürü.',
-      'jump': 'Merdivene tırman ve boşluğun üstünden diğer platforma atla!',
-      'cover': 'Nöbetçi seni görmesin diye sandıkların arkasında çömel, sonra kapının altından sürünerek geç!',
-      'weapons': 'Üç muhafızın hepsini indir: birini keskin nişancı tüfeğiyle vur, sonra diğer ikisi için minigun\'a geç!',
-      'rocket': 'Roketatara geç ve çıkıntıdaki mech\'i havaya uçur!',
+      'jump': 'Merdivene tırman ve boşluğun üstünden diğer platforma atla! Koşmak ve zıplamak, yakındaki muhafızların duyduğu bir ses çıkarır.',
+      'cover': 'Nöbetçi seni görmesin diye sandıkların arkasında çömel, sonra kapının altından sürünerek geç! Sadece çömelerek atılan adım sessizdir: yakından yürürsen muhafızlar seni duyar.',
+      'weapons': 'Üç muhafızın hepsini indir: birini keskin nişancı tüfeğiyle vur, sonra diğer ikisi için minigun\'a geç! Atışlar ses çıkarır: minigun\'u çevredeki her muhafız duyar.',
+      'rocket': 'Roketatara geç ve çıkıntıdaki mech\'i havaya uçur! Roketler gürültülüdür: patlamayı her muhafız duyar.',
+      'hide': 'Muhafızı vur, sonra ateş ettiğin yerden uzaklaş ve saklan: drone atışın geldiği yere uçar!',
       'supply': 'Cephaneni doldurmak ve zırhını onarmak için sandıkların üzerinden yürü.',
       'burn': 'Biri bulmadan cesedi alev makinesiyle yak!',
-      'box': 'Karton kutuya saklan ve projektör üzerinden geçerken kıpırdama!',
+      'box': 'Kılık değiştir! Kıpırdamadan durduğun sürece projektör seni görmezden gelir, ama hareket ettiğin anda fark eder.',
       'hook': 'Duvarı aşmak için kancalı ipi kullan!',
       'rope': 'İki platform arasında ip germek için ip tabancasını kullan!',
       'barrel': 'Duvarın arkasındaki muhafızları indirmek için yakıt varilini vur!',
@@ -304,12 +308,14 @@ export default {
       'box': 'Görülmemek için kılık değiştir',
       'decoy': 'Yem kullan [{key}], dikkati dağılınca sırtından sapla',
       'decoyTouch': 'Yem kullan, dikkati dağılınca sırtından sapla',
-      'decoyAny': 'Yine görüldün. Muhafızı istediğin gibi indir.'
+      'decoyAny': 'Yine görüldün. Muhafızı istediğin gibi indir.',
+      'hide': 'Ateş ettikten sonra saklan: başka bir yere geç, yoksa düşman nereden ateş ettiğini bulur.'
     },
     'door': {
       'cover': 'Geçmek için bir kez çömel',
       'weapons': 'Geçmek için üçünü de indir',
       'rocket': "Mech'i roketatarla yok et",
+      'hide': 'Muhafızı vur, sonra drone\'dan saklan',
       'supply': 'İkmali kap',
       'blade': 'İki gardiyanı da sırtından sapla',
       'burn': 'Cesedi yak',

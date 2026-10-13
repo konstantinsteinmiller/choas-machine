@@ -502,9 +502,11 @@ export class FortressBuilder {
     return this
   }
 
-  /** A surveillance drone flying a loop at `altitude` metres above the ground. */
-  drone(route: ReadonlyArray<readonly [number, number, number?]>, altitude = 6): this {
-    return this.post('drone', route, 0, altitude)
+  /** A surveillance drone flying a loop at `altitude` metres above the ground; `armoured`, rounds glance off it. */
+  drone(route: ReadonlyArray<readonly [number, number, number?]>, altitude = 6, armoured = false): this {
+    this.post('drone', route, 0, altitude)
+    if (armoured) this.posts[this.posts.length - 1]!.armoured = true
+    return this
   }
 
   /**

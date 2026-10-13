@@ -17,6 +17,7 @@ import { buildAirship } from '@/game/models/airship'
 import { PARTS } from '@/game/world/decor'
 import { beaconParts } from '@/game/models/beacon'
 import { hideBoxParts } from '@/game/models/hideBox'
+import { DecoyHologram, decoyBallGeometry, juggleAt, makeJugglePlan } from '@/game/fx/decoyHologram'
 import type { DecorKind } from '@/game/world/fortress'
 import { coplanarClashes } from '../helpers/coplanar'
 
@@ -55,7 +56,8 @@ const RIGS: Record<string, () => Rig> = {
   goliath: buildGoliath,
   'robo dog': () => buildRobodog(),
   hound: () => buildRobodog(true),
-  airship: buildAirship
+  airship: buildAirship,
+  'decoy hologram (CM-07 juggling)': () => new DecoyHologram().rig
 }
 
 describe('no z-fighting on anything in the field (#147)', () => {
@@ -67,6 +69,14 @@ describe('no z-fighting on anything in the field (#147)', () => {
   it('the alarm beacon: no two parts share a face', () => {
     const geos = beaconParts()
     expect(coplanarClashes(geos, 0.004, geos.map((_, i) => `beacon#${i}`))).toEqual([])
+  })
+  it("the decoy's juggled balls: never two in one place along the cascade", () => {
+    const plan = makeJugglePlan()
+    for (let t = 0; t < 3; t += 0.05) {
+      juggleAt(t, plan)
+      const geos = plan.balls.map(b => decoyBallGeometry().clone().translate(b.x, b.y, b.z))
+      expect(coplanarClashes(geos, 0.004, geos.map((_, i) => `ball#${i}@${t.toFixed(2)}`))).toEqual([])
+    }
   })
   it('the hide box: no two parts share a face', () => {
     const { lit, glow } = hideBoxParts()

@@ -59,6 +59,8 @@ export default {
     'grappleRecall': 'Recoller o gancho',
     'cancel': 'Baixar a arma',
     'capture': 'Preme para continuar',
+    'tapToStart': 'Toca para comezar',
+    'clickToStart': 'Preme para comezar',
     'metres': '{n} m',
     'objective': {
       'salvage': 'Chatarra',
@@ -81,6 +83,7 @@ export default {
     'loot': 'Desmontar a chatarra',
     'ammoLow': 'Queda pouca munición',
     'ammoOut': 'Sen munición',
+    'noAmmo': 'Sen munición!',
     'questLog': 'Obxectivos',
     'quest': {
       'extract': 'Extracción'
@@ -279,13 +282,14 @@ export default {
     'decoyHint': 'Coloca un señuelo para distraer ao garda, despois achégate ás agachadas e elimínao!',
     'roomHint': {
       'move': 'Vai ata a porta brillante para comezar o teu adestramento.',
-      'jump': 'Sube pola escaleira e salta o oco ata a outra plataforma!',
-      'cover': 'Agáchate detrás das caixas para que o centinela non te vexa e despois arrástrate por debaixo da reixa!',
-      'weapons': 'Acaba cos tres gardas: abate un co rifle de francotirador e despois cambia á minigun para os outros dous!',
-      'rocket': 'Cambia ao lanzafoguetes e fai voar o mech da cornixa!',
+      'jump': 'Sube pola escaleira e salta o oco ata a outra plataforma! Correr e saltar fai ruído que oen os gardas próximos.',
+      'cover': 'Agáchate detrás das caixas para que o centinela non te vexa e despois arrástrate por debaixo da reixa! Só o paso agachado é silencioso: os gardas óente camiñar de preto.',
+      'weapons': 'Acaba cos tres gardas: abate un co rifle de francotirador e despois cambia á minigun para os outros dous! Os disparos fan ruído: todos os gardas arredor oen a minigun.',
+      'rocket': 'Cambia ao lanzafoguetes e fai voar o mech da cornixa! Os foguetes son ruidosos: todos os gardas oen a explosión.',
+      'hide': 'Dispara ao garda, despois afástate do lugar desde onde disparaches e agóchate: o dron voa ata onde saíu o disparo!',
       'supply': 'Pasa por riba das caixas para recargar munición e reparar a túa blindaxe.',
       'burn': 'Queima o corpo co lanzachamas antes de que alguén o atope!',
-      'box': 'Escóndete na caixa de cartón e quédate quieto mentres o foco pasa por riba de ti!',
+      'box': 'Disfrázate! O foco ignórate mentres estás quieto, pero detéctate en canto te moves.',
       'hook': 'Usa o gancho para pasar por riba do muro!',
       'rope': 'Usa o lanzacordas para tender unha corda entre as dúas plataformas!',
       'barrel': 'Dispara ao bidón de combustible para acabar cos gardas detrás do muro!',
@@ -304,12 +308,14 @@ export default {
       'box': 'Disfrázate para que non te vexan',
       'decoy': 'Usa un reclamo [{key}] e apuñala polas costas cando se distraia',
       'decoyTouch': 'Usa un reclamo e apuñala polas costas cando se distraia',
-      'decoyAny': 'Víronte de novo. Acaba co garda como queiras.'
+      'decoyAny': 'Víronte de novo. Acaba co garda como queiras.',
+      'hide': 'Agóchate despois de disparar: móvete a outro sitio ou o inimigo atopará desde onde disparaches.'
     },
     'door': {
       'cover': 'Agáchate unha vez para pasar',
       'weapons': 'Abate os tres para pasar',
       'rocket': 'Destrúe o mecha co lanzafoguetes',
+      'hide': 'Dispara ao garda e agóchate do dron',
       'supply': 'Colle as subministracións',
       'blade': 'Apuñala polas costas os dous gardas',
       'burn': 'Queima o corpo',
