@@ -284,7 +284,7 @@ export default {
       'move': 'Ej pie mirdzošajām durvīm, lai sāktu treniņu.',
       'jump': 'Uzkāp pa kāpnēm un pārlec pāri spraugai uz otru platformu! Skriešana un lēkšana rada troksni, ko dzird tuvumā esošie sargi.',
       'cover': 'Pietupies aiz kastēm, lai sargs tevi neredz, tad palien zem vārtiem! Kluss ir tikai solis pietupienā: sargi dzird, ja ej tuvu.',
-      'weapons': 'Likvidē visus trīs sargus: vienu nošauj ar snaipera šauteni, tad pārslēdzies uz minigun pārējiem diviem! Šāvieni rada troksni: minigun dzird katrs sargs apkārt.',
+      'weapons': 'Pārslēdzies uz minigunu un pieveic visus trīs sargus! Šāvieni trokšņo: minigunu dzird katrs sargs apkārtnē.',
       'rocket': 'Pārslēdzies uz raķešmetēju un uzspridzini mehu uz dzegas! Raķetes ir skaļas: sprādzienu dzird katrs sargs.',
       'hide': 'Nošauj sargu, tad pazūdi no šaušanas vietas un paslēpies: drons lido uz vietu, no kurienes nāca šāviens!',
       'supply': 'Pārej pāri kastēm, lai papildinātu munīciju un salabotu bruņas.',
@@ -312,7 +312,8 @@ export default {
       'hide': 'Pēc šāviena paslēpies: pārvietojies citur, citādi ienaidnieks atradīs, no kurienes tu šāvi.'
     },
     'door': {
-      'cover': 'Pietupies vienreiz, lai tiktu cauri',
+      'cover': 'Pietupies un izlien zem vārtiem',
+      'coverCrawl': 'Izlien zem vārtiem',
       'weapons': 'Notriec visus trīs, lai tiktu cauri',
       'rocket': 'Iznīcini mehu ar granātmetēju',
       'hide': 'Nošauj sargu, tad slēpies no drona',

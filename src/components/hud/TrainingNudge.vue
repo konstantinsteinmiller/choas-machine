@@ -11,12 +11,20 @@
     //- doubt which one the arrow means.
     div.ring(v-if="target" :style="ringStyle" data-testid="nudge-ring")
     AttentionArrow(v-if="target" :style="arrowStyle" data-testid="nudge-arrow")
-    div.centre(v-else data-testid="nudge-centre")
+    //- Beside the mech, not over it (#201 follow-up: the key hid whether it
+    //- was crouched, and the gap it had to crawl through); the wide weapon
+    //- switch stays in the middle (it is shown scoped, with no mech in view).
+    div.centre(v-else :class="{ beside: hint !== 'weapon' }" data-testid="nudge-centre")
       HintGlyph.glyph(v-if="hint !== 'weapon' || hud.device !== 'mouse'" :hint="hint" :device="hud.device" :weapon="hud.weapon")
       span.glyph.weapon-keys(v-else)
+        //- The keys, never the wheel (#201 follow-up: scoped it zooms, and
+        //- players read the wheel as a click): Tab, or the minigun's and the
+        //- launcher's own numbers.
         KeyCap(action="cycle")
         span.or /
-        MouseGlyph(lit="wheel")
+        KeyCap(action="weapon2" data-testid="nudge-weapon-2")
+        span.or /
+        KeyCap(action="weapon3" data-testid="nudge-weapon-3")
 </template>
 
 <script setup lang="ts">
@@ -24,7 +32,6 @@ import { computed, onUnmounted, ref, watch } from 'vue'
 import { hud } from '@/game/state/hud'
 import HintGlyph from '@/components/hud/hints/HintGlyph.vue'
 import KeyCap from '@/components/hud/hints/KeyCap.vue'
-import MouseGlyph from '@/components/hud/hints/MouseGlyph.vue'
 import { NUDGE_BUTTON } from '@/components/hud/touchLook'
 import AttentionArrow from '@/components/hud/AttentionArrow.vue'
 import { aimArrow, otherControls } from '@/components/hud/arrowAim'
@@ -111,6 +118,14 @@ const arrowStyle = computed(() => aimArrow(target.value!, others.value))
   display: inline-flex
   align-items: center
   gap: 0.35em
+  // Three keys: smaller each, so the row stays under the hologram showing the switch.
+  :deep(.key-cap)
+    min-width: clamp(3rem, 12vmin, 5.5rem)
+    height: clamp(3rem, 12vmin, 5.5rem)
+    font-size: clamp(1.5rem, 6vmin, 2.8rem)
+// The weapon row: low, under the room's hologram and the mech.
+.centre:not(.beside)
+  top: 86%
 .or
   color: #ffd23f
   font-weight: 700
@@ -120,6 +135,18 @@ const arrowStyle = computed(() => aimArrow(target.value!, others.value))
     translate: -50% -50%
   50%
     translate: -50% calc(-50% - 0.7rem)
+// Right of the mech (it stands in the middle of the view, its legs where the
+// centre glyph sat), a little higher: the mech and the door both stay seen.
+.centre.beside
+  left: calc(50% + clamp(4.5rem, 14vw, 11rem))
+  top: 62%
+  translate: 0 -50%
+  animation-name: nudge-pop-beside
+@keyframes nudge-pop-beside
+  0%, 100%
+    translate: 0 -50%
+  50%
+    translate: 0 calc(-50% - 0.7rem)
 @media (prefers-reduced-motion: reduce)
   .centre, .ring
     animation: none

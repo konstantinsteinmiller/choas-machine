@@ -284,7 +284,7 @@ export default {
       'move': 'Nueik prie švytinčių durų, kad pradėtum treniruotę.',
       'jump': 'Užlipk kopėčiomis ir peršok per tarpą į kitą platformą! Bėgimas ir šuoliai kelia triukšmą, kurį girdi netoliese esantys sargybiniai.',
       'cover': 'Pritūpk už dėžių, kad sargybinis tavęs nematytų, tada pralįsk po vartais! Tylus tik žingsnis pritūpus: sargybiniai išgirsta, kai eini arti.',
-      'weapons': 'Įveik visus tris sargybinius: vieną nušauk snaiperio šautuvu, tada perjunk į minigun kitiems dviem! Šūviai kelia triukšmą: minigun girdi kiekvienas sargybinis aplink.',
+      'weapons': 'Persijunk į minigun ir įveik visus tris sargybinius! Šūviai kelia triukšmą: minigun girdi kiekvienas sargybinis aplink.',
       'rocket': 'Perjunk į raketsvaidį ir susprogdink mechą ant atbrailos! Raketos garsios: sprogimą girdi kiekvienas sargybinis.',
       'hide': 'Nušauk sargybinį, tada pasitrauk iš šaudymo vietos ir pasislėpk: dronas skrenda ten, iš kur buvo iššauta!',
       'supply': 'Pereik per dėžes, kad papildytum šaudmenis ir sutaisytum šarvus.',
@@ -312,7 +312,8 @@ export default {
       'hide': 'Iššovęs pasislėpk: pereik kitur, kitaip priešas ras, iš kur šovei.'
     },
     'door': {
-      'cover': 'Pritūpk kartą, kad praeitum',
+      'cover': 'Pritūpk ir prašliauk po vartais',
+      'coverCrawl': 'Prašliauk po vartais',
       'weapons': 'Pakirsk visus tris, kad praeitum',
       'rocket': 'Sunaikink mechą granatsvaidžiu',
       'hide': 'Nušauk sargybinį, tada slėpkis nuo drono',

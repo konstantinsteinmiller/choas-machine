@@ -54,6 +54,24 @@ describe('the training nudge (#186)', () => {
     expect(w.find('[data-testid="nudge-centre"]').exists()).toBe(true)
   })
 
+  it('the weapon switch on a keyboard (#201 follow-up): Tab, 2 and 3; never the wheel (scoped it zooms)', async () => {
+    hud.device = 'mouse'
+    hud.training.nudge = 'weapon'
+    const w = nudge()
+    await nextTick()
+    expect(w.find('[data-testid="nudge-weapon-2"]').exists()).toBe(true)
+    expect(w.find('[data-testid="nudge-weapon-3"]').exists()).toBe(true)
+    expect(w.find('.mouse-glyph').exists()).toBe(false)
+  })
+
+  it('a single key sits beside the mech, not over it (#201 follow-up: it hid the crouch and the gap)', async () => {
+    hud.device = 'mouse'
+    hud.training.nudge = 'crouch'
+    const w = nudge()
+    await nextTick()
+    expect(w.find('[data-testid="nudge-centre"]').classes()).toContain('beside')
+  })
+
   it('every nudged room control has its button', () => {
     for (const h of ['crouch', 'scope', 'rocket', 'blade', 'burn', 'decoy', 'rope', 'loot', 'weapon'] as const) expect(NUDGE_BUTTON[h], h).toBeTruthy()
   })

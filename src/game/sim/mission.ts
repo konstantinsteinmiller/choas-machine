@@ -69,7 +69,7 @@ import {
 import { AirshipView } from './airshipView'
 import { AIRSHIP_HALF } from '../models/airship'
 import { TrainingDirector } from './trainingDirector'
-import { DEMO_GAP_S, DOOR_LINES, atShutDoor, demoLength, entryOf, inPit, lessonStuck, nearDoorWall, roomAt, stepAlarm, victimFrame } from './training'
+import { DEMO_GAP_S, DOOR_CRAWL, DOOR_LINES, atShutDoor, demoLength, entryOf, inPit, lessonStuck, nearDoorWall, roomAt, stepAlarm, victimFrame } from './training'
 import { LESSON_IDS, TRAINING_ID, TRAINING_ROOMS, trainingArmor, type LessonId } from '../data/fortresses/training'
 import { COVER_H } from '../world/fortress'
 import { BASE_LOADOUT, type Loadout } from '../data/upgrades'
@@ -693,7 +693,8 @@ export class Mission implements GameMode {
       if (!tr || !shown) return
       tr.replay()
       const room = tr.state.room
-      const say = room >= 0 && !tr.state.done[room] ? DOOR_LINES[TRAINING_ROOMS[room]!.lesson] : undefined
+      const lesson = room >= 0 && !tr.state.done[room] ? TRAINING_ROOMS[room]!.lesson : undefined
+      const say = lesson === 'cover' && this.player.crouched ? DOOR_CRAWL : lesson ? DOOR_LINES[lesson] : undefined
       if (say) this.trainingShout(say.line as TrainingShout, say.hint)
     })
     this.offReplay?.()
@@ -3519,6 +3520,7 @@ export class Mission implements GameMode {
       // The room the mech is in now (#168): the one it just left must not open this one.
       cleared: this.roomCleared(Math.max(tr.state.room, roomAt(p.x))),
       crouches: this.crouchesDone,
+      crouched: p.crouched,
       tries: tr.state.roomResets[Math.max(0, tr.state.room, roomAt(p.x))] ?? 0,
       ...this.hideWatch(Math.max(tr.state.room, roomAt(p.x))),
       stocked: this.supplies.every(s => s.taken || !wants(s, this.arsenal, this.armor, this.loadout.rockets))
@@ -3548,7 +3550,7 @@ export class Mission implements GameMode {
         }
       }
       // Up against the shut door (#171): what it wants, in a few words, now and then.
-      const say = DOOR_LINES[TRAINING_ROOMS[cur]!.lesson]
+      const say = TRAINING_ROOMS[cur]!.lesson === 'cover' && p.crouched ? DOOR_CRAWL : DOOR_LINES[TRAINING_ROOMS[cur]!.lesson]
       // Near the door wall anywhere along it for a few seconds counts as at the
       // door (#186 follow-up: players press against the wall beside the doorway).
       this.nearDoorT = nearDoorWall(tr.state, cur, ctx) ? this.nearDoorT + dt : 0

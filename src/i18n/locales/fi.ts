@@ -284,7 +284,7 @@ export default {
       'move': 'Kävele hehkuvalle ovelle aloittaaksesi koulutuksen.',
       'jump': 'Kiipeä tikkaita ylös ja hyppää aukon yli toiselle tasanteelle! Juokseminen ja hyppiminen pitävät ääntä, jonka lähellä olevat vartijat kuulevat.',
       'cover': 'Kyykisty laatikoiden taakse, ettei vartija näe sinua, ja ryömi sitten portin ali! Vain kyykyssä liikkuminen on äänetöntä: vartijat kuulevat askeleesi läheltä.',
-      'weapons': 'Hoitele kaikki kolme vartijaa: ammu yksi tarkkuuskiväärillä ja vaihda sitten minigunniin kahta muuta varten! Laukaukset pitävät ääntä: minigunin kuulee jokainen lähistön vartija.',
+      'weapons': 'Vaihda minigunniin ja kaada kaikki kolme vartijaa! Laukaukset pitävät meteliä: jokainen lähellä oleva vartija kuulee minigunin.',
       'rocket': 'Vaihda raketinheittimeen ja räjäytä reunalla oleva mechi! Raketit ovat äänekkäitä: jokainen vartija kuulee räjähdyksen.',
       'hide': 'Ammu vartija, siirry sitten pois ampumapaikaltasi ja piiloudu: drooni lentää sinne, mistä laukaus tuli!',
       'supply': 'Kävele laatikoiden yli täydentääksesi ammukset ja korjataksesi panssarisi.',
@@ -312,7 +312,8 @@ export default {
       'hide': 'Piiloudu ampumisen jälkeen: siirry muualle, tai vihollinen löytää paikan, josta ammuit.'
     },
     'door': {
-      'cover': 'Kyyristy kerran päästäksesi läpi',
+      'cover': 'Kyykisty ja ryömi portin ali',
+      'coverCrawl': 'Ryömi portin ali',
       'weapons': 'Kaada kaikki kolme päästäksesi läpi',
       'rocket': 'Tuhoa mekki raketinheittimellä',
       'hide': 'Ammu vartija ja piiloudu droonilta',

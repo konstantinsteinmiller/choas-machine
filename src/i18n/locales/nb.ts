@@ -284,7 +284,7 @@ export default {
       'move': 'Gå bort til den glødende døra for å starte treningen.',
       'jump': 'Klatre opp stigen og hopp over gapet til den andre plattformen! Løping og hopping lager lyd som vakter i nærheten hører.',
       'cover': 'Huk deg bak kassene så vaktposten ikke ser deg, og kryp så under porten! Bare hukende skritt er lydløse: vaktene hører deg gå tett innpå.',
-      'weapons': 'Ta ut alle tre vaktene: skyt én med snikskytterrifla, og bytt så til minigunen for de to andre! Skudd lager lyd: minigunen hører alle vaktene rundt.',
+      'weapons': 'Bytt til minigunen og ta ut alle tre vaktene! Skudd lager støy: minigunen høres av alle vakter i nærheten.',
       'rocket': 'Bytt til rakettkasteren og spreng mechen på avsatsen! Raketter er høylytte: alle vakter hører eksplosjonen.',
       'hide': 'Skyt vakten, flytt deg så bort fra skytestedet og gjem deg: dronen flyr dit skuddet kom fra!',
       'supply': 'Gå over kassene for å fylle opp ammunisjonen og reparere panseret ditt.',
@@ -312,7 +312,8 @@ export default {
       'hide': 'Gjem deg etter at du har skutt: flytt deg et annet sted, ellers finner fienden ut hvor du skjøt fra.'
     },
     'door': {
-      'cover': 'Huk deg én gang for å komme forbi',
+      'cover': 'Dukk deg og kryp under porten',
+      'coverCrawl': 'Kryp under porten',
       'weapons': 'Ta ned alle tre for å komme forbi',
       'rocket': 'Ødelegg mechen med rakettkasteren',
       'hide': 'Skyt vakten, og gjem deg for dronen',

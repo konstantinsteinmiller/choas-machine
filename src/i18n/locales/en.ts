@@ -288,7 +288,7 @@ export default {
       'move': 'Walk over to the glowing door to start your training.',
       'jump': 'Climb the ladder and jump across the gap to the other platform! Running and jumping make noise that nearby guards hear.',
       'cover': 'Crouch behind the crates so the sentry can\'t see you, then crawl under the gate! Only a crouched step is silent: guards hear you walk up close.',
-      'weapons': 'Take out all three guards: snipe one, then switch to the minigun for the other two! Shots make noise: the minigun is heard by every guard around.',
+      'weapons': 'Switch to the minigun and take out all three guards! Shots make noise: the minigun is heard by every guard around.',
       'rocket': 'Switch to the rocket launcher and blow up the mech on the ledge! Rockets are loud: every guard hears the blast.',
       'hide': 'Shoot the guard, then get away from your firing spot and hide: the drone flies to where the shot came from!',
       'supply': 'Walk over the crates to refill your ammo and repair your armour.',
@@ -316,7 +316,8 @@ export default {
       'hide': 'Hide after shooting: move somewhere else, or the enemy finds where you shot from.'
     },
     'door': {
-      'cover': 'Crouch once to pass',
+      'cover': 'Crouch and crawl under the gate',
+      'coverCrawl': 'Crawl under the gate',
       'weapons': 'Take down all three to pass',
       'rocket': 'Destroy the mech with the launcher',
       'hide': 'Shoot the guard, then hide from the drone',

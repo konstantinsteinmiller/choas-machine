@@ -139,8 +139,10 @@ export const DEMOS: Readonly<Record<LessonId, readonly DemoKey[]>> = {
     { t: 7.2, x: 11, z: 7, crouch: 1 }, { t: 7.8, x: 11.5, z: 7, crouch: 1 }, { t: 9.0, x: 11.5, z: 7, crouch: 1 }
   ],
   weapons: [
-    { t: 0, x: 2, z: 7, face: [10, 2], weapon: 'sniper', aim: 0, hint: 'scope' }, { t: 0.7, aim: 1 }, { t: 1.8, aim: 1, hint: 'fire' },
-    { t: 2.6, aim: 0, weapon: 'minigun', face: [8.5, 11], hint: 'weapon' }, { t: 3.2, aim: 1, hint: 'fire' }, { t: 5.6, aim: 1 }
+    // The minigun on all three (#201 follow-up: players kept the rifle all
+    // the way): drawn first, then a stream into the sentry, a turn, the two.
+    { t: 0, x: 2, z: 7, face: [10, 2], weapon: 'sniper', aim: 0, hint: 'weapon' }, { t: 0.8, weapon: 'minigun', aim: 0 },
+    { t: 1.3, aim: 1, hint: 'fire' }, { t: 2.15, aim: 1 }, { t: 2.5, aim: 0, face: [8.5, 11] }, { t: 3.1, aim: 1, hint: 'fire' }, { t: 5.6, aim: 1 }
   ],
   // The launcher (#146): 3 draws it, up it comes (aimed up at the ledge), and
   // the rocket leaves its nose for the hologram's mech beside the real one,
@@ -247,7 +249,7 @@ const round = (x: number, z: number, fling: number, lift: number): DemoTarget =>
   ({ at: [x, z], yaw: Math.atan2(DEMO_DRUM[0] - x, DEMO_DRUM[1] - z), death: 'thrown', fling, lift })
 
 export const DEMO_TARGETS: Readonly<Partial<Record<LessonId, readonly DemoTarget[]>>> = {
-  // The sentry the rifle takes, the two the minigun cuts down.
+  // The sentry and the two the minigun cuts down.
   weapons: [
     { at: [10, 2], yaw: Math.PI, death: 'back' }, { at: [8, 11], yaw: 0, death: 'front' }, { at: [9, 11], yaw: 0, death: 'back' }
   ],
@@ -262,8 +264,8 @@ const burst = (t0: number, n: number, every: number, target: number): DemoShot[]
   Array.from({ length: n }, (_, k) => ({ t: t0 + k * every, weapon: 'minigun' as const, target, y: 1.05 + ((k * 7) % 5) * 0.12, fly: 0.11 }))
 
 export const DEMO_SHOTS: Readonly<Partial<Record<LessonId, readonly DemoShot[]>>> = {
-  // One bright round into the sentry, then the minigun's stream on the two.
-  weapons: [{ t: 1.8, weapon: 'sniper', target: 0, y: 1.45, fly: 0.09 }, ...burst(3.35, 9, 0.07, 1), ...burst(4.02, 7, 0.07, 2)],
+  // The minigun's stream: into the sentry, then on the two.
+  weapons: [...burst(1.5, 8, 0.07, 0), ...burst(3.35, 9, 0.07, 1), ...burst(4.02, 7, 0.07, 2)],
   barrel: [{ t: 2.7, weapon: 'sniper', target: 'drum', y: 0.7, fly: 0.1 }],
   hide: [{ t: HIDE_SHOT_T, weapon: 'sniper', target: 0, y: 1.45, fly: 0.1 }]
 }
@@ -360,6 +362,8 @@ export interface TrainingContext {
   cleared?: boolean
   /** Times the mech has gone into a crouch (#171: the cover room's door wants one). */
   crouches?: number
+  /** The mech is crouched now: one that came to the cover room's door already down has done its crouch. */
+  crouched?: boolean
   /** Times the mech's room has been started over (#171: the decoy room's first try wants the blade). */
   tries?: number
   /**
@@ -435,8 +439,10 @@ export const lessonDone = (i: number, c: TrainingContext, b: TrainingContext): b
   }
   switch (r.lesson) {
     case 'move': case 'jump': case 'box': return atDoor()
-    // To the door, and crouched on the way at least once (#171).
-    case 'cover': return atDoor() && (c.crouches ?? 0) > (b.crouches ?? 0)
+    // To the door, and crouched on the way at least once (#171), or crouched
+    // there now: a player who came in already down (as the card says to) was
+    // told "crouch" by a door it was crouched at, and pressing it stood the mech up.
+    case 'cover': return atDoor() && ((c.crouches ?? 0) > (b.crouches ?? 0) || !!c.crouched)
     // The guard down (#171): by the blade on the first try; after a try
     // started over, any way at all (#165: a player who will not learn the
     // decoy is let through after the hint).
@@ -607,6 +613,13 @@ export const DOOR_LINES: Readonly<Partial<Record<LessonId, { line: string; hint:
   rope: { line: 'door.rope', hint: 'rope' },
   salvage: { line: 'door.salvage', hint: 'loot' }
 }
+
+/**
+ * The cover room's door to a mech already crouched (#201 follow-up): never
+ * "crouch" (the key is a toggle: pressing it stood the mech up, too tall for
+ * the gap), but the way through: crawl on, under the gate.
+ */
+export const DOOR_CRAWL: { line: string; hint: HintId } = { line: 'door.coverCrawl', hint: 'move' }
 
 /**
  * The mech is close to room `i`'s door wall, anywhere along it, with the

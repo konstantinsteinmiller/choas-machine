@@ -284,7 +284,7 @@ export default {
       'move': 'Raggiungi la porta luminosa per iniziare l\'addestramento.',
       'jump': 'Sali la scala e salta oltre il vuoto fino all\'altra piattaforma! Correre e saltare fa rumore e le guardie vicine lo sentono.',
       'cover': 'Accovacciati dietro le casse così la sentinella non ti vede, poi striscia sotto il cancello! Solo il passo accovacciato è silenzioso: le guardie ti sentono camminare da vicino.',
-      'weapons': 'Elimina tutte e tre le guardie: abbattine una col fucile di precisione, poi passa alla minigun per le altre due! Gli spari fanno rumore: la minigun la sente ogni guardia nei dintorni.',
+      'weapons': 'Passa alla minigun ed elimina tutte e tre le guardie! Gli spari fanno rumore: ogni guardia nei paraggi sente la minigun.',
       'rocket': 'Passa al lanciarazzi e fai saltare in aria il mech sulla sporgenza! I razzi sono rumorosi: ogni guardia sente l\'esplosione.',
       'hide': 'Spara alla guardia, poi allontanati dalla tua posizione di tiro e nasconditi: il drone vola dove è partito il colpo!',
       'supply': 'Passa sopra le casse per ricaricare le munizioni e riparare la corazza.',
@@ -312,7 +312,8 @@ export default {
       'hide': 'Nasconditi dopo aver sparato: spostati altrove, o il nemico troverà da dove hai sparato.'
     },
     'door': {
-      'cover': 'Accovacciati una volta per passare',
+      'cover': 'Accovacciati e striscia sotto il cancello',
+      'coverCrawl': 'Striscia sotto il cancello',
       'weapons': 'Abbatti tutti e tre per passare',
       'rocket': 'Distruggi il mech con il lanciarazzi',
       'hide': 'Spara alla guardia, poi nasconditi dal drone',

@@ -284,7 +284,7 @@ export default {
       'move': 'Vai ata a porta brillante para comezar o teu adestramento.',
       'jump': 'Sube pola escaleira e salta o oco ata a outra plataforma! Correr e saltar fai ruído que oen os gardas próximos.',
       'cover': 'Agáchate detrás das caixas para que o centinela non te vexa e despois arrástrate por debaixo da reixa! Só o paso agachado é silencioso: os gardas óente camiñar de preto.',
-      'weapons': 'Acaba cos tres gardas: abate un co rifle de francotirador e despois cambia á minigun para os outros dous! Os disparos fan ruído: todos os gardas arredor oen a minigun.',
+      'weapons': 'Cambia á minigun e elimina os tres gardas! Os disparos fan ruído: todos os gardas próximos escoitan a minigun.',
       'rocket': 'Cambia ao lanzafoguetes e fai voar o mech da cornixa! Os foguetes son ruidosos: todos os gardas oen a explosión.',
       'hide': 'Dispara ao garda, despois afástate do lugar desde onde disparaches e agóchate: o dron voa ata onde saíu o disparo!',
       'supply': 'Pasa por riba das caixas para recargar munición e reparar a túa blindaxe.',
@@ -312,7 +312,8 @@ export default {
       'hide': 'Agóchate despois de disparar: móvete a outro sitio ou o inimigo atopará desde onde disparaches.'
     },
     'door': {
-      'cover': 'Agáchate unha vez para pasar',
+      'cover': 'Agáchate e arrástrate baixo a porta',
+      'coverCrawl': 'Arrástrate baixo a porta',
       'weapons': 'Abate os tres para pasar',
       'rocket': 'Destrúe o mecha co lanzafoguetes',
       'hide': 'Dispara ao garda e agóchate do dron',

@@ -74,13 +74,13 @@ describe('every demo round flies before its target falls', () => {
     }
   })
 
-  it('the rifle is one round, the minigun a stream of them', () => {
+  it('the weapons room is the minigun on all three (#201 follow-up): a stream into each, no rifle round', () => {
     const shots = DEMO_SHOTS.weapons!
-    expect(shots.filter(q => q.weapon === 'sniper')).toHaveLength(1)
-    for (const k of [1, 2]) expect(shots.filter(q => q.weapon === 'minigun' && q.target === k).length).toBeGreaterThanOrEqual(5)
+    expect(shots.filter(q => q.weapon === 'sniper')).toHaveLength(0)
+    for (const k of [0, 1, 2]) expect(shots.filter(q => q.weapon === 'minigun' && q.target === k).length).toBeGreaterThanOrEqual(5)
   })
 
-  it('on screen: a bolt is out while the rifle round flies, and the sentry stands until it lands', () => {
+  it('on screen: a bolt is out while the first round flies, and the sentry stands until it lands', () => {
     const f = buildTrainingGround()
     const fx = fakeFx()
     const d = new TrainingDirector(new Scene(), f, makeGarrison(f, 1), fx) as unknown as Inside

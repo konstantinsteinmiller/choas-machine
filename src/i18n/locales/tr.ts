@@ -284,7 +284,7 @@ export default {
       'move': 'Eğitimine başlamak için parlayan kapıya yürü.',
       'jump': 'Merdivene tırman ve boşluğun üstünden diğer platforma atla! Koşmak ve zıplamak, yakındaki muhafızların duyduğu bir ses çıkarır.',
       'cover': 'Nöbetçi seni görmesin diye sandıkların arkasında çömel, sonra kapının altından sürünerek geç! Sadece çömelerek atılan adım sessizdir: yakından yürürsen muhafızlar seni duyar.',
-      'weapons': 'Üç muhafızın hepsini indir: birini keskin nişancı tüfeğiyle vur, sonra diğer ikisi için minigun\'a geç! Atışlar ses çıkarır: minigun\'u çevredeki her muhafız duyar.',
+      'weapons': 'Minigun\'a geç ve üç muhafızı da indir! Atışlar ses çıkarır: minigun\'u çevredeki her muhafız duyar.',
       'rocket': 'Roketatara geç ve çıkıntıdaki mech\'i havaya uçur! Roketler gürültülüdür: patlamayı her muhafız duyar.',
       'hide': 'Muhafızı vur, sonra ateş ettiğin yerden uzaklaş ve saklan: drone atışın geldiği yere uçar!',
       'supply': 'Cephaneni doldurmak ve zırhını onarmak için sandıkların üzerinden yürü.',
@@ -312,7 +312,8 @@ export default {
       'hide': 'Ateş ettikten sonra saklan: başka bir yere geç, yoksa düşman nereden ateş ettiğini bulur.'
     },
     'door': {
-      'cover': 'Geçmek için bir kez çömel',
+      'cover': 'Eğil ve kapının altından sürün',
+      'coverCrawl': 'Kapının altından sürün',
       'weapons': 'Geçmek için üçünü de indir',
       'rocket': "Mech'i roketatarla yok et",
       'hide': 'Muhafızı vur, sonra drone\'dan saklan',

@@ -36,6 +36,14 @@ afterEach(() => {
   surface.remove()
 })
 
+describe('the wheel (#201 follow-up)', () => {
+  it('switches weapons with the mouse not captured too (playtesters turned it and nothing happened)', () => {
+    expect(input.locked).toBe(false)
+    surface.dispatchEvent(new WheelEvent('wheel', { deltaY: 100, bubbles: true }))
+    expect(input.wheelQueued).toBe(1)
+  })
+})
+
 describe('keys', () => {
   it('WASD moves, normalised on the diagonal; arrows turn', () => {
     key('keydown', 'KeyW')

@@ -284,7 +284,7 @@ export default {
       'move': 'Va jusqu\'à la porte lumineuse pour commencer ton entraînement.',
       'jump': 'Grimpe à l\'échelle et saute par-dessus le vide jusqu\'à l\'autre plateforme ! Courir et sauter fait du bruit que les gardes proches entendent.',
       'cover': 'Accroupis-toi derrière les caisses pour que la sentinelle ne te voie pas, puis rampe sous la grille ! Seul un pas accroupi est silencieux : les gardes t\'entendent marcher de près.',
-      'weapons': 'Élimine les trois gardes : abats-en un au fusil de sniper, puis passe au minigun pour les deux autres ! Les tirs font du bruit : tous les gardes alentour entendent le minigun.',
+      'weapons': 'Passe à la minigun et élimine les trois gardes ! Les tirs font du bruit : tous les gardes alentour entendent la minigun.',
       'rocket': 'Passe au lance-roquettes et fais exploser le mech sur la corniche ! Les roquettes sont bruyantes : tous les gardes entendent l\'explosion.',
       'hide': 'Abats le garde, puis éloigne-toi de ta position de tir et cache-toi : le drone vole là d\'où est parti le tir !',
       'supply': 'Marche sur les caisses pour recharger tes munitions et réparer ton blindage.',
@@ -312,7 +312,8 @@ export default {
       'hide': 'Cache-toi après avoir tiré : change de place, sinon l\'ennemi trouvera d\'où tu as tiré.'
     },
     'door': {
-      'cover': 'Accroupis-toi une fois pour passer',
+      'cover': 'Accroupis-toi et rampe sous la grille',
+      'coverCrawl': 'Rampe sous la grille',
       'weapons': 'Abats les trois pour passer',
       'rocket': 'Détruis le mécha avec le lance-roquettes',
       'hide': 'Abats le garde, puis cache-toi du drone',

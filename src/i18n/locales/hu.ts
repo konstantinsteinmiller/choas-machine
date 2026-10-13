@@ -284,7 +284,7 @@ export default {
       'move': 'Sétálj a világító ajtóhoz, hogy elkezdd a kiképzést.',
       'jump': 'Mássz fel a létrán, és ugord át a szakadékot a másik platformra! A futás és az ugrás zajt csap, amit a közeli őrök meghallanak.',
       'cover': 'Guggolj le a ládák mögé, hogy az őr ne lásson, aztán kússz át a kapu alatt! Csak a guggolva tett lépés néma: az őrök közelről meghallják, ha sétálsz.',
-      'weapons': 'Iktasd ki mindhárom őrt: egyet szedj le mesterlövészpuskával, aztán válts minigunra a másik kettőhöz! A lövések zajt csapnak: a minigunt minden őr hallja a környéken.',
+      'weapons': 'Válts a minigunra, és intézd el mindhárom őrt! A lövések zajosak: a minigunt minden közeli őr hallja.',
       'rocket': 'Válts rakétavetőre, és robbantsd fel a párkányon álló mechet! A rakéták hangosak: a robbanást minden őr hallja.',
       'hide': 'Lődd le az őrt, aztán menj el a lőállásodból, és bújj el: a drón oda repül, ahonnan a lövés jött!',
       'supply': 'Sétálj át a ládákon, hogy feltöltsd a lőszert és megjavítsd a páncélod.',
@@ -312,7 +312,8 @@ export default {
       'hide': 'Lövés után bújj el: menj máshová, különben az ellenség megtalálja, honnan lőttél.'
     },
     'door': {
-      'cover': 'Guggolj egyszer az átjutáshoz',
+      'cover': 'Guggolj le, és kússz át a kapu alatt',
+      'coverCrawl': 'Kússz át a kapu alatt',
       'weapons': 'Ütsd ki mind a hármat az átjutáshoz',
       'rocket': 'Semmisítsd meg a mechet a rakétavetővel',
       'hide': 'Lődd le az őrt, aztán bújj el a drón elől',

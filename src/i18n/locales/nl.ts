@@ -284,7 +284,7 @@ export default {
       'move': 'Loop naar de gloeiende deur om je training te starten.',
       'jump': 'Klim de ladder op en spring over de kloof naar het andere platform! Rennen en springen maken lawaai dat bewakers in de buurt horen.',
       'cover': 'Buk achter de kratten zodat de wachtpost je niet ziet en kruip dan onder het hek door! Alleen gebukt lopen is geruisloos: bewakers horen je van dichtbij lopen.',
-      'weapons': 'Schakel alle drie de bewakers uit: schiet er één neer met het sluipschuttersgeweer en wissel dan naar de minigun voor de andere twee! Schoten maken lawaai: de minigun hoort elke bewaker in de buurt.',
+      'weapons': 'Wissel naar de minigun en schakel alle drie de bewakers uit! Schoten maken lawaai: elke bewaker in de buurt hoort de minigun.',
       'rocket': 'Wissel naar de raketwerper en blaas de mech op de richel op! Raketten zijn luid: elke bewaker hoort de explosie.',
       'hide': 'Schiet de bewaker neer, ga dan weg van je schietpositie en verstop je: de drone vliegt naar waar het schot vandaan kwam!',
       'supply': 'Loop over de kratten om je munitie aan te vullen en je pantser te repareren.',
@@ -312,7 +312,8 @@ export default {
       'hide': 'Verstop je na het schieten: ga ergens anders heen, anders vindt de vijand waar je vandaan schoot.'
     },
     'door': {
-      'cover': 'Buk één keer om erdoor te komen',
+      'cover': 'Buk en kruip onder het hek door',
+      'coverCrawl': 'Kruip onder het hek door',
       'weapons': 'Schakel alle drie uit om erdoor te komen',
       'rocket': 'Vernietig de mech met de raketwerper',
       'hide': 'Schiet de bewaker neer en verstop je voor de drone',

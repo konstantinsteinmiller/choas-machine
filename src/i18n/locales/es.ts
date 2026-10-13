@@ -284,7 +284,7 @@ export default {
       'move': 'Ve hasta la puerta brillante para empezar tu entrenamiento.',
       'jump': '¡Sube por la escalera y salta el hueco hasta la otra plataforma! Correr y saltar hace ruido que oyen los guardias cercanos.',
       'cover': '¡Agáchate detrás de las cajas para que el centinela no te vea y luego arrástrate bajo la verja! Solo el paso agachado es silencioso: los guardias te oyen caminar de cerca.',
-      'weapons': '¡Acaba con los tres guardias: elimina a uno con el rifle de francotirador y luego cambia a la minigun para los otros dos! Los disparos hacen ruido: todos los guardias de alrededor oyen la minigun.',
+      'weapons': '¡Cambia a la minigun y elimina a los tres guardias! Los disparos hacen ruido: todos los guardias cercanos oyen la minigun.',
       'rocket': '¡Cambia al lanzacohetes y vuela el mech de la cornisa! Los cohetes son ruidosos: todos los guardias oyen la explosión.',
       'hide': '¡Dispara al guardia, luego aléjate de tu posición de tiro y escóndete: el dron vuela hasta donde salió el disparo!',
       'supply': 'Pasa por encima de las cajas para recargar munición y reparar tu blindaje.',
@@ -312,7 +312,8 @@ export default {
       'hide': 'Escóndete después de disparar: muévete a otro sitio o el enemigo encontrará desde dónde disparaste.'
     },
     'door': {
-      'cover': 'Agáchate una vez para pasar',
+      'cover': 'Agáchate y arrástrate bajo la puerta',
+      'coverCrawl': 'Arrástrate bajo la puerta',
       'weapons': 'Abate a los tres para pasar',
       'rocket': 'Destruye el mecha con el lanzacohetes',
       'hide': 'Dispara al guardia y escóndete del dron',

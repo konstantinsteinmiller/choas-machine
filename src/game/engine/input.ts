@@ -670,7 +670,9 @@ export const attachInput = (surface: HTMLElement, input: Input, opts: InputOptio
   }
 
   const onWheel = (e: WheelEvent) => {
-    if (touchOnly || !input.locked) return
+    // Captured or not (#201 follow-up: playtesters whose mouse was never
+    // captured turned the wheel the switch hint shows, and nothing happened).
+    if (touchOnly) return
     if (e.deltaY !== 0) input.wheelQueued += Math.sign(e.deltaY)
   }
 

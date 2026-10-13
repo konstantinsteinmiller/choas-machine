@@ -284,7 +284,7 @@ export default {
       'move': 'Dojdi ke svítícím dveřím a začni trénink.',
       'jump': 'Vylez po žebříku a přeskoč mezeru na druhou plošinu! Běh a skoky dělají hluk, který blízcí strážní slyší.',
       'cover': 'Skrč se za bednami, aby tě hlídka neviděla, a pak se proplaz pod branou! Tichý je jen krok v podřepu: strážní tě zblízka uslyší jít.',
-      'weapons': 'Vyřiď všechny tři strážné: jednoho sundej odstřelovačkou, pak přepni na minigun na zbylé dva! Výstřely dělají hluk: minigun slyší každý strážný v okolí.',
+      'weapons': 'Přepni na minigun a vyřaď všechny tři strážné! Střelba je hlučná: minigun slyší každý strážný v okolí.',
       'rocket': 'Přepni na raketomet a vyhoď do vzduchu mecha na římse! Rakety jsou hlasité: výbuch slyší každý strážný.',
       'hide': 'Zastřel strážného, pak se vzdal od místa, odkud jsi střílel, a schovej se: dron letí tam, odkud výstřel přišel!',
       'supply': 'Přejdi přes bedny, doplň munici a oprav si pancíř.',
@@ -312,7 +312,8 @@ export default {
       'hide': 'Po výstřelu se schovej: přesuň se jinam, jinak nepřítel najde místo, odkud jsi střílel.'
     },
     'door': {
-      'cover': 'Skrč se jednou a projdeš',
+      'cover': 'Přikrč se a proplaz se pod bránou',
+      'coverCrawl': 'Proplaz se pod bránou',
       'weapons': 'Sejmi všechny tři a projdeš',
       'rocket': 'Znič mecha raketometem',
       'hide': 'Zastřel strážného a schovej se před dronem',

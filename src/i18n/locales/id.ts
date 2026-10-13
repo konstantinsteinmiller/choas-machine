@@ -284,7 +284,7 @@ export default {
       'move': 'Jalan ke pintu yang menyala untuk memulai latihanmu.',
       'jump': 'Naiki tangga dan lompati celah ke platform seberang! Berlari dan melompat menimbulkan suara yang didengar penjaga di dekatmu.',
       'cover': 'Merunduk di balik peti supaya penjaga tidak melihatmu, lalu merangkak di bawah gerbang! Hanya langkah merunduk yang senyap: penjaga mendengarmu berjalan dari dekat.',
-      'weapons': 'Habisi ketiga penjaga: tembak satu dengan senapan sniper, lalu ganti ke minigun untuk dua lainnya! Tembakan menimbulkan suara: minigun terdengar oleh semua penjaga di sekitar.',
+      'weapons': 'Ganti ke minigun dan habisi ketiga penjaga! Tembakan menimbulkan suara: setiap penjaga di sekitar mendengar minigun.',
       'rocket': 'Ganti ke peluncur roket dan ledakkan mech di tepian! Roket itu bising: semua penjaga mendengar ledakannya.',
       'hide': 'Tembak penjaganya, lalu menjauh dari posisi tembakmu dan bersembunyi: drone terbang ke tempat asal tembakan!',
       'supply': 'Jalan di atas peti untuk mengisi ulang amunisi dan memperbaiki armormu.',
@@ -312,7 +312,8 @@ export default {
       'hide': 'Bersembunyilah setelah menembak: pindah ke tempat lain, atau musuh akan menemukan dari mana kamu menembak.'
     },
     'door': {
-      'cover': 'Jongkok sekali untuk lewat',
+      'cover': 'Jongkok dan merangkak di bawah gerbang',
+      'coverCrawl': 'Merangkak di bawah gerbang',
       'weapons': 'Tumbangkan ketiganya untuk lewat',
       'rocket': 'Hancurkan mech dengan peluncur',
       'hide': 'Tembak penjaganya, lalu sembunyi dari drone',

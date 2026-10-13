@@ -284,7 +284,7 @@ export default {
       'move': 'Mashg\'ulotni boshlash uchun nur sochayotgan eshik oldiga bor.',
       'jump': 'Narvondan chiqib, bo\'shliqdan sakrab, narigi platformaga o\'t! Yugurish va sakrash shovqin chiqaradi, yaqindagi qorovullar uni eshitadi.',
       'cover': 'Qorovul seni ko\'rmasligi uchun yashiklar ortida engash, keyin darvoza ostidan emaklab o\'t! Faqat engashib bosilgan qadam sassiz: yaqinda yursang, qorovullar eshitadi.',
-      'weapons': 'Uchala qorovulni ham yo\'q qil: birini snayper miltig\'idan ur, keyin qolgan ikkitasi uchun minigunga o\'t! O\'q uzish shovqin chiqaradi: minigunni atrofdagi har bir qorovul eshitadi.',
+      'weapons': 'Minigunga o‘ting va uchala qo‘riqchini ham yo‘q qiling! O‘q ovozi shovqin chiqaradi: minigunni atrofdagi har bir qo‘riqchi eshitadi.',
       'rocket': 'Raketa otgichga o\'t va chekkadagi mexni portlat! Raketalar baland ovozli: portlashni har bir qorovul eshitadi.',
       'hide': 'Qo\'riqchini ot, keyin o\'q uzgan joyingdan uzoqlash va yashirin: dron o\'q kelgan joyga uchib keladi!',
       'supply': 'O\'q-dorini to\'ldirish va zirhingni tuzatish uchun yashiklar ustidan yur.',
@@ -312,7 +312,8 @@ export default {
       'hide': 'O\'q uzgandan keyin yashirin: boshqa joyga o\'t, aks holda dushman qayerdan otganingni topadi.'
     },
     'door': {
-      'cover': "O'tish uchun bir marta cho'kkala",
+      'cover': 'Egilib, darvoza ostidan emaklab o‘ting',
+      'coverCrawl': 'Darvoza ostidan emaklab o‘ting',
       'weapons': "O'tish uchun uchalasini ham yiq",
       'rocket': "Mexni granatomyot bilan yo'q qil",
       'hide': 'Qo\'riqchini ot, keyin drondan yashirin',

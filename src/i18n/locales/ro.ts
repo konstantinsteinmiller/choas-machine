@@ -284,7 +284,7 @@ export default {
       'move': 'Mergi la ușa strălucitoare ca să începi antrenamentul.',
       'jump': 'Urcă pe scară și sari peste gol pe cealaltă platformă! Alergatul și săriturile fac zgomot pe care paznicii din apropiere îl aud.',
       'cover': 'Ghemuiește-te după lăzi ca santinela să nu te vadă, apoi târăște-te pe sub poartă! Doar pasul ghemuit e silențios: paznicii te aud când mergi aproape.',
-      'weapons': 'Elimină toți cei trei paznici: doboară unul cu pușca cu lunetă, apoi treci pe minigun pentru ceilalți doi! Focurile fac zgomot: minigunul îl aude orice paznic din jur.',
+      'weapons': 'Treci pe minigun și elimină toți cei trei paznici! Focurile fac zgomot: minigunul e auzit de fiecare paznic din jur.',
       'rocket': 'Treci pe lansatorul de rachete și aruncă în aer mech-ul de pe margine! Rachetele sunt zgomotoase: orice paznic aude explozia.',
       'hide': 'Împușcă paznicul, apoi pleacă de la locul de unde ai tras și ascunde-te: drona zboară acolo de unde a venit focul!',
       'supply': 'Treci peste lăzi ca să-ți reumpli muniția și să-ți repari blindajul.',
@@ -312,7 +312,8 @@ export default {
       'hide': 'Ascunde-te după ce tragi: mută-te în altă parte, altfel inamicul găsește locul de unde ai tras.'
     },
     'door': {
-      'cover': 'Ghemuiește-te o dată ca să treci',
+      'cover': 'Ghemuiește-te și târăște-te pe sub poartă',
+      'coverCrawl': 'Târăște-te pe sub poartă',
       'weapons': 'Doboară-le pe toate trei ca să treci',
       'rocket': 'Distruge mechul cu lansatorul',
       'hide': 'Împușcă paznicul, apoi ascunde-te de dronă',

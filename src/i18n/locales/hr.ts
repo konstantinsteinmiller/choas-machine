@@ -284,7 +284,7 @@ export default {
       'move': 'Dođi do svijetlećih vrata da započneš obuku.',
       'jump': 'Popni se ljestvama i preskoči procjep do druge platforme! Trčanje i skakanje stvaraju buku koju čuju obližnji stražari.',
       'cover': 'Čučni iza sanduka da te stražar ne vidi, a onda se provuci ispod kapije! Tih je samo čučeći korak: stražari te čuju kad hodaš blizu.',
-      'weapons': 'Eliminiraj sva tri stražara: jednog skini snajperom, a onda prebaci na minigun za druga dva! Pucnji stvaraju buku: minigun čuje svaki stražar u blizini.',
+      'weapons': 'Prebaci na minigun i sredi sva tri stražara! Pucnji su glasni: svaki stražar u blizini čuje minigun.',
       'rocket': 'Prebaci na raketni bacač i raznesi mecha na izbočini! Rakete su glasne: eksploziju čuje svaki stražar.',
       'hide': 'Upucaj stražara, zatim se makni s mjesta s kojeg si pucao i sakrij se: dron leti onamo odakle je došao pucanj!',
       'supply': 'Prijeđi preko sanduka da napuniš streljivo i popraviš oklop.',
@@ -312,7 +312,8 @@ export default {
       'hide': 'Sakrij se nakon pucanja: premjesti se drugamo ili će neprijatelj pronaći odakle si pucao.'
     },
     'door': {
-      'cover': 'Čučni jednom da prođeš',
+      'cover': 'Čučni i provuci se ispod vrata',
+      'coverCrawl': 'Provuci se ispod vrata',
       'weapons': 'Obori sva tri da prođeš',
       'rocket': 'Uništi meha bacačem',
       'hide': 'Upucaj stražara, zatim se sakrij od drona',

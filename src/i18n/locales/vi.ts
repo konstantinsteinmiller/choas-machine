@@ -284,7 +284,7 @@ export default {
       'move': 'Đi tới cánh cửa phát sáng để bắt đầu huấn luyện.',
       'jump': 'Leo lên thang và nhảy qua khe hở sang bệ bên kia! Chạy và nhảy gây tiếng động mà lính gác gần đó nghe thấy.',
       'cover': 'Cúi người sau các thùng hàng để lính gác không thấy bạn, rồi bò qua dưới cổng! Chỉ bước đi khi cúi người mới im lặng: lính gác nghe thấy bạn đi lại gần.',
-      'weapons': 'Hạ cả ba lính gác: bắn tỉa một tên, rồi đổi sang minigun cho hai tên còn lại! Tiếng súng gây ồn: mọi lính gác xung quanh đều nghe thấy minigun.',
+      'weapons': 'Đổi sang minigun và hạ cả ba lính gác! Tiếng súng gây ồn: mọi lính gác xung quanh đều nghe thấy minigun.',
       'rocket': 'Đổi sang súng phóng tên lửa và cho nổ tung con mech trên gờ đá! Tên lửa rất ồn: mọi lính gác đều nghe thấy vụ nổ.',
       'hide': 'Bắn tên lính gác, rồi rời khỏi chỗ bắn và ẩn nấp: drone sẽ bay tới nơi phát ra phát súng!',
       'supply': 'Đi qua các thùng hàng để nạp lại đạn và sửa giáp.',
@@ -312,7 +312,8 @@ export default {
       'hide': 'Bắn xong thì ẩn nấp: hãy di chuyển chỗ khác, nếu không kẻ địch sẽ tìm ra nơi bạn đã bắn.'
     },
     'door': {
-      'cover': 'Cúi xuống một lần để qua',
+      'cover': 'Cúi người và bò qua dưới cổng',
+      'coverCrawl': 'Bò qua dưới cổng',
       'weapons': 'Hạ cả ba để qua',
       'rocket': 'Phá hủy mech bằng súng phóng',
       'hide': 'Bắn lính gác, rồi trốn khỏi drone',

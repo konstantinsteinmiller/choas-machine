@@ -284,7 +284,7 @@ export default {
       'move': 'Vá até a porta brilhante para começar seu treinamento.',
       'jump': 'Suba a escada e pule o vão até a outra plataforma! Correr e pular faz barulho que os guardas próximos ouvem.',
       'cover': 'Agache atrás das caixas para a sentinela não te ver e depois rasteje por baixo do portão! Só o passo agachado é silencioso: os guardas ouvem você andar de perto.',
-      'weapons': 'Elimine os três guardas: abata um com o rifle de precisão e depois troque para a minigun para os outros dois! Os tiros fazem barulho: todos os guardas por perto ouvem a minigun.',
+      'weapons': 'Troque para a minigun e elimine os três guardas! Os tiros fazem barulho: todos os guardas por perto ouvem a minigun.',
       'rocket': 'Troque para o lança-foguetes e exploda o mech na beirada! Os foguetes são barulhentos: todos os guardas ouvem a explosão.',
       'hide': 'Atire no guarda, depois saia da sua posição de tiro e se esconda: o drone voa até onde o tiro saiu!',
       'supply': 'Passe por cima das caixas para recarregar a munição e consertar sua blindagem.',
@@ -312,7 +312,8 @@ export default {
       'hide': 'Esconda-se depois de atirar: mude de lugar, ou o inimigo descobre de onde você atirou.'
     },
     'door': {
-      'cover': 'Agache uma vez para passar',
+      'cover': 'Agache e rasteje por baixo do portão',
+      'coverCrawl': 'Rasteje por baixo do portão',
       'weapons': 'Derrube os três para passar',
       'rocket': 'Destrua o mecha com o lançador',
       'hide': 'Atire no guarda e se esconda do drone',

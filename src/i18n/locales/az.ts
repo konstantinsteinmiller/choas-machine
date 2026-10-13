@@ -284,7 +284,7 @@ export default {
       'move': 'Təliminə başlamaq üçün işıq saçan qapıya get.',
       'jump': 'Nərdivanla qalx və boşluğun üstündən o biri platformaya tullan! Qaçmaq və tullanmaq səs salır, yaxındakı mühafizəçilər bunu eşidir.',
       'cover': 'Gözətçi səni görməsin deyə yeşiklərin arxasında əyil, sonra darvazanın altından sürünərək keç! Yalnız əyilərək atılan addım səssizdir: yaxından yeriyəndə mühafizəçilər səni eşidir.',
-      'weapons': 'Hər üç mühafizəçini zərərsizləşdir: birini snayper tüfəngi ilə vur, sonra qalan ikisi üçün minigana keç! Atəş səs salır: miniganı ətrafdakı bütün mühafizəçilər eşidir.',
+      'weapons': 'Minigana keç və hər üç keşikçini sıradan çıxar! Atəşlər səs salır: minigunu ətrafdakı hər keşikçi eşidir.',
       'rocket': 'Raketatana keç və çıxıntıdakı mexi partlat! Raketlər gurultuludur: partlayışı bütün mühafizəçilər eşidir.',
       'hide': 'Gözətçini vur, sonra atəş açdığın yerdən uzaqlaş və gizlən: dron atəşin gəldiyi yerə uçur!',
       'supply': 'Döyüş sursatını doldurmaq və zirehini təmir etmək üçün yeşiklərin üstündən keç.',
@@ -312,7 +312,8 @@ export default {
       'hide': 'Atəşdən sonra gizlən: başqa yerə keç, yoxsa düşmən atəş açdığın yeri tapacaq.'
     },
     'door': {
-      'cover': 'Keçmək üçün bir dəfə çömel',
+      'cover': 'Əyil və darvazanın altından sürün',
+      'coverCrawl': 'Darvazanın altından sürün',
       'weapons': 'Keçmək üçün üçünü də vur',
       'rocket': 'Mekanı raketatanla məhv et',
       'hide': 'Gözətçini vur, sonra drondan gizlən',

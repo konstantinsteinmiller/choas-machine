@@ -284,7 +284,7 @@ export default {
       'move': 'Iru al la brilanta pordo por komenci vian trejnadon.',
       'jump': 'Grimpu la ŝtupetaron kaj saltu trans la breĉon al la alia platformo! Kurado kaj saltado bruas, kaj proksimaj gardistoj aŭdas tion.',
       'cover': 'Kaŭru malantaŭ la kestoj, por ke la gardostaranto ne vidu vin, poste rampu sub la pordego! Nur kaŭra paŝo estas silenta: gardistoj aŭdas vin marŝi proksime.',
-      'weapons': 'Forigu ĉiujn tri gardistojn: kaŝpafu unu, poste ŝanĝu al la minigun por la aliaj du! Pafoj bruas: ĉiu gardisto ĉirkaŭe aŭdas la minigun.',
+      'weapons': 'Ŝanĝu al la minigun kaj forigu ĉiujn tri gardistojn! Pafoj bruas: ĉiu gardisto ĉirkaŭe aŭdas la minigun.',
       'rocket': 'Ŝanĝu al la raketĵetilo kaj eksplodigu la meĥon sur la kornico! Raketoj estas laŭtaj: ĉiu gardisto aŭdas la eksplodon.',
       'hide': 'Pafu la gardiston, poste foriru de via pafloko kaj kaŝu vin: la drono flugas tien, de kie venis la pafo!',
       'supply': 'Iru trans la kestojn por replenigi vian municion kaj ripari vian kirason.',
@@ -312,7 +312,8 @@ export default {
       'hide': 'Kaŝu vin post pafado: iru aliloken, aŭ la malamiko trovos, de kie vi pafis.'
     },
     'door': {
-      'cover': 'Kaŝkaŭru unufoje por pasi',
+      'cover': 'Kaŭru kaj rampu sub la pordego',
+      'coverCrawl': 'Rampu sub la pordego',
       'weapons': 'Faligu ĉiujn tri por pasi',
       'rocket': 'Detruu la meĥon per la lanĉilo',
       'hide': 'Pafu la gardiston, poste kaŝu vin de la drono',

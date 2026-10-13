@@ -66,7 +66,7 @@ const HINT_KEY: Readonly<Partial<Record<LessonId, string>>> = {
 }
 /** The rooms whose hint names one thing to do, and the key that does it (on a keyboard). */
 const HINT_ACTION: Readonly<Partial<Record<LessonId, Action>>> = {
-  cover: 'crouch', jump: 'jump', burn: 'burn', decoy: 'decoy', box: 'hide', hook: 'grapple', rope: 'rope'
+  cover: 'crouch', weapons: 'weapon2', jump: 'jump', burn: 'burn', decoy: 'decoy', box: 'hide', hook: 'grapple', rope: 'rope'
 }
 /** The room the mech is in, its lesson not done yet (and not being watched, #158). */
 const roomHint = computed(() => {

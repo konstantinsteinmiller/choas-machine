@@ -131,6 +131,19 @@ describe('the lessons', () => {
     expect(replayDemo(t)).toBe(false)
   })
 
+  it('the cover room: a mech crouched at its door has done the crouch, though it came in already down (#201 follow-up)', async () => {
+    const { DOOR_CRAWL, DOOR_LINES } = await import('@/game/sim/training')
+    const i = LESSON_IDS.indexOf('cover')
+    const d = doorOf(i)!
+    const b = ctx(0, 0, { crouches: 1 })
+    expect(lessonDone(i, ctx(d.x - CELL, d.z, { crouches: 1 }), b)).toBe(false)
+    expect(lessonDone(i, ctx(d.x - CELL, d.z, { crouches: 1, crouched: true }), b)).toBe(true)
+    expect(lessonDone(i, ctx(d.x - CELL * 4, d.z, { crouches: 1, crouched: true }), b)).toBe(false)
+    // Told "crawl on" with the move key when down, never the crouch key (a toggle: it stood the mech up).
+    expect(DOOR_CRAWL.hint).toBe('move')
+    expect(DOOR_LINES.cover!.hint).toBe('crouch')
+  })
+
   it('the weapons room wants all three down (#168): the drill alone does not open it', () => {
     const i = LESSON_IDS.indexOf('weapons')
     const b = ctx(0, 0)

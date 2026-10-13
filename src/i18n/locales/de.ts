@@ -284,7 +284,7 @@ export default {
       'move': 'Geh zur leuchtenden Tür, um dein Training zu starten.',
       'jump': 'Kletter die Leiter hoch und spring über die Lücke zur anderen Plattform! Rennen und Springen machen Lärm, den Wachen in der Nähe hören.',
       'cover': 'Duck dich hinter die Kisten, damit dich der Wachposten nicht sieht, und kriech dann unter dem Tor durch! Nur geduckt bist du lautlos: Gehst du nah heran, hören dich die Wachen.',
-      'weapons': 'Schalte alle drei Wachen aus: Erledige eine mit dem Scharfschützengewehr und wechsle dann zur Minigun für die anderen zwei! Schüsse machen Lärm: Die Minigun hört jede Wache in der Umgebung.',
+      'weapons': 'Wechsle zur Minigun und schalte alle drei Wachen aus! Schüsse machen Lärm: Die Minigun hört jede Wache in der Umgebung.',
       'rocket': 'Wechsle zum Raketenwerfer und spreng den Mech auf dem Vorsprung! Raketen sind laut: Jede Wache hört die Explosion.',
       'hide': 'Erschieß die Wache, dann weg von deiner Schussposition und versteck dich: Die Drohne fliegt dorthin, woher der Schuss kam!',
       'supply': 'Lauf über die Kisten, um Munition aufzufüllen und deine Panzerung zu reparieren.',
@@ -312,7 +312,8 @@ export default {
       'hide': 'Versteck dich nach dem Schuss: Wechsle den Ort, sonst findet der Feind, wo du geschossen hast.'
     },
     'door': {
-      'cover': 'Duck dich einmal, um durchzukommen',
+      'cover': 'Duck dich und kriech unter dem Tor durch',
+      'coverCrawl': 'Kriech unter dem Tor durch',
       'weapons': 'Schalt alle drei aus, um durchzukommen',
       'rocket': 'Zerstör den Mech mit dem Raketenwerfer',
       'hide': 'Erschieß die Wache, dann versteck dich vor der Drohne',

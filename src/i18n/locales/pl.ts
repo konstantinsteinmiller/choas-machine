@@ -284,7 +284,7 @@ export default {
       'move': 'Podejdź do świecących drzwi, żeby zacząć trening.',
       'jump': 'Wejdź po drabinie i przeskocz przepaść na drugą platformę! Bieganie i skakanie robią hałas, który słyszą pobliscy strażnicy.',
       'cover': 'Przykucnij za skrzyniami, żeby wartownik cię nie widział, a potem przeczołgaj się pod bramą! Bezgłośny jest tylko krok w przykucu: strażnicy słyszą, jak idziesz blisko.',
-      'weapons': 'Zlikwiduj wszystkich trzech strażników: jednego zdejmij z karabinu snajperskiego, potem przełącz na minigun na pozostałych dwóch! Strzały robią hałas: minigun słyszy każdy strażnik w okolicy.',
+      'weapons': 'Przełącz na minigun i wyeliminuj wszystkich trzech strażników! Strzały robią hałas: minigun słyszy każdy strażnik w pobliżu.',
       'rocket': 'Przełącz na wyrzutnię rakiet i wysadź mecha na półce skalnej! Rakiety są głośne: wybuch słyszy każdy strażnik.',
       'hide': 'Zastrzel strażnika, potem odejdź z miejsca, z którego strzelałeś, i się schowaj: dron leci tam, skąd padł strzał!',
       'supply': 'Przejdź po skrzyniach, żeby uzupełnić amunicję i naprawić pancerz.',
@@ -312,7 +312,8 @@ export default {
       'hide': 'Po strzale się schowaj: przenieś się gdzie indziej, bo wróg znajdzie miejsce, z którego strzelałeś.'
     },
     'door': {
-      'cover': 'Kucnij raz, żeby przejść',
+      'cover': 'Przykucnij i przeczołgaj się pod bramą',
+      'coverCrawl': 'Przeczołgaj się pod bramą',
       'weapons': 'Powal wszystkie trzy, żeby przejść',
       'rocket': 'Zniszcz mecha wyrzutnią',
       'hide': 'Zastrzel strażnika, potem schowaj się przed dronem',

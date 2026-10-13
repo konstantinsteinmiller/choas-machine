@@ -284,7 +284,7 @@ export default {
       'move': 'Gå hen til den lysende dør for at starte din træning.',
       'jump': 'Klatr op ad stigen og hop over kløften til den anden platform! Løb og hop larmer, og vagter i nærheden hører det.',
       'cover': 'Duk dig bag kasserne, så vagtposten ikke kan se dig, og kravl så ind under porten! Kun dukkede skridt er lydløse: vagterne hører dig gå tæt på.',
-      'weapons': 'Nedkæmp alle tre vagter: skyd én med snigskytteriflen, og skift så til minigun\'en for de to andre! Skud larmer: alle vagter omkring hører minigun\'en.',
+      'weapons': 'Skift til minigunnen og nedlæg alle tre vagter! Skud larmer: alle vagter i nærheden hører minigunnen.',
       'rocket': 'Skift til raketkasteren og spræng mech\'en på afsatsen i luften! Raketter larmer: alle vagter hører eksplosionen.',
       'hide': 'Skyd vagten, flyt dig så væk fra dit skydested og gem dig: dronen flyver hen, hvor skuddet kom fra!',
       'supply': 'Gå hen over kasserne for at fylde ammunition op og reparere dit panser.',
@@ -312,7 +312,8 @@ export default {
       'hide': 'Gem dig efter skuddet: flyt dig et andet sted hen, ellers finder fjenden stedet, du skød fra.'
     },
     'door': {
-      'cover': 'Dukke dig én gang for at komme forbi',
+      'cover': 'Duk dig og kravl under porten',
+      'coverCrawl': 'Kravl under porten',
       'weapons': 'Tag alle tre ned for at komme forbi',
       'rocket': 'Ødelæg mechen med raketkasteren',
       'hide': 'Skyd vagten, og gem dig for dronen',

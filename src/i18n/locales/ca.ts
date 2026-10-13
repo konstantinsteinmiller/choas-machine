@@ -284,7 +284,7 @@ export default {
       'move': 'Ves fins a la porta brillant per començar l\'entrenament.',
       'jump': 'Puja per l\'escala i salta el buit fins a l\'altra plataforma! Córrer i saltar fa soroll i els guàrdies propers el senten.',
       'cover': 'Ajup-te darrere les caixes perquè el sentinella no et vegi i després arrossega\'t per sota la reixa! Només el pas ajupit és silenciós: els guàrdies et senten caminar de prop.',
-      'weapons': 'Elimina els tres guàrdies: abat-ne un amb el fusell de precisió i després canvia a la minigun per als altres dos! Els trets fan soroll: tots els guàrdies dels voltants senten la minigun.',
+      'weapons': 'Canvia a la minigun i elimina els tres guàrdies! Els trets fan soroll: tots els guàrdies del voltant senten la minigun.',
       'rocket': 'Canvia al llançacoets i fes volar el mech de la cornisa! Els coets fan molt de soroll: tots els guàrdies senten l\'explosió.',
       'hide': 'Dispara al guàrdia i després allunya\'t del lloc des d\'on has disparat i amaga\'t: el dron vola cap a on ha sortit el tret!',
       'supply': 'Passa per sobre les caixes per recarregar munició i reparar el blindatge.',
@@ -312,7 +312,8 @@ export default {
       'hide': 'Amaga\'t després de disparar: mou-te a un altre lloc o l\'enemic trobarà des d\'on has disparat.'
     },
     'door': {
-      'cover': 'Ajup-te una vegada per passar',
+      'cover': 'Ajup-te i passa a gatzoneta per sota la porta',
+      'coverCrawl': 'Passa a gatzoneta per sota la porta',
       'weapons': 'Abat-los tots tres per passar',
       'rocket': 'Destrueix el mecha amb el llançacohets',
       'hide': 'Dispara al guàrdia i amaga\'t del dron',
