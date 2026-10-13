@@ -239,12 +239,11 @@
           @click="wheelOpen = true"
         )
           WeaponArt(:weapon="hud.weapon")
-          span.key.wide(v-if="hud.device === 'mouse'" aria-hidden="true" :data-code="primaryCode('cycle')" data-action="cycle")
-            svg.wheel(viewBox="0 0 12 16")
-              rect(x="1" y="1" width="10" height="14" rx="5")
-              rect.lit(x="5" y="3" width="2" height="4" rx="1")
-            span.or /
-            | {{ cycleKeyText }}
+          //- The number keys of the other two (2 / 3 with the sniper in hand).
+          span.key.wide(v-if="hud.device === 'mouse'" aria-hidden="true" data-testid="weapon-keys")
+            template(v-for="(n, i) in otherWeapons" :key="n")
+              span.or(v-if="i > 0") /
+              span(:data-code="primaryCode(WEAPON_KEYS[n] ?? 'cycle')" :data-action="WEAPON_KEYS[n]") {{ weaponKeyText(n) }}
       //- The situational three — sneak, disguise, decoy — in a row up in the
       //- top right, under the pause button; the thumb's corner keeps only
       //- jump, the trigger and the weapon switch round the look stick.
@@ -446,7 +445,7 @@ const pick = (n: number): void => {
 const spread = computed(() => hud.device === 'touch' || wheelOpen.value)
 /** The keys lettered on the weapons: 1, 2, 3, and the one that turns through them. */
 const weaponKeyText = (n: number): string => keyLabel(primaryCode(WEAPON_KEYS[n] ?? 'cycle'))
-const cycleKeyText = computed(() => (primaryCode('cycle') === 'Tab' ? 'Tab' : keyLabel(primaryCode('cycle'))))
+const otherWeapons = computed(() => WEAPON_IDS.map((_, n) => n).filter(n => WEAPON_IDS[n] !== hud.weapon))
 // An open wheel nobody picks from folds away again.
 watch(wheelOpen, (open) => {
   window.clearTimeout(closeTimer)
@@ -653,18 +652,7 @@ onUnmounted(() => window.clearTimeout(closeTimer))
   pointer-events: none
   +tech-plate(var(--cm-cyan), linear-gradient(180deg, #4a3590, #2a1a5e), 0.28rem, var(--cm-edge), false)
   &.wide
-    font-size: 0.55rem
-  .wheel
-    width: 0.6rem
-    height: 0.8rem
-    flex: none
-    rect
-      fill: none
-      stroke: currentColor
-      stroke-width: 1.4
-    rect.lit
-      fill: currentColor
-      stroke: none
+    font-size: 0.62rem
   .or
     margin: 0 0.12rem
     opacity: 0.7
