@@ -3535,8 +3535,7 @@ export class Mission implements GameMode {
         bodies: here.filter(u => u.state === 'dead' && !u.hidden).length,
         fuel: this.fuelLeft,
         ropes: this.ropesLeft,
-        barrels: this.barrels.filter(b => b.live && roomAt(b.x) === cur).length,
-        drones: here.filter(u => u.kind === 'drone' && isAlive(u)).length
+        barrels: this.barrels.filter(b => b.live && roomAt(b.x) === cur).length
       }
       if (lessonStuck(cur, ctx, tr.state.base, stock)) {
         this.restoreLesson(cur)
@@ -3677,7 +3676,7 @@ export class Mission implements GameMode {
       this.refillTraining(tr.state.room)
       // Why (#155, #163, #165): what would have kept it unseen here (said already as the alarm went off).
       if (alarm !== 'reset') this.trainingShout(this.seenLine(tr.state.room, tr.state.roomResets[tr.state.room] ?? 1))
-      // The hide room: the drone sent back to its beat, the sentry stood up again (`lessonStuck`).
+      // The hide room: the drone sent back to its beat, the sentry stood up again.
       this.hideHunted = false
       emit('trainingReset', {})
     }

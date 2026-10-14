@@ -105,14 +105,15 @@ describe('the shoot-and-hide room', () => {
     expect(lessonDone(ROOM, c, ctx())).toBe(true)
   })
 
-  it('is not done before the drone has come and gone; the sentry down with no hunt sets the room up again', () => {
+  it('is done once the sentry is down however it went down; only a drone still looking holds the gate', () => {
+    // Bladed or rocketed: no shot for the drone to chase, the gate opens.
+    expect(lessonDone(ROOM, ctx({ shotDown: true, hunted: false, searching: false }), ctx())).toBe(true)
     expect(lessonDone(ROOM, ctx({ shotDown: true, hunted: true, searching: true }), ctx())).toBe(false)
     expect(lessonDone(ROOM, ctx({ shotDown: false, hunted: true, searching: false }), ctx())).toBe(false)
-    const stock = { alive: 1, bodies: 1, fuel: 0, ropes: 0, drones: 1 }
-    expect(lessonStuck(ROOM, ctx({ shotDown: true, hunted: false, searching: false }), ctx(), stock)).toBe(true)
-    expect(lessonStuck(ROOM, ctx({ shotDown: true, hunted: true, searching: true }), ctx(), stock)).toBe(false)
-    // The drone brought down after all: set up again.
-    expect(lessonStuck(ROOM, ctx(), ctx(), { ...stock, drones: 0 })).toBe(true)
+    // Never set up again for the way it was done: only being found starts it over.
+    const stock = { alive: 0, bodies: 1, fuel: 0, ropes: 0 }
+    expect(lessonStuck(ROOM, ctx({ shotDown: true, hunted: false, searching: false }), ctx(), stock)).toBe(false)
+    expect(lessonStuck(ROOM, ctx(), ctx(), { ...stock, alive: 1 })).toBe(false)
   })
 
   it('found after its shot, the room says why: hide after shooting', () => {

@@ -460,17 +460,19 @@ export const lessonDone = (i: number, c: TrainingContext, b: TrainingContext): b
     case 'hook': return roomAt(c.x) > i
     // The yard behind the wall cleared (#198): the drum is the way to it.
     case 'barrel': return !!c.cleared
-    // The sentry shot, and the drone that came to where the shot was fired
-    // from gave up there without finding the mech (being found starts the
-    // room over: `stepTraining` in the mission).
-    case 'hide': return !!c.shotDown && !!c.hunted && !c.searching
+    // The sentry down, however that was done (playtesters bladed it or
+    // rocketed it; the hologram's rifle is one way, not the only one), and no
+    // drone still out looking for where a shot came from: one that finds the
+    // mech starts the room over (`stepTraining` in the mission), one that
+    // gives up opens the gate.
+    case 'hide': return !!c.shotDown && !c.searching
     case 'salvage': return c.piles > b.piles
     case 'extract': return false
   }
 }
 
-/** What a lesson still has to work with: defenders standing in its room, bodies left to burn, fuel, ropes; the hide room's drones. */
-export interface LessonStock { alive: number; bodies: number; fuel: number; ropes: number; barrels?: number; drones?: number }
+/** What a lesson still has to work with: defenders standing in its room, bodies left to burn, fuel, ropes, drums. */
+export interface LessonStock { alive: number; bodies: number; fuel: number; ropes: number; barrels?: number }
 
 /**
  * The lesson can no longer be done with what is left in its room: the
@@ -484,9 +486,6 @@ export const lessonStuck = (i: number, c: TrainingContext, b: TrainingContext, s
     case 'rope': return c.ropes <= b.ropes && !c.roped && s.ropes <= 0
     // The drums gone up and somebody in the yard still standing (#198).
     case 'barrel': return s.alive > 0 && s.barrels === 0
-    // The sentry down with no drone sent to look (the blade, a room started
-    // over after the mech was found), or the drone itself brought down.
-    case 'hide': return (!!c.shotDown && !c.hunted && !c.searching) || s.drones === 0
     // The decoy room's guard shot on the first try (#171): it stands again, and the try starts over.
     case 'decoy': return !!c.cleared && c.bladeKills <= b.bladeKills && (c.tries ?? 0) === 0
     default: return false
