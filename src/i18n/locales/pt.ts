@@ -274,6 +274,14 @@ export default {
     '2': 'Forte do Mar',
     '3': 'Torre de Aço'
   },
+  'keys': {
+    'space': 'Espaço',
+    'shift': 'Shift',
+    'tab': 'Tab',
+    'enter': 'Enter',
+    'backspace': 'Apagar',
+    'caps': 'Caps Lock'
+  },
   'training': {
     'replay': 'Mostrar de novo',
     'progress': 'Treino: {n} de {total} lições concluídas',

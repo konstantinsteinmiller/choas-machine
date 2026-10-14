@@ -274,6 +274,14 @@ export default {
     '2': '바다 요새',
     '3': '강철 성채'
   },
+  'keys': {
+    'space': '스페이스',
+    'shift': 'Shift',
+    'tab': 'Tab',
+    'enter': 'Enter',
+    'backspace': 'Backspace',
+    'caps': 'Caps Lock'
+  },
   'training': {
     'replay': '다시 보기',
     'progress': '훈련: {total}개 중 {n}개 완료',

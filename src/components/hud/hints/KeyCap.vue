@@ -7,17 +7,15 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { primaryCode, type Action } from '@/game/engine/keyBindings'
+import { useI18n } from 'vue-i18n'
 import { keyLabel } from '@/game/engine/keyLabels'
 
 /** Either an action (its bound key is shown) or a physical key code. */
 const props = defineProps<{ action?: Action; code?: string }>()
-/**
- * Tab carries its word beside its arrow: far more players know the key as
- * "Tab" than by the ⇥ printed on it (the weapons room's "⇥ / wheel" read as a
- * bare arrow).
- */
+const { t } = useI18n()
 const code = computed(() => props.code ?? (props.action ? primaryCode(props.action) : ''))
-const label = computed(() => (code.value === 'Tab' ? `${keyLabel(code.value)} Tab` : keyLabel(code.value)))
+/** Named keys by their word (Tab, Space, Shift), in the game's language: `keyLabels.ts`. */
+const label = computed(() => keyLabel(code.value, t))
 </script>
 
 <style scoped lang="sass">

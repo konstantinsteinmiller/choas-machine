@@ -274,6 +274,14 @@ export default {
     '2': 'Fortul Mării',
     '3': 'Donjonul de oțel'
   },
+  'keys': {
+    'space': 'Spațiu',
+    'shift': 'Shift',
+    'tab': 'Tab',
+    'enter': 'Enter',
+    'backspace': 'Backspace',
+    'caps': 'Caps Lock'
+  },
   'training': {
     'replay': 'Arată-mi din nou',
     'progress': 'Antrenament: {n} din {total} lecții terminate',

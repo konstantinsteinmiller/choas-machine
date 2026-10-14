@@ -274,6 +274,14 @@ export default {
     '2': 'Jūras forts',
     '3': 'Tērauda pils'
   },
+  'keys': {
+    'space': 'Atstarpe',
+    'shift': 'Shift',
+    'tab': 'Tab',
+    'enter': 'Enter',
+    'backspace': 'Backspace',
+    'caps': 'Caps Lock'
+  },
   'training': {
     'replay': 'Parādi vēlreiz',
     'progress': 'Treniņš: pabeigtas {n} no {total} nodarbībām',

@@ -274,6 +274,14 @@ export default {
     '2': 'Zeefort',
     '3': 'Stalen Burcht'
   },
+  'keys': {
+    'space': 'Spatie',
+    'shift': 'Shift',
+    'tab': 'Tab',
+    'enter': 'Enter',
+    'backspace': 'Backspace',
+    'caps': 'Caps Lock'
+  },
   'training': {
     'replay': 'Nog eens laten zien',
     'progress': 'Training: {n} van {total} lessen klaar',

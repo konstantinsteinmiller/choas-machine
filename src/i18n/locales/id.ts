@@ -274,6 +274,14 @@ export default {
     '2': 'Benteng Laut',
     '3': 'Menara Baja'
   },
+  'keys': {
+    'space': 'Spasi',
+    'shift': 'Shift',
+    'tab': 'Tab',
+    'enter': 'Enter',
+    'backspace': 'Backspace',
+    'caps': 'Caps Lock'
+  },
   'training': {
     'replay': 'Tunjukkan lagi',
     'progress': 'Latihan: {n} dari {total} pelajaran selesai',

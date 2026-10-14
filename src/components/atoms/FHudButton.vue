@@ -71,9 +71,7 @@ const resolvedAriaLabel = computed<string | undefined>(
 )
 const keyText = computed(() => {
   if (!props.hotkey) return ''
-  const code = primaryCode(props.hotkey)
-  // Beside the wheel the Tab key is spelled out: "wheel / Tab" reads better than an arrow.
-  return props.wheel && code === 'Tab' ? 'Tab' : keyLabel(code)
+  return keyLabel(primaryCode(props.hotkey), t)
 })
 </script>
 

@@ -63,6 +63,12 @@ export const JUMP_PIT_COL = 5
  */
 export const COVER_ROOM_H = 1.5
 /**
+ * The sneak room's sentry sees this much of a sentry's range (30 m → 13.5 m):
+ * the way in (about 18 m off) out of its reach, the walk along the cover and
+ * the gate (10 to 13 m) still in it, so it is crouching that gets the mech past.
+ */
+export const COVER_SIGHT = 0.45
+/**
  * The cover room's door (#186): a gap under its glass gate only a crouched
  * mech passes (a standing one, 2 m, bumps its head); the hologram crawls
  * through it.
@@ -195,8 +201,10 @@ export const buildTrainingGround = (): Fortress => {
   }
 
   // · Crouch and cover: a sentry in the far corner watches the room; a
-  //   low wall of cover runs along the way through.
-  b.sentry(...at(room('cover'), 9, 2), W)
+  //   low wall of cover runs along the way through. It sees short of the way
+  //   in (COVER_SIGHT): from its full 30 m it saw a player standing at the
+  //   spawn, and the room reset before there was a chance to crouch.
+  b.sentry(...at(room('cover'), 9, 2), W, COVER_SIGHT)
   b.cover(...at(room('cover'), 1, 5), 8, 'x', COVER_ROOM_H)
 
   // · Weapons: a sentry with its back turned at the far end (the rifle),

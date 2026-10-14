@@ -274,6 +274,14 @@ export default {
     '2': '海上要塞',
     '3': '鋼鐵城堡'
   },
+  'keys': {
+    'space': '空白鍵',
+    'shift': 'Shift',
+    'tab': 'Tab',
+    'enter': 'Enter',
+    'backspace': 'Backspace',
+    'caps': 'Caps Lock'
+  },
   'training': {
     'replay': '再示範一次',
     'progress': '訓練：已完成 {n}/{total} 課',

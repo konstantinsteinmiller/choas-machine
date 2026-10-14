@@ -274,6 +274,14 @@ export default {
     '2': 'Θαλάσσιο Φρούριο',
     '3': 'Ατσάλινος Πύργος'
   },
+  'keys': {
+    'space': 'Διάστημα',
+    'shift': 'Shift',
+    'tab': 'Tab',
+    'enter': 'Enter',
+    'backspace': 'Backspace',
+    'caps': 'Caps Lock'
+  },
   'training': {
     'replay': 'Δείξε ξανά',
     'progress': 'Εκπαίδευση: {n} από {total} μαθήματα',

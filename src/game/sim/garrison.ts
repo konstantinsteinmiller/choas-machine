@@ -275,6 +275,8 @@ export interface Unit {
   armoured: boolean
   /** A Watchtower lamp (#144): it cannot be destroyed, sweeps slowly, rings the alarm at once. */
   watch: boolean
+  /** Its sight range, times this (`Post.sight`); absent, 1. */
+  sight?: number
   dummy: boolean
   /** A caged searchlight (#163): nothing breaks it. */
   caged: boolean
@@ -922,7 +924,7 @@ export const makeGarrison = (f: Fortress, level = 2): Garrison => {
       yaw: p.facing, pyaw: p.facing, look: 0,
       state: p.reserve ? 'reserve' : mech ? 'dormant' : 'patrol', t: 0, detect: 0, sees: false, seenX: p.x, seenZ: p.z, lured: false, decoyWatch: 0, decoyShot: false,
       route: p.route, wp: p.route.length > 1 ? 1 : 0, wait: p.route[0]?.wait ?? 0,
-      path: [], pathI: 0, repath: 0, bodyT: 0, seenFor: 0, unseenFor: 9, shouted: false, reactT: 0, runner: -1, wary: false, hop: 0, fought: false, checkAt: Infinity, checked: false, hp: p.hp ?? Math.round(SPECS[p.kind].hp * threat.hp * (p.boss === 'foreman' ? FOREMAN_HP : 1) * (p.hpScale ?? 1)), maxHp: p.hp ?? Math.round(SPECS[p.kind].hp * threat.hp * (p.boss === 'foreman' ? FOREMAN_HP : 1) * (p.hpScale ?? 1)), boss: p.boss ?? null, armoured: !!p.armoured, dummy: !!p.dummy, caged: !!p.caged, watch: !!p.watch, shield: !!p.shield, deadT: 0, fallDir: 1, huh: HUH_S, noise: 0, gripped: false, hold: 0, held: null, death: 'back', hitX: 0, hitZ: 0, found: false,
+      path: [], pathI: 0, repath: 0, bodyT: 0, seenFor: 0, unseenFor: 9, shouted: false, reactT: 0, runner: -1, wary: false, hop: 0, fought: false, checkAt: Infinity, checked: false, hp: p.hp ?? Math.round(SPECS[p.kind].hp * threat.hp * (p.boss === 'foreman' ? FOREMAN_HP : 1) * (p.hpScale ?? 1)), maxHp: p.hp ?? Math.round(SPECS[p.kind].hp * threat.hp * (p.boss === 'foreman' ? FOREMAN_HP : 1) * (p.hpScale ?? 1)), boss: p.boss ?? null, armoured: !!p.armoured, dummy: !!p.dummy, caged: !!p.caged, watch: !!p.watch, sight: p.sight, shield: !!p.shield, deadT: 0, fallDir: 1, huh: HUH_S, noise: 0, gripped: false, hold: 0, held: null, death: 'back', hitX: 0, hitZ: 0, found: false,
       stride: 0, speed01: 0, homeX: p.x, homeZ: p.z, homeYaw: p.facing, altitude: p.altitude,
       spotX: spot.x, spotZ: spot.z,
       seed: (id * 2.399) % (Math.PI * 2),
@@ -1014,7 +1016,7 @@ export const viewerOf = (u: Unit, heightened = false): Viewer => {
   const k = u.wary ? 1 : 0
   // Talking: it watches its partner, not the yard.
   const chat = u.chatting ? CHAT_SIGHT : 1
-  let range = s.range * (1 + (WARY_RANGE - 1) * k) * chat * (heightened ? HEIGHTENED_RANGE : 1) * (u.role === 'marksman' ? MARKSMAN_SIGHT : 1)
+  let range = s.range * (1 + (WARY_RANGE - 1) * k) * chat * (heightened ? HEIGHTENED_RANGE : 1) * (u.role === 'marksman' ? MARKSMAN_SIGHT : 1) * (u.sight ?? 1)
   let half = s.half * (1 + (WARY_CONE - 1) * k) * (u.chatting ? CHAT_CONE : 1)
   // Focused (#68): three times as far, over a wide cone, toward the trouble.
   if (u.focusT > 0 && u.kind !== 'hound') {

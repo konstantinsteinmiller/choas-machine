@@ -195,3 +195,27 @@ describe('input follows the bindings', () => {
     expect(keyLabel('KeyW')).toBe('Z')
   })
 })
+
+describe('named keys are called by their word, in the game\'s language', () => {
+  // Brazilian playtesters did not read ␣ as the space bar (it looked like a smile), nor ⇧ / ⇥ as keys.
+  it('Space, Shift, Tab: words, never symbols; the HUD\'s `t` puts them in its language', async () => {
+    for (const code of ['Space', 'ShiftLeft', 'ShiftRight', 'Tab', 'Enter', 'Backspace', 'CapsLock']) {
+      expect(keyLabel(code), code).toMatch(/^[A-Za-z ]+$/)
+    }
+    expect(keyLabel('Space')).toBe('Space')
+    const pt = (await import('@/i18n/locales/pt')).default as { keys: Record<string, string> }
+    const t = (k: string): string => pt.keys[k.replace('keys.', '')] ?? k
+    expect(keyLabel('Space', t)).toBe('Espaço')
+    expect(actionKeyLabel('Space', t)).toBe('Espaço')
+    expect(keyLabel('KeyW', t)).toBe('W')
+  })
+
+  it('every locale names every one of them', async () => {
+    const { readdirSync } = await import('node:fs')
+    const en = (await import('@/i18n/locales/en')).default as { keys: Record<string, string> }
+    for (const f of readdirSync('src/i18n/locales')) {
+      const loc = (await import(`@/i18n/locales/${f.replace('.ts', '')}.ts`)).default as { keys?: Record<string, string> }
+      for (const k of Object.keys(en.keys)) expect(loc.keys?.[k], `${f} keys.${k}`).toBeTruthy()
+    }
+  })
+})

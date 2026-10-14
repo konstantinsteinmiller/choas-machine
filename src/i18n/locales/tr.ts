@@ -274,6 +274,14 @@ export default {
     '2': 'Deniz Kalesi',
     '3': 'Çelik Hisar'
   },
+  'keys': {
+    'space': 'Boşluk',
+    'shift': 'Shift',
+    'tab': 'Tab',
+    'enter': 'Enter',
+    'backspace': 'Backspace',
+    'caps': 'Caps Lock'
+  },
   'training': {
     'replay': 'Tekrar göster',
     'progress': 'Eğitim: {total} dersten {n} tanesi bitti',

@@ -274,6 +274,14 @@ export default {
     '2': 'Forte mariño',
     '3': 'Torre de aceiro'
   },
+  'keys': {
+    'space': 'Espazo',
+    'shift': 'Maiús',
+    'tab': 'Tab',
+    'enter': 'Intro',
+    'backspace': 'Retroceso',
+    'caps': 'Bloq Maiús'
+  },
   'training': {
     'replay': 'Amósamo outra vez',
     'progress': 'Adestramento: {n} de {total} leccións feitas',

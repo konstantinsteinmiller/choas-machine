@@ -274,6 +274,14 @@ export default {
     '2': 'Morski Fort',
     '3': 'Stalowa Twierdza'
   },
+  'keys': {
+    'space': 'Spacja',
+    'shift': 'Shift',
+    'tab': 'Tab',
+    'enter': 'Enter',
+    'backspace': 'Backspace',
+    'caps': 'Caps Lock'
+  },
   'training': {
     'replay': 'Pokaż jeszcze raz',
     'progress': 'Trening: ukończono {n} z {total} lekcji',

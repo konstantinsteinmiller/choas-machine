@@ -444,7 +444,7 @@ const pick = (n: number): void => {
 /** All three out (#161): always on touch, a switch to tap; on a desktop while the wheel is open. */
 const spread = computed(() => hud.device === 'touch' || wheelOpen.value)
 /** The keys lettered on the weapons: 1, 2, 3, and the one that turns through them. */
-const weaponKeyText = (n: number): string => keyLabel(primaryCode(WEAPON_KEYS[n] ?? 'cycle'))
+const weaponKeyText = (n: number): string => keyLabel(primaryCode(WEAPON_KEYS[n] ?? 'cycle'), t)
 const otherWeapons = computed(() => WEAPON_IDS.map((_, n) => n).filter(n => WEAPON_IDS[n] !== hud.weapon))
 // An open wheel nobody picks from folds away again.
 watch(wheelOpen, (open) => {

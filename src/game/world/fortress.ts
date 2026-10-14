@@ -84,6 +84,8 @@ export interface Post {
   hp?: number
   /** Its kind's hit points scaled by this (the Sea Fort's softer mechs). */
   hpScale?: number
+  /** Its sight range, times this (the sneak lesson's sentry: short of the way in). */
+  sight?: number
   /** A searchlight that is a Watchtower lamp (#144): it cannot be destroyed, sweeps slowly, and rings the alarm the moment it finds the mech. */
   watch?: boolean
   /** A searchlight behind armoured glass in a cage (#163): rounds glance off it, nothing breaks it. */
@@ -488,9 +490,11 @@ export class FortressBuilder {
     return this
   }
 
-  /** A guard who stands and watches one way (a tower, a gate). */
-  sentry(cx: number, cz: number, facing: number): this {
-    return this.post('sentry', [[cx, cz]], facing)
+  /** A guard who stands and watches one way (a tower, a gate); `sight` scales how far it sees. */
+  sentry(cx: number, cz: number, facing: number, sight?: number): this {
+    this.post('sentry', [[cx, cz]], facing)
+    if (sight !== undefined) this.posts[this.posts.length - 1]!.sight = sight
+    return this
   }
 
   /** The base commander: the target of a medium fortress. */

@@ -274,6 +274,14 @@ export default {
     '2': 'Seefestung',
     '3': 'Stahlburg'
   },
+  'keys': {
+    'space': 'Leertaste',
+    'shift': 'Umschalt',
+    'tab': 'Tab',
+    'enter': 'Enter',
+    'backspace': 'Rücktaste',
+    'caps': 'Feststell'
+  },
   'training': {
     'replay': 'Nochmal zeigen',
     'progress': 'Training: {n} von {total} Lektionen geschafft',

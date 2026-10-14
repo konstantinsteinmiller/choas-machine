@@ -274,6 +274,14 @@ export default {
     '2': 'Теңіз форты',
     '3': 'Болат қамал'
   },
+  'keys': {
+    'space': 'Бос орын',
+    'shift': 'Shift',
+    'tab': 'Tab',
+    'enter': 'Enter',
+    'backspace': 'Backspace',
+    'caps': 'Caps Lock'
+  },
   'training': {
     'replay': 'Қайта көрсету',
     'progress': 'Жаттығу: {total} сабақтың {n} өтті',

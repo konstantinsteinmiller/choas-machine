@@ -274,6 +274,14 @@ export default {
     '2': 'Морской форт',
     '3': 'Стальная цитадель'
   },
+  'keys': {
+    'space': 'Пробел',
+    'shift': 'Shift',
+    'tab': 'Tab',
+    'enter': 'Enter',
+    'backspace': 'Backspace',
+    'caps': 'Caps Lock'
+  },
   'training': {
     'replay': 'Покажи ещё раз',
     'progress': 'Тренировка: пройдено уроков {n} из {total}',

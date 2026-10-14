@@ -26,7 +26,10 @@ import { boundCode } from './keyBindings'
  * Switched off (Options → Controls), the player's chosen layout decides.
  *
  * Digits always read as digits (AZERTY prints & é " on them unshifted, and a
- * "&" on a weapon button helps nobody). Named keys get symbols.
+ * "&" on a weapon button helps nobody). The big named keys get their word in
+ * the player's language (`keys.*`): the symbols (␣ ⇧ ⇥ ⏎) were not read as
+ * keys at all — Brazilian playtesters took the space bar's ␣ for a smile, and
+ * an ABNT2 keyboard prints nothing on it.
  */
 
 export type Layout = 'qwerty' | 'qwertz' | 'azerty'
@@ -57,10 +60,18 @@ const exact = reactive<Record<string, string>>({})
 
 export const activeLayout = computed<Layout>(() => (keyboard.auto ? keyboard.detected ?? 'qwerty' : keyboard.manual))
 
+/** The keys called by a word, the `keys.*` i18n key and its English. */
+const WORDS: Record<string, readonly [string, string]> = {
+  Space: ['space', 'Space'], ShiftLeft: ['shift', 'Shift'], ShiftRight: ['shift', 'Shift'], Tab: ['tab', 'Tab'],
+  Enter: ['enter', 'Enter'], Backspace: ['backspace', 'Backspace'], CapsLock: ['caps', 'Caps Lock']
+}
+
+/** A translator (vue-i18n's `t`): the HUD passes its own so a key's word is in the game's language. */
+export type KeyWords = (key: string) => string
+
 const NAMED: Record<string, string> = {
-  Escape: 'Esc', Tab: '⇥', Space: '␣', Enter: '⏎', Backspace: '⌫',
-  ShiftLeft: '⇧', ShiftRight: '⇧', ControlLeft: 'Ctrl', ControlRight: 'Ctrl', AltLeft: 'Alt', AltRight: 'Alt',
-  ArrowUp: '↑', ArrowDown: '↓', ArrowLeft: '←', ArrowRight: '→', CapsLock: '⇪',
+  Escape: 'Esc', ControlLeft: 'Ctrl', ControlRight: 'Ctrl', AltLeft: 'Alt', AltRight: 'Alt',
+  ArrowUp: '↑', ArrowDown: '↓', ArrowLeft: '←', ArrowRight: '→',
   Comma: ',', Period: '.', Slash: '/', Semicolon: ';', Quote: "'", BracketLeft: '[', BracketRight: ']',
   Backslash: '\\', Minus: '-', Equal: '=', Backquote: '`', IntlBackslash: '<'
 }
@@ -73,8 +84,13 @@ const fallback = (code: string): string => {
   return NAMED[code] ?? code
 }
 
-/** The printed label of a physical key, e.g. `KeyW` → "W" (or "Z" on AZERTY). */
-export const keyLabel = (code: string): string => {
+/**
+ * The printed label of a physical key, e.g. `KeyW` → "W" (or "Z" on AZERTY);
+ * `Space` → "Espaço" with a Portuguese `t`, "Space" without one.
+ */
+export const keyLabel = (code: string, t?: KeyWords): string => {
+  const word = WORDS[code]
+  if (word) return t ? t(`keys.${word[0]}`) : word[1]
   if (code.startsWith('Digit') || code.startsWith('Numpad')) return fallback(code)
   if (keyboard.auto && exact[code]) return exact[code]!
   return TABLES[activeLayout.value][code] ?? fallback(code)
@@ -82,7 +98,7 @@ export const keyLabel = (code: string): string => {
 
 /** The label the HUD draws for a key it was written with (the DEFAULT key of
  *  an action): the action's key as bound now, in this keyboard's letters. */
-export const actionKeyLabel = (defaultCode: string): string => keyLabel(boundCode(defaultCode))
+export const actionKeyLabel = (defaultCode: string, t?: KeyWords): string => keyLabel(boundCode(defaultCode), t)
 
 // ─── Detection ──────────────────────────────────────────────────────────────
 

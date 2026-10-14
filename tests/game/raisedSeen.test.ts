@@ -26,8 +26,23 @@ const spotted = (lx: number, lz: number, crouched: boolean, s = 6): number => {
 }
 
 describe('a mech up on the crates in the sentry\'s sight', () => {
-  it('is spotted within about two seconds, wherever along them', () => {
-    for (const lx of [1, 3, 5]) expect(spotted(lx, 5, false), `crate ${lx}`).toBeLessThan(2.6)
+  it('is spotted within about two seconds, wherever along them in its reach', () => {
+    // The far crates are past it (COVER_SIGHT: it sees short of the way in).
+    for (const lx of [3, 4, 5]) expect(spotted(lx, 5, false), `crate ${lx}`).toBeLessThan(2.6)
+  })
+
+  it('standing still at the way in, it is never seen (a playtester reading the card was sent back, over and over)', async () => {
+    const { entryOf } = await import('@/game/sim/training')
+    const { MECH_HEIGHT } = await import('@/game/models/mech')
+    const f = buildTrainingGround()
+    const i = LESSON_IDS.indexOf('cover')
+    const gar = makeGarrison(f, 1)
+    gar.drill = true
+    const u = gar.units.find(q => roomAt(q.homeX) === i)!
+    const e = entryOf(i)
+    const t: Target = { x: e.x, y: heightAt(f.grid, e.x, e.z), z: e.z, height: MECH_HEIGHT, crouched: false, visible: true, moving: 0 }
+    for (let k = 0; k < 60 * 30; k++) stepGarrison(gar, f.grid, t, 1 / 60)
+    expect(u.state).toBe('patrol')
   })
 
   it('crouched behind them it is not seen at all', () => {

@@ -274,6 +274,14 @@ export default {
     '2': 'Fort des mers',
     '3': 'Donjon d\'acier'
   },
+  'keys': {
+    'space': 'Espace',
+    'shift': 'Maj',
+    'tab': 'Tab',
+    'enter': 'Entrée',
+    'backspace': 'Retour',
+    'caps': 'Verr Maj'
+  },
   'training': {
     'replay': 'Remontre-moi',
     'progress': 'Entraînement : {n} leçons sur {total} terminées',

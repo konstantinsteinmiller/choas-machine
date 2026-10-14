@@ -215,7 +215,7 @@ onUnmounted(stopCapture)
       ul.bindings
         li.bind-row(v-for="a in ACTIONS" :key="a")
           span.bind-name {{ t(`options.actions.${a}`) }}
-          button.bind-key(type="button" :class="{ waiting: capturing === a }" @click="startCapture(a)") {{ capturing === a ? '…' : keyLabel(primaryCode(a)) }}
+          button.bind-key(type="button" :class="{ waiting: capturing === a }" @click="startCapture(a)") {{ capturing === a ? '…' : keyLabel(primaryCode(a), t) }}
 
     template(#footer)
       FButton(type="secondary" @click="emit('close')") {{ t('options.close') }}

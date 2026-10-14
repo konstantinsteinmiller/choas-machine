@@ -274,6 +274,14 @@ export default {
     '2': 'Havfortet',
     '3': 'Stålborgen'
   },
+  'keys': {
+    'space': 'Mellomrom',
+    'shift': 'Shift',
+    'tab': 'Tab',
+    'enter': 'Enter',
+    'backspace': 'Backspace',
+    'caps': 'Caps Lock'
+  },
   'training': {
     'replay': 'Vis meg igjen',
     'progress': 'Trening: {n} av {total} leksjoner fullført',

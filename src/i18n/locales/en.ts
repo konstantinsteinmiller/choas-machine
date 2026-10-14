@@ -278,6 +278,14 @@ export default {
     '2': 'Sea Fort',
     '3': 'Steel Keep'
   },
+  'keys': {
+    'space': 'Space',
+    'shift': 'Shift',
+    'tab': 'Tab',
+    'enter': 'Enter',
+    'backspace': 'Backspace',
+    'caps': 'Caps Lock'
+  },
   'training': {
     'replay': 'Show me again',
     'progress': 'Training: {n} of {total} lessons done',

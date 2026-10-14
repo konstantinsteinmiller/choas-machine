@@ -274,6 +274,14 @@ export default {
     '2': 'Tengeri erőd',
     '3': 'Acélvár'
   },
+  'keys': {
+    'space': 'Szóköz',
+    'shift': 'Shift',
+    'tab': 'Tab',
+    'enter': 'Enter',
+    'backspace': 'Backspace',
+    'caps': 'Caps Lock'
+  },
   'training': {
     'replay': 'Mutasd újra',
     'progress': 'Gyakorlás: {total} leckéből {n} kész',

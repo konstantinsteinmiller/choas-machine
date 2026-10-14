@@ -10,7 +10,7 @@
       data-testid="training-shout"
       @animationend="hud.training.shout = ''"
     )
-      span {{ t(`training.${hud.training.shout}`, { key: keyLabel(primaryCode('decoy')) }) }}
+      span {{ t(`training.${hud.training.shout}`, { key: keyLabel(primaryCode('decoy'), t) }) }}
       //- What a shut door wants is shown as its control too (#171).
       HintGlyph.glyph(v-if="hud.training.shoutHint" :hint="hud.training.shoutHint" :device="hud.device" :weapon="hud.weapon")
 </template>

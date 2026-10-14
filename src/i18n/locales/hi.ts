@@ -274,6 +274,14 @@ export default {
     '2': 'समुद्री किला',
     '3': 'इस्पात का गढ़'
   },
+  'keys': {
+    'space': 'स्पेस',
+    'shift': 'Shift',
+    'tab': 'Tab',
+    'enter': 'Enter',
+    'backspace': 'Backspace',
+    'caps': 'Caps Lock'
+  },
   'training': {
     'replay': 'फिर से दिखाएँ',
     'progress': 'प्रशिक्षण: {total} में से {n} पाठ पूरे',

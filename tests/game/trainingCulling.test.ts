@@ -124,3 +124,22 @@ describe('the marker points at what the room asks for', () => {
     expect(d.waypoint()).toBeNull()
   })
 })
+
+describe('the door marker stands in the doorway, not on the wall over it', () => {
+  it('in every room, gate shut or open: at the height of the floor inside it (the jump room put it on the wall)', async () => {
+    const { doorOf } = await import('@/game/sim/training')
+    const { heightAt } = await import('@/game/world/grid')
+    const f = buildTrainingGround()
+    const d = new TrainingDirector(new Scene(), f, makeGarrison(f, 1)) as unknown as TrainingDirector & { state: { room: number; done: boolean[] } }
+    for (let i = 0; i < TRAINING_ROOMS.length; i++) {
+      const door = doorOf(i)
+      if (!door) continue
+      d.state.room = i
+      d.state.done[i] = true
+      const w = d.waypoint()
+      if (!w || Math.hypot(w.x - door.x, w.z - door.z) > 0.5) continue
+      const floor = Math.max(0, heightAt(f.grid, door.x - CELL, door.z))
+      expect(w.y - floor, `room ${i} (${TRAINING_ROOMS[i]!.lesson})`).toBeCloseTo(1.4, 1)
+    }
+  })
+})

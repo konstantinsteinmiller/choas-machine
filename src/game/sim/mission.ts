@@ -69,7 +69,7 @@ import {
 import { AirshipView } from './airshipView'
 import { AIRSHIP_HALF } from '../models/airship'
 import { TrainingDirector } from './trainingDirector'
-import { DEMO_GAP_S, DOOR_CRAWL, DOOR_LINES, atShutDoor, demoLength, entryOf, inPit, lessonStuck, nearDoorWall, roomAt, stepAlarm, victimFrame } from './training'
+import { DEMO_GAP_S, DOOR_CRAWL, DOOR_LINES, atShutDoor, demoLength, entryOf, inPit, lessonStuck, nearDoorWall, roomAt, shootingLesson, stepAlarm, victimFrame } from './training'
 import { LESSON_IDS, TRAINING_ID, TRAINING_ROOMS, trainingArmor, type LessonId } from '../data/fortresses/training'
 import { COVER_H } from '../world/fortress'
 import { BASE_LOADOUT, type Loadout } from '../data/upgrades'
@@ -3540,6 +3540,8 @@ export class Mission implements GameMode {
       if (lessonStuck(cur, ctx, tr.state.base, stock)) {
         this.restoreLesson(cur)
         this.hideHunted = false
+        // Set up again: loaded again too, where the lesson is shot (the drum room).
+        if (shootingLesson(TRAINING_ROOMS[cur]!.lesson)) this.refillTraining(cur)
         // The decoy room's guard shot on the first try (#171): back to the door, told how.
         if (TRAINING_ROOMS[cur]!.lesson === 'decoy') {
           tr.resetRoom(this.placeAtDoor)
@@ -3594,9 +3596,9 @@ export class Mission implements GameMode {
         const lesson = TRAINING_ROOMS[e.room]!.lesson
         if (lesson === 'rope') this.ropesLeft = Math.max(this.ropesLeft, this.loadout.ropes)
         if (lesson === 'burn') this.fuelLeft = Math.max(this.fuelLeft, this.loadout.fuel)
-        // The launcher's room (#146): both rockets in, whatever was spent
-        // before, and the guns loaded too: the mech goes down to rounds as well.
-        if (lesson === 'rocket') this.refillTraining(e.room)
+        // A room that shows shooting (#146, and the three guards a playtester
+        // reached with no rounds left): every weapon loaded on the way in.
+        if (shootingLesson(lesson)) this.refillTraining(e.room)
         // The blade room (#158): held at the way in to watch its lesson first.
         if (lesson === 'blade' && !tr.state.done[e.room] && !this.cine) this.watchLesson(e.room)
         // The supply room (#111): everything is spent (the strip blinks dry), so the crate's refill shows.

@@ -274,6 +274,14 @@ export default {
     '2': 'قلعة البحر',
     '3': 'القلعة الفولاذية'
   },
+  'keys': {
+    'space': 'مسافة',
+    'shift': 'Shift',
+    'tab': 'Tab',
+    'enter': 'Enter',
+    'backspace': 'Backspace',
+    'caps': 'Caps Lock'
+  },
   'training': {
     'replay': 'أرني مجددًا',
     'progress': 'التدريب: {n} من {total} دروس مكتملة',

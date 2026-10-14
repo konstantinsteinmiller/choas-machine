@@ -274,6 +274,14 @@ export default {
     '2': 'Jūrų fortas',
     '3': 'Plieno pilis'
   },
+  'keys': {
+    'space': 'Tarpas',
+    'shift': 'Shift',
+    'tab': 'Tab',
+    'enter': 'Enter',
+    'backspace': 'Backspace',
+    'caps': 'Caps Lock'
+  },
   'training': {
     'replay': 'Parodyk dar kartą',
     'progress': 'Treniruotė: baigta {n} iš {total} pamokų',

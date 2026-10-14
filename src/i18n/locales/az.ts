@@ -274,6 +274,14 @@ export default {
     '2': 'Dəniz qalası',
     '3': 'Polad qala'
   },
+  'keys': {
+    'space': 'Boşluq',
+    'shift': 'Shift',
+    'tab': 'Tab',
+    'enter': 'Enter',
+    'backspace': 'Backspace',
+    'caps': 'Caps Lock'
+  },
   'training': {
     'replay': 'Yenidən göstər',
     'progress': 'Məşq: {total} dərsdən {n} keçildi',

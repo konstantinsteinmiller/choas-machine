@@ -397,3 +397,19 @@ describe('a lesson that can no longer be done is set up again', () => {
     expect(lessonStuck(LESSON_IDS.indexOf('move'), base, base, { alive: 0, bodies: 0, fuel: 0, ropes: 0 })).toBe(false)
   })
 })
+
+describe('rooms that show shooting load every weapon', () => {
+  it('are the ones whose hologram aims and fires', async () => {
+    const { shootingLesson } = await import('@/game/sim/training')
+    const shot = LESSON_IDS.filter(l => shootingLesson(l))
+    expect(shot).toEqual(expect.arrayContaining(['weapons', 'rocket', 'hide', 'barrel']))
+    for (const l of ['move', 'supply', 'blade', 'box'] as const) expect(shootingLesson(l)).toBe(false)
+  })
+
+  it('on the way in, and when the room is set up again (a playtester reached the three guards with nothing left)', async () => {
+    const { readFileSync } = await import('node:fs')
+    const mission = readFileSync('src/game/sim/mission.ts', 'utf8')
+    expect(mission).toMatch(/if \(shootingLesson\(lesson\)\) this\.refillTraining\(e\.room\)/)
+    expect(mission).toMatch(/restoreLesson\(cur\)[\s\S]{0,200}shootingLesson\(TRAINING_ROOMS\[cur\]!\.lesson\)\) this\.refillTraining\(cur\)/)
+  })
+})

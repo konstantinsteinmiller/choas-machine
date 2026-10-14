@@ -144,6 +144,15 @@ describe('the rope gun (#94)', () => {
     const wide = flat(60, 30); set(wide, 2, 0, 3, 29, 6)
     expect(findRopeShot(wide, cellMid(3), 6, cellMid(11), cellMid(3) + ROPE_RANGE + 6, 0, cellMid(11), 1)).toBeNull()
   })
+
+  it('never along the top it is shot from: only across a drop', () => {
+    // From the wall's edge, down its own length (a playtester did this and had to climb over the line).
+    const g = yard()
+    expect(findRopeShot(g, cellMid(3), 6, cellMid(11), cellMid(3), 6, cellMid(20), 1)).toBeNull()
+    // Two platforms of one height, a gap between: across it, yes.
+    const twin = flat(); set(twin, 2, 0, 3, 29, 6); set(twin, 12, 0, 13, 29, 6)
+    expect(findRopeShot(twin, cellMid(3), 6, cellMid(11), cellMid(12), 6, cellMid(11), 1)).toBeTruthy()
+  })
 })
 
 describe('decoys never run out (#114)', () => {

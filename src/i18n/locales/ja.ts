@@ -274,6 +274,14 @@ export default {
     '2': '海の要塞',
     '3': '鋼鉄の城'
   },
+  'keys': {
+    'space': 'スペース',
+    'shift': 'Shift',
+    'tab': 'Tab',
+    'enter': 'Enter',
+    'backspace': 'Backspace',
+    'caps': 'Caps Lock'
+  },
   'training': {
     'replay': 'もう一度見る',
     'progress': '訓練：{total}中{n}レッスン完了',

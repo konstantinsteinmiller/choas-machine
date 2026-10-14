@@ -274,6 +274,14 @@ export default {
     '2': 'Dengiz qal\'asi',
     '3': 'Po\'lat qal\'a'
   },
+  'keys': {
+    'space': 'Probel',
+    'shift': 'Shift',
+    'tab': 'Tab',
+    'enter': 'Enter',
+    'backspace': 'Backspace',
+    'caps': 'Caps Lock'
+  },
   'training': {
     'replay': 'Yana ko\'rsatish',
     'progress': 'Mashq: {total} darsdan {n} tasi tugadi',

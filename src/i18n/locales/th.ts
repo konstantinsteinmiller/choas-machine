@@ -274,6 +274,14 @@ export default {
     '2': 'ป้อมทะเล',
     '3': 'หอคอยเหล็กกล้า'
   },
+  'keys': {
+    'space': 'Spacebar',
+    'shift': 'Shift',
+    'tab': 'Tab',
+    'enter': 'Enter',
+    'backspace': 'Backspace',
+    'caps': 'Caps Lock'
+  },
   'training': {
     'replay': 'ดูอีกครั้ง',
     'progress': 'ฝึกซ้อม: เสร็จ {n} จาก {total} บทเรียน',

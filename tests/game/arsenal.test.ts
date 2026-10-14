@@ -222,9 +222,10 @@ describe('the weapons', () => {
   it('drawing a weapon takes a moment, and the cycle goes round all three', () => {
     const a = makeArsenal()
     stepArsenal(a, hands({ select: 'rocket' }), DT)
+    // Not while it comes out; the pull is kept and goes off once it is drawn.
     expect(stepArsenal(a, hands({ aimReleased: true }), DT)).toBe(0)
-    hold(a, idle, SWITCH_S)
-    expect(stepArsenal(a, hands({ aimReleased: true }), DT)).toBe(1)
+    expect(hold(a, idle, SWITCH_S - 2 * DT)).toBe(0)
+    expect(hold(a, idle, 4 * DT)).toBe(1)
     let w = WEAPON_IDS[0]
     const seen = new Set<string>()
     for (let i = 0; i < WEAPON_IDS.length; i++) { seen.add(w); w = nextWeapon(w) }
@@ -347,5 +348,26 @@ describe('the Goliath against what a raid carries', () => {
     expect(u.hp - belts).toBeLessThanOrEqual(0)
     // …and the rockets are still the tool: two belts alone are not.
     expect(u.maxHp - 2 * MINIGUN_BELT * BASE_DAMAGE.minigun * GOLIATH_PLATE_MINIGUN).toBeGreaterThan(u.maxHp * 0.7)
+  })
+})
+
+describe('a click while the weapon comes out is not lost', () => {
+  // Players pressed 3 and clicked at once: nothing left, and they took the
+  // launcher for one that wants the right button held first.
+  for (const w of ['rocket', 'sniper'] as const) {
+    it(`the ${w} goes off once drawn, the left button alone`, () => {
+      const a = makeArsenal()
+      if (w === 'sniper') { a.current = 'rocket'; a.switching = 0 }
+      stepArsenal(a, hands({ select: w, touch: false }), DT)
+      expect(stepArsenal(a, hands({ firePressed: true, fireHeld: true, touch: false }), DT)).toBe(0)
+      expect(hold(a, hands({ touch: false }), SWITCH_S + 0.05)).toBe(1)
+    })
+  }
+
+  it('the minigun needs only the left button held: it spins up and fires', () => {
+    const a = makeArsenal()
+    stepArsenal(a, hands({ select: 'minigun', touch: false }), DT)
+    hold(a, idle, SWITCH_S + 0.05)
+    expect(hold(a, hands({ fireHeld: true, touch: false }), MINIGUN_SPOOL_S + 0.3)).toBeGreaterThan(0)
   })
 })

@@ -420,46 +420,50 @@ export class TrainingDirector {
       const h = heightAt(g, x, z)
       return { x, y: (h === VOID ? 0 : h) + lift, z }
     }
-    const door = doorOf(t.room)
+    const d = doorOf(t.room)
+    // In the doorway, at the height of the floor just inside it: the door's
+    // own cell reads as its shut gate's top, and put the marker up on the
+    // wall over the jump room's way out.
+    const door = d && { x: d.x, z: d.z, y: at(d.x - CELL, d.z).y }
     const done = t.done[t.room]
     switch (r.lesson) {
       case 'hook': return at(cellMid(r.x1 + 1), (r.z0 + 6.5) * CELL, 0.6)
       case 'salvage': {
         const p = this.fortress.salvage[0]
-        return !done && p ? at(p.x, p.z, 1.6) : door ? at(door.x, door.z) : null
+        return !done && p ? at(p.x, p.z, 1.6) : door
       }
       case 'extract': return at(this.fortress.extract.x, this.fortress.extract.z, 1.2)
       // The body to burn, not the door (a playtester was sent to the door).
       case 'burn': {
         const body = done ? null : this.gar.units.find(u => roomAt(u.homeX) === t.room && u.state === 'dead' && !u.hidden)
-        return body ? at(body.x, body.z, 1.0) : door ? at(door.x, door.z) : null
+        return body ? at(body.x, body.z, 1.0) : door
       }
       // The supplies, until something was taken.
       case 'supply': {
         const s = done ? null : (this.fortress.supplies ?? []).find(q => roomAt(q.x) === t.room)
-        return s ? at(s.x, s.z, 1.2) : door ? at(door.x, door.z) : null
+        return s ? at(s.x, s.z, 1.2) : door
       }
       // The drum on the plinth, until it has gone up (its cell is bare floor then; a room set up again stands it back).
       case 'barrel': {
         const [cx, cz] = roomCell(t.room, ...BARREL_PLINTH)
         const live = !done && g.base[cz * g.w + cx] !== VOID
-        return live ? at(cellMid(cx), cellMid(cz), 1.0) : door ? at(door.x, door.z) : null
+        return live ? at(cellMid(cx), cellMid(cz), 1.0) : door
       }
       // The mech on the ledge, until it is down (a playtester never found it up there).
       case 'rocket': {
         const mech = done ? null : this.gar.units.find(u => roomAt(u.homeX) === t.room && isAlive(u))
-        return mech ? { x: mech.x, y: mech.y + SPECS[mech.kind].height + 0.4, z: mech.z } : door ? at(door.x, door.z) : null
+        return mech ? { x: mech.x, y: mech.y + SPECS[mech.kind].height + 0.4, z: mech.z } : door
       }
       // The sentry to shoot; once it is down, the crates to be behind before the drone comes.
       case 'hide': {
-        if (done) return door ? at(door.x, door.z) : null
+        if (done) return door
         const mark = this.gar.units.find(u => roomAt(u.homeX) === t.room && u.kind !== 'drone' && isAlive(u))
         if (mark) return { x: mark.x, y: mark.y + SPECS[mark.kind].height + 0.9, z: mark.z }
         const [cx, cz] = roomCell(t.room, 1, 1)
         return at(cellMid(cx) + (HIDE_SPOT[0] - 1) * CELL, cellMid(cz) + (HIDE_SPOT[1] - 1) * CELL, 1.0)
       }
-      case 'weapons': case 'blade': case 'decoy': return done && door ? at(door.x, door.z) : null
-      default: return door ? at(door.x, door.z) : null
+      case 'weapons': case 'blade': case 'decoy': return done ? door : null
+      default: return door
     }
   }
 

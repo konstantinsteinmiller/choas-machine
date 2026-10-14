@@ -274,6 +274,14 @@ export default {
     '2': 'Fuerte marino',
     '3': 'Torre de acero'
   },
+  'keys': {
+    'space': 'Espacio',
+    'shift': 'Mayús',
+    'tab': 'Tab',
+    'enter': 'Intro',
+    'backspace': 'Retroceso',
+    'caps': 'Bloq Mayús'
+  },
   'training': {
     'replay': 'Muéstramelo otra vez',
     'progress': 'Entrenamiento: {n} de {total} lecciones hechas',

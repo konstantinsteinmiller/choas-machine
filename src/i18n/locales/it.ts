@@ -274,6 +274,14 @@ export default {
     '2': 'Forte del mare',
     '3': 'Mastio d\'acciaio'
   },
+  'keys': {
+    'space': 'Spazio',
+    'shift': 'Maiusc',
+    'tab': 'Tab',
+    'enter': 'Invio',
+    'backspace': 'Backspace',
+    'caps': 'Bloc Maiusc'
+  },
   'training': {
     'replay': 'Mostramelo di nuovo',
     'progress': 'Addestramento: {n} lezioni su {total} completate',

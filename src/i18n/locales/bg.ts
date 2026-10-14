@@ -274,6 +274,14 @@ export default {
     '2': 'Морската крепост',
     '3': 'Стоманената кула'
   },
+  'keys': {
+    'space': 'Интервал',
+    'shift': 'Shift',
+    'tab': 'Tab',
+    'enter': 'Enter',
+    'backspace': 'Backspace',
+    'caps': 'Caps Lock'
+  },
   'training': {
     'replay': 'Покажи пак',
     'progress': 'Тренировка: {n} от {total} урока завършени',

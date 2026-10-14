@@ -274,6 +274,14 @@ export default {
     '2': 'Mořská pevnost',
     '3': 'Ocelový hrad'
   },
+  'keys': {
+    'space': 'Mezerník',
+    'shift': 'Shift',
+    'tab': 'Tab',
+    'enter': 'Enter',
+    'backspace': 'Backspace',
+    'caps': 'Caps Lock'
+  },
   'training': {
     'replay': 'Ukaž znovu',
     'progress': 'Výcvik: hotovo {n} z {total} lekcí',

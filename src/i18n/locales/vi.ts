@@ -274,6 +274,14 @@ export default {
     '2': 'Pháo Đài Biển',
     '3': 'Thành Thép'
   },
+  'keys': {
+    'space': 'Phím cách',
+    'shift': 'Shift',
+    'tab': 'Tab',
+    'enter': 'Enter',
+    'backspace': 'Backspace',
+    'caps': 'Caps Lock'
+  },
   'training': {
     'replay': 'Xem lại',
     'progress': 'Huấn luyện: xong {n}/{total} bài',

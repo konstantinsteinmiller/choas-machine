@@ -274,6 +274,14 @@ export default {
     '2': 'Fort marí',
     '3': 'Torre d\'acer'
   },
+  'keys': {
+    'space': 'Espai',
+    'shift': 'Majús',
+    'tab': 'Tab',
+    'enter': 'Retorn',
+    'backspace': 'Retrocés',
+    'caps': 'Bloq Maj'
+  },
   'training': {
     'replay': 'Torna-m\'ho a ensenyar',
     'progress': 'Entrenament: {n} de {total} lliçons fetes',

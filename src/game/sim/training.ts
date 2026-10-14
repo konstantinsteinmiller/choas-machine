@@ -575,6 +575,14 @@ export const replayDemo = (t: Training): boolean => {
   return true
 }
 
+/**
+ * A lesson whose hologram aims and fires (the three guards, the launcher, the
+ * shot before hiding, the drum): the room loads every weapon on the way in,
+ * whatever was spent before (a playtester came to the three guards with
+ * nothing left and could not do it the way it is shown).
+ */
+export const shootingLesson = (lesson: LessonId): boolean => DEMOS[lesson].some(k => k.aim === 1)
+
 /** The length of a demo, seconds. */
 export const demoLength = (lesson: LessonId): number => keysLength(DEMOS[lesson])
 const keysLength = (keys: readonly DemoKey[]): number => keys[keys.length - 1]!.t + 0.6
@@ -602,7 +610,8 @@ export const nearProjector = (t: Training, c: TrainingContext): boolean => {
 /** What a shut lesson door says to a mech walking into it (#171): the line, and the control it is about. */
 export const DOOR_LINES: Readonly<Partial<Record<LessonId, { line: string; hint: HintId | null }>>> = {
   cover: { line: 'door.cover', hint: 'crouch' },
-  weapons: { line: 'door.weapons', hint: 'scope' },
+  // The left button (the right one only zooms the rifle; it was read as the minigun's trigger).
+  weapons: { line: 'door.weapons', hint: 'fire' },
   rocket: { line: 'door.rocket', hint: 'rocket' },
   hide: { line: 'door.hide', hint: 'fire' },
   supply: { line: 'door.supply', hint: 'supply' },

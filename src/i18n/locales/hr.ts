@@ -274,6 +274,14 @@ export default {
     '2': 'Morska utvrda',
     '3': 'Čelična kula'
   },
+  'keys': {
+    'space': 'Razmak',
+    'shift': 'Shift',
+    'tab': 'Tab',
+    'enter': 'Enter',
+    'backspace': 'Backspace',
+    'caps': 'Caps Lock'
+  },
   'training': {
     'replay': 'Pokaži ponovno',
     'progress': 'Trening: završeno {n} od {total} lekcija',

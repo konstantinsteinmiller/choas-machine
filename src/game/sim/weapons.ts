@@ -64,6 +64,12 @@ export interface Arsenal {
   overheated: boolean
   /** Fraction of a round owed, carried between steps. */
   owed: number
+  /**
+   * The trigger was pulled while the weapon was still coming out: it goes
+   * off once drawn (a click straight after 3 used to be lost, and players
+   * took the launcher for one that wants the right button first).
+   */
+  pullOwed?: boolean
   rocketLoaded: boolean
   rocketReload: number
   rockets: number
@@ -144,6 +150,7 @@ const draw = (a: Arsenal, w: WeaponId): void => {
   a.current = w
   a.switching = SWITCH_S
   a.owed = 0
+  a.pullOwed = false
   // A reload does not carry on in the holster.
   if (a.reloading > 0) a.reloading = SNIPER_RELOAD_S
 }
@@ -198,8 +205,13 @@ export const stepArsenal = (a: Arsenal, t: Trigger, dt: number): number => {
     if (a.overheated && a.heat <= MINIGUN_RESUME_AT) a.overheated = false
   }
 
-  if (!drawn) return 0
-  const pull = t.firePressed || (t.touch && t.aimReleased)
+  const pulled = t.firePressed || (t.touch && t.aimReleased)
+  if (!drawn) {
+    if (pulled && a.current !== 'minigun') a.pullOwed = true
+    return 0
+  }
+  const pull = pulled || !!a.pullOwed
+  a.pullOwed = false
   switch (a.current) {
     case 'sniper':
       if (!pull || a.sniperMag <= 0 || a.bolt > 0 || a.reloading > 0) return 0

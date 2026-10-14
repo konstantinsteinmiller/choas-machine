@@ -1,4 +1,4 @@
-import { CellKind, VOID, cableSpan, cellHeight, cellKind, hasLineOfSight, inGrid, toCell, type Cable, type Grid } from '../world/grid'
+import { CellKind, VOID, cableSpan, cellHeight, cellKind, hasLineOfSight, heightAt, inGrid, toCell, type Cable, type Grid } from '../world/grid'
 
 /**
  * ─── The rope gun (#94) ──────────────────────────────────────────────────────
@@ -6,7 +6,10 @@ import { CellKind, VOID, cableSpan, cellHeight, cellKind, hasLineOfSight, inGrid
  * From somewhere high (a wall top, a tower, a roof's edge), the mech shoots a
  * line to a spot it looks at, no higher than where it stands and within
  * ROPE_RANGE, and walks it at once like any of the fortress's cables. The
- * line must run clear the whole way. A few to a raid. Pure.
+ * line must run clear the whole way, and over a drop: a rope is the way
+ * across a gap, never along the top it is shot from (a playtester strung one
+ * down the length of a platform and then had to climb over it). A few to a
+ * raid. Pure.
  */
 
 export const ROPE_RANGE = 40
@@ -84,9 +87,21 @@ export const findRopeShot = (g: Grid, x: number, y: number, z: number, hitX: num
   const bz = (bcz + 0.5) * 2
   // Clear the whole way, a body's height over the line.
   if (!hasLineOfSight(g, ax, ah + 1.0, az, bx, bh + 1.0, bz)) return null
+  if (!overGap(g, ax, ah, az, bx, bh, bz)) return null
   const cable = { ax: acx, az: acz, bx: bcx, bz: bcz }
   // Never a line that drops (or climbs) like a wall (#201): one the mech could not walk.
   const s = cableSpan(g, cable)
   if (Math.abs(bh - ah) > ROPE_STEEPEST * Math.hypot(bx - ax, bz - az) * (s.tb - s.ta)) return null
   return { cable, ax, ay: ah, az, bx, by: bh, bz }
+}
+
+/** Somewhere between its ends, the floor under the line falls away at least ROPE_PERCH (or there is none). */
+const overGap = (g: Grid, ax: number, ay: number, az: number, bx: number, by: number, bz: number): boolean => {
+  const n = Math.max(2, Math.ceil(Math.hypot(bx - ax, bz - az) / 0.25))
+  for (let i = 1; i < n; i++) {
+    const t = i / n
+    const h = heightAt(g, ax + (bx - ax) * t, az + (bz - az) * t)
+    if (h === VOID || h <= ay + (by - ay) * t - ROPE_PERCH) return true
+  }
+  return false
 }

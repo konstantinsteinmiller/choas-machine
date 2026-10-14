@@ -274,6 +274,14 @@ export default {
     '2': 'Merilinnake',
     '3': 'Teräslinna'
   },
+  'keys': {
+    'space': 'Välilyönti',
+    'shift': 'Vaihto',
+    'tab': 'Sarkain',
+    'enter': 'Enter',
+    'backspace': 'Askelpalautin',
+    'caps': 'Caps Lock'
+  },
   'training': {
     'replay': 'Näytä uudelleen',
     'progress': 'Harjoitus: {n}/{total} oppituntia tehty',

@@ -274,6 +274,14 @@ export default {
     '2': 'Mara Fortikaĵo',
     '3': 'Ŝtala Turo'
   },
+  'keys': {
+    'space': 'Spaco',
+    'shift': 'Shift',
+    'tab': 'Tab',
+    'enter': 'Enter',
+    'backspace': 'Backspace',
+    'caps': 'Caps Lock'
+  },
   'training': {
     'replay': 'Montru denove',
     'progress': 'Trejnado: {n} el {total} lecionoj faritaj',
