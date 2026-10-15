@@ -284,6 +284,7 @@ export default {
   },
   'training': {
     'replay': 'Vis mig igen',
+    'skipLesson': 'Spring lektion over',
     'progress': 'Træning: {n} af {total} lektioner klaret',
     'scrapWhy': 'For skrot køber du våbenopgraderinger hjemme på basen.',
     'bladeHint': 'Snig dig ind på vagterne og stik dem i ryggen, så de ikke slår alarm!',
@@ -294,7 +295,6 @@ export default {
       'cover': 'Duk dig bag kasserne, så vagtposten ikke kan se dig, og kravl så ind under porten! Kun dukkede skridt er lydløse: vagterne hører dig gå tæt på.',
       'weapons': 'Skift til minigunnen og nedlæg alle tre vagter! Skud larmer: alle vagter i nærheden hører minigunnen.',
       'rocket': 'Skift til raketkasteren og spræng mech\'en på afsatsen i luften! Raketter larmer: alle vagter hører eksplosionen.',
-      'hide': 'Uskadeliggør vagten! Hvis du skyder, så flyt dig og gem dig: dronen tjekker, hvor skuddet kom fra.',
       'supply': 'Gå hen over kasserne for at fylde ammunition op og reparere dit panser.',
       'burn': 'Brænd liget med flammekasteren, før nogen finder det!',
       'box': 'Tag din forklædning på! Søgelyset ignorerer dig, mens du står stille, men opdager dig, så snart du bevæger dig.',
@@ -306,6 +306,7 @@ export default {
     'skip': 'Spring træning over',
     'goal': 'Nedlæg alle tre',
     'goalProgress': '{n} af {total} nede',
+    'tooWeak': 'For svagt! Kræver mere bragkraft',
     'shout': {
       'backstab': 'Stik dem i ryggen'
     },
@@ -317,14 +318,12 @@ export default {
       'decoy': 'Brug en lokkedue [{key}], stik i ryggen, når de er distraheret',
       'decoyTouch': 'Brug en lokkedue, stik i ryggen, når de er distraheret',
       'decoyAny': 'Opdaget igen. Nedlæg vagten, som du vil.',
-      'hide': 'Gem dig efter skuddet: flyt dig et andet sted hen, ellers finder fjenden stedet, du skød fra.'
     },
     'door': {
       'cover': 'Duk dig og kravl under porten',
       'coverCrawl': 'Kravl under porten',
       'weapons': 'Tag alle tre ned for at komme forbi',
       'rocket': 'Ødelæg mechen med raketkasteren',
-      'hide': 'Uskadeliggør vagten',
       'supply': 'Tag forsyningerne',
       'blade': 'Stik begge vagter i ryggen',
       'burn': 'Brænd liget',
@@ -386,7 +385,7 @@ export default {
       'rope': 'Rebkanon',
       'burn': 'Flammekaster',
       'drag': 'Tag kroppen',
-      'replay': 'Vis lektionen igen'
+      'replay': 'Spring lektionen over'
     }
   },
   'prompt': {

@@ -163,3 +163,18 @@ describe('the rocket room (#146)', () => {
     expect(hasLineOfSight(f.grid, fr.x, 1.9, fr.z, tx, ROCKET_LEDGE_H + 1.9, tz)).toBe(true)
   })
 })
+
+describe('the rifle on the ledge mech: "too weak"', () => {
+  it('a sniper round into the rocket room\'s mech pops the label at the hit for 2 s, in every language', async () => {
+    const { readFileSync, readdirSync } = await import('node:fs')
+    const { WEAK_POP_S } = await import('@/game/state/hud')
+    expect(WEAK_POP_S).toBe(2)
+    const mission = readFileSync('src/game/sim/mission.ts', 'utf8')
+    expect(mission).toMatch(/if \(w === 'sniper'\) this\.tooWeak\(u, h\.x, h\.y, h\.z\)/)
+    expect(mission).toMatch(/lesson !== 'rocket'\) return/)
+    expect(readFileSync('src/components/hud/WeakPop.vue', 'utf8')).toMatch(/weak-wobble 2s/)
+    for (const f of readdirSync('src/i18n/locales')) {
+      expect(readFileSync(`src/i18n/locales/${f}`, 'utf8'), f).toMatch(/^    'tooWeak': '.+',$/m)
+    }
+  })
+})

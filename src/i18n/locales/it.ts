@@ -284,6 +284,7 @@ export default {
   },
   'training': {
     'replay': 'Mostramelo di nuovo',
+    'skipLesson': 'Salta lezione',
     'progress': 'Addestramento: {n} lezioni su {total} completate',
     'scrapWhy': 'I rottami tech comprano potenziamenti per le tue armi alla base di comando.',
     'bladeHint': 'Avvicinati di soppiatto alle guardie e pugnalale alle spalle, così non daranno l\'allarme!',
@@ -294,7 +295,6 @@ export default {
       'cover': 'Accovacciati dietro le casse così la sentinella non ti vede, poi striscia sotto il cancello! Solo il passo accovacciato è silenzioso: le guardie ti sentono camminare da vicino.',
       'weapons': 'Passa alla minigun ed elimina tutte e tre le guardie! Gli spari fanno rumore: ogni guardia nei paraggi sente la minigun.',
       'rocket': 'Passa al lanciarazzi e fai saltare in aria il mech sulla sporgenza! I razzi sono rumorosi: ogni guardia sente l\'esplosione.',
-      'hide': 'Elimina la guardia! Se spari, allontanati e nasconditi: il drone controlla da dove è partito il colpo.',
       'supply': 'Passa sopra le casse per ricaricare le munizioni e riparare la corazza.',
       'burn': 'Brucia il corpo con il lanciafiamme prima che qualcuno lo trovi!',
       'box': 'Travestiti! Il riflettore ti ignora finché resti immobile, ma ti scopre appena ti muovi.',
@@ -306,6 +306,7 @@ export default {
     'skip': 'Salta l\'addestramento',
     'goal': 'Elimina tutti e tre',
     'goalProgress': '{n} su {total} a terra',
+    'tooWeak': 'Troppo debole! Serve più potenza esplosiva',
     'shout': {
       'backstab': 'Colpisci alle spalle'
     },
@@ -317,14 +318,12 @@ export default {
       'decoy': "Usa un'esca [{key}], colpisci alle spalle quando è distratto",
       'decoyTouch': "Usa un'esca, colpisci alle spalle quando è distratto",
       'decoyAny': 'Visto di nuovo. Elimina la guardia come preferisci.',
-      'hide': 'Nasconditi dopo aver sparato: spostati altrove, o il nemico troverà da dove hai sparato.'
     },
     'door': {
       'cover': 'Accovacciati e striscia sotto il cancello',
       'coverCrawl': 'Striscia sotto il cancello',
       'weapons': 'Abbatti tutti e tre per passare',
       'rocket': 'Distruggi il mech con il lanciarazzi',
-      'hide': 'Elimina la guardia',
       'supply': 'Prendi i rifornimenti',
       'blade': 'Colpisci alle spalle entrambe le guardie',
       'burn': 'Brucia il corpo',
@@ -386,7 +385,7 @@ export default {
       'rope': 'Lancia corde',
       'burn': 'Lanciafiamme',
       'drag': 'Afferra corpo',
-      'replay': 'Mostra di nuovo la lezione'
+      'replay': 'Salta la lezione'
     }
   },
   'prompt': {

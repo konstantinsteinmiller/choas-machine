@@ -200,6 +200,10 @@ const install = (): void => {
     freeze: (on: boolean): void => app.setWanted(!on),
 
     place: put,
+    /** The training ground: straight to room `i` (the rooms before it done), and the mission itself for a probe's checks. */
+    trainingRoom: (i: number): void => { mission()?.cheatTrainingRoom(i) },
+    mission: () => mission(),
+    flow: () => flow,
     /** Stand `back` metres behind a defender, facing its back. */
     behind: (id: number, back: number): void => {
       const u = mission()?.garrison.units[id]

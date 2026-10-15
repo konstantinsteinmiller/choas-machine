@@ -284,6 +284,7 @@ export default {
   },
   'training': {
     'replay': 'Parodyk dar kartą',
+    'skipLesson': 'Praleisti pamoką',
     'progress': 'Treniruotė: baigta {n} iš {total} pamokų',
     'scrapWhy': 'Už technikos laužą Vadavietėje patobulinsi ginklus.',
     'bladeHint': 'Prisėlink prie sargybinių ir dūrk jiems į nugarą, kad nesukeltų aliarmo!',
@@ -294,7 +295,6 @@ export default {
       'cover': 'Pritūpk už dėžių, kad sargybinis tavęs nematytų, tada pralįsk po vartais! Tylus tik žingsnis pritūpus: sargybiniai išgirsta, kai eini arti.',
       'weapons': 'Persijunk į minigun ir įveik visus tris sargybinius! Šūviai kelia triukšmą: minigun girdi kiekvienas sargybinis aplink.',
       'rocket': 'Perjunk į raketsvaidį ir susprogdink mechą ant atbrailos! Raketos garsios: sprogimą girdi kiekvienas sargybinis.',
-      'hide': 'Įveik sargybinį! Jei šauni, pasitrauk ir pasislėpk: dronas patikrina, iš kur buvo iššauta.',
       'supply': 'Pereik per dėžes, kad papildytum šaudmenis ir sutaisytum šarvus.',
       'burn': 'Sudegink kūną liepsnosvaidžiu, kol niekas jo nerado!',
       'box': 'Persirenk! Prožektorius tavęs nepaiso, kol stovi nejudėdamas, bet pastebi vos tik pajudi.',
@@ -306,6 +306,7 @@ export default {
     'skip': 'Praleisti treniruotę',
     'goal': 'Nukauk visus tris',
     'goalProgress': '{n} iš {total} nukauti',
+    'tooWeak': 'Per silpna! Reikia daugiau sprogimo galios',
     'shout': {
       'backstab': 'Smok į nugarą'
     },
@@ -317,14 +318,12 @@ export default {
       'decoy': 'Panaudok masalą [{key}], smok į nugarą, kai jis išsiblaškys',
       'decoyTouch': 'Panaudok masalą, smok į nugarą, kai jis išsiblaškys',
       'decoyAny': 'Vėl pastebėjo. Įveik sargybinį kaip tik nori.',
-      'hide': 'Iššovęs pasislėpk: pereik kitur, kitaip priešas ras, iš kur šovei.'
     },
     'door': {
       'cover': 'Pritūpk ir prašliauk po vartais',
       'coverCrawl': 'Prašliauk po vartais',
       'weapons': 'Pakirsk visus tris, kad praeitum',
       'rocket': 'Sunaikink mechą granatsvaidžiu',
-      'hide': 'Įveik sargybinį',
       'supply': 'Pagriebk atsargas',
       'blade': 'Smok į nugarą abiem sargybiniams',
       'burn': 'Sudegink kūną',
@@ -386,7 +385,7 @@ export default {
       'rope': 'Virvės šautuvas',
       'burn': 'Liepsnosvaidis',
       'drag': 'Paimti kūną',
-      'replay': 'Rodyti pamoką dar kartą'
+      'replay': 'Praleisti pamoką'
     }
   },
   'prompt': {

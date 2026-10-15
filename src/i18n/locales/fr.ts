@@ -284,6 +284,7 @@ export default {
   },
   'training': {
     'replay': 'Remontre-moi',
+    'skipLesson': 'Passer la leçon',
     'progress': 'Entraînement : {n} leçons sur {total} terminées',
     'scrapWhy': 'La ferraille tech achète des améliorations d\'armes à la base de commandement.',
     'bladeHint': 'Faufile-toi jusqu\'aux gardes et poignarde-les dans le dos, pour qu\'ils ne donnent pas l\'alerte !',
@@ -294,7 +295,6 @@ export default {
       'cover': 'Accroupis-toi derrière les caisses pour que la sentinelle ne te voie pas, puis rampe sous la grille ! Seul un pas accroupi est silencieux : les gardes t\'entendent marcher de près.',
       'weapons': 'Passe à la minigun et élimine les trois gardes ! Les tirs font du bruit : tous les gardes alentour entendent la minigun.',
       'rocket': 'Passe au lance-roquettes et fais exploser le mech sur la corniche ! Les roquettes sont bruyantes : tous les gardes entendent l\'explosion.',
-      'hide': 'Élimine le garde ! Si tu tires, éloigne-toi et cache-toi : le drone vient voir d\'où est parti le tir.',
       'supply': 'Marche sur les caisses pour recharger tes munitions et réparer ton blindage.',
       'burn': 'Brûle le corps au lance-flammes avant que quelqu\'un ne le trouve !',
       'box': 'Déguise-toi ! Le projecteur t\'ignore tant que tu restes immobile, mais te repère dès que tu bouges.',
@@ -306,6 +306,7 @@ export default {
     'skip': 'Passer l\'entraînement',
     'goal': 'Neutralise les trois',
     'goalProgress': '{n} sur {total} neutralisés',
+    'tooWeak': 'Trop faible ! Il faut plus de puissance explosive',
     'shout': {
       'backstab': 'Frappe dans le dos'
     },
@@ -317,14 +318,12 @@ export default {
       'decoy': 'Utilise un leurre [{key}], frappe dans le dos quand il est distrait',
       'decoyTouch': 'Utilise un leurre, frappe dans le dos quand il est distrait',
       'decoyAny': 'Encore repéré. Élimine le garde comme tu veux.',
-      'hide': 'Cache-toi après avoir tiré : change de place, sinon l\'ennemi trouvera d\'où tu as tiré.'
     },
     'door': {
       'cover': 'Accroupis-toi et rampe sous la grille',
       'coverCrawl': 'Rampe sous la grille',
       'weapons': 'Abats les trois pour passer',
       'rocket': 'Détruis le mécha avec le lance-roquettes',
-      'hide': 'Élimine le garde',
       'supply': 'Récupère le ravitaillement',
       'blade': 'Frappe les deux gardes dans le dos',
       'burn': 'Brûle le corps',
@@ -386,7 +385,7 @@ export default {
       'rope': 'Lance-corde',
       'burn': 'Lance-flammes',
       'drag': 'Saisir le corps',
-      'replay': 'Afficher la leçon à nouveau'
+      'replay': 'Passer la leçon'
     }
   },
   'prompt': {

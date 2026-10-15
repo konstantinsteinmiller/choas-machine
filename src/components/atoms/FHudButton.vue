@@ -33,6 +33,8 @@ interface Props {
   active?: boolean
   /** A soft pulse: there is something new here. */
   attention?: boolean
+  /** A bounce, key badge and all: the training room's lesson wants this control (`hud.training.keys`). */
+  bounce?: boolean
   isDisabled?: boolean
   /** A glyph from the shared set. Ignored when the default slot is filled. */
   icon?: GameIconName
@@ -50,6 +52,7 @@ const props = withDefaults(defineProps<Props>(), {
   shape: 'plate',
   active: false,
   attention: false,
+  bounce: false,
   isDisabled: false,
   pressed: undefined
 })
@@ -78,7 +81,7 @@ const keyText = computed(() => {
 <template lang="pug">
   button.f-hud-button(
     type="button"
-    :class="[`tone-${tone}`, `shape-${shape}`, { 'is-active': active, 'is-attention': attention, 'is-disabled': isDisabled, 'is-pictogram': icon?.startsWith('act-') }]"
+    :class="[`tone-${tone}`, `shape-${shape}`, { 'is-active': active, 'is-attention': attention, 'is-bounce': bounce, 'is-disabled': isDisabled, 'is-pictogram': icon?.startsWith('act-') }]"
     :aria-label="resolvedAriaLabel"
     :aria-pressed="pressed"
     :disabled="isDisabled"
@@ -263,8 +266,18 @@ const keyText = computed(() => {
   50%
     opacity: 0.9
 
+.f-hud-button.is-bounce
+  animation: fhb-bounce 0.8s ease-in-out infinite
+@keyframes fhb-bounce
+  0%, 100%
+    transform: none
+  50%
+    transform: translateY(-0.45rem)
+
 @media (prefers-reduced-motion: reduce)
   .is-attention .f-hud-button__body::after
     animation: none
     opacity: 0.6
+  .f-hud-button.is-bounce
+    animation: none
 </style>

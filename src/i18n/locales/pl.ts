@@ -284,6 +284,7 @@ export default {
   },
   'training': {
     'replay': 'Pokaż jeszcze raz',
+    'skipLesson': 'Pomiń lekcję',
     'progress': 'Trening: ukończono {n} z {total} lekcji',
     'scrapWhy': 'Za złom ulepszysz broń w Bazie Dowodzenia.',
     'bladeHint': 'Podkradnij się do strażników i dźgnij ich w plecy, żeby nie podnieśli alarmu!',
@@ -294,7 +295,6 @@ export default {
       'cover': 'Przykucnij za skrzyniami, żeby wartownik cię nie widział, a potem przeczołgaj się pod bramą! Bezgłośny jest tylko krok w przykucu: strażnicy słyszą, jak idziesz blisko.',
       'weapons': 'Przełącz na minigun i wyeliminuj wszystkich trzech strażników! Strzały robią hałas: minigun słyszy każdy strażnik w pobliżu.',
       'rocket': 'Przełącz na wyrzutnię rakiet i wysadź mecha na półce skalnej! Rakiety są głośne: wybuch słyszy każdy strażnik.',
-      'hide': 'Wyeliminuj strażnika! Jeśli strzelisz, odejdź i się schowaj: dron sprawdza, skąd padł strzał.',
       'supply': 'Przejdź po skrzyniach, żeby uzupełnić amunicję i naprawić pancerz.',
       'burn': 'Spal ciało miotaczem ognia, zanim ktoś je znajdzie!',
       'box': 'Przebierz się! Reflektor ignoruje cię, dopóki stoisz nieruchomo, ale wykrywa cię, gdy tylko się ruszysz.',
@@ -306,6 +306,7 @@ export default {
     'skip': 'Pomiń trening',
     'goal': 'Wyeliminuj całą trójkę',
     'goalProgress': '{n} z {total} wyeliminowanych',
+    'tooWeak': 'Za słabe! Potrzeba więcej siły wybuchu',
     'shout': {
       'backstab': 'Atakuj od tyłu'
     },
@@ -317,14 +318,12 @@ export default {
       'decoy': 'Użyj wabika [{key}], atakuj od tyłu, gdy się rozproszy',
       'decoyTouch': 'Użyj wabika, atakuj od tyłu, gdy się rozproszy',
       'decoyAny': 'Znowu cię wykryto. Załatw strażnika, jak chcesz.',
-      'hide': 'Po strzale się schowaj: przenieś się gdzie indziej, bo wróg znajdzie miejsce, z którego strzelałeś.'
     },
     'door': {
       'cover': 'Przykucnij i przeczołgaj się pod bramą',
       'coverCrawl': 'Przeczołgaj się pod bramą',
       'weapons': 'Powal wszystkie trzy, żeby przejść',
       'rocket': 'Zniszcz mecha wyrzutnią',
-      'hide': 'Wyeliminuj strażnika',
       'supply': 'Zabierz zaopatrzenie',
       'blade': 'Zaatakuj od tyłu obu strażników',
       'burn': 'Spal ciało',
@@ -386,7 +385,7 @@ export default {
       'rope': 'Wyrzutnia liny',
       'burn': 'Miotacz ognia',
       'drag': 'Chwyć ciało',
-      'replay': 'Pokaż lekcję jeszcze raz'
+      'replay': 'Pomiń lekcję'
     }
   },
   'prompt': {

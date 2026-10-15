@@ -188,6 +188,9 @@ export const createInput = (): Input => ({
  * throw the drag away on every frame that ran a logic step — at 60 Hz nearly
  * all of them — and the camera would only move on the odd step-less frame.
  */
+/** A left click this soon after the right button raised the scope fires nothing (ms). */
+export const ZOOM_FIRE_BLOCK_MS = 300
+
 export const consumeEdges = (i: Input): void => {
   i.aimPressed = false
   i.aimReleased = false
@@ -577,6 +580,8 @@ export const attachInput = (surface: HTMLElement, input: Input, opts: InputOptio
   }
 
   // ── Mouse: captured, or, where refused, the touch gesture ──
+  /** When the right button last raised the scope: a left press this soon after is not a shot. */
+  let aimDownAt = -1e9
   const onMouseDown = (e: MouseEvent) => {
     if (touchOnly || now() - lastTouchAt < 900) return
     input.touched = true
@@ -590,10 +595,14 @@ export const attachInput = (surface: HTMLElement, input: Input, opts: InputOptio
       if (!input.aimHeld) {
         input.aimHeld = true
         input.aimPressed = true
+        aimDownAt = now()
       }
       return
     }
     if (e.button !== 0) return
+    // Playtesters let a round go on their first zoom, almost all of them (both
+    // buttons at once, or a trackpad's two-finger click): seen, the room reset.
+    if (now() - aimDownAt < ZOOM_FIRE_BLOCK_MS) return
     if (input.locked) {
       input.fireHeld = true
       input.firePressed = true

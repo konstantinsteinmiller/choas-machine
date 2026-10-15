@@ -284,6 +284,7 @@ export default {
   },
   'training': {
     'replay': 'Muéstramelo otra vez',
+    'skipLesson': 'Saltar lección',
     'progress': 'Entrenamiento: {n} de {total} lecciones hechas',
     'scrapWhy': 'La chatarra tech compra mejoras para tus armas en la base de mando.',
     'bladeHint': '¡Acércate sigilosamente a los guardias y apuñálalos por la espalda para que no den la alarma!',
@@ -294,7 +295,6 @@ export default {
       'cover': '¡Agáchate detrás de las cajas para que el centinela no te vea y luego arrástrate bajo la verja! Solo el paso agachado es silencioso: los guardias te oyen caminar de cerca.',
       'weapons': '¡Cambia a la minigun y elimina a los tres guardias! Los disparos hacen ruido: todos los guardias cercanos oyen la minigun.',
       'rocket': '¡Cambia al lanzacohetes y vuela el mech de la cornisa! Los cohetes son ruidosos: todos los guardias oyen la explosión.',
-      'hide': '¡Elimina al guardia! Si disparas, aléjate y escóndete: el dron revisa desde dónde salió el disparo.',
       'supply': 'Pasa por encima de las cajas para recargar munición y reparar tu blindaje.',
       'burn': '¡Quema el cuerpo con el lanzallamas antes de que alguien lo encuentre!',
       'box': '¡Disfrázate! El foco te ignora mientras estés quieto, pero te detecta en cuanto te mueves.',
@@ -306,6 +306,7 @@ export default {
     'skip': 'Saltar entrenamiento',
     'goal': 'Elimina a los tres',
     'goalProgress': '{n} de {total} eliminados',
+    'tooWeak': '¡Demasiado débil! Necesita más potencia explosiva',
     'shout': {
       'backstab': 'Por la espalda'
     },
@@ -317,14 +318,12 @@ export default {
       'decoy': 'Usa un señuelo [{key}] y apuñala por la espalda cuando se distraiga',
       'decoyTouch': 'Usa un señuelo y apuñala por la espalda cuando se distraiga',
       'decoyAny': 'Te han vuelto a ver. Acaba con el guardia como quieras.',
-      'hide': 'Escóndete después de disparar: muévete a otro sitio o el enemigo encontrará desde dónde disparaste.'
     },
     'door': {
       'cover': 'Agáchate y arrástrate bajo la puerta',
       'coverCrawl': 'Arrástrate bajo la puerta',
       'weapons': 'Abate a los tres para pasar',
       'rocket': 'Destruye el mecha con el lanzacohetes',
-      'hide': 'Elimina al guardia',
       'supply': 'Coge los suministros',
       'blade': 'Apuñala por la espalda a los dos guardias',
       'burn': 'Quema el cuerpo',
@@ -386,7 +385,7 @@ export default {
       'rope': 'Pistola de cuerda',
       'burn': 'Lanzallamas',
       'drag': 'Agarrar cuerpo',
-      'replay': 'Mostrar la lección otra vez'
+      'replay': 'Saltar la lección'
     }
   },
   'prompt': {

@@ -284,6 +284,7 @@ export default {
   },
   'training': {
     'replay': 'Montru denove',
+    'skipLesson': 'Preterlasi lecionon',
     'progress': 'Trejnado: {n} el {total} lecionoj faritaj',
     'scrapWhy': 'Teknorestaĵoj aĉetas plibonigojn por viaj armiloj en la komandobazo.',
     'bladeHint': 'Ŝteliru al la gardistoj kaj ponardu ilin de malantaŭe, por ke ili ne levu alarmon!',
@@ -294,7 +295,6 @@ export default {
       'cover': 'Kaŭru malantaŭ la kestoj, por ke la gardostaranto ne vidu vin, poste rampu sub la pordego! Nur kaŭra paŝo estas silenta: gardistoj aŭdas vin marŝi proksime.',
       'weapons': 'Ŝanĝu al la minigun kaj forigu ĉiujn tri gardistojn! Pafoj bruas: ĉiu gardisto ĉirkaŭe aŭdas la minigun.',
       'rocket': 'Ŝanĝu al la raketĵetilo kaj eksplodigu la meĥon sur la kornico! Raketoj estas laŭtaj: ĉiu gardisto aŭdas la eksplodon.',
-      'hide': 'Forigu la gardiston! Se vi pafas, foriru kaj kaŝu vin: la drono kontrolas, de kie venis la pafo.',
       'supply': 'Iru trans la kestojn por replenigi vian municion kaj ripari vian kirason.',
       'burn': 'Bruligu la korpon per la flamĵetilo antaŭ ol iu trovos ĝin!',
       'box': 'Surmetu vian alivestiĝon! La serĉlumo ignoras vin dum vi staras senmove, sed rimarkas vin tuj kiam vi moviĝas.',
@@ -306,6 +306,7 @@ export default {
     'skip': 'Preterpasi trejnadon',
     'goal': 'Neŭtraligu ĉiujn tri',
     'goalProgress': '{n} el {total} faligitaj',
+    'tooWeak': 'Tro malforta! Bezonas pli da eksploda forto',
     'shout': {
       'backstab': 'Ataku de malantaŭe'
     },
@@ -317,14 +318,12 @@ export default {
       'decoy': 'Uzu logilon [{key}], ataku de malantaŭe kiam li distriĝas',
       'decoyTouch': 'Uzu logilon, ataku de malantaŭe kiam li distriĝas',
       'decoyAny': 'Vidita denove. Venku la gardiston kiel ajn vi volas.',
-      'hide': 'Kaŝu vin post pafado: iru aliloken, aŭ la malamiko trovos, de kie vi pafis.'
     },
     'door': {
       'cover': 'Kaŭru kaj rampu sub la pordego',
       'coverCrawl': 'Rampu sub la pordego',
       'weapons': 'Faligu ĉiujn tri por pasi',
       'rocket': 'Detruu la meĥon per la lanĉilo',
-      'hide': 'Forigu la gardiston',
       'supply': 'Prenu la provizojn',
       'blade': 'Ataku ambaŭ gardistojn de malantaŭe',
       'burn': 'Bruligu la korpon',
@@ -386,7 +385,7 @@ export default {
       'rope': 'Ŝnurpafilo',
       'burn': 'Flamĵetilo',
       'drag': 'Preni korpon',
-      'replay': 'Montri la lecionon denove'
+      'replay': 'Preterlasi la lecionon'
     }
   },
   'prompt': {

@@ -284,6 +284,7 @@ export default {
   },
   'training': {
     'replay': 'Mutasd újra',
+    'skipLesson': 'Lecke kihagyása',
     'progress': 'Gyakorlás: {total} leckéből {n} kész',
     'scrapWhy': 'A techhulladékból a Parancsnoki bázison fejlesztheted a fegyvereidet.',
     'bladeHint': 'Lopakodj az őrökhöz, és szúrd hátba őket, hogy ne riasszanak!',
@@ -294,7 +295,6 @@ export default {
       'cover': 'Guggolj le a ládák mögé, hogy az őr ne lásson, aztán kússz át a kapu alatt! Csak a guggolva tett lépés néma: az őrök közelről meghallják, ha sétálsz.',
       'weapons': 'Válts a minigunra, és intézd el mindhárom őrt! A lövések zajosak: a minigunt minden közeli őr hallja.',
       'rocket': 'Válts rakétavetőre, és robbantsd fel a párkányon álló mechet! A rakéták hangosak: a robbanást minden őr hallja.',
-      'hide': 'Iktasd ki az őrt! Ha lősz, menj arrébb és bújj el: a drón megnézi, honnan jött a lövés.',
       'supply': 'Sétálj át a ládákon, hogy feltöltsd a lőszert és megjavítsd a páncélod.',
       'burn': 'Égesd el a holttestet a lángszóróval, mielőtt valaki megtalálja!',
       'box': 'Öltsd magadra az álcádat! A fényszóró nem törődik veled, amíg mozdulatlan vagy, de amint megmozdulsz, észrevesz.',
@@ -306,6 +306,7 @@ export default {
     'skip': 'Gyakorlás kihagyása',
     'goal': 'Iktasd ki mind a hármat',
     'goalProgress': '{n}/{total} kiiktatva',
+    'tooWeak': 'Túl gyenge! Nagyobb robbanóerő kell',
     'shout': {
       'backstab': 'Szúrd hátba őket'
     },
@@ -317,14 +318,12 @@ export default {
       'decoy': 'Használj csalit [{key}], szúrd hátba, amikor elterelted a figyelmét',
       'decoyTouch': 'Használj csalit, szúrd hátba, amikor elterelted a figyelmét',
       'decoyAny': 'Megint észrevettek. Intézd el az őrt, ahogy akarod.',
-      'hide': 'Lövés után bújj el: menj máshová, különben az ellenség megtalálja, honnan lőttél.'
     },
     'door': {
       'cover': 'Guggolj le, és kússz át a kapu alatt',
       'coverCrawl': 'Kússz át a kapu alatt',
       'weapons': 'Ütsd ki mind a hármat az átjutáshoz',
       'rocket': 'Semmisítsd meg a mechet a rakétavetővel',
-      'hide': 'Iktasd ki az őrt',
       'supply': 'Kapd fel az utánpótlást',
       'blade': 'Szúrd hátba mindkét őrt',
       'burn': 'Égesd el a holttestet',
@@ -386,7 +385,7 @@ export default {
       'rope': 'Kötélvető',
       'burn': 'Lángszóró',
       'drag': 'Test megfogása',
-      'replay': 'Lecke mutatása újra'
+      'replay': 'A lecke kihagyása'
     }
   },
   'prompt': {

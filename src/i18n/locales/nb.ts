@@ -284,6 +284,7 @@ export default {
   },
   'training': {
     'replay': 'Vis meg igjen',
+    'skipLesson': 'Hopp over leksjonen',
     'progress': 'Trening: {n} av {total} leksjoner fullført',
     'scrapWhy': 'Skrap kjøper våpenoppgraderinger hjemme på basen.',
     'bladeHint': 'Snik deg innpå vaktene og stikk dem i ryggen, så de ikke slår alarm!',
@@ -294,7 +295,6 @@ export default {
       'cover': 'Huk deg bak kassene så vaktposten ikke ser deg, og kryp så under porten! Bare hukende skritt er lydløse: vaktene hører deg gå tett innpå.',
       'weapons': 'Bytt til minigunen og ta ut alle tre vaktene! Skudd lager støy: minigunen høres av alle vakter i nærheten.',
       'rocket': 'Bytt til rakettkasteren og spreng mechen på avsatsen! Raketter er høylytte: alle vakter hører eksplosjonen.',
-      'hide': 'Uskadeliggjør vakten! Hvis du skyter, flytt deg og gjem deg: dronen sjekker hvor skuddet kom fra.',
       'supply': 'Gå over kassene for å fylle opp ammunisjonen og reparere panseret ditt.',
       'burn': 'Brenn liket med flammekasteren før noen finner det!',
       'box': 'Ta på deg forkledningen! Lyskasteren overser deg mens du står stille, men oppdager deg straks du beveger deg.',
@@ -306,6 +306,7 @@ export default {
     'skip': 'Hopp over trening',
     'goal': 'Ta ut alle tre',
     'goalProgress': '{n} av {total} nede',
+    'tooWeak': 'For svakt! Trenger mer smellkraft',
     'shout': {
       'backstab': 'Stikk dem i ryggen'
     },
@@ -317,14 +318,12 @@ export default {
       'decoy': 'Bruk en lokkedue [{key}], stikk i ryggen når vakten er distrahert',
       'decoyTouch': 'Bruk en lokkedue, stikk i ryggen når vakten er distrahert',
       'decoyAny': 'Oppdaget igjen. Ta ut vakten akkurat som du vil.',
-      'hide': 'Gjem deg etter at du har skutt: flytt deg et annet sted, ellers finner fienden ut hvor du skjøt fra.'
     },
     'door': {
       'cover': 'Dukk deg og kryp under porten',
       'coverCrawl': 'Kryp under porten',
       'weapons': 'Ta ned alle tre for å komme forbi',
       'rocket': 'Ødelegg mechen med rakettkasteren',
-      'hide': 'Uskadeliggjør vakten',
       'supply': 'Ta forsyningene',
       'blade': 'Stikk begge vaktene i ryggen',
       'burn': 'Brenn liket',
@@ -386,7 +385,7 @@ export default {
       'rope': 'Taukanon',
       'burn': 'Flammekaster',
       'drag': 'Grip kroppen',
-      'replay': 'Vis leksjonen igjen'
+      'replay': 'Hopp over leksjonen'
     }
   },
   'prompt': {

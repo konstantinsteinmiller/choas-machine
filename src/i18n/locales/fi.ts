@@ -284,6 +284,7 @@ export default {
   },
   'training': {
     'replay': 'Näytä uudelleen',
+    'skipLesson': 'Ohita oppitunti',
     'progress': 'Harjoitus: {n}/{total} oppituntia tehty',
     'scrapWhy': 'Romulla ostat aseillesi päivityksiä tukikohdassa.',
     'bladeHint': 'Hiivi vartijoiden luo ja puukota heitä selkään, etteivät he hälytä!',
@@ -294,7 +295,6 @@ export default {
       'cover': 'Kyykisty laatikoiden taakse, ettei vartija näe sinua, ja ryömi sitten portin ali! Vain kyykyssä liikkuminen on äänetöntä: vartijat kuulevat askeleesi läheltä.',
       'weapons': 'Vaihda minigunniin ja kaada kaikki kolme vartijaa! Laukaukset pitävät meteliä: jokainen lähellä oleva vartija kuulee minigunin.',
       'rocket': 'Vaihda raketinheittimeen ja räjäytä reunalla oleva mechi! Raketit ovat äänekkäitä: jokainen vartija kuulee räjähdyksen.',
-      'hide': 'Hoitele vartija! Jos ammut, siirry pois ja piiloudu: drooni tarkistaa, mistä laukaus tuli.',
       'supply': 'Kävele laatikoiden yli täydentääksesi ammukset ja korjataksesi panssarisi.',
       'burn': 'Polta ruumis liekinheittimellä ennen kuin kukaan löytää sen!',
       'box': 'Pukeudu valepukuun! Valonheitin ei välitä sinusta, kun pysyt paikallasi, mutta huomaa sinut heti kun liikahdat.',
@@ -306,6 +306,7 @@ export default {
     'skip': 'Ohita harjoitus',
     'goal': 'Kaada kaikki kolme',
     'goalProgress': '{n}/{total} kaadettu',
+    'tooWeak': 'Liian heikko! Tarvitaan enemmän paukkua',
     'shout': {
       'backstab': 'Iske selkään'
     },
@@ -317,14 +318,12 @@ export default {
       'decoy': 'Käytä houkutinta [{key}], iske selkään, kun vartija on harhautettu',
       'decoyTouch': 'Käytä houkutinta, iske selkään, kun vartija on harhautettu',
       'decoyAny': 'Huomattu taas. Kaada vartija miten haluat.',
-      'hide': 'Piiloudu ampumisen jälkeen: siirry muualle, tai vihollinen löytää paikan, josta ammuit.'
     },
     'door': {
       'cover': 'Kyykisty ja ryömi portin ali',
       'coverCrawl': 'Ryömi portin ali',
       'weapons': 'Kaada kaikki kolme päästäksesi läpi',
       'rocket': 'Tuhoa mekki raketinheittimellä',
-      'hide': 'Hoitele vartija',
       'supply': 'Nappaa tarvikkeet',
       'blade': 'Iske molemmat vartijat selkään',
       'burn': 'Polta ruumis',
@@ -386,7 +385,7 @@ export default {
       'rope': 'Köysipyssy',
       'burn': 'Liekinheitin',
       'drag': 'Ota ruumis',
-      'replay': 'Näytä oppi uudelleen'
+      'replay': 'Ohita oppitunti'
     }
   },
   'prompt': {

@@ -284,6 +284,7 @@ export default {
   },
   'training': {
     'replay': 'Yana ko\'rsatish',
+    'skipLesson': 'Darsni o‘tkazib yuborish',
     'progress': 'Mashq: {total} darsdan {n} tasi tugadi',
     'scrapWhy': 'Tex-parchalar evaziga bazada qurollaringizni yaxshilaysiz.',
     'bladeHint': 'Soqchilarga sezdirmay yaqinlash va ularni orqadan pichoqla, toki ular signal bermasin!',
@@ -294,7 +295,6 @@ export default {
       'cover': 'Qorovul seni ko\'rmasligi uchun yashiklar ortida engash, keyin darvoza ostidan emaklab o\'t! Faqat engashib bosilgan qadam sassiz: yaqinda yursang, qorovullar eshitadi.',
       'weapons': 'Minigunga o‘ting va uchala qo‘riqchini ham yo‘q qiling! O‘q ovozi shovqin chiqaradi: minigunni atrofdagi har bir qo‘riqchi eshitadi.',
       'rocket': 'Raketa otgichga o\'t va chekkadagi mexni portlat! Raketalar baland ovozli: portlashni har bir qorovul eshitadi.',
-      'hide': 'Qo\'riqchini yo\'q qil! O\'q uzsang, uzoqlash va yashirin: dron o\'q kelgan joyni tekshiradi.',
       'supply': 'O\'q-dorini to\'ldirish va zirhingni tuzatish uchun yashiklar ustidan yur.',
       'burn': 'Hech kim topib olmasidan oldin jasadni olov otgich bilan yondir!',
       'box': 'Niqobingni kiy! Qimirlamay tursang, projektor seni e\'tiborsiz qoldiradi, lekin qimirlashing bilanoq seni payqaydi.',
@@ -306,6 +306,7 @@ export default {
     'skip': 'Mashqni o\'tkazib yuborish',
     'goal': 'Uchalasini ham zararsizlantir',
     'goalProgress': '{n}/{total} yiqildi',
+    'tooWeak': 'Juda zaif! Ko‘proq portlash kuchi kerak',
     'shout': {
       'backstab': 'Orqadan ur'
     },
@@ -317,14 +318,12 @@ export default {
       'decoy': "Yem ishlat [{key}], chalg'iganda orqadan ur",
       'decoyTouch': "Yem ishlat, chalg'iganda orqadan ur",
       'decoyAny': "Seni yana ko'rishdi. Qo'riqchini xohlagan usulda yo'q qil.",
-      'hide': 'O\'q uzgandan keyin yashirin: boshqa joyga o\'t, aks holda dushman qayerdan otganingni topadi.'
     },
     'door': {
       'cover': 'Egilib, darvoza ostidan emaklab o‘ting',
       'coverCrawl': 'Darvoza ostidan emaklab o‘ting',
       'weapons': "O'tish uchun uchalasini ham yiq",
       'rocket': "Mexni granatomyot bilan yo'q qil",
-      'hide': 'Qo\'riqchini yo\'q qil',
       'supply': "Ta'minotni ol",
       'blade': 'Ikkala qorovulni ham orqadan ur',
       'burn': 'Jasadni yoq',
@@ -386,7 +385,7 @@ export default {
       'rope': 'Arqon quroli',
       'burn': 'Alanga otgich',
       'drag': 'Jasadni olish',
-      'replay': 'Darsni yana koʻrsatish'
+      'replay': 'Darsni o‘tkazib yuborish'
     }
   },
   'prompt': {

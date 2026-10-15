@@ -284,6 +284,7 @@ export default {
   },
   'training': {
     'replay': 'Ukaž znovu',
+    'skipLesson': 'Přeskočit lekci',
     'progress': 'Výcvik: hotovo {n} z {total} lekcí',
     'scrapWhy': 'Za techno šrot si na Velitelské základně vylepšíš zbraně.',
     'bladeHint': 'Připliž se ke strážím a bodni je do zad, ať nespustí poplach!',
@@ -294,7 +295,6 @@ export default {
       'cover': 'Skrč se za bednami, aby tě hlídka neviděla, a pak se proplaz pod branou! Tichý je jen krok v podřepu: strážní tě zblízka uslyší jít.',
       'weapons': 'Přepni na minigun a vyřaď všechny tři strážné! Střelba je hlučná: minigun slyší každý strážný v okolí.',
       'rocket': 'Přepni na raketomet a vyhoď do vzduchu mecha na římse! Rakety jsou hlasité: výbuch slyší každý strážný.',
-      'hide': 'Zneškodni strážného! Když vystřelíš, vzdal se a schovej se: dron prohledá místo, odkud výstřel přišel.',
       'supply': 'Přejdi přes bedny, doplň munici a oprav si pancíř.',
       'burn': 'Spal tělo plamenometem, než ho někdo najde!',
       'box': 'Převleč se! Světlomet si tě nevšímá, dokud stojíš bez hnutí, ale jakmile se pohneš, odhalí tě.',
@@ -306,6 +306,7 @@ export default {
     'skip': 'Přeskočit výcvik',
     'goal': 'Vyřaď všechny tři',
     'goalProgress': '{n} z {total} vyřazeno',
+    'tooWeak': 'Moc slabé! Chce to větší ránu',
     'shout': {
       'backstab': 'Bodni je do zad'
     },
@@ -317,14 +318,12 @@ export default {
       'decoy': 'Použij návnadu [{key}], bodni do zad, až se rozptýlí',
       'decoyTouch': 'Použij návnadu, bodni do zad, až se rozptýlí',
       'decoyAny': 'Zase odhalen. Zneškodni strážce, jak chceš.',
-      'hide': 'Po výstřelu se schovej: přesuň se jinam, jinak nepřítel najde místo, odkud jsi střílel.'
     },
     'door': {
       'cover': 'Přikrč se a proplaz se pod bránou',
       'coverCrawl': 'Proplaz se pod bránou',
       'weapons': 'Sejmi všechny tři a projdeš',
       'rocket': 'Znič mecha raketometem',
-      'hide': 'Zneškodni strážného',
       'supply': 'Vezmi zásoby',
       'blade': 'Bodni do zad oba strážce',
       'burn': 'Spal tělo',
@@ -386,7 +385,7 @@ export default {
       'rope': 'Lanová pistole',
       'burn': 'Plamenomet',
       'drag': 'Popadnout tělo',
-      'replay': 'Zobrazit lekci znovu'
+      'replay': 'Přeskočit lekci'
     }
   },
   'prompt': {

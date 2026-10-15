@@ -284,6 +284,7 @@ export default {
   },
   'training': {
     'replay': 'Amósamo outra vez',
+    'skipLesson': 'Saltar lección',
     'progress': 'Adestramento: {n} de {total} leccións feitas',
     'scrapWhy': 'A chatarra tec compra melloras para as túas armas na base de mando.',
     'bladeHint': 'Achégate ás agachadas aos gardas e apuñálaos polas costas, para que non dean a alarma!',
@@ -294,7 +295,6 @@ export default {
       'cover': 'Agáchate detrás das caixas para que o centinela non te vexa e despois arrástrate por debaixo da reixa! Só o paso agachado é silencioso: os gardas óente camiñar de preto.',
       'weapons': 'Cambia á minigun e elimina os tres gardas! Os disparos fan ruído: todos os gardas próximos escoitan a minigun.',
       'rocket': 'Cambia ao lanzafoguetes e fai voar o mech da cornixa! Os foguetes son ruidosos: todos os gardas oen a explosión.',
-      'hide': 'Elimina ao garda! Se disparas, afástate e agóchate: o dron revisa de onde saíu o disparo.',
       'supply': 'Pasa por riba das caixas para recargar munición e reparar a túa blindaxe.',
       'burn': 'Queima o corpo co lanzachamas antes de que alguén o atope!',
       'box': 'Disfrázate! O foco ignórate mentres estás quieto, pero detéctate en canto te moves.',
@@ -306,6 +306,7 @@ export default {
     'skip': 'Saltar o adestramento',
     'goal': 'Elimina os tres',
     'goalProgress': '{n} de {total} eliminados',
+    'tooWeak': 'Demasiado feble! Precisa máis potencia explosiva',
     'shout': {
       'backstab': 'Polas costas'
     },
@@ -317,14 +318,12 @@ export default {
       'decoy': 'Usa un reclamo [{key}] e apuñala polas costas cando se distraia',
       'decoyTouch': 'Usa un reclamo e apuñala polas costas cando se distraia',
       'decoyAny': 'Víronte de novo. Acaba co garda como queiras.',
-      'hide': 'Agóchate despois de disparar: móvete a outro sitio ou o inimigo atopará desde onde disparaches.'
     },
     'door': {
       'cover': 'Agáchate e arrástrate baixo a porta',
       'coverCrawl': 'Arrástrate baixo a porta',
       'weapons': 'Abate os tres para pasar',
       'rocket': 'Destrúe o mecha co lanzafoguetes',
-      'hide': 'Elimina ao garda',
       'supply': 'Colle as subministracións',
       'blade': 'Apuñala polas costas os dous gardas',
       'burn': 'Queima o corpo',
@@ -386,7 +385,7 @@ export default {
       'rope': 'Pistola de corda',
       'burn': 'Lanzachamas',
       'drag': 'Agarrar corpo',
-      'replay': 'Mostrar a lección outra vez'
+      'replay': 'Saltar a lección'
     }
   },
   'prompt': {

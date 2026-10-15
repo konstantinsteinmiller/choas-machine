@@ -68,3 +68,25 @@ describe('the cover room hologram (#186)', () => {
     expect(demoFrame(i, len - 1).x).toBeCloseTo(end.x, 3)
   })
 })
+
+describe('the cover room gate, once crawled under', () => {
+  it('goes: no glass in front of the camera of a mech turning to aim past it', async () => {
+    const { Scene } = await import('three')
+    const { TrainingDirector } = await import('@/game/sim/trainingDirector')
+    const { buildTrainingGround, LESSON_IDS, TRAINING_ROOMS } = await import('@/game/data/fortresses/training')
+    const { makeGarrison } = await import('@/game/sim/garrison')
+    const { VOID } = await import('@/game/world/grid')
+    const f = buildTrainingGround()
+    const d = new TrainingDirector(new Scene(), f, makeGarrison(f, 1)) as unknown as InstanceType<typeof TrainingDirector> & { gates: Array<{ visible: boolean } | null> }
+    const i = LESSON_IDS.indexOf('cover')
+    const door = TRAINING_ROOMS[i]!.door!
+    const ctx = (x: number) => ({ x, y: 0, z: cellMid(door.cz0), bladeKills: 0, sniperKills: 0, rockets: 0, overheats: 0, zooms: 0, sabotaged: 0, piles: 0, supplies: 0, stocked: false, burns: 0, ropes: 0, crouched: true })
+    const roof = () => f.grid.roof[door.cz0 * f.grid.w + door.cx]
+    d.step(ctx(cellMid(door.cx) - 0.6) as never, 1 / 60)
+    expect(roof()).toBeCloseTo(CRAWL_GAP_H, 5)
+    d.step(ctx(cellMid(door.cx) + 1) as never, 1 / 60)
+    expect(roof()).toBe(VOID)
+    d.update(1 / 60, 0)
+    expect(d.gates[i]!.visible).toBe(false)
+  })
+})

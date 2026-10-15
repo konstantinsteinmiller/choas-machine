@@ -4,7 +4,7 @@
 // fallback, where the mouse uses the touch gesture.
 
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
-import { attachInput, consumeEdges, createInput, cancelAim, HOLD_MS, type Input, type InputHandle } from '@/game/engine/input'
+import { attachInput, consumeEdges, createInput, cancelAim, HOLD_MS, ZOOM_FIRE_BLOCK_MS, type Input, type InputHandle } from '@/game/engine/input'
 import { __resetBindingsForTests } from '@/game/engine/keyBindings'
 
 let surface: HTMLDivElement
@@ -136,10 +136,18 @@ describe('the captured mouse', () => {
     expect(input.fireHeld).toBe(false)
   })
 
-  it('aiming and firing at once', () => {
+  it('aiming, then firing through the scope', () => {
     mouse('mousedown', 2)
+    clock += ZOOM_FIRE_BLOCK_MS + 10
     mouse('mousedown', 0)
     expect(input).toMatchObject({ aimHeld: true, fireHeld: true })
+  })
+
+  it('a left click right on the zoom press fires nothing (the first-zoom stray round)', () => {
+    mouse('mousedown', 2)
+    clock += ZOOM_FIRE_BLOCK_MS - 50
+    mouse('mousedown', 0)
+    expect(input).toMatchObject({ aimHeld: true, fireHeld: false, firePressed: false })
   })
 })
 

@@ -284,6 +284,7 @@ export default {
   },
   'training': {
     'replay': 'Pokaži ponovno',
+    'skipLesson': 'Preskoči lekciju',
     'progress': 'Trening: završeno {n} od {total} lekcija',
     'scrapWhy': 'Tehno-otpadom u Zapovjednoj bazi nadograđuješ oružje.',
     'bladeHint': 'Prišuljaj se stražarima i ubodi ih u leđa, da ne dignu uzbunu!',
@@ -294,7 +295,6 @@ export default {
       'cover': 'Čučni iza sanduka da te stražar ne vidi, a onda se provuci ispod kapije! Tih je samo čučeći korak: stražari te čuju kad hodaš blizu.',
       'weapons': 'Prebaci na minigun i sredi sva tri stražara! Pucnji su glasni: svaki stražar u blizini čuje minigun.',
       'rocket': 'Prebaci na raketni bacač i raznesi mecha na izbočini! Rakete su glasne: eksploziju čuje svaki stražar.',
-      'hide': 'Onesposobi stražara! Ako pucaš, makni se i sakrij: dron provjerava odakle je došao pucanj.',
       'supply': 'Prijeđi preko sanduka da napuniš streljivo i popraviš oklop.',
       'burn': 'Spali tijelo bacačem plamena prije nego što ga netko pronađe!',
       'box': 'Prerušti se! Reflektor te ignorira dok stojiš mirno, ali te otkrije čim se pomakneš.',
@@ -306,6 +306,7 @@ export default {
     'skip': 'Preskoči trening',
     'goal': 'Sredi svu trojicu',
     'goalProgress': '{n} od {total} oboreno',
+    'tooWeak': 'Preslabo! Treba više eksplozivne snage',
     'shout': {
       'backstab': 'Ubodi ih u leđa'
     },
@@ -317,14 +318,12 @@ export default {
       'decoy': 'Iskoristi mamac [{key}], ubodi u leđa kad mu odvučeš pažnju',
       'decoyTouch': 'Iskoristi mamac, ubodi u leđa kad mu odvučeš pažnju',
       'decoyAny': 'Opet primijećen. Sredi stražara kako god želiš.',
-      'hide': 'Sakrij se nakon pucanja: premjesti se drugamo ili će neprijatelj pronaći odakle si pucao.'
     },
     'door': {
       'cover': 'Čučni i provuci se ispod vrata',
       'coverCrawl': 'Provuci se ispod vrata',
       'weapons': 'Obori sva tri da prođeš',
       'rocket': 'Uništi meha bacačem',
-      'hide': 'Onesposobi stražara',
       'supply': 'Uzmi zalihe',
       'blade': 'Ubodi oba čuvara u leđa',
       'burn': 'Spali tijelo',
@@ -386,7 +385,7 @@ export default {
       'rope': 'Pištolj za uže',
       'burn': 'Bacač plamena',
       'drag': 'Uhvati tijelo',
-      'replay': 'Prikaži uputu ponovno'
+      'replay': 'Preskoči lekciju'
     }
   },
   'prompt': {

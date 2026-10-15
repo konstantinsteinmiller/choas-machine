@@ -284,6 +284,7 @@ export default {
   },
   'training': {
     'replay': 'Nog eens laten zien',
+    'skipLesson': 'Les overslaan',
     'progress': 'Training: {n} van {total} lessen klaar',
     'scrapWhy': 'Met techschroot koop je upgrades voor je wapens in de commandobasis.',
     'bladeHint': 'Sluip naar de bewakers en steek ze in de rug, zodat ze geen alarm slaan!',
@@ -294,7 +295,6 @@ export default {
       'cover': 'Buk achter de kratten zodat de wachtpost je niet ziet en kruip dan onder het hek door! Alleen gebukt lopen is geruisloos: bewakers horen je van dichtbij lopen.',
       'weapons': 'Wissel naar de minigun en schakel alle drie de bewakers uit! Schoten maken lawaai: elke bewaker in de buurt hoort de minigun.',
       'rocket': 'Wissel naar de raketwerper en blaas de mech op de richel op! Raketten zijn luid: elke bewaker hoort de explosie.',
-      'hide': 'Schakel de bewaker uit! Als je schiet, ga weg en verstop je: de drone kijkt waar het schot vandaan kwam.',
       'supply': 'Loop over de kratten om je munitie aan te vullen en je pantser te repareren.',
       'burn': 'Verbrand het lichaam met de vlammenwerper voordat iemand het vindt!',
       'box': 'Vermom je! Het zoeklicht negeert je zolang je stilstaat, maar ziet je zodra je beweegt.',
@@ -306,6 +306,7 @@ export default {
     'skip': 'Training overslaan',
     'goal': 'Schakel alle drie uit',
     'goalProgress': '{n} van {total} uitgeschakeld',
+    'tooWeak': 'Te zwak! Er is meer knalkracht nodig',
     'shout': {
       'backstab': 'Steek ze in de rug'
     },
@@ -317,14 +318,12 @@ export default {
       'decoy': 'Gebruik een lokvogel [{key}], steek in de rug als hij afgeleid is',
       'decoyTouch': 'Gebruik een lokvogel, steek in de rug als hij afgeleid is',
       'decoyAny': 'Weer gezien. Schakel de bewaker uit zoals jij wilt.',
-      'hide': 'Verstop je na het schieten: ga ergens anders heen, anders vindt de vijand waar je vandaan schoot.'
     },
     'door': {
       'cover': 'Buk en kruip onder het hek door',
       'coverCrawl': 'Kruip onder het hek door',
       'weapons': 'Schakel alle drie uit om erdoor te komen',
       'rocket': 'Vernietig de mech met de raketwerper',
-      'hide': 'Schakel de bewaker uit',
       'supply': 'Pak de bevoorrading',
       'blade': 'Steek beide bewakers in de rug',
       'burn': 'Verbrand het lichaam',
@@ -386,7 +385,7 @@ export default {
       'rope': 'Touwkanon',
       'burn': 'Vlammenwerper',
       'drag': 'Lichaam pakken',
-      'replay': 'Toon de les opnieuw'
+      'replay': 'De les overslaan'
     }
   },
   'prompt': {

@@ -10,6 +10,7 @@
     HealthBars
     SpeechBubbles
     QuipBubble
+    WeakPop(v-if="hud.training.on")
     UplinkRings
     ObjectiveMarker
     ObjectiveMarker(v-for="(m, i) in targetMarks" :key="i" :mark="m" target)
@@ -66,6 +67,7 @@
         :tone="LOOK.strike.tone"
         attention
         :aria-label="t('hud.strike')"
+        :bounce="drill('blade')"
         :hotkey="kb('act')"
         :shape="LOOK.strike.shape"
         data-testid="btn-strike"
@@ -94,6 +96,7 @@
         icon="scrap"
         :tone="LOOK.loot.tone"
         :attention="hud.looting === 0 || teaching('loot')"
+        :bounce="drill('loot')"
         :aria-label="t('hud.loot')"
         :hotkey="kb('act')"
         :shape="LOOK.loot.shape"
@@ -125,6 +128,7 @@
         :icon="hud.grappling ? 'close' : 'hook'"
         :tone="hud.grappling ? (hud.grappleHeard > 0 ? 'danger' : 'violet') : LOOK.grapple.tone"
         :attention="!hud.grappling || hud.grappleHeard > 0"
+        :bounce="drill('grapple')"
         :aria-label="hud.grappling ? t('hud.grappleRecall') : t('hud.grapple')"
         :hotkey="kb('grapple')"
         :shape="LOOK.grapple.shape"
@@ -140,6 +144,7 @@
         icon="flame"
         :tone="LOOK.burn.tone"
         :attention="hud.burning === 0"
+        :bounce="drill('burn')"
         :hotkey="kb('burn')"
         :aria-label="t('hud.burn')"
         :shape="LOOK.burn.shape"
@@ -156,6 +161,7 @@
         :tone="LOOK.rope.tone"
         attention
         :hotkey="kb('rope')"
+        :bounce="drill('rope')"
         :aria-label="t('hud.rope')"
         :shape="LOOK.rope.shape"
         data-testid="btn-rope"
@@ -176,6 +182,7 @@
         :active="hud.aimHeld"
         :pressed="hud.aimHeld"
         :attention="teaching('scope')"
+        :bounce="drill('scope')"
         :is-disabled="hud.mode !== 'ground' && !hud.aimHeld"
         :aria-label="hud.aimHeld ? t('hud.cancel') : t('hud.zoom')"
         data-testid="btn-scope"
@@ -191,6 +198,7 @@
         :tone="LOOK.shoot.tone"
         :shape="LOOK.shoot.shape"
         :attention="teaching('fire')"
+        :bounce="drill('fire')"
         :is-disabled="hud.mode !== 'ground'"
         :aria-label="t('hint.fire')"
         data-testid="btn-shoot"
@@ -207,7 +215,7 @@
       button.weapon-swap.slot-weapon(
         v-if="hud.device === 'touch' && revealed('weapon')"
         type="button"
-        :class="[`w-${hud.weapon}`, { 'is-attention': flare || teaching('weapon') || teaching('rocket') }]"
+        :class="[`w-${hud.weapon}`, { 'is-attention': flare || teaching('weapon') || teaching('rocket'), 'is-drill': drillWeapon() }]"
         :aria-label="t('hud.weapons')"
         data-testid="btn-weapons"
         @click="nextWeapon"
@@ -222,7 +230,7 @@
             v-for="(w, n) in WEAPON_IDS"
             :key="w"
             type="button"
-            :class="[`w-${w}`, { held: hud.weapon === w, 'is-attention': flare || (teaching('weapon') && hud.weapon !== w) }]"
+            :class="[`w-${w}`, { held: hud.weapon === w, 'is-attention': flare || (teaching('weapon') && hud.weapon !== w), 'is-drill': hud.weapon !== w && (drill('weapon') || (drill('rocket') && w === 'rocket')) }]"
             :aria-label="t(`options.actions.weapon${n + 1}`)"
             :aria-pressed="hud.weapon === w"
             :data-testid="`btn-weapon-${w}`"
@@ -233,7 +241,7 @@
         button.weapon.held(
           v-else
           type="button"
-          :class="`w-${hud.weapon}`"
+          :class="[`w-${hud.weapon}`, { 'is-drill': drillWeapon() }]"
           :aria-label="t('hud.weapons')"
           data-testid="btn-weapons"
           @click="wheelOpen = true"
@@ -252,6 +260,7 @@
         :icon="LOOK.decoy.icon"
         :tone="LOOK.decoy.tone"
         :attention="teaching('decoy')"
+        :bounce="drill('decoy')"
         :is-disabled="hud.decoys <= 0 || hud.mode !== 'ground'"
         :aria-label="t('hud.decoy')"
         :hotkey="kb('decoy')"
@@ -271,6 +280,7 @@
         :pressed="hud.boxed"
         :is-disabled="hud.mode !== 'ground'"
         :attention="teaching('hide')"
+        :bounce="drill('hide')"
         :aria-label="t('hud.hide')"
         :hotkey="kb('hide')"
         :shape="LOOK.hide.shape"
@@ -283,6 +293,7 @@
         :icon="LOOK.jump.icon"
         :tone="LOOK.jump.tone"
         :attention="teaching('jump')"
+        :bounce="drill('jump')"
         :is-disabled="hud.mode !== 'ground'"
         :aria-label="t('hud.jump')"
         :shape="LOOK.jump.shape"
@@ -294,6 +305,7 @@
         :icon="hud.crouched ? 'act-stand' : LOOK.crouch.icon"
         :tone="LOOK.crouch.tone"
         :attention="teaching('crouch')"
+        :bounce="drill('crouch')"
         :active="hud.crouched"
         :pressed="hud.crouched"
         :is-disabled="hud.mode !== 'ground'"
@@ -331,6 +343,7 @@ import ThreatArcs from '@/components/hud/ThreatArcs.vue'
 import ObjectiveMarker from '@/components/hud/ObjectiveMarker.vue'
 import SpeechBubbles from '@/components/hud/SpeechBubbles.vue'
 import QuipBubble from '@/components/hud/QuipBubble.vue'
+import WeakPop from '@/components/hud/WeakPop.vue'
 import TrainingHud from '@/components/hud/TrainingHud.vue'
 import ControlHints from '@/components/hud/ControlHints.vue'
 import { emit as busEmit, on } from '@/game/bus'
@@ -361,6 +374,9 @@ const kb = (a: Action): Action | undefined => (hud.device === 'mouse' ? a : unde
 const WEAPON_KEYS: readonly Action[] = ['weapon1', 'weapon2', 'weapon3']
 // A lesson card for it, or the training's nudge pointing at it (#186): the button bounces.
 const teaching = (id: HintId): boolean => hud.device === 'touch' && (hud.hints.some(h => h.id === id) || hud.training.nudge === id)
+/** The training room's lesson wants this control, not pressed here yet: its button bounces, key and all. */
+const drill = (id: HintId): boolean => hud.training.keys.includes(id)
+const drillWeapon = (): boolean => drill('weapon') || (drill('rocket') && hud.weapon !== 'rocket')
 
 // ── The quest log sits on the action column (#145) ──
 // The column's height changes with the device and with what is on offer, so
@@ -812,4 +828,15 @@ onUnmounted(() => window.clearTimeout(closeTimer))
   .weapon-swap.is-attention
     animation: none
     box-shadow: 0 0 0 0.3rem rgba(255, 210, 63, 0.85)
+// The training room's lesson wants a weapon switch: the weapon button bounces, its keys with it.
+.is-drill
+  animation: drill-bounce 0.8s ease-in-out infinite
+@keyframes drill-bounce
+  0%, 100%
+    transform: none
+  50%
+    transform: translateY(-0.45rem)
+@media (prefers-reduced-motion: reduce)
+  .is-drill
+    animation: none
 </style>

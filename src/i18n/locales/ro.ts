@@ -284,6 +284,7 @@ export default {
   },
   'training': {
     'replay': 'Arată-mi din nou',
+    'skipLesson': 'Sari peste lecție',
     'progress': 'Antrenament: {n} din {total} lecții terminate',
     'scrapWhy': 'Cu fier vechi tech îți îmbunătățești armele la Baza de Comandă.',
     'bladeHint': 'Furișează-te până la gardieni și înjunghie-i pe la spate, ca să nu dea alarma!',
@@ -294,7 +295,6 @@ export default {
       'cover': 'Ghemuiește-te după lăzi ca santinela să nu te vadă, apoi târăște-te pe sub poartă! Doar pasul ghemuit e silențios: paznicii te aud când mergi aproape.',
       'weapons': 'Treci pe minigun și elimină toți cei trei paznici! Focurile fac zgomot: minigunul e auzit de fiecare paznic din jur.',
       'rocket': 'Treci pe lansatorul de rachete și aruncă în aer mech-ul de pe margine! Rachetele sunt zgomotoase: orice paznic aude explozia.',
-      'hide': 'Elimină paznicul! Dacă tragi, pleacă și ascunde-te: drona verifică de unde a venit focul.',
       'supply': 'Treci peste lăzi ca să-ți reumpli muniția și să-ți repari blindajul.',
       'burn': 'Arde cadavrul cu aruncătorul de flăcări înainte să-l găsească cineva!',
       'box': 'Deghizează-te! Reflectorul te ignoră cât timp stai nemișcat, dar te observă imediat ce te miști.',
@@ -306,6 +306,7 @@ export default {
     'skip': 'Sari peste antrenament',
     'goal': 'Elimină-i pe toți trei',
     'goalProgress': '{n} din {total} doborâți',
+    'tooWeak': 'Prea slab! Ai nevoie de mai multă putere explozivă',
     'shout': {
       'backstab': 'Lovește-i pe la spate'
     },
@@ -317,14 +318,12 @@ export default {
       'decoy': 'Folosește o momeală [{key}], lovește pe la spate când e distras',
       'decoyTouch': 'Folosește o momeală, lovește pe la spate când e distras',
       'decoyAny': 'Ai fost văzut din nou. Doboară paznicul cum vrei.',
-      'hide': 'Ascunde-te după ce tragi: mută-te în altă parte, altfel inamicul găsește locul de unde ai tras.'
     },
     'door': {
       'cover': 'Ghemuiește-te și târăște-te pe sub poartă',
       'coverCrawl': 'Târăște-te pe sub poartă',
       'weapons': 'Doboară-le pe toate trei ca să treci',
       'rocket': 'Distruge mechul cu lansatorul',
-      'hide': 'Elimină paznicul',
       'supply': 'Ia proviziile',
       'blade': 'Lovește pe la spate ambii paznici',
       'burn': 'Arde cadavrul',
@@ -386,7 +385,7 @@ export default {
       'rope': 'Pistol cu frânghie',
       'burn': 'Aruncător de flăcări',
       'drag': 'Apucă corpul',
-      'replay': 'Arată lecția din nou'
+      'replay': 'Sari peste lecție'
     }
   },
   'prompt': {

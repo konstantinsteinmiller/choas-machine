@@ -284,6 +284,7 @@ export default {
   },
   'training': {
     'replay': 'Parādi vēlreiz',
+    'skipLesson': 'Izlaist nodarbību',
     'progress': 'Treniņš: pabeigtas {n} no {total} nodarbībām',
     'scrapWhy': 'Par lūžņiem bāzē var uzlabot ieročus.',
     'bladeHint': 'Pielavies pie sargiem un iedur tiem mugurā, lai viņi neceltu trauksmi!',
@@ -294,7 +295,6 @@ export default {
       'cover': 'Pietupies aiz kastēm, lai sargs tevi neredz, tad palien zem vārtiem! Kluss ir tikai solis pietupienā: sargi dzird, ja ej tuvu.',
       'weapons': 'Pārslēdzies uz minigunu un pieveic visus trīs sargus! Šāvieni trokšņo: minigunu dzird katrs sargs apkārtnē.',
       'rocket': 'Pārslēdzies uz raķešmetēju un uzspridzini mehu uz dzegas! Raķetes ir skaļas: sprādzienu dzird katrs sargs.',
-      'hide': 'Likvidē sargu! Ja šauj, pārvietojies un paslēpies: drons pārbauda, no kurienes nāca šāviens.',
       'supply': 'Pārej pāri kastēm, lai papildinātu munīciju un salabotu bruņas.',
       'burn': 'Sadedzini ķermeni ar liesmmetēju, pirms kāds to atrod!',
       'box': 'Pārģērbies! Prožektors tevi ignorē, kamēr stāvi nekustīgi, bet pamana, tiklīdz pakusties.',
@@ -306,6 +306,7 @@ export default {
     'skip': 'Izlaist treniņu',
     'goal': 'Neitralizē visus trīs',
     'goalProgress': '{n} no {total} pieveikti',
+    'tooWeak': 'Par vāju! Vajag vairāk sprādziena jaudas',
     'shout': {
       'backstab': 'Dur mugurā'
     },
@@ -317,14 +318,12 @@ export default {
       'decoy': 'Izmanto ēsmu [{key}], dur mugurā, kad viņš ir novērsies',
       'decoyTouch': 'Izmanto ēsmu, dur mugurā, kad viņš ir novērsies',
       'decoyAny': 'Tevi atkal pamanīja. Novāc sargu, kā vien vēlies.',
-      'hide': 'Pēc šāviena paslēpies: pārvietojies citur, citādi ienaidnieks atradīs, no kurienes tu šāvi.'
     },
     'door': {
       'cover': 'Pietupies un izlien zem vārtiem',
       'coverCrawl': 'Izlien zem vārtiem',
       'weapons': 'Notriec visus trīs, lai tiktu cauri',
       'rocket': 'Iznīcini mehu ar granātmetēju',
-      'hide': 'Likvidē sargu',
       'supply': 'Paķer apgādi',
       'blade': 'Dur mugurā abiem sargiem',
       'burn': 'Sadedzini līķi',
@@ -386,7 +385,7 @@ export default {
       'rope': 'Virvju šautene',
       'burn': 'Liesmmetējs',
       'drag': 'Satvert ķermeni',
-      'replay': 'Rādīt mācību vēlreiz'
+      'replay': 'Izlaist nodarbību'
     }
   },
   'prompt': {

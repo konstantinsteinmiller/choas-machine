@@ -32,9 +32,9 @@ import type { HintId, HintView } from '../sim/coach'
 export type Phase = 'boot' | 'intro' | 'play' | 'outro' | 'dead' | 'done' | 'base' | 'cinema'
 
 /** What the training ground calls out (`training.shout.*`, `training.reset.*` in the locales). */
-export type TrainingShout = '' | 'shout.backstab' | 'reset.cover' | 'reset.seen' | 'reset.ammo' | 'reset.box' | 'reset.decoy' | 'reset.decoyTouch' | 'reset.decoyAny' | 'reset.hide'
+export type TrainingShout = '' | 'shout.backstab' | 'reset.cover' | 'reset.seen' | 'reset.ammo' | 'reset.box' | 'reset.decoy' | 'reset.decoyTouch' | 'reset.decoyAny'
   // A shut lesson door, walked into (#171): what it wants.
-  | 'door.cover' | 'door.coverCrawl' | 'door.weapons' | 'door.rocket' | 'door.hide' | 'door.supply' | 'door.blade' | 'door.burn' | 'door.decoy' | 'door.rope' | 'door.salvage'
+  | 'door.cover' | 'door.coverCrawl' | 'door.weapons' | 'door.rocket' | 'door.supply' | 'door.blade' | 'door.burn' | 'door.decoy' | 'door.rope' | 'door.salvage'
 
 export const hud = reactive({
   phase: 'boot' as Phase,
@@ -129,6 +129,10 @@ export const hud = reactive({
    */
   training: {
     on: false, room: -1, done: 0, total: 0, replay: false, scrapWhy: false,
+    /** The room's lesson can be skipped (not the last room); and the mech is at its shut door: the Skip button bounces. */
+    skip: false, skipNudge: false,
+    /** The room's lesson keys not pressed yet in this room: their buttons and key cards bounce. */
+    keys: [] as HintId[],
     /** The mech is held watching a room's hologram lesson (#158, the backstab room). */
     watching: false,
     goalDown: 0, goalTotal: 0, shout: '' as TrainingShout, shoutSeq: 0,
@@ -174,6 +178,14 @@ export const prompt = { on: false, x: 0.5, y: 0.5, far: false }
 export const quipPop = { on: false, x: 0.5, y: 0.4, seq: 0, id: '', whisper: false }
 
 export const demoPop = { on: false, x: 0.5, y: 0.5, hint: '' as string, seq: 0 }
+
+/**
+ * The rocket room's mech hit by a rifle round: "too weak" wobbles where the
+ * round struck (0 … 1 of the view) for `WEAK_POP_S`, so the player reaches
+ * for the launcher. Written per frame by the mission.
+ */
+export const weakPop = { on: false, x: 0.5, y: 0.5, seq: 0 }
+export const WEAK_POP_S = 2
 
 // ─── Machines uplinking to the base (#73): per-frame, outside Vue ────────────
 

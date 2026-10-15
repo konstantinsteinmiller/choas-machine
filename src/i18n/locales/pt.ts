@@ -284,6 +284,7 @@ export default {
   },
   'training': {
     'replay': 'Mostrar de novo',
+    'skipLesson': 'Pular lição',
     'progress': 'Treino: {n} de {total} lições concluídas',
     'scrapWhy': 'A Sucata Tech compra melhorias para suas armas na base de comando.',
     'bladeHint': 'Chegue de fininho nos guardas e apunhale-os pelas costas, para que não deem o alarme!',
@@ -294,7 +295,6 @@ export default {
       'cover': 'Agache atrás das caixas para a sentinela não te ver e depois rasteje por baixo do portão! Só o passo agachado é silencioso: os guardas ouvem você andar de perto.',
       'weapons': 'Troque para a minigun e elimine os três guardas! Os tiros fazem barulho: todos os guardas por perto ouvem a minigun.',
       'rocket': 'Troque para o lança-foguetes e exploda o mech na beirada! Os foguetes são barulhentos: todos os guardas ouvem a explosão.',
-      'hide': 'Elimine o guarda! Se atirar, saia de lá e se esconda: o drone verifica de onde veio o tiro.',
       'supply': 'Passe por cima das caixas para recarregar a munição e consertar sua blindagem.',
       'burn': 'Queime o corpo com o lança-chamas antes que alguém o encontre!',
       'box': 'Use seu disfarce! O holofote ignora você enquanto estiver parado, mas te detecta assim que você se mexe.',
@@ -306,6 +306,7 @@ export default {
     'skip': 'Pular treino',
     'goal': 'Elimine os três',
     'goalProgress': '{n} de {total} abatidos',
+    'tooWeak': 'Fraco demais! Precisa de mais poder explosivo',
     'shout': {
       'backstab': 'Ataque pelas costas'
     },
@@ -317,14 +318,12 @@ export default {
       'decoy': 'Use uma isca [{key}] e ataque pelas costas quando ele se distrair',
       'decoyTouch': 'Use uma isca e ataque pelas costas quando ele se distrair',
       'decoyAny': 'Visto de novo. Derrube o guarda do jeito que quiser.',
-      'hide': 'Esconda-se depois de atirar: mude de lugar, ou o inimigo descobre de onde você atirou.'
     },
     'door': {
       'cover': 'Agache e rasteje por baixo do portão',
       'coverCrawl': 'Rasteje por baixo do portão',
       'weapons': 'Derrube os três para passar',
       'rocket': 'Destrua o mecha com o lançador',
-      'hide': 'Elimine o guarda',
       'supply': 'Pegue os suprimentos',
       'blade': 'Ataque os dois guardas pelas costas',
       'burn': 'Queime o corpo',
@@ -386,7 +385,7 @@ export default {
       'rope': 'Lança-cordas',
       'burn': 'Lança-chamas',
       'drag': 'Pegar corpo',
-      'replay': 'Mostrar a lição de novo'
+      'replay': 'Pular a lição'
     }
   },
   'prompt': {

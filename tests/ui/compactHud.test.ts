@@ -25,9 +25,9 @@ describe('the replay key (#169)', () => {
     for (const a of ACTIONS) if (a !== 'replay') expect(DEFAULT_BINDINGS[a], a).not.toContain('KeyK')
   })
 
-  it('the training button shows it and the scene listens for it', () => {
-    expect(src('components/hud/TrainingHud.vue')).toContain(":hotkey=\"hud.device === 'mouse' ? 'replay' : undefined\"")
-    expect(src('views/GameScene.vue')).toContain("actionForCode(e.code) === 'replay'")
+  it('the training Skip button shows it and the scene skips on it', () => {
+    expect(src('components/hud/TrainingHud.vue')).toContain(`KeyCap.skip-key(v-if="hud.device === 'mouse'" action="replay")`)
+    expect(src('views/GameScene.vue')).toMatch(/actionForCode\(e\.code\) === 'replay'.*busEmit\('trainingSkip'/)
   })
 })
 

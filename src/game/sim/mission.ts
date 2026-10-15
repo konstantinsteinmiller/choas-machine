@@ -9,12 +9,12 @@ import { noSlice, type Slice } from '../engine/slicer'
 import { consumeEdges, type Input } from '../engine/input'
 import { input as sharedInput, inputClock } from '../engine/inputState'
 import { emit, on } from '../bus'
-import { gun, hud, mirror, runHudTickers, setPhase, threats, vital, waypoint, targetMarks, type Waypoint, MAX_THREATS, callouts, MAX_CALLOUTS, prompt, bars, MAX_BARS, uplinks, MAX_UPLINKS, quipPop, type PromptKind, type TrainingShout } from '../state/hud'
+import { gun, hud, mirror, runHudTickers, setPhase, threats, vital, waypoint, targetMarks, type Waypoint, MAX_THREATS, callouts, MAX_CALLOUTS, prompt, bars, MAX_BARS, uplinks, MAX_UPLINKS, quipPop, weakPop, WEAK_POP_S, type PromptKind, type TrainingShout } from '../state/hud'
 import { god } from '../state/god'
 import { QUIP_SHOW_S, makeQuips, pickQuip } from './quips'
 import { PathChevrons } from '../fx/pathChevrons'
 import type { QuipId } from '../audio/voiceCatalog'
-import { CELL, VOID, cableEnds, ceilingAt, heightAt, raycast, hasLineOfSight, toCell, inGrid, cellKind, cellHeight, CellKind, shadeAt, Shade } from '../world/grid'
+import { CELL, VOID, cellMid, cableEnds, ceilingAt, heightAt, raycast, hasLineOfSight, toCell, inGrid, cellKind, cellHeight, CellKind, shadeAt, Shade } from '../world/grid'
 import type { Fortress, PostKind } from '../world/fortress'
 import { buildFortressMesh, type FortressMesh } from '../world/fortressMesh'
 import { buildDecor, type DecorMesh } from '../world/decor'
@@ -57,7 +57,7 @@ import { decoySpot, findRopeStrike, findStrike, stepDecoys, type Decoy, type Str
 import { HIP_Y, airAt, airCam, airMark, planAir, type AirBeat, type AirPlan } from './airStrike'
 import { fireRocket, stepRockets, type Burst, type Rocket } from './rockets'
 import { blastRagdoll, nearRay, push, ragdollFrom, wake as wakeRagdoll } from './ragdoll'
-import { MARKSMAN_AIM_S, stepFire } from './chaos'
+import { MARKSMAN_AIM_S, gunOf, stepFire } from './chaos'
 import { hurtArmor, makeArmor, stepArmor, type Armor } from './armor'
 import { flow, finishMission, failMission, finishTraining, retreatMission } from '../flow'
 import { BANNER_HOLD, clearBanner, showBanner } from '../state/banner'
@@ -70,7 +70,7 @@ import { AirshipView } from './airshipView'
 import { AIRSHIP_HALF } from '../models/airship'
 import { TrainingDirector } from './trainingDirector'
 import { DEMO_GAP_S, DOOR_CRAWL, DOOR_LINES, atShutDoor, demoLength, entryOf, inPit, lessonStuck, nearDoorWall, roomAt, shootingLesson, stepAlarm, victimFrame } from './training'
-import { LESSON_IDS, TRAINING_ID, TRAINING_ROOMS, trainingArmor, type LessonId } from '../data/fortresses/training'
+import { COVER_SNIPE_LX, LESSON_IDS, LESSON_KEYS, TRAINING_ID, TRAINING_ROOMS, trainingArmor, type LessonId } from '../data/fortresses/training'
 import { COVER_H } from '../world/fortress'
 import { BASE_LOADOUT, type Loadout } from '../data/upgrades'
 import { camKind, camZone, chooseKillCam, makeKillCamState, type CamCut, type KillInfo } from './killcam'
@@ -267,6 +267,21 @@ const LESSON_OUT_S = 0.7
 const PIT_CAM_UP = 6.5
 const PIT_CAM_BACK = 2.2
 const PIT_CAM_RATE = 2.5
+/**
+ * The sneak room's shown shot: past the cover, CM-07 steps into the open
+ * hallway, takes the rifle and the scope, and drops the sentry with one round
+ * to the head by itself, then hands the controls back. The seconds it walks
+ * at most; when its two zoom notches go in; the soonest the round leaves
+ * (once the scope has settled on the head); tries before it gives up.
+ */
+const AUTO_WALK_S = 4
+const AUTO_ZOOM1_S = 0.5
+const AUTO_ZOOM2_S = 0.9
+const AUTO_FIRE_S = 1.6
+const AUTO_TRIES = 3
+/** Caught in a training room: whoever saw the mech opens fire for this long, a round this often (being seen is dangerous). */
+const SEEN_FIRE_S = 0.5
+const SEEN_FIRE_GAP_S = 0.12
 /** Seconds near a shut door's wall before its control is put in the player's face (#186 follow-up). */
 const NEAR_DOOR_ARM_S = 3
 /** How far a weak device draws (m), the fog closing in before it; the scope still reaches past it. */
@@ -699,6 +714,8 @@ export class Mission implements GameMode {
     })
     this.offReplay?.()
     this.offReplay = on('trainingReplay', () => { this.training?.replay() })
+    this.offSkip?.()
+    this.offSkip = on('trainingSkip', () => this.skipLesson())
     this.offCineSkip?.()
     this.offCineSkip = on('cineSkip', () => { if (this.cine && this.cine.t > 0.3) this.skipCine() })
     this.offZoom?.()
@@ -745,6 +762,7 @@ export class Mission implements GameMode {
     const p = this.player
     this.time += dt
     inputClock.tick()
+    if (this.training) this.notePresses()
     if (this.quickStart) {
       this.quickStart = false
       if (this.cine?.kind === 'intro') this.endCine()
@@ -763,7 +781,7 @@ export class Mission implements GameMode {
     // Any press skips a scripted shot (once it has had a moment to register).
     // (A takedown needs a later press: the one that started it is still going down.)
     // The press that skips is spent on the skip: Space must not also jump (#95).
-    if (this.cine && i.anyPressed && this.cine.t > (this.cine.kind === 'stab' ? 0.7 : this.cine.kind === 'lesson' ? this.cine.skipAt : 0.3)) { this.skipCine(); consumeEdges(i) }
+    if (this.cine && !this.autoSnipe && i.anyPressed && this.cine.t > (this.cine.kind === 'stab' ? 0.7 : this.cine.kind === 'lesson' ? this.cine.skipAt : 0.3)) { this.skipCine(); consumeEdges(i) }
     // The bullet in flight: the world holds its breath. After it lands, and
     // through any kill-cam, nothing moves but the fallen (#91).
     if (this.cine?.kind === 'bullet' && !this.cine.hit) {
@@ -784,7 +802,7 @@ export class Mission implements GameMode {
       stepGarrison(this.garrison, this.fortress.grid, this.target, dt)
       drainEvents(this.garrison)
     } else if (hud.phase === 'play') {
-      this.target.visible = !this.strike?.full
+      this.target.visible = !this.strike?.full && !this.autoSnipe
       this.stats.time += dt
       if (this.strike) {
         this.stepStrike(dt)
@@ -794,6 +812,8 @@ export class Mission implements GameMode {
         p.vx = p.vz = 0
         p.speed01 = 0
         consumeEdges(i)
+      } else if (this.autoSnipe) {
+        this.stepAutoSnipe(dt)
       } else if (this.grapple) {
         this.stepHook(dt)
       } else if (this.burning) {
@@ -1049,6 +1069,7 @@ export class Mission implements GameMode {
   private weaponUp(): boolean {
     const i = this.input
     if (this.strike || this.player.mode !== 'ground' || hud.phase !== 'play' || this.caught()) return false
+    if (this.autoSnipe) return this.autoSnipe.phase === 'aim'
     // A press of the trigger brings the weapon up and turns the body to the aim first.
     return i.aimHeld || this.fireIntent > 0 || (i.fireHeld && this.arsenal.current !== 'sniper')
   }
@@ -1065,7 +1086,7 @@ export class Mission implements GameMode {
     const p = this.player
     // A touch shot off the scope (the Shoot button, no aim held) goes from the
     // hip at the crosshair: the body has to face it, the scope does not come up.
-    const hip = this.input.device === 'touch' && !this.input.aimHeld
+    const hip = !this.autoSnipe && this.input.device === 'touch' && !this.input.aimHeld
     return p.mode === 'ground' && Math.abs(angleDelta(p.yaw, this.cam.yaw)) < READY_YAW && (hip || this.cam.aim >= READY_AIM)
   }
 
@@ -1075,7 +1096,7 @@ export class Mission implements GameMode {
    * Shoot must not zoom the view under the player's crosshair.
    */
   private viewAims(): boolean {
-    return this.weaponUp() && (this.input.aimHeld || this.input.device !== 'touch')
+    return this.weaponUp() && (!!this.autoSnipe || this.input.aimHeld || this.input.device !== 'touch')
   }
 
   private stepWeapons(dt: number): void {
@@ -1087,23 +1108,27 @@ export class Mission implements GameMode {
     const free = p.mode === 'ground' && !this.strike && this.cine?.kind !== 'lesson' && !this.caught()
     // Touch's hold-and-release trigger; the Zoom-in latch and the Shoot button
     // work the mouse's way instead (aim is aim, the trigger is its own button).
-    t.touch = i.device === 'touch' && !i.aimLatched
-    t.aimHeld = free && i.aimHeld
-    t.aimReleased = free && i.aimReleased
+    // The shown headshot works the trigger itself; the player's hands are off it.
+    const auto = this.autoSnipe
+    t.touch = !auto && i.device === 'touch' && !i.aimLatched
+    t.aimHeld = free && (auto ? auto.phase === 'aim' : i.aimHeld)
+    t.aimReleased = free && !auto && i.aimReleased
+    const pull = !!auto?.pull
+    if (auto) auto.pull = false
     // A press is an intent: the body turns and the weapon comes up, and only
     // then is the round let go (#110). The mini-gun spins up once it is on the line.
     const ready = free && this.aimReady()
-    if (free && (i.firePressed || i.fireHeld || i.aimReleased)) this.fireIntent = FIRE_INTENT_S
+    if (free && (auto ? pull : i.firePressed || i.fireHeld || i.aimReleased)) this.fireIntent = FIRE_INTENT_S
     else this.fireIntent = Math.max(0, this.fireIntent - dt)
     if (!free) { this.pendingRounds = 0; this.fireIntent = 0 }
-    t.firePressed = free && i.firePressed
-    t.fireHeld = free && i.fireHeld
+    t.firePressed = free && (auto ? pull : i.firePressed)
+    t.fireHeld = free && !auto && i.fireHeld
     t.ready = ready
-    t.reload = i.reloadQueued
-    t.select = i.weaponQueued ? WEAPON_IDS[i.weaponQueued - 1]! : null
+    t.reload = !auto && i.reloadQueued
+    t.select = auto ? (auto.phase === 'aim' ? 'sniper' : null) : i.weaponQueued ? WEAPON_IDS[i.weaponQueued - 1]! : null
     // The wheel: on the scope it zooms; off it, it changes weapon.
-    if (i.wheelQueued !== 0 && hud.scoped) this.zoomStep(i.wheelQueued < 0 ? 1 : -1)
-    t.cycle = i.cycleQueued || (i.wheelQueued !== 0 && !hud.scoped)
+    if (!auto && i.wheelQueued !== 0 && hud.scoped) this.zoomStep(i.wheelQueued < 0 ? 1 : -1)
+    t.cycle = !auto && (i.cycleQueued || (i.wheelQueued !== 0 && !hud.scoped))
     const was = a.current
     const rounds = stepArsenal(a, t, dt)
     // A trigger pulled on nothing (#145): the dry click, every time.
@@ -1253,7 +1278,7 @@ export class Mission implements GameMode {
   }
 
   private swayNow(): { yaw: number; pitch: number } {
-    if (this.arsenal.current !== 'sniper') return { yaw: 0, pitch: 0 }
+    if (this.arsenal.current !== 'sniper' || this.autoSnipe) return { yaw: 0, pitch: 0 }
     const k = this.cam.aim * (this.player.crouched ? SWAY_CROUCH : SWAY)
     const t = this.time
     return { yaw: (Math.sin(t * 1.13) + 0.5 * Math.sin(t * 2.71 + 1)) * k, pitch: (Math.sin(t * 0.87 + 2) + 0.5 * Math.sin(t * 2.2)) * k }
@@ -1339,6 +1364,7 @@ export class Mission implements GameMode {
         emit('glance', { id: u.id, weapon: w })
         return
       }
+      if (w === 'sniper') this.tooWeak(u, h.x, h.y, h.z)
       const damage = shotDamage(w, u.kind, zone, this.loadout.damage[w], u.maxHp)
         * (u.jammed && h.zone === 'joint' ? JAMMED_JOINTS : 1) * (u.overheat > 0 && h.zone === 'weak' ? OPEN_VENTS : 1)
       if (u.boss) emit('bossHit', { amount: Math.round(Math.min(damage, Math.max(0, u.hp))) })
@@ -1439,6 +1465,7 @@ export class Mission implements GameMode {
       emit('glance', { id: v.id, weapon: 'sniper' })
       return
     }
+    this.tooWeak(v, next.x, next.y, next.z)
     const soft = camKind(v.kind) === 'human'
     const head = next.zone === 'head' && soft
     this.fx.impact(next.x, next.y, next.z, next.nx, next.ny, next.nz, soft, 'sniper')
@@ -3128,6 +3155,28 @@ export class Mission implements GameMode {
     if (!low) this.lowAmmoSaid[w] = false
   }
 
+  /**
+   * A rifle round into the rocket room's mech: "too weak" at the hit, for
+   * WEAK_POP_S (the rounds do chip it, slowly; the launcher is the way).
+   */
+  private tooWeak(u: Unit, x: number, y: number, z: number): void {
+    if (!this.training || TRAINING_ROOMS[roomAt(u.homeX)]?.lesson !== 'rocket') return
+    this.weakAt.x = x
+    this.weakAt.y = y
+    this.weakAt.z = z
+    this.weakUntil = this.time + WEAK_POP_S
+    weakPop.seq++
+  }
+
+  /** The "too weak" label, pinned where the round struck, while it lasts. */
+  private writeWeak(): void {
+    if (this.time >= this.weakUntil || hud.phase !== 'play') { weakPop.on = false; return }
+    const v = this.proj.set(this.weakAt.x, this.weakAt.y, this.weakAt.z).project(this.camera)
+    weakPop.on = v.z < 1 && Math.abs(v.x) < 1.1 && Math.abs(v.y) < 1.1
+    weakPop.x = Math.min(0.9, Math.max(0.1, (v.x + 1) / 2))
+    weakPop.y = Math.min(0.9, Math.max(0.12, (1 - v.y) / 2))
+  }
+
   /** The bubble over CM-07's head, while it lasts. */
   private writeQuip(): void {
     const on = this.time < this.quipUntil && (hud.phase === 'play' || hud.phase === 'outro')
@@ -3160,6 +3209,7 @@ export class Mission implements GameMode {
   /** The training ground's lessons, gates and ghost (only there). */
   private training: TrainingDirector | null = null
   private offReplay: (() => void) | null = null
+  private offSkip: (() => void) | null = null
   private offCineSkip: (() => void) | null = null
   private offZoom: (() => void) | null = null
   private offRepair: (() => void) | null = null
@@ -3177,6 +3227,9 @@ export class Mission implements GameMode {
   /** CM-07's one-liners (#126): when it last spoke, how long its bubble stays, what it has noticed. */
   private quips = makeQuips()
   private quipUntil = -1
+  /** Where the last rifle round struck the rocket room's mech, and until when its label shows. */
+  private weakAt = { x: 0, y: 0, z: 0 }
+  private weakUntil = -1
   private quipCheck = 0
   private lowAmmoSaid: Partial<Record<WeaponId, boolean>> = {}
   private luredBefore = 0
@@ -3209,6 +3262,13 @@ export class Mission implements GameMode {
   private ropeRooms = new Set<number>()
   /** The scope's zoom: an index into SCOPE_ZOOMS. */
   private scopeZoom = 0
+  /** The lesson keys pressed since the mech came into this training room (`hud.training.keys`). */
+  private drillUsed = new Set<HintId>()
+  /** The sneak room's shown headshot, while it runs (`stepAutoSnipe`). */
+  private autoSnipe: { phase: 'walk' | 'aim' | 'after'; t: number; id: number; x: number; z: number; tries: number; pull: boolean } | null = null
+  /** Caught: what is left of the warning fire, and the time to its next round. */
+  private seenFireT = 0
+  private seenShotT = 0
 
   /** Zoom the scope a notch in (+1) or out (−1); `wrap` cycles (the touch chip). */
   private zoomStep(dir: number, wrap = false): void {
@@ -3522,7 +3582,6 @@ export class Mission implements GameMode {
       crouches: this.crouchesDone,
       crouched: p.crouched,
       tries: tr.state.roomResets[Math.max(0, tr.state.room, roomAt(p.x))] ?? 0,
-      ...this.hideWatch(Math.max(tr.state.room, roomAt(p.x))),
       stocked: this.supplies.every(s => s.taken || !wants(s, this.arsenal, this.armor, this.loadout.rockets))
     }
     const ev = tr.step(ctx, dt)
@@ -3539,7 +3598,6 @@ export class Mission implements GameMode {
       }
       if (lessonStuck(cur, ctx, tr.state.base, stock)) {
         this.restoreLesson(cur)
-        this.hideHunted = false
         // Set up again: loaded again too, where the lesson is shot (the drum room).
         if (shootingLesson(TRAINING_ROOMS[cur]!.lesson)) this.refillTraining(cur)
         // The decoy room's guard shot on the first try (#171): back to the door, told how.
@@ -3583,6 +3641,7 @@ export class Mission implements GameMode {
       if (e.type === 'done') {
         haptic('reward')
         emit('lessonDone', { room: e.room })
+        if (TRAINING_ROOMS[e.room]!.lesson === 'cover') this.startAutoSnipe(e.room)
       }
       // The rope and flame rooms hand out what their lesson needs, whatever was spent before.
       if (e.type === 'enter') {
@@ -3591,7 +3650,7 @@ export class Mission implements GameMode {
         this.nearDoorT = 0
         this.weaponAtEnter = this.arsenal.current
         this.switchedHere = false
-        this.hideHunted = false
+        this.drillUsed.clear()
         hud.training.nudge = ''
         const lesson = TRAINING_ROOMS[e.room]!.lesson
         if (lesson === 'rope') this.ropesLeft = Math.max(this.ropesLeft, this.loadout.ropes)
@@ -3657,7 +3716,11 @@ export class Mission implements GameMode {
       if (this.dragId >= 0) this.dropBody()
       if (boxRoom) emit('trainingAlarm', {})
       this.trainingShout(this.seenLine(tr.state.room, (tr.state.roomResets[tr.state.room] ?? 0) + 1))
+      this.seenFireT = SEEN_FIRE_S
+      this.seenShotT = 0
     }
+    if (tr.state.alarmT > 0 && this.seenFireT > 0) this.seenFire(dt)
+    else this.seenFireT = 0
     if (alarm === 'reset' || (alarm === 'off' && seen)) {
       tr.resetRoom((x, z, yaw) => {
         p.x = p.px = x
@@ -3678,8 +3741,6 @@ export class Mission implements GameMode {
       this.refillTraining(tr.state.room)
       // Why (#155, #163, #165): what would have kept it unseen here (said already as the alarm went off).
       if (alarm !== 'reset') this.trainingShout(this.seenLine(tr.state.room, tr.state.roomResets[tr.state.room] ?? 1))
-      // The hide room: the drone sent back to its beat, the sentry stood up again.
-      this.hideHunted = false
       emit('trainingReset', {})
     }
     const s = tr.state
@@ -3695,6 +3756,14 @@ export class Mission implements GameMode {
     // The hologram loops by itself; the button plays it again from the start.
     const replay = room >= 0 && !s.done[room]
     if (hud.training.replay !== replay) hud.training.replay = replay
+    // Skip: any room but the last (there is no next room to go on to).
+    const skip = replay && room < TRAINING_ROOMS.length - 1
+    if (hud.training.skip !== skip) hud.training.skip = skip
+    const skipNudge = skip && nearDoorWall(s, room, ctx)
+    if (hud.training.skipNudge !== skipNudge) hud.training.skipNudge = skipNudge
+    // The lesson's keys, each until it has been pressed once here.
+    const keys = replay && lesson ? LESSON_KEYS[lesson as LessonId].filter(k => !this.drillUsed.has(k)) : []
+    if (keys.join() !== hud.training.keys.join()) hud.training.keys = keys
     const why = lesson === 'salvage' && !s.done[room]
     if (hud.training.scrapWhy !== why) hud.training.scrapWhy = why
     // The weapons room's goal (#153): its three, and how many are down.
@@ -3749,6 +3818,149 @@ export class Mission implements GameMode {
   }
 
   /** Every weapon loaded again, as a training room's reset leaves it (#159); not in the supply room, whose crate does it. */
+  /**
+   * Caught in a training room: whoever has the red mark over its head opens
+   * fire for a moment (`SEEN_FIRE_S`), so being seen is felt, not only told.
+   * The rounds hurt but never finish the mech: the room starts over anyway.
+   */
+  private seenFire(dt: number): void {
+    this.seenFireT -= dt
+    this.seenShotT -= dt
+    if (this.seenShotT > 0) return
+    this.seenShotT = SEEN_FIRE_GAP_S
+    for (const u of this.garrison.units) {
+      const gun = gunOf(u)
+      if (!gun || u.state !== 'combat' || !isAlive(u)) continue
+      this.incoming(u.id, Math.min(gun.damage, Math.max(0, this.armor.hp - 1)))
+    }
+  }
+
+  /**
+   * The training HUD's Skip: a room the player does not get. Its defenders
+   * and their bodies go (gone, not killed: nothing is left lying there), its
+   * lesson counts as done, and the mech is set down at the next room's way
+   * in, every gate before it open.
+   */
+  skipLesson(): void {
+    const tr = this.training
+    if (!tr || hud.phase !== 'play') return
+    const room = tr.state.room
+    if (room < 0 || room >= TRAINING_ROOMS.length - 1 || tr.state.done[room]) return
+    if (this.strike || this.cine?.kind === 'bullet' || this.killcamOn()) return
+    if (this.cine?.kind === 'lesson') this.endCine()
+    this.autoSnipe = null
+    if (this.dragId >= 0) this.dropBody()
+    this.grapple = null
+    this.burning = null
+    this.looting = null
+    this.sabotaging = null
+    this.decoyAiming = false
+    this.input.aimLatched = false
+    tr.state.alarmT = -1
+    for (const u of this.garrison.units) {
+      if (roomAt(u.homeX) !== room) continue
+      u.state = 'dead'
+      u.hidden = true
+      if (u.rag) u.rag.pin = null
+      this.garrisonView.shatter.clear(u.id)
+      this.garrisonView.wreckage.clearNear(u.x, u.z, 3)
+    }
+    const p = this.player
+    p.crouched = false
+    p.boxed = false
+    this.cheatTrainingRoom(room + 1)
+    haptic('reward')
+    emit('lessonDone', { room })
+  }
+
+  /** The sneak room's lesson done: the shown headshot, if its sentry still stands. */
+  private startAutoSnipe(room: number): void {
+    const u = this.garrison.units.find(v => v.kind === 'sentry' && isAlive(v) && roomAt(v.homeX) === room)
+    const r = TRAINING_ROOMS[room]!
+    if (!u || !r.door || this.player.mode !== 'ground') return
+    // The middle of the hallway past the end of the cover: the sentry in clear view.
+    this.autoSnipe = { phase: 'walk', t: 0, id: u.id, x: (r.x0 + COVER_SNIPE_LX) * CELL, z: (cellMid(r.door.cz0) + cellMid(r.door.cz1)) / 2, tries: 0, pull: false }
+    this.fireIntent = 0
+    this.pendingRounds = 0
+    this.input.aimLatched = false
+    this.decoyAiming = false
+    if (this.dragId >= 0) this.dropBody()
+  }
+
+  /** The shown headshot, a step: walk to the spot, scope and zoom on the head, one round, then the controls back. */
+  private stepAutoSnipe(dt: number): void {
+    const s = this.autoSnipe!
+    const p = this.player
+    const u = this.garrison.units[s.id]
+    consumeEdges(this.input)
+    s.t += dt
+    let mx = 0
+    let mz = 0
+    if (s.phase === 'walk') {
+      const dx = s.x - p.x
+      const dz = s.z - p.z
+      const d = Math.hypot(dx, dz)
+      if (d > 0.2 && s.t < AUTO_WALK_S) { mx = dx / d; mz = dz / d } else { s.phase = 'aim'; s.t = 0 }
+    }
+    stepPlayer(p, this.fortress.grid, { mx, mz, crouch: false, aiming: s.phase === 'aim', aimYaw: this.cam.yaw }, dt)
+    const live = !!u && isAlive(u)
+    if (s.phase === 'aim' && live) {
+      // The scope onto the head where it is drawn, eased there.
+      const hd = u.drawnHead
+      const hx = hd ? hd.x : u.x
+      const hy = hd ? hd.y : u.y + HEAD_Y
+      const hz = hd ? hd.z : u.z
+      const e = this.aimEye
+      const yaw = Math.atan2(hx - e.x, hz - e.z)
+      const pitch = Math.atan2(hy - e.y, Math.hypot(hx - e.x, hz - e.z))
+      const k = Math.min(1, dt * (s.t < AUTO_ZOOM2_S ? 5 : 12))
+      this.cam.yaw += angleDelta(this.cam.yaw, yaw) * k
+      this.cam.pitch += (pitch - this.cam.pitch) * k
+      if (s.t >= AUTO_ZOOM1_S && this.scopeZoom < 1) this.autoZoom(1)
+      if (s.t >= AUTO_ZOOM2_S && this.scopeZoom < 2) this.autoZoom(2)
+      const settled = Math.abs(angleDelta(this.cam.yaw, yaw)) < 0.004 && Math.abs(pitch - this.cam.pitch) < 0.004
+      if (s.t >= AUTO_FIRE_S && settled && this.arsenal.current === 'sniper' && this.arsenal.switching <= 0 && this.aimReady()) {
+        s.pull = true
+        s.tries++
+        s.phase = 'after'
+        s.t = 0
+      }
+    } else if (s.phase === 'aim' || (s.phase === 'after' && !this.cine && s.t > 0.4)) {
+      // A round that missed: a try or two more. Down: the scope comes off, the hands are the player's again.
+      if (live && s.phase === 'after' && s.tries < AUTO_TRIES) { s.phase = 'aim'; s.t = AUTO_FIRE_S; return }
+      this.autoZoom(0)
+      this.autoSnipe = null
+    }
+  }
+
+  /** The training: which lesson keys this step's presses were (a key, a button, a stick). */
+  private notePresses(): void {
+    const i = this.input
+    const u = this.drillUsed
+    if (i.moveX !== 0 || i.moveY !== 0) u.add('move')
+    if (i.lookDX !== 0 || i.lookDY !== 0 || i.turn !== 0) u.add('look')
+    if (i.aimPressed) u.add('scope')
+    if (i.firePressed || (i.device === 'touch' && i.aimReleased)) u.add('fire')
+    if (i.weaponQueued || i.cycleQueued || i.wheelQueued !== 0) u.add('weapon')
+    if (i.weaponQueued === 3 || this.arsenal.current === 'rocket') u.add('rocket')
+    if (i.crouchQueued) u.add('crouch')
+    if (i.jumpQueued) u.add('jump')
+    if (i.actQueued) u.add('blade').add('loot').add('sabotage')
+    if (i.decoyQueued) u.add('decoy')
+    if (i.hideQueued) u.add('hide')
+    if (i.grappleQueued) u.add('grapple')
+    if (i.ropeQueued) u.add('rope')
+    if (i.burnQueued) u.add('burn')
+  }
+
+  /** A zoom notch the shown headshot takes (not counted as the player's). */
+  private autoZoom(level: number): void {
+    if (this.scopeZoom === level) return
+    this.scopeZoom = level
+    mirror('zoom', SCOPE_ZOOMS[level]!)
+    emit('zoomed', { level })
+  }
+
   private refillTraining(room: number): void {
     if (TRAINING_ROOMS[room]?.lesson === 'supply') return
     const a = this.arsenal
@@ -3772,8 +3984,6 @@ export class Mission implements GameMode {
     const lesson = TRAINING_ROOMS[room]?.lesson
     if (lesson === 'cover') return 'reset.cover'
     if (lesson === 'box') return 'reset.box'
-    // Found where the shot came from: that is the lesson, said plainly.
-    if (lesson === 'hide') return this.hideHunted ? 'reset.hide' : 'reset.seen'
     if (lesson !== 'decoy') return 'reset.seen'
     if (times < 2) return this.input.device === 'touch' ? 'reset.decoyTouch' : 'reset.decoy'
     return 'reset.decoyAny'
@@ -3784,27 +3994,6 @@ export class Mission implements GameMode {
     hud.training.shout = key
     hud.training.shoutHint = hint ?? ''
     hud.training.shoutSeq++
-  }
-
-  /** The hide room's drone has gone to look where a shot came from, since the room was last set up. */
-  private hideHunted = false
-
-  /**
-   * The hide room's lesson, as `lessonDone` reads it: its sentry down, its
-   * drone sent to where the shot came from (once is enough: it stays so until
-   * the room is set up again), and whether it is still there, looking.
-   */
-  private hideWatch(room: number): { shotDown?: boolean; hunted?: boolean; searching?: boolean } {
-    if (TRAINING_ROOMS[room]?.lesson !== 'hide') return {}
-    const here = this.garrison.units.filter(u => roomAt(u.homeX) === room)
-    const drones = here.filter(u => u.kind === 'drone' && isAlive(u))
-    const marks = here.filter(u => u.kind !== 'drone')
-    if (drones.some(u => u.hunt > 0)) this.hideHunted = true
-    return {
-      shotDown: marks.length > 0 && marks.every(u => !isAlive(u)),
-      hunted: this.hideHunted,
-      searching: drones.some(u => u.state === 'suspicious' || u.state === 'combat')
-    }
   }
 
   /** When a shut lesson door last said what it wants. */
@@ -4444,7 +4633,7 @@ export class Mission implements GameMode {
     const aiming = playing && this.viewAims()
 
     // The look: applied here, at the display's rate, and consumed here.
-    lookCam(this.cam, i.lookDX, i.lookDY, i.turn, dt, lookSensitivity.value * (hud.scoped ? scopeSensitivity.value : 1), this.camera.fov, this.baseFov)
+    if (!this.autoSnipe) lookCam(this.cam, i.lookDX, i.lookDY, i.turn, dt, lookSensitivity.value * (hud.scoped ? scopeSensitivity.value : 1), this.camera.fov, this.baseFov)
     i.lookDX = 0
     i.lookDY = 0
     stepCam(this.cam, aiming, dt)
@@ -4719,6 +4908,7 @@ export class Mission implements GameMode {
     this.writeThreats(x, z)
     this.writeCallouts(dt)
     this.writeQuip()
+    this.writeWeak()
     this.writePrompt(playing && !scripted)
     this.drawLasers()
     this.drawDecoyAim()
@@ -4815,6 +5005,7 @@ export class Mission implements GameMode {
     this.ship?.v.dispose()
     this.training?.dispose()
     this.offReplay?.()
+    this.offSkip?.()
     this.offCineSkip?.()
     this.offZoom?.()
     this.offRepair?.()

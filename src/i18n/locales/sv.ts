@@ -284,6 +284,7 @@ export default {
   },
   'training': {
     'replay': 'Visa igen',
+    'skipLesson': 'Hoppa över lektionen',
     'progress': 'Träning: {n} av {total} lektioner klara',
     'scrapWhy': 'Skrot köper vapenuppgraderingar hemma på basen.',
     'bladeHint': 'Smyg fram till vakterna och hugg dem i ryggen, så att de inte slår larm!',
@@ -294,7 +295,6 @@ export default {
       'cover': 'Huka dig bakom lådorna så att vaktposten inte ser dig, och kryp sedan under grinden! Bara hukade steg är ljudlösa: vakterna hör dig gå nära.',
       'weapons': 'Byt till minigunen och slå ut alla tre vakterna! Skott låter: minigunen hörs av varje vakt i närheten.',
       'rocket': 'Byt till raketkastaren och spräng mechen på avsatsen! Raketer är högljudda: alla vakter hör explosionen.',
-      'hide': 'Oskadliggör vakten! Om du skjuter, flytta dig och göm dig: drönaren kollar var skottet kom ifrån.',
       'supply': 'Gå över lådorna för att fylla på ammo och reparera ditt pansar.',
       'burn': 'Bränn kroppen med eldkastaren innan någon hittar den!',
       'box': 'Ta på dig förklädnaden! Strålkastaren ignorerar dig så länge du står still, men upptäcker dig så fort du rör dig.',
@@ -306,6 +306,7 @@ export default {
     'skip': 'Hoppa över träningen',
     'goal': 'Slå ut alla tre',
     'goalProgress': '{n} av {total} nere',
+    'tooWeak': 'För svagt! Behöver mer smällkraft',
     'shout': {
       'backstab': 'Hugg dem i ryggen'
     },
@@ -317,14 +318,12 @@ export default {
       'decoy': 'Använd ett lockbete [{key}], hugg i ryggen när vakten är distraherad',
       'decoyTouch': 'Använd ett lockbete, hugg i ryggen när vakten är distraherad',
       'decoyAny': 'Upptäckt igen. Ta ut vakten hur du vill.',
-      'hide': 'Göm dig efter skottet: flytta dig någon annanstans, annars hittar fienden var du sköt ifrån.'
     },
     'door': {
       'cover': 'Huka dig och kryp under grinden',
       'coverCrawl': 'Kryp under grinden',
       'weapons': 'Ta ner alla tre för att komma förbi',
       'rocket': 'Förstör mechen med raketkastaren',
-      'hide': 'Oskadliggör vakten',
       'supply': 'Ta förnödenheterna',
       'blade': 'Hugg båda vakterna i ryggen',
       'burn': 'Bränn kroppen',
@@ -386,7 +385,7 @@ export default {
       'rope': 'Repkanon',
       'burn': 'Eldkastare',
       'drag': 'Ta kroppen',
-      'replay': 'Visa lektionen igen'
+      'replay': 'Hoppa över lektionen'
     }
   },
   'prompt': {

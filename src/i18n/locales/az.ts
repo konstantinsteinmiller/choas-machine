@@ -284,6 +284,7 @@ export default {
   },
   'training': {
     'replay': 'Yenidən göstər',
+    'skipLesson': 'Dərsi keç',
     'progress': 'Məşq: {total} dərsdən {n} keçildi',
     'scrapWhy': 'Tex-qırıntı ilə bazada silahların üçün təkmilləşdirmələr alırsan.',
     'bladeHint': 'Mühafizəçilərə gizlicə yaxınlaş və onları arxadan vur ki, həyəcan siqnalı verməsinlər!',
@@ -294,7 +295,6 @@ export default {
       'cover': 'Gözətçi səni görməsin deyə yeşiklərin arxasında əyil, sonra darvazanın altından sürünərək keç! Yalnız əyilərək atılan addım səssizdir: yaxından yeriyəndə mühafizəçilər səni eşidir.',
       'weapons': 'Minigana keç və hər üç keşikçini sıradan çıxar! Atəşlər səs salır: minigunu ətrafdakı hər keşikçi eşidir.',
       'rocket': 'Raketatana keç və çıxıntıdakı mexi partlat! Raketlər gurultuludur: partlayışı bütün mühafizəçilər eşidir.',
-      'hide': 'Gözətçini aradan götür! Atəş açsan, uzaqlaş və gizlən: dron atəşin gəldiyi yeri yoxlayır.',
       'supply': 'Döyüş sursatını doldurmaq və zirehini təmir etmək üçün yeşiklərin üstündən keç.',
       'burn': 'Kimsə tapmamış cəsədi alovatanla yandır!',
       'box': 'Maskanı geyin! Tərpənmədən durduqca projektor sənə məhəl qoymur, amma hərəkət etdiyin an səni görür.',
@@ -306,6 +306,7 @@ export default {
     'skip': 'Məşqi keç',
     'goal': 'Hər üçünü zərərsizləşdir',
     'goalProgress': '{n}/{total} yerə sərildi',
+    'tooWeak': 'Çox zəifdir! Daha çox partlayış gücü lazımdır',
     'shout': {
       'backstab': 'Arxadan vur'
     },
@@ -317,14 +318,12 @@ export default {
       'decoy': 'Yem istifadə et [{key}], diqqəti yayınanda arxadan vur',
       'decoyTouch': 'Yem istifadə et, diqqəti yayınanda arxadan vur',
       'decoyAny': 'Səni yenə gördülər. Mühafizəçini istədiyin kimi aradan qaldır.',
-      'hide': 'Atəşdən sonra gizlən: başqa yerə keç, yoxsa düşmən atəş açdığın yeri tapacaq.'
     },
     'door': {
       'cover': 'Əyil və darvazanın altından sürün',
       'coverCrawl': 'Darvazanın altından sürün',
       'weapons': 'Keçmək üçün üçünü də vur',
       'rocket': 'Mekanı raketatanla məhv et',
-      'hide': 'Gözətçini aradan götür',
       'supply': 'Təchizatı götür',
       'blade': 'Hər iki mühafizəçini arxadan vur',
       'burn': 'Cəsədi yandır',
@@ -386,7 +385,7 @@ export default {
       'rope': 'İp silahı',
       'burn': 'Alov silahı',
       'drag': 'Cəsədi tut',
-      'replay': 'Dərsi yenidən göstər'
+      'replay': 'Dərsi keçmək'
     }
   },
   'prompt': {

@@ -284,6 +284,7 @@ export default {
   },
   'training': {
     'replay': 'Tekrar göster',
+    'skipLesson': 'Dersi atla',
     'progress': 'Eğitim: {total} dersten {n} tanesi bitti',
     'scrapWhy': 'Hurdayla üste silahlarına yükseltme alırsın.',
     'bladeHint': 'Muhafızlara gizlice yaklaş ve onları sırtından bıçakla, alarm vermesinler!',
@@ -294,7 +295,6 @@ export default {
       'cover': 'Nöbetçi seni görmesin diye sandıkların arkasında çömel, sonra kapının altından sürünerek geç! Sadece çömelerek atılan adım sessizdir: yakından yürürsen muhafızlar seni duyar.',
       'weapons': 'Minigun\'a geç ve üç muhafızı da indir! Atışlar ses çıkarır: minigun\'u çevredeki her muhafız duyar.',
       'rocket': 'Roketatara geç ve çıkıntıdaki mech\'i havaya uçur! Roketler gürültülüdür: patlamayı her muhafız duyar.',
-      'hide': 'Muhafızı etkisiz hale getir! Ateş edersen uzaklaş ve saklan: drone atışın geldiği yeri kontrol eder.',
       'supply': 'Cephaneni doldurmak ve zırhını onarmak için sandıkların üzerinden yürü.',
       'burn': 'Biri bulmadan cesedi alev makinesiyle yak!',
       'box': 'Kılık değiştir! Kıpırdamadan durduğun sürece projektör seni görmezden gelir, ama hareket ettiğin anda fark eder.',
@@ -306,6 +306,7 @@ export default {
     'skip': 'Eğitimi atla',
     'goal': 'Üçünü de etkisiz hale getir',
     'goalProgress': '{n}/{total} düştü',
+    'tooWeak': 'Çok zayıf! Daha fazla patlama gücü gerek',
     'shout': {
       'backstab': 'Sırtından sapla'
     },
@@ -317,14 +318,12 @@ export default {
       'decoy': 'Yem kullan [{key}], dikkati dağılınca sırtından sapla',
       'decoyTouch': 'Yem kullan, dikkati dağılınca sırtından sapla',
       'decoyAny': 'Yine görüldün. Muhafızı istediğin gibi indir.',
-      'hide': 'Ateş ettikten sonra saklan: başka bir yere geç, yoksa düşman nereden ateş ettiğini bulur.'
     },
     'door': {
       'cover': 'Eğil ve kapının altından sürün',
       'coverCrawl': 'Kapının altından sürün',
       'weapons': 'Geçmek için üçünü de indir',
       'rocket': "Mech'i roketatarla yok et",
-      'hide': 'Muhafızı etkisiz hale getir',
       'supply': 'İkmali kap',
       'blade': 'İki gardiyanı da sırtından sapla',
       'burn': 'Cesedi yak',
@@ -386,7 +385,7 @@ export default {
       'rope': 'İp silahı',
       'burn': 'Alev silahı',
       'drag': 'Cesedi tut',
-      'replay': 'Dersi tekrar göster'
+      'replay': 'Dersi atla'
     }
   },
   'prompt': {

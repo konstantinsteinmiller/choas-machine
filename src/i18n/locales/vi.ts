@@ -284,6 +284,7 @@ export default {
   },
   'training': {
     'replay': 'Xem lại',
+    'skipLesson': 'Bỏ qua bài học',
     'progress': 'Huấn luyện: xong {n}/{total} bài',
     'scrapWhy': 'Phế liệu dùng để nâng cấp vũ khí tại Căn cứ chỉ huy.',
     'bladeHint': 'Lẻn đến gần lính gác và đâm sau lưng chúng, để chúng không báo động!',
@@ -294,7 +295,6 @@ export default {
       'cover': 'Cúi người sau các thùng hàng để lính gác không thấy bạn, rồi bò qua dưới cổng! Chỉ bước đi khi cúi người mới im lặng: lính gác nghe thấy bạn đi lại gần.',
       'weapons': 'Đổi sang minigun và hạ cả ba lính gác! Tiếng súng gây ồn: mọi lính gác xung quanh đều nghe thấy minigun.',
       'rocket': 'Đổi sang súng phóng tên lửa và cho nổ tung con mech trên gờ đá! Tên lửa rất ồn: mọi lính gác đều nghe thấy vụ nổ.',
-      'hide': 'Hạ gục lính gác! Nếu bắn, hãy rời đi và ẩn nấp: drone sẽ kiểm tra nơi phát ra phát súng.',
       'supply': 'Đi qua các thùng hàng để nạp lại đạn và sửa giáp.',
       'burn': 'Thiêu xác bằng súng phun lửa trước khi có người phát hiện!',
       'box': 'Hãy cải trang! Đèn pha sẽ bỏ qua bạn khi bạn đứng yên, nhưng phát hiện ngay khi bạn di chuyển.',
@@ -306,6 +306,7 @@ export default {
     'skip': 'Bỏ qua huấn luyện',
     'goal': 'Hạ gục cả ba',
     'goalProgress': 'Đã hạ {n}/{total}',
+    'tooWeak': 'Quá yếu! Cần thêm sức nổ',
     'shout': {
       'backstab': 'Đâm sau lưng'
     },
@@ -317,14 +318,12 @@ export default {
       'decoy': 'Dùng mồi nhử [{key}], đâm sau lưng khi địch mất tập trung',
       'decoyTouch': 'Dùng mồi nhử, đâm sau lưng khi địch mất tập trung',
       'decoyAny': 'Lại bị lộ. Hạ gục lính gác theo cách nào cũng được.',
-      'hide': 'Bắn xong thì ẩn nấp: hãy di chuyển chỗ khác, nếu không kẻ địch sẽ tìm ra nơi bạn đã bắn.'
     },
     'door': {
       'cover': 'Cúi người và bò qua dưới cổng',
       'coverCrawl': 'Bò qua dưới cổng',
       'weapons': 'Hạ cả ba để qua',
       'rocket': 'Phá hủy mech bằng súng phóng',
-      'hide': 'Hạ gục lính gác',
       'supply': 'Lấy đồ tiếp tế',
       'blade': 'Đâm sau lưng cả hai lính gác',
       'burn': 'Đốt xác',
@@ -386,7 +385,7 @@ export default {
       'rope': 'Súng bắn dây',
       'burn': 'Súng phun lửa',
       'drag': 'Nắm xác',
-      'replay': 'Hiện lại bài hướng dẫn'
+      'replay': 'Bỏ qua bài học'
     }
   },
   'prompt': {

@@ -120,8 +120,8 @@ const onKey = (e: KeyboardEvent) => {
     e.preventDefault()
     busEmit('help', {})
   }
-  // The training's "show me again" (#169): its key, while the button is up.
-  if (actionForCode(e.code) === 'replay' && !typing(e) && !e.repeat && hud.phase === 'play' && hud.training.replay && !isAnyModalOpen.value) busEmit('trainingReplay', {})
+  // The training's Skip (it took the place of "show me again", #169): its key, while the button is up.
+  if (actionForCode(e.code) === 'replay' && !typing(e) && !e.repeat && hud.phase === 'play' && hud.training.skip && !isAnyModalOpen.value) busEmit('trainingSkip', {})
 }
 
 onMounted(async () => {

@@ -9,7 +9,7 @@
       //- button, its shape and its colour, while the button itself pulses.
       div.card(
         v-if="hud.device === 'mouse' || HINT_BUTTON[h.id]"
-        :class="{ flash: flashing[h.id], touch: hud.device !== 'mouse', tappable: tappable(h.id) }"
+        :class="{ flash: flashing[h.id], touch: hud.device !== 'mouse', tappable: tappable(h.id), drill: hud.training.keys.includes(h.id) }"
         role="img"
         :aria-label="label(h.id)"
         @click="press(h.id)"
@@ -282,4 +282,15 @@ const press = (id: HintId): void => {
     left: 74%
     top: 46%
     translate: -50% -50%
+// The training room's lesson wants this key: its card bounces, frame and all.
+.card.drill
+  animation: card-drill 0.8s ease-in-out infinite
+@keyframes card-drill
+  0%, 100%
+    transform: none
+  50%
+    transform: translateY(-0.45rem)
+@media (prefers-reduced-motion: reduce)
+  .card.drill
+    animation: none
 </style>

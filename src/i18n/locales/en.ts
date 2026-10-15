@@ -288,6 +288,7 @@ export default {
   },
   'training': {
     'replay': 'Show me again',
+    'skipLesson': 'Skip lesson',
     'progress': 'Training: {n} of {total} lessons done',
     'scrapWhy': 'Scrap buys upgrades for your weapons back at the Command Base.',
     'bladeHint': 'Sneak up to the guards and backstab them, so they don\'t raise the alarm!',
@@ -298,7 +299,6 @@ export default {
       'cover': 'Crouch behind the crates so the sentry can\'t see you, then crawl under the gate! Only a crouched step is silent: guards hear you walk up close.',
       'weapons': 'Switch to the minigun and take out all three guards! Shots make noise: the minigun is heard by every guard around.',
       'rocket': 'Switch to the rocket launcher and blow up the mech on the ledge! Rockets are loud: every guard hears the blast.',
-      'hide': 'Take out the guard! If you shoot, move away and hide: the drone checks where the shot came from.',
       'supply': 'Walk over the crates to refill your ammo and repair your armour.',
       'burn': 'Burn the body with the flamethrower before anyone finds it!',
       'box': 'Put on your disguise! The searchlight ignores you while you stand still, but spots you the moment you move.',
@@ -310,6 +310,7 @@ export default {
     'skip': 'Skip training',
     'goal': 'Take down all three',
     'goalProgress': '{n} of {total} down',
+    'tooWeak': 'Too weak! Needs more boom power',
     'shout': {
       'backstab': 'Backstab them'
     },
@@ -321,14 +322,12 @@ export default {
       'decoy': 'Use a decoy [{key}], backstab when distracted',
       'decoyTouch': 'Use a decoy, backstab when distracted',
       'decoyAny': 'Seen again. Take the guard down any way you like.',
-      'hide': 'Hide after shooting: move somewhere else, or the enemy finds where you shot from.'
     },
     'door': {
       'cover': 'Crouch and crawl under the gate',
       'coverCrawl': 'Crawl under the gate',
       'weapons': 'Take down all three to pass',
       'rocket': 'Destroy the mech with the launcher',
-      'hide': 'Take out the guard',
       'supply': 'Pick up the supplies',
       'blade': 'Backstab both guards',
       'burn': 'Burn the body',
@@ -390,7 +389,7 @@ export default {
       'rope': 'Rope gun',
       'burn': 'Flamethrower',
       'drag': 'Grab body',
-      'replay': 'Show the lesson again'
+      'replay': 'Skip the lesson'
     }
   },
   'prompt': {

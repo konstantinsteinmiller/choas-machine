@@ -91,7 +91,7 @@ describe('the layout', () => {
     expect(f.beacons).toHaveLength(0)
     expect(LESSON_IDS).not.toContain('beacon')
     expect(TRAINING_ROOMS[LESSON_IDS.indexOf('rope')]!.door).not.toBeNull()
-    for (const p of f.posts) expect(LESSON_IDS[roomAt(p.x)]).toMatch(/cover|weapons|rocket|hide|blade|burn|decoy|box|barrel/)
+    for (const p of f.posts) expect(LESSON_IDS[roomAt(p.x)]).toMatch(/cover|weapons|rocket|blade|burn|decoy|box|barrel/)
   })
 })
 
@@ -402,7 +402,7 @@ describe('rooms that show shooting load every weapon', () => {
   it('are the ones whose hologram aims and fires', async () => {
     const { shootingLesson } = await import('@/game/sim/training')
     const shot = LESSON_IDS.filter(l => shootingLesson(l))
-    expect(shot).toEqual(expect.arrayContaining(['weapons', 'rocket', 'hide', 'barrel']))
+    expect(shot).toEqual(expect.arrayContaining(['weapons', 'rocket', 'barrel']))
     for (const l of ['move', 'supply', 'blade', 'box'] as const) expect(shootingLesson(l)).toBe(false)
   })
 

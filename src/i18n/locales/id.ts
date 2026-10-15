@@ -284,6 +284,7 @@ export default {
   },
   'training': {
     'replay': 'Tunjukkan lagi',
+    'skipLesson': 'Lewati pelajaran',
     'progress': 'Latihan: {n} dari {total} pelajaran selesai',
     'scrapWhy': 'Rongsokan membeli peningkatan senjatamu di Markas Komando.',
     'bladeHint': 'Mengendaplah ke para penjaga dan tikam mereka dari belakang, agar mereka tidak membunyikan alarm!',
@@ -294,7 +295,6 @@ export default {
       'cover': 'Merunduk di balik peti supaya penjaga tidak melihatmu, lalu merangkak di bawah gerbang! Hanya langkah merunduk yang senyap: penjaga mendengarmu berjalan dari dekat.',
       'weapons': 'Ganti ke minigun dan habisi ketiga penjaga! Tembakan menimbulkan suara: setiap penjaga di sekitar mendengar minigun.',
       'rocket': 'Ganti ke peluncur roket dan ledakkan mech di tepian! Roket itu bising: semua penjaga mendengar ledakannya.',
-      'hide': 'Lumpuhkan penjaganya! Kalau kamu menembak, menjauh dan bersembunyi: drone memeriksa asal tembakan.',
       'supply': 'Jalan di atas peti untuk mengisi ulang amunisi dan memperbaiki armormu.',
       'burn': 'Bakar mayatnya dengan pelontar api sebelum ada yang menemukannya!',
       'box': 'Pakai penyamaranmu! Lampu sorot mengabaikanmu selama kamu diam, tapi langsung melihatmu begitu kamu bergerak.',
@@ -306,6 +306,7 @@ export default {
     'skip': 'Lewati latihan',
     'goal': 'Lumpuhkan ketiganya',
     'goalProgress': '{n} dari {total} tumbang',
+    'tooWeak': 'Terlalu lemah! Butuh daya ledak lebih besar',
     'shout': {
       'backstab': 'Tikam dari belakang'
     },
@@ -317,14 +318,12 @@ export default {
       'decoy': 'Pakai umpan [{key}], tikam dari belakang saat dia lengah',
       'decoyTouch': 'Pakai umpan, tikam dari belakang saat dia lengah',
       'decoyAny': 'Ketahuan lagi. Lumpuhkan penjaga dengan cara apa pun.',
-      'hide': 'Bersembunyilah setelah menembak: pindah ke tempat lain, atau musuh akan menemukan dari mana kamu menembak.'
     },
     'door': {
       'cover': 'Jongkok dan merangkak di bawah gerbang',
       'coverCrawl': 'Merangkak di bawah gerbang',
       'weapons': 'Tumbangkan ketiganya untuk lewat',
       'rocket': 'Hancurkan mech dengan peluncur',
-      'hide': 'Lumpuhkan penjaganya',
       'supply': 'Ambil persediaannya',
       'blade': 'Tikam kedua penjaga dari belakang',
       'burn': 'Bakar mayatnya',
@@ -386,7 +385,7 @@ export default {
       'rope': 'Senapan tali',
       'burn': 'Penyembur api',
       'drag': 'Seret tubuh',
-      'replay': 'Tampilkan pelajaran lagi'
+      'replay': 'Lewati pelajaran'
     }
   },
   'prompt': {

@@ -9,12 +9,12 @@ import { demoPop } from '../state/hud'
 import { CELL, CellKind, cellMid, heightAt, VOID, type Grid } from '../world/grid'
 import type { Fortress } from '../world/fortress'
 import {
-  BARREL_PLINTH, CRAWL_GAP_H, HIDE_SPOT, ROCKET_HOLO, ROCKET_LEDGE_H, ROOM_WALL_H, ROPE_DECK_H, ROPE_TOWER_H, TRAINING_ROOMS, roomCell, type LessonId
+  BARREL_PLINTH, CRAWL_GAP_H, ROCKET_HOLO, ROCKET_LEDGE_H, ROOM_WALL_H, ROPE_DECK_H, ROPE_TOWER_H, TRAINING_ROOMS, roomCell, type LessonId
 } from '../data/fortresses/training'
 import { VARIANTS } from './backstab'
 import { poseBackstabGuard, poseBackstabMech } from './backstabStage'
-import { MECH_HEIGHT, lineHandWorld, muzzleWorld, buildMech, poseMech, restPose, type MechPose } from '../models/mech'
-import { buildDrone, buildEnforcer, buildGuard, poseDrone, poseEnforcer, poseGuard, restGuardPose } from '../models/garrison'
+import { MECH_HEIGHT, MECH_RADIUS, lineHandWorld, muzzleWorld, buildMech, poseMech, restPose, type MechPose } from '../models/mech'
+import { buildEnforcer, buildGuard, poseEnforcer, poseGuard, restGuardPose } from '../models/garrison'
 import { Shatter } from '../fx/shatter'
 import { mechGaitRate } from './gait'
 import { buildDisguise, disposeDisguise } from '../models/disguises'
@@ -30,7 +30,7 @@ import { fuelBarrelShape } from '../models/supplies'
 import type { Particles } from '../fx/particles'
 import type { ShockRings } from '../fx/markers'
 import {
-  DEMO_BACKSTAB, DEMO_DRUM, DEMO_SHOTS, DEMO_TARGETS, HIDE_DRONE_Y, currentFrame, droneAt, demoFrame, drumBlast, victimFrame, doorOf, entryOf, makeTraining, replayDemo,
+  DEMO_BACKSTAB, DEMO_DRUM, DEMO_SHOTS, DEMO_TARGETS, currentFrame, demoFrame, drumBlast, victimFrame, doorOf, entryOf, makeTraining, replayDemo,
   rewindRoom, roomAt, stepTraining, targetDies, type DemoFrame, type DemoShot, type Training, type TrainingContext, type TrainingEvent
 } from './training'
 import type { HintId } from './coach'
@@ -65,9 +65,6 @@ const HOLO_HOT = '#e9fdff'
 const HOLO_DEEP = '#6f8dff'
 /** A round's bolt of light, long for the rifle, short for the minigun's stream (m). */
 const BOLT_LEN: Readonly<Record<WeaponId, number>> = { sniper: 3.2, minigun: 1.1, rocket: 0.6 }
-/** The hide room's hologram drone: its light pool's radius on the floor, and how far it circles over the spot (m). */
-const DRONE_POOL_M = 2.2
-const DRONE_SWEEP_M = 1.6
 /** The rocket room's mech is hit this high over its feet (its chest). */
 const ROCKET_CHEST_Y = 1.9
 /** About where the ghost's gun is over its feet, aimed: the pitch's pivot. */
@@ -113,12 +110,6 @@ export class TrainingDirector {
   private drum: Mesh
   private blastBall: Mesh
   private blastMat = new MeshBasicMaterial({ color: GATE_COLOR, transparent: true, opacity: 0, blending: AdditiveBlending, depthWrite: false, toneMapped: false })
-  /** The hide room's hologram drone and the cone of its light. */
-  private holoDrone: Rig
-  private droneCone: Mesh
-  private droneV = new Vector3()
-  private droneDir = new Vector3()
-  private downV = new Vector3(0, -1, 0)
   /**
    * The disguise room's alarm post (by the way out): it goes off when the
    * searchlight catches the mech, the room washed in red (a vignette over the
@@ -246,17 +237,6 @@ export class TrainingDirector {
     this.group.add(this.blastBall)
     this.shatter = new Shatter(fortress.grid)
     this.group.add(this.shatter.group)
-    // The hide room's drone, and its light: an open cone (no base: nothing to lie on the floor).
-    this.holoDrone = buildDrone()
-    this.holoDrone.mesh.material = this.holo
-    if (this.holoDrone.outline) this.holoDrone.outline.visible = false
-    this.holoDrone.root.visible = false
-    this.group.add(this.holoDrone.root)
-    const cone = new ConeGeometry(DRONE_POOL_M, 1, 20, 1, true)
-    cone.translate(0, -0.5, 0)
-    this.droneCone = new Mesh(cone, this.holo)
-    this.droneCone.visible = false
-    this.group.add(this.droneCone)
     // The disguise room's alarm post, at the far end by the way out, facing back down the corridor.
     this.alarmPost = buildBeacon()
     this.alarmRoom = TRAINING_ROOMS.findIndex(r => r.lesson === 'box')
@@ -356,6 +336,17 @@ export class TrainingDirector {
       // The crawl gate stays as it is: its gap is the way through.
       if (r.door && g && r.lesson !== 'cover') { this.setDoor(r.door, false); g.visible = false; this.opened[e.room] = true }
     }
+    // Past the crawl gate, it goes: its glass sat right in front of the
+    // camera of a mech that turned to aim just beyond it.
+    for (let i = 0; i < TRAINING_ROOMS.length; i++) {
+      const r = TRAINING_ROOMS[i]!
+      const g = this.gates[i]
+      if (r.lesson !== 'cover' || !r.door || !g || this.opened[i] || c.x < cellMid(r.door.cx) + MECH_RADIUS + 0.1) continue
+      const grid: Grid = this.fortress.grid
+      for (let cz = r.door.cz0; cz <= r.door.cz1; cz++) grid.roof[cz * grid.w + r.door.cx] = VOID
+      g.visible = false
+      this.opened[i] = true
+    }
     return ev
   }
 
@@ -454,14 +445,6 @@ export class TrainingDirector {
         const mech = done ? null : this.gar.units.find(u => roomAt(u.homeX) === t.room && isAlive(u))
         return mech ? { x: mech.x, y: mech.y + SPECS[mech.kind].height + 0.4, z: mech.z } : door
       }
-      // The sentry to shoot; once it is down, the crates to be behind before the drone comes.
-      case 'hide': {
-        if (done) return door
-        const mark = this.gar.units.find(u => roomAt(u.homeX) === t.room && u.kind !== 'drone' && isAlive(u))
-        if (mark) return { x: mark.x, y: mark.y + SPECS[mark.kind].height + 0.9, z: mark.z }
-        const [cx, cz] = roomCell(t.room, 1, 1)
-        return at(cellMid(cx) + (HIDE_SPOT[0] - 1) * CELL, cellMid(cz) + (HIDE_SPOT[1] - 1) * CELL, 1.0)
-      }
       case 'weapons': case 'blade': case 'decoy': return done ? door : null
       default: return door
     }
@@ -519,7 +502,6 @@ export class TrainingDirector {
       for (const b of this.bolts) b.visible = false
       this.victim.root.visible = false
       this.holoMech.root.visible = this.rocketMesh.visible = this.drum.visible = this.blastBall.visible = false
-      this.holoDrone.root.visible = this.droneCone.visible = false
       this.lastT = -1
       if (this.broken) { this.shatter.clear(HOLO_WRECK); this.broken = false }
       return
@@ -587,7 +569,6 @@ export class TrainingDirector {
     }
     this.props(t.room, f, y, time)
     this.rounds(t.room, lesson, time)
-    this.flyDrone(t.room, lesson, time)
     this.fireRocket(t.room, f, time, dt)
     this.lastT = t.demoT
     this.pops(f, y, camera)
@@ -691,37 +672,6 @@ export class TrainingDirector {
     this.alarmWash.position.copy(camera.position).addScaledVector(fwd, 0.5)
     this.alarmWash.quaternion.copy(camera.quaternion)
     ;(this.alarmWash.material as MeshBasicMaterial).opacity = 0.55 + 0.35 * Math.sin(time * 7)
-  }
-
-  /**
-   * The hide room's drone: on its beat, then, the shot heard, to the
-   * firing spot the ghost has already left; its light circles the empty spot
-   * and it flies back. Its light is a cone from it to the floor.
-   */
-  private flyDrone(room: number, lesson: LessonId, time: number): void {
-    const on = lesson === 'hide' && !this.state.pit
-    this.holoDrone.root.visible = this.droneCone.visible = on
-    if (!on) return
-    const r = TRAINING_ROOMS[room]!
-    const d = droneAt(this.state.demoT)
-    const x = (r.x0 + d.x - 1) * CELL + CELL / 2
-    const z = (r.z0 + d.z - 1) * CELL + CELL / 2
-    const root = this.holoDrone.root
-    const was = this.droneV.copy(root.position)
-    root.position.set(x, HIDE_DRONE_Y, z)
-    const moved = Math.hypot(x - was.x, z - was.z)
-    if (moved > 1e-3) root.rotation.y = Math.atan2(x - was.x, z - was.z)
-    poseDrone(this.holoDrone, { time, spin: time * 40, pitch: Math.min(0.35, moved * 6), roll: 0, eyeYaw: 0, eyePitch: 0.5, alarm: d.sweep, deadT: 0, landed: false })
-    // The light: straight down on its beat, round in circles over the spot.
-    const a = time * 2.4
-    const fx = x + Math.sin(a) * DRONE_SWEEP_M * d.sweep
-    const fz = z + Math.cos(a) * DRONE_SWEEP_M * d.sweep
-    const tip = this.droneV.set(x, HIDE_DRONE_Y - 0.3, z)
-    const dir = this.droneDir.set(fx - tip.x, -tip.y, fz - tip.z)
-    const len = dir.length()
-    this.droneCone.position.copy(tip)
-    this.droneCone.scale.set(1, len, 1)
-    this.droneCone.quaternion.setFromUnitVectors(this.downV, dir.normalize())
   }
 
   /** What the ghost's gun is aimed at, `time` into room `room`'s demo (metres): the rocket room's mech, the round in flight or the next. */
@@ -999,11 +949,6 @@ export class TrainingDirector {
     this.victim.material.dispose()
     this.victim.glowMaterial.dispose()
     for (const rig of this.guards) { rig.mesh.geometry.dispose(); rig.outline?.geometry.dispose(); rig.material.dispose(); rig.glowMaterial.dispose() }
-    this.holoDrone.mesh.geometry.dispose()
-    this.holoDrone.outline?.geometry.dispose()
-    this.holoDrone.material.dispose()
-    this.holoDrone.glowMaterial.dispose()
-    this.droneCone.geometry.dispose()
     this.holoMech.mesh.geometry.dispose()
     this.holoMech.outline?.geometry.dispose()
     this.holoMech.material.dispose()

@@ -9,16 +9,19 @@
         :class="{ done: n < hud.training.done, here: n === hud.training.room }"
       )
         GameIcon(:name="n < hud.training.done ? 'check' : icon")
-    FHudButton.replay(
-      v-if="hud.training.replay"
-      icon="replay"
-      tone="cyan"
-      :hotkey="hud.device === 'mouse' ? 'replay' : undefined"
-      :aria-label="t('training.replay')"
-      data-testid="btn-demo"
-      @click="replay"
+    //- Skip the room's lesson (in the place of "show me again", which the help
+    //- key still does): for a player stuck on a room. It bounces at the shut door.
+    button.skip(
+      v-if="hud.training.skip"
+      type="button"
+      :class="{ bounce: hud.training.skipNudge }"
+      data-testid="btn-skip"
+      @click="skip"
     )
-    //- What the room's lesson wants, in words, under the replay (#193: the
+      GameIcon.skip-glyph(name="skip-forward")
+      span {{ t('training.skipLesson') }}
+      KeyCap.skip-key(v-if="hud.device === 'mouse'" action="replay")
+    //- What the room's lesson wants, in words, under the skip (#193: the
     //- backstab room first; every room has one now).
     p.hint(v-if="roomHint" :data-testid="roomHint.id")
       //- The key it is done with, as this keyboard has it printed (a playtester
@@ -40,7 +43,7 @@ import { useI18n } from 'vue-i18n'
 import GameIcon from '@/components/icons/GameIcon.vue'
 import KeyCap from '@/components/hud/hints/KeyCap.vue'
 import type { Action } from '@/game/engine/keyBindings'
-import FHudButton from '@/components/atoms/FHudButton.vue'
+import { sfx } from '@/game/audio/sfx'
 import { hud } from '@/game/state/hud'
 import { emit } from '@/game/bus'
 import type { GameIconName } from '@/components/icons/iconNames'
@@ -50,17 +53,17 @@ const { t } = useI18n()
 
 /** One glyph per lesson; the pips run in the order the rooms are crossed. */
 const GLYPH: Readonly<Record<LessonId, GameIconName>> = {
-  move: 'mech', jump: 'up', cover: 'act-crouch', weapons: 'sniper', rocket: 'rocket', hide: 'drone', supply: 'bolt', blade: 'blade', burn: 'flame',
+  move: 'mech', jump: 'up', cover: 'act-crouch', weapons: 'sniper', rocket: 'rocket', supply: 'bolt', blade: 'blade', burn: 'flame',
   decoy: 'decoy', box: 'box', hook: 'hook', rope: 'rope', salvage: 'scrap', barrel: 'warning', extract: 'play'
 }
 const ICONS: readonly GameIconName[] = LESSON_IDS.map(id => GLYPH[id])
 
-const replay = (): void => emit('trainingReplay', {})
+const skip = (): void => { sfx('uiClick'); emit('trainingSkip', {}) }
 /** In the backstab room, its lesson not yet done (and not being watched). */
 /** Each room's hint; the salvage room says why scrap matters instead (`scrapWhy`). */
 const HINT_KEY: Readonly<Partial<Record<LessonId, string>>> = {
   move: 'training.roomHint.move', jump: 'training.roomHint.jump', cover: 'training.roomHint.cover',
-  weapons: 'training.roomHint.weapons', rocket: 'training.roomHint.rocket', hide: 'training.roomHint.hide', supply: 'training.roomHint.supply',
+  weapons: 'training.roomHint.weapons', rocket: 'training.roomHint.rocket', supply: 'training.roomHint.supply',
   blade: 'training.bladeHint', burn: 'training.roomHint.burn', decoy: 'training.decoyHint', box: 'training.roomHint.box',
   hook: 'training.roomHint.hook', rope: 'training.roomHint.rope', barrel: 'training.roomHint.barrel', extract: 'training.roomHint.extract'
 }
@@ -122,8 +125,37 @@ const roomHint = computed(() => {
     color: #5fe9ff
     opacity: 1
     +tech-hex(rgba(95, 233, 255, 0.85), transparent, 2px)
-.replay
+.skip
+  display: inline-flex
+  align-items: center
+  gap: 0.45em
+  padding: 0.35em 0.8em
+  color: #5fe9ff
+  font: inherit
+  font-size: var(--cm-fs-s)
+  font-weight: 700
+  text-shadow: var(--cm-text-outline)
+  cursor: pointer
   pointer-events: auto
+  border: 0
+  +tech-plate(#5fe9ff, tech-fill(#5fe9ff, 14%), 0.5rem)
+  &:hover, &:focus-visible
+    color: #fff
+  &.bounce
+    animation: skip-bounce 0.8s ease-in-out infinite
+.skip-glyph
+  width: 1.1em
+  height: 1.1em
+.skip-key
+  margin-inline-start: 0.2em
+@keyframes skip-bounce
+  0%, 100%
+    translate: 0 0
+  50%
+    translate: 0 -0.5rem
+@media (prefers-reduced-motion: reduce)
+  .skip.bounce
+    animation: none
 .goal
   display: flex
   align-items: center

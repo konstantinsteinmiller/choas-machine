@@ -284,6 +284,7 @@ export default {
   },
   'training': {
     'replay': 'Nochmal zeigen',
+    'skipLesson': 'Lektion überspringen',
     'progress': 'Training: {n} von {total} Lektionen geschafft',
     'scrapWhy': 'Mit Techschrott verbesserst du deine Waffen in der Kommandobasis.',
     'bladeHint': 'Schleich dich an die Wachen heran und erledige sie von hinten, damit sie keinen Alarm auslösen!',
@@ -294,7 +295,6 @@ export default {
       'cover': 'Duck dich hinter die Kisten, damit dich der Wachposten nicht sieht, und kriech dann unter dem Tor durch! Nur geduckt bist du lautlos: Gehst du nah heran, hören dich die Wachen.',
       'weapons': 'Wechsle zur Minigun und schalte alle drei Wachen aus! Schüsse machen Lärm: Die Minigun hört jede Wache in der Umgebung.',
       'rocket': 'Wechsle zum Raketenwerfer und spreng den Mech auf dem Vorsprung! Raketen sind laut: Jede Wache hört die Explosion.',
-      'hide': 'Schalte die Wache aus! Wenn du schießt, geh weg und versteck dich: Die Drohne sucht dort, woher der Schuss kam.',
       'supply': 'Lauf über die Kisten, um Munition aufzufüllen und deine Panzerung zu reparieren.',
       'burn': 'Verbrenn die Leiche mit dem Flammenwerfer, bevor sie jemand findet!',
       'box': 'Verkleide dich! Der Suchscheinwerfer ignoriert dich, solange du stillhältst, aber entdeckt dich, sobald du dich bewegst.',
@@ -306,6 +306,7 @@ export default {
     'skip': 'Training überspringen',
     'goal': 'Schalte alle drei aus',
     'goalProgress': '{n} von {total} ausgeschaltet',
+    'tooWeak': 'Zu schwach! Braucht mehr Wumms',
     'shout': {
       'backstab': 'Von hinten zustechen'
     },
@@ -317,14 +318,12 @@ export default {
       'decoy': 'Nutz einen Köder [{key}], stich von hinten zu, wenn er abgelenkt ist',
       'decoyTouch': 'Nutz einen Köder, stich von hinten zu, wenn er abgelenkt ist',
       'decoyAny': 'Wieder entdeckt. Schalte die Wache aus, wie du willst.',
-      'hide': 'Versteck dich nach dem Schuss: Wechsle den Ort, sonst findet der Feind, wo du geschossen hast.'
     },
     'door': {
       'cover': 'Duck dich und kriech unter dem Tor durch',
       'coverCrawl': 'Kriech unter dem Tor durch',
       'weapons': 'Schalt alle drei aus, um durchzukommen',
       'rocket': 'Zerstör den Mech mit dem Raketenwerfer',
-      'hide': 'Schalte die Wache aus',
       'supply': 'Schnapp dir die Vorräte',
       'blade': 'Stich beide Wachen von hinten nieder',
       'burn': 'Verbrenn die Leiche',
@@ -386,7 +385,7 @@ export default {
       'rope': 'Seilwerfer',
       'burn': 'Flammenwerfer',
       'drag': 'Körper greifen',
-      'replay': 'Lektion nochmal zeigen'
+      'replay': 'Lektion überspringen'
     }
   },
   'prompt': {

@@ -284,6 +284,7 @@ export default {
   },
   'training': {
     'replay': 'Torna-m\'ho a ensenyar',
+    'skipLesson': 'Salta la lliçó',
     'progress': 'Entrenament: {n} de {total} lliçons fetes',
     'scrapWhy': 'La ferralla tècnica compra millores per a les teves armes a la base de comandament.',
     'bladeHint': 'Apropa\'t d\'amagat als guàrdies i apunyala\'ls per l\'esquena, perquè no donin l\'alarma!',
@@ -294,7 +295,6 @@ export default {
       'cover': 'Ajup-te darrere les caixes perquè el sentinella no et vegi i després arrossega\'t per sota la reixa! Només el pas ajupit és silenciós: els guàrdies et senten caminar de prop.',
       'weapons': 'Canvia a la minigun i elimina els tres guàrdies! Els trets fan soroll: tots els guàrdies del voltant senten la minigun.',
       'rocket': 'Canvia al llançacoets i fes volar el mech de la cornisa! Els coets fan molt de soroll: tots els guàrdies senten l\'explosió.',
-      'hide': 'Elimina el guàrdia! Si dispares, allunya\'t i amaga\'t: el dron revisa d\'on ha sortit el tret.',
       'supply': 'Passa per sobre les caixes per recarregar munició i reparar el blindatge.',
       'burn': 'Crema el cos amb el llançaflames abans que algú el trobi!',
       'box': 'Disfressa\'t! El focus no et fa cas mentre estàs quiet, però et detecta tan bon punt et mous.',
@@ -306,6 +306,7 @@ export default {
     'skip': 'Ometre l\'entrenament',
     'goal': "Elimina'ls tots tres",
     'goalProgress': '{n} de {total} eliminats',
+    'tooWeak': 'Massa feble! Cal més potència explosiva',
     'shout': {
       'backstab': "Per l'esquena"
     },
@@ -317,14 +318,12 @@ export default {
       'decoy': "Fes servir un parany [{key}] i ataca per l'esquena quan es distregui",
       'decoyTouch': "Fes servir un parany i ataca per l'esquena quan es distregui",
       'decoyAny': "T'han tornat a veure. Elimina el guàrdia com vulguis.",
-      'hide': 'Amaga\'t després de disparar: mou-te a un altre lloc o l\'enemic trobarà des d\'on has disparat.'
     },
     'door': {
       'cover': 'Ajup-te i passa a gatzoneta per sota la porta',
       'coverCrawl': 'Passa a gatzoneta per sota la porta',
       'weapons': 'Abat-los tots tres per passar',
       'rocket': 'Destrueix el mecha amb el llançacohets',
-      'hide': 'Elimina el guàrdia',
       'supply': 'Agafa els subministraments',
       'blade': "Ataca per l'esquena els dos guàrdies",
       'burn': 'Crema el cos',
@@ -386,7 +385,7 @@ export default {
       'rope': 'Pistola de corda',
       'burn': 'Llançaflames',
       'drag': 'Agafa el cos',
-      'replay': 'Mostra la lliçó un altre cop'
+      'replay': 'Saltar la lliçó'
     }
   },
   'prompt': {

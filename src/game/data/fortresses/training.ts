@@ -1,4 +1,5 @@
 import { FortressBuilder, type Fortress } from '../../world/fortress'
+import type { HintId } from '../../sim/coach'
 
 /**
  * ─── The training ground (#57, #58) ──────────────────────────────────────────
@@ -18,7 +19,7 @@ export const TRAINING_ID = 'training'
 
 /** The lessons, one per room, in the order they are crossed. */
 export const LESSON_IDS = [
-  'move', 'jump', 'cover', 'weapons', 'rocket', 'hide', 'supply', 'blade', 'burn', 'decoy', 'box', 'hook', 'rope', 'salvage', 'barrel', 'extract'
+  'move', 'jump', 'cover', 'weapons', 'rocket', 'supply', 'blade', 'burn', 'decoy', 'box', 'hook', 'rope', 'salvage', 'barrel', 'extract'
 ] as const
 export type LessonId = (typeof LESSON_IDS)[number]
 
@@ -74,6 +75,17 @@ export const COVER_SIGHT = 0.45
  * through it.
  */
 export const CRAWL_GAP_H = 1.6
+/** The sneak room's shown headshot (`Mission.stepAutoSnipe`) is taken from here: the room's x0 plus this many cells, the middle of the hallway past the cover's end. */
+export const COVER_SNIPE_LX = 9
+/**
+ * The controls each room's lesson is done with. Their buttons and key cards
+ * bounce in that room until each has been pressed once (`hud.training.keys`).
+ */
+export const LESSON_KEYS: Readonly<Record<LessonId, readonly HintId[]>> = {
+  move: ['move', 'look'], jump: ['jump'], cover: ['crouch'], weapons: ['weapon', 'fire'], rocket: ['rocket', 'fire'],
+  supply: [], blade: ['blade'], burn: ['burn'], decoy: ['decoy', 'blade'], box: ['hide'], hook: ['grapple'], rope: ['rope'],
+  salvage: ['loot'], barrel: ['fire'], extract: []
+}
 /** The rope room's tower, and the platform a rope from it reaches (#94). */
 export const ROPE_TOWER_H = 4
 export const ROPE_DECK_H = 2
@@ -96,25 +108,6 @@ export const ROCKET_TARGET: readonly [number, number] = [8, 3]
  * mech's body (the owner: "put the hologram mech a bit aside").
  */
 export const ROCKET_HOLO: readonly [number, number] = [6.4, 2.4]
-/**
- * The shoot-and-hide room: no playtester understood that a shot gives away
- * where it came from, and the guards go there. A sentry with its back to the
- * room to shoot; a surveillance drone on a short beat along the south wall
- * (armoured: it is to be dodged, not shot) that flies to wherever a shot came
- * from and sweeps its light there; a low wall of crates a few metres off the
- * way in to get behind before it arrives. All in room cells.
- */
-export const HIDE_TARGET: readonly [number, number] = [9, 2]
-export const HIDE_DRONE: ReadonlyArray<readonly [number, number]> = [[5, 11], [9, 11]]
-export const HIDE_DRONE_ALT = 6
-/**
- * The crates (a row along x from here), and the place behind them the marker
- * shows once the shot is fired: ahead and to the left of the way in, where
- * the camera there sees them (to the right, the doorway hides the room).
- */
-export const HIDE_COVER: readonly [number, number] = [3, 5]
-export const HIDE_COVER_LEN = 3
-export const HIDE_SPOT: readonly [number, number] = [4, 3.6]
 /** The disguise room's corridor (#163): its two rows, the doorway's. */
 export const BOX_LANE: readonly [number, number] = [6, 7]
 /**
@@ -227,16 +220,6 @@ export const buildTrainingGround = (): Fortress => {
     b.fill(...at(k, 5, 1), ...at(k, 5, 4), ROCKET_PARAPET_H)
     b.rocketTarget(...at(k, ROCKET_TARGET[0], ROCKET_TARGET[1]), 0, ROCKET_TARGET_HP)
     b.solid('stack', ...at(k, 2, 11), 1.4)
-  }
-
-  // · Shoot, then hide: the sentry to take (facing the north wall), the drone
-  //   on its beat by the south wall that comes to look where the shot came
-  //   from, the crates to be behind by then.
-  {
-    const k = room('hide')
-    b.sentry(...at(k, ...HIDE_TARGET), Math.PI)
-    b.drone(HIDE_DRONE.map(([x, z]) => [...at(k, x, z), 1.5] as const), HIDE_DRONE_ALT, true)
-    b.cover(...at(k, ...HIDE_COVER), HIDE_COVER_LEN, 'x', COVER_ROOM_H)
   }
 
   // · Supplies (#76): the rounds just spent are not coming back by
