@@ -113,6 +113,15 @@ export const VICTIMS: Readonly<Partial<Record<LessonId, readonly VictimKey[]>>> 
   ]
 }
 
+/**
+ * The weapons room's hologram guards: each a little behind its real guard
+ * (seen from the way in), so the real ones read as the ones to shoot and the
+ * holograms as the show. The real ones stand at [10, 2], [8, 11], [9, 11].
+ */
+const WEAPONS_HOLO = [
+  { at: [10.3, 1.55], yaw: Math.PI, death: 'back' }, { at: [8.5, 11.7], yaw: 0, death: 'front' }, { at: [9.5, 11.7], yaw: 0, death: 'back' }
+] as const satisfies readonly DemoTarget[]
+
 /** The demo of each lesson. Missing values carry over from the key before. */
 export const DEMOS: Readonly<Record<LessonId, readonly DemoKey[]>> = {
   move: [
@@ -137,8 +146,10 @@ export const DEMOS: Readonly<Record<LessonId, readonly DemoKey[]>> = {
   weapons: [
     // The minigun on all three (#201 follow-up: players kept the rifle all
     // the way): drawn first, then a stream into the sentry, a turn, the two.
-    { t: 0, x: 2, z: 7, face: [10, 2], weapon: 'sniper', aim: 0, hint: 'weapon' }, { t: 0.8, weapon: 'minigun', aim: 0 },
-    { t: 1.3, aim: 1, hint: 'fire' }, { t: 2.15, aim: 1 }, { t: 2.5, aim: 0, face: [8.5, 11] }, { t: 3.1, aim: 1, hint: 'fire' }, { t: 5.6, aim: 1 }
+    // A metre to the right of the way in (half a cell): a player who comes in
+    // and aims straight ahead does not look, and shoot, through it.
+    { t: 0, x: 2, z: 7.5, face: WEAPONS_HOLO[0].at, weapon: 'sniper', aim: 0, hint: 'weapon' }, { t: 0.8, weapon: 'minigun', aim: 0 },
+    { t: 1.3, aim: 1, hint: 'fire' }, { t: 2.15, aim: 1 }, { t: 2.5, aim: 0, face: [9, 11.7] }, { t: 3.1, aim: 1, hint: 'fire' }, { t: 5.6, aim: 1 }
   ],
   // The launcher (#146): 3 draws it, up it comes (aimed up at the ledge), and
   // the rocket leaves its nose for the hologram's mech beside the real one,
@@ -177,8 +188,8 @@ export const DEMOS: Readonly<Record<LessonId, readonly DemoKey[]>> = {
     { t: 8.8 + TD_END, x: 10.4, z: 7 }
   ],
   box: [
-    { t: 0, x: 1.5, z: 7, boxed: 0, hint: 'hide' }, { t: 0.6, boxed: 1 }, { t: 3, x: 5, z: 7, boxed: 1 },
-    { t: 4.2, x: 5, z: 7, boxed: 1 }, { t: 6.6, x: 10.4, z: 7, boxed: 1 }
+    // Its stops are not here: the director holds its clock while the room's real searchlight is on it, or about to be.
+    { t: 0, x: 1.5, z: 7, boxed: 0, hint: 'hide' }, { t: 0.6, boxed: 1 }, { t: 6, x: 10.4, z: 7, boxed: 1 }
   ],
   // To the foot of the wall, the hook up to its top, reeled up on the line,
   // over the top, and down the far side (#117: the hook flies, it is no ladder).
@@ -234,9 +245,7 @@ const round = (x: number, z: number, fling: number, lift: number): DemoTarget =>
 
 export const DEMO_TARGETS: Readonly<Partial<Record<LessonId, readonly DemoTarget[]>>> = {
   // The sentry and the two the minigun cuts down.
-  weapons: [
-    { at: [10, 2], yaw: Math.PI, death: 'back' }, { at: [8, 11], yaw: 0, death: 'front' }, { at: [9, 11], yaw: 0, death: 'back' }
-  ],
+  weapons: WEAPONS_HOLO,
   // Five round the drum, a gap toward the ghost for its round; thrown furthest
   // where the room has the length (the wall and the ladder are close east).
   barrel: [round(4.08, 5.5, 0, 1.3), round(4.23, 3.73, 1, 1.4), round(3.48, 3.86, 0.8, 1.9), round(3.15, 4.29, 0.8, 1.2), round(3.15, 4.91, 0.6, 1.6)]
@@ -550,7 +559,8 @@ export const DOOR_LINES: Readonly<Partial<Record<LessonId, { line: string; hint:
   cover: { line: 'door.cover', hint: 'crouch' },
   // The left button (the right one only zooms the rifle; it was read as the minigun's trigger).
   weapons: { line: 'door.weapons', hint: 'fire' },
-  rocket: { line: 'door.rocket', hint: 'rocket' },
+  // The launcher is drawn on the way in: what is left to press is the trigger.
+  rocket: { line: 'door.rocket', hint: 'fire' },
   supply: { line: 'door.supply', hint: 'supply' },
   blade: { line: 'door.blade', hint: 'blade' },
   burn: { line: 'door.burn', hint: 'burn' },

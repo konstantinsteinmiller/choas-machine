@@ -22,6 +22,8 @@ const isPlaygama = import.meta.env.VITE_APP_PLAYGAMA === 'true'
  * The `{ import: 'default' }` option tells Vite to unwrap the module's
  * default export automatically so callers get the raw messages object.
  */
+import { withRetry } from '@/utils/retry'
+
 const localeLoaders = import.meta.glob<Record<string, unknown>>(
   './locales/*.ts',
   { import: 'default' }
@@ -54,11 +56,15 @@ export const loadLocaleMessages = async (
   const loader = localeLoaders[pathFor(code)]
   if (!loader) throw new Error(`[i18n] no locale file for "${code}"`)
 
-  const promise = loader().then((msgs) => {
+  const promise = withRetry(loader).then((msgs) => {
     const resolved = (msgs ?? {}) as Record<string, unknown>
     localeCache.set(code, resolved)
     localeInFlight.delete(code)
     return resolved
+  }, (e: unknown) => {
+    // A failed load must not stay cached: the next call tries again.
+    localeInFlight.delete(code)
+    throw e
   })
   localeInFlight.set(code, promise)
   return promise

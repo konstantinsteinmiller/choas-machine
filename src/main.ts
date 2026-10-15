@@ -1,4 +1,5 @@
 import { createApp, watch } from 'vue'
+import { withRetry } from '@/utils/retry'
 import router from '@/router'
 import '@/assets/css/tailwind.css'
 import '@/assets/css/index.sass'
@@ -416,7 +417,7 @@ const bootstrap = async () => {
   // else stored (an older build's portal seed) does not.
   if (hasLanguageChoice()) bootLocaleHint = null
 
-  const { default: App } = await import('@/App.vue')
+  const { default: App } = await withRetry(() => import('@/App.vue'))
 
   // Resolve and LOAD just the initial locale bundle before creating the
   // i18n instance. The English fallback is loaded in parallel so missing

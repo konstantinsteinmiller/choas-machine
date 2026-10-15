@@ -89,6 +89,10 @@ export interface GameEvents {
   /** The mech picked up an armour shard. */
   /** The training ground: a lesson done; the demo asked for again; seen and sent back. */
   lessonDone: { room: number }
+  /** The mech walked into a training room whose lesson is still to do. */
+  lessonEnter: { room: number }
+  /** A real key pressed in the game (not a repeat, no menu up): the training ground's analytics. */
+  keyPress: { code: string }
   trainingReplay: Record<string, never>
   /** The training HUD's Skip: the room's lesson counted done, on into the next room. */
   trainingSkip: Record<string, never>

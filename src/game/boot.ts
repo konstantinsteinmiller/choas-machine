@@ -1,3 +1,4 @@
+import { describeError, withRetry } from '@/utils/retry'
 import { getRenderer } from './engine/renderer'
 import { afterPaint, createSlicer, yieldToBrowser, type Slice } from './engine/slicer'
 import type { Material, Mesh, Object3D } from 'three'
@@ -17,6 +18,7 @@ import { easeFortress } from './data/fortresses/ease'
 import { initProfile, profile } from './state/profile'
 import { installSynth, loadSfxOverrides } from './audio/synth'
 import { installGameSounds } from './audio/gameSounds'
+import { installTrainingMeasure } from './trainingMeasure'
 import { holdAudio, releaseAudio } from './audio/engine'
 
 /**
@@ -157,7 +159,7 @@ registerModeFactories({
   base: (onProgress) => CommandBase.create(createSlicer(12), onProgress),
   // The story's scenes load on demand: their code is its own chunk.
   cinema: async (id, part = 'whole') => {
-    const m = await import('./story/cinema')
+    const m = await withRetry(() => import('./story/cinema'))
     return part === 'still' ? m.CinemaStill.create(id) : m.Cinema.create(id, createSlicer(12), undefined, part)
   },
   prepare: (mode) => precompile(mode)
@@ -177,6 +179,7 @@ export const primeGame = (onProgress: (p01: number) => void): Promise<void> => {
     initProfile()
     installSynth()
     installGameSounds()
+    installTrainingMeasure()
     // Drop-in files (only those that exist; see game/assets/overrides.ts).
     // SFX decode in the background; the detail maps must land before the
     // atlas bakes, and cost nothing when there are none.
@@ -219,7 +222,7 @@ export const adoptBootMode = async (): Promise<GameMode> => {
   try {
     const p = primed ?? primeGame(() => {})
     await Promise.race([
-      p.catch((e) => console.error('[boot] priming failed', e)),
+      p.catch((e) => console.error('[boot] priming failed', describeError(e))),
       new Promise((resolve) => setTimeout(resolve, ADOPT_CAP_MS))
     ])
     const m = takePreparedMode()

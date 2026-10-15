@@ -1,3 +1,4 @@
+import { withRetry } from '@/utils/retry'
 import type { Answers } from '../../sim/adapt'
 import type { Fortress } from '../../world/fortress'
 import type { ThemeId } from '../themes'
@@ -41,9 +42,9 @@ export const isFortressId = (v: unknown): v is FortressId => typeof v === 'strin
 /** Build a fortress at a threat level (its own chunk, loaded on demand). */
 export const loadFortress = async (id: FortressId, level: number, run: number, answers?: Answers): Promise<Fortress> => {
   switch (id) {
-    case 'bastion': return (await import('./bastion')).buildBastion(level, run, answers)
-    case 'foundry': return (await import('./foundry')).buildFoundry(level, run, answers)
-    case 'harbour': return (await import('./harbour')).buildHarbour(level, run, answers)
-    case 'spire': return (await import('./spire')).buildSpire(level, run, answers)
+    case 'bastion': return (await withRetry(() => import('./bastion'))).buildBastion(level, run, answers)
+    case 'foundry': return (await withRetry(() => import('./foundry'))).buildFoundry(level, run, answers)
+    case 'harbour': return (await withRetry(() => import('./harbour'))).buildHarbour(level, run, answers)
+    case 'spire': return (await withRetry(() => import('./spire'))).buildSpire(level, run, answers)
   }
 }

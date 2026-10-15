@@ -112,6 +112,8 @@ export interface Wish {
   mz: number
   /** Toggle crouch this step. */
   crouch: boolean
+  /** Stand up this step, if crouched (the crouch key let go after a hold). Optional, like sprint. */
+  stand?: boolean
   /** Sprint while this is held: not crouched, not aiming. Optional so a
    *  caller that never sprints can leave it out. */
   sprint?: boolean
@@ -226,6 +228,7 @@ export const stepPlayer = (p: Player, g: Grid, w: Wish, dt: number): PlayerEvent
   p.pyaw = p.yaw
 
   if (w.crouch && (p.mode === 'ground') && !p.boxed) p.crouched = !p.crouched
+  if (w.stand && !w.crouch && p.mode === 'ground' && !p.boxed) p.crouched = false
   // Under a ceiling lower than the mech (a crawl gap, #186): it stays down.
   const lowCeiling = p.mode === 'ground' && headroom(g, p.x, p.z, p.y) < MECH_HEAD
   // The hide box: down over a crouched mech, or off again. Raising the

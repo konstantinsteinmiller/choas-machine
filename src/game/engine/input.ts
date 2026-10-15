@@ -44,6 +44,7 @@
  * `pointermove`, never as a `pointerdown`, by the Pointer Events spec.
  */
 
+import { emit } from '../bus'
 import { mobileCheck } from '@/utils/function'
 import { actionForCode, codesFor, type Action } from './keyBindings'
 import { observeKey } from './keyLabels'
@@ -81,6 +82,8 @@ export interface Input {
   /** Grab the body at the mech's feet, or let go of the one in tow. */
   dragQueued: boolean
   crouchQueued: boolean
+  /** The crouch key let go after a hold (`CROUCH_HOLD_MS`): stand up again. */
+  standQueued: boolean
   /** The hide box, toggled. */
   hideQueued: boolean
   decoyQueued: boolean
@@ -171,7 +174,7 @@ export const createInput = (): Input => ({
   aimHeld: false, aimPressed: false, aimReleased: false, aimCancelled: false, fireHeld: false, firePressed: false,
   sprintHeld: false,
   decoyHeld: false,
-  actQueued: false, grappleQueued: false, jumpQueued: false, ropeQueued: false, burnQueued: false, dragQueued: false, crouchQueued: false, hideQueued: false, decoyQueued: false, reloadQueued: false, weaponQueued: 0, cycleQueued: false, wheelQueued: 0,
+  actQueued: false, grappleQueued: false, jumpQueued: false, ropeQueued: false, burnQueued: false, dragQueued: false, crouchQueued: false, standQueued: false, hideQueued: false, decoyQueued: false, reloadQueued: false, weaponQueued: 0, cycleQueued: false, wheelQueued: 0,
   pauseQueued: false, anyPressed: false,
   joyActive: false, joyOriginX: 0, joyOriginY: 0, joyX: 0, joyY: 0, joyHomeX: 0, joyHomeY: 0, joyHomeR: 0, joyRadius: 56,
   aimLatched: false, lookHomeX: 0, lookHomeY: 0, lookHomeR: 0, lookStickActive: false, lookStickX: 0, lookStickY: 0,
@@ -190,6 +193,8 @@ export const createInput = (): Input => ({
  */
 /** A left click this soon after the right button raised the scope fires nothing (ms). */
 export const ZOOM_FIRE_BLOCK_MS = 300
+/** The crouch key held this long or longer is a hold: letting it go stands the mech up. */
+export const CROUCH_HOLD_MS = 350
 
 export const consumeEdges = (i: Input): void => {
   i.aimPressed = false
@@ -203,6 +208,7 @@ export const consumeEdges = (i: Input): void => {
   i.burnQueued = false
   i.dragQueued = false
   i.crouchQueued = false
+  i.standQueued = false
   i.hideQueued = false
   i.decoyQueued = false
   i.reloadQueued = false
@@ -698,10 +704,12 @@ export const attachInput = (surface: HTMLElement, input: Input, opts: InputOptio
     if (e.repeat && keys.has(e.code)) return
     keys.add(e.code)
     if (!e.repeat && !NOT_A_PRESS.has(e.code)) input.anyPressed = true
+    if (!e.repeat && !touchOnly) emit('keyPress', { code: e.code })
     // Through the bindings (`keyBindings.ts`): physical keys, rebindable.
     switch (actionForCode(e.code)) {
       case 'crouch':
         input.crouchQueued = true
+        crouchDownAt = performance.now()
         break
       case 'hide':
         input.hideQueued = true
@@ -763,13 +771,22 @@ export const attachInput = (surface: HTMLElement, input: Input, opts: InputOptio
     updateKeysMove()
   }
 
+  // The crouch key is a toggle when tapped and a hold when held: let go after
+  // a hold and the mech stands (players held C at the crawl gate and the
+  // sneak, as other games taught them, and pressed again to "let go").
+  let crouchDownAt = -1
   const onKeyUp = (e: KeyboardEvent) => {
     keys.delete(e.code)
+    if (crouchDownAt >= 0 && actionForCode(e.code) === 'crouch') {
+      if (performance.now() - crouchDownAt >= CROUCH_HOLD_MS) input.standQueued = true
+      crouchDownAt = -1
+    }
     updateKeysMove()
   }
 
   const onBlur = () => {
     keys.clear()
+    crouchDownAt = -1
     input.moveX = 0
     input.moveY = 0
     input.turn = 0

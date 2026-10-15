@@ -24,7 +24,7 @@ import { DecoyHologram } from '../fx/decoyHologram'
 import { merge, type Rig } from '../models/kit'
 import { CABLE_R, cableGeometry, hookHeadGeometry } from '../fx/grappleHook'
 import { ropeLineParts } from '../fx/ropeLine'
-import { SPECS, isAlive, type Garrison } from './garrison'
+import { SPECS, isAlive, spotCentre, spotRadius, type Garrison } from './garrison'
 import { BARREL_RADIUS } from './barrels'
 import { fuelBarrelShape } from '../models/supplies'
 import type { Particles } from '../fx/particles'
@@ -86,6 +86,8 @@ export class TrainingDirector {
   private body: Rig
   private bodyPose = { ...restGuardPose(), deadT: 3, death: 'front' as const }
   private disguise: Group
+  /** The disguise demo: how far the searchlight's pool was from the hologram last step (closing in, or moving off). */
+  private lightD = Infinity
   private rope: Mesh
   /** The hologram's rope is built once, where it is first shown. */
   private ropeBuilt = false
@@ -316,6 +318,27 @@ export class TrainingDirector {
     }
   }
 
+  /**
+   * The disguise room's hologram, boxed, stands still while the room's caged
+   * searchlight is on it, and from a little before the pool comes over it:
+   * the lamp spots a disguise that moves (it walked straight through the
+   * light, and taught that a disguise is never seen).
+   */
+  private holdForLight(): boolean {
+    const t = this.state
+    const lamp = t.demoT >= 0 && t.room >= 0 && TRAINING_ROOMS[t.room]!.lesson === 'box'
+      ? this.gar.units.find(u => u.kind === 'searchlight' && roomAt(u.homeX) === t.room)
+      : undefined
+    const f = lamp ? currentFrame(t) : null
+    if (!lamp || !f || f.boxed < 0.5) { this.lightD = Infinity; return false }
+    const s = spotCentre(lamp)
+    const d = Math.hypot(s.x - f.x, s.z - f.z)
+    const coming = d < this.lightD - 1e-4
+    this.lightD = d
+    const r = spotRadius(lamp) + MECH_RADIUS
+    return d < r + 0.4 || (coming && d < r + LIGHT_WARN_M)
+  }
+
   /** A doorway shut (a column of wall) or open (ground again). */
   private setDoor(d: { cx: number; cz0: number; cz1: number }, shut: boolean): void {
     const g: Grid = this.fortress.grid
@@ -328,7 +351,8 @@ export class TrainingDirector {
 
   /** Advance the lessons; open what was earned. Returns the step's events. */
   step(c: TrainingContext, dt: number): TrainingEvent[] {
-    const ev = stepTraining(this.state, c, dt)
+    // The disguise demo keeps still under the real lamp, as the mech has to.
+    const ev = stepTraining(this.state, c, this.holdForLight() ? 0 : dt)
     for (const e of ev) {
       if (e.type !== 'done') continue
       const r = TRAINING_ROOMS[e.room]!
@@ -970,6 +994,9 @@ export class TrainingDirector {
     this.barGeo.dispose()
   }
 }
+
+/** How far ahead of the searchlight's pool (metres past its edge) the disguise demo stops for it. */
+const LIGHT_WARN_M = 1.6
 
 /** The disguise room's alarm post (room cells): at the corridor's far mouth, its north edge, in sight all down the corridor and clear of the walk to the way out. */
 const ALARM_POST: readonly [number, number] = [10, 5.6]

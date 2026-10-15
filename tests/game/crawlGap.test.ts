@@ -90,3 +90,26 @@ describe('the cover room gate, once crawled under', () => {
     expect(d.gates[i]!.visible).toBe(false)
   })
 })
+
+describe('the crouch key held (hold to crouch)', () => {
+  it('let go after a hold, the mech stands; under the gap it stays down', () => {
+    const g = yard()
+    const p = makePlayer(cellMid(3), 0, cellMid(3))
+    stepPlayer(p, g, wish({ crouch: true }), DT)
+    expect(p.crouched).toBe(true)
+    stepPlayer(p, g, wish({ stand: true }), DT)
+    expect(p.crouched).toBe(false)
+    stepPlayer(p, g, wish({ crouch: true }), DT)
+    let k = 0
+    while (p.x < cellMid(6) && k++ < 600) stepPlayer(p, g, wish({ mx: 1 }), DT)
+    stepPlayer(p, g, wish({ stand: true }), DT)
+    expect(p.crouched).toBe(true)
+  })
+
+  it('a stand with nobody crouched changes nothing', () => {
+    const g = yard()
+    const p = makePlayer(cellMid(3), 0, cellMid(3))
+    stepPlayer(p, g, wish({ stand: true }), DT)
+    expect(p.crouched).toBe(false)
+  })
+})

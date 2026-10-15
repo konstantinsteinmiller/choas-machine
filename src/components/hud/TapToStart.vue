@@ -74,8 +74,15 @@ onUnmounted(() => window.removeEventListener('keydown', onKey, true))
   height: clamp(1.6rem, 6vmin, 2.6rem)
   color: #ff8fd0
   filter: drop-shadow(0 0 0.5rem rgba(255, 79, 182, 0.8))
+// One line where it fits: the card was sized before the display font came
+// in, and the wider letters then wrapped out over its top and bottom edges.
 .tap-label
+  min-width: 0
   font-size: clamp(1.1rem, 4.6vmin, 2rem)
+  line-height: 1.15
+  white-space: nowrap
+  @media (max-width: 34rem)
+    white-space: normal
   letter-spacing: 0.12em
   text-transform: uppercase
   text-align: center

@@ -1,4 +1,5 @@
 import { ref } from 'vue'
+import { describeError, withRetry } from '@/utils/retry'
 import { prependBaseUrl } from '@/utils/function'
 
 // Chaos Machine renders every gameplay asset procedurally (three.js meshes
@@ -328,7 +329,7 @@ export default () => {
     })()
 
     const work = (async () => {
-      const boot = await import('@/game/boot')
+      const boot = await withRetry(() => import('@/game/boot'))
       // The engine chunk is in: FLogoProgress creeps toward this mark while
       // it downloads, so the real numbers continue from there.
       loadingProgress.value = Math.max(loadingProgress.value, 14)
@@ -343,7 +344,7 @@ export default () => {
         new Promise((resolve) => setTimeout(resolve, BOOT_TIMEOUT_MS))
       ])
     } catch (e) {
-      console.error('[assets] boot priming failed', e)
+      console.error('[assets] boot priming failed', describeError(e))
     }
 
     loadingProgress.value = 100

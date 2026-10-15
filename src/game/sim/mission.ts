@@ -93,6 +93,7 @@ import { findApproach, findDeparture, introFrame, makeDogFrame, makeRiderFrame, 
 import { killCamsEnabled } from '@/use/useKillCam'
 import { markSeen, profile, saveProfile } from '../state/profile'
 import { HINTS, coachHelp, coachUse, makeCoach, stepCoach, type Coach, type CoachContext, type HintId } from './coach'
+import { deepClone } from '@/utils/deepClone'
 
 /**
  * ─── A mission ───────────────────────────────────────────────────────────────
@@ -663,7 +664,7 @@ export class Mission implements GameMode {
         u.found = false
       }
       drainEvents(m.garrison)
-      m.trainingStart = m.garrison.units.map(u => structuredClone(u))
+      m.trainingStart = m.garrison.units.map(u => deepClone(u))
     }
     m.salvageView = new SalvageView(m.piles)
     m.scene.add(m.salvageView.group)
@@ -829,6 +830,7 @@ export class Mission implements GameMode {
           mx: dir.x,
           mz: dir.z,
           crouch: i.crouchQueued,
+          stand: i.standQueued,
           box: i.hideQueued,
           // Touch has no sprint button: a full push of the stick runs, unless
           // the mech is crouched or under its box (running would stand it up).
@@ -1125,7 +1127,8 @@ export class Mission implements GameMode {
     t.fireHeld = free && !auto && i.fireHeld
     t.ready = ready
     t.reload = !auto && i.reloadQueued
-    t.select = auto ? (auto.phase === 'aim' ? 'sniper' : null) : i.weaponQueued ? WEAPON_IDS[i.weaponQueued - 1]! : null
+    t.select = auto ? (auto.phase === 'aim' ? 'sniper' : null) : i.weaponQueued ? WEAPON_IDS[i.weaponQueued - 1]! : this.trainingDraw
+    if (!auto) this.trainingDraw = null
     // The wheel: on the scope it zooms; off it, it changes weapon.
     if (!auto && i.wheelQueued !== 0 && hud.scoped) this.zoomStep(i.wheelQueued < 0 ? 1 : -1)
     t.cycle = !auto && (i.cycleQueued || (i.wheelQueued !== 0 && !hud.scoped))
@@ -3544,7 +3547,7 @@ export class Mission implements GameMode {
       if (isAlive(u) && isAlive(start)) continue
       if (!isAlive(start) && !u.hidden && u.state === 'dead') continue
       if (u.id === this.dragId) this.dropBody()
-      Object.assign(u, structuredClone(start))
+      Object.assign(u, deepClone(start))
       this.garrisonView.restore(u.id)
       const rig = this.garrisonView.rigOf(u.id)
       if (rig) this.marks.clear(rig)
@@ -3652,12 +3655,20 @@ export class Mission implements GameMode {
         this.switchedHere = false
         this.drillUsed.clear()
         hud.training.nudge = ''
+        if (!tr.state.done[e.room]) emit('lessonEnter', { room: e.room })
         const lesson = TRAINING_ROOMS[e.room]!.lesson
         if (lesson === 'rope') this.ropesLeft = Math.max(this.ropesLeft, this.loadout.ropes)
         if (lesson === 'burn') this.fuelLeft = Math.max(this.fuelLeft, this.loadout.fuel)
         // A room that shows shooting (#146, and the three guards a playtester
         // reached with no rounds left): every weapon loaded on the way in.
         if (shootingLesson(lesson)) this.refillTraining(e.room)
+        // The three guards' room and the rocket room: the lesson's weapon comes
+        // up by itself on the way in (the switch was a lesson of its own that
+        // stood between the player and the one the room teaches).
+        if (!tr.state.done[e.room] && (lesson === 'weapons' || lesson === 'rocket')) {
+          this.trainingDraw = lesson === 'weapons' ? 'minigun' : 'rocket'
+          this.switchedHere = true
+        }
         // The blade room (#158): held at the way in to watch its lesson first.
         if (lesson === 'blade' && !tr.state.done[e.room] && !this.cine) this.watchLesson(e.room)
         // The supply room (#111): everything is spent (the strip blinks dry), so the crate's refill shows.
@@ -4005,6 +4016,8 @@ export class Mission implements GameMode {
   /** The weapon in hand on entering the room, and whether it has been switched since (the weapons room's nudge). */
   private weaponAtEnter: WeaponId = 'sniper'
   private switchedHere = false
+  /** A weapon the training draws for the player on the next weapons step (the room's lesson weapon). */
+  private trainingDraw: WeaponId | null = null
   /** Times the mech has gone into a crouch (the cover room's door, #171). */
   private crouchesDone = 0
 
